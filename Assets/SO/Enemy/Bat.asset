@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a874eefbc31a37443a52fb11b4196f23, type: 3}
+  m_Name: Bat
+  m_EditorClassIdentifier: 
+  blockDMG: 0
+  maxMana: 100
+  maxHealth: 5
+  animator: {fileID: 9100000, guid: d31acdd3fe443ca48afa9c2c16dd0349, type: 2}
+  name: Bat
+  level: 0
+  speedMove: 0
+  fieldOfViewRange: 0
+  rateAttack: 0
+  attackRange: 0
+  damage: 1
+  powerShoot: 4
+  projectile: {fileID: 4099052047469103009, guid: 8639d71daa42b5b4baa49658f30d948e, type: 3}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  depotItem: {fileID: 11400000, guid: 55891235cb8966541bd505bc4bc91a92, type: 2}

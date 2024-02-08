@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a874eefbc31a37443a52fb11b4196f23, type: 3}
+  m_Name: Crab
+  m_EditorClassIdentifier: 
+  blockDMG: 0
+  maxMana: 100
+  maxHealth: 10
+  animator: {fileID: 9100000, guid: 5d5698f00ec8a404e95e1ae5a7eec4c7, type: 2}
+  name: Crab
+  level: 0
+  speedMove: 30
+  fieldOfViewRange: 4
+  rateAttack: 1
+  attackRange: 1
+  damage: 2
+  powerShoot: 0
+  projectile: {fileID: 0}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  depotItem: {fileID: 11400000, guid: 55891235cb8966541bd505bc4bc91a92, type: 2}

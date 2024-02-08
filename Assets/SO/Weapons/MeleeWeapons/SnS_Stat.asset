@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4b1e3ee6d1d53849b1a6b18fd459e50, type: 3}
+  m_Name: SnS_Stat
+  m_EditorClassIdentifier: 
+  Type: 1
+  weaponPrefab: {fileID: 9100407273717931795, guid: d10d5d345666b5e45b216a63b40952ec, type: 3}
+  value: 2000
+  nameWeapon: Sword and Shield
+  idWeapon: 1
+  attackState:
+  - {fileID: 11400000, guid: 56a7d00f68c3f1b46bb4825745918e5e, type: 2}
+  - {fileID: 11400000, guid: 7428568b849c4c243a9f26069e221de7, type: 2}
+  - {fileID: 11400000, guid: 053076e05dbb1f04594df1c33185fafd, type: 2}
+  blockDamage: 0
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  auxiliaryAbility: {fileID: 11400000, guid: 8d06fe05bfdede64c939572337eee23e, type: 2}
+  specialAbility: {fileID: 11400000, guid: 1e2de2703fabafa45be5d1450d7c2f0f, type: 2}
