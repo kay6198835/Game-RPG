@@ -4,19 +4,27 @@ using UnityEngine;
 
 public class PlayerIdleState : BasicState
 {
-    public PlayerIdleState(NewPlayer player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
+    public PlayerIdleState(NewPlayer player, PlayerStateMachine playerStateMachine, PlayerData playerData, string animBoolName) : base(player, playerStateMachine, playerData, animBoolName)
     {
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public override void LogicUpdate()
     {
-        
+        base.LogicUpdate();
+        if (moveVector != Vector2.zero)
+        {
+            stateMachine.ChangeState(player.MoveState);
+        }
+        //Debug.Log("Idle "+mouseVector);
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void PhysicsUpdate()
     {
-        
+        base.PhysicsUpdate();
+    }
+
+    public override string ToString()
+    {
+        return base.ToString();
     }
 }

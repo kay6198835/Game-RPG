@@ -29,7 +29,7 @@ public class Portal : MonoBehaviour
         yield return SceneManager.LoadSceneAsync(sceneToLoad);
 
         var desPortal = FindObjectsOfType<Portal>().First(x => x != this);
-        player.PlayerMovement.SetPosition(desPortal.SpawnPoint.position);
+        //player.PlayerMovement.SetPosition(desPortal.SpawnPoint.position);
 
         Destroy(gameObject);
     }

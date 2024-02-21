@@ -2,87 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : Movement
+public class PlayerMovement : CoreCompoment
 {
-    [SerializeField] protected Vector2 movement;
-    [SerializeField] protected Vector2 mousePosition;
-    [SerializeField] protected Camera mainCamera;
-    [SerializeField] protected Player player;
+    [SerializeField] protected Rigidbody2D rb;
+    [SerializeField] protected float moveSpeed;
 
-    public float OffsetY { get; private set; } = 0.3f;
-
-    public Vector2 MovementInput { get => movement; }
-    public Vector2 MousePosition { get => mousePosition; }
-    public float MoveSpeed { get => speed; }
-    public Camera MainCamera { get => mainCamera; }
+    [Header("Direction")]
+    [SerializeField] protected float angle;
+    [SerializeField] protected int direction;
+    [SerializeField] protected Vector2 directionVector;
+    [SerializeField] protected Vector2 targetTowards;
+    public float MoveSpeed { get => moveSpeed; }
     private void Awake()
     {
-        LoadPlayerMovement();
-        SetPosition(transform.position);
-    }
-    void LoadPlayerMovement()
-    {
-        player = GetComponent<Player>();
-        rb = player.GetComponent<Rigidbody2D>();
-        animator = player.GetComponent<Animator>();
+        rb = GetComponentInParent<Rigidbody2D>();
     }
     protected void Start()
-    {
-        mainCamera = Camera.main;
+    {   
     }
-    protected override void Update()
+    public void Move(Vector2 moveVector, float moveSpeed)
     {
-        mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        if (!player.IsAbility)
-        {
-            AngleCalculate(mousePosition);
-        }
-        DirectionCharacter();
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        rb.velocity = moveVector.normalized * moveSpeed * Time.deltaTime;
     }
-    private void FixedUpdate()
+    protected void DirectionCharacter()
     {
-        Move();
-    }
-    public override void Move()
-    {
-        if (player.IsFreeze)
+        if ((angle > 22 && angle <= 67))
         {
-            movement = Vector2.zero;
+            direction = 0;
         }
-        else
+        //Direction 2
+        else if (angle > 67 && angle <= 112)
         {
-            rb.velocity = movement.normalized * speed * Time.deltaTime;
+            direction = 1;
         }
-        if (movement == Vector2.zero)
+        //Direction 3
+        else if (angle > 112 && angle <= 157)
         {
-            player.AnimationManager.Animation_1_Idle();
-        }
-        else
-        {
-            player.AnimationManager.Animation_2_Run();
-        }
-        player.AnimationManager.Animation_Direction(direction);
-    }
-    protected override void DirectionCharacter()
-    {
-        base.DirectionCharacter();
-    }
-    public override void AngleCalculate(Vector2 targetTowards)
-    {
-        if (player.IsFreeze)
-        {
-            return;
-        }
-        base.AngleCalculate(targetTowards);
-    }
+            direction = 2;
 
-    public void SetPosition(Vector2 pos)
+        }
+        //Direction 4
+        else if (angle > 157 && angle <= 202)
+        {
+            direction = 3;
+        }
+        //Direction 5
+        else if (angle > 202 && angle <= 247)
+        {
+            direction = 4;
+        }
+        //Direction 6
+        else if (angle > 247 && angle <= 292)
+        {
+            direction = 5;
+        }
+        //Direction 7
+        else if (angle > 292 && angle <= 337)
+        {
+            direction = 6;
+        }
+        //Direction 8
+        else if (angle > 337 || angle < 22)
+        {
+            direction = 7;
+        }
+    }
+    public void AngleCalculate(Vector2 targetTowards)
     {
-        pos.x = Mathf.Floor(pos.x) + 0.5f;
-        pos.y = Mathf.Floor(pos.y) + 0.5f + OffsetY;
-
-        transform.position = pos;
+        this.targetTowards = targetTowards;
+        if (this.targetTowards != Vector2.zero)
+        {
+            directionVector = (Vector2)this.targetTowards - (Vector2)this.transform.position;
+        }
+        angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
+        angle += 180;
     }
 }

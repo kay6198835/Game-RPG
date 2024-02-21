@@ -62,9 +62,9 @@ public class SlashAbility : AbilitySO
     }
     private Vector2 PositionAttack(GameObject player)
     {
-        Vector2 mousePosition = player.GetComponent<PlayerMovement>().MousePosition;
-        Vector2 direction = mousePosition - (Vector2)player.transform.position;
-        Vector2 targetPosition = (Vector2)player.transform.position + direction.normalized * distance / 2;
-        return targetPosition;
+        //Vector2 mousePosition = player.GetComponent<PlayerMovement>().MousePosition;
+        //Vector2 direction = mousePosition - (Vector2)player.transform.position;
+        //Vector2 targetPosition = (Vector2)player.transform.position + direction.normalized * distance / 2;
+        return Vector2.one;
     }
 }

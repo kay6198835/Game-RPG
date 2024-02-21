@@ -6,7 +6,7 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class PlayerState
 {
-    //protected Core core;
+    protected Core core;
 
     protected NewPlayer player;
     protected PlayerStateMachine stateMachine;
@@ -19,13 +19,13 @@ public class PlayerState
 
     private string animBoolName;
 
-    public PlayerState(NewPlayer player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName)
+    public PlayerState(NewPlayer player,PlayerStateMachine playerStateMachine , PlayerData playerData, string animBoolName)
     {
         this.player = player;
-        this.stateMachine = stateMachine;
+        this.stateMachine = player.StateMachine;
         this.playerData = playerData;
         this.animBoolName = animBoolName;
-        //core = player.Core;
+        core = player.Core;
     }
 
     public virtual void Enter()
@@ -33,7 +33,7 @@ public class PlayerState
         DoChecks();
         //player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        //Debug.Log(animBoolName);
+        Debug.Log(animBoolName);
         isAnimationFinished = false;
         isExitingState = false;
     }
