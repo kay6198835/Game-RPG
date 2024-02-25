@@ -31,22 +31,23 @@ public class PlayerState
     public virtual void Enter()
     {
         DoChecks();
-        //player.Anim.SetBool(animBoolName, true);
+        player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        Debug.Log(animBoolName);
+        Debug.Log("Start" + animBoolName);
         isAnimationFinished = false;
         isExitingState = false;
     }
 
     public virtual void Exit()
     {
-        //player.Anim.SetBool(animBoolName, false);
+        Debug.Log("End" + animBoolName);
+        player.Anim.SetBool(animBoolName, false);
         isExitingState = true;
     }
 
     public virtual void LogicUpdate()
     {
-
+        player.Anim.SetFloat("Direction", player.InputHandler.Direction);
     }
 
     public virtual void PhysicsUpdate()

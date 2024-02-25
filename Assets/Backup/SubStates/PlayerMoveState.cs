@@ -8,59 +8,14 @@ public class PlayerMoveState : BasicState
     {
 
     }
-
-    public override void AnimationFinishTrigger()
-    {
-        base.AnimationFinishTrigger();
-    }
-
-    public override void AnimationTrigger()
-    {
-        base.AnimationTrigger();
-    }
-
-    public override void DoChecks()
-    {
-        base.DoChecks();
-    }
-
-    public override void Enter()
-    {
-        base.Enter();
-    }
-
-    public override bool Equals(object obj)
-    {
-        return base.Equals(obj);
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
-    }
-
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
-
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        player.Core.Movement.SetVeclocity(moveVector*playerData.movementVelocities);
         if (moveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);
         }
-        //Debug.Log("Move");
     }
 
-    public override void PhysicsUpdate()
-    {
-        base.PhysicsUpdate();
-    }
-
-    public override string ToString()
-    {
-        return base.ToString();
-    }
 }

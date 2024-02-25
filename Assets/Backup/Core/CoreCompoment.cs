@@ -5,7 +5,7 @@ using UnityEngine;
 public class CoreCompoment : MonoBehaviour
 {
     protected Core core;
-    private void Awake()
+    protected virtual void Awake()
     {
         core = transform.parent.GetComponent<Core>();
     }

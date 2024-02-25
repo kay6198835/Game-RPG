@@ -18,12 +18,12 @@ public class NewPlayer : MonoBehaviour
 
     [SerializeField] private Core core;
     [SerializeField] private PlayerInputHandler inputHandler;
-    [SerializeField] private Animator aim;
+    [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
     #region Components
 
     public Core Core { get => core;}
-    public Animator Aim { get => aim;}
+    public Animator Anim { get => anim;}
     public Rigidbody2D RigidbodyPlayer { get => rigidbodyPlayer;}
     public PlayerInputHandler InputHandler { get => inputHandler;}
     public PlayerStateMachine StateMachine { get => stateMachine;}
@@ -39,13 +39,13 @@ public class NewPlayer : MonoBehaviour
         inputHandler = GetComponentInChildren<PlayerInputHandler>();
 
 
-        idleState = new PlayerIdleState(this,stateMachine , playerData, "idle");
-        moveState = new PlayerMoveState(this,stateMachine , playerData, "move");
+        idleState = new PlayerIdleState(this,stateMachine , playerData, "Idle");
+        moveState = new PlayerMoveState(this,stateMachine , playerData, "Move");
     }
 
     private void Start()
     {
-        aim = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
         rigidbodyPlayer = GetComponent<Rigidbody2D>();
         stateMachine.Initialize(idleState);
     }

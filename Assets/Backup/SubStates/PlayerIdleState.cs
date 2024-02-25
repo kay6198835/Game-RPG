@@ -8,6 +8,12 @@ public class PlayerIdleState : BasicState
     {
     }
 
+    public override void Enter()
+    {
+        base.Enter();
+        player.Core.Movement.SetVeclocity(Vector2.zero);
+    }
+
     public override void LogicUpdate()
     {
         base.LogicUpdate();
@@ -15,16 +21,5 @@ public class PlayerIdleState : BasicState
         {
             stateMachine.ChangeState(player.MoveState);
         }
-        //Debug.Log("Idle "+mouseVector);
-    }
-
-    public override void PhysicsUpdate()
-    {
-        base.PhysicsUpdate();
-    }
-
-    public override string ToString()
-    {
-        return base.ToString();
     }
 }

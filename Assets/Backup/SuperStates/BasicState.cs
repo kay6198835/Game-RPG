@@ -15,7 +15,6 @@ public class BasicState : PlayerState
     {
         base.LogicUpdate();
         moveVector = player.InputHandler.MoveVector;
-        core.Movement.AngleCalculate(mouseVector);
     }
 
     public override void PhysicsUpdate()
