@@ -47,7 +47,7 @@ public class PlayerState
 
     public virtual void LogicUpdate()
     {
-        player.Anim.SetFloat("Direction", player.InputHandler.Direction);
+
     }
 
     public virtual void PhysicsUpdate()

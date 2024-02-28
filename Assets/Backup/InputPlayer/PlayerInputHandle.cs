@@ -6,31 +6,70 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
+    private PlayerInput playerInput;
     [SerializeField] private Vector2 moveVector;
     [SerializeField] private Vector2 mouseVector;
-
     [SerializeField] private Vector2 directionVector;
     [SerializeField] private int direction;
+    [SerializeField] private KeyCode abilityWeapon;
+    [SerializeField] private bool attack;
+    private void Awake()
+    {
+        playerInput = new PlayerInput();
 
+    }
+    private void Start()
+    {
+        playerInput.Control.Movement.started += OnMove;
+        playerInput.Control.Movement.performed += OnMove;
+        playerInput.Control.Movement.canceled += OnMove;
+        
+        playerInput.Control.MousePosition.performed += OnDirection;
+
+        playerInput.Control.Attack.started += OnAttack;
+        playerInput.Control.Attack.canceled += OnAttack;
+    }
     public Vector2 MoveVector { get => moveVector;}
     public Vector2 MouseVector { get => mouseVector;}
     public Vector2 DirectionVector { get => directionVector;}
     public int Direction { get => direction;}
-
-    private void Update()
+    public KeyCode AbilityWeapon { get => abilityWeapon; }
+    public bool Attack { get => attack;}
+    private void OnEnable()
     {
-        
+        playerInput.Control.Enable();
     }
-    private void FixedUpdate()
+    private void OnDisable()
     {
-        moveVector.x = Input.GetAxisRaw("Horizontal");
-        moveVector.y = Input.GetAxisRaw("Vertical");
+        playerInput.Control.Disable();
+    }
+    private void OnDirection(InputAction.CallbackContext context)
+    {
         mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         AngleCalculate(mouseVector);
     }
-    protected void DirectionCaculate(float angle)
+    private void OnMove(InputAction.CallbackContext context)
+    {
+        moveVector = context.ReadValue<Vector2>(); 
+    }
+    private void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            attack = true;
+        }
+        if (context.canceled)
+        {
+            attack = false;
+            Debug.Log("End");
+        }
+    }
+    private void OnAbilityWeapon()
     {
 
+    }
+    protected void DirectionCaculate(float angle)
+    {
         if ((angle > 22 && angle <= 67))
         {
             direction = 0;
