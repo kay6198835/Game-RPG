@@ -37,8 +37,8 @@ public class WeaponsController : MonoBehaviour
         {
             gameObject.GetComponent<Player>().Weapon = currWp.GetComponent<WeaponMelee>();
             meleeCombat = currWp.GetComponent<PlayerCombat>();
-            meleeCombat.Animator = gameObject.GetComponent<Animator>();
-            meleeCombat.Player = gameObject.GetComponent<Player>();
+            //meleeCombat.Animator = gameObject.GetComponent<Animator>();
+            //meleeCombat.Player = gameObject.GetComponent<Player>();
             meleeCombat.enabled = true;
         }
     }
@@ -53,7 +53,7 @@ public class WeaponsController : MonoBehaviour
         else if (EquipWp.Type == WeaponType.MeleeWP)
         {
             PlayerCombat meleeCombat = currWp.GetComponent<PlayerCombat>();
-            meleeCombat.Animator = gameObject.GetComponent<Animator>();
+            //meleeCombat.Animator = gameObject.GetComponent<Animator>();
             meleeCombat.enabled = false;
         }
 

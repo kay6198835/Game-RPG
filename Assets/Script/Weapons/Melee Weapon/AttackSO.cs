@@ -15,7 +15,7 @@ public class AttackSO : ScriptableObject
     [SerializeField] public float distanceAttackPosition = 1f;
     
     [Header("Atributte")]
-    [SerializeField] public List<AnimatorOverrideController> directionAttackAnimatorOV;
+    [SerializeField] public AnimatorOverrideController directionAttackAnimatorOV;
     [SerializeField] public LayerMask enemyLayers;
     [SerializeField] public AbilitySO ability;
     private void Awake()

@@ -2,15 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+public abstract class Weapon : CoreCompoment
 {
     [SerializeField] protected WeaponDataSO statsSO;
-    [SerializeField] protected WeaponAttack attack;
+    [SerializeField] protected float lastClickTime;
+    [SerializeField] protected float deplayTime;
+    [SerializeField] protected float durationNextAttack;
+    [SerializeField] protected bool canAttack;
 
-    public virtual void Attack()
-    {
-        attack.Attack(this);
-    }
+
+    public abstract void Attack();
+    public abstract bool CheckCanAttack(NewPlayer player);
     protected void Equid(Collider2D collision, WeaponDataSO weaponData)
     {
         WeaponsController WPcontroller = collision.GetComponent<WeaponsController>();

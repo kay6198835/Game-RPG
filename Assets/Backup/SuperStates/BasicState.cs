@@ -14,7 +14,7 @@ public class BasicState : PlayerState
     {
         base.LogicUpdate();
         moveVector = player.InputHandler.MoveVector;
-        if (player.InputHandler.Attack)
+        if (player.InputHandler.Attack && player.Core.Weapon.CheckCanAttack(player))
         {
             stateMachine.ChangeState(player.AttackState);
         }
