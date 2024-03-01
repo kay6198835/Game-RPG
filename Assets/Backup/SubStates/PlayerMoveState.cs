@@ -18,9 +18,4 @@ public class PlayerMoveState : BasicState
         }
     }
 
-    public override void Exit()
-    {
-        base.Exit();
-        player.Core.Movement.SetVeclocity(Vector2.zero);
-    }
 }

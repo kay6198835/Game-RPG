@@ -9,7 +9,7 @@ public class NewPlayer : MonoBehaviour
     [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private PlayerIdleState idleState;
     [SerializeField] private PlayerMoveState moveState;
-    [SerializeField] private PlayerAttackState attackState;
+
 
     [SerializeField]
     private PlayerData playerData;
@@ -20,8 +20,6 @@ public class NewPlayer : MonoBehaviour
     [SerializeField] private PlayerInputHandler inputHandler;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
-
-
     #region Components
 
     public Core Core { get => core;}
@@ -31,8 +29,6 @@ public class NewPlayer : MonoBehaviour
     public PlayerStateMachine StateMachine { get => stateMachine;}
     public PlayerIdleState IdleState { get => idleState;}
     public PlayerMoveState MoveState { get => moveState;}
-    public PlayerAttackState AttackState { get => attackState;}
-
     #endregion
 
     #region Unity Callback Functions
@@ -41,10 +37,10 @@ public class NewPlayer : MonoBehaviour
         stateMachine = new PlayerStateMachine();
         core = GetComponentInChildren<Core>();
         inputHandler = GetComponentInChildren<PlayerInputHandler>();
-        idleState = new PlayerIdleState(this,stateMachine,playerData,"Idle");
-        moveState = new PlayerMoveState(this,stateMachine,playerData,"Move");
-        attackState = new PlayerAttackState(this,stateMachine,playerData,"Attack");
-        //idleState = new PlayerIdleState(this,stateMachine,playerData,"Idle");
+
+
+        idleState = new PlayerIdleState(this,stateMachine , playerData, "Idle");
+        moveState = new PlayerMoveState(this,stateMachine , playerData, "Move");
     }
 
     private void Start()

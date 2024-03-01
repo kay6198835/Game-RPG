@@ -10,19 +10,15 @@ public class BasicState : PlayerState
     {
 
     }
+
     public override void LogicUpdate()
     {
         base.LogicUpdate();
         moveVector = player.InputHandler.MoveVector;
-        if (player.InputHandler.Attack)
-        {
-            stateMachine.ChangeState(player.AttackState);
-        }
     }
 
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
-        player.Anim.SetFloat("Direction", player.InputHandler.Direction);
     }
 }
