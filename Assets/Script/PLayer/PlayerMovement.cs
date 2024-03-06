@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerMovement : CoreCompoment
 {
     [SerializeField] protected Rigidbody2D rb;
+    [SerializeField] protected float moveSpeed;
+    public float MoveSpeed { get => moveSpeed; }
     protected override void Awake()
     {
         base.Awake();

@@ -6,56 +6,48 @@ using UnityEngine;
 public class AbilitySO : ScriptableObject
 {
     [Header("Stats Base")]
-    [SerializeField] protected float starCastTime;
+    [SerializeField] protected new string name;
+    [SerializeField] protected float cooldownTime;
+    [SerializeField] protected float activeTime;
+    [SerializeField] protected float timeStarCast;
     [SerializeField] protected float maxCastTime;
+    [SerializeField] protected float currentTime;
     [SerializeField] protected float periodCastTime;
-
-    //[SerializeField] protected new string name;
-    protected float cooldownTime;
-    protected float activeTime;
-    protected float currentTime;
-
-    protected LayerMask layerMask;
-    [SerializeField] protected NewPlayer player;
-    [SerializeField] protected AnimatorOverrideController animator;
+    [SerializeField] protected LayerMask layerMask;
+    [SerializeField] protected Player playerClone;
+    [SerializeField] protected List<AnimatorOverrideController> animators;
     #region Attribute
     public string Name { get => name;}
     public float CooldownTime { get => cooldownTime;}
     public float ActiveTime { get => activeTime;}
-    public float TimeStarCast { get => starCastTime;}
+    public float TimeStarCast { get => timeStarCast;}
     public float MaxCastTime { get => maxCastTime;}
     public float CurrentTime { get => currentTime;}
     public float PeriodCastTime { get => periodCastTime;}
-    public AnimatorOverrideController Animator { get => animator; }
     #endregion
     private void Awake()
     {
         layerMask = LayerMask.GetMask("Enemy");
     }
-    public virtual void Activate(NewPlayer player)
+    public virtual void Activate(GameObject player)
     {
-        starCastTime = Time.time;
+        timeStarCast = Time.time;
         currentTime = Time.time;
-        this.player=player;
-
+        playerClone = player.GetComponent<Player>();
     }
-    public virtual void CastSkill()
+    public virtual void CastSkill(GameObject player)
     {
         currentTime = Time.time;
     }
-    public virtual void DoAbility()
+    public virtual void BeginCooldown(GameObject player)
     {
-        if (currentTime - starCastTime < maxCastTime)
+        if (currentTime - timeStarCast < maxCastTime)
         {
-            periodCastTime = currentTime - starCastTime;
+            periodCastTime = currentTime - timeStarCast;
         }
         else
         {
             periodCastTime = maxCastTime;
         }
-    }
-    public virtual void ExitSkill()
-    {
-        this.player = null;
     }
 }

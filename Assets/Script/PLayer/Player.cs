@@ -53,5 +53,9 @@ public class Player : Character
     }
     private void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            weapon.Attack();
+        }
     }
 }

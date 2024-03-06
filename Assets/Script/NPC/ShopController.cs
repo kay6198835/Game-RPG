@@ -81,53 +81,53 @@ public class ShopController : MonoBehaviour
             choices: new List<string>() { "Pistol - 1000$", "Rifle - 3000$", "Sword and Shield - 2000$" },
             onChoiceSelected: choiceIndex => selectedChoice = choiceIndex);
 
-        //if (selectedChoice == 0)
-        //{
-        //    if (Wallet.Instance.HasMoney(pistolData.value))
-        //    {
-        //        Wallet.Instance.TakeMoney(pistolData.value);
-        //        Instantiate(Pistol, positionToSpawn, Quaternion.identity);
-        //        OnBackFormBuying();
-        //        yield break;
-        //    }
-        //    else
-        //    {
-        //        yield return DialogManager.Instance.ShowDialogText("You don't have enough money kid. Go find some more.");
-        //        OnBackFormBuying();
-        //    }
-        //}
+        if (selectedChoice == 0)
+        {
+            if (Wallet.Instance.HasMoney(pistolData.value))
+            {
+                Wallet.Instance.TakeMoney(pistolData.value);
+                Instantiate(Pistol, positionToSpawn, Quaternion.identity);
+                OnBackFormBuying();
+                yield break;
+            }
+            else
+            {
+                yield return DialogManager.Instance.ShowDialogText("You don't have enough money kid. Go find some more.");
+                OnBackFormBuying();
+            }
+        }
 
-        //else if (selectedChoice == 1)
-        //{
-        //    if (Wallet.Instance.HasMoney(rifleData.value))
-        //    {
-        //        Wallet.Instance.TakeMoney(rifleData.value);
-        //        Instantiate(Rifle, positionToSpawn, Quaternion.identity);
-        //        OnBackFormBuying();
-        //        yield break;
-        //    }
-        //    else
-        //    {
-        //        yield return DialogManager.Instance.ShowDialogText("You don't have enough money kid. Go find some more.");
-        //        OnBackFormBuying();
-        //    }
-        //}
+        else if (selectedChoice == 1)
+        {
+            if (Wallet.Instance.HasMoney(rifleData.value))
+            {
+                Wallet.Instance.TakeMoney(rifleData.value);
+                Instantiate(Rifle, positionToSpawn, Quaternion.identity);
+                OnBackFormBuying();
+                yield break;
+            }
+            else
+            {
+                yield return DialogManager.Instance.ShowDialogText("You don't have enough money kid. Go find some more.");
+                OnBackFormBuying();
+            }
+        }
 
-        //else if (selectedChoice == 2)
-        //{
-        //    if (Wallet.Instance.HasMoney(SaSData.value))
-        //    {
-        //        Wallet.Instance.TakeMoney(SaSData.value);
-        //        Instantiate(SwordAndShield, positionToSpawn, Quaternion.identity);
-        //        OnBackFormBuying();
-        //        yield break;
-        //    }
-        //    else
-        //    {
-        //        yield return DialogManager.Instance.ShowDialogText("You don't have enough money kid. Go find some more.");
-        //        OnBackFormBuying();
-        //    }
-        //}
+        else if (selectedChoice == 2)
+        {
+            if (Wallet.Instance.HasMoney(SaSData.value))
+            {
+                Wallet.Instance.TakeMoney(SaSData.value);
+                Instantiate(SwordAndShield, positionToSpawn, Quaternion.identity);
+                OnBackFormBuying();
+                yield break;
+            }
+            else
+            {
+                yield return DialogManager.Instance.ShowDialogText("You don't have enough money kid. Go find some more.");
+                OnBackFormBuying();
+            }
+        }
     }
 
     void OnBackFormBuying()

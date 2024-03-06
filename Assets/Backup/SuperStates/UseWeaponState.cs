@@ -26,7 +26,6 @@ public class UseWeaponState : PlayerState
         player.Core.Movement.SetVeclocity(Vector2.zero);
         if (isAnimationFinished)
         {
-            Debug.Log("Finish");
             if (player.InputHandler.MoveVector == Vector2.zero)
             {
                 stateMachine.ChangeState(player.IdleState);
@@ -36,6 +35,6 @@ public class UseWeaponState : PlayerState
                 stateMachine.ChangeState(player.MoveState);
             }
         }
-
+        
     }
 }

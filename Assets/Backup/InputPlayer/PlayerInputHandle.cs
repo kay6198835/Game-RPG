@@ -6,60 +6,35 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    [SerializeField] private NewPlayer playerCtr;
     private PlayerInput playerInput;
     [SerializeField] private Vector2 moveVector;
     [SerializeField] private Vector2 mouseVector;
     [SerializeField] private Vector2 directionVector;
     [SerializeField] private int direction;
-    [SerializeField] private bool attack=false;
-    [SerializeField] private bool skill=false;
-    [SerializeField] private bool ability;
-    [SerializeField] private AbilitySO skillSO;
-    [SerializeField] private float angleSin;
-    [SerializeField] private float angleDirection;
-    public enum SkillState
-    {
-        Start,
-        Cast,
-        Do,
-    }
-    private SkillState state;
+    [SerializeField] private KeyCode abilityWeapon;
+    [SerializeField] private bool attack;
     private void Awake()
     {
-        playerCtr = GetComponentInParent<NewPlayer>();
         playerInput = new PlayerInput();
+
     }
     private void Start()
     {
         playerInput.Control.Movement.started += OnMove;
-    
         playerInput.Control.Movement.performed += OnMove;
-    
         playerInput.Control.Movement.canceled += OnMove;
-    
-
+        
         playerInput.Control.MousePosition.performed += OnDirection;
 
         playerInput.Control.Attack.started += OnAttack;
         playerInput.Control.Attack.canceled += OnAttack;
-
-        playerInput.Control.UseSkill.started += OnAbilityWeapon;
-        playerInput.Control.UseSkill.performed += OnAbilityWeapon;
-        playerInput.Control.UseSkill.canceled += OnAbilityWeapon;
     }
     public Vector2 MoveVector { get => moveVector;}
     public Vector2 MouseVector { get => mouseVector;}
     public Vector2 DirectionVector { get => directionVector;}
     public int Direction { get => direction;}
+    public KeyCode AbilityWeapon { get => abilityWeapon; }
     public bool Attack { get => attack;}
-    public SkillState State { get => state;}
-    public bool Skill { get => skill;}
-    public PlayerInput PlayerInput { get => playerInput;}
-    public bool Ability { get => ability; }
-    public float AngleSin { get => angleSin;}
-    public float AngleDirection { get => angleDirection; }
-
     private void OnEnable()
     {
         playerInput.Control.Enable();
@@ -72,13 +47,10 @@ public class PlayerInputHandler : MonoBehaviour
     {
         mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         AngleCalculate(mouseVector);
-
     }
     private void OnMove(InputAction.CallbackContext context)
     {
-        moveVector = context.ReadValue<Vector2>();
-        //mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        //AngleCalculate(mouseVector);
+        moveVector = context.ReadValue<Vector2>(); 
     }
     private void OnAttack(InputAction.CallbackContext context)
     {
@@ -89,25 +61,12 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.canceled)
         {
             attack = false;
+            Debug.Log("End");
         }
     }
-    private void OnAbilityWeapon(InputAction.CallbackContext context)
+    private void OnAbilityWeapon()
     {
-        if (context.started)
-        {
 
-            state = SkillState.Start;
-        }
-        else if (context.performed)
-        {
-            skill = true;
-            state = SkillState.Cast;
-        }
-        else if (context.canceled)
-        {
-            state = SkillState.Do;
-            skill = false;
-        }
     }
     protected void DirectionCaculate(float angle)
     {
@@ -148,13 +107,9 @@ public class PlayerInputHandler : MonoBehaviour
     public void AngleCalculate(Vector2 targetTowards)
     {
         float angle;
-        directionVector = ((Vector2)targetTowards - (Vector2)this.transform.position).normalized;
+        directionVector = (Vector2)targetTowards - (Vector2)this.transform.position;
         angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
         angle += 180;
         DirectionCaculate(angle);
-        angleDirection = angle;
-        //ChangeAngleCosToSin(angle);
-        this.angleSin = Vector2.SignedAngle(transform.right, directionVector);
-        this.angleSin = (this.angleSin + 360) % 360;
     }
 }

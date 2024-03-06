@@ -5,54 +5,60 @@ using UnityEngine;
 public class SlashAbility : AbilitySO
 {
     [Header("Stats")]
-    [SerializeField] private GameObject slashPrefab;
-    [SerializeField] private Projectile slashGO;
-    [SerializeField] private Vector3 shoot;
-    [SerializeField] private float speedSlash;
-    [SerializeField] private Quaternion rotation;
-    [SerializeField] private Vector2 positon;
-    #region
-    public GameObject SlashPrefab { get => slashPrefab;}
-    public Projectile SlashGO { get => slashGO;}
-    public Vector3 Shoot { get => shoot; }
-    public float SpeedSlash { get => speedSlash; }
-    public Quaternion Rotation { get => rotation; }
-    public Vector2 Positon { get => positon; }
-    #endregion
-    public override void Activate(NewPlayer player)
+    [SerializeField] private int currentLevel;
+    [SerializeField] private int levelMax;
+    [SerializeField] private float distance;
+    [SerializeField] private float timeBetween;
+    [SerializeField] private int damage;
+    [SerializeField] private float stunTime;
+
+    public override void Activate(GameObject player)
     {
+        currentLevel = 0;
+
+        maxCastTime = levelMax * timeBetween;
 
         base.Activate(player);
-        //shoot = new Vector3(0, 0, 0);
-        positon = (Vector2)player.InputHandler.transform.position+player.InputHandler.DirectionVector.normalized*3;
-        //rotation = new Quaternion(xRotation, yRotation, zRotation, wRotation);
-        rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleSin);
     }
-    public override void DoAbility()
+    public override void CastSkill(GameObject player)
     {
-        Debug.Log("Do Ability");
-        base.DoAbility();
-        Instantiate(slashPrefab, positon, rotation).gameObject.
-            GetComponent<Projectile>().SetVelocity(speedSlash * periodCastTime * player.InputHandler.DirectionVector);
+        base.CastSkill(player);
     }
-    public void Attack(int attackIndex)
+    public override void BeginCooldown(GameObject player)
     {
-        //Collider2D[] enemies = Physics2D.OverlapBoxAll(PositionAttack(player),
-        //    new Vector2(distance, 0.5f), player.transform.localRotation.eulerAngles.z, layerMask);
-        //foreach (var enemy in enemies)
-        //{
-        //    if (enemy.GetComponent<Enemy>() != null)
-        //    {
-        //        enemy.GetComponent<Enemy>().TakeDamage(damage, player);
-        //    }
-        //    if (currentLevel == levelMax)
-        //    {
-        //        if (enemy.GetComponent<Enemy>() != null)
-        //        {
-        //            enemy.GetComponent<Enemy>().Stun(stunTime);
-        //        }
-        //    }
-        //}
+        base.BeginCooldown(player);
+        currentLevel = (int)(periodCastTime / timeBetween);
+        if (currentLevel == 0)
+        {
+            return;
+        }
+        if (currentLevel > levelMax)
+        {
+            currentLevel = levelMax;
+        }
+        for (int i = 0; i < 1; i++)
+        {
+            Attack(player,i);
+        }
+    }
+    public void Attack(GameObject player, int attackIndex)
+    {
+        Collider2D[] enemies = Physics2D.OverlapBoxAll(PositionAttack(player),
+            new Vector2(distance, 0.5f), player.transform.localRotation.eulerAngles.z, layerMask);
+        foreach (var enemy in enemies)
+        {
+            if (enemy.GetComponent<Enemy>() != null)
+            {
+                enemy.GetComponent<Enemy>().TakeDamage(damage, player);
+            }
+            if (currentLevel == levelMax)
+            {
+                if (enemy.GetComponent<Enemy>() != null)
+                {
+                    enemy.GetComponent<Enemy>().Stun(stunTime);
+                }
+            }
+        }
     }
     private Vector2 PositionAttack(GameObject player)
     {
