@@ -10,6 +10,7 @@ public class NewPlayer : MonoBehaviour
     [SerializeField] private PlayerIdleState idleState;
     [SerializeField] private PlayerMoveState moveState;
     [SerializeField] private PlayerAttackState attackState;
+    [SerializeField] private PlayeSkillWeaponState abilityState;
 
     [SerializeField]
     private PlayerData playerData;
@@ -32,6 +33,7 @@ public class NewPlayer : MonoBehaviour
     public PlayerIdleState IdleState { get => idleState;}
     public PlayerMoveState MoveState { get => moveState;}
     public PlayerAttackState AttackState { get => attackState;}
+    public PlayeSkillWeaponState AbilityState { get => abilityState;}
 
     #endregion
 
@@ -44,7 +46,7 @@ public class NewPlayer : MonoBehaviour
         idleState = new PlayerIdleState(this,stateMachine,playerData,"Idle");
         moveState = new PlayerMoveState(this,stateMachine,playerData,"Move");
         attackState = new PlayerAttackState(this,stateMachine,playerData,"Attack");
-        //idleState = new PlayerIdleState(this,stateMachine,playerData,"Idle");
+        abilityState = new PlayeSkillWeaponState(this,stateMachine,playerData,"Ability");
     }
 
     private void Start()
@@ -68,7 +70,7 @@ public class NewPlayer : MonoBehaviour
 
     #region Other Functions
 
-    private void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
+    private void AnimationOnAction() => stateMachine.CurrentState.AnimationOnAction();
 
     private void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
 

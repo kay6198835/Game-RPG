@@ -146,7 +146,7 @@ MonoBehaviour:
   weaponController: {fileID: 1460214332610090704}
   interactable:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   playerMovement: {fileID: 6781292504064317821}
 --- !u!114 &3068134423193567381
 MonoBehaviour:
@@ -160,18 +160,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 185a31eda0bf7f1499b73107786731cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isFrezee: 0
+  isFreeze: 0
   isDeath: 0
   frezeeTime: 0
   currentHealth: 0
-  knockBackForce: 0
   animator: {fileID: 0}
   rigidbodyCharacter: {fileID: 0}
   animationManager: {fileID: 0}
   stats: {fileID: 11400000, guid: f5ac8e5711f454c4b9558610d38e28f6, type: 2}
   isAbility: 0
+  isKnockBack: 0
+  knockBackForce: 0
+  knockBackDuration: 0
   isStun: 0
-  weaponMelee: {fileID: 0}
+  weapon: {fileID: 0}
   healthBar: {fileID: 0}
   manaBar: {fileID: 0}
   manaCurrent: 0
@@ -189,17 +191,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 0}
-  animator: {fileID: 0}
-  speed: 400
-  facingRight: 1
-  angle: 0
-  direction: 0
-  targetTowards: {x: 0, y: 0}
-  directionVector: {x: 0, y: 0}
-  movement: {x: 0, y: 0}
-  mousePosition: {x: 0, y: 0}
-  mainCamera: {fileID: 0}
-  player: {fileID: 0}
 --- !u!95 &8146647203115557358
 Animator:
   serializedVersion: 5

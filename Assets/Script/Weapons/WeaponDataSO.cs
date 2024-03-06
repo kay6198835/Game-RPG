@@ -5,7 +5,15 @@ using UnityEngine;
 public class WeaponDataSO : ScriptableObject
 {
     [Header("WP data")]
-    public WeaponType Type;
-    public GameObject weaponPrefab;
-    public int value;
+    protected WeaponType type;
+    //public GameObject weaponPrefab;
+    //public int value;
+    [SerializeField] protected LayerMask enemyLayers;
+    [SerializeField] protected AbilitySO skill;
+    [SerializeField] protected AbilitySO specialAbility;
+
+    public WeaponType Type { get => type; }
+    public LayerMask EnemyLayers { get => enemyLayers; }
+    public AbilitySO Skill { get => skill; }
+    public AbilitySO SpecialAbility { get => specialAbility; }
 }

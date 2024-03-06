@@ -25,5 +25,10 @@ public class PlayerAttackState : UseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (onAnimationActivate)
+        {
+            player.Core.Weapon.Attack();
+            onAnimationActivate = false;
+        }
     }
 }

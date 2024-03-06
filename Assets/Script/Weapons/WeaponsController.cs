@@ -21,7 +21,7 @@ public class WeaponsController : MonoBehaviour
     public void equipped(WeaponDataSO WPdata)
     {
         EquipWp = WPdata;
-        currWp = Instantiate(WPdata.weaponPrefab);
+        //currWp = Instantiate(WPdata.weaponPrefab);
         currWp.transform.SetParent(WeaponHolder);
         currWp.transform.localPosition = Vector3.zero;
         currWp.transform.localRotation = Quaternion.identity;
