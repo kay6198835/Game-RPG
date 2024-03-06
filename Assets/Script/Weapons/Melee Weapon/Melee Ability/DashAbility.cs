@@ -7,11 +7,4 @@ using UnityEngine;
 public class DashAbility : AbilitySO
 {
     [SerializeField] private float dashingPower;
-
-    //public override void Activate(GameObject player)
-    //{
-    //    Rigidbody2D rigidbody = player.GetComponentInParent<Rigidbody2D>();
-    //    rigidbody.AddForce(player.GetComponentInParent<PlayerMovement>().MousePosition
-    //        * dashingPower, ForceMode2D.Impulse);  
-    //}
 }

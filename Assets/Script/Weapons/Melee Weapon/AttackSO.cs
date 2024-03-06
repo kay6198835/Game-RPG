@@ -12,7 +12,6 @@ public class AttackSO : ScriptableObject
     [SerializeField] public float attackRange = 1f;
     [SerializeField] public int attackDamege = 0;
     [SerializeField] public float attackRate = 1f;
-    [SerializeField] public float distanceAttackPosition = 1f;
     
     [Header("Atributte")]
     [SerializeField] public AnimatorOverrideController directionAttackAnimatorOV;

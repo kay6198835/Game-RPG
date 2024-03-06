@@ -8,7 +8,13 @@ public class Projectile : MonoBehaviour
     [SerializeField] private int damage;
     [SerializeField] private float projectileLifeTime;
     [SerializeField] private LayerMask collisionMask;
+    [SerializeField] private Rigidbody2D rigidbodyProjectile;
     public float Speed { get => speed; set => speed = value; }
+    private void Awake()
+    {
+        rigidbodyProjectile = GetComponent<Rigidbody2D>();
+        collisionMask = LayerMask.GetMask("Enemy");
+    }
     private void Start()
     {
         Invoke("DestroyProjectile", projectileLifeTime);
@@ -16,7 +22,12 @@ public class Projectile : MonoBehaviour
     private void Update()
     {
         CheckCollisions(speed * Time.deltaTime);
-        transform.Translate(Vector2.right * speed * Time.deltaTime);
+        //transform.Translate(Vector2.right * speed * Time.deltaTime);
+    }
+    public void SetVelocity(Vector3 velocity)
+    {
+        rigidbodyProjectile.velocity = velocity*speed;
+        Debug.Log("Run");
     }
     void CheckCollisions(float moveDistance)
     {

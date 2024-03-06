@@ -12,21 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8743a2f4d9a0a24e8a03b855cffcc0a, type: 3}
   m_Name: Slash Ability
   m_EditorClassIdentifier: 
-  name: 
-  cooldownTime: 0
-  activeTime: 0
-  timeStarCast: 0
+  starCastTime: 9.582548
   maxCastTime: 0
-  currentTime: 0
   periodCastTime: 0
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 512
-  playerClone: {fileID: 0}
-  animators: []
-  currentLevel: 0
-  levelMax: 3
-  distance: 3
-  timeBetween: 0.5
-  damage: 10
-  stunTime: 1
+  player: {fileID: 0}
+  animator: {fileID: 22100000, guid: 9428df7c367903548af11fc7419fc914, type: 2}
+  slashPrefab: {fileID: 5687771613966579850, guid: 5f61048ea1081024c8fc9fdf9cce9e3f, type: 3}
+  slashGO: {fileID: 0}
+  slashGOs: []
+  shoot: {x: 0, y: 0, z: 0}
+  speedSlash: 10
+  rotation: {x: 0, y: 0, z: 0.82406723, w: -0.56649196}
+  positon: {x: -1.0745205, y: -2.800965}

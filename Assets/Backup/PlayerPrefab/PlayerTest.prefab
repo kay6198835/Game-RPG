@@ -246,6 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 427f7bf7546d1a34abc3f44e9deb9282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerCtr: {fileID: 0}
   movement: {fileID: 0}
   weapon: {fileID: 0}
 --- !u!1 &5519547563718807823
@@ -293,7 +294,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rb: {fileID: 0}
-  moveSpeed: 0
 --- !u!1 &8234510148857361678
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,7 +320,7 @@ Transform:
   m_GameObject: {fileID: 8234510148857361678}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.063, y: 0.33, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -338,12 +338,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff757ce8ac159bc45a7bdbfcb60cfd03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerCtr: {fileID: 0}
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}
   directionVector: {x: 0, y: 0}
   direction: 0
-  abilityWeapon: 0
   attack: 0
+  skill: 0
+  ability: 0
+  skillSO: {fileID: 0}
+  angleSin: 0
+  angleDirection: 0
 --- !u!1 &9010334046371474003
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,6 +359,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9186174902540422970}
   - component: {fileID: 7075277347294300069}
+  - component: {fileID: 6593928060906271023}
   m_Layer: 7
   m_Name: Weapon
   m_TagString: Untagged
@@ -388,8 +394,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec4990233ea255e4e944a55a192d327e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statsSO: {fileID: 0}
   lastClickTime: 0
   deplayTime: 0
   durationNextAttack: 0
+  canAttack: 0
+  currentAbilitySO: {fileID: 0}
   stats: {fileID: 11400000, guid: 42ea56e61571fa949815576eac83fb82, type: 2}
+  currentStateIndex: 0
+  centerAttackPosition: {x: 0, y: 0}
+  currrentSA: {fileID: 0}
+--- !u!114 &6593928060906271023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010334046371474003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1141b77229a082146b665229f6fc1025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ability: {fileID: 0}
+  cooldownTime: 0
+  activeTime: 0
+  keyCode: 0

@@ -18,6 +18,10 @@ public class BasicState : PlayerState
         {
             stateMachine.ChangeState(player.AttackState);
         }
+        if (player.InputHandler.Skill&& player.Core.Weapon.SetAbility()!=null)
+        {
+            stateMachine.ChangeState(player.AbilityState);
+        }
     }
 
     public override void PhysicsUpdate()
