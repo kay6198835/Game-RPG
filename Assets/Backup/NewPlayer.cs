@@ -70,7 +70,7 @@ public class NewPlayer : MonoBehaviour
 
     #region Other Functions
 
-    private void AnimationOnAction() => stateMachine.CurrentState.AnimationOnAction();
+    private void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
 
     private void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
 
