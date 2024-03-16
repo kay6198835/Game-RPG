@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class Projectile : MonoBehaviour
 {
     [SerializeField] private float speed;
@@ -27,7 +26,7 @@ public class Projectile : MonoBehaviour
     public void SetVelocity(Vector3 velocity)
     {
         rigidbodyProjectile.velocity = velocity*speed;
-        Debug.Log("Run");
+        //Debug.Log("Run");
     }
     void CheckCollisions(float moveDistance)
     {
@@ -35,12 +34,11 @@ public class Projectile : MonoBehaviour
         if (hit.collider != null)
         {
             OnHitObject(hit);
-            //Debug.Log("On");
         }
     }
     void OnHitObject(RaycastHit2D hit)
     {
-            hit.transform.gameObject.GetComponent<Player>().TakeDamage(damage, gameObject);
+            //hit.transform.gameObject.GetComponent<Player>().TakeDamage(damage, gameObject);
             DestroyProjectile();
     }
     void DestroyProjectile()

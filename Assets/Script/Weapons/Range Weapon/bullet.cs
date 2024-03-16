@@ -28,7 +28,7 @@ public class bullet : MonoBehaviour
         {
             if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
-                collision.gameObject.GetComponent<Player>().TakeDamage(BulletSO.dmg, gameObject);
+                //collision.gameObject.GetComponent<Player>().TakeDamage(BulletSO.dmg, gameObject);
                 DestroyBullet();
             }
         }

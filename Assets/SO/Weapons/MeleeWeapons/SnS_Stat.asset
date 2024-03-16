@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4b1e3ee6d1d53849b1a6b18fd459e50, type: 3}
   m_Name: SnS_Stat
   m_EditorClassIdentifier: 
-  Type: 1
-  weaponPrefab: {fileID: 9100407273717931795, guid: d10d5d345666b5e45b216a63b40952ec, type: 3}
-  value: 2000
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  skill: {fileID: 11400000, guid: 8d06fe05bfdede64c939572337eee23e, type: 2}
+  specialAbility: {fileID: 11400000, guid: 1e2de2703fabafa45be5d1450d7c2f0f, type: 2}
   nameWeapon: Sword and Shield
   idWeapon: 1
   attackState:
@@ -23,8 +25,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 053076e05dbb1f04594df1c33185fafd, type: 2}
   shieldEra: {x: 0, y: 0}
   blockDamage: 0
-  enemyLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  skill: {fileID: 11400000, guid: b8b3a570484f8f94588872616fa80546, type: 2}
-  specialAbility: {fileID: 11400000, guid: 1e2de2703fabafa45be5d1450d7c2f0f, type: 2}

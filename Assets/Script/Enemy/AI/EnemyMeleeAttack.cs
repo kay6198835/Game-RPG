@@ -23,9 +23,9 @@ public class EnemyMeleeAttack : EnemyAttack
         Collider2D hitEnemies = Physics2D.OverlapCircle(
             (Vector2)this.transform.position + attackPointVector * attackRange / 2,
             attackRange / 2, playerMask);
-        if (hitEnemies.GetComponent<Player>() != null)
+        if (hitEnemies.GetComponent<NewPlayer>() != null)
         {
-            hitEnemies.gameObject.GetComponent<Player>().TakeDamage(attackDamage, gameObject);
+            //hitEnemies.gameObject.GetComponent<NewPlayer>().TakeDamage(attackDamage, gameObject);
         }
     }
     protected override void OnDrawGizmosSelected()

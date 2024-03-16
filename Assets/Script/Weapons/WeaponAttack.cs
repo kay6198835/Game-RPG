@@ -6,7 +6,7 @@ public abstract class WeaponAttack : MonoBehaviour
 {
     [SerializeField] protected float lastClickedTime = 0;
     [SerializeField] protected float delayAttack;
-    [SerializeField] protected Player player;
+    //[SerializeField] protected Player player;
     [SerializeField] protected Animator animator;
     //[SerializeField] protected WeaponMelee weaponMelee;
 

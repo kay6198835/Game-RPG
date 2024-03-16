@@ -17,8 +17,4 @@ public class AttackSO : ScriptableObject
     [SerializeField] public AnimatorOverrideController directionAttackAnimatorOV;
     [SerializeField] public LayerMask enemyLayers;
     [SerializeField] public AbilitySO ability;
-    private void Awake()
-    {
-        enemyLayers = LayerMask.GetMask("Enemy");
-    }
 }

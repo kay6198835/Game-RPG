@@ -12,23 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a6a86632b68cd54494e927902a39d07, type: 3}
   m_Name: Block Ability
   m_EditorClassIdentifier: 
-  name: 
-  cooldownTime: 0
-  activeTime: 0
-  timeStarCast: 226.35982
+  starCastTime: 3.7930973
   maxCastTime: 0
-  currentTime: 230.57135
   periodCastTime: 0
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 512
-  playerClone: {fileID: 0}
-  animators:
-  - {fileID: 22100000, guid: 175befca7e6fec14daeded13205ca901, type: 2}
-  - {fileID: 22100000, guid: 77f9bb115bd673b4cbc3ce65971400de, type: 2}
-  - {fileID: 22100000, guid: 25c7a481ca7b32742be31004c6abde49, type: 2}
-  - {fileID: 22100000, guid: caf94d4aa675beb45904efb43ba48665, type: 2}
-  - {fileID: 22100000, guid: cac2bab053b9d2140b58f3e5d81d8802, type: 2}
-  - {fileID: 22100000, guid: 496a9112155e7fe42922f7b9cadeed9c, type: 2}
-  - {fileID: 22100000, guid: f860596ddd763f040a4cc4e7c8af2538, type: 2}
-  - {fileID: 22100000, guid: a6fe38bbc572d2d42bc7148332802e47, type: 2}
+  currentTime: 3.7930973
+  player: {fileID: 0}
+  animator: {fileID: 22100000, guid: c9a70f91a7cf38148b3de351e583e72f, type: 2}

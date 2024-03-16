@@ -58,7 +58,7 @@ public class NewPlayer : MonoBehaviour
 
     private void Update()
     {
-        core.LogicUpdate();
+        //core.LogicUpdate();
         stateMachine.CurrentState.LogicUpdate();
     }
 
@@ -73,6 +73,7 @@ public class NewPlayer : MonoBehaviour
     private void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
 
     private void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
+    private void AnimationExitingState() => stateMachine.CurrentState.AnimationExitingState();
 
 
     #endregion

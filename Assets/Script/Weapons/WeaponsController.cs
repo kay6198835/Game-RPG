@@ -35,7 +35,7 @@ public class WeaponsController : MonoBehaviour
         }
         else if (EquipWp.Type == WeaponType.MeleeWP)
         {
-            gameObject.GetComponent<Player>().Weapon = currWp.GetComponent<WeaponMelee>();
+            //gameObject.GetComponent<Player>().Weapon = currWp.GetComponent<WeaponMelee>();
             meleeCombat = currWp.GetComponent<PlayerCombat>();
             //meleeCombat.Animator = gameObject.GetComponent<Animator>();
             //meleeCombat.Player = gameObject.GetComponent<Player>();

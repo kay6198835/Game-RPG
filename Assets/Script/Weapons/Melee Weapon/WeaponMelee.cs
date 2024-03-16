@@ -4,20 +4,22 @@ using UnityEngine;
 [RequireComponent(typeof(AbilityHolder))]
 public class WeaponMelee : Weapon
 {
-    [Header("Stats")]
-    [SerializeField] private WeaponMeleeStats stats;
-    //[SerializeField] private AbilityHolder abilityHolder;
-    [SerializeField] private int currentStateIndex = 0;
-    [SerializeField] private Vector2 centerAttackPosition;
-    [SerializeField] private AttackSO currrentSA;
+    [SerializeField]
+    [Header("Melee Weapon")]
+    private WeaponMeleeStats statsMelee;
+    private int currentStateIndex = 0;
+    private Vector2 centerAttackPosition;
+    private AttackSO currrentSA;
     protected override void Awake()
     {
         base.Awake();
-        //abilityHolder = GetComponent<AbilityHolder>();
+        if (stats.GetType() == typeof(WeaponMeleeStats))
+        {
+            statsMelee = (WeaponMeleeStats)stats;
+        }
     }
     private void Start()
     {
-        //currrentSA = stats.attackState[currentStateIndex];
         deplayTime = 0.5f;
         durationNextAttack = 0.9f;
     }
@@ -38,42 +40,36 @@ public class WeaponMelee : Weapon
     {
         if (core.PlayerCtr.InputHandler.Skill)
         {
-            currentAbilitySO = stats.Skill;
+            currentAbilitySO = statsMelee.Skill;
         }
         else
         {
-            currentAbilitySO = stats.SpecialAbility;
+            currentAbilitySO = statsMelee.SpecialAbility;
         }
         return currentAbilitySO;
     }
-    //public override AbilitySO SetAblitty()
-    //{
-    //    return currentAbilitySO;
-    //}
     public override bool CheckCanAttack(NewPlayer player)
     {
-        lastClickTime = player.AttackState.StartAttackTime;
-
-        if (lastClickTime + deplayTime > Time.time)
+        if (base.CheckCanAttack(player))
         {
-            canAttack = false;
-        }
-        else
-        {
-            if (currentStateIndex == stats.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
+            if (currentStateIndex == statsMelee.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
             {
                 currentStateIndex = 0;
             }
-            currrentSA = stats.AttackState[currentStateIndex];
+            currrentSA = statsMelee.AttackState[currentStateIndex];
             player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
             //Attack Position
             CenterAttackPosition(player);
             currentStateIndex++;
             canAttack = true;
         }
+        else
+        {
+            canAttack = false;
+        }
         return canAttack;
     }
-    private void CenterAttackPosition(NewPlayer player)
+    protected void CenterAttackPosition(NewPlayer player)
     {
         centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionVector.normalized * currrentSA.attackRange;
     }

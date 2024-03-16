@@ -12,8 +12,8 @@ public class AbilitySO : ScriptableObject
 
     //[SerializeField] protected new string name;
     protected float cooldownTime;
-    protected float activeTime;
-    protected float currentTime;
+    //protected float activeTime;
+    [SerializeField] protected float currentTime;
 
     protected LayerMask layerMask;
     [SerializeField] protected NewPlayer player;
@@ -21,7 +21,7 @@ public class AbilitySO : ScriptableObject
     #region Attribute
     public string Name { get => name;}
     public float CooldownTime { get => cooldownTime;}
-    public float ActiveTime { get => activeTime;}
+    //public float ActiveTime { get => activeTime;}
     public float TimeStarCast { get => starCastTime;}
     public float MaxCastTime { get => maxCastTime;}
     public float CurrentTime { get => currentTime;}

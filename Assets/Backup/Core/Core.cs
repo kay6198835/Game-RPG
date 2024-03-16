@@ -19,13 +19,4 @@ public class Core : MonoBehaviour
         movement = GetComponentInChildren<PlayerMovement>();
         weapon = GetComponentInChildren<Weapon>();
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-    public void LogicUpdate()
-    {
-
-    }
 }

@@ -4,11 +4,13 @@ using UnityEngine;
 
 public abstract class Weapon : CoreCompoment
 {
-    [SerializeField] protected float lastClickTime;
-    [SerializeField] protected float deplayTime;
-    [SerializeField] protected float durationNextAttack;
-    [SerializeField] protected bool canAttack;
+    [Header("Abtract Weapon")]
+    [SerializeField] protected WeaponDataSO stats;
     [SerializeField] protected AbilitySO currentAbilitySO;
+    protected float lastClickTime;
+    protected float deplayTime;
+    protected float durationNextAttack;
+    protected bool canAttack;
     public AbilitySO CurrentAbilitySO { get => currentAbilitySO; }
 
     protected override void Awake()
@@ -16,7 +18,20 @@ public abstract class Weapon : CoreCompoment
         base.Awake();
     }
     public abstract void Attack();
-    public abstract bool CheckCanAttack(NewPlayer player);
+    public virtual bool CheckCanAttack(NewPlayer player)
+    {
+        lastClickTime = player.AttackState.StartAttackTime;
+
+        if (lastClickTime + deplayTime > Time.time)
+        {
+            canAttack = false;
+        }
+        else
+        {
+            canAttack = true;
+        }
+        return canAttack;
+    }
     public abstract AbilitySO SetAbility();
     protected void Equid(Collider2D collision, WeaponDataSO weaponData)
     {

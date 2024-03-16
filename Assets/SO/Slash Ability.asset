@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8743a2f4d9a0a24e8a03b855cffcc0a, type: 3}
   m_Name: Slash Ability
   m_EditorClassIdentifier: 
-  starCastTime: 28.085224
+  starCastTime: 9.010726
   maxCastTime: 3
-  periodCastTime: 2.2995281
+  periodCastTime: 0.46618652
+  currentTime: 9.4769125
   player: {fileID: 0}
   animator: {fileID: 22100000, guid: 9428df7c367903548af11fc7419fc914, type: 2}
   slashPrefab: {fileID: 5687771613966579850, guid: 5f61048ea1081024c8fc9fdf9cce9e3f, type: 3}
   slashGO: {fileID: 0}
-  shoot: {x: 0.9787752, y: 0.2049368, z: 0}
-  speedSlash: 10
-  rotation: {x: 0, y: 0, z: 0.103016496, w: 0.99467963}
-  positon: {x: 2.7473254, y: 1.6048105}
+  shoot: {x: 0.96280986, y: 0.27017972, z: 0}
+  speedSlash: 15
+  rotation: {x: 0, y: 0, z: 0.13636364, w: 0.9906589}
+  positon: {x: -3.3859673, y: -1.874361}
