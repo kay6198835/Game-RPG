@@ -9,11 +9,11 @@ public class WeaponDataSO : ScriptableObject
     //public GameObject weaponPrefab;
     //public int value;
     [SerializeField] protected LayerMask enemyLayers;
-    [SerializeField] protected AbilitySO skill;
-    [SerializeField] protected AbilitySO specialAbility;
+    [SerializeField] protected AbilitySO ability;
+    [SerializeField] protected AbilitySO special;
 
     public WeaponType Type { get => type; }
     public LayerMask EnemyLayers { get => enemyLayers; }
-    public AbilitySO Skill { get => skill; }
-    public AbilitySO SpecialAbility { get => specialAbility; }
+    public AbilitySO Ability { get => ability; }
+    public AbilitySO Special { get => special; }
 }

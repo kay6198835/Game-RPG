@@ -6,7 +6,7 @@ public class PlayeSkillWeaponState : PlayerUseWeaponState
 {
     private int stateIndex;
     private AbilitySO skill;
-    public PlayeSkillWeaponState(NewPlayer player, PlayerStateMachine playerStateMachine, PlayerData playerData, string animBoolName) : base(player, playerStateMachine, playerData, animBoolName)
+    public PlayeSkillWeaponState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
         //player.InputHandler.
     }
@@ -25,16 +25,16 @@ public class PlayeSkillWeaponState : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            Debug.Log("On");
+            //Debug.Log("On");
             if (stateIndex == 0)
             {
-                if (isAnimationExitingState)
-                {
-                    stateIndex = 1;
-                    isAnimationExitingState = false;
-                }
-                //stateIndex = 1;
-                Debug.Log("Start Ability Skill");
+                //if (isAnimationExitingState)
+                //{
+                //    stateIndex = 1;
+                //    isAnimationExitingState = false;
+                //}
+                stateIndex = 1;
+                //Debug.Log("Start Ability Skill");
             }
             else if (stateIndex == 1)
             {
@@ -42,28 +42,26 @@ public class PlayeSkillWeaponState : PlayerUseWeaponState
 
                 if (player.InputHandler.State == PlayerInputHandler.SkillState.Do)
                 {
-                    Debug.Log("Do Ability when hold cast Skill" + player.InputHandler.State);
+                    //Debug.Log("Do Ability when hold cast Skill" + player.InputHandler.State);
                     if (isAnimationExitingState)
                     {
                         stateIndex = 2;
-                        isAnimationExitingState = false;
-                    }
-                }
 
+                    }
+                    isAnimationExitingState = false;
+                }
                 //Debug.Log(stateIndex);
             }
             else if (stateIndex == 2)
             {
                 skill.DoAbility();
-                Debug.Log("Do Ability Skill");
-
+                //Debug.Log("Do Ability Skill");
             }
-            
             player.Anim.SetFloat("StateSkill", stateIndex);
-            Debug.Log(stateIndex);
+            //Debug.Log(stateIndex);
             isAnimationTrigger = false;
         }
         //Debug.Log("Start Ability Skill");
-        Debug.Log("Exit");
+        //Debug.Log("Exit");
     }
 }

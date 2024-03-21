@@ -20,7 +20,7 @@ public class EntityFindTarget : EntityCoreComponent
         Collider2D collider = Physics2D.OverlapCircle(
             this.transform.position,
             range,
-            entityCore.Entity.EntityData.LayerMask);
+            entityCore.Entity.Data.LayerMask);
         if(collider != null)
         {
             target = collider.transform;

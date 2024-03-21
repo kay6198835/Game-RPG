@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerBasicState
 {
-    public PlayerMoveState(NewPlayer player, PlayerStateMachine playerStateMachine, PlayerData playerData, string animBoolName) : base(player, playerStateMachine, playerData, animBoolName)
+    public PlayerMoveState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
-
     }
+
     public override void LogicUpdate()
     {
         base.LogicUpdate();

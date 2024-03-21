@@ -14,9 +14,6 @@ public class EntityAttackState : EntityUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if(isAnimationFinished)
-        {
-            entity.StateMachine.ChangeState(entity.MoveToTargetState);
-        }
+
     }
 }

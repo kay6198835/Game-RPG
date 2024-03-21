@@ -14,6 +14,15 @@ public class EntityBasicState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        entity.Anim.SetFloat("Direction", entity.InputHandler.Direction);
+        entity.Anim.SetFloat("Direction", entity.Input.DirectionLook);
+        if (entity.Input.IsTakeDamage)
+        {
+            stateMachine.ChangeState(entity.TakeDamageState);
+        }
+        if (entity.Input.IsAttack)
+        {
+
+            entity.StateMachine.ChangeState(entity.AttackState);
+        }
     }
 }

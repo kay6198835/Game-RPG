@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerUseWeaponState : PlayerState
 {
-    public PlayerUseWeaponState(NewPlayer player, PlayerStateMachine playerStateMachine, PlayerData playerData, string animBoolName) : base(player, playerStateMachine, playerData, animBoolName)
+    public PlayerUseWeaponState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
     }
 

@@ -33,9 +33,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "UseSkill",
+                    "name": "SkillWeapon",
                     "type": "Button",
                     "id": "d9107f69-f35f-49e8-869e-cd2af76cdf4d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AbilityWeapon",
+                    "type": "Button",
+                    "id": "1f0f0265-1d03-4768-9170-81c9e8653458",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -127,7 +136,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "UseSkill",
+                    "action": "SkillWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "65c4657d-0108-4172-8d51-42e9698a550a",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AbilityWeapon",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

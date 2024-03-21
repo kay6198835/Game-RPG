@@ -9,24 +9,21 @@ public class EntityIdleState : EntityBasicState
 
     public EntityIdleState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
+
     }
     public override void Enter()
     {
         base.Enter();
-        //entityCore.EntityMovement.MoveForwardTarget(Vector2.zero);
         idleDurationTime = entityData.IdleDurationTime;
         idleTime = startTime + idleDurationTime;
+        entityCore.EntityMovement.MoveForwardTarget(Vector2.zero);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if(idleTime <= Time.time)
+        if (idleTime <= Time.time)
         {
-            entity.StateMachine.ChangeState(entity.MoveRandomState);
-        }
-        if (entity.InputHandler.Target!=null)
-        {
-            entity.StateMachine.ChangeState(entity.MoveToTargetState);
+            entity.StateMachine.ChangeState(entity.MoveState);
         }
     }
 }

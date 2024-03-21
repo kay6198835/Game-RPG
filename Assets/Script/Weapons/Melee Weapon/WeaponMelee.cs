@@ -16,6 +16,8 @@ public class WeaponMelee : Weapon
         if (stats.GetType() == typeof(WeaponMeleeStats))
         {
             statsMelee = (WeaponMeleeStats)stats;
+            //stats = new WeaponMeleeStats();
+            
         }
     }
     private void Start()
@@ -34,17 +36,17 @@ public class WeaponMelee : Weapon
                 enemy.GetComponent<Enemy>().TakeDamage(currrentSA.attackDamege, gameObject);
             }
         }
-        Debug.Log("Attack");
     }
     public override AbilitySO SetAbility()
     {
-        if (core.PlayerCtr.InputHandler.Skill)
+
+        if (core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
         {
-            currentAbilitySO = statsMelee.Skill;
+            currentAbilitySO = statsMelee.Ability;
         }
-        else
+        else if(core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
         {
-            currentAbilitySO = statsMelee.SpecialAbility;
+            currentAbilitySO = statsMelee.Special;
         }
         return currentAbilitySO;
     }

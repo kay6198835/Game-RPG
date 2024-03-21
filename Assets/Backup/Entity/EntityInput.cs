@@ -5,19 +5,33 @@ using UnityEngine;
 
 public class EntityInput : MonoBehaviour
 {
-    [SerializeField] private Entity entity;
-    [SerializeField] private Transform target;
-    [SerializeField] private Vector2 directionMoveVector;
-    [SerializeField] private int direction;
-    [SerializeField] private float angleSin;
-    [SerializeField] private float angleDirection;
+    [SerializeField] protected Entity entity;
+    [SerializeField] protected Transform target;
+    [Header("Direction Look")]
+    [SerializeField] protected Vector2 directionLookVector;
+    [SerializeField] protected int directionLook;
+    [SerializeField] protected float directionLookAngle;
+    [Header("Direction TakeDamage")]
+    [SerializeField] private Vector2 directionIsAttakedVector;
+    [SerializeField] private int directionIsAttaked;
+    [SerializeField] private float directionIsAttakedAngle;
+    //[SerializeField] protected float angleSin;
+    [Header("State")]
+    [SerializeField] protected bool isTakeDamage=false;
+    [SerializeField] protected bool isMove;
+    [SerializeField] protected bool isAttack;
     #region Read_Value 
     public Transform Target { get => target; }
-    public Vector2 DirectionMoveVector { get => directionMoveVector; }
+    public Vector2 DirectionMoveVector { get => directionLookVector; }
     public Entity Entity { get => entity;}
-    public float AngleSin { get => angleSin;}
-    public float AngleDirection { get => angleDirection;}
-    public int Direction { get => direction;}
+    //public float AngleSin { get => angleSin;}
+    public float DirectionLookAngle { get => directionLookAngle;}
+    public int DirectionLook { get => directionLook;}
+    public bool IsTakeDamage { get => isTakeDamage; }
+    public bool IsAttack { get => isAttack; }
+    public Vector2 DirectionIsAttakedVector { get => directionIsAttakedVector;}
+    public int DirectionIsAttaked { get => directionIsAttaked;}
+    public float DirectionIsAttakedAngle { get => directionIsAttakedAngle; }
     #endregion
 
     private void Awake()
@@ -27,24 +41,41 @@ public class EntityInput : MonoBehaviour
     private void Update()
     {
         DirectionMehod();
-        if(target == null)
+        GetTargetInRange();
+    }
+    public void OnTakeDamage(Vector2 attackPosition)
+    {
+        ChangeIsTakeDamage();
+        Invoke(nameof(ChangeIsTakeDamage), 0.1f);
+        directionIsAttakedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
+        AngleCalculate(directionIsAttakedVector,ref directionIsAttakedAngle , ref directionIsAttaked);
+    }
+
+    private void GetTargetInRange()
+    {
+        if (target == null)
         {
-            target = entity.EntityCore.FindTarget.FindTargetMethod(entity.EntityData.RangeCheckFieldOfView);
+            target = entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+        }
+        if (entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
+        {
+            isAttack = true;
+        }
+        else
+        {
+            isAttack = false;
         }
     }
 
-    private void AngleCalculate(Vector2 directionVector)
+    private void AngleCalculate(Vector2 directionVector,ref float angle, ref int direction)
     {
-        float angle;
-        //directionVector = ((Vector2)targetTowards - (Vector2)this.transform.position).normalized;
         angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
         angle += 180;
-        DirectionCaculate(angle);
-        angleDirection = angle;
-        this.angleSin = Vector2.SignedAngle(transform.right, directionVector);
-        this.angleSin = (this.angleSin + 360) % 360;
+        DirectionCaculate(angle,ref direction);
+        //this.angleSin = Vector2.SignedAngle(transform.right, directionVector);
+        //this.angleSin = (this.angleSin + 360) % 360;
     }
-    private void DirectionCaculate(float angle)
+    private void DirectionCaculate(float angle,ref int direction)
     {
         if ((angle > 22 && angle <= 67))
         {
@@ -81,22 +112,25 @@ public class EntityInput : MonoBehaviour
         }
         //entity.Anim.SetFloat("Direction", direction);
     }
-    public void DirectionMehod()
+    private void DirectionMehod()
     {
         if (target != null)
         {
-            directionMoveVector = (target.position - transform.position).normalized;
+            directionLookVector = (target.position - transform.position).normalized;
         }
-        AngleCalculate(directionMoveVector);
-
+        AngleCalculate(directionLookVector,ref directionLookAngle ,ref directionLook);
     }
-    public Vector2 DirectionRadom(EntityMoveRandomState entityState)
+    public void SetDirectionRadom()
     {
         float angle = Random.Range(0f, 360f);
-        angle = Mathf.Round(angle / 45f) * 45f; // Làm tròn góc để chia thành 8 hướng
+        angle = Mathf.Round(angle / 45f) * 45f;
         float radian = angle * Mathf.Deg2Rad;
         float x = Mathf.Cos(radian);
         float y = Mathf.Sin(radian);
-        return directionMoveVector = new Vector2(x, y).normalized*100f - (Vector2)transform.position;
+        directionLookVector = new Vector2(x, y).normalized*100f - (Vector2)transform.position;
+    }
+    private void ChangeIsTakeDamage()
+    {
+        this.isTakeDamage = !this.isTakeDamage;
     }
 }

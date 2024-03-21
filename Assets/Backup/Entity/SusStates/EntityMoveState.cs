@@ -9,7 +9,6 @@ public class EntityMoveState : EntityBasicState
     protected Vector2 directionMoveVector;
     protected bool isFindTargeted;
     protected bool isMove;
-
     public float MoveTime { get => moveTime;}
 
     public EntityMoveState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
@@ -21,11 +20,30 @@ public class EntityMoveState : EntityBasicState
         base.Enter();
         moveDurationTime = entityData.MoveDurationTime;
         moveTime = startTime + moveDurationTime;
+        if (entity.Input.Target == null)
+        {
+            entity.Input.SetDirectionRadom();
+        }
     }
     public override void LogicUpdate()
     {
+        directionMoveVector = entity.Input.DirectionMoveVector;
+        entityCore.EntityMovement.MoveForwardTarget(
+        directionMoveVector.normalized * entityData.MovementVelocities
+        );
         base.LogicUpdate();
-        entityCore.EntityMovement.MoveForwardTarget(directionMoveVector.normalized*entityData.MovementVelocities);
+        if(entity.Input.Target == null) 
+        {
+            if (moveTime <= Time.time)
+            {
+                entity.StateMachine.ChangeState(entity.IdleState);
+            }
+        }
+    }
+    public override void DoChecks()
+    {
+        base.DoChecks();
+
     }
     public override void Exit()
     {

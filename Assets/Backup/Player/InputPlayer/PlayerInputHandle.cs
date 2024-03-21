@@ -6,18 +6,23 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    [SerializeField] private NewPlayer playerCtr;
     [SerializeField] private PlayerInput playerInput;
+    [Header("Direction")]
+    [SerializeField] private int direction;
+    [SerializeField] private float angleSin;
+    [SerializeField] private float angleDirection;
+    [Header("Move")]
     [SerializeField] private Vector2 moveVector;
     [SerializeField] private Vector2 mouseVector;
     [SerializeField] private Vector2 directionVector;
-    [SerializeField] private int direction;
-    [SerializeField] private bool playerAttack=false;
-    [SerializeField] private bool playerWeaponSkill=false;
-    [SerializeField] private bool playerWeaponAbility=false;
-    //[SerializeField] private AbilitySO skillSO;
-    [SerializeField] private float angleSin;
-    [SerializeField] private float angleDirection;
+    [Header("Bool Value")]
+    [SerializeField] private bool isAttack;
+    [SerializeField] private bool isSkill;
+    [SerializeField] private bool isDisadvantage;
+    [Header("Test Dot Product")]
+    [SerializeField] Transform enemy;
+    [SerializeField] Vector2 eToP;
+    [SerializeField] float dotProduct;
     
     public enum SkillState
     {
@@ -25,10 +30,21 @@ public class PlayerInputHandler : MonoBehaviour
         Cast,
         Do,
     }
+    public enum SkillType
+    {
+        Special,
+        Ability
+    }
+    public enum DisadvantageState
+    {
+        TakeDamaged,
+    }
     [SerializeField] private SkillState state;
+    [SerializeField] private SkillType skill;
+    [SerializeField] private DisadvantageState disadvantage;
     private void Awake()
     {
-        playerCtr = GetComponentInParent<NewPlayer>();
+        //playerCtr = GetComponentInParent<NewPlayer>();
         playerInput = new PlayerInput();
     }
     private void Start()
@@ -46,22 +62,36 @@ public class PlayerInputHandler : MonoBehaviour
         playerInput.Control.Attack.started += OnAttack;
         playerInput.Control.Attack.canceled += OnAttack;
 
-        playerInput.Control.UseSkill.started += OnAbilityWeapon;
-        playerInput.Control.UseSkill.performed += OnAbilityWeapon;
-        playerInput.Control.UseSkill.canceled += OnAbilityWeapon;
+        playerInput.Control.SkillWeapon.started += OnSkillWeapon;
+        playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
+        playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
+        
+        playerInput.Control.AbilityWeapon.started += OnAbilityWeapon;
+        playerInput.Control.AbilityWeapon.performed += OnAbilityWeapon;
+        playerInput.Control.AbilityWeapon.canceled += OnAbilityWeapon;
+    }
+    private void Update()
+    {
+        if(enemy != null)
+        {
+            eToP = (enemy.position - transform.position).normalized;
+            dotProduct = Vector2.Dot(eToP, directionVector);
+        }
+
     }
     #region Get value 
     public Vector2 MoveVector { get => moveVector;}
     public Vector2 MouseVector { get => mouseVector;}
     public Vector2 DirectionVector { get => directionVector;}
     public int Direction { get => direction;}
-    public bool Attack { get => playerAttack;}
+    public bool IsAttack { get => isAttack;}
     public SkillState State { get => state;}
-    public bool Skill { get => playerWeaponSkill;}
+    public SkillType Skill { get => skill;}
+    public bool IsSkill { get => isSkill;}
     public PlayerInput PlayerInput { get => playerInput;}
-    public bool Ability { get => playerWeaponAbility; }
     public float AngleSin { get => angleSin;}
     public float AngleDirection { get => angleDirection; }
+    public bool IsDisadvantage { get => isDisadvantage;}
     #endregion
 
     private void OnEnable()
@@ -85,29 +115,47 @@ public class PlayerInputHandler : MonoBehaviour
     {
         if (context.started)
         {
-            playerAttack = true;
+            isAttack = true;
         }
         if (context.canceled)
         {
-            playerAttack = false;
+            isAttack = false;
         }
     }
-    private void OnAbilityWeapon(InputAction.CallbackContext context)
+    private void OnSkillWeapon(InputAction.CallbackContext context)
     {
+        skill = SkillType.Special;
         if (context.started)
         {
-
             state = SkillState.Start;
         }
         else if (context.performed)
         {
-            playerWeaponSkill = true;
+            isSkill = true;
             state = SkillState.Cast;
         }
         else if (context.canceled)
         {
             state = SkillState.Do;
-            playerWeaponSkill = false;
+            isSkill = false;
+        }
+    }
+    private void OnAbilityWeapon(InputAction.CallbackContext context)
+    {
+        skill = SkillType.Ability;
+        if (context.started)
+        {
+            state = SkillState.Start;
+        }
+        else if (context.performed)
+        {
+            isSkill = true;
+            state = SkillState.Cast;
+        }
+        else if (context.canceled)
+        {
+            state = SkillState.Do;
+            isSkill = false;
         }
     }
     protected void DirectionCaculate(float angle)

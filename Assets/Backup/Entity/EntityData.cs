@@ -7,6 +7,11 @@ public class EntityData : ScriptableObject
 {
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private AnimatorController aima;
+    public float currentHealth;
+    [Header("Player Stats")]
+    [SerializeField] private float maxHealth;
+
+
     [Header("Idle State")]
     [SerializeField] private float rangeCheckFieldOfView;
     [SerializeField] private float idleDurationTime;
@@ -16,7 +21,7 @@ public class EntityData : ScriptableObject
     [SerializeField] private float rangeCheckAttack;
     [Header("Attack State")]
     [SerializeField] private List<AttackSO> attackSOs;
-
+    public float MaxHealth { get => maxHealth; }
     public LayerMask LayerMask { get => layerMask; }
     public AnimatorController Aima { get => aima;}
     public float RangeCheckFieldOfView { get => rangeCheckFieldOfView;}
@@ -28,5 +33,6 @@ public class EntityData : ScriptableObject
     private void Awake()
     {
         layerMask = LayerMask.GetMask("Player");
+        currentHealth = maxHealth;
     }
 }

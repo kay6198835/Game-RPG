@@ -10,10 +10,17 @@ public class EntityUseWeaponState : EntityState
     public override void Enter()
     {
         base.Enter();
-        entity.Anim.SetFloat("Direction", entity.InputHandler.Direction);
+        entity.Core.EntityMovement.MoveForwardTarget(Vector2.zero);
+        entity.Anim.SetFloat("Direction", entity.Input.DirectionLook);
+
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (isAnimationFinished)
+        {
+            entity.StateMachine.ChangeState(entity.MoveState);
+            Debug.Log("Attack");
+        }
     }
 }

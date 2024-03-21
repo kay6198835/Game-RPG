@@ -5,9 +5,11 @@ using UnityEngine;
 public class PlayerAttackState : PlayerUseWeaponState
 {
     private float startAttackTime;
-    public PlayerAttackState(NewPlayer player, PlayerStateMachine playerStateMachine, PlayerData playerData, string animBoolName) : base(player, playerStateMachine, playerData, animBoolName)
+
+    public PlayerAttackState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
     }
+
     public float StartAttackTime { get => startAttackTime;}
 
     public override void Enter()

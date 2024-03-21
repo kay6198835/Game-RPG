@@ -8,7 +8,7 @@ public class WeaponMeleeStats : WeaponDataSO
 {
     [SerializeField] private string nameWeapon;
     [SerializeField] private ulong idWeapon = 0;
-    [SerializeField] private List<AttackSO> attackState;
+    [SerializeField] protected List<AttackSO> attackState;
     [SerializeField] private Vector2 shieldEra;
     [SerializeField] private int blockDamage;
     #region

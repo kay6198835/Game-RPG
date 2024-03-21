@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityCore : MonoBehaviour
+public class EntityCore : MonoBehaviour, IDamageable
 {
     [SerializeField] private Entity entity;
     [SerializeField] private EntityMovement entityMovement;
@@ -10,6 +10,13 @@ public class EntityCore : MonoBehaviour
     public EntityMovement EntityMovement { get => entityMovement;}
     public EntityFindTarget FindTarget { get => findTarget; }
     public Entity Entity { get => entity;}
+
+    public void TakeDamage(int amoutDamage, Vector2 attackPosition)
+    {
+        if (entity.Data.currentHealth <= 0) return;
+        entity.Data.currentHealth -= amoutDamage;
+        entity.Input.OnTakeDamage(attackPosition);
+    }
 
     private void Awake()
     {

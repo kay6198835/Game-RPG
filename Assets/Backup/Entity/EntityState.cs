@@ -20,7 +20,7 @@ public class EntityState
         this.stateMachine = stateMachine;
         this.animBoolName = animBoolName;
         this.entityData = entityData;
-        entityCore = entity.EntityCore;
+        entityCore = entity.Core;
     }
 
     public virtual void Enter()
@@ -28,7 +28,6 @@ public class EntityState
         DoChecks();
         entity.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        //Debug.Log("Start" + animBoolName);
         onAnimationActivate = false;
         isAnimationFinished = false;
         isExitingState = false;
@@ -47,7 +46,6 @@ public class EntityState
     public virtual void PhysicsUpdate()
     {
         DoChecks();
-
     }
 
     public virtual void DoChecks()

@@ -4,45 +4,61 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    [SerializeField] private EntityInput inputHandler;
-    [SerializeField] private EntityCore entityCore;
-    [SerializeField] private Animator anim;
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private EntityStateMachine stateMachine;
-    [SerializeField] private EntityData entityData;
+    [SerializeField] protected EntityInput input;
+    [SerializeField] protected EntityCore core;
+    [SerializeField] protected Animator anim;
+    [SerializeField] protected Rigidbody2D rb;
+    [SerializeField] protected EntityStateMachine stateMachine;
+    [SerializeField] protected EntityData data;
 
     [SerializeField] private EntityIdleState idleState;
-    [SerializeField] private EntityMoveRandomState moveRandomState;
-    [SerializeField] private EntityMoveToTargetState moveToTargetState;
+    [SerializeField] private EntityMoveState moveState;
+    //[SerializeField] private EntityMoveToTargetState moveToTargetState;
     [SerializeField] private EntityAttackState attackState;
-    public EntityInput InputHandler { get => inputHandler;}
+    [SerializeField] private EntityTakeDamageState takeDamageState;
+    public EntityInput Input { get => input;}
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }
-    public EntityCore EntityCore { get => entityCore;}
+    public EntityCore Core { get => core;}
     public EntityStateMachine StateMachine { get => stateMachine;}
     public EntityIdleState IdleState { get => idleState;}
-    public EntityMoveRandomState MoveRandomState { get => moveRandomState; }
-    public EntityMoveToTargetState MoveToTargetState { get => moveToTargetState; }
+    public EntityMoveState MoveState { get => moveState; }
+    //public EntityMoveToTargetState MoveToTargetState { get => moveToTargetState; }
     public EntityAttackState AttackState { get => attackState; }
-    public EntityData EntityData { get => entityData;}
+    public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
+    public EntityData Data { get => data;}
 
     private void Awake()
     {
+        LoadState();
+        LoadEntity();
+
         stateMachine = new EntityStateMachine();
-        entityCore = GetComponentInChildren<EntityCore>();
-        inputHandler = GetComponentInChildren<EntityInput>();
-        idleState = new EntityIdleState(this,stateMachine,entityData,"Idle");
-        moveRandomState = new EntityMoveRandomState(this,stateMachine,entityData,"Move");
-        moveToTargetState = new EntityMoveToTargetState(this,stateMachine,entityData,"Move");
-        attackState = new EntityAttackState(this,stateMachine,entityData,"Attack");
-        anim =  GetComponent<Animator>();
+        core = GetComponentInChildren<EntityCore>();
+        input = GetComponentInChildren<EntityInput>();
+        idleState = new EntityIdleState(this, stateMachine, data, "Idle");
+        moveState = new EntityMoveState(this, stateMachine, data, "Move");
+        attackState = new EntityAttackState(this, stateMachine, data, "Attack");
+        takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
+        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        anim.runtimeAnimatorController = entityData.Aima;
+        anim.runtimeAnimatorController = data.Aima;
+    }
+    private void Start()
+    {
         stateMachine.Initialize(idleState);
     }
     private void Update()
     {
         stateMachine.CurrentState.LogicUpdate();
+    }
+    private void LoadEntity()
+    {
+
+    }
+    private void LoadState()
+    {
+
     }
 
     protected void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();

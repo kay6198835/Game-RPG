@@ -6,17 +6,13 @@ using UnityEngine;
 public class AbilitySO : ScriptableObject
 {
     [Header("Stats Base")]
-    [SerializeField] protected float starCastTime;
+    protected float starCastTime;
     [SerializeField] protected float maxCastTime;
-    [SerializeField] protected float periodCastTime;
-
-    //[SerializeField] protected new string name;
-    protected float cooldownTime;
-    //protected float activeTime;
-    [SerializeField] protected float currentTime;
-
-    protected LayerMask layerMask;
-    [SerializeField] protected NewPlayer player;
+    protected float periodCastTime;
+    [SerializeField] protected float cooldownTime;
+    protected float currentTime;
+    [SerializeField] protected LayerMask layerMask;
+    protected NewPlayer player;
     [SerializeField] protected AnimatorOverrideController animator;
     #region Attribute
     public string Name { get => name;}
@@ -37,7 +33,6 @@ public class AbilitySO : ScriptableObject
         starCastTime = Time.time;
         currentTime = Time.time;
         this.player=player;
-
     }
     public virtual void CastSkill()
     {
