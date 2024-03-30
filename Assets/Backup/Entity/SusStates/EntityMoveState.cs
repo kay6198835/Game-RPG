@@ -27,23 +27,23 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        directionMoveVector = entity.Input.DirectionMoveVector;
+        directionMoveVector = entity.Input.DirectionLookVector;
         entityCore.EntityMovement.MoveForwardTarget(
         directionMoveVector.normalized * entityData.MovementVelocities
         );
-        base.LogicUpdate();
-        if(entity.Input.Target == null) 
+        Debug.Log("Move");
+        if (entity.Input.Target == null)
         {
             if (moveTime <= Time.time)
             {
                 entity.StateMachine.ChangeState(entity.IdleState);
             }
         }
+        base.LogicUpdate();
     }
     public override void DoChecks()
     {
         base.DoChecks();
-
     }
     public override void Exit()
     {

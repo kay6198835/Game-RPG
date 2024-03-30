@@ -1,8 +1,10 @@
+using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
-[RequireComponent(typeof(AbilityHolder))]
-public class WeaponMelee : Weapon
+using UnityEngine.WSA;
+
+public class EntityWeaponMeleeComponent : EntityWeaponComponent
 {
     [SerializeField]
     [Header("Melee Weapon")]
@@ -16,8 +18,6 @@ public class WeaponMelee : Weapon
         if (stats.GetType() == typeof(WeaponMeleeStats))
         {
             statsMelee = (WeaponMeleeStats)stats;
-            //stats = new WeaponMeleeStats();
-            
         }
     }
     private void Start()
@@ -25,7 +25,6 @@ public class WeaponMelee : Weapon
         deplayTime = 0.5f;
         durationNextAttack = 0.9f;
     }
-
     public override void Attack()
     {
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, currrentSA.enemyLayers);
@@ -39,29 +38,28 @@ public class WeaponMelee : Weapon
     }
     public override AbilitySO SetAbility()
     {
-
-        if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
+        if (entityCore.Entity.Input.Skill == EntityInput.SkillType.Ability)
         {
             currentAbilitySO = statsMelee.Ability;
         }
-        else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
+        else if (entityCore.Entity.Input.Skill == EntityInput.SkillType.Special)
         {
             currentAbilitySO = statsMelee.Special;
         }
         return currentAbilitySO;
     }
-    public override bool CheckCanAttack(NewPlayer player)
+    public override bool CheckCanAttack(Entity entity,float lastClickTime)
     {
-        if (base.CheckCanAttack(player))
+        if (base.CheckCanAttack(entity,lastClickTime))
         {
             if (currentStateIndex == statsMelee.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
             {
                 currentStateIndex = 0;
             }
             currrentSA = statsMelee.AttackState[currentStateIndex];
-            player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
+            entity.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
             //Attack Position
-            CenterAttackPosition(player);
+            CenterAttackPosition(entity);
             currentStateIndex++;
             canAttack = true;
         }
@@ -71,13 +69,13 @@ public class WeaponMelee : Weapon
         }
         return canAttack;
     }
-    protected void CenterAttackPosition(NewPlayer player)
+    protected void CenterAttackPosition(Entity entity)
     {
-        centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionVector.normalized * currrentSA.attackRange;
+        centerAttackPosition = (Vector2)entity.transform.position + entity.Input.DirectionLookVector.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {
-        if(currrentSA != null)
+        if (currrentSA != null)
         {
             Gizmos.DrawWireSphere(centerAttackPosition, currrentSA.attackRange);
         }

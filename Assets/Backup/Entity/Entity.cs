@@ -6,6 +6,8 @@ public class Entity : MonoBehaviour
 {
     [SerializeField] protected EntityInput input;
     [SerializeField] protected EntityCore core;
+
+
     [SerializeField] protected Animator anim;
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected EntityStateMachine stateMachine;

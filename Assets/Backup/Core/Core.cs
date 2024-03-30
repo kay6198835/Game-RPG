@@ -5,12 +5,11 @@ using UnityEngine;
 public class Core : MonoBehaviour,IDamageable
 {
     [SerializeField] private NewPlayer player;
-
     [SerializeField] private PlayerMovement movement;
-    [SerializeField] private Weapon weapon;
+    [SerializeField] private WeaponHolder weaponHolder;
 
     public PlayerMovement Movement { get => movement;}
-    public Weapon Weapon { get => weapon;}
+    public WeaponHolder WeaponHolder { get => weaponHolder; }
     public NewPlayer Player { get => player; }
 
     public void TakeDamage(int amoutDamage, Vector2 attackPosition)
@@ -22,6 +21,6 @@ public class Core : MonoBehaviour,IDamageable
     {
         player = GetComponentInParent<NewPlayer>();
         movement = GetComponentInChildren<PlayerMovement>();
-        weapon = GetComponentInChildren<Weapon>();
+        weaponHolder = GetComponentInChildren<WeaponHolder>();
     }
 }

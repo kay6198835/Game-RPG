@@ -12,6 +12,7 @@ public class PlayerIdleState : PlayerBasicState
     {
         base.Enter();
         player.Core.Movement.SetVeclocity(Vector2.zero);
+        stateStyle = StateStyle.Motion;
     }
 
     public override void LogicUpdate()

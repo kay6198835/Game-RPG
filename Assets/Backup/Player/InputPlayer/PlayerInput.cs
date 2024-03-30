@@ -71,6 +71,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pick/Drop"",
+                    ""type"": ""Button"",
+                    ""id"": ""949822f0-c4cb-4a19-b25d-e001bd023ba9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Dash"",
+                    ""type"": ""Button"",
+                    ""id"": ""fcf460e8-3dbd-4395-9168-59ea75aa8e2d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -172,6 +190,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""AbilityWeapon"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9575b604-6b19-4555-a72a-0294a5a097b2"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pick/Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b84ea50c-0b20-46d3-82a6-b5956d44254c"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -185,6 +225,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Control_Attack = m_Control.FindAction("Attack", throwIfNotFound: true);
         m_Control_SkillWeapon = m_Control.FindAction("SkillWeapon", throwIfNotFound: true);
         m_Control_AbilityWeapon = m_Control.FindAction("AbilityWeapon", throwIfNotFound: true);
+        m_Control_PickDrop = m_Control.FindAction("Pick/Drop", throwIfNotFound: true);
+        m_Control_Dash = m_Control.FindAction("Dash", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -251,6 +293,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Control_Attack;
     private readonly InputAction m_Control_SkillWeapon;
     private readonly InputAction m_Control_AbilityWeapon;
+    private readonly InputAction m_Control_PickDrop;
+    private readonly InputAction m_Control_Dash;
     public struct ControlActions
     {
         private @PlayerInput m_Wrapper;
@@ -260,6 +304,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Attack => m_Wrapper.m_Control_Attack;
         public InputAction @SkillWeapon => m_Wrapper.m_Control_SkillWeapon;
         public InputAction @AbilityWeapon => m_Wrapper.m_Control_AbilityWeapon;
+        public InputAction @PickDrop => m_Wrapper.m_Control_PickDrop;
+        public InputAction @Dash => m_Wrapper.m_Control_Dash;
         public InputActionMap Get() { return m_Wrapper.m_Control; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -284,6 +330,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @AbilityWeapon.started += instance.OnAbilityWeapon;
             @AbilityWeapon.performed += instance.OnAbilityWeapon;
             @AbilityWeapon.canceled += instance.OnAbilityWeapon;
+            @PickDrop.started += instance.OnPickDrop;
+            @PickDrop.performed += instance.OnPickDrop;
+            @PickDrop.canceled += instance.OnPickDrop;
+            @Dash.started += instance.OnDash;
+            @Dash.performed += instance.OnDash;
+            @Dash.canceled += instance.OnDash;
         }
 
         private void UnregisterCallbacks(IControlActions instance)
@@ -303,6 +355,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @AbilityWeapon.started -= instance.OnAbilityWeapon;
             @AbilityWeapon.performed -= instance.OnAbilityWeapon;
             @AbilityWeapon.canceled -= instance.OnAbilityWeapon;
+            @PickDrop.started -= instance.OnPickDrop;
+            @PickDrop.performed -= instance.OnPickDrop;
+            @PickDrop.canceled -= instance.OnPickDrop;
+            @Dash.started -= instance.OnDash;
+            @Dash.performed -= instance.OnDash;
+            @Dash.canceled -= instance.OnDash;
         }
 
         public void RemoveCallbacks(IControlActions instance)
@@ -327,5 +385,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnAttack(InputAction.CallbackContext context);
         void OnSkillWeapon(InputAction.CallbackContext context);
         void OnAbilityWeapon(InputAction.CallbackContext context);
+        void OnPickDrop(InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KnockbackState : MonoBehaviour
+public class IIteraction : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()

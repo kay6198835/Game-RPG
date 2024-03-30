@@ -7,8 +7,10 @@ public class EntityCore : MonoBehaviour, IDamageable
     [SerializeField] private Entity entity;
     [SerializeField] private EntityMovement entityMovement;
     [SerializeField] private EntityFindTarget findTarget;
+    [SerializeField] private EntityWeaponComponent weapon;
     public EntityMovement EntityMovement { get => entityMovement;}
     public EntityFindTarget FindTarget { get => findTarget; }
+    public EntityWeaponComponent Weapon { get => weapon; }
     public Entity Entity { get => entity;}
 
     public void TakeDamage(int amoutDamage, Vector2 attackPosition)
@@ -23,5 +25,6 @@ public class EntityCore : MonoBehaviour, IDamageable
         entity = GetComponentInParent<Entity>();
         entityMovement = GetComponentInChildren<EntityMovement>();
         findTarget = GetComponentInChildren<EntityFindTarget>();
+        weapon = GetComponentInChildren<EntityWeaponComponent>();
     }
 }
