@@ -13,14 +13,21 @@ public class PlayerIdleState : PlayerBasicState
         base.Enter();
         player.Core.Movement.SetVeclocity(Vector2.zero);
         stateStyle = StateStyle.Motion;
+        //Debug.Log("Idle");
     }
 
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (moveVector != Vector2.zero)
+        if (player.InputHandler.MoveVector != Vector2.zero)
         {
             stateMachine.ChangeState(player.MoveState);
         }
+    }
+    public override void Exit()
+    {
+        base.Exit();
+
+        //Debug.Log("Exit Idle");
     }
 }

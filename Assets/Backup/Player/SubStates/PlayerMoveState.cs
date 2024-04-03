@@ -11,11 +11,12 @@ public class PlayerMoveState : PlayerBasicState
     {
         base.Enter();
         stateStyle = StateStyle.Motion;
+        //Debug.Log("Run");
     }
     public override void LogicUpdate()
     {
-        player.Core.Movement.SetVeclocity(moveVector * playerData.movementVelocities);
-        if (moveVector == Vector2.zero)
+        player.Core.Movement.SetVeclocity(player.InputHandler.MoveVector * playerData.movementVelocities);
+        if (player.InputHandler.MoveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);
         }
@@ -29,5 +30,6 @@ public class PlayerMoveState : PlayerBasicState
     {
         base.Exit();
         player.Core.Movement.SetVeclocity(Vector2.zero);
+        //Debug.Log("Eixt Run");
     }
 }

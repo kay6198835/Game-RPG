@@ -75,9 +75,9 @@ public class NewPlayer : MonoBehaviour
     #region Other Functions
 
     private void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
-
     private void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
     private void AnimationExitingState() => stateMachine.CurrentState.AnimationExitingState();
+    private void AnimationDo() => stateMachine.CurrentState.AnimationDo();
 
 
     #endregion

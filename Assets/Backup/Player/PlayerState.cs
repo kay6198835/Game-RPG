@@ -14,7 +14,7 @@ public class PlayerState
     protected bool isAnimationTrigger;
     protected bool isAnimationFinished;
     protected bool isAnimationExitingState;
-    protected bool isExitingState;
+    protected bool isDo;
     protected float startTime;
     private string animBoolName;
     protected StateStyle stateStyle;
@@ -40,19 +40,16 @@ public class PlayerState
         //Debug.Log("Start" + animBoolName);
         isAnimationTrigger = false;
         isAnimationFinished = false;
-        isExitingState = false;
         player.Anim.SetFloat("Direction", player.InputHandler.Direction);
     }
     public virtual void Exit()
     {
-        //Debug.Log("End" + animBoolName);
         player.Anim.SetBool(animBoolName, false);
-        isExitingState = true;
     }
 
     public virtual void LogicUpdate()
     {
-        if(stateStyle == StateStyle.Motion)
+        if (stateStyle == StateStyle.Motion)
         {
             player.Anim.SetFloat("Direction", player.InputHandler.Direction);
         }
@@ -64,10 +61,17 @@ public class PlayerState
 
     public virtual void DoChecks() { }
 
-    public virtual void AnimationTrigger() => isAnimationTrigger = true;
-
+    public virtual void AnimationTrigger()
+    {
+        isAnimationTrigger = true;
+        //Debug.Log(isAnimationTrigger+" Trigger ");
+    }
     public virtual void AnimationFinishTrigger() => isAnimationFinished = true;
-    public virtual void AnimationExitingState() => isAnimationExitingState = true;
+    public virtual void AnimationDo() => isDo = true;
+    public virtual void AnimationExitingState()
+    {
+        isAnimationExitingState = true;
+    }
 
 
 }

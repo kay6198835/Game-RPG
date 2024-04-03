@@ -31,7 +31,6 @@ public class EntityMoveState : EntityBasicState
         entityCore.EntityMovement.MoveForwardTarget(
         directionMoveVector.normalized * entityData.MovementVelocities
         );
-        Debug.Log("Move");
         if (entity.Input.Target == null)
         {
             if (moveTime <= Time.time)

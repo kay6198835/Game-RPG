@@ -7,4 +7,24 @@ using UnityEngine;
 public class DashAbility : AbilitySO
 {
     [SerializeField] private float dashingPower;
+
+    public override void Activate()
+    {
+        base.Activate();
+    }
+
+    public override void CastSkill()
+    {
+        base.CastSkill();
+    }
+
+    public override void DoAbility()
+    {
+        base.DoAbility();
+    }
+
+    public override void ExitSkill()
+    {
+        base.ExitSkill();
+    }
 }

@@ -28,15 +28,20 @@ public class AbilitySO : ScriptableObject
     {
         layerMask = LayerMask.GetMask("Enemy");
     }
-    public virtual void Activate(NewPlayer player)
+    public virtual void Enter(NewPlayer player)
+    {
+        this.player = player;
+    }
+    public virtual void Activate()
     {
         starCastTime = Time.time;
         currentTime = Time.time;
-        this.player=player;
+        Debug.Log("Activate");
     }
     public virtual void CastSkill()
     {
         currentTime = Time.time;
+        Debug.Log("Cast");
     }
     public virtual void DoAbility()
     {
@@ -48,6 +53,7 @@ public class AbilitySO : ScriptableObject
         {
             periodCastTime = maxCastTime;
         }
+        Debug.Log("Do");
     }
     public virtual void ExitSkill()
     {
