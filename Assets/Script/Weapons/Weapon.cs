@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Weapon : MonoBehaviour
+public abstract class Weapon : CoreCompoment
 {
     [Header("Abtract Weapon")]
-    [SerializeField] protected WeaponHolder holder;
     [SerializeField] protected WeaponDataSO stats;
     [SerializeField] protected AbilitySO currentAbilitySO;
     protected float lastClickTime;
@@ -14,9 +13,9 @@ public abstract class Weapon : MonoBehaviour
     protected bool canAttack;
     public AbilitySO CurrentAbilitySO { get => currentAbilitySO; }
 
-    protected virtual void Awake()
+    protected override void Awake()
     {
-        holder = GetComponentInParent<WeaponHolder>();
+        base.Awake();
     }
     public abstract void Attack();
     public virtual bool CheckCanAttack(NewPlayer player)
@@ -34,17 +33,6 @@ public abstract class Weapon : MonoBehaviour
         return canAttack;
     }
     public abstract AbilitySO SetAbility();
-    public virtual void SetWeaponHolder(WeaponHolder weaponHolder)
-    {
-        if (holder == null)
-        {
-            holder = weaponHolder;
-        }
-        else
-        {
-            holder = null;
-        }
-    }
     protected void Equid(Collider2D collision, WeaponDataSO weaponData)
     {
         WeaponsController WPcontroller = collision.GetComponent<WeaponsController>();

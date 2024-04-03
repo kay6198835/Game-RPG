@@ -27,22 +27,27 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        directionMoveVector = entity.Input.DirectionLookVector;
+        directionMoveVector = entity.Input.DirectionMoveVector;
         entityCore.EntityMovement.MoveForwardTarget(
         directionMoveVector.normalized * entityData.MovementVelocities
         );
+<<<<<<< HEAD
         if (entity.Input.Target == null)
+=======
+        base.LogicUpdate();
+        if(entity.Input.Target == null) 
+>>>>>>> parent of e9a7753 (add Combo for Attack of Entity,  Dash State for Player (30/03/2024))
         {
             if (moveTime <= Time.time)
             {
                 entity.StateMachine.ChangeState(entity.IdleState);
             }
         }
-        base.LogicUpdate();
     }
     public override void DoChecks()
     {
         base.DoChecks();
+
     }
     public override void Exit()
     {

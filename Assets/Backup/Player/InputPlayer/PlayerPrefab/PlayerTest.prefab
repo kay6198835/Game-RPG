@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3514194501170875145}
   - component: {fileID: 8146647203115557358}
   - component: {fileID: 4210541404234113733}
-  - component: {fileID: 2031167604194848396}
+  - component: {fileID: -7459436981756337069}
   m_Layer: 7
   m_Name: PlayerTest
   m_TagString: Player
@@ -183,7 +183,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2031167604194848396
+--- !u!114 &-7459436981756337069
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -192,7 +192,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3647546795979010557}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be6bb403fbb0ced4380e521719c1c8a9, type: 3}
+  m_Script: {fileID: 11500000, guid: da454af011c1b384f88d7873c2214f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   movement: {fileID: 0}
-  weaponHolder: {fileID: 0}
+  weapon: {fileID: 0}
 --- !u!1 &5519547563718807823
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,20 +338,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff757ce8ac159bc45a7bdbfcb60cfd03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  direction: 0
-  angleSin: 0
-  angleDirection: 0
+  playerCtr: {fileID: 0}
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}
   directionVector: {x: 0, y: 0}
-  isAttack: 0
+  direction: 0
+  playerAttack: 0
   isSkill: 0
-  isDisadvantage: 0
-  isPick_Drop: 0
+  angleSin: 0
+  angleDirection: 0
+  enemy: {fileID: 0}
+  eToP: {x: 0, y: 0}
+  dotProduct: 0
   state: 0
   skill: 0
-  disadvantage: 0
 --- !u!1 &9010334046371474003
 GameObject:
   m_ObjectHideFlags: 0
@@ -361,9 +361,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9186174902540422970}
-  - component: {fileID: 4708333821092122059}
+  - component: {fileID: 7075277347294300069}
+  - component: {fileID: 6593928060906271023}
   m_Layer: 7
-  m_Name: WeaponHolder
+  m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -384,7 +385,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4525166674902496624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4708333821092122059
+--- !u!114 &7075277347294300069
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -393,11 +394,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 9010334046371474003}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f86fafd9fc812146abb0944d37253a9, type: 3}
+  m_Script: {fileID: 11500000, guid: ec4990233ea255e4e944a55a192d327e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapon: {fileID: 0}
-  weaponGO: {fileID: 0}
-  isCanPickWeapon: 0
-  range: 0
-  test: {x: 0, y: 0, z: 0}
+  stats: {fileID: 11400000, guid: 42ea56e61571fa949815576eac83fb82, type: 2}
+  currentAbilitySO: {fileID: 0}
+  statsMelee: {fileID: 0}
+--- !u!114 &6593928060906271023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010334046371474003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1141b77229a082146b665229f6fc1025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ability: {fileID: 0}
+  cooldownTime: 0
+  activeTime: 0
+  keyCode: 0

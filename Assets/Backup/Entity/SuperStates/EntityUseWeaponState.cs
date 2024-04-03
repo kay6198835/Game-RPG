@@ -12,14 +12,15 @@ public class EntityUseWeaponState : EntityState
         base.Enter();
         entity.Core.EntityMovement.MoveForwardTarget(Vector2.zero);
         entity.Anim.SetFloat("Direction", entity.Input.DirectionLook);
+
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
         if (isAnimationFinished)
         {
-            entity.StateMachine.ChangeState(entity.IdleState);
-            //Debug.Log("Attack");
+            entity.StateMachine.ChangeState(entity.MoveState);
+            Debug.Log("Attack");
         }
     }
 }

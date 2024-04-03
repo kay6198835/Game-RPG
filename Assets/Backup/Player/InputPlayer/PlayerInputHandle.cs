@@ -6,11 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    [SerializeField] private NewPlayer player;
     [SerializeField] private PlayerInput playerInput;
-    //[Header("LayerMask")]
-    //[SerializeField] private LayerMask enemyLayer;
-    //[SerializeField] private LayerMask weaponLayer;
     [Header("Direction")]
     [SerializeField] private int direction;
     [SerializeField] private float angleSin;
@@ -23,8 +19,11 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private bool isAttack;
     [SerializeField] private bool isSkill;
     [SerializeField] private bool isDisadvantage;
-    [SerializeField] private bool isDash;
-    [SerializeField] private bool isPick_Drop = false;
+    [Header("Test Dot Product")]
+    [SerializeField] Transform enemy;
+    [SerializeField] Vector2 eToP;
+    [SerializeField] float dotProduct;
+    
     public enum SkillState
     {
         Start,
@@ -45,7 +44,7 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private DisadvantageState disadvantage;
     private void Awake()
     {
-        player = GetComponentInParent<NewPlayer>();
+        //playerCtr = GetComponentInParent<NewPlayer>();
         playerInput = new PlayerInput();
     }
     private void Start()
@@ -70,18 +69,21 @@ public class PlayerInputHandler : MonoBehaviour
         playerInput.Control.AbilityWeapon.started += OnAbilityWeapon;
         playerInput.Control.AbilityWeapon.performed += OnAbilityWeapon;
         playerInput.Control.AbilityWeapon.canceled += OnAbilityWeapon;
+    }
+    private void Update()
+    {
+        if(enemy != null)
+        {
+            eToP = (enemy.position - transform.position).normalized;
+            dotProduct = Vector2.Dot(eToP, directionVector);
+        }
 
-        playerInput.Control.PickDrop.started += OnPickDrop;
-        playerInput.Control.PickDrop.canceled += OnPickDrop;
-        playerInput.Control.Dash.started += OnDash;
-        playerInput.Control.Dash.canceled += OnDash;
     }
     #region Get value 
     public Vector2 MoveVector { get => moveVector;}
     public Vector2 MouseVector { get => mouseVector;}
     public Vector2 DirectionVector { get => directionVector;}
     public int Direction { get => direction;}
-    public bool IsDash { get => isDash;}
     public bool IsAttack { get => isAttack;}
     public SkillState State { get => state;}
     public SkillType Skill { get => skill;}
@@ -90,8 +92,8 @@ public class PlayerInputHandler : MonoBehaviour
     public float AngleSin { get => angleSin;}
     public float AngleDirection { get => angleDirection; }
     public bool IsDisadvantage { get => isDisadvantage;}
-    public bool IsPick_Drop { get => isPick_Drop;}
     #endregion
+
     private void OnEnable()
     {
         playerInput.Control.Enable();
@@ -104,28 +106,6 @@ public class PlayerInputHandler : MonoBehaviour
     {
         mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         AngleCalculate(mouseVector);
-    }
-    private void OnPickDrop(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            isPick_Drop = true;
-        }
-        else if(context.canceled)
-        {
-            isPick_Drop = false;
-        }
-    }
-    private void OnDash(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            isDash = true;
-        }
-        else if (context.canceled)
-        {
-            isDash = false;
-        }
     }
     private void OnMove(InputAction.CallbackContext context)
     {

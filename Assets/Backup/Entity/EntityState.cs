@@ -8,17 +8,12 @@ public class EntityState
     protected Entity entity;
     protected EntityCore entityCore;
     protected EntityData entityData;
-    protected bool isAnimationTrigger;
+    protected bool onAnimationActivate;
     protected bool isAnimationFinished;
     protected bool isExitingState;
     protected float startTime;
     protected string animBoolName;
-    //protected StateStyle stateStyle;
-    //public enum StateStyle
-    //{
-    //    Freeze,
-    //    Motion
-    //}
+
     public EntityState(Entity etity, EntityStateMachine stateMachine, EntityData entityData , string animBoolName)
     {
         this.entity = etity;
@@ -33,7 +28,7 @@ public class EntityState
         DoChecks();
         entity.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        isAnimationTrigger = false;
+        onAnimationActivate = false;
         isAnimationFinished = false;
         isExitingState = false;
     }
@@ -57,7 +52,7 @@ public class EntityState
     {
 
     }
-    public virtual void AnimationTrigger() => isAnimationTrigger = true;
+    public virtual void AnimationTrigger() => onAnimationActivate = true;
 
     public virtual void AnimationFinishTrigger() => isAnimationFinished = true;
 }

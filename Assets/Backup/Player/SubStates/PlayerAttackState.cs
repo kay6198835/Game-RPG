@@ -28,7 +28,7 @@ public class PlayerAttackState : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            player.Core.WeaponHolder.Weapon.Attack();
+            player.Core.Weapon.Attack();
             isAnimationTrigger = false;
         }
     }

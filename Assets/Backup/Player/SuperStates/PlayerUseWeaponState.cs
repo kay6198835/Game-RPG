@@ -7,15 +7,19 @@ public class PlayerUseWeaponState : PlayerState
     public PlayerUseWeaponState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
     }
+
     public override void Enter()
     {
         base.Enter();
         player.Anim.SetFloat("Direction", player.InputHandler.Direction);
     }
+
     public override void Exit()
     {
         base.Exit();
+
     }
+
     public override void LogicUpdate()
     {
         base.LogicUpdate();
@@ -31,5 +35,6 @@ public class PlayerUseWeaponState : PlayerState
                 stateMachine.ChangeState(player.MoveState);
             }
         }
+
     }
 }

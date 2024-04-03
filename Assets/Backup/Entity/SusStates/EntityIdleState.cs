@@ -17,14 +17,12 @@ public class EntityIdleState : EntityBasicState
         idleDurationTime = entityData.IdleDurationTime;
         idleTime = startTime + idleDurationTime;
         entityCore.EntityMovement.MoveForwardTarget(Vector2.zero);
-        //Debug.Log("Start Idle");
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (idleTime <= Time.time || entity.Input.Target != null)
+        if (idleTime <= Time.time)
         {
-            //Debug.Log("Idle");
             entity.StateMachine.ChangeState(entity.MoveState);
         }
     }

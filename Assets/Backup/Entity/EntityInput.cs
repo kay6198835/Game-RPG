@@ -7,12 +7,6 @@ public class EntityInput : MonoBehaviour
 {
     [SerializeField] protected Entity entity;
     [SerializeField] protected Transform target;
-    //[SerializeField] protected float angleSin;
-    [Header("State")]
-    //[SerializeField] protected bool isMove;
-    [SerializeField] protected bool isTakeDamage=false;
-    [SerializeField] protected bool isAttack;
-    [SerializeField] protected bool isSkill;
     [Header("Direction Look")]
     [SerializeField] protected Vector2 directionLookVector;
     [SerializeField] protected int directionLook;
@@ -21,37 +15,23 @@ public class EntityInput : MonoBehaviour
     [SerializeField] private Vector2 directionIsAttakedVector;
     [SerializeField] private int directionIsAttaked;
     [SerializeField] private float directionIsAttakedAngle;
-    [Header("Skill")]
-    [SerializeField] private SkillState state;
-    [SerializeField] private SkillType skill;
-    public enum SkillState
-    {
-        Start,
-        Cast,
-        Do,
-    }
-    public enum SkillType
-    {
-        Special,
-        Ability
-    }
+    //[SerializeField] protected float angleSin;
+    [Header("State")]
+    [SerializeField] protected bool isTakeDamage=false;
+    [SerializeField] protected bool isMove;
+    [SerializeField] protected bool isAttack;
     #region Read_Value 
-    public bool IsTakeDamage { get => isTakeDamage; }
-    public bool IsAttack { get => isAttack; }
-    public bool IsSkill { get => isSkill; }
-
-
     public Transform Target { get => target; }
-    public Vector2 DirectionLookVector { get => directionLookVector; }
+    public Vector2 DirectionMoveVector { get => directionLookVector; }
     public Entity Entity { get => entity;}
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle;}
     public int DirectionLook { get => directionLook;}
+    public bool IsTakeDamage { get => isTakeDamage; }
+    public bool IsAttack { get => isAttack; }
     public Vector2 DirectionIsAttakedVector { get => directionIsAttakedVector;}
     public int DirectionIsAttaked { get => directionIsAttaked;}
     public float DirectionIsAttakedAngle { get => directionIsAttakedAngle; }
-    public SkillState State { get => state;}
-    public SkillType Skill { get => skill;}
     #endregion
 
     private void Awake()
@@ -70,6 +50,7 @@ public class EntityInput : MonoBehaviour
         directionIsAttakedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
         AngleCalculate(directionIsAttakedVector,ref directionIsAttakedAngle , ref directionIsAttaked);
     }
+
     private void GetTargetInRange()
     {
         if (target == null)
@@ -84,8 +65,8 @@ public class EntityInput : MonoBehaviour
         {
             isAttack = false;
         }
-        
     }
+
     private void AngleCalculate(Vector2 directionVector,ref float angle, ref int direction)
     {
         angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;

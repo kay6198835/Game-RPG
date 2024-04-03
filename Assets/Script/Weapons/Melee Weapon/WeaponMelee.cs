@@ -40,11 +40,11 @@ public class WeaponMelee : Weapon
     public override AbilitySO SetAbility()
     {
 
-        if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
+        if (core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
         {
             currentAbilitySO = statsMelee.Ability;
         }
-        else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
+        else if(core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
         {
             currentAbilitySO = statsMelee.Special;
         }
