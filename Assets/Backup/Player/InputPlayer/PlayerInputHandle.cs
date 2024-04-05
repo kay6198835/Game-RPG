@@ -148,10 +148,12 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.started)
         {
             state = SkillState.Start;
+            isSkill = true;
+
         }
         else if (context.performed)
         {
-            isSkill = true;
+
             state = SkillState.Cast;
         }
         else if (context.canceled)
