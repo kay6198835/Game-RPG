@@ -29,7 +29,7 @@ public class PlayerBasicState : PlayerState
             {
                 stateMachine.ChangeState(player.AttackState);
             }
-            if (player.InputHandler.IsSkill && player.Core.WeaponHolder.Weapon.SetAbility() != null)
+            if (player.InputHandler.IsSkill && player.Core.AbilityHolder.CanUseAbility)
             {
                 stateMachine.ChangeState(player.AbilityState);
             }

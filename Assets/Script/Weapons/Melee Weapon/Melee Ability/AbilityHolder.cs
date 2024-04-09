@@ -1,16 +1,95 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class AbilityHolder : MonoBehaviour
+public class AbilityHolder : CoreCompoment
 {
     [SerializeField] private AbilitySO ability;
     [SerializeField] private float cooldownTime;
     [SerializeField] private float activeTime;
     [SerializeField] private KeyCode keyCode;
-    public void SetAblityWeapon(WeaponMelee weapon)
+    [SerializeField] private bool canUseAbility;
+    [SerializeField] private int stateIndex;
+    [SerializeField] private int stateLength;
+    public enum SkillState
     {
-        ability = weapon.CurrentAbilitySO;
+        Start,
+        Cast,
+        Do
+    }
+    [SerializeField] private SkillState currentState;
+    public AbilitySO Ability { get => ability; }
+    public bool CanUseAbility { get => canUseAbility;}
+
+    protected override void Awake()
+    {
+        base.Awake();
+        stateIndex = 1;
+        stateLength = Enum.GetNames(typeof(SkillState)).Length;
+    }
+    private void Start()
+    {
+        canUseAbility = false;
+    }
+    public void SetCanUseAbility(bool canUseAbility)
+    {
+        if (this.canUseAbility == canUseAbility)
+        {
+            return;
+        }
+        this.canUseAbility = canUseAbility;
+        core.Player.Anim.SetBool("DoAB", !this.canUseAbility);
+    }
+    public void SetAblityWeapon(AbilitySO ability)
+    {
+        this.ability = ability;
+    }
+    public void EnterAbility()
+    {
+        core.Player.Anim.runtimeAnimatorController = ability.Animator;
+        ability.Enter(core.Player);
+    }
+    public void ExitAbility()
+    {
+        ability.Exit();
+    }
+    public void SetStateAbility(ref bool isAnimationTrigger)
+    {
+        if (isAnimationTrigger)
+        {
+            switch (currentState)
+            {
+                case SkillState.Start:
+                    ability.Activate();
+                    currentState = SkillState.Cast;
+                    break;
+                case SkillState.Cast:
+                    ability.Cast();
+                    if (core.Player.InputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == AbilitySO.SkillType.DoNonCast)
+                    {
+                        SetCanUseAbility(false);
+                        currentState = SkillState.Do;
+                    }
+                    break;
+                case SkillState.Do:
+                    ability.Do();
+                    currentState = SkillState.Start;
+                    break;
+            }
+            isAnimationTrigger = false;
+        }
+    }
+    public void ChangeState()
+    {
+        stateIndex++;
+        if (stateIndex > stateLength)
+        {
+            stateIndex = 1;
+        }
+        currentState = (SkillState)stateIndex;
+        Debug.Log("Change");
     }
 }

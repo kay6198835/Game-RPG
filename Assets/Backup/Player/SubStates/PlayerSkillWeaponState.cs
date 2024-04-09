@@ -5,8 +5,8 @@ using UnityEngine;
 public class PlayerSkillWeaponState : PlayerUseWeaponState
 {
     private int stateIndex;
-    private AbilitySO skill;
-    bool isCanUseSkills;
+    //private AbilitySO ability;
+    //bool isCanUseSkills;
     public PlayerSkillWeaponState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
 
@@ -14,19 +14,18 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void Enter()
     {
         base.Enter();
-        skill = player.Core.WeaponHolder.Weapon.CurrentAbilitySO;
-        player.Anim.runtimeAnimatorController = skill.Animator;
-        skill.Enter(player);
+        player.Core.AbilityHolder.EnterAbility();
+        //skill = player.Core.AbilityHolder.Ability;
+        //player.Anim.runtimeAnimatorController = skill.Animator;
+        //skill.Enter(player);
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
-
-
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        Debug.Log(isAnimationTrigger + " " + isCanUseSkills+" "+ player.InputHandler.State);
-        if (isAnimationTrigger)
+        
+        /*if (isAnimationTrigger)
         {
             if (stateIndex == 0)
             {
@@ -35,7 +34,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
             }
             else if (stateIndex == 1)
             {
-                skill.CastSkill();
+                skill.Cast();
 
                 if ((player.InputHandler.State == PlayerInputHandler.SkillState.Do ||skill.Type == AbilitySO.SkillType.DoNonCast)&&isAnimationExitingState)
                 {
@@ -45,11 +44,18 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
             }
             else if (stateIndex == 2)
             {
-                skill.DoAbility();
+                skill.Do();
                 isCanUseSkills = false;
             }
             player.Anim.SetFloat("StateSkill", stateIndex);
             isAnimationTrigger = false;
-        }
+        }*/
+        player.Core.AbilityHolder.SetStateAbility(ref isAnimationTrigger);
+        
+    }
+    public override void Exit()
+    {
+        base.Exit();
+        player.Core.AbilityHolder.ExitAbility();
     }
 }

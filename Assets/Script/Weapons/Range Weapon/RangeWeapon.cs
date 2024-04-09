@@ -15,8 +15,8 @@ public class RangeWeapon : Weapon
         return canAttack;
     }
 
-    public override AbilitySO SetAbility()
+    public override void SetAbility()
     {
-        return currentAbilitySO;
+
     }
 }

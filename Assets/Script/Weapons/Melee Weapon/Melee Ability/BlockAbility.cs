@@ -6,8 +6,8 @@ using UnityEngine.Profiling;
 [CreateAssetMenu(menuName = "Ability SO/Block Ability")]
 public class BlockAbility : AbilitySO
 {
-    public override void CastSkill()
+    public override void Cast()
     {
-        base.CastSkill();
+        base.Cast();
     }
 }

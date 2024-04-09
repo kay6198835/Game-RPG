@@ -173,7 +173,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""e1def900-e854-4b1e-ba69-11c81ae7e12e"",
                     ""path"": ""<Keyboard>/#(E)"",
-                    ""interactions"": ""Hold(pressPoint=0.1)"",
+                    ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""SkillWeapon"",

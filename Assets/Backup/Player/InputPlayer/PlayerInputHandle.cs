@@ -149,11 +149,11 @@ public class PlayerInputHandler : MonoBehaviour
         {
             state = SkillState.Start;
             isSkill = true;
-
+            player.Core.WeaponHolder.Weapon.SetAbility();
+            player.Core.AbilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {
-
             state = SkillState.Cast;
         }
         else if (context.canceled)

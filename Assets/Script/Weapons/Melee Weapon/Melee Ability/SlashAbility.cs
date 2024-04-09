@@ -8,8 +8,8 @@ public class SlashAbility : AbilitySO
     [SerializeField] private GameObject slashPrefab;
     private Vector3 shoot;
     [SerializeField] private float speedSlash;
-    [SerializeField] private Quaternion rotation;
-    [SerializeField] private Vector2 positon;
+    private Quaternion rotation;
+    private Vector2 positon;
     #region
     public GameObject SlashPrefab { get => slashPrefab;}
     public Vector3 Shoot { get => shoot; }
@@ -22,9 +22,9 @@ public class SlashAbility : AbilitySO
         shoot = player.InputHandler.DirectionVector;
         base.Activate();
     }
-    public override void DoAbility()
+    public override void Do()
     {
-        base.DoAbility();
+        base.Do();
         Instantiate(slashPrefab, positon, rotation).gameObject.
             GetComponent<Projectile>().SetXVelocity (shoot);
     }

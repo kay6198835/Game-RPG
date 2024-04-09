@@ -6,7 +6,7 @@ using UnityEngine;
 public class EntityData : ScriptableObject
 {
     [SerializeField] private LayerMask layerMask;
-    [SerializeField] private AnimatorController aima;
+    [SerializeField] private AnimatorOverrideController aima;
     public float currentHealth;
     [Header("Player Stats")]
     [SerializeField] private float maxHealth;
@@ -23,7 +23,7 @@ public class EntityData : ScriptableObject
     [SerializeField] private List<AttackSO> attackSOs;
     public float MaxHealth { get => maxHealth; }
     public LayerMask LayerMask { get => layerMask; }
-    public AnimatorController Aima { get => aima;}
+    public AnimatorOverrideController Aima { get => aima;}
     public float RangeCheckFieldOfView { get => rangeCheckFieldOfView;}
     public float IdleDurationTime { get => idleDurationTime;}
     public float MovementVelocities { get => movementVelocities;}

@@ -64,10 +64,17 @@ public class PlayerState
 
     public virtual void DoChecks() { }
 
-    public virtual void AnimationTrigger() => isAnimationTrigger = true;
-
+    public virtual void AnimationTrigger()
+    {
+        isAnimationTrigger = true;
+        //Debug.Log("isAnimationTrigger "+isAnimationTrigger);
+    }
     public virtual void AnimationFinishTrigger() => isAnimationFinished = true;
-    public virtual void AnimationExitingState() => isAnimationExitingState = true;
+    public virtual void AnimationExitingState()
+    {
+        isAnimationExitingState = true;
+        //Debug.Log("isAnimationExitingState: " + isAnimationExitingState);
+    }
 
 
 }

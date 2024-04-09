@@ -15,7 +15,6 @@ public class Entity : MonoBehaviour
 
     [SerializeField] private EntityIdleState idleState;
     [SerializeField] private EntityMoveState moveState;
-    //[SerializeField] private EntityMoveToTargetState moveToTargetState;
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
     public EntityInput Input { get => input;}
@@ -25,7 +24,6 @@ public class Entity : MonoBehaviour
     public EntityStateMachine StateMachine { get => stateMachine;}
     public EntityIdleState IdleState { get => idleState;}
     public EntityMoveState MoveState { get => moveState; }
-    //public EntityMoveToTargetState MoveToTargetState { get => moveToTargetState; }
     public EntityAttackState AttackState { get => attackState; }
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
     public EntityData Data { get => data;}

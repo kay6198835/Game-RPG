@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-[RequireComponent(typeof(AbilityHolder))]
 public class WeaponMelee : Weapon
 {
     [SerializeField]
@@ -17,7 +16,6 @@ public class WeaponMelee : Weapon
         {
             statsMelee = (WeaponMeleeStats)stats;
             //stats = new WeaponMeleeStats();
-            
         }
     }
     private void Start()
@@ -25,7 +23,6 @@ public class WeaponMelee : Weapon
         deplayTime = 0.5f;
         durationNextAttack = 0.9f;
     }
-
     public override void Attack()
     {
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, currrentSA.enemyLayers);
@@ -37,9 +34,8 @@ public class WeaponMelee : Weapon
             }
         }
     }
-    public override AbilitySO SetAbility()
+    public override void SetAbility()
     {
-
         if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
         {
             currentAbilitySO = statsMelee.Ability;
@@ -48,7 +44,7 @@ public class WeaponMelee : Weapon
         {
             currentAbilitySO = statsMelee.Special;
         }
-        return currentAbilitySO;
+        base.SetAbility();
     }
     public override bool CheckCanAttack(NewPlayer player)
     {

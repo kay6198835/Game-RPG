@@ -21,7 +21,6 @@ public class EntityBasicState : EntityState
         }
         if (entity.Input.IsAttack && entity.Core.Weapon.CheckCanAttack(entity, startTime))
         {
-            Debug.Log("Change Attack");
             entity.StateMachine.ChangeState(entity.AttackState);
         }
     }

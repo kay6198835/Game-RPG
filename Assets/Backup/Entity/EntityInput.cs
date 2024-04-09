@@ -7,9 +7,7 @@ public class EntityInput : MonoBehaviour
 {
     [SerializeField] protected Entity entity;
     [SerializeField] protected Transform target;
-    //[SerializeField] protected float angleSin;
     [Header("State")]
-    //[SerializeField] protected bool isMove;
     [SerializeField] protected bool isTakeDamage=false;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
@@ -84,15 +82,12 @@ public class EntityInput : MonoBehaviour
         {
             isAttack = false;
         }
-        
     }
     private void AngleCalculate(Vector2 directionVector,ref float angle, ref int direction)
     {
         angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
         angle += 180;
         DirectionCaculate(angle,ref direction);
-        //this.angleSin = Vector2.SignedAngle(transform.right, directionVector);
-        //this.angleSin = (this.angleSin + 360) % 360;
     }
     private void DirectionCaculate(float angle,ref int direction)
     {

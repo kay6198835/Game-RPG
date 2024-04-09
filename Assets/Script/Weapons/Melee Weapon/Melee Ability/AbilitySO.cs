@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class AbilitySO : ScriptableObject
@@ -21,7 +23,6 @@ public class AbilitySO : ScriptableObject
     [SerializeField] protected AnimatorOverrideController animator;
     [SerializeField] private SkillType type;
 
-
     #region Attribute
     public string Name { get => name;}
     public float CooldownTime { get => cooldownTime;}
@@ -36,6 +37,7 @@ public class AbilitySO : ScriptableObject
     {
         layerMask = LayerMask.GetMask("Enemy");
     }
+    
     public virtual void Enter(NewPlayer player)
     {
         this.player = player;
@@ -45,11 +47,11 @@ public class AbilitySO : ScriptableObject
         starCastTime = Time.time;
         currentTime = Time.time;
     }
-    public virtual void CastSkill()
+    public virtual void Cast()
     {
         currentTime = Time.time;
     }
-    public virtual void DoAbility()
+    public virtual void Do()
     {
         if (currentTime - starCastTime < maxCastTime)
         {
@@ -60,7 +62,8 @@ public class AbilitySO : ScriptableObject
             periodCastTime = maxCastTime;
         }
     }
-    public virtual void ExitSkill()
+
+    public virtual void Exit()
     {
         this.player = null;
     }
