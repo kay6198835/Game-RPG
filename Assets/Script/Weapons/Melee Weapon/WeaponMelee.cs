@@ -3,9 +3,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 public class WeaponMelee : Weapon
 {
-    [SerializeField]
     [Header("Melee Weapon")]
-    private WeaponMeleeStats statsMelee;
+    [SerializeField] private WeaponMeleeStats statsMelee;
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
@@ -25,7 +24,7 @@ public class WeaponMelee : Weapon
     }
     public override void Attack()
     {
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, currrentSA.enemyLayers);
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, statsMelee.LayerMask);
         foreach (Collider2D enemy in hitEnemies)
         {
             if (enemy.GetComponent<Enemy>() != null)
@@ -69,7 +68,7 @@ public class WeaponMelee : Weapon
     }
     protected void CenterAttackPosition(NewPlayer player)
     {
-        centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionVector.normalized * currrentSA.attackRange;
+        centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionLookVector.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {

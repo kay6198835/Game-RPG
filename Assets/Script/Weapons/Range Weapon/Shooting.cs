@@ -7,7 +7,7 @@ public class Shooting : WeaponAttack
     [SerializeField] public Transform firePoint;
     [SerializeField] public GameObject bulletPref;
 
-    [field: SerializeField] public RangeWeaponDataSO RWdata { get; private set; }
+    [field: SerializeField] public WeaponRangeStats RWdata { get; private set; }
 
     void Update()
     {

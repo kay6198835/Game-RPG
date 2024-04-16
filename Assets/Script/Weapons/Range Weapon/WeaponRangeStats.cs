@@ -4,7 +4,7 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "WeaponData/RangeWeaponData")]
 
-public class RangeWeaponDataSO : WeaponDataSO
+public class WeaponRangeStats : WeaponStats
 {
     [Header("RW Stats")]
     public string weaponName;

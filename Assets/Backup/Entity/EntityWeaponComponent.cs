@@ -8,15 +8,15 @@ public abstract class EntityWeaponComponent : EntityCoreComponent
     protected override void Awake()
     {
         base.Awake();
+        stats=entityCore.Entity.Data.WeaponSO.Stats;
     }
-    [SerializeField] protected WeaponDataSO stats;
+    [SerializeField] protected WeaponStats stats;
     [SerializeField] protected AbilitySO currentAbilitySO;
     [SerializeField] protected float lastClickTime;
     [SerializeField] protected float deplayTime;
     [SerializeField] protected float durationNextAttack;
     [SerializeField] protected bool canAttack;
     public AbilitySO CurrentAbilitySO { get => currentAbilitySO; }
-    protected WeaponDataSO Stats { get => stats;}
     protected float LastClickTime { get => lastClickTime;}
     protected float DeplayTime { get => deplayTime; }
     protected float DurationNextAttack { get => durationNextAttack;}

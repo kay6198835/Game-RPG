@@ -4,23 +4,21 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "WeaponData/MeleeWeaponData")]
-public class WeaponMeleeStats : WeaponDataSO
+public class WeaponMeleeStats : WeaponStats
 {
     [SerializeField] private string nameWeapon;
     [SerializeField] private ulong idWeapon = 0;
-    [SerializeField] protected List<AttackSO> attackState;
     [SerializeField] private Vector2 shieldEra;
     [SerializeField] private int blockDamage;
-    #region
+    #region Properties 
     public string NameWeapon { get => nameWeapon;}
     public ulong IdWeapon { get => idWeapon; }
-    public List<AttackSO> AttackState { get => attackState; }
     public Vector2 ShieldEra { get => shieldEra; }
     public int BlockDamage { get => blockDamage; }
     #endregion
     private void Awake()
     {
         type = WeaponType.MeleeWP;
-        enemyLayers = LayerMask.GetMask("Enemy");
+        layerMask = LayerMask.GetMask("Enemy");
     }
 }

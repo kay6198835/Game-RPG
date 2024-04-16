@@ -6,9 +6,8 @@ using UnityEngine.WSA;
 
 public class EntityWeaponMeleeComponent : EntityWeaponComponent
 {
-    [SerializeField]
     [Header("Melee Weapon")]
-    private WeaponMeleeStats statsMelee;
+    [SerializeField] private WeaponMeleeStats statsMelee;
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
@@ -19,6 +18,10 @@ public class EntityWeaponMeleeComponent : EntityWeaponComponent
         {
             statsMelee = (WeaponMeleeStats)stats;
         }
+        else
+        {
+            statsMelee = null;
+        }
     }
     private void Start()
     {
@@ -27,14 +30,17 @@ public class EntityWeaponMeleeComponent : EntityWeaponComponent
     }
     public override void Attack()
     {
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, currrentSA.enemyLayers);
-        foreach (Collider2D enemy in hitEnemies)
+        Collider2D hitEPlayer = Physics2D.OverlapCircle(centerAttackPosition, currrentSA.attackRange, statsMelee.LayerMask);
+        if (hitEPlayer != null)
         {
-            if (enemy.GetComponent<Enemy>() != null)
+            IDamageable damageable = hitEPlayer.GetComponentInChildren<IDamageable>();
+            if (damageable != null)
             {
-                enemy.GetComponent<Enemy>().TakeDamage(currrentSA.attackDamege, gameObject);
+                Debug.Log("Take Damage");
+                damageable.TakeDamage(currrentSA.attackDamege, centerAttackPosition);
             }
         }
+
     }
     public override AbilitySO SetAbility()
     {
@@ -58,7 +64,6 @@ public class EntityWeaponMeleeComponent : EntityWeaponComponent
             }
             currrentSA = statsMelee.AttackState[currentStateIndex];
             entity.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
-            //Attack Position
             CenterAttackPosition(entity);
             currentStateIndex++;
             canAttack = true;

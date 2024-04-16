@@ -2,20 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerUseWeaponState : PlayerState
+public class PlayerDisadvantageState : PlayerState
 {
-    public PlayerUseWeaponState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerDisadvantageState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
-    }
-    public override void Enter()
-    {
-        base.Enter();
-        player.Core.Movement.SetVeclocity(Vector2.zero);
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionLook);
-    }
-    public override void Exit()
-    {
-        base.Exit();
     }
     public override void LogicUpdate()
     {

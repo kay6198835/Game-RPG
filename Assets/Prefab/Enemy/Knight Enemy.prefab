@@ -341,6 +341,7 @@ MonoBehaviour:
   entity: {fileID: 0}
   entityMovement: {fileID: 0}
   findTarget: {fileID: 0}
+  weapon: {fileID: 0}
 --- !u!1 &8568225482626800411
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,6 +410,10 @@ PrefabInstance:
     - target: {fileID: 558022864569656344, guid: 1cb77af9034c4b64899b9e8eeae6b959, type: 3}
       propertyPath: m_Name
       value: WeaponEntity
+      objectReference: {fileID: 0}
+    - target: {fileID: 1247331660701095708, guid: 1cb77af9034c4b64899b9e8eeae6b959, type: 3}
+      propertyPath: stats
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5252991308199617343, guid: 1cb77af9034c4b64899b9e8eeae6b959, type: 3}
       propertyPath: m_LocalPosition.x

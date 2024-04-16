@@ -17,9 +17,9 @@ public class SlashAbility : AbilitySO
     #endregion
     public override void Activate()
     {
-        positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionVector.normalized * 3;
-        rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleSin);
-        shoot = player.InputHandler.DirectionVector;
+        positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionLookVector.normalized * 3;
+        rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleRotationPlayer);
+        shoot = player.InputHandler.DirectionLookVector;
         base.Activate();
     }
     public override void Do()

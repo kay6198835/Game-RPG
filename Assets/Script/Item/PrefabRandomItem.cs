@@ -37,7 +37,7 @@ public class PrefabRandomItem : MonoBehaviour
         if (item != null)
         {
             GameObject itemGameObject = Instantiate(droppedItemPrefab, spawnPosition, Quaternion.identity);
-            itemGameObject.GetComponent<SpriteRenderer>().sprite = item.itemOS.itemSprite;
+            itemGameObject.GetComponent<SpriteRenderer>().sprite = item.itemOS.ItemSprite;
             Vector2 dropDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
             itemGameObject.GetComponent<Rigidbody2D>().AddForce(dropDirection * 100f, ForceMode2D.Impulse);
         }

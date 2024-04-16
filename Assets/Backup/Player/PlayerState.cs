@@ -16,7 +16,7 @@ public class PlayerState
     protected bool isAnimationExitingState;
     protected bool isExitingState;
     protected float startTime;
-    private string animBoolName;
+    protected string animBoolName;
     protected StateStyle stateStyle;
     public enum StateStyle
     {
@@ -41,7 +41,7 @@ public class PlayerState
         isAnimationTrigger = false;
         isAnimationFinished = false;
         isExitingState = false;
-        player.Anim.SetFloat("Direction", player.InputHandler.Direction);
+        player.Anim.SetFloat("Direction", player.InputHandler.DirectionLook);
     }
     public virtual void Exit()
     {
@@ -54,7 +54,7 @@ public class PlayerState
     {
         if(stateStyle == StateStyle.Motion)
         {
-            player.Anim.SetFloat("Direction", player.InputHandler.Direction);
+            player.Anim.SetFloat("Direction", player.InputHandler.DirectionLook);
         }
     }
     public virtual void PhysicsUpdate()
@@ -67,9 +67,15 @@ public class PlayerState
     public virtual void AnimationTrigger()
     {
         isAnimationTrigger = true;
-        //Debug.Log("isAnimationTrigger "+isAnimationTrigger);
+        Debug.Log("isAnimationTrigger "+isAnimationTrigger);
     }
-    public virtual void AnimationFinishTrigger() => isAnimationFinished = true;
+    public virtual void AnimationFinishTrigger()
+    {
+        isAnimationFinished = true;
+        Debug.Log("isAnimationFinished " + isAnimationFinished);
+    }
+
+
     public virtual void AnimationExitingState()
     {
         isAnimationExitingState = true;

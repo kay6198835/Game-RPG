@@ -6,25 +6,6 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : MonoBehaviour
 {
-    [SerializeField] private NewPlayer player;
-    [SerializeField] private PlayerInput playerInput;
-    //[Header("LayerMask")]
-    //[SerializeField] private LayerMask enemyLayer;
-    //[SerializeField] private LayerMask weaponLayer;
-    [Header("Direction")]
-    [SerializeField] private int direction;
-    [SerializeField] private float angleSin;
-    [SerializeField] private float angleDirection;
-    [Header("Move")]
-    [SerializeField] private Vector2 moveVector;
-    [SerializeField] private Vector2 mouseVector;
-    [SerializeField] private Vector2 directionVector;
-    [Header("Bool Value")]
-    [SerializeField] private bool isAttack;
-    [SerializeField] private bool isSkill;
-    [SerializeField] private bool isDisadvantage;
-    [SerializeField] private bool isDash;
-    [SerializeField] private bool isPick_Drop = false;
     public enum SkillState
     {
         Start,
@@ -40,6 +21,30 @@ public class PlayerInputHandler : MonoBehaviour
     {
         TakeDamaged,
     }
+    [SerializeField] private NewPlayer player;
+    [SerializeField] private PlayerInput playerInput;
+
+    [Header("Direction Be Attacked")]
+    [SerializeField] private Vector2 directionBeAttackedVector;
+    [SerializeField] private float angleBeAttackedDirection;
+    [SerializeField] private int directionBeAttacked;
+
+    [Header("Direction Move/Attack")]
+    [SerializeField] private Vector2 directionLookVector;
+    [SerializeField] private int directionLook;
+    [SerializeField] private float angleLookDirection;
+    [SerializeField] private float angleRotationPlayer;
+    [SerializeField] private Vector2 moveVector;
+    [SerializeField] private Vector2 mouseVector;
+
+    [Header("Bool Value")]
+    [SerializeField] private bool isAttack;
+    [SerializeField] private bool isSkill;
+    [SerializeField] private bool isDisadvantage;
+    [SerializeField] private bool isTakeDamage;
+    [SerializeField] private bool isPick_Drop = false;
+
+    [Header("Enum Value")]
     [SerializeField] private SkillState state;
     [SerializeField] private SkillType skill;
     [SerializeField] private DisadvantageState disadvantage;
@@ -51,12 +56,8 @@ public class PlayerInputHandler : MonoBehaviour
     private void Start()
     {
         playerInput.Control.Movement.started += OnMove;
-    
         playerInput.Control.Movement.performed += OnMove;
-        playerInput.Control.Movement.performed += OnDirection;
-    
         playerInput.Control.Movement.canceled += OnMove;
-    
 
         playerInput.Control.MousePosition.performed += OnDirection;
 
@@ -73,24 +74,25 @@ public class PlayerInputHandler : MonoBehaviour
 
         playerInput.Control.PickDrop.started += OnPickDrop;
         playerInput.Control.PickDrop.canceled += OnPickDrop;
-        playerInput.Control.Dash.started += OnDash;
-        playerInput.Control.Dash.canceled += OnDash;
     }
     #region Get value 
     public Vector2 MoveVector { get => moveVector;}
     public Vector2 MouseVector { get => mouseVector;}
-    public Vector2 DirectionVector { get => directionVector;}
-    public int Direction { get => direction;}
-    public bool IsDash { get => isDash;}
+    public Vector2 DirectionLookVector { get => directionLookVector;}
+    public int DirectionLook { get => directionLook;}
     public bool IsAttack { get => isAttack;}
     public SkillState State { get => state;}
     public SkillType Skill { get => skill;}
     public bool IsSkill { get => isSkill;}
     public PlayerInput PlayerInput { get => playerInput;}
-    public float AngleSin { get => angleSin;}
-    public float AngleDirection { get => angleDirection; }
+    public float AngleRotationPlayer { get => angleRotationPlayer;}
+    public float AngleLookDirection { get => angleLookDirection; }
     public bool IsDisadvantage { get => isDisadvantage;}
+    public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsPick_Drop { get => isPick_Drop;}
+    public Vector2 DirectionBeAttackedVector { get => directionBeAttackedVector;}
+    public float AngleBeAttackedDirection { get => angleBeAttackedDirection;}
+    public int DirectionBeAttacked { get => directionBeAttacked;}
     #endregion
     private void OnEnable()
     {
@@ -103,7 +105,10 @@ public class PlayerInputHandler : MonoBehaviour
     private void OnDirection(InputAction.CallbackContext context)
     {
         mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        AngleCalculate(mouseVector);
+        directionLookVector = (mouseVector - (Vector2)this.transform.position).normalized;
+        AngleCalculate(directionLookVector,ref angleLookDirection,ref directionLook);
+        this.angleRotationPlayer = Vector2.SignedAngle(transform.right, directionLookVector);
+        this.angleRotationPlayer = (this.angleRotationPlayer + 360) % 360;
     }
     private void OnPickDrop(InputAction.CallbackContext context)
     {
@@ -114,17 +119,6 @@ public class PlayerInputHandler : MonoBehaviour
         else if(context.canceled)
         {
             isPick_Drop = false;
-        }
-    }
-    private void OnDash(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            isDash = true;
-        }
-        else if (context.canceled)
-        {
-            isDash = false;
         }
     }
     private void OnMove(InputAction.CallbackContext context)
@@ -180,7 +174,25 @@ public class PlayerInputHandler : MonoBehaviour
             isSkill = false;
         }
     }
-    protected void DirectionCaculate(float angle)
+    public void OnTakeDamage(Vector2 attackPosition)
+    {
+        Debug.Log("OnTakeDamage");
+        ChangeIsTakeDamage();
+        Invoke(nameof(ChangeIsTakeDamage), 0.1f);
+        directionBeAttackedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
+        AngleCalculate(directionBeAttackedVector, ref angleBeAttackedDirection, ref directionBeAttacked);
+    }
+    private void ChangeIsTakeDamage()
+    {
+        this.isTakeDamage = !this.isTakeDamage;
+    }
+    public void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
+    {
+        angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
+        angle += 180;
+        DirectionCaculate(angle, ref direction);
+    }
+    protected void DirectionCaculate(float angle, ref int direction)
     {
         if ((angle > 22 && angle <= 67))
         {
@@ -215,17 +227,5 @@ public class PlayerInputHandler : MonoBehaviour
         {
             direction = 7;
         }
-    }
-    public void AngleCalculate(Vector2 targetTowards)
-    {
-        float angle;
-        directionVector = ((Vector2)targetTowards - (Vector2)this.transform.position).normalized;
-        angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
-        angle += 180;
-        DirectionCaculate(angle);
-        angleDirection = angle;
-        //ChangeAngleCosToSin(angle);
-        this.angleSin = Vector2.SignedAngle(transform.right, directionVector);
-        this.angleSin = (this.angleSin + 360) % 360;
     }
 }

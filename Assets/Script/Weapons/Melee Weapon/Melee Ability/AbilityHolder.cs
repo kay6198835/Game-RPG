@@ -18,11 +18,12 @@ public class AbilityHolder : CoreCompoment
     {
         Start,
         Cast,
-        Do
+        Do,
+        Exit
     }
     [SerializeField] private SkillState currentState;
     public AbilitySO Ability { get => ability; }
-    public bool CanUseAbility { get => canUseAbility;}
+    public bool CanUseAbility { get => canUseAbility; }
 
     protected override void Awake()
     {
@@ -51,45 +52,34 @@ public class AbilityHolder : CoreCompoment
     {
         core.Player.Anim.runtimeAnimatorController = ability.Animator;
         ability.Enter(core.Player);
+        currentState = SkillState.Start;
     }
     public void ExitAbility()
     {
         ability.Exit();
+
     }
-    public void SetStateAbility(ref bool isAnimationTrigger)
+    public void SetStateAbility()
     {
-        if (isAnimationTrigger)
+        Debug.Log(currentState);
+        switch (currentState)
         {
-            switch (currentState)
-            {
-                case SkillState.Start:
-                    ability.Activate();
-                    currentState = SkillState.Cast;
-                    break;
-                case SkillState.Cast:
-                    ability.Cast();
-                    if (core.Player.InputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == AbilitySO.SkillType.DoNonCast)
-                    {
-                        SetCanUseAbility(false);
-                        currentState = SkillState.Do;
-                    }
-                    break;
-                case SkillState.Do:
-                    ability.Do();
-                    currentState = SkillState.Start;
-                    break;
-            }
-            isAnimationTrigger = false;
+            case SkillState.Start:
+                ability.Activate();
+                currentState = SkillState.Cast;
+                break;
+            case SkillState.Cast:
+                ability.Cast();
+                if (core.Player.InputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == AbilitySO.SkillType.DoNonCast)
+                {
+                    SetCanUseAbility(false);
+                    currentState = SkillState.Do;
+                }
+                break;
+            case SkillState.Do:
+                ability.Do();
+                currentState = SkillState.Exit;
+                break;
         }
-    }
-    public void ChangeState()
-    {
-        stateIndex++;
-        if (stateIndex > stateLength)
-        {
-            stateIndex = 1;
-        }
-        currentState = (SkillState)stateIndex;
-        Debug.Log("Change");
     }
 }

@@ -27,7 +27,7 @@ public class DashAbility : AbilitySO
     public override void Do()
     {
         base.Do();
-        player.Core.Movement.SetVeclocity(player.InputHandler.DirectionVector * dashingPower);
+        player.Core.Movement.SetVeclocity(player.InputHandler.DirectionLookVector * dashingPower);
     }
     public override void Exit()
     {

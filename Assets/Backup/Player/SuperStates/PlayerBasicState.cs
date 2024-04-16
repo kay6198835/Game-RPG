@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class PlayerBasicState : PlayerState
 {
-    protected Vector2 mouseVector;
-    protected Vector2 moveVector;
-
     public PlayerBasicState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        moveVector = player.InputHandler.MoveVector;
-        if (player.Core.WeaponHolder.FindWeapon())
+        if(player.Core.WeaponHolder.FindWeapon())
         {
             if (player.InputHandler.IsPick_Drop)
             {
@@ -33,6 +29,10 @@ public class PlayerBasicState : PlayerState
             {
                 stateMachine.ChangeState(player.AbilityState);
             }
+        }
+        if (player.InputHandler.IsTakeDamage)
+        {
+            stateMachine.ChangeState(player.TakeDamageState);
         }
     }
     public override void PhysicsUpdate()

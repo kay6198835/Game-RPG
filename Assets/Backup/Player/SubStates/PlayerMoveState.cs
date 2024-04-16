@@ -14,14 +14,10 @@ public class PlayerMoveState : PlayerBasicState
     }
     public override void LogicUpdate()
     {
-        player.Core.Movement.SetVeclocity(moveVector * playerData.movementVelocities);
-        if (moveVector == Vector2.zero)
+        player.Core.Movement.SetVeclocity(player.InputHandler.MoveVector * playerData.movementVelocities);
+        if (player.InputHandler.MoveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);
-        }
-        if(player.InputHandler.IsDash)
-        {
-            stateMachine.ChangeState(player.DashState);
         }
         base.LogicUpdate();
     }

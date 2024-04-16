@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="NewPlayer" Collapsed="true">
+    <Position X="8.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAIAAAiCAAAIAAIQgIAAAKCAAABsAAQESBAEBAkQ=</HashCode>
+      <FileName>Assets\Backup\NewPlayer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Core" />
+      <Property Name="InputHandler" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Core" Collapsed="true">
+    <Position X="11.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAEAAAABAAAAAAAAAAAAAABgAAAgYAAAEA=</HashCode>
+      <FileName>Assets\Backup\Core\Core.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="AbilityHolder" />
+      <Property Name="Player" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="AbilityHolder" Collapsed="true">
+    <Position X="14.5" Y="3.75" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="AbilityHolder.SkillState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Script\Weapons\Melee Weapon\Melee Ability\AbilityHolder.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AABIAAAAAGIAAiAIIAIIAAAAAAAAhAAAAAAIABAAAEA=</HashCode>
+      <FileName>Assets\Script\Weapons\Melee Weapon\Melee Ability\AbilityHolder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PlayerState" Collapsed="true">
+    <Position X="5.25" Y="3.75" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="PlayerState.StateStyle" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Backup\Player\PlayerState.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AIAQABAAAASAAAAAAIQkAAAQAACEBAABIAAAgEEAAAA=</HashCode>
+      <FileName>Assets\Backup\Player\PlayerState.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="player" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="PlayerInputHandler" Collapsed="true">
+    <Position X="8.5" Y="5.5" Width="1.5" />
+    <NestedTypes>
+      <Enum Name="PlayerInputHandler.SkillState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Backup\Player\InputPlayer\PlayerInputHandle.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="PlayerInputHandler.SkillType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Backup\Player\InputPlayer\PlayerInputHandle.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="PlayerInputHandler.DisadvantageState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Backup\Player\InputPlayer\PlayerInputHandle.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>UYwAWlEJADICQxDIwMAAWAACAUAQAAENSAAAJAAADEA=</HashCode>
+      <FileName>Assets\Backup\Player\InputPlayer\PlayerInputHandle.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="player" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

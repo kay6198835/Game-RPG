@@ -11,7 +11,7 @@ public class ShopController : MonoBehaviour
 
     public GameObject Pistol, Rifle, SwordAndShield;
 
-    public WeaponDataSO pistolData, rifleData, SaSData;
+    public WeaponStats pistolData, rifleData, SaSData;
 
     public Transform Merchant;
 

@@ -12,13 +12,13 @@ public class WeaponsController : MonoBehaviour
     private Transform WeaponHolder;
 
     [SerializeField]
-    private WeaponDataSO EquipWp;
+    private WeaponStats EquipWp;
 
     [SerializeField] PlayerCombat meleeCombat;
 
     public int slot, maxSlot;
 
-    public void equipped(WeaponDataSO WPdata)
+    public void equipped(WeaponStats WPdata)
     {
         EquipWp = WPdata;
         //currWp = Instantiate(WPdata.weaponPrefab);

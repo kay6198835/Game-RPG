@@ -5,7 +5,7 @@ public abstract class Weapon : MonoBehaviour
     [Header("Abtract Weapon")]
     [SerializeField] protected WeaponHolder holder;
     [SerializeField] protected AbilityHolder abilityHolder;
-    [SerializeField] protected WeaponDataSO stats;
+    [SerializeField] protected WeaponStats stats;
     [SerializeField] protected AbilitySO currentAbilitySO;
     protected float lastClickTime;
     protected float deplayTime;
@@ -49,7 +49,7 @@ public abstract class Weapon : MonoBehaviour
             abilityHolder = null;
         }
     }
-    protected void Equid(Collider2D collision, WeaponDataSO weaponData)
+    protected void Equid(Collider2D collision, WeaponStats weaponData)
     {
         WeaponsController WPcontroller = collision.GetComponent<WeaponsController>();
         //Debug.Log("equip able");

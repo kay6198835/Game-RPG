@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4b1e3ee6d1d53849b1a6b18fd459e50, type: 3}
-  m_Name: SnS_Stat
+  m_Name: EnemySnS_Stat
   m_EditorClassIdentifier: 
-  enemyLayers:
+  layerMask:
     serializedVersion: 2
-    m_Bits: 64
-  ability: {fileID: 11400000, guid: 8d06fe05bfdede64c939572337eee23e, type: 2}
-  special: {fileID: 11400000, guid: b8b3a570484f8f94588872616fa80546, type: 2}
-  nameWeapon: Sword and Shield
-  idWeapon: 1
+    m_Bits: 128
   attackState:
   - {fileID: 11400000, guid: 56a7d00f68c3f1b46bb4825745918e5e, type: 2}
   - {fileID: 11400000, guid: 7428568b849c4c243a9f26069e221de7, type: 2}
   - {fileID: 11400000, guid: 053076e05dbb1f04594df1c33185fafd, type: 2}
+  ability: {fileID: 11400000, guid: 8d06fe05bfdede64c939572337eee23e, type: 2}
+  special: {fileID: 11400000, guid: b8b3a570484f8f94588872616fa80546, type: 2}
+  nameWeapon: Sword and Shield
+  idWeapon: 1
   shieldEra: {x: 0, y: 0}
   blockDamage: 0

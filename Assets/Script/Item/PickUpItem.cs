@@ -10,7 +10,7 @@ public class PickUpItem : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            Wallet.Instance.AddMoney(item.value);
+            Wallet.Instance.AddMoney(item.Value);
             Destroy(gameObject);
         }
     }

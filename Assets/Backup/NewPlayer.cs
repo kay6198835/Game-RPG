@@ -9,11 +9,9 @@ public class NewPlayer : MonoBehaviour
 
     [SerializeField] private PlayerIdleState idleState;
     [SerializeField] private PlayerMoveState moveState;
-    [SerializeField] private PlayerDashState dashState;
     [SerializeField] private PlayerAttackState attackState;
     [SerializeField] private PlayerSkillWeaponState abilityState;
-
-
+    [SerializeField] private PlayerTakeDamageState takeDamageState;
     #endregion
 
     [SerializeField] private PlayerStateMachine stateMachine;
@@ -33,9 +31,9 @@ public class NewPlayer : MonoBehaviour
     public PlayerStateMachine StateMachine { get => stateMachine;}
     public PlayerIdleState IdleState { get => idleState;}
     public PlayerMoveState MoveState { get => moveState;}
-    public PlayerDashState DashState { get => dashState;}
     public PlayerAttackState AttackState { get => attackState;}
     public PlayerSkillWeaponState AbilityState { get => abilityState;}
+    public PlayerTakeDamageState TakeDamageState { get => takeDamageState;}
     public PlayerData Data { get => data; }
 
     #endregion
@@ -48,9 +46,9 @@ public class NewPlayer : MonoBehaviour
         inputHandler = GetComponentInChildren<PlayerInputHandler>();
         idleState = new PlayerIdleState(this,"Idle");
         moveState = new PlayerMoveState(this,"Move");
-        dashState = new PlayerDashState(this,"Move");
         attackState = new PlayerAttackState(this,"Attack");
         abilityState = new PlayerSkillWeaponState(this,"Ability");
+        takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
     }
 
     private void Start()

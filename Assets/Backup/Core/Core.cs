@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class Core : MonoBehaviour,IDamageable
 {
@@ -16,8 +17,11 @@ public class Core : MonoBehaviour,IDamageable
 
     public void TakeDamage(int amoutDamage, Vector2 attackPosition)
     {
-        //if(player.Data.MaxHealth<=0) return;
-        //player.Data.currentHealth -=amoutDamage;
+        if (player.Data.currentHealth <= 0) return;
+        player.Data.currentHealth -= amoutDamage;
+        Debug.Log("Player TakeDamage");
+        player.InputHandler.OnTakeDamage(attackPosition);
+
     }
     private void Awake()
     {

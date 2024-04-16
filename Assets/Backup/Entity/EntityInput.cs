@@ -37,8 +37,6 @@ public class EntityInput : MonoBehaviour
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-
-
     public Transform Target { get => target; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     public Entity Entity { get => entity;}
@@ -51,7 +49,6 @@ public class EntityInput : MonoBehaviour
     public SkillState State { get => state;}
     public SkillType Skill { get => skill;}
     #endregion
-
     private void Awake()
     {
         entity = GetComponentInParent<Entity>();
