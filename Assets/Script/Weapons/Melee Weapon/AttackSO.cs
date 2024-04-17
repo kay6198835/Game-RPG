@@ -15,5 +15,5 @@ public class AttackSO : ScriptableObject
     
     [Header("Atributte")]
     [SerializeField] public AnimatorOverrideController directionAttackAnimatorOV;
-    [SerializeField] public AbilitySO ability;
+    [SerializeField] public ActivateSkill ability;
 }

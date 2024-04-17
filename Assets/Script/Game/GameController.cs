@@ -5,7 +5,7 @@ using UnityEngine;
 public enum GameState { FreeRoam, Talking, Shopping}
 public class GameController : MonoBehaviour
 {
-    //
+   /*  //
     [SerializeField] CoreGameObject coreGameObject;
     //
     [SerializeField] PlayerMovement playerMovement;
@@ -62,5 +62,5 @@ public class GameController : MonoBehaviour
         {
             GameOverUI.instance.GameOver();
         }
-    }
+    } */
 }

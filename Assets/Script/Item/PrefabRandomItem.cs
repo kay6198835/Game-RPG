@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PrefabRandomItem : MonoBehaviour
 {
-    [SerializeField] private GameObject droppedItemPrefab;
+/*     [SerializeField] private GameObject droppedItemPrefab;
     //[SerializeField] DepotPrefab itemList;
     [SerializeField] public Enemy enemyCtrl;
     private void Start()
@@ -41,5 +41,5 @@ public class PrefabRandomItem : MonoBehaviour
             Vector2 dropDirection = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
             itemGameObject.GetComponent<Rigidbody2D>().AddForce(dropDirection * 100f, ForceMode2D.Impulse);
         }
-    }
+    } */
 }

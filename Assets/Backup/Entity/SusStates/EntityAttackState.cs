@@ -19,7 +19,7 @@ public class EntityAttackState : EntityUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            entity.Core.Weapon.Attack();
+            entity.Core.WeaponHolder.Weapon.Attack();
             isAnimationTrigger = false;
         }
     }

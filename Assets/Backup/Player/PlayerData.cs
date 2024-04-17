@@ -24,6 +24,7 @@ public class PlayerData : ScriptableObject
     public void Reborn()
     {
         currentHealth = maxHealth;
+         
     }
 
     private string GetDebuggerDisplay()

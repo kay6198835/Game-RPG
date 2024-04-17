@@ -299,6 +299,10 @@ MonoBehaviour:
   cooldownTime: 0
   activeTime: 0
   keyCode: 0
+  canUseAbility: 0
+  stateIndex: 0
+  stateLength: 0
+  currentState: 0
 --- !u!1 &5519547563718807823
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,16 +393,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  direction: 0
-  angleSin: 0
-  angleDirection: 0
+  directionBeAttackedVector: {x: 0, y: 0}
+  angleBeAttackedDirection: 0
+  directionBeAttacked: 0
+  directionLookVector: {x: 0, y: 0}
+  directionLook: 0
+  angleLookDirection: 0
+  angleRotationPlayer: 0
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}
-  directionVector: {x: 0, y: 0}
   isAttack: 0
   isSkill: 0
   isDisadvantage: 0
-  isDash: 0
+  isTakeDamage: 0
   isPick_Drop: 0
   state: 0
   skill: 0
@@ -452,3 +459,5 @@ MonoBehaviour:
   isCanPickWeapon: 0
   range: 0
   test: {x: 0, y: 0, z: 0}
+  skillSO: {fileID: 11400000, guid: fb6c943e592d808469845e48b475dd7a, type: 2}
+  test1: 0

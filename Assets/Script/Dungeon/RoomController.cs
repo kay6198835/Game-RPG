@@ -178,11 +178,11 @@ public class RoomController : MonoBehaviour
 
     public void UpdateRooms()
     {
-        foreach (Room room in loadedRooms)
+/*         foreach (Room room in loadedRooms)
         {
             if (currRoom != room)
             {
-                Enemy[] enemies = room.GetComponentsInChildren<Enemy>();
+                //Enemy[] enemies = room.GetComponentsInChildren<Enemy>();
 
                 if (enemies != null)
                 {
@@ -229,8 +229,8 @@ public class RoomController : MonoBehaviour
                         door.doorCollider.SetActive(false);
                     }
                 }
-            }
-        }
+            } 
+        }*/
     }
 
     public void ResetRoom()

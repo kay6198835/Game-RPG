@@ -19,6 +19,5 @@ public class WeaponMeleeStats : WeaponStats
     private void Awake()
     {
         type = WeaponType.MeleeWP;
-        layerMask = LayerMask.GetMask("Enemy");
     }
 }

@@ -7,12 +7,20 @@ public class EntityCore : MonoBehaviour, IDamageable
     [SerializeField] private Entity entity;
     [SerializeField] private EntityMovement entityMovement;
     [SerializeField] private EntityFindTarget findTarget;
-    [SerializeField] private EntityWeaponComponent weapon;
+    [SerializeField] private EntityWeaponHolder weaponHolder;
+    [SerializeField] private EntityEffectStats effectStats;
+    #region Properties
     public EntityMovement EntityMovement { get => entityMovement;}
     public EntityFindTarget FindTarget { get => findTarget; }
-    public EntityWeaponComponent Weapon { get => weapon; }
+    public EntityWeaponHolder WeaponHolder { get => weaponHolder; }
     public Entity Entity { get => entity;}
+    #endregion
 
+    private void Update()
+    {
+        if (effectStats.Effect!= null) { effectStats.HandleEffect(); }
+    }
+    
     public void TakeDamage(int amoutDamage, Vector2 attackPosition)
     {
         if (entity.Data.currentHealth <= 0) return;
@@ -25,6 +33,7 @@ public class EntityCore : MonoBehaviour, IDamageable
         entity = GetComponentInParent<Entity>();
         entityMovement = GetComponentInChildren<EntityMovement>();
         findTarget = GetComponentInChildren<EntityFindTarget>();
-        weapon = GetComponentInChildren<EntityWeaponComponent>();
+        weaponHolder = GetComponentInChildren<EntityWeaponHolder>();
+        effectStats = GetComponentInChildren<EntityEffectStats>();
     }
 }

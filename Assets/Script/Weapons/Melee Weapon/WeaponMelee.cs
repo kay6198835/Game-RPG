@@ -14,6 +14,7 @@ public class WeaponMelee : Weapon
         if (stats.GetType() == typeof(WeaponMeleeStats))
         {
             statsMelee = (WeaponMeleeStats)stats;
+            
             //stats = new WeaponMeleeStats();
         }
     }
@@ -27,10 +28,7 @@ public class WeaponMelee : Weapon
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, statsMelee.LayerMask);
         foreach (Collider2D enemy in hitEnemies)
         {
-            if (enemy.GetComponent<Enemy>() != null)
-            {
-                enemy.GetComponent<Enemy>().TakeDamage(currrentSA.attackDamege, gameObject);
-            }
+
         }
     }
     public override void SetAbility()

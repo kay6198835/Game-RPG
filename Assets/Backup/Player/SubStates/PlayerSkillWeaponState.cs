@@ -17,11 +17,11 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
         player.Core.AbilityHolder.EnterAbility();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
+        stateStyle = StateStyle.Freeze;
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionLook);
         Debug.Log(isAnimationTrigger);
         if (isAnimationTrigger)
         {

@@ -11,6 +11,7 @@ public class SpawnCharacter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         for(int i = 0; i < character.Count; i++)
         {
             Instantiate(character[i].gameObject,Vector3.one*i*distance,Quaternion.identity);

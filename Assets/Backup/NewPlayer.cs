@@ -20,7 +20,7 @@ public class NewPlayer : MonoBehaviour
     [SerializeField] private PlayerInputHandler inputHandler;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
-
+    
 
     #region Components
 

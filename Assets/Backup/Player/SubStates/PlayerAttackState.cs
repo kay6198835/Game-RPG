@@ -8,7 +8,7 @@ public class PlayerAttackState : PlayerUseWeaponState
 
     public PlayerAttackState(NewPlayer player, string animBoolName) : base(player, animBoolName)
     {
-    }
+    }   
 
     public float StartAttackTime { get => startAttackTime;}
 
@@ -16,6 +16,7 @@ public class PlayerAttackState : PlayerUseWeaponState
     {
         base.Enter();
         startAttackTime = startTime;
+        
     }
 
     public override void Exit()

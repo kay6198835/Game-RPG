@@ -6,7 +6,7 @@ public abstract class Weapon : MonoBehaviour
     [SerializeField] protected WeaponHolder holder;
     [SerializeField] protected AbilityHolder abilityHolder;
     [SerializeField] protected WeaponStats stats;
-    [SerializeField] protected AbilitySO currentAbilitySO;
+    [SerializeField] protected ActivateSkill currentAbilitySO;
     protected float lastClickTime;
     protected float deplayTime;
     protected float durationNextAttack;
