@@ -10,10 +10,11 @@ public class EntityCore : MonoBehaviour, IDamageable
     [SerializeField] private EntityWeaponHolder weaponHolder;
     [SerializeField] private EntityEffectStats effectStats;
     #region Properties
+    public Entity Entity { get => entity; }
     public EntityMovement EntityMovement { get => entityMovement;}
     public EntityFindTarget FindTarget { get => findTarget; }
     public EntityWeaponHolder WeaponHolder { get => weaponHolder; }
-    public Entity Entity { get => entity;}
+    public EntityEffectStats EffectStats { get => effectStats;}
     #endregion
 
     private void Update()
@@ -23,8 +24,8 @@ public class EntityCore : MonoBehaviour, IDamageable
     
     public void TakeDamage(int amoutDamage, Vector2 attackPosition)
     {
-        if (entity.Data.currentHealth <= 0) return;
-        entity.Data.currentHealth -= amoutDamage;
+        if (entity.Data.StatsSO.Health <= 0) return;
+        entity.Data.StatsSO.ModifiersHealth -= amoutDamage;
         entity.Input.OnTakeDamage(attackPosition);
     }
 

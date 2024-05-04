@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2c1885a8510419428a2ca2e42353c8d, type: 3}
   m_Name: Enemy - Knight
   m_EditorClassIdentifier: 
-  currentHealth: 964
-  currentVelocities: 0
-  amor: 0
+  statsSO: {fileID: 11400000, guid: 6af23a5cdbfc88440ab6dfd79ea05f4d, type: 2}
   layerMask:
     serializedVersion: 2
     m_Bits: 128
@@ -23,6 +21,6 @@ MonoBehaviour:
   rangeCheckFieldOfView: 3
   idleDurationTime: 1
   moveDurationTime: 5
-  movementVelocities: 1
+  movementVelocities: 0
   rangeCheckAttack: 3
   weaponSO: {fileID: 11400000, guid: cecf5fadaca3f8f4186887e48de435b6, type: 2}

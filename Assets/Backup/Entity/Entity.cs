@@ -10,6 +10,7 @@ public class Entity : MonoBehaviour
 
     [SerializeField] protected Animator anim;
     [SerializeField] protected Rigidbody2D rb;
+    [SerializeField] protected ParticleSystem particle;
     [SerializeField] protected EntityStateMachine stateMachine;
     [SerializeField] protected EntityData data;
 
@@ -20,6 +21,7 @@ public class Entity : MonoBehaviour
     public EntityInput Input { get => input;}
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }
+    public ParticleSystem Particle { get => particle; }
     public EntityCore Core { get => core;}
     public EntityStateMachine StateMachine { get => stateMachine;}
     public EntityIdleState IdleState { get => idleState;}
@@ -30,19 +32,8 @@ public class Entity : MonoBehaviour
 
     private void Awake()
     {
-        LoadState();
         LoadEntity();
-
-        stateMachine = new EntityStateMachine();
-        core = GetComponentInChildren<EntityCore>();
-        input = GetComponentInChildren<EntityInput>();
-        idleState = new EntityIdleState(this, stateMachine, data, "Idle");
-        moveState = new EntityMoveState(this, stateMachine, data, "Move");
-        attackState = new EntityAttackState(this, stateMachine, data, "Attack");
-        takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
-        anim = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();
-        anim.runtimeAnimatorController = data.Aima;
+        LoadState();
     }
     private void Start()
     {
@@ -54,11 +45,20 @@ public class Entity : MonoBehaviour
     }
     private void LoadEntity()
     {
-
+        stateMachine = new EntityStateMachine();
+        core = GetComponentInChildren<EntityCore>();
+        input = GetComponentInChildren<EntityInput>();
+        anim = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        particle = GetComponentInChildren<ParticleSystem>();
+        anim.runtimeAnimatorController = data.Aima;
     }
     private void LoadState()
     {
-
+        idleState = new EntityIdleState(this, stateMachine, data, "Idle");
+        moveState = new EntityMoveState(this, stateMachine, data, "Move");
+        attackState = new EntityAttackState(this, stateMachine, data, "Attack");
+        takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
     }
 
     protected void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();

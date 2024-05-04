@@ -199,6 +199,7 @@ MonoBehaviour:
   core: {fileID: 0}
   anim: {fileID: 0}
   rb: {fileID: 0}
+  particle: {fileID: 0}
   data: {fileID: 11400000, guid: 59bff7a6780b06940af83230c908f4fd, type: 2}
 --- !u!1 &3344684728256692272
 GameObject:
@@ -244,8 +245,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b236c97168ad494e991b9f1a7e0dff8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effects:
-  - {fileID: 11400000, guid: be5f12da35edde847b8fffa61430aa0f, type: 2}
   effect: {fileID: 0}
   test: 0
 --- !u!1 &4464370259628664231

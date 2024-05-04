@@ -176,7 +176,6 @@ public class PlayerInputHandler : MonoBehaviour
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
-        Debug.Log("OnTakeDamage");
         ChangeIsTakeDamage();
         Invoke(nameof(ChangeIsTakeDamage), 0.1f);
         directionBeAttackedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;

@@ -21,6 +21,5 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
     public override void Exit()
     {
         base.Exit();
-        Debug.Log(animBoolName);
     }
 }

@@ -5,16 +5,17 @@ using System.Text;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 [CreateAssetMenu(menuName = "Ability SO/Effect Ability")]
-public class EffectSkillSO : AbstractSkillSO
+public abstract class EffectSkillSO : AbstractSkillSO
 {
-    [SerializeField] private List<EffectData> effectData;
-    [SerializeField] private EntityData entityData;
-    [SerializeField] private float lifeTime;
-    [SerializeField] private float validityDuration;
-
+    [SerializeField] protected List<EffectData> effectData;
+    [SerializeField] protected EntityStatsSO statsSO;
+    [SerializeField] protected float lifeTime;
+    [SerializeField] protected float validityDuration;
+    [SerializeField] protected bool isDone;
     public List<EffectData> EffectData { get => effectData; }
-    public float LifeTime { get => lifeTime;}
+    public float LifeTime { get => lifeTime; }
     public float ValidityDuration { get => validityDuration; }
+    public bool IsDone { get => isDone; }
 
     protected override void OnValidate()
     {
@@ -35,53 +36,55 @@ public class EffectSkillSO : AbstractSkillSO
             }
         }
     }
-    public void OnEffect(EntityData entityData)
+    public virtual void OnEffect(EntityStatsSO statsSO)
     {
-        this.entityData = entityData;
+        this.statsSO = statsSO;
     }
-    public void DoinghEffect()
+    public virtual void DohEffect()
     {
         for (int i = 0; i < effectData.Count; i++)
         {
-            if (effectData[i].type.IsOTA && effectData[i].isOnActivate)
+            switch (EffectData[i].statsTypes)
             {
-                return;
-            }
-            else
-            {
-                switch (EffectData[i].statsTypes)
-                {
-                    case Stats.Health:
-                        Effect(i,ref entityData.currentHealth);
-                        break;
-                    case Stats.SpeedMove:
-                        Effect(i, ref entityData.currentVelocities);
-                        break;
-                    case Stats.Amor:
-                        Effect(i, ref entityData.amor);
-                        break;
-                }
-                effectData[i].isOnActivate = true;
+                case Stats.Health:
+                    statsSO.ModifiersHealth = Effect(i, statsSO.ModifiersHealth);
+                    break;
+                case Stats.SpeedMove:
+                    statsSO.ModifiersVelocities = Effect(i, statsSO.ModifiersVelocities);
+                    break;
+                case Stats.Amor:
+                    statsSO.ModifiersHealth = Effect(i, statsSO.ModifiersAmor);
+                    break;
             }
         }
     }
-    protected virtual void Effect(int dataIndex, ref float stats)
-    {
-        if (effectData[dataIndex].type.IsPercentage)
-        {
-            stats += stats * effectData[dataIndex].currentIncreaseAmount;
-        }
-        else
-        {
-            stats +=stats;
-        }
-    }
-    public void OffEffect()
+    public virtual void OffEffect()
     {
         for (int i = 0; i < effectData.Count; i++)
         {
-            effectData[i].isOnActivate = false;
+            switch (EffectData[i].statsTypes)
+            {
+                case Stats.Health:
+                    statsSO.ModifiersHealth = RemoveEffect(i, statsSO.ModifiersHealth);
+                    break;
+                case Stats.SpeedMove:
+                    statsSO.ModifiersVelocities = RemoveEffect(i, statsSO.ModifiersVelocities);
+                    break;
+                case Stats.Amor:
+                    statsSO.ModifiersHealth = RemoveEffect(i, statsSO.ModifiersAmor);
+                    break;
+            }
         }
+        validityDuration = 0;
+        isDone = false;
+        statsSO = null;
+    }
+    protected abstract float RemoveEffect(int dataIndex, float stats);
+    protected abstract float Effect(int dataIndex, float stats);
+    public virtual void ChecIsDone()
+    {
+        validityDuration += Time.deltaTime;
+        isDone = (validityDuration >= lifeTime);
     }
     protected override void GenerateDescription()
     {
@@ -93,18 +96,16 @@ public class EffectData
 {
     public EffectType type;
     public Stats statsTypes;
-    public bool isOnActivate;
     public float effectIncreaseAmount;
     public float currentIncreaseAmount;
+    public float amountIncreaseAmount;
 }
 [System.Serializable]
 public class EffectType
 {
-    [SerializeField] private bool isOTA;
     [SerializeField] private bool isNegative;
     [SerializeField] private bool isPercentage;
-    public bool IsOTA { get => isOTA;}
-    public bool IsNegative { get => isNegative;}
+    public bool IsNegative { get => isNegative; }
     public bool IsPercentage { get => isPercentage; }
 }
 public enum Stats

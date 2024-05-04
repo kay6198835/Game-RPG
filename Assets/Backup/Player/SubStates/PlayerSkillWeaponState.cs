@@ -22,7 +22,6 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        Debug.Log(isAnimationTrigger);
         if (isAnimationTrigger)
         {
             player.Core.AbilityHolder.SetStateAbility();

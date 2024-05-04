@@ -5,11 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "newEntityData", menuName = "Data/Entity Data/Base Data")]
 public class EntityData : ScriptableObject
 {
-    [SerializeField] public  Dictionary<Stats, float> statsEntity = new Dictionary<Stats, float>();
     [Header("Player Stats")]
-    public float currentHealth;
-    public float currentVelocities;
-    public float amor;
+    [SerializeField] private EntityStatsSO statsSO;
     [Header("Player Component")]
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private AnimatorOverrideController aima;
@@ -34,10 +31,10 @@ public class EntityData : ScriptableObject
     public float RangeCheckAttack { get => rangeCheckAttack; }
     public float MoveDurationTime { get => moveDurationTime;}
     public WeaponSO WeaponSO { get => weaponSO;}
+    public EntityStatsSO StatsSO { get => statsSO;}
 
     private void Awake()
     {
-        currentHealth = maxHealth;
-        currentVelocities = movementVelocities;
+
     }
 }

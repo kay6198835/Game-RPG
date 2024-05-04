@@ -17,12 +17,9 @@ public class Core : MonoBehaviour,IDamageable
 
     public void TakeDamage(int amoutDamage, Vector2 attackPosition)
     {
-        Debug.Log("1123");
         if (player.Data.currentHealth <= 0) return;
         player.Data.currentHealth -= amoutDamage;
-        Debug.Log("Player TakeDamage");
         player.InputHandler.OnTakeDamage(attackPosition);
-
     }
     private void Awake()
     {

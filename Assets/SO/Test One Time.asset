@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b8021f5b208236429403e7fc46d9c5a, type: 3}
+  m_Name: Test One Time
+  m_EditorClassIdentifier: 
+  skillName: Test One Time
+  overWriteDescription: 0
+  skillDescription: 
+  effectData:
+  - type:
+      isNegative: 0
+      isPercentage: 0
+    statsTypes: 0
+    lifeTime: 0
+    effectIncreaseAmount: 300
+    currentIncreaseAmount: 300
+  statsSO: {fileID: 0}
+  lifeTime: 1
+  validityDuration: 0
+  isDone: 0
+  isActivate: 0

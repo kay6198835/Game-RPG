@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8743a2f4d9a0a24e8a03b855cffcc0a, type: 3}
   m_Name: Slash Ability
   m_EditorClassIdentifier: 
+  skillName: Slash Ability
+  overWriteDescription: 0
+  skillDescription: 
   maxCastTime: 3
   cooldownTime: 0
   layerMask:
@@ -19,7 +22,5 @@ MonoBehaviour:
     m_Bits: 64
   animator: {fileID: 22100000, guid: 9428df7c367903548af11fc7419fc914, type: 2}
   type: 0
-  slashPrefab: {fileID: 5687771613966579850, guid: 5f61048ea1081024c8fc9fdf9cce9e3f, type: 3}
+  slashPrefab: {fileID: 8767483201623305522, guid: caf462fbbafc98c498af3293ee98903f, type: 3}
   speedSlash: 15
-  rotation: {x: 0, y: 0, z: 0.9936861, w: 0.112196185}
-  positon: {x: 18.34833, y: 0.629634}

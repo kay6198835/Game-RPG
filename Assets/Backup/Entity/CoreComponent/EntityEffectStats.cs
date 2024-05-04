@@ -15,21 +15,30 @@ public class EntityEffectStats : EntityCoreComponent,IEffectable
     }
     public void ApplyEffect(EffectSkillSO effect)
     {
+        Debug.Log("Apply");
         this.effect = effect;
-        this.effect.OnEffect(entityCore.Entity.Data);
+        this.effect.OnEffect(entityCore.Entity.Data.StatsSO);
+    }
+
+    public void HandleEffect()
+    {
+        if (!effect.IsDone)
+        {
+            DoEffect();
+        }
+        else
+        {
+            RemoveEffect();
+        }
     }
     public void DoEffect()
     {
-
-    }
-    public void HandleEffect()
-    {
-
-        DoEffect();
-
+        this.effect.DohEffect();
+        this.effect.ChecIsDone();
     }
     public void RemoveEffect()
     {
-
+        effect.OffEffect();
+        this.effect = null;
     }
 }

@@ -61,7 +61,6 @@ public class AbilityHolder : CoreCompoment
     }
     public void SetStateAbility()
     {
-        Debug.Log(currentState);
         switch (currentState)
         {
             case SkillState.Start:

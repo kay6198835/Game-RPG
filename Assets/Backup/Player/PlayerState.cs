@@ -67,12 +67,10 @@ public class PlayerState
     public virtual void AnimationTrigger()
     {
         isAnimationTrigger = true;
-        Debug.Log("isAnimationTrigger "+isAnimationTrigger);
     }
     public virtual void AnimationFinishTrigger()
     {
         isAnimationFinished = true;
-        Debug.Log("isAnimationFinished " + isAnimationFinished);
     }
 
 

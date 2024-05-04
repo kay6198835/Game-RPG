@@ -24,4 +24,5 @@ public class EntityBasicState : EntityState
             entity.StateMachine.ChangeState(entity.AttackState);
         }
     }
+
 }

@@ -23,6 +23,5 @@ public class EntityTakeDamageState : EntityDisadvantageState
     public override void Exit()
     {
         base.Exit();
-        Debug.Log(animBoolName);
     }
 }

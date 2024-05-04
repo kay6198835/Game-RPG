@@ -36,7 +36,6 @@ public class EntityWeaponMelee : EntityWeapon
             IDamageable damageable = hitEPlayer.GetComponentInChildren<IDamageable>();
             if (damageable != null)
             {
-                Debug.Log("Take Damage");
                 damageable.TakeDamage(currrentSA.attackDamege, transform.position);
             }
         }
