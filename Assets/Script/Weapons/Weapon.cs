@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class Weapon : MonoBehaviour
+public abstract class Weapon : InteractiveObjects
 {
     [Header("Abtract Weapon")]
     [SerializeField] protected WeaponHolder holder;
@@ -12,9 +12,9 @@ public abstract class Weapon : MonoBehaviour
     protected float durationNextAttack;
     protected bool canAttack;
     public AbilityHolder AbilityHolder { get => abilityHolder; }
-
-    protected virtual void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         holder = GetComponentInParent<WeaponHolder>();
     }
     public abstract void Attack();
@@ -42,30 +42,33 @@ public abstract class Weapon : MonoBehaviour
         {
             holder = weaponHolder;
             abilityHolder = weaponHolder.Core.AbilityHolder;
+            transform.SetParent(holder.transform);
+            transform.position = transform.parent.position;
         }
         else
         {
+            transform.position = transform.parent.position + Vector3.one * 1f;
+            transform.SetParent(null);
             holder = null;
             abilityHolder = null;
+
         }
     }
-    protected void Equid(Collider2D collision, WeaponStats weaponData)
+
+
+
+    public override bool Interact(Interactor interactor)
     {
-        WeaponsController WPcontroller = collision.GetComponent<WeaponsController>();
-        //Debug.Log("equip able");
-        if (WPcontroller != null)
+        if(interactor.Core.WeaponHolder.Weapon == null)
         {
-            if (WPcontroller.slot < WPcontroller.maxSlot)
-            {
-                WPcontroller.equipped(weaponData);
-                Destroy(gameObject);
-            }
-            else if (WPcontroller.slot >= WPcontroller.maxSlot)
-            {
-                WPcontroller.Drop();
-                WPcontroller.equipped(weaponData);
-                Destroy(gameObject);
-            }
+            interactor.Core.WeaponHolder.Equid(this);
+            Debug.Log("Equid");
         }
+        else
+        {
+            interactor.Core.WeaponHolder.UnEquid();
+            Debug.Log("UnEquid");
+        }
+        return true;
     }
 }

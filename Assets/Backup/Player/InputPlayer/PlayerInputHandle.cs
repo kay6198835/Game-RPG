@@ -42,7 +42,8 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private bool isSkill;
     [SerializeField] private bool isDisadvantage;
     [SerializeField] private bool isTakeDamage;
-    [SerializeField] private bool isPick_Drop = false;
+    [SerializeField] private bool isEquip_Unequip= false;
+    [SerializeField] private bool isInteractor = false;
 
     [Header("Enum Value")]
     [SerializeField] private SkillState state;
@@ -72,8 +73,12 @@ public class PlayerInputHandler : MonoBehaviour
         playerInput.Control.AbilityWeapon.performed += OnAbilityWeapon;
         playerInput.Control.AbilityWeapon.canceled += OnAbilityWeapon;
 
-        playerInput.Control.PickDrop.started += OnPickDrop;
-        playerInput.Control.PickDrop.canceled += OnPickDrop;
+        playerInput.Control.EquipUnequip.started += OnEquipUnequip;
+        playerInput.Control.EquipUnequip.canceled += OnEquipUnequip;
+
+
+        playerInput.Control.Interactor.started += OnInteractor;
+        playerInput.Control.Interactor.canceled += OnInteractor;
     }
     #region Get value 
     public Vector2 MoveVector { get => moveVector;}
@@ -89,7 +94,8 @@ public class PlayerInputHandler : MonoBehaviour
     public float AngleLookDirection { get => angleLookDirection; }
     public bool IsDisadvantage { get => isDisadvantage;}
     public bool IsTakeDamage { get => isTakeDamage; }
-    public bool IsPick_Drop { get => isPick_Drop;}
+    public bool IsEquip_Unequip { get => isEquip_Unequip; }
+    public bool IsInteractor { get => isInteractor; }
     public Vector2 DirectionBeAttackedVector { get => directionBeAttackedVector;}
     public float AngleBeAttackedDirection { get => angleBeAttackedDirection;}
     public int DirectionBeAttacked { get => directionBeAttacked;}
@@ -110,15 +116,26 @@ public class PlayerInputHandler : MonoBehaviour
         this.angleRotationPlayer = Vector2.SignedAngle(transform.right, directionLookVector);
         this.angleRotationPlayer = (this.angleRotationPlayer + 360) % 360;
     }
-    private void OnPickDrop(InputAction.CallbackContext context)
+    private void OnEquipUnequip(InputAction.CallbackContext context)
     {
         if (context.started)
         {
-            isPick_Drop = true;
+            isEquip_Unequip = true;
         }
         else if(context.canceled)
         {
-            isPick_Drop = false;
+            isEquip_Unequip = false;
+        }
+    }
+    private void OnInteractor(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            isInteractor = true;
+        }
+        else if(context.canceled)
+        {
+            isInteractor = false;
         }
     }
     private void OnMove(InputAction.CallbackContext context)
@@ -138,6 +155,10 @@ public class PlayerInputHandler : MonoBehaviour
     }
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
+        if(player.Core.WeaponHolder.Weapon == null)
+        {
+            return;
+        }
         skill = SkillType.Special;
         if (context.started)
         {
@@ -158,14 +179,20 @@ public class PlayerInputHandler : MonoBehaviour
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {
+        if (player.Core.WeaponHolder.Weapon == null)
+        {
+            return;
+        }
         skill = SkillType.Ability;
         if (context.started)
         {
             state = SkillState.Start;
+            isSkill = true;
+            player.Core.WeaponHolder.Weapon.SetAbility();
+            player.Core.AbilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {
-            isSkill = true;
             state = SkillState.Cast;
         }
         else if (context.canceled)

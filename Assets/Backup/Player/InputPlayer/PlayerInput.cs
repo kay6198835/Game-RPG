@@ -73,7 +73,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Pick/Drop"",
+                    ""name"": ""Equip/Unequip"",
                     ""type"": ""Button"",
                     ""id"": ""949822f0-c4cb-4a19-b25d-e001bd023ba9"",
                     ""expectedControlType"": ""Button"",
@@ -85,6 +85,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""Dash"",
                     ""type"": ""Button"",
                     ""id"": ""fcf460e8-3dbd-4395-9168-59ea75aa8e2d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Interactor"",
+                    ""type"": ""Button"",
+                    ""id"": ""106ad23f-42aa-41c6-8b43-12d5edd90231"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -198,7 +207,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Pick/Drop"",
+                    ""action"": ""Equip/Unequip"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -210,6 +219,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""58930905-0777-40c3-8056-11f842ee6c2e"",
+                    ""path"": ""<Keyboard>/g"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interactor"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -225,8 +245,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Control_Attack = m_Control.FindAction("Attack", throwIfNotFound: true);
         m_Control_SkillWeapon = m_Control.FindAction("SkillWeapon", throwIfNotFound: true);
         m_Control_AbilityWeapon = m_Control.FindAction("AbilityWeapon", throwIfNotFound: true);
-        m_Control_PickDrop = m_Control.FindAction("Pick/Drop", throwIfNotFound: true);
+        m_Control_EquipUnequip = m_Control.FindAction("Equip/Unequip", throwIfNotFound: true);
         m_Control_Dash = m_Control.FindAction("Dash", throwIfNotFound: true);
+        m_Control_Interactor = m_Control.FindAction("Interactor", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -293,8 +314,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Control_Attack;
     private readonly InputAction m_Control_SkillWeapon;
     private readonly InputAction m_Control_AbilityWeapon;
-    private readonly InputAction m_Control_PickDrop;
+    private readonly InputAction m_Control_EquipUnequip;
     private readonly InputAction m_Control_Dash;
+    private readonly InputAction m_Control_Interactor;
     public struct ControlActions
     {
         private @PlayerInput m_Wrapper;
@@ -304,8 +326,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Attack => m_Wrapper.m_Control_Attack;
         public InputAction @SkillWeapon => m_Wrapper.m_Control_SkillWeapon;
         public InputAction @AbilityWeapon => m_Wrapper.m_Control_AbilityWeapon;
-        public InputAction @PickDrop => m_Wrapper.m_Control_PickDrop;
+        public InputAction @EquipUnequip => m_Wrapper.m_Control_EquipUnequip;
         public InputAction @Dash => m_Wrapper.m_Control_Dash;
+        public InputAction @Interactor => m_Wrapper.m_Control_Interactor;
         public InputActionMap Get() { return m_Wrapper.m_Control; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -330,12 +353,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @AbilityWeapon.started += instance.OnAbilityWeapon;
             @AbilityWeapon.performed += instance.OnAbilityWeapon;
             @AbilityWeapon.canceled += instance.OnAbilityWeapon;
-            @PickDrop.started += instance.OnPickDrop;
-            @PickDrop.performed += instance.OnPickDrop;
-            @PickDrop.canceled += instance.OnPickDrop;
+            @EquipUnequip.started += instance.OnEquipUnequip;
+            @EquipUnequip.performed += instance.OnEquipUnequip;
+            @EquipUnequip.canceled += instance.OnEquipUnequip;
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
+            @Interactor.started += instance.OnInteractor;
+            @Interactor.performed += instance.OnInteractor;
+            @Interactor.canceled += instance.OnInteractor;
         }
 
         private void UnregisterCallbacks(IControlActions instance)
@@ -355,12 +381,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @AbilityWeapon.started -= instance.OnAbilityWeapon;
             @AbilityWeapon.performed -= instance.OnAbilityWeapon;
             @AbilityWeapon.canceled -= instance.OnAbilityWeapon;
-            @PickDrop.started -= instance.OnPickDrop;
-            @PickDrop.performed -= instance.OnPickDrop;
-            @PickDrop.canceled -= instance.OnPickDrop;
+            @EquipUnequip.started -= instance.OnEquipUnequip;
+            @EquipUnequip.performed -= instance.OnEquipUnequip;
+            @EquipUnequip.canceled -= instance.OnEquipUnequip;
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
+            @Interactor.started -= instance.OnInteractor;
+            @Interactor.performed -= instance.OnInteractor;
+            @Interactor.canceled -= instance.OnInteractor;
         }
 
         public void RemoveCallbacks(IControlActions instance)
@@ -385,7 +414,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnAttack(InputAction.CallbackContext context);
         void OnSkillWeapon(InputAction.CallbackContext context);
         void OnAbilityWeapon(InputAction.CallbackContext context);
-        void OnPickDrop(InputAction.CallbackContext context);
+        void OnEquipUnequip(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
+        void OnInteractor(InputAction.CallbackContext context);
     }
 }

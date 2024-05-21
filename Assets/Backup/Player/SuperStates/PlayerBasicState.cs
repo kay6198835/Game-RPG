@@ -10,16 +10,22 @@ public class PlayerBasicState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if(player.Core.WeaponHolder.FindWeapon())
+
+        if (player.Core.Interactor.FindInteraction())
         {
-            if (player.InputHandler.IsPick_Drop)
+            if (player.InputHandler.IsInteractor)
             {
-                {
-                    player.Core.WeaponHolder.EquidWeapon();
-                }
+                player.Core.Interactor.Intertion();
+
+
+            }
+            if (player.InputHandler.IsEquip_Unequip)
+            {
+
             }
         }
-        if(player.Core.WeaponHolder.Weapon!=null)
+
+        if (player.Core.WeaponHolder.Weapon != null)
         {
             if (player.InputHandler.IsAttack && player.Core.WeaponHolder.Weapon.CheckCanAttack(player))
             {

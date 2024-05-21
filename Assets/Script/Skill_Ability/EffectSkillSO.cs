@@ -98,15 +98,18 @@ public class EffectData
     public Stats statsTypes;
     public float effectIncreaseAmount;
     public float currentIncreaseAmount;
-    public float amountIncreaseAmount;
+    public float finalIncreaseAmount;
+    public GameObject particle;
 }
 [System.Serializable]
 public class EffectType
 {
     [SerializeField] private bool isNegative;
     [SerializeField] private bool isPercentage;
+    [SerializeField] private bool isRecover;
     public bool IsNegative { get => isNegative; }
     public bool IsPercentage { get => isPercentage; }
+    public bool IsRecover { get => isRecover; }
 }
 public enum Stats
 {

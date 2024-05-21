@@ -26,6 +26,6 @@ public class SlashAbility : ActivateSkill
     {
         base.Do();
         Instantiate(slashPrefab, positon, rotation).gameObject.
-            GetComponent<Projectile>().SetVelocity (shoot);
+            GetComponent<Projectile>().SetVelocity (shoot*speedSlash);
     }
 }

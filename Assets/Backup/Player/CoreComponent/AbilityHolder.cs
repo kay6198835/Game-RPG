@@ -12,8 +12,6 @@ public class AbilityHolder : CoreCompoment
     [SerializeField] private float activeTime;
     [SerializeField] private KeyCode keyCode;
     [SerializeField] private bool canUseAbility;
-    [SerializeField] private int stateIndex;
-    [SerializeField] private int stateLength;
     public enum SkillState
     {
         Start,
@@ -28,8 +26,8 @@ public class AbilityHolder : CoreCompoment
     protected override void Awake()
     {
         base.Awake();
-        stateIndex = 1;
-        stateLength = Enum.GetNames(typeof(SkillState)).Length;
+        //stateIndex = 1;
+        //stateLength = Enum.GetNames(typeof(SkillState)).Length;
     }
     private void Start()
     {
@@ -46,6 +44,10 @@ public class AbilityHolder : CoreCompoment
     }
     public void SetAblityWeapon(ActivateSkill ability)
     {
+        if(ability == null)
+        {
+            return ;
+        }
         this.ability = ability;
     }
     public void EnterAbility()

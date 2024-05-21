@@ -13,7 +13,6 @@ public class Entity : MonoBehaviour
     [SerializeField] protected ParticleSystem particle;
     [SerializeField] protected EntityStateMachine stateMachine;
     [SerializeField] protected EntityData data;
-
     [SerializeField] private EntityIdleState idleState;
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;

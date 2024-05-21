@@ -14,7 +14,7 @@ public class SpawnCharacter : MonoBehaviour
         
         for(int i = 0; i < character.Count; i++)
         {
-            Instantiate(character[i].gameObject,Vector3.one*i*distance,Quaternion.identity);
+            Instantiate(character[i].gameObject,this.transform.position+Vector3.up*i*distance,Quaternion.identity);
         }
     }
 }

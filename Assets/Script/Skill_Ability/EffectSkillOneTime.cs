@@ -29,19 +29,22 @@ public class EffectSkillOneTime : EffectSkillSO
     {
         if (effectData[dataIndex].type.IsPercentage)
         {
-            effectData[dataIndex].amountIncreaseAmount = stats * effectData[dataIndex].currentIncreaseAmount;
+            effectData[dataIndex].finalIncreaseAmount = stats * effectData[dataIndex].currentIncreaseAmount;
         }
         else
         {
-            effectData[dataIndex].amountIncreaseAmount = effectData[dataIndex].currentIncreaseAmount;
+            effectData[dataIndex].finalIncreaseAmount = effectData[dataIndex].currentIncreaseAmount;
         }
-        stats += effectData[dataIndex].amountIncreaseAmount;
+        stats += effectData[dataIndex].finalIncreaseAmount;
         return stats;
     }
     protected override float RemoveEffect(int dataIndex, float stats)
     {
-        stats -= effectData[dataIndex].amountIncreaseAmount;
-        effectData[dataIndex].amountIncreaseAmount = 0;
+        if (effectData[dataIndex].type.IsRecover)
+        {
+            stats -= effectData[dataIndex].finalIncreaseAmount;
+        }
+        effectData[dataIndex].finalIncreaseAmount = 0;
         return stats;
     }
 }

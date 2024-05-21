@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CoreCompoment : MonoBehaviour
 {
-    protected Core core;
+    [SerializeField] protected Core core;
 
     public Core Core { get => core;}
 
