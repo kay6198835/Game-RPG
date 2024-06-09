@@ -6,5 +6,5 @@ public interface IInteractable
 {
     public string InteractionPromt {  get;}
 
-    public abstract bool Interact (Interactor interactor);
+    public abstract bool Interact (Interact interactor);
 }

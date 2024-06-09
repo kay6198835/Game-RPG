@@ -5,7 +5,6 @@ using UnityEngine.WSA;
 
 public abstract class EntityWeapon : MonoBehaviour
 {
-
     [SerializeField] protected EntityWeaponHolder holder;
     [SerializeField] protected WeaponStats stats;
     [SerializeField] protected ActivateSkill currentAbilitySO;

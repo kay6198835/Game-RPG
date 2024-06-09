@@ -25,7 +25,7 @@ public class DashAbility : ActivateSkill
     public override void Do()
     {
         base.Do();
-        player.Core.Movement.SetVeclocity(player.InputHandler.DirectionLookVector * dashingPower);
+        player.Core.Movement.SetVeclocity(player.InputHandler.DirectionMouseVector * dashingPower);
     }
     public override void Exit()
     {

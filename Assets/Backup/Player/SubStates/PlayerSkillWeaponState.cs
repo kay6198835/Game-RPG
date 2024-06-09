@@ -17,7 +17,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
         player.Core.AbilityHolder.EnterAbility();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
-        stateStyle = StateStyle.Freeze;
+        //stateStyle = StateStyle.Freeze;
     }
     public override void LogicUpdate()
     {

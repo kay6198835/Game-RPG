@@ -11,6 +11,8 @@ public class NewPlayer : MonoBehaviour
     [SerializeField] private PlayerMoveState moveState;
     [SerializeField] private PlayerAttackState attackState;
     [SerializeField] private PlayerSkillWeaponState abilityState;
+    [SerializeField] private PlayerEquidUnequid equidUnequidState;
+    [SerializeField] private PlayerIntertorState intertorState;
     [SerializeField] private PlayerTakeDamageState takeDamageState;
     #endregion
 
@@ -32,6 +34,8 @@ public class NewPlayer : MonoBehaviour
     public PlayerIdleState IdleState { get => idleState;}
     public PlayerMoveState MoveState { get => moveState;}
     public PlayerAttackState AttackState { get => attackState;}
+    public PlayerEquidUnequid EquidUnequidState { get => equidUnequidState; }
+    public PlayerIntertorState IntertorState { get => intertorState; }
     public PlayerSkillWeaponState AbilityState { get => abilityState;}
     public PlayerTakeDamageState TakeDamageState { get => takeDamageState;}
     public PlayerData Data { get => data; }
@@ -47,6 +51,8 @@ public class NewPlayer : MonoBehaviour
         idleState = new PlayerIdleState(this,"Idle");
         moveState = new PlayerMoveState(this,"Move");
         attackState = new PlayerAttackState(this,"Attack");
+        equidUnequidState = new PlayerEquidUnequid(this, "EquidUnequid");
+        intertorState = new PlayerIntertorState(this, "Interactor");
         abilityState = new PlayerSkillWeaponState(this,"Ability");
         takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
     }

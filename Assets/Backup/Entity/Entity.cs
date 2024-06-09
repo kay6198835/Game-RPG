@@ -60,6 +60,12 @@ public class Entity : MonoBehaviour
         takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
     }
 
+    public void SetDataEntity(EntityData data)
+    {
+        this.data = data;
+        gameObject.name = data.name;
+    }
+
     protected void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
 
     protected void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();

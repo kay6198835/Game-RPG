@@ -10,10 +10,12 @@ public class PlayerMoveState : PlayerBasicState
     public override void Enter()
     {
         base.Enter();
-        stateStyle = StateStyle.Motion;
+        //stateStyle = StateStyle.Motion;
+        player.Anim.SetFloat("Direction", player.InputHandler.DirectionKeyboard);
     }
     public override void LogicUpdate()
     {
+        player.Anim.SetFloat("Direction", player.InputHandler.DirectionKeyboard);
         player.Core.Movement.SetVeclocity(player.InputHandler.MoveVector * playerData.movementVelocities);
         if (player.InputHandler.MoveVector == Vector2.zero)
         {

@@ -11,7 +11,7 @@ public abstract class InteractiveObjects : MonoBehaviour,IInteractable
         //gameObject.layer = LayerMask.GetMask("Interactable");
     }
 
-    public abstract bool Interact(Interactor interactor);
+    public abstract bool Interact(Interact interactor);
 
     // Start is called before the first frame update
     void Start()

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c1885a8510419428a2ca2e42353c8d, type: 3}
+  m_Name: Enemy - Knight 3
+  m_EditorClassIdentifier: 
+  statsSO: {fileID: 11400000, guid: 6af23a5cdbfc88440ab6dfd79ea05f4d, type: 2}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  aima: {fileID: 22100000, guid: d0db906fa3b190741b840055b37a6db1, type: 2}
+  maxHealth: 1000
+  rangeCheckFieldOfView: 3
+  idleDurationTime: 1
+  moveDurationTime: 5
+  movementVelocities: 0
+  rangeCheckAttack: 3
+  weaponSO: {fileID: 11400000, guid: cecf5fadaca3f8f4186887e48de435b6, type: 2}

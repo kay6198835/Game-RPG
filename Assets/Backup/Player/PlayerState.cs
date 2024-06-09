@@ -17,7 +17,7 @@ public class PlayerState
     protected bool isExitingState;
     protected float startTime;
     protected string animBoolName;
-    protected StateStyle stateStyle;
+    //protected StateStyle stateStyle;
     public enum StateStyle
     {
         Freeze,
@@ -41,7 +41,7 @@ public class PlayerState
         isAnimationTrigger = false;
         isAnimationFinished = false;
         isExitingState = false;
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionLook);
+        //player.Anim.SetFloat("Direction", player.InputHandler.DirectionExtra);
     }
     public virtual void Exit()
     {
@@ -52,10 +52,10 @@ public class PlayerState
 
     public virtual void LogicUpdate()
     {
-        if(stateStyle == StateStyle.Motion)
-        {
-            player.Anim.SetFloat("Direction", player.InputHandler.DirectionLook);
-        }
+        //if(stateStyle == StateStyle.Motion)
+        //{
+        //    player.Anim.SetFloat("Direction", player.InputHandler.DirectionExtra);
+        //}
     }
     public virtual void PhysicsUpdate()
     {

@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponHolder : CoreCompoment
+public class WeaponHolder : Interact
 {
     [SerializeField] private Weapon weapon;
+
     public Weapon Weapon
     {
         get { return weapon; }
@@ -14,21 +15,28 @@ public class WeaponHolder : CoreCompoment
     protected override void Awake()
     {
         base.Awake();
+        interactableMask = LayerMask.GetMask("Weapon"); 
     }
-
-    public void FindWeapon()
+    public void Equid_UnEquid(Weapon weapon)
     {
-
+        if(this.weapon == null)
+        {
+            this.weapon = weapon;
+        }else
+        {
+            this.weapon = null;
+        }
     }
+    public override void Intertion()
+    {
+        if(weapon != null)
+        {
+            weapon.UnEquid();
 
-    public void Equid(Weapon weapon)
-    {
-        this.weapon = weapon;
-        this.weapon.SetWeaponHolder(this);
-    }
-    public void UnEquid()
-    {
-        weapon.SetWeaponHolder(this);
-        weapon = null;
+        }
+        if(weapon == null)
+        {
+            base.Intertion();
+        }
     }
 }

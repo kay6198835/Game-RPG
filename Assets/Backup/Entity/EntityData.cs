@@ -32,9 +32,8 @@ public class EntityData : ScriptableObject
     public float MoveDurationTime { get => moveDurationTime;}
     public WeaponSO WeaponSO { get => weaponSO;}
     public EntityStatsSO StatsSO { get => statsSO;}
-
-    private void Awake()
+    private void OnValidate()
     {
-
+        
     }
 }

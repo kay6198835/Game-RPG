@@ -12,11 +12,12 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
     {
         base.Enter();
         player.Core.Movement.SetVeclocity(Vector2.zero);
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionBeAttacked);
+
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        player.Anim.SetFloat("Direction", player.InputHandler.DirectionExternality);
     }
     public override void Exit()
     {

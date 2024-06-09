@@ -6,8 +6,6 @@ using UnityEngine;
 public class Door : InteractiveObjects
 {
     [SerializeField] public BoxCollider2D m_Collider;
-
-    public string InteractionPromt => throw new System.NotImplementedException();
     protected override void Awake()
     {
         base.Awake();
@@ -26,11 +24,10 @@ public class Door : InteractiveObjects
     protected void OpenDoor()
     {
         gameObject.SetActive(false);
-        //m_Collider.enabled = false;
         Debug.Log("Open Door");
     }
 
-    public override bool Interact(Interactor interactor)
+    public override bool Interact(Interact interactor)
     {
         OpenDoor();
         return true;
