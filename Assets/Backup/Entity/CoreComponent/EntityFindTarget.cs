@@ -6,6 +6,7 @@ public class EntityFindTarget : EntityCoreComponent
 {
     [SerializeField] private Transform target;
     [SerializeField] private float range;
+    [SerializeField] private LayerMask player, obstracles;
     //[SerializeField] private bool isFindTarget;
 
     public Transform Target { get => target;}
@@ -20,7 +21,7 @@ public class EntityFindTarget : EntityCoreComponent
         Collider2D collider = Physics2D.OverlapCircle(
             this.transform.position,
             range,
-            entityCore.Entity.Data.LayerMask);
+            player);
         if(collider != null)
         {
             target = collider.transform;
@@ -30,6 +31,21 @@ public class EntityFindTarget : EntityCoreComponent
             target = null;
         }
         return target;
+    }
+
+    public bool FindWall(Vector2 direction,float speed)
+    {
+        bool isFindWall;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, speed*0.5f, obstracles);
+        if (hit.collider != null)
+        {
+            isFindWall=true;
+        }
+        else
+        {
+            isFindWall=false;
+        }
+        return isFindWall; 
     }
     private void OnDrawGizmos()
     {

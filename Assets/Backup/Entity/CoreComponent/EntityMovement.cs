@@ -16,4 +16,6 @@ public class EntityMovement : EntityCoreComponent
     {
         rb.velocity = velocity;
     }
+
+    
 }

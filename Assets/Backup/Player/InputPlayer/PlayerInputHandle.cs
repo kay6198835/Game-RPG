@@ -103,9 +103,9 @@ public class PlayerInputHandler : MonoBehaviour
         playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
         playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
         
-        playerInput.Control.AbilityWeapon.started += OnAbilityWeapon;
-        playerInput.Control.AbilityWeapon.performed += OnAbilityWeapon;
-        playerInput.Control.AbilityWeapon.canceled += OnAbilityWeapon;
+        playerInput.Control.Block.started += OnAbilityWeapon;
+        playerInput.Control.Block.performed += OnAbilityWeapon;
+        playerInput.Control.Block.canceled += OnAbilityWeapon;
 
         playerInput.Control.EquipUnequip.started += OnEquipUnequip;
         playerInput.Control.EquipUnequip.canceled += OnEquipUnequip;
@@ -116,6 +116,7 @@ public class PlayerInputHandler : MonoBehaviour
         playerInput.Control.Interactor.canceled += OnInteractor;
     }
 
+    #region OnMethod
     private void OnEnable()
     {
         playerInput.Control.Enable();
@@ -220,7 +221,6 @@ public class PlayerInputHandler : MonoBehaviour
             isSkill = false;
         }
     }
-    
     public void OnTakeDamage(Vector2 attackPosition)
     {
         ChangeIsTakeDamage();
@@ -274,8 +274,6 @@ public class PlayerInputHandler : MonoBehaviour
             direction = 7;
         }
     }
-
-
     public void AngleCalculateKeyboard(Vector2 directionKeyboardVector)
     {
         AngleCalculate(directionKeyboardVector, ref angleKeyboardDirection, ref directionKeyboard);
@@ -288,4 +286,5 @@ public class PlayerInputHandler : MonoBehaviour
     {
         AngleCalculate(directionExternalityVector, ref angleExternalityDirection, ref directionExternality);
     }
+    #endregion
 }

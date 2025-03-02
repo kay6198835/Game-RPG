@@ -45,6 +45,7 @@ public class NewPlayer : MonoBehaviour
     #region Unity Callback Functions
     private void Awake()
     {
+        Debug.Log("On");
         stateMachine = new PlayerStateMachine();
         core = GetComponentInChildren<Core>();
         inputHandler = GetComponentInChildren<PlayerInputHandler>();

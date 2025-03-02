@@ -8,12 +8,12 @@ public class WeaponStats : ScriptableObject
     protected WeaponType type;
     [SerializeField] protected LayerMask layerMask;
     [SerializeField] protected List<AttackSO> attackState;
-    [SerializeField] protected ActivateSkill ability;
-    [SerializeField] protected ActivateSkill special;
+    [SerializeField] protected ActivateSkill abilityWeapon;
+    [SerializeField] protected ActivateSkill skillWeapon;
 
     public WeaponType Type { get => type; }
     public LayerMask LayerMask { get => layerMask; }
-    public ActivateSkill Ability { get => ability; }
-    public ActivateSkill Special { get => special; }
+    public ActivateSkill AbilityWeapon { get => abilityWeapon; }
+    public ActivateSkill SkillWeapon { get => skillWeapon; }
     public List<AttackSO> AttackState { get => attackState; }
 }

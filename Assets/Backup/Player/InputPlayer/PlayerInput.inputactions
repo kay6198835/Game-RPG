@@ -33,16 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SkillWeapon",
-                    "type": "Button",
-                    "id": "d9107f69-f35f-49e8-869e-cd2af76cdf4d",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Hold",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "AbilityWeapon",
+                    "name": "Block",
                     "type": "Button",
                     "id": "1f0f0265-1d03-4768-9170-81c9e8653458",
                     "expectedControlType": "Button",
@@ -72,6 +63,24 @@
                     "name": "Interactor",
                     "type": "Button",
                     "id": "489162ee-bdef-47c4-817b-8789ff348737",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SkillWeapon",
+                    "type": "Button",
+                    "id": "d9107f69-f35f-49e8-869e-cd2af76cdf4d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "f7cbe061-8878-4091-bbd2-e259ebe51e01",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -158,23 +167,12 @@
                 },
                 {
                     "name": "",
-                    "id": "e1def900-e854-4b1e-ba69-11c81ae7e12e",
-                    "path": "<Keyboard>/#(E)",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SkillWeapon",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "65c4657d-0108-4172-8d51-42e9698a550a",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "AbilityWeapon",
+                    "action": "Block",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -208,6 +206,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interactor",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "29eeb4da-20bf-4991-8711-85e4d8147a96",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e1def900-e854-4b1e-ba69-11c81ae7e12e",
+                    "path": "<Keyboard>/#(E)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SkillWeapon",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

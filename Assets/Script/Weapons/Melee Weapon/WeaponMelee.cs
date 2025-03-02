@@ -35,11 +35,11 @@ public class WeaponMelee : Weapon
     {
         if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
         {
-            currentAbilitySO = statsMelee.Ability;
+            currentAbilitySO = statsMelee.AbilityWeapon;
         }
         else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
         {
-            currentAbilitySO = statsMelee.Special;
+            currentAbilitySO = statsMelee.SkillWeapon;
         }
         base.SetAbility();
     }
@@ -85,8 +85,6 @@ public class WeaponMelee : Weapon
             if (pair.overrideClip != null)
             {
                 totalDuration += pair.overrideClip.length;
-                Debug.Log("Clip: " + pair.overrideClip.name+ " "+ pair.overrideClip);
-
             }
         }
         Debug.Log("totalDuration" + totalDuration);

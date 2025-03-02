@@ -45,11 +45,11 @@ public class EntityWeaponMelee : EntityWeapon
     {
         if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Ability)
         {
-            currentAbilitySO = statsMelee.Ability;
+            currentAbilitySO = statsMelee.AbilityWeapon;
         }
         else if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Special)
         {
-            currentAbilitySO = statsMelee.Special;
+            currentAbilitySO = statsMelee.SkillWeapon;
         }
         return currentAbilitySO;
     }

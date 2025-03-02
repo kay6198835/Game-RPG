@@ -17,6 +17,7 @@ public class Entity : MonoBehaviour
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
+    //[SerializeField] private Ene takeDamageState;
     public EntityInput Input { get => input;}
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }

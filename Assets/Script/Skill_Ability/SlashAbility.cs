@@ -15,11 +15,15 @@ public class SlashAbility : ActivateSkill
     public Vector3 Shoot { get => shoot; }
     public float SpeedSlash { get => speedSlash; }
     #endregion
+    public override void Enter(NewPlayer player)
+    {
+        base.Enter(player);
+        positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionMouseVector.normalized * 3;
+        rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleRotationPlayer);
+        shoot = player.InputHandler.DirectionMouseVector;
+    }
     public override void Activate()
     {
-        //positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionLookVector.normalized * 3;
-        //rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleRotationPlayer);
-        //shoot = player.InputHandler.DirectionLookVector;
         base.Activate();
     }
     public override void Do()
@@ -28,11 +32,5 @@ public class SlashAbility : ActivateSkill
         Instantiate(slashPrefab, positon, rotation).gameObject.
             GetComponent<Projectile>().SetVelocity (shoot*speedSlash);
     }
-    public override void Enter(NewPlayer player)
-    {
-        base.Enter(player);
-        positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionMouseVector.normalized * 3;
-        rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleRotationPlayer);
-        shoot = player.InputHandler.DirectionMouseVector;
-    }
+
 }

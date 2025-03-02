@@ -55,16 +55,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""SkillWeapon"",
-                    ""type"": ""Button"",
-                    ""id"": ""d9107f69-f35f-49e8-869e-cd2af76cdf4d"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": ""Hold"",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""AbilityWeapon"",
+                    ""name"": ""Block"",
                     ""type"": ""Button"",
                     ""id"": ""1f0f0265-1d03-4768-9170-81c9e8653458"",
                     ""expectedControlType"": ""Button"",
@@ -94,6 +85,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""Interactor"",
                     ""type"": ""Button"",
                     ""id"": ""489162ee-bdef-47c4-817b-8789ff348737"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SkillWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""d9107f69-f35f-49e8-869e-cd2af76cdf4d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Hold"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""New action"",
+                    ""type"": ""Button"",
+                    ""id"": ""f7cbe061-8878-4091-bbd2-e259ebe51e01"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -180,23 +189,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e1def900-e854-4b1e-ba69-11c81ae7e12e"",
-                    ""path"": ""<Keyboard>/#(E)"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SkillWeapon"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""65c4657d-0108-4172-8d51-42e9698a550a"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""AbilityWeapon"",
+                    ""action"": ""Block"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -232,6 +230,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Interactor"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""29eeb4da-20bf-4991-8711-85e4d8147a96"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""New action"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e1def900-e854-4b1e-ba69-11c81ae7e12e"",
+                    ""path"": ""<Keyboard>/#(E)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SkillWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -243,11 +263,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Control_Movement = m_Control.FindAction("Movement", throwIfNotFound: true);
         m_Control_MousePosition = m_Control.FindAction("MousePosition", throwIfNotFound: true);
         m_Control_Attack = m_Control.FindAction("Attack", throwIfNotFound: true);
-        m_Control_SkillWeapon = m_Control.FindAction("SkillWeapon", throwIfNotFound: true);
-        m_Control_AbilityWeapon = m_Control.FindAction("AbilityWeapon", throwIfNotFound: true);
+        m_Control_Block = m_Control.FindAction("Block", throwIfNotFound: true);
         m_Control_EquipUnequip = m_Control.FindAction("Equip/Unequip", throwIfNotFound: true);
         m_Control_Dash = m_Control.FindAction("Dash", throwIfNotFound: true);
         m_Control_Interactor = m_Control.FindAction("Interactor", throwIfNotFound: true);
+        m_Control_SkillWeapon = m_Control.FindAction("SkillWeapon", throwIfNotFound: true);
+        m_Control_Newaction = m_Control.FindAction("New action", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -312,11 +333,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Control_Movement;
     private readonly InputAction m_Control_MousePosition;
     private readonly InputAction m_Control_Attack;
-    private readonly InputAction m_Control_SkillWeapon;
-    private readonly InputAction m_Control_AbilityWeapon;
+    private readonly InputAction m_Control_Block;
     private readonly InputAction m_Control_EquipUnequip;
     private readonly InputAction m_Control_Dash;
     private readonly InputAction m_Control_Interactor;
+    private readonly InputAction m_Control_SkillWeapon;
+    private readonly InputAction m_Control_Newaction;
     public struct ControlActions
     {
         private @PlayerInput m_Wrapper;
@@ -324,11 +346,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Movement => m_Wrapper.m_Control_Movement;
         public InputAction @MousePosition => m_Wrapper.m_Control_MousePosition;
         public InputAction @Attack => m_Wrapper.m_Control_Attack;
-        public InputAction @SkillWeapon => m_Wrapper.m_Control_SkillWeapon;
-        public InputAction @AbilityWeapon => m_Wrapper.m_Control_AbilityWeapon;
+        public InputAction @Block => m_Wrapper.m_Control_Block;
         public InputAction @EquipUnequip => m_Wrapper.m_Control_EquipUnequip;
         public InputAction @Dash => m_Wrapper.m_Control_Dash;
         public InputAction @Interactor => m_Wrapper.m_Control_Interactor;
+        public InputAction @SkillWeapon => m_Wrapper.m_Control_SkillWeapon;
+        public InputAction @Newaction => m_Wrapper.m_Control_Newaction;
         public InputActionMap Get() { return m_Wrapper.m_Control; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -347,12 +370,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Attack.started += instance.OnAttack;
             @Attack.performed += instance.OnAttack;
             @Attack.canceled += instance.OnAttack;
-            @SkillWeapon.started += instance.OnSkillWeapon;
-            @SkillWeapon.performed += instance.OnSkillWeapon;
-            @SkillWeapon.canceled += instance.OnSkillWeapon;
-            @AbilityWeapon.started += instance.OnAbilityWeapon;
-            @AbilityWeapon.performed += instance.OnAbilityWeapon;
-            @AbilityWeapon.canceled += instance.OnAbilityWeapon;
+            @Block.started += instance.OnBlock;
+            @Block.performed += instance.OnBlock;
+            @Block.canceled += instance.OnBlock;
             @EquipUnequip.started += instance.OnEquipUnequip;
             @EquipUnequip.performed += instance.OnEquipUnequip;
             @EquipUnequip.canceled += instance.OnEquipUnequip;
@@ -362,6 +382,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Interactor.started += instance.OnInteractor;
             @Interactor.performed += instance.OnInteractor;
             @Interactor.canceled += instance.OnInteractor;
+            @SkillWeapon.started += instance.OnSkillWeapon;
+            @SkillWeapon.performed += instance.OnSkillWeapon;
+            @SkillWeapon.canceled += instance.OnSkillWeapon;
+            @Newaction.started += instance.OnNewaction;
+            @Newaction.performed += instance.OnNewaction;
+            @Newaction.canceled += instance.OnNewaction;
         }
 
         private void UnregisterCallbacks(IControlActions instance)
@@ -375,12 +401,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Attack.started -= instance.OnAttack;
             @Attack.performed -= instance.OnAttack;
             @Attack.canceled -= instance.OnAttack;
-            @SkillWeapon.started -= instance.OnSkillWeapon;
-            @SkillWeapon.performed -= instance.OnSkillWeapon;
-            @SkillWeapon.canceled -= instance.OnSkillWeapon;
-            @AbilityWeapon.started -= instance.OnAbilityWeapon;
-            @AbilityWeapon.performed -= instance.OnAbilityWeapon;
-            @AbilityWeapon.canceled -= instance.OnAbilityWeapon;
+            @Block.started -= instance.OnBlock;
+            @Block.performed -= instance.OnBlock;
+            @Block.canceled -= instance.OnBlock;
             @EquipUnequip.started -= instance.OnEquipUnequip;
             @EquipUnequip.performed -= instance.OnEquipUnequip;
             @EquipUnequip.canceled -= instance.OnEquipUnequip;
@@ -390,6 +413,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Interactor.started -= instance.OnInteractor;
             @Interactor.performed -= instance.OnInteractor;
             @Interactor.canceled -= instance.OnInteractor;
+            @SkillWeapon.started -= instance.OnSkillWeapon;
+            @SkillWeapon.performed -= instance.OnSkillWeapon;
+            @SkillWeapon.canceled -= instance.OnSkillWeapon;
+            @Newaction.started -= instance.OnNewaction;
+            @Newaction.performed -= instance.OnNewaction;
+            @Newaction.canceled -= instance.OnNewaction;
         }
 
         public void RemoveCallbacks(IControlActions instance)
@@ -412,10 +441,11 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnMovement(InputAction.CallbackContext context);
         void OnMousePosition(InputAction.CallbackContext context);
         void OnAttack(InputAction.CallbackContext context);
-        void OnSkillWeapon(InputAction.CallbackContext context);
-        void OnAbilityWeapon(InputAction.CallbackContext context);
+        void OnBlock(InputAction.CallbackContext context);
         void OnEquipUnequip(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnInteractor(InputAction.CallbackContext context);
+        void OnSkillWeapon(InputAction.CallbackContext context);
+        void OnNewaction(InputAction.CallbackContext context);
     }
 }

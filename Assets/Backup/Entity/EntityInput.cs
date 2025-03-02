@@ -133,12 +133,30 @@ public class EntityInput : MonoBehaviour
     }
     public void SetDirectionRadom()
     {
-        float angle = Random.Range(0f, 360f);
-        angle = Mathf.Round(angle / 45f) * 45f;
-        float radian = angle * Mathf.Deg2Rad;
+        directionLookAngle = Random.Range(0f, 360f);
+        directionLookAngle = Mathf.Round(directionLookAngle / 45f) * 45f;
+        float radian = directionLookAngle * Mathf.Deg2Rad;
         float x = Mathf.Cos(radian);
         float y = Mathf.Sin(radian);
         directionLookVector = new Vector2(x, y).normalized*100f - (Vector2)transform.position;
+    }
+    public void TurnLeftOrRight()
+    {
+        bool isRight = Random.Range(0, 2) == 0;
+        int bonusAngle = Random.Range(45, 90);
+        if (isRight)
+        {
+            directionLookAngle += 90f;
+        }
+        else
+        {
+            directionLookAngle -= 90f;
+        }
+        //directionLookAngle = Mathf.Round(directionLookAngle / 45f) * 45f;
+        float radian = directionLookAngle * Mathf.Deg2Rad;
+        float x = Mathf.Cos(radian);
+        float y = Mathf.Sin(radian);
+        directionLookVector = new Vector2(x, y).normalized * 100f - (Vector2)transform.position;
     }
     private void ChangeIsTakeDamage()
     {

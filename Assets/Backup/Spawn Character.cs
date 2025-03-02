@@ -2,31 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpawnCharacter : MonoBehaviour
+public class SpawnCharacterTest : MonoBehaviour
 {
-    [SerializeField] List<GameObject> character;
-    [SerializeField] List<Transform> SpawnPosition;
+    [SerializeField] GameObject player;
+    [SerializeField] GameObject weapon;
+    [SerializeField] GameObject enemy;
 
-    [SerializeField] List<EntityData> entitiesData;
-    [SerializeField] Entity enemyPrefab;
-
+    [SerializeField] bool isEnemy;
+    [SerializeField] bool isWeapon;
+    [SerializeField] bool isPlayer;
 
     [SerializeField] float distance;
+
 
     //Character character1;
     // Start is called before the first frame update
     void Start()
     {
-        
-        for(int i = 0; i < character.Count; i++)
+        if (isEnemy)
         {
-            Instantiate(character[i].gameObject,this.transform.position+Vector3.up*i*distance,Quaternion.identity);
+            Instantiate(enemy,transform.position+Vector3.one*distance,Quaternion.identity);
         }
-
-        for (int i = 0; i < entitiesData.Count; i++)
+        if (isWeapon)
         {
-            enemyPrefab.SetDataEntity(entitiesData[i]);
-            Instantiate(enemyPrefab, this.transform.position + Vector3.up * i * distance, Quaternion.identity);
+            Instantiate(weapon, transform.position + Vector3.one*2 * distance, Quaternion.identity);
+        }
+        if (isPlayer)
+        {
+            Instantiate(player, transform.position + Vector3.one*3 * distance, Quaternion.identity);
         }
     }
 }

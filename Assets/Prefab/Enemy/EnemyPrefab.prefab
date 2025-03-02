@@ -293,6 +293,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   range: 0
+  player:
+    serializedVersion: 2
+    m_Bits: 128
+  obstracles:
+    serializedVersion: 2
+    m_Bits: 1024
 --- !u!1 &6425847005951648876
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,7 +17,14 @@ public class EntityBasicState : EntityState
         entity.Anim.SetFloat("Direction", entity.Input.DirectionLook);
         if (entity.Input.IsTakeDamage)
         {
-            stateMachine.ChangeState(entity.TakeDamageState);
+            if (entity.Data.StatsSO.Health <= 0)
+            {
+
+            }
+            else
+            {
+                stateMachine.ChangeState(entity.TakeDamageState);
+            }
         }
         if (entity.Input.IsAttack && entity.Core.WeaponHolder.Weapon.CheckCanAttack(entity, startTime))
         {

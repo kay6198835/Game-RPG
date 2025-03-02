@@ -6,25 +6,22 @@ using UnityEngine;
 [CreateAssetMenu(fileName ="newPLayerData",menuName ="Data/PLayer Data/Base Data")]
 public class PlayerData : ScriptableObject
 {
-    [SerializeField] private LayerMask enemyLayerMask;
-    [SerializeField] private LayerMask weaponLayerMask;
     [SerializeField] private float maxHealth;
-    [SerializeField] private float rangeFindWeapon;
     [SerializeField] public float currentHealth;
     public float MaxHealth { get => maxHealth; }
-    public LayerMask EnemyLayerMask { get => enemyLayerMask; }
-    public LayerMask WeaponLayerMask { get => weaponLayerMask;}
 
     [Header("Move State")]
-    public float movementVelocities = 10f;
-    private void Awake()
+    public float movementVelocities;
+
+    private void Reset()
     {
-        enemyLayerMask = LayerMask.GetMask("Enemy");
+        Reborn();
     }
     public void Reborn()
     {
+        maxHealth = 100;
         currentHealth = maxHealth;
-         
+        movementVelocities = 10f;
     }
 
     private string GetDebuggerDisplay()
