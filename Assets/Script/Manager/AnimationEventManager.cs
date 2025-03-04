@@ -38,6 +38,8 @@ public class AnimationEventManager : MonoBehaviour
 public enum AnimationEventId
 {
     StartAnimation,
-    AnimaionTrigger,
-    AnimationFinish
+    MoveAnimation,
+    AttactAnimation,
+    DoSkillAnimation,
+    EndAnimation
 }
