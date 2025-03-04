@@ -18,6 +18,7 @@ public class NewPlayer : MonoBehaviour
 
     [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private PlayerData data;
+    [SerializeField] private PlayerStatsBehavior statsBehavior;
     [SerializeField] private Core core;
     [SerializeField] private PlayerInputHandler inputHandler;
     [SerializeField] private Animator anim;
@@ -28,6 +29,7 @@ public class NewPlayer : MonoBehaviour
 
     public Core Core { get => core;}
     public Animator Anim { get => anim;}
+    public PlayerStatsBehavior StatsBehavior { get => statsBehavior; }
     public Rigidbody2D RigidbodyPlayer { get => rigidbodyPlayer;}
     public PlayerInputHandler InputHandler { get => inputHandler;}
     public PlayerStateMachine StateMachine { get => stateMachine;}

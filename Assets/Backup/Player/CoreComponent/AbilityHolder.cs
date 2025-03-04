@@ -71,7 +71,7 @@ public class AbilityHolder : CoreCompoment
                 break;
             case SkillState.Cast:
                 ability.Cast();
-                if (core.Player.InputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == ActivateSkill.SkillType.DoNonCast)
+                if (core.Player.StatsBehavior.State == PlayerInputHandler.SkillState.Do || ability.Type == ActivateSkill.SkillType.DoNonCast)
                 {
                     SetCanUseAbility(false);
                     currentState = SkillState.Do;

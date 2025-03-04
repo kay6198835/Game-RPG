@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13576d7eb4ed66b47bd47f79386dc30a, type: 3}
+  m_Name: PLayerStatsBehavior
+  m_EditorClassIdentifier: 
+  MoveVector: {x: 0, y: 0}
+  MouseVector: {x: 0, y: 0}
+  DirectionKeyboardVector: {x: 0, y: 0}
+  AngleKeyboardDirection: 0
+  DirectionKeyboard: 0
+  DirectionExternalityVector: {x: 0, y: 0}
+  AngleExternalityDirection: 0
+  DirectionExternality: 0
+  DirectionMouseVector: {x: 0, y: 0}
+  DirectionMouse: 0
+  AngleMouseDirection: 0
+  AngleRotationPlayer: 0
+  IsAttack: 0
+  IsSkill: 0
+  IsDisadvantage: 0
+  IsTakeDamage: 0
+  IsEquip_Unequip: 0
+  IsInteractor: 0
+  State: 0
+  Skill: 0
+  Disadvantage: 0

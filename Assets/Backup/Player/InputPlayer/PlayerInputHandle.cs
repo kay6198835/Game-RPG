@@ -23,34 +23,34 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private NewPlayer player;
     [SerializeField] private PlayerInput playerInput;
 
-    [SerializeField] private Vector2 moveVector;
-    [SerializeField] private Vector2 mouseVector;
+    //[SerializeField] private Vector2 moveVector;
+    //[SerializeField] private Vector2 mouseVector;
 
-    [Header("Direction by Keyboard")]
-    [SerializeField] private Vector2 directionKeyboardVector;
-    [SerializeField] private float angleKeyboardDirection;
-    [SerializeField] private int directionKeyboard;
+    //[Header("Direction by Keyboard")]
+    //[SerializeField] private Vector2 directionKeyboardVector;
+    //[SerializeField] private float angleKeyboardDirection;
+    //[SerializeField] private int directionKeyboard;
     
-    [Header("Direction by Externality")]
-    [SerializeField] private Vector2 directionExternalityVector;
-    [SerializeField] private float angleExternalityDirection;
-    [SerializeField] private int directionExternality;
+    //[Header("Direction by Externality")]
+    //[SerializeField] private Vector2 directionExternalityVector;
+    //[SerializeField] private float angleExternalityDirection;
+    //[SerializeField] private int directionExternality;
 
-    [Header("Direction by Mouse")]
-    [SerializeField] private Vector2 directionMouseVector;
-    [SerializeField] private int directionMouse;
-    [SerializeField] private float angleMouseDirection;
-    [SerializeField] private float angleRotationPlayer;
+    //[Header("Direction by Mouse")]
+    //[SerializeField] private Vector2 directionMouseVector;
+    //[SerializeField] private int directionMouse;
+    //[SerializeField] private float angleMouseDirection;
+    //[SerializeField] private float angleRotationPlayer;
 
 
 
-    [Header("Bool Value")]
-    [SerializeField] private bool isAttack;
-    [SerializeField] private bool isSkill;
-    [SerializeField] private bool isDisadvantage;
-    [SerializeField] private bool isTakeDamage;
-    [SerializeField] private bool isEquip_Unequip= false;
-    [SerializeField] private bool isInteractor = false;
+    //[Header("Bool Value")]
+    //[SerializeField] private bool isAttack;
+    //[SerializeField] private bool isSkill;
+    //[SerializeField] private bool isDisadvantage;
+    //[SerializeField] private bool isTakeDamage;
+    //[SerializeField] private bool isEquip_Unequip= false;
+    //[SerializeField] private bool isInteractor = false;
 
     [Header("Enum Value")]
     [SerializeField] private SkillState state;
@@ -58,27 +58,27 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private DisadvantageState disadvantage;
 
     #region Get value 
-    public Vector2 MoveVector { get => moveVector; }
-    public Vector2 MouseVector { get => mouseVector; }
-    public Vector2 DirectionMouseVector { get => directionMouseVector; }
-    public int DirectionMouse { get => directionMouse; }
-    public float AngleRotationPlayer { get => angleRotationPlayer; }
-    public float AngleLookDirection { get => angleMouseDirection; }
-    public bool IsAttack { get => isAttack; }
-    public SkillState State { get => state; }
-    public SkillType Skill { get => skill; }
-    public bool IsSkill { get => isSkill; }
-    public PlayerInput PlayerInput { get => playerInput; }
-    public bool IsDisadvantage { get => isDisadvantage; }
-    public bool IsTakeDamage { get => isTakeDamage; }
-    public bool IsEquip_Unequip { get => isEquip_Unequip; }
-    public bool IsInteractor { get => isInteractor; }
-    public Vector2 DirectionKeyboardVector { get => directionKeyboardVector; }
-    public float AngleKeyboardDirection { get => angleKeyboardDirection; }
-    public int DirectionKeyboard { get => directionKeyboard; }
-    public Vector2 DirectionExternalityVector { get => directionExternalityVector; }
-    public float AngleExternalityDirection { get => angleExternalityDirection; }
-    public int DirectionExternality { get => directionExternality; }
+    //public Vector2 MoveVector { get => moveVector; }
+    //public Vector2 MouseVector { get => mouseVector; }
+    //public Vector2 DirectionMouseVector { get => directionMouseVector; }
+    //public int DirectionMouse { get => directionMouse; }
+    //public float AngleRotationPlayer { get => angleRotationPlayer; }
+    //public float AngleLookDirection { get => angleMouseDirection; }
+    //public bool IsAttack { get => isAttack; }
+    //public SkillState State { get => state; }
+    //public SkillType Skill { get => skill; }
+    //public bool IsSkill { get => isSkill; }
+    //public PlayerInput PlayerInput { get => playerInput; }
+    //public bool IsDisadvantage { get => isDisadvantage; }
+    //public bool IsTakeDamage { get => isTakeDamage; }
+    //public bool IsEquip_Unequip { get => isEquip_Unequip; }
+    //public bool IsInteractor { get => isInteractor; }
+    //public Vector2 DirectionKeyboardVector { get => directionKeyboardVector; }
+    //public float AngleKeyboardDirection { get => angleKeyboardDirection; }
+    //public int DirectionKeyboard { get => directionKeyboard; }
+    //public Vector2 DirectionExternalityVector { get => directionExternalityVector; }
+    //public float AngleExternalityDirection { get => angleExternalityDirection; }
+    //public int DirectionExternality { get => directionExternality; }
     #endregion
 
 
@@ -127,50 +127,50 @@ public class PlayerInputHandler : MonoBehaviour
     }
     private void OnDirection(InputAction.CallbackContext context)
     {
-        mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        directionMouseVector = (mouseVector - (Vector2)this.transform.position).normalized;
-        AngleCalculate(directionMouseVector,ref angleMouseDirection,ref directionMouse);
-        this.angleRotationPlayer = Vector2.SignedAngle(transform.right, directionMouseVector);
-        this.angleRotationPlayer = (this.angleRotationPlayer + 360) % 360;
+        player.StatsBehavior.MouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        player.StatsBehavior.DirectionMouseVector = (player.StatsBehavior.MouseVector - (Vector2)this.transform.position).normalized;
+        AngleCalculate(player.StatsBehavior.DirectionMouseVector,ref player.StatsBehavior.AngleMouseDirection,ref player.StatsBehavior.DirectionMouse);
+        player.StatsBehavior.AngleRotationPlayer = Vector2.SignedAngle(transform.right, player.StatsBehavior.DirectionMouseVector);
+        player.StatsBehavior.AngleRotationPlayer = (player.StatsBehavior.AngleRotationPlayer + 360) % 360;
     }
     private void OnEquipUnequip(InputAction.CallbackContext context)
     {
         if (context.started)
         {
-            isEquip_Unequip = true;
+            player.StatsBehavior.IsEquip_Unequip = true;
         }
         if(context.canceled)
         {
-            isEquip_Unequip = false;
+            player.StatsBehavior.IsEquip_Unequip = false;
         }
     }
     private void OnInteractor(InputAction.CallbackContext context)
     {
         if (context.started)
         {
-            isInteractor = true;
+            player.StatsBehavior.IsInteractor = true;
             Debug.Log(" Start " + Time.time);
         }   
         if (context.canceled)
         {
-            isInteractor = false;
+            player.StatsBehavior.IsInteractor = false;
             Debug.Log("Canceled " + Time.time);
         }
     }
     private void OnMove(InputAction.CallbackContext context)
     {
-        moveVector = context.ReadValue<Vector2>();
-        AngleCalculateKeyboard(moveVector);
+        player.StatsBehavior.MoveVector = context.ReadValue<Vector2>();
+        AngleCalculateKeyboard(player.StatsBehavior.MoveVector);
     }
     private void OnAttack(InputAction.CallbackContext context)
     {
         if (context.started)
         {
-            isAttack = true;
+            player.StatsBehavior.IsAttack = true;
         }
         if (context.canceled)
         {
-            isAttack = false;
+            player.StatsBehavior.IsAttack = false;
         }
     }
     private void OnSkillWeapon(InputAction.CallbackContext context)
@@ -183,7 +183,7 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.started)
         {
             state = SkillState.Start;
-            isSkill = true;
+            player.StatsBehavior.IsSkill = true;
             player.Core.WeaponHolder.Weapon.SetAbility();
             player.Core.AbilityHolder.SetCanUseAbility(true);
         }
@@ -194,7 +194,7 @@ public class PlayerInputHandler : MonoBehaviour
         else if (context.canceled)
         {
             state = SkillState.Do;
-            isSkill = false;
+            player.StatsBehavior.IsSkill = false;
         }
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
@@ -207,7 +207,7 @@ public class PlayerInputHandler : MonoBehaviour
         if (context.started)
         {
             state = SkillState.Start;
-            isSkill = true;
+            player.StatsBehavior.IsSkill = true;
             player.Core.WeaponHolder.Weapon.SetAbility();
             player.Core.AbilityHolder.SetCanUseAbility(true);
         }
@@ -218,19 +218,19 @@ public class PlayerInputHandler : MonoBehaviour
         else if (context.canceled)
         {
             state = SkillState.Do;
-            isSkill = false;
+            player.StatsBehavior.IsSkill = false;
         }
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
         ChangeIsTakeDamage();
         Invoke(nameof(ChangeIsTakeDamage), 0.2f);
-        directionExternalityVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
-        AngleCalculateExternality(directionExternalityVector);
+        player.StatsBehavior.DirectionExternalityVector= ((attackPosition - (Vector2)this.transform.position)).normalized;
+        AngleCalculateExternality(player.StatsBehavior.DirectionExternalityVector);
     }
     private void ChangeIsTakeDamage()
     {
-        this.isTakeDamage = !this.isTakeDamage;
+        player.StatsBehavior.IsTakeDamage = !player.StatsBehavior.IsTakeDamage;
     }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
@@ -276,15 +276,15 @@ public class PlayerInputHandler : MonoBehaviour
     }
     public void AngleCalculateKeyboard(Vector2 directionKeyboardVector)
     {
-        AngleCalculate(directionKeyboardVector, ref angleKeyboardDirection, ref directionKeyboard);
+        AngleCalculate(directionKeyboardVector, ref player.StatsBehavior.AngleKeyboardDirection, ref player.StatsBehavior.DirectionKeyboard);
     }
     public void AngleCalculateMouse(Vector2 directionMouseVector)
     {
-        AngleCalculate(directionMouseVector, ref angleMouseDirection, ref directionMouse);
+        AngleCalculate(directionMouseVector, ref player.StatsBehavior.AngleKeyboardDirection, ref player.StatsBehavior.DirectionKeyboard);
     }
     public void AngleCalculateExternality(Vector2 directionExternalityVector)
     {
-        AngleCalculate(directionExternalityVector, ref angleExternalityDirection, ref directionExternality);
+        AngleCalculate(directionExternalityVector, ref player.StatsBehavior.AngleKeyboardDirection, ref player.StatsBehavior.DirectionKeyboard);
     }
     #endregion
 }

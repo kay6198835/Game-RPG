@@ -33,11 +33,11 @@ public class WeaponMelee : Weapon
     }
     public override void SetAbility()
     {
-        if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
+        if (holder.Core.Player.StatsBehavior.Skill == PlayerInputHandler.SkillType.Ability)
         {
             currentAbilitySO = statsMelee.AbilityWeapon;
         }
-        else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
+        else if(holder.Core.Player.StatsBehavior.Skill == PlayerInputHandler.SkillType.Special)
         {
             currentAbilitySO = statsMelee.SkillWeapon;
         }
@@ -93,7 +93,7 @@ public class WeaponMelee : Weapon
 
     protected void CenterAttackPosition(NewPlayer player)
     {
-        centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
+        centerAttackPosition = (Vector2)player.transform.position + player.StatsBehavior.DirectionMouseVector.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {

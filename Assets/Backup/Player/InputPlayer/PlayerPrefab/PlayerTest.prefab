@@ -197,6 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
+  statsBehavior: {fileID: 11400000, guid: 6ff7dccd6751585419a1bcd96cbbc2c9, type: 2}
   core: {fileID: 0}
   inputHandler: {fileID: 0}
   anim: {fileID: 0}
@@ -483,24 +484,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   starTime: 0
   player: {fileID: 0}
-  moveVector: {x: 0, y: 0}
-  mouseVector: {x: 0, y: 0}
-  directionKeyboardVector: {x: 0, y: 0}
-  angleKeyboardDirection: 0
-  directionKeyboard: 0
-  directionExternalityVector: {x: 0, y: 0}
-  angleExternalityDirection: 0
-  directionExternality: 0
-  directionMouseVector: {x: 0, y: 0}
-  directionMouse: 0
-  angleMouseDirection: 0
-  angleRotationPlayer: 0
-  isAttack: 0
-  isSkill: 0
-  isDisadvantage: 0
-  isTakeDamage: 0
-  isEquip_Unequip: 0
-  isInteractor: 0
   state: 0
   skill: 0
   disadvantage: 0
