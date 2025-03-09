@@ -18,9 +18,9 @@ public class SlashAbility : ActivateSkill
     public override void Enter(NewPlayer player)
     {
         base.Enter(player);
-        positon = (Vector2)player.InputHandler.transform.position + player.StatsBehavior.DirectionMouseVector.normalized * 3;
-        rotation = Quaternion.Euler(0, 0, player.StatsBehavior.AngleRotationPlayer);
-        shoot = player.StatsBehavior.DirectionMouseVector;
+        positon = (Vector2)player.InputHandler.transform.position + player.Data.StatsBehavior.DirectionMouseVector.normalized * 3;
+        rotation = Quaternion.Euler(0, 0, player.Data.StatsBehavior.AngleRotationPlayer);
+        shoot = player.Data.StatsBehavior.DirectionMouseVector;
     }
     public override void Activate()
     {

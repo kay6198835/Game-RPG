@@ -11,7 +11,7 @@ public class PlayerUseWeaponState : PlayerState
     {
         base.Enter();
         player.Core.Movement.SetVeclocity(Vector2.zero);
-        player.Anim.SetFloat("Direction", player.StatsBehavior.DirectionMouse);
+        player.Anim.SetFloat("Direction", player.Data.StatsBehavior.DirectionMouse);
     }
     public override void Exit()
     {
@@ -22,7 +22,7 @@ public class PlayerUseWeaponState : PlayerState
         base.LogicUpdate();
         if (isAnimationFinished)
         {
-            if (player.StatsBehavior.MoveVector == Vector2.zero)
+            if (player.Data.StatsBehavior.MoveVector == Vector2.zero)
             {
                 stateMachine.ChangeState(player.IdleState);
             }

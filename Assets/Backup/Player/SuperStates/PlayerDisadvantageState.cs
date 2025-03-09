@@ -12,7 +12,7 @@ public class PlayerDisadvantageState : PlayerState
         base.LogicUpdate();
         if (isAnimationFinished)
         {
-            if (player.StatsBehavior.MoveVector == Vector2.zero)
+            if (player.Data.StatsBehavior.MoveVector == Vector2.zero)
             {
                 stateMachine.ChangeState(player.IdleState);
             }

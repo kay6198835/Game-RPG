@@ -10,14 +10,14 @@ public class PlayerBasicState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (player.StatsBehavior.IsEquip_Unequip)
+        if (player.Data.StatsState.IsEquip_Unequip)
         {
             if (player.Core.WeaponHolder.FindInteraction())
             {
                 stateMachine.ChangeState(player.EquidUnequidState);
             }
         }
-        else if (player.StatsBehavior.IsInteractor)
+        else if (player.Data.StatsState.IsInteractor)
         {
             if (player.Core.Interactor.FindInteraction())
             {
@@ -26,16 +26,16 @@ public class PlayerBasicState : PlayerState
         }
         else if(player.Core.WeaponHolder.Weapon != null)
         {
-            if (player.StatsBehavior.IsAttack && player.Core.WeaponHolder.Weapon.CheckCanAttack(player))
+            if (player.Data.StatsState.IsAttack && player.Core.WeaponHolder.Weapon.CheckCanAttack(player))
             {
                 stateMachine.ChangeState(player.AttackState);
             }
-            else if(player.StatsBehavior.IsSkill && player.Core.AbilityHolder.CanUseAbility)
+            else if(player.Data.StatsState.IsSkill && player.Core.AbilityHolder.CanUseAbility)
             {
                 stateMachine.ChangeState(player.AbilityState);
             }
         }
-        if(player.StatsBehavior.IsTakeDamage)
+        if(player.Data.StatsState.IsTakeDamage)
         {
             stateMachine.ChangeState(player.TakeDamageState);
         }

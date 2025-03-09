@@ -55,7 +55,7 @@ public class Interact : CoreCompoment
             {
                 break;
             }
-            float distance = Vector2.Distance(collider.transform.position, core.Player.StatsBehavior.MouseVector);
+            float distance = Vector2.Distance(collider.transform.position, core.Player.Data.StatsBehavior.MouseVector);
             if (distance < minDistance)
             {
                 minDistance = distance;
