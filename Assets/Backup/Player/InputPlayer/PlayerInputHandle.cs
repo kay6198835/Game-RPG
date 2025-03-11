@@ -129,7 +129,8 @@ public class PlayerInputHandler : MonoBehaviour
     {
         player.Data.StatsBehavior.MouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         player.Data.StatsBehavior.DirectionMouseVector = (player.Data.StatsBehavior.MouseVector - (Vector2)this.transform.position).normalized;
-        AngleCalculate(player.Data.StatsBehavior.DirectionMouseVector,player.Data.StatsBehavior.AngleMouseDirection, player.Data.StatsBehavior.DirectionMouse);
+        //AngleCalculateMouse(player.Data.StatsBehavior.DirectionMouseVector);
+        //AngleCalculate(player.Data.StatsBehavior.DirectionMouseVector,player.Data.StatsBehavior.AngleMouseDirection, player.Data.StatsBehavior.DirectionMouse);
         player.Data.StatsBehavior.AngleRotationPlayer = Vector2.SignedAngle(transform.right, player.Data.StatsBehavior.DirectionMouseVector);
         player.Data.StatsBehavior.AngleRotationPlayer = (player.Data.StatsBehavior.AngleRotationPlayer + 360) % 360;
     }
@@ -232,13 +233,13 @@ public class PlayerInputHandler : MonoBehaviour
     {
         player.Data.StatsState.IsTakeDamage = !player.Data.StatsState.IsTakeDamage;
     }
-    private void AngleCalculate(Vector2 directionVector,  float angle,  int direction)
+    private int AngleCalculate(Vector2 directionVector,  float angle,  int direction)
     {
         angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
         angle += 180;
-        DirectionCaculate(angle, ref direction);
+        return DirectionCaculate(angle, direction);
     }
-    protected void DirectionCaculate(float angle, ref int direction)
+    protected int DirectionCaculate(float angle, int direction)
     {
         if ((angle > 22 && angle <= 67))
         {
@@ -273,18 +274,19 @@ public class PlayerInputHandler : MonoBehaviour
         {
             direction = 7;
         }
+        return direction;
     }
     public void AngleCalculateKeyboard(Vector2 directionKeyboardVector)
     {
-        AngleCalculate(directionKeyboardVector, player.Data.StatsBehavior.AngleKeyboardDirection,  player.Data.StatsBehavior.DirectionKeyboard);
+         player.Data.StatsBehavior.DirectionKeyboard = AngleCalculate(directionKeyboardVector, player.Data.StatsBehavior.AngleKeyboardDirection,  player.Data.StatsBehavior.DirectionKeyboard);
     }
     public void AngleCalculateMouse(Vector2 directionMouseVector)
     {
-        AngleCalculate(directionMouseVector,  player.Data.StatsBehavior.AngleKeyboardDirection,  player.Data.StatsBehavior.DirectionKeyboard);
+        player.Data.StatsBehavior.DirectionMouse = AngleCalculate(directionMouseVector,  player.Data.StatsBehavior.AngleKeyboardDirection,  player.Data.StatsBehavior.DirectionMouse);
     }
     public void AngleCalculateExternality(Vector2 directionExternalityVector)
     {
-        AngleCalculate(directionExternalityVector,  player.Data.StatsBehavior.AngleKeyboardDirection,  player.Data.StatsBehavior.DirectionKeyboard);
+        player.Data.StatsBehavior.DirectionExternality = AngleCalculate(directionExternalityVector,  player.Data.StatsBehavior.AngleKeyboardDirection,  player.Data.StatsBehavior.DirectionExternality);
     }
     #endregion
 }
