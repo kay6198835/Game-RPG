@@ -43,7 +43,7 @@ public class Projectile : MonoBehaviour
     }
     protected virtual  void OnHitObject(RaycastHit2D hit)
     {
-        IDamageable damageable = hit.collider.GetComponentInChildren<IDamageable>();
+        INegativeReciver damageable = hit.collider.GetComponentInChildren<INegativeReciver>();
         if (damageable != null)
         {
             damageable.TakeDamage(damage, startposition);

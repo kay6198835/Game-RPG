@@ -11,7 +11,9 @@ public class PlayerState
     protected NewPlayer player;
     protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
+
     protected bool isAnimationTrigger;
+    protected bool isAnimationAction;
     protected bool isAnimationFinished;
     protected bool isAnimationExitingState;
     protected bool isExitingState;
@@ -67,6 +69,10 @@ public class PlayerState
     public virtual void AnimationTrigger()
     {
         isAnimationTrigger = true;
+    }
+    public virtual void AnimationAction()
+    {
+        isAnimationAction= true;
     }
     public virtual void AnimationFinishTrigger()
     {
