@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityCore : MonoBehaviour, IDamageable
+public class EntityCore : MonoBehaviour, INegativeReciver
 {
     [SerializeField] private Entity entity;
     [SerializeField] private EntityMovement entityMovement;

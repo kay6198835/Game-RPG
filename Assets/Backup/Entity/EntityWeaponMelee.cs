@@ -33,7 +33,7 @@ public class EntityWeaponMelee : EntityWeapon
         Collider2D hitEPlayer = Physics2D.OverlapCircle(centerAttackPosition, currrentSA.attackRange, statsMelee.LayerMask);
         if (hitEPlayer != null)
         {
-            IDamageable damageable = hitEPlayer.GetComponentInChildren<IDamageable>();
+            INegativeReciver damageable = hitEPlayer.GetComponentInChildren<INegativeReciver>();
             if (damageable != null)
             {
                 damageable.TakeDamage(currrentSA.attackDamege, transform.position);
