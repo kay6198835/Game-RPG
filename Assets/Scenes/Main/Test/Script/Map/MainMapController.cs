@@ -5,6 +5,7 @@ using UnityEngine;
 public class MainMapController : MonoBehaviour
 {
     [SerializeField] RoomController current, next;
+    [SerializeField] FastMovement fastMovement;
     private void Start()
     {
         //Avatar.transform.position = current.transform.position;
@@ -12,7 +13,8 @@ public class MainMapController : MonoBehaviour
     }
     public void Move(object ojt = null)
     {
-        next = MazeController.Instance.GetNextRoom(current, (Vector2)ojt);
+        next = MazeController.Instance.RoomMapController.GetNextRoom((Vector2)ojt);
+        fastMovement.transform = next.transform;
     }
     private void OnEnable()
     {

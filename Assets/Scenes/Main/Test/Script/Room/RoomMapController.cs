@@ -7,7 +7,6 @@ public class RoomMapController : MonoBehaviour, IMapController
     [SerializeField] RoomController prefabObject;
     [SerializeField] List<RoomController> _roomControlls;
     [SerializeField] RoomController _current,_next;
-    [SerializeField] FastMovement fastMovement;
 
     private void OnEnable()
     {
@@ -61,10 +60,10 @@ public class RoomMapController : MonoBehaviour, IMapController
 
     public RoomController GetNextRoom(Vector2 direction)
     {
-        direction = _current.GetGridPosition() + direction;
-        int index = (int)direction.y * -this.Columns + (int)direction.x;
+        var positionNextRoom = _current.GetGridPosition() + direction;
+        int index = (int)positionNextRoom.y * -this.Columns + (int)positionNextRoom.x;
         _next = _roomMapController.GetValue(index);
-        
+        _next.SetStartDoorPosition(direction);
         return _next;
     }
 
