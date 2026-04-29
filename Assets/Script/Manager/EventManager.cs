@@ -39,6 +39,7 @@ public static class EventManager
 
 public enum EventID
 {
-
+    ON_PLAYER_ON_DOOR,
+    ON_LOAD_MAP,
 }
 
