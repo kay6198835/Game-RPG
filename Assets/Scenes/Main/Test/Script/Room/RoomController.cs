@@ -9,7 +9,7 @@ public class RoomController : MonoBehaviour
     [SerializeField] private Cell _cellData;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private DoorController _top, _left, _right, _bottom;
-    [SerializeField] private Transform startPosition;
+    [SerializeField] private Transform startDoorPosition;
 
     private void Awake()
     {
@@ -58,9 +58,23 @@ public class RoomController : MonoBehaviour
         }
     }
 
-    public void GetStartPosition()
+    public void GetStartPosition(Vector2 direction)
     {
-
+        switch (direction)
+        {
+            case GameConstants.Direction.TOP:
+            startDoorPosition = _top.transform;
+            break;
+            case GameConstants.Direction.RIGHT:
+            startDoorPosition = _right.transform;
+            break;
+            case GameConstants.Direction.LEFT:
+            startDoorPosition = _left.transform;
+            break;
+            case GameConstants.Direction.BOTTOM:
+            startDoorPosition = _bottom.transform;
+            break;
+        }
     }
 
 

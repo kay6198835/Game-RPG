@@ -6,10 +6,12 @@ public class RoomMapController : MonoBehaviour, IMapController
 {
     [SerializeField] RoomController prefabObject;
     [SerializeField] List<RoomController> _roomControlls;
+    [SerializeField] RoomController _current,_next;
+    [SerializeField] FastMovement fastMovement;
 
     private void OnEnable()
     {
-        
+
     }
 
     private void OnDisable()
@@ -38,7 +40,7 @@ public class RoomMapController : MonoBehaviour, IMapController
         _roomControlls[index] = roomController;
     }
 
-    public Transform GetStartPosition(RoomController current,RoomController next)
+    public Transform GetStartDoorPosition(RoomController current, RoomController next)
     {
         return transform;
     }
@@ -57,15 +59,18 @@ public class RoomMapController : MonoBehaviour, IMapController
         throw new System.NotImplementedException();
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public RoomController GetNextRoom(Vector2 direction)
     {
+        direction = _current.GetGridPosition() + direction;
+        int index = (int)direction.y * -this.Columns + (int)direction.x;
+        _next = _roomMapController.GetValue(index);
         
+        return _next;
     }
 
-    // Update is called once per frame
-    void Update()
+    public RoomController GetStartRoom()
     {
-        
+        var start = GetValue(0);
+        return start;
     }
 }

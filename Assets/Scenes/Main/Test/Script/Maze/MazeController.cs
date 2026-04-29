@@ -6,8 +6,8 @@ public class MazeController : MonoBehaviour
     [SerializeField] public int Rows = 3;
     [SerializeField] public int Columns = 3;
     [SerializeField] MazeGenerator _generator;
-    [SerializeField] public CellMapController _cellMapController;
-    [SerializeField] public RoomMapController _roomMapController;
+    [SerializeField] public CellMapController CellMapController;
+    [SerializeField] public RoomMapController RoomMapController;
     private readonly List<IMapController>_controllers = new();
 
     public static MazeController Instance { get;private set; }
@@ -20,10 +20,10 @@ public class MazeController : MonoBehaviour
         }
         Instance = this;
         _generator = new MazeGenerator();
-        _roomMapController = GetComponentInChildren<RoomMapController>();
-        _cellMapController= GetComponentInChildren<CellMapController>();
-        _controllers.Add(_cellMapController);
-        _controllers.Add(_roomMapController);
+        RoomMapController = GetComponentInChildren<RoomMapController>();
+        CellMapController= GetComponentInChildren<CellMapController>();
+        _controllers.Add(CellMapController);
+        _controllers.Add(RoomMapController);
         _generator.Generator(Rows, Columns);
         SetCellData(_generator.Gird);
     }
@@ -47,25 +47,12 @@ public class MazeController : MonoBehaviour
     {
         direction = cellControll.GetGridPosition() + direction;
         int indexe = (int)direction.y * -this.Columns + (int)direction.x;
-        return _cellMapController.GetValue(indexe);
+        return CellMapController.GetValue(indexe);
     }
 
     public CellControll GetStartCell()
     {
-        var start = _cellMapController.GetValue(0);
-        return start;
-    }
-
-    public RoomController GetNextRoom(RoomController roomController, Vector2 direction)
-    {
-        direction = roomController.GetGridPosition() + direction;
-        int indexe = (int)direction.y * -this.Columns + (int)direction.x;
-        return _roomMapController.GetValue(indexe);
-    }
-
-    public RoomController GetStartRoom()
-    {
-        var start = _roomMapController.GetValue(0);
+        var start = CellMapController.GetValue(0);
         return start;
     }
 
