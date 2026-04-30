@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class RoomMapController : MonoBehaviour, IMapController
 {
+    [SerializeField] int Columns,Rows;
     [SerializeField] RoomController prefabObject;
-    [SerializeField] List<RoomController> _roomControlls;
+    [SerializeField] List<RoomController> _roomControllers;
     [SerializeField] RoomController _current,_next;
 
     private void OnEnable()
@@ -19,24 +20,24 @@ public class RoomMapController : MonoBehaviour, IMapController
     }
     public void AddCell(Cell cell)
     {
-        RoomController roomControll = Instantiate(prefabObject, this.transform) as RoomController;
-        roomControll.AddCell(cell);
-        _roomControlls.Add(roomControll);
+        RoomController roomController = Instantiate(prefabObject, this.transform) as RoomController;
+        roomController.AddCell(cell);
+        _roomControllers.Add(roomController);
     }
     public RoomController GetValue(int index)
     {
-        var roomControll = _roomControlls[index];
-        return roomControll;
+        var roomController = _roomControllers[index];
+        return roomController;
     }
 
     public void CheckValidateNextDoor(int index)
     {
-        if (index < 0 || index >= _roomControlls.Count) return;
+        if (index < 0 || index >= _roomControllers.Count) return;
     }
 
     public void SetValue(int index, RoomController roomController)
     {
-        _roomControlls[index] = roomController;
+        _roomControllers[index] = roomController;
     }
 
     public Transform GetStartDoorPosition(RoomController current, RoomController next)
@@ -62,7 +63,7 @@ public class RoomMapController : MonoBehaviour, IMapController
     {
         var positionNextRoom = _current.GetGridPosition() + direction;
         int index = (int)positionNextRoom.y * -this.Columns + (int)positionNextRoom.x;
-        _next = _roomMapController.GetValue(index);
+        _next = GetValue(index);
         _next.SetStartDoorPosition(direction);
         return _next;
     }

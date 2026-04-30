@@ -6,6 +6,7 @@ public class AbilityContext
     public Vector3 Origin;
     public Vector3 Forward;
     public Vector3 TargetPoint;
+    
 
     public float HoldTime;
     public float HoldRatio;

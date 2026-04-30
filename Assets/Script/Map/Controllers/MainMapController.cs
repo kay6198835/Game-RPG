@@ -9,12 +9,12 @@ public class MainMapController : MonoBehaviour
     private void Start()
     {
         //Avatar.transform.position = current.transform.position;
-        current = MazeController.Instance.GetStartRoom();
+        current = MazeController.Instance.RoomMapController.GetStartRoom();
     }
     public void Move(object ojt = null)
     {
         next = MazeController.Instance.RoomMapController.GetNextRoom((Vector2)ojt);
-        fastMovement.transform = next.transform;
+        fastMovement.gameObject.transform.SetPositionAndRotation(next.transform.position,Quaternion.identity);
     }
     private void OnEnable()
     {
@@ -29,6 +29,6 @@ public class MainMapController : MonoBehaviour
     {
         current = next;
         next = null;
-        EventManager.Emit(EventID.ON_LOAD_MAP,cuonefsakdjfhnasdklfhjasdrrent);
+        EventManager.Emit(EventID.ON_LOAD_MAP);
     }
 }
