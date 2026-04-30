@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(code --uninstall-extension ms-dotnettools.csdevkit)",
+      "Bash(code --list-extensions)",
+      "Bash(mkdir -p \"Assets/Script/Map\")",
+      "Bash(git mv *)"
+    ]
+  }
+}
