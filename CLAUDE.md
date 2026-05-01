@@ -1,20 +1,28 @@
-# CLAUDE.md — Game-RPG (Action Roguelike)
+# CLAUDE.md
 
-## Project Overview
-
-Unity action roguelike RPG. Combat phase inspired by **Cult of the Lamb**: top-down, real-time melee with directional attacks, ability slots, and per-run power progression. Each dungeon run consists of procedurally generated rooms; the player clears enemies to unlock doors to the next room.
-
-**Demo target:** Functional dungeon run from start to boss — movement, melee combat, 2–3 active abilities, room-to-room progression, basic enemy AI, stat upgrades between rooms.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ---
 
-## Engine & Stack
+## Project Overview
 
-- **Unity** (target: Unity 6 / 2022 LTS+)
-- **C#** — all gameplay code
-- **New Input System** — `PlayerInputHandler`
-- **TextMesh Pro** — UI text
-- **ScriptableObjects** — data-driven design for abilities, items, enemies, weapons, skills
+Unity action roguelike RPG. Combat inspired by **Cult of the Lamb**: top-down, real-time melee with directional attacks, weapon-linked skills, and per-run power progression. Procedurally generated rooms — clear enemies to unlock doors to the next room.
+
+**Demo target:** Full game life cycle — start menu → dungeon run (movement + melee combat + 2 skills + enemies + room progression) → death/restart. Focus: combat system only.
+
+---
+
+## Unity Environment
+
+- **Unity:** 2022.3.62f3 LTS
+- **Key packages:** Input System 1.14.0, TextMeshPro 3.0.7, 2D Feature Pack, Visual Scripting 1.9.4
+- **Open project:** Unity Hub → Open → `d:/Fork/Roughlike/Game-RPG`
+- **Main dev scene:** `Assets/Scenes/Main/Test/RandomMaze.unity`
+- **Play/test:** Enter Play Mode in the Unity Editor — no separate build step for development
+- **Compile check:** Any `.cs` edit triggers auto-recompile; errors appear in the Console window
+- **IDE:** Open `Game-RPG.sln` in Rider or Visual Studio for IntelliSense
+
+There are no standalone build, lint, or test CLI commands — all development happens through the Unity Editor.
 
 ---
 
@@ -22,70 +30,104 @@ Unity action roguelike RPG. Combat phase inspired by **Cult of the Lamb**: top-d
 
 ```
 Assets/
-  Script/               # ALL active gameplay code
+  Script/                                     # ALL active code — single source of truth
     Character/
-      Player/           # Player state machine, input, sub/superstates
-      Entity/           # Entity/Enemy state machine framework
-      Core/             # Core component base classes (PlayerCore, EntityCore)
-    Abilities/          # Ability system v2 — Core, Effects, Conditions, Runtime
-    Combat/             # Health, Damageable, SimpleDamageReceiver
-    Stats/              # CharacterStats, RuntimeStat, StatModifier
-    Map/                # Maze generation, room/door controllers, cell logic
-    Weapons/            # Weapon base + melee implementation
-    Skill_Ability/      # Legacy ability system (ActivateSkill) — do not extend
-    Enemy/              # EnemySO data + EnemyProjectile
-    Item/               # Item ScriptableObjects, drop rate
-    Interact/           # Interactive objects, weapon pickups
-    Manager/            # EventManager, UIManager
-    Handler/            # Event handler utilities
-    Interface/          # IEffectable, IInteractable
-    Stats/              # CharacterStats with runtime modifier system
-    Pooling/            # Object pooling
-  Prefab/               # All prefabs
-    Map/                # Room, Cell, Direction prefabs
-    Player/
+      Player/
+        NewPlayer.cs                          # Player MonoBehaviour — state machine host
+        PlayerState.cs                        # Base state: animBool, anim events, startTime
+        PlayerStateMachine.cs                 # Initialize/ChangeState
+        PlayerData.cs                         # SO: maxHealth, currentHealth, movementVelocities, Reborn()
+        Input/
+          PlayerInput.cs                      # Auto-generated InputActionAsset
+          PlayerInputHandle.cs                # New Input System; 8-direction angle calc; all flags
+        Core/
+          Core.cs                             # Component hub: Movement, WeaponHolder, AbilityHolder, Interactor
+          CoreCompoment.cs                    # Base for core components (gets Core from parent)
+        CoreComponent/
+          PlayerMovement.cs                   # rb.velocity wrapper
+          WeaponHolder.cs                     # Equip/UnEquip weapon
+          AbilityHolder.cs                    # Skill state machine Start→Cast→Do→Exit per frame
+          Interact.cs                         # Base: OverlapCircleNonAlloc + nearest-by-mouse
+          Interactor.cs                       # FindInteraction via OverlapCircle
+        States/                               # All player states (sub + super flattened)
+          PlayerBasicState.cs                 # Shared: attack/skill/equip/interact/damage transitions
+          PlayerUseWeaponState.cs             # Freezes movement, exits on animFinish
+          PlayerDisadvantageState.cs
+          PlayerIdleState.cs, PlayerMoveState.cs
+          PlayerAttackState.cs                # Calls Weapon.Attack() on AnimationTrigger anim event
+          PlayerSkillWeaponState.cs           # Drives AbilityHolder each frame
+          PlayerEquidUnequid.cs, PlayerIntertorState.cs, PlayerTakeDamageState.cs
+        Projectile/
+          Projectile.cs                       # Raycast hit → INegativeReciver.TakeDamage()
+          Spell.cs                            # Extends Projectile; also calls IEffectable.ApplyEffect()
+      Entity/                                 # Enemy AI framework
+        Entity.cs                             # Enemy MonoBehaviour: state machine host
+        EntityData.cs                         # SO: stats, layerMask, FOV, attack range, WeaponSO
+        EntityInput.cs                        # Auto-detects player via OverlapCircle each frame
+        EntityStateMachine.cs, EntityState.cs, EntityStatsSO.cs
+        EntityWeaponMelee.cs                  # COMPLETE Attack() with INegativeReciver damage
+        Core/
+          EntityCore.cs                       # Component hub for enemies (implements INegativeReciver)
+          EntityCoreComponent.cs
+        CoreComponent/
+          EntityMovement.cs, EntityFindTarget.cs
+          EntityWeapon.cs, EntityWeaponHolder.cs, EntityEffectStats.cs
+        States/                               # All entity states (super + sub flattened)
+          EntityBasicState.cs                 # Transitions: direction, take-damage, attack check
+          EntityIdleState.cs                  # Idle timer or target detected → MoveState
+          EntityMoveState.cs                  # Move toward player; wall avoidance; timer → IdleState
+          EntityAttackState.cs                # Triggers weapon.Attack() on anim event
+          EntityTakeDamageState.cs
+          EntityDeathState.cs                 # ⚠️ wrong base class (MonoBehaviour), fix needed
+          EntityUseWeaponState.cs, EntityDisadvantageState.cs
+      StatsCharacter.cs                       # SO base: blockDMG, maxMana, maxHealth, AnimatorController
+
     Enemy/
-    Weapon/
-    Item/
-    UI/
-    VFX/
-  Sprite/               # All sprite assets
-    Knight/             # Player knight sprites (SnS, Basic, etc.)
-    Enemy/
+      EnemySO.cs                              # Data-only SO: speed, FOV, damage, projectile, drops
+      NewEnemy.cs                             # Extends Entity — ready to wire up
+
+    Interface/
+      IInteractable.cs, IEffectable.cs
+      INegativeReciver.cs                     # TakeDamage(int amount, Vector2 attackPosition)
+
     Map/
+      Maze/   MazeGenerator.cs (DFS), MazeController.cs (singleton)
+      Cell/   Cell.cs, CellControll.cs, CellMapController.cs
+      Room/   RoomController.cs, RoomMapController.cs (⚠️ compile bug), Door/DoorController.cs
+      Controllers/
+        MainMapController.cs                  # ⚠️ two bugs — see Known Bugs table
+        MiniMapController.cs
+      Legacy/ Door.cs, Room.cs                # Superseded — do not use
+
     Weapons/
-    Items/
-    VFX/
-    UI/
-  Animation/            # Animation clips
-    Player/             # ← active (see DUPLICATE_NOTE.md)
-    Player 1/           # ← possible duplicate, check DUPLICATE_NOTE.md
-    Enemy/
-  AnimationController/  # Animator Controllers
-  ScriptableObjects/    # (SO/) — game data assets
-  Fonts/                # Font assets (TTF)
-  Scenes/               # .unity scene files only — no scripts or prefabs here
-  Backup/               # Pending cleanup — see items below
-Packages/               # Unity package manifest
+      Weapon.cs (abstract base), WeaponStats.cs, WeaponType.cs
+      MeleeWeapon/
+        WeaponMelee.cs                        # ⚠️ Attack() EMPTY — no damage applied
+        AttackSO.cs                           # SO: attackRange, attackDamege, animatorOV
+        WeaponMeleeStats.cs
+      RangeWeapon/  RangeWeapon.cs, bullet.cs, Shooting.cs, BulletDataSO.cs
+
+    Skill_Ability/
+      ActivateSkill.cs                        # Base skill SO: Enter/Activate/Cast/Do/Exit lifecycle
+      DashAbility.cs, SlashAbility.cs, BlockAbility.cs
+      EffectSkillSO.cs (abstract), EffectSkillDuringTime.cs, EffectSkillOneTime.cs
+      InternalSkillSO.cs                      # Talent tree node SO
+
+    Manager/
+      EventManager.cs                         # Static bus: Resgister / UnResgister / Emit
+      AnimationEventManager.cs
+      UI/UIManager.cs                         # EMPTY STUB
+
+    Item/, Interact/, Pooling/, MainMenu/, Utility/
+    GameConstants.cs                          # Direction vectors + Input axis name constants
+
+  Prefab/       Player/, Weapon/, Enemy/, UI/, Particle Effect/, Item/, ...
+  Sprite/       Knight/, Enemy/, Map/, Weapons/, Items/, VFX/, UI/
+  Animation/    Player animation clips
+  AnimationController/
+  ScriptableObjects/
+  Scenes/       StartScene, Level 1, DungeonStart, RandomMaze, Test AI, SampleScene
 ```
-
-### ⚠️ Backup — Còn lại cần quyết định
-
-Sau khi tái cơ cấu, `Assets/Backup/` chỉ còn:
-
-| File | Trạng thái | Cần làm |
-|------|-----------|---------|
-| `Backup/Enemy/NewEnemy.cs` + 2 stubs | Empty stubs, không có logic | **Hỏi để xóa** |
-| `Backup/Dungeon/Door.cs` | Superseded bởi `DoorController.cs` | **Hỏi để xóa** |
-
-### ⚠️ Cần quyết định thêm
-
-| Folder | Vấn đề | Cần làm |
-|--------|--------|---------|
-| `Animation/Player` vs `Animation/Player 1` | 155 file trùng nhau | Xem `Animation/DUPLICATE_NOTE.md` |
-| `Sprite/Player/ExMovement/` | Sprites platformer không dùng trong top-down | Hỏi để xóa |
-| `TextMesh Pro/Examples & Extras/` | Không cần trong production | Hỏi để xóa |
-| `Skill Enhance/` | Đã empty sau khi merge | Xóa folder |
 
 ---
 
@@ -93,121 +135,141 @@ Sau khi tái cơ cấu, `Assets/Backup/` chỉ còn:
 
 ### Player State Machine
 
-Entry point: `NewPlayer.cs` — hosts `PlayerStateMachine`, fires state transitions.
+[NewPlayer.cs](Script/Character/Player/NewPlayer.cs) creates all states in `Awake`, ticks `CurrentState.LogicUpdate()` in `Update`.
 
 ```
 PlayerState (base)
-  PlayerBasicState          — idle / move
-    PlayerIdleState
-    PlayerMoveState
-  PlayerUseWeaponState      — weapon actions
-    PlayerAttackState
-    PlayerSkillWeaponState
-  PlayerEquidUnequid
-  PlayerIntertorState
-  PlayerTakeDamageState
+  PlayerBasicState          — shared transitions: attack / skill / equip / interact / take-damage
+    PlayerIdleState / PlayerMoveState
+  PlayerUseWeaponState      — freezes movement; exits on animFinish
+    PlayerAttackState       — calls Weapon.Attack() on AnimationTrigger anim event
+    PlayerSkillWeaponState  — calls AbilityHolder.SetStateAbility() on AnimationTrigger
+    PlayerEquidUnequid / PlayerIntertorState
+  PlayerDisadvantageState
+    PlayerTakeDamageState
 ```
 
-States communicate via `NewPlayer` ref; input comes from `PlayerInputHandler`.
+[Core.cs](Script/Character/Player/Core/Core.cs) is the component hub wired in Inspector: `Movement`, `WeaponHolder`, `AbilityHolder`, `Interactor`.
 
-### Ability System (v2 — use this for new ability work)
+### Enemy AI Framework
 
-Located in `Assets/Script/Abilities/`.
+[Entity.cs](Script/Character/Entity/Entity.cs) mirrors the player pattern. All config via `EntityData` SO.
 
 ```
-AbilitySystem          — MonoBehaviour on Player; 4 slots (Primary/Secondary/Utility/Ultimate)
-AbilityDefinition      — ScriptableObject: activation type, cooldown, mana cost, conditions[], effects[]
-AbilityInstance        — Runtime wrapper: tracks cooldown, hold time, validates conditions
-AbilityConditionDefinition  — SO: pluggable condition (e.g. HasEnoughMana, NotDead)
-AbilityEffectDefinition     — SO: pluggable effect (e.g. DamageInFront, LungeForward)
+EntityBasicState   — direction tracking + transition checks (attack range, take-damage)
+  EntityIdleState  — idle timer or target detected → MoveState
+  EntityMoveState  — moves toward player; wall avoidance via Raycast; timer → IdleState
+EntityUseWeaponState → EntityAttackState  — triggers EntityWeaponMelee.Attack()
+EntityDisadvantageState → EntityTakeDamageState
 ```
 
-Add new abilities by creating `AbilityDefinition` assets and wiring `AbilityEffectDefinition` implementations. Do **not** extend the legacy `ActivateSkill` system for new features.
+`EntityInput.Update()` auto-detects player via `Physics2D.OverlapCircle` every frame — no manual target assignment.  
+`EntityCore` implements `INegativeReciver`; taking damage reduces `EntityStatsSO.ModifiersHealth`.  
+`EntityWeaponMelee.Attack()` is **fully implemented** — `OverlapCircle` + `INegativeReciver.TakeDamage()`.
 
-### Combat Flow
+**Wiring a new enemy prefab:** `Entity` + `EntityCore` (child) + `EntityInput` (child) + `EntityMovement`, `EntityFindTarget`, `EntityWeaponHolder`, `EntityEffectStats` (grandchildren of EntityCore). Assign `EntityData` SO.
 
-1. `PlayerInputHandler` detects attack input → `PlayerAttackState` entered
-2. `WeaponMelee` fires: calculates attack position from mouse direction, runs `Physics2D.OverlapCircleAll` with layer mask
-3. Damage applied via `Damageable` interface → `Health.TakeDamage()`
-4. Combo counter increments; resets after `comboResetTime`
-5. `PlayerTakeDamageState` handles knockback when player receives damage
+### Weapon-Linked Skill System
+
+`ActivateSkill` SO lifecycle, driven by `AbilityHolder` each frame:
+```
+Enter(player) → Activate() → Cast() [button held] → Do() [button released] → Exit()
+```
+`WeaponMeleeStats` carries two SO slots: `AbilityWeapon` (RMB/Block) and `SkillWeapon` (E key).
+
+### Damage Chain
+
+```
+# Player hits enemy
+PlayerAttackState → AnimTrigger → WeaponMelee.Attack()  ← ⚠️ EMPTY, fix needed
+
+# Enemy hits player
+EntityAttackState → AnimTrigger → EntityWeaponMelee.Attack()
+  → Physics2D.OverlapCircle → INegativeReciver.TakeDamage()
+  → Core.TakeDamage() → PlayerData.currentHealth -= dmg → PlayerTakeDamageState
+
+# Projectile hits anything
+Projectile.CheckCollisions() → Raycast → INegativeReciver.TakeDamage()
+```
 
 ### Map / Dungeon Generation
 
 ```
-MazeGenerator      — DFS maze algorithm → Cell grid
-MazeController     — Singleton orchestrator (Awake initialises maze)
-CellMapController  — Logical grid (Cell.STATUS_DOOR per side)
-RoomMapController  — Spawns RoomController prefabs per cell
-RoomController     — Positions room, configures DoorController × 4
-DoorController     — Trigger → EventManager.Emit(ON_PLAYER_ON_DOOR)
+MazeGenerator.Generator(rows, cols)   DFS → Cell[] with door flags (OPEN/BE_OPEN/CLOSE)
+MazeController (singleton)            distributes Cell data to CellMapController + RoomMapController
+RoomController.AddCell(cell)          positions room prefab, enables matching DoorControllers
+DoorController.OnTriggerEnter2D()     Player tag + isOpen → EventManager.Emit(ON_PLAYER_ON_DOOR, dir)
+MainMapController.Move()              GetNextRoom(dir) → teleports player
 ```
-
-Room transitions are event-driven. `MainMapController` listens to `ON_PLAYER_ON_DOOR` and handles scene/room switching.
 
 ### Event System
 
-Static dispatcher at `EventManager`. Two events currently:
-- `EventID.ON_PLAYER_ON_DOOR` — player steps into door trigger
-- `EventID.ON_LOAD_MAP` — map generation complete
+```csharp
+EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, callback);  // note: typo in source — use as-is
+EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
+```
+Events: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`.
 
-Register: `EventManager.Register(EventID, callback)`  
-Emit: `EventManager.Emit(EventID, data)`
+---
 
-### Stats & Health
+## Known Bugs (block demo)
 
-`CharacterStats` holds `RuntimeStat` fields (Attack, MoveSpeed, MaxMana, etc.).  
-`RuntimeStat` supports flat + percent modifiers from any source; call `AddModifier` / `RemoveModifier`.  
-`Health` is a simple component: `TakeDamage(float)`, `IsDead` property.
+| # | Severity | Description | Location |
+|---|----------|-------------|----------|
+| 1 | COMPILE | `RoomMapController.GetNextRoom()` refs `this.Columns` + `this._roomMapController` — both undefined | [RoomMapController.cs:64](Script/Map/Room/RoomMapController.cs#L64) |
+| 2 | COMPILE | `MainMapController.LoadRoom()` typo `cuonefsakdjfhnasdklfhjasdrrent` | [MainMapController.cs:32](Script/Map/Controllers/MainMapController.cs#L32) |
+| 3 | LOGIC | `MainMapController.Start()` calls `MazeController.Instance.GetStartRoom()` — method missing; use `.RoomMapController.GetStartRoom()` | [MainMapController.cs:12](Script/Map/Controllers/MainMapController.cs#L12) |
+| 4 | LOGIC | `WeaponMelee.Attack()` body empty — player deals no damage | [WeaponMelee.cs:26](Script/Weapons/MeleeWeapon/WeaponMelee.cs#L26) |
+| 5 | LOGIC | `EntityMoveState` NullRef when target lost mid-chase (distance check not guarded) | [EntityMoveState.cs:30](Script/Character/Entity/States/EntityMoveState.cs#L30) |
+| 6 | LOGIC | No player death check — `currentHealth ≤ 0` triggers nothing | [Core.cs:20](Script/Character/Player/Core/Core.cs#L20) |
+| 7 | LOGIC | `EntityDeathState` extends `MonoBehaviour` instead of `EntityState` | [EntityDeathState.cs](Script/Character/Entity/States/EntityDeathState.cs) |
 
 ---
 
 ## Coding Conventions
 
-- **No comments** unless the WHY is non-obvious (hidden constraint, workaround, tricky invariant).
-- **ScriptableObject-first**: game data (abilities, enemies, items, weapons) lives in SO assets, not hardcoded.
-- **No singletons except MazeController** — use dependency injection or component `GetComponent` lookups.
-- **State machine for player**: new player behaviours = new state, not inline `if/else` in `Update`.
-- **Ability effects = new `AbilityEffectDefinition` subclass** — keep effect logic isolated and composable.
-- **Layer masks** must be configured in Inspector; never hardcode layer indices.
-- **Backup/** is read-only reference — never add code there, never call its classes from new code.
+- **No comments** unless the WHY is non-obvious (hidden constraint, workaround, surprising invariant).
+- **ScriptableObject-first**: game data (abilities, enemies, weapons, items) lives in SO assets, not hardcoded values.
+- **No new singletons** — `MazeController` is the only permitted singleton; use `GetComponent` or Inspector refs everywhere else.
+- **State machine for all characters**: new behaviour = new `PlayerState` / `EntityState` subclass, never inline `if/else` in `Update`.
+- **Weapon skills**: subclass `ActivateSkill` and override `Do()` (one-shot) or `Cast()`+`Do()` (hold-release).
+- **Layer masks** must be set in Inspector; never hardcode layer indices.
 
 ---
 
-## Systems Status
+## Demo Completion Checklist
 
-### Implemented & Active
-- [x] Player state machine (idle / move / attack / skill / damage)
-- [x] New Input System integration
-- [x] Directional melee combat with combo
-- [x] Ability system v2 (conditions + effects, 4 slots)
-- [x] DashAbility, SlashAbility (projectile), BlockAbility
-- [x] DamageInFrontEffect, LungeForwardEffect
-- [x] CharacterStats with runtime modifiers
-- [x] Health / Damageable interface
-- [x] Procedural maze (DFS) + room spawning
-- [x] Door trigger → room transition events
-- [x] Item ScriptableObjects + drop rate system
-- [x] Talent tree nodes (InternalSkillSO)
-- [x] Object pooling (basic)
-- [x] Projectile system (slash, enemy ranged)
-
-### Incomplete / Missing (Demo Priority)
-- [ ] Enemy AI — pathfinding + attack behaviours (HIGH)
-- [ ] UI — health bar, mana bar, ability cooldown icons (HIGH)
-- [ ] Between-room upgrade / power selection screen (HIGH)
-- [ ] Audio — SFX + music (MEDIUM)
-- [ ] Boss room definition (MEDIUM)
-- [ ] Save / checkpoint (LOW for demo)
-- [ ] Inventory UI (LOW for demo)
+1. **Fix WeaponMelee.Attack()** — mirror `EntityWeaponMelee.Attack()`: `OverlapCircle` → `INegativeReciver.TakeDamage(currrentSA.attackDamege, transform.position)`.
+2. **Fix map compile errors** — `RoomMapController.GetNextRoom()`: add `Columns` property, fix `_roomMapController` self-ref; fix `MainMapController` typo + `GetStartRoom()` call.
+3. **Player death** — in `Core.TakeDamage()`: `currentHealth ≤ 0` → emit `ON_PLAYER_DEATH` → `GameManager` calls `PlayerData.Reborn()` + reload `StartScene`.
+4. **Deploy enemy** — wire `NewEnemy` prefab; fix `EntityMoveState` NullRef guard; fix `EntityDeathState` base class.
+5. **Room clear condition** — `RoomController` counts enemies; locks doors on spawn, calls `DoorController.OpenDoor()` when count reaches 0.
+6. **HUD** — bind health bar slider to `PlayerData.currentHealth / maxHealth` inside `UIManager`.
+7. **Between-room upgrade** — after clear: pause, offer 3 stat cards (+damage / +speed / +maxHealth on `PlayerData`), apply chosen.
 
 ---
 
 ## Enemy Definitions
 
-Enemy data lives in `EnemySO` assets. Fields: name, level, speed, FOV range, attackRate, attackRange, damage, projectile, drop item pool.
+`EnemySO` (spawning/drop data): name, level, speedMove, fieldOfViewRange, rateAttack, attackRange, damage, projectile, depotItem.
 
-Available animation rigs: **Bat, Crab, Golem (3 phases), Pebble, Rat, Skull, Spiked Slime**.
+`EntityData` SO (AI runtime): statsSO, layerMask, animatorOV, rangeCheckFieldOfView, idleDurationTime, moveDurationTime, movementVelocities, rangeCheckAttack, weaponSO.
+
+Available rigs: **Bat, Crab, Golem (3 phases), Pebble, Rat, Skull, Spiked Slime**.
+
+---
+
+## Input Bindings
+
+| Action | Binding |
+|--------|---------|
+| Movement | WASD |
+| Attack | Left Mouse Button |
+| Block / Ability | Right Mouse Button (Hold) |
+| Skill | E (Hold) |
+| Equip/Unequip | F |
+| Interact | G |
+| Dash | Space |
 
 ---
 
@@ -215,32 +277,9 @@ Available animation rigs: **Bat, Crab, Golem (3 phases), Pebble, Rat, Skull, Spi
 
 | Scene | Purpose |
 |-------|---------|
-| `StartScene` | Main menu entry point |
+| `StartScene` | Main menu |
+| `RandomMaze` | Procedural dungeon — primary dev and play scene |
 | `Level 1` | Primary dungeon level |
-| `DungeonStart` | Dungeon intro area |
-| `RandomMaze` | Procedural maze runtime test |
-| `SampleScene` | Dev sandbox |
-| `Test AI` | Enemy AI experimentation |
-
----
-
-## Demo Completion Checklist
-
-To ship a playable demo:
-
-1. **Enemy AI** — implement patrol → chase → attack loop for ≥2 enemy types using the existing `EnemySO` data.
-2. **Room clear condition** — lock doors when enemies spawn; unlock on all-dead.
-3. **Between-room screen** — offer player 3 random stat upgrades (`RuntimeStat` modifiers) after clearing a room.
-4. **HUD** — health bar, mana bar, ability slot icons with cooldown overlay.
-5. **Boss room** — one larger room with a Golem enemy that has multi-phase behaviour.
-6. **Death / restart flow** — game-over screen → return to StartScene.
-7. **Audio pass** — footstep, attack, hit, and ambient SFX (can use free assets).
-
----
-
-## Do Not Touch / Pending Cleanup
-
-- `Script/Skill_Ability/` — legacy ability system (ActivateSkill, DashAbility, etc.), do not extend
-- `Backup/Enemy/` — 3 empty stub files, pending deletion decision
-- `Backup/Dungeon/Door.cs` — superseded by `Script/Map/Room/Door/DoorController.cs`, pending deletion
-- `Skill Enhance/` — empty folder after merge, safe to delete via Unity Editor
+| `Test AI` | Enemy AI sandbox |
+| `SampleScene` | General dev sandbox |
+| `DungeonStart` | Dungeon intro |

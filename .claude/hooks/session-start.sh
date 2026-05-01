@@ -1,0 +1,65 @@
+#!/bin/bash
+# Claude Code SessionStart hook: Load project context at session start
+# Adapted for Unity project — code lives in Assets/Script/ not src/
+
+echo "=== Game-RPG Studio — Session Context ==="
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+if [ -n "$BRANCH" ]; then
+    echo "Branch: $BRANCH"
+    echo ""
+    echo "Recent commits:"
+    git log --oneline -5 2>/dev/null | while read -r line; do
+        echo "  $line"
+    done
+fi
+
+LATEST_SPRINT=$(ls -t production/sprints/sprint-*.md 2>/dev/null | head -1)
+if [ -n "$LATEST_SPRINT" ]; then
+    echo ""
+    echo "Active sprint: $(basename "$LATEST_SPRINT" .md)"
+fi
+
+LATEST_MILESTONE=$(ls -t production/milestones/*.md 2>/dev/null | head -1)
+if [ -n "$LATEST_MILESTONE" ]; then
+    echo "Active milestone: $(basename "$LATEST_MILESTONE" .md)"
+fi
+
+BUG_COUNT=0
+for dir in production/qa/bugs production; do
+    if [ -d "$dir" ]; then
+        count=$(find "$dir" -name "BUG-*.md" 2>/dev/null | wc -l)
+        BUG_COUNT=$((BUG_COUNT + count))
+    fi
+done
+if [ "$BUG_COUNT" -gt 0 ]; then
+    echo "Open bugs: $BUG_COUNT"
+fi
+
+# Unity-specific: check Assets/Script/ for code health
+SCRIPT_DIR="Assets/Script"
+if [ -d "$SCRIPT_DIR" ]; then
+    TODO_COUNT=$(grep -r "TODO" "$SCRIPT_DIR" 2>/dev/null | wc -l)
+    FIXME_COUNT=$(grep -r "FIXME" "$SCRIPT_DIR" 2>/dev/null | wc -l)
+    if [ "$TODO_COUNT" -gt 0 ] || [ "$FIXME_COUNT" -gt 0 ]; then
+        echo ""
+        echo "Code health: ${TODO_COUNT} TODOs, ${FIXME_COUNT} FIXMEs in Assets/Script/"
+    fi
+fi
+
+STATE_FILE="production/session-state/active.md"
+if [ -f "$STATE_FILE" ]; then
+    echo ""
+    echo "=== ACTIVE SESSION STATE DETECTED ==="
+    echo "Previous session state: $STATE_FILE"
+    echo ""
+    head -20 "$STATE_FILE" 2>/dev/null
+    TOTAL_LINES=$(wc -l < "$STATE_FILE" 2>/dev/null)
+    if [ "$TOTAL_LINES" -gt 20 ]; then
+        echo "  ... ($TOTAL_LINES total lines — read the full file to continue)"
+    fi
+    echo "=== END SESSION STATE PREVIEW ==="
+fi
+
+echo "========================================="
+exit 0
