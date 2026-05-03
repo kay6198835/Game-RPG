@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class RoomController : MonoBehaviour
 {
-    [SerializeField] private int SCALE= 10;
+    [SerializeField] private int SCALE = 10;
     [SerializeField] private Cell _cellData;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private DoorController _top, _left, _right, _bottom;
-    [SerializeField] private Transform StartDoorPosition {get;private set;}
+    [SerializeField] public Transform StartDoorPosition { get; private set; }
 
     private void Awake()
     {
@@ -20,12 +20,12 @@ public class RoomController : MonoBehaviour
     }
     private void OnEnable()
     {
-        
+
     }
 
     private void OnDisable()
     {
-        
+
     }
     public void AddCell(Cell cell)
     {
@@ -38,7 +38,7 @@ public class RoomController : MonoBehaviour
         {
             return;
         }
-        this.transform.SetPositionAndRotation(new Vector3(_cellData.Column * this.transform.localScale.x, -_cellData.Row * this.transform.localScale.y)* SCALE, Quaternion.identity);
+        this.transform.SetPositionAndRotation(new Vector3(_cellData.Column * this.transform.localScale.x, -_cellData.Row * this.transform.localScale.y) * SCALE, Quaternion.identity);
 
         if (_cellData.Top == (int)STATUS_DOOR.OPEN)
         {
@@ -60,20 +60,21 @@ public class RoomController : MonoBehaviour
 
     public void SetStartDoorPosition(Vector2 direction)
     {
-        switch (direction)
+        if (direction == GameConstants.Direction.TOP)
         {
-            case GameConstants.Direction.TOP:
             StartDoorPosition = _top.transform;
-            break;
-            case GameConstants.Direction.RIGHT:
+        }
+        else if (direction == GameConstants.Direction.RIGHT)
+        {
             StartDoorPosition = _right.transform;
-            break;
-            case GameConstants.Direction.LEFT:
+        }
+        else if (direction == GameConstants.Direction.LEFT)
+        {
             StartDoorPosition = _left.transform;
-            break;
-            case GameConstants.Direction.BOTTOM:
+        }
+        else if(direction == GameConstants.Direction.BOTTOM)
+        {
             StartDoorPosition = _bottom.transform;
-            break;
         }
     }
 

@@ -7,5 +7,5 @@ public interface IMapController
     void Setup();
     void Clear();
     void AddCell(Cell cell);
-    void Setting();
+    void Setting(int Columns, int Rows);
 }

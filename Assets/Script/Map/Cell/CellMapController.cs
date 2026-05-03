@@ -4,23 +4,23 @@ using UnityEngine;
 
 public class CellMapController : MonoBehaviour, IMapController
 {
-    [SerializeField] CellControll prefabObject;
-    [SerializeField] List<CellControll> _cellControll;
+    [SerializeField] CellController prefabObject;
+    [SerializeField] List<CellController> _cellController;
     public void AddCell(Cell cell)
     {
-        CellControll cellControll = Instantiate(prefabObject, this.transform) as CellControll;
-        cellControll.AddCell(cell);
-        _cellControll.Add(cellControll);
+        CellController cellController = Instantiate(prefabObject, this.transform) as CellController;
+        cellController.AddCell(cell);
+        _cellController.Add(cellController);
     }
 
-    public CellControll GetValue(int index)
+    public CellController GetValue(int index)
     {
-        return _cellControll[index];
+        return _cellController[index];
     }
 
-    public void SetValue(int index, CellControll cellControll)
+    public void SetValue(int index, CellController cellController)
     {
-        _cellControll[index] = cellControll;
+        _cellController[index] = cellController;
     }
 
     public void Clear()
@@ -28,9 +28,9 @@ public class CellMapController : MonoBehaviour, IMapController
         throw new System.NotImplementedException();
     }
 
-    public void Setting()
+    public void Setting(int Columns, int Rows)
     {
-        throw new System.NotImplementedException();
+        
     }
 
     public void Setup()

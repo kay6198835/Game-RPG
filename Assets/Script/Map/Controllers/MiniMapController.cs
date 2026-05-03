@@ -6,7 +6,7 @@ using UnityEngine;
 public class MiniMapController : MonoBehaviour
 {
     [SerializeField] GameObject Avatar;
-    [SerializeField] CellControll current,next;
+    [SerializeField] CellController current,next;
     private void Start()
     {
         //Avatar.transform.position = current.transform.position;

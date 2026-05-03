@@ -39,18 +39,19 @@ public class MazeController : MonoBehaviour
             foreach(var controller in _controllers)
             {
                 controller.AddCell(cell);
+                controller.Setting(Columns,Rows);
             }
         }
     }
 
-    public CellControll GetNextCell(CellControll cellControll, Vector2 direction)
+    public CellController GetNextCell(CellController cellControll, Vector2 direction)
     {
         direction = cellControll.GetGridPosition() + direction;
-        int indexe = (int)direction.y * -this.Columns + (int)direction.x;
+        int indexe = (int)direction.y * this.Columns + (int)direction.x;
         return CellMapController.GetValue(indexe);
     }
 
-    public CellControll GetStartCell()
+    public CellController GetStartCell()
     {
         var start = CellMapController.GetValue(0);
         return start;

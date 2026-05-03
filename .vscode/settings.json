@@ -56,6 +56,18 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Game-RPG.sln",
+    "files.associations": {
+        "*.asset": "yaml",
+        "*.meta": "yaml",
+        "*.prefab": "yaml",
+        "*.unity": "yaml",
+    },
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "*.sln": "*.csproj",
+        "*.slnx": "*.csproj"
+    },
+    "dotnet.defaultSolution": "Game-RPG.slnx",
+    "dotnet.enableWorkspaceBasedDevelopment": false,
     "dotnet.preferCSharpExtension": true
 }

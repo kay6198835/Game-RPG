@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
@@ -9,6 +8,12 @@ public class DoorController : MonoBehaviour
     [SerializeField] SpriteRenderer spriteRenderer;
     private bool isOpen = false;
     Vector2 _direction = new Vector2();
+
+    public void Awake()
+    {
+        spriteRenderer.GetComponent<SpriteRenderer>();    
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Player")||!isOpen)

@@ -172,8 +172,8 @@ MonoBehaviour:
   Columns: 3
   _generator:
     Gird: []
-  _cellMapController: {fileID: 2004232071}
-  _roomMapController: {fileID: 874930595}
+  CellMapController: {fileID: 0}
+  RoomMapController: {fileID: 0}
 --- !u!1 &763999024
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,6 +344,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   current: {fileID: 0}
   next: {fileID: 0}
+  fastMovement: {fileID: 1455180277}
 --- !u!4 &807714240
 Transform:
   m_ObjectHideFlags: 0
@@ -404,7 +405,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabObject: {fileID: 3771263540025201820, guid: 7498ec212d26818429ef3c646d625158, type: 3}
-  _roomControll: []
+  _roomControllers: []
+  _current: {fileID: 0}
+  _next: {fileID: 0}
 --- !u!1 &1455180274
 GameObject:
   m_ObjectHideFlags: 0
