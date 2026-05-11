@@ -19,7 +19,7 @@ Main dev scene: `Assets/Scenes/Main/Test/RandomMaze.unity`
 
 - State machine for all characters — no inline if/else in Update
 - ScriptableObject-first: all gameplay values in SO assets
-- INegativeReciver interface for all damage (player, enemy, projectile)
+- INegativeReceiver interface for all damage (player, enemy, projectile)
 - EventManager static bus for cross-system events (note: typo "Resgister" is intentional)
 - MazeController is the ONLY singleton — no new singletons ever
 - Core.cs / EntityCore.cs are the ONLY component hubs
@@ -29,4 +29,4 @@ Main dev scene: `Assets/Scenes/Main/Test/RandomMaze.unity`
 - `[SerializeField] private` not `public` for inspector fields
 - Cache GetComponent in Awake, never in Update
 - OverlapCircleNonAlloc with pre-allocated array — never OverlapCircle in hot paths
-- Damage chain: Weapon.Attack() → OverlapCircleNonAlloc → INegativeReciver.TakeDamage(amount, pos)
+- Damage chain: Weapon.Attack() → OverlapCircleNonAlloc → INegativeReceiver.TakeDamage(amount, pos)

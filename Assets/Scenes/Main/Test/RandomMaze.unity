@@ -172,8 +172,8 @@ MonoBehaviour:
   Columns: 3
   _generator:
     Gird: []
-  CellMapController: {fileID: 0}
-  RoomMapController: {fileID: 0}
+  CellMapController: {fileID: 2004232071}
+  RoomMapController: {fileID: 874930595}
 --- !u!1 &763999024
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,7 +306,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 781509275}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1.9389907, y: -8.920214, z: 27.149162}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -353,7 +353,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 807714238}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 13.733967, y: -10.4350395, z: -0.4354033}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -610,7 +610,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabObject: {fileID: 4176243212576594380, guid: 713af1cb3059578479081f23ddccfc6f, type: 3}
-  _cellControll: []
+  _cellController: []
+  _current: {fileID: 0}
+  _next: {fileID: 0}
 --- !u!4 &2004232072
 Transform:
   m_ObjectHideFlags: 0
@@ -631,6 +633,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 322956314}
-  - {fileID: 781509277}
   - {fileID: 1455180276}
+  - {fileID: 781509277}
   - {fileID: 807714240}

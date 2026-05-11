@@ -80,23 +80,23 @@ public class MazeGenerator
 
         if (rowDiff == -1)
         {
-            current.Top = (int)STATUS_DOOR.OPEN;
-            next.Bottom = (int)STATUS_DOOR.BE_OPEN;
+            current.Top = STATUS_DOOR.OPEN;
+            next.Bottom = STATUS_DOOR.BE_OPEN;
         }
         else if (rowDiff == 1)
         {
-            current.Bottom = (int)STATUS_DOOR.OPEN;
-            next.Top = (int)STATUS_DOOR.BE_OPEN;
+            current.Bottom = STATUS_DOOR.OPEN;
+            next.Top = STATUS_DOOR.BE_OPEN;
         }
         else if (colDiff == -1)
         {
-            current.Left = (int)STATUS_DOOR.OPEN;
-            next.Right = (int)STATUS_DOOR.BE_OPEN;
+            current.Left = STATUS_DOOR.OPEN;
+            next.Right = STATUS_DOOR.BE_OPEN;
         }
         else if (colDiff == 1)
         {
-            current.Right = (int)STATUS_DOOR.OPEN;
-            next.Left = (int)STATUS_DOOR.BE_OPEN;
+            current.Right = STATUS_DOOR.OPEN;
+            next.Left = STATUS_DOOR.BE_OPEN;
         }
     }
 }

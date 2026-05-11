@@ -6,31 +6,58 @@ using UnityEngine;
 public class DoorController : MonoBehaviour
 {
     [SerializeField] SpriteRenderer spriteRenderer;
-    private bool isOpen = false;
+    private STATUS_DOOR status = STATUS_DOOR.CLOSE;
     Vector2 _direction = new Vector2();
 
     public void Awake()
     {
-        spriteRenderer.GetComponent<SpriteRenderer>();    
+        spriteRenderer.GetComponent<SpriteRenderer>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player")||!isOpen)
+        if (!collision.CompareTag("Player") || status == STATUS_DOOR.CLOSE)
         {
             return;
         }
         EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, _direction);
     }
 
-    public void Setting(Vector2 direction)
+    public void Setting(Vector2 direction, STATUS_DOOR status)
     {
         _direction = direction;
+        this.status = status;
+        switch (this.status)
+        {
+            case STATUS_DOOR.CLOSE:
+
+                break;
+
+            case STATUS_DOOR.OPEN:
+                spriteRenderer.color = Color.white;
+                break;
+
+            case STATUS_DOOR.BE_OPEN:
+                spriteRenderer.color = Color.white;
+                break;
+
+            default:
+                break;
+        }
     }
 
     public void OpenDoor()
     {
-        isOpen = true;
-        spriteRenderer.color = Color.red;
+        if (status == STATUS_DOOR.OPEN) return;
+        status = STATUS_DOOR.OPEN;
+        spriteRenderer.gameObject.SetActive(false);
+    }
+
+    public void CheckCanBeOpened()
+    {
+        if (status == STATUS_DOOR.CLOSE)
+        {
+            return;
+        }
     }
 }

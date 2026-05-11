@@ -6,7 +6,7 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 # Weapon and Skill Code Standards
 
 ## Damage Application Contract
-- `WeaponMelee.Attack()` MUST call `Physics2D.OverlapCircleNonAlloc` then `INegativeReciver.TakeDamage()`
+- `WeaponMelee.Attack()` MUST call `Physics2D.OverlapCircleNonAlloc` then `INegativeReceiver.TakeDamage()`
 - Mirror `EntityWeaponMelee.Attack()` exactly — it is the reference implementation
 - `TakeDamage(int amount, Vector2 attackPosition)` — always pass transform.position as second arg
 
@@ -25,6 +25,6 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 - `Physics2D.OverlapCircleNonAlloc(pos, range, results, layerMask)` — always pass the configured mask
 
 ## Projectile Rules
-- `Projectile.cs` handles raycast hit → `INegativeReciver.TakeDamage()`
+- `Projectile.cs` handles raycast hit → `INegativeReceiver.TakeDamage()`
 - `Spell.cs` extends Projectile and additionally calls `IEffectable.ApplyEffect()` — do not merge the two
 - Projectiles must be pooled — never `Instantiate` a projectile in `Update()`

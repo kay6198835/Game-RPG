@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 
 public class RoomController : MonoBehaviour
@@ -13,10 +14,7 @@ public class RoomController : MonoBehaviour
 
     private void Awake()
     {
-        _top.Setting(-GameConstants.Direction.TOP);
-        _left.Setting(-GameConstants.Direction.LEFT);
-        _right.Setting(-GameConstants.Direction.RIGHT);
-        _bottom.Setting(-GameConstants.Direction.BOTTOM);
+
     }
     private void OnEnable()
     {
@@ -39,49 +37,78 @@ public class RoomController : MonoBehaviour
             return;
         }
         this.transform.SetPositionAndRotation(new Vector3(_cellData.Column * this.transform.localScale.x, -_cellData.Row * this.transform.localScale.y) * SCALE, Quaternion.identity);
-
-        if (_cellData.Top == (int)STATUS_DOOR.OPEN)
-        {
-            _top.OpenDoor();
-        }
-        if (_cellData.Right == (int)STATUS_DOOR.OPEN)
-        {
-            _right.OpenDoor();
-        }
-        if (_cellData.Left == (int)STATUS_DOOR.OPEN)
-        {
-            _left.OpenDoor();
-        }
-        if (_cellData.Bottom == (int)STATUS_DOOR.OPEN)
-        {
-            _bottom.OpenDoor();
-        }
+        _top.Setting(GameConstants.Direction.TOP, _cellData.Top);
+        _left.Setting(GameConstants.Direction.LEFT, _cellData.Left);
+        _right.Setting(GameConstants.Direction.RIGHT, _cellData.Right);
+        _bottom.Setting(GameConstants.Direction.BOTTOM, _cellData.Bottom);
     }
 
+    public void SetBeNextRoom(Vector2 direction)
+    {
+        _spriteRenderer.color = Color.red;
+    }
     public void SetStartDoorPosition(Vector2 direction)
     {
+        var nextDoor = new DoorController();
         if (direction == GameConstants.Direction.TOP)
         {
-            StartDoorPosition = _top.transform;
+            nextDoor = _top;
         }
         else if (direction == GameConstants.Direction.RIGHT)
         {
-            StartDoorPosition = _right.transform;
+            nextDoor = _right;
         }
         else if (direction == GameConstants.Direction.LEFT)
         {
-            StartDoorPosition = _left.transform;
+            nextDoor = _left;
         }
-        else if(direction == GameConstants.Direction.BOTTOM)
+        else if (direction == GameConstants.Direction.BOTTOM)
         {
-            StartDoorPosition = _bottom.transform;
+            nextDoor = _bottom;
         }
+        StartDoorPosition = nextDoor.transform;
+        nextDoor.OpenDoor();
     }
 
 
 
     public Vector2 GetGridPosition()
     {
-        return new Vector2(_cellData.Column, _cellData.Row);
+        var direction = new Vector2(_cellData.Column, _cellData.Row);
+        return direction;
+    }
+
+    public void UpdateStatusDoor(Vector2 direction)
+    {
+        GetDoor(direction).OpenDoor();
+    }
+
+    public void GetStartDoorPosition(Vector2 direction)
+    {
+        var nextDoor = GetDoor(direction);
+        nextDoor.OpenDoor();
+        StartDoorPosition = nextDoor.gameObject.transform;
+    }
+
+    public DoorController GetDoor(Vector2 direction)
+    {
+        var door = new DoorController();
+        if (direction == GameConstants.Direction.TOP)
+        {
+            door = _top;
+        }
+        else if (direction == GameConstants.Direction.RIGHT)
+        {
+            door = _right;
+        }
+        else if (direction == GameConstants.Direction.LEFT)
+        {
+            door = _left;
+        }
+        else if (direction == GameConstants.Direction.BOTTOM)
+        {
+            door = _bottom;
+        }
+        return door;
     }
 }

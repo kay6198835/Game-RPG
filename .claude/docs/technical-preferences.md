@@ -62,7 +62,7 @@
 - State machine pattern for all characters (Player + Enemy) — enforced
 - ScriptableObject-first data model — enforced
 - EventManager static bus for cross-system events — enforced
-- INegativeReciver interface for damage — enforced
+- INegativeReceiver interface for damage — enforced
 - No new singletons beyond MazeController — enforced
 
 ## Engine Specialists

@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CellMapController : MonoBehaviour, IMapController
+public class CellMapController : MonoBehaviour, IMapController<CellController>
 {
     [SerializeField] CellController prefabObject;
     [SerializeField] List<CellController> _cellController;
+    [SerializeField] CellController _current, _next;
+    public int Columns { get; private set; }
+    public int Rows { get; private set; }
     public void AddCell(Cell cell)
     {
         CellController cellController = Instantiate(prefabObject, this.transform) as CellController;
@@ -15,7 +18,8 @@ public class CellMapController : MonoBehaviour, IMapController
 
     public CellController GetValue(int index)
     {
-        return _cellController[index];
+        var cellController = _cellController[index];
+        return cellController;
     }
 
     public void SetValue(int index, CellController cellController)
@@ -23,30 +27,45 @@ public class CellMapController : MonoBehaviour, IMapController
         _cellController[index] = cellController;
     }
 
-    public void Clear()
-    {
-        throw new System.NotImplementedException();
-    }
-
     public void Setting(int Columns, int Rows)
     {
-        
+        this.Columns = Columns;
+        this.Rows = Rows;
+        _current = this._cellController[0];
     }
 
-    public void Setup()
+    private void OnEnable()
     {
-        throw new System.NotImplementedException();
+        EventManager.Resgister(EventID.ON_LOAD_MAP, OnLoadMap);
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnDisable()
     {
-        
+        EventManager.UnResgister(EventID.ON_LOAD_MAP, OnLoadMap);
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public CellController GetStart()
     {
-        
+        var start = GetValue(0);
+        return start;
+    }
+    private void OnLoadMap(object obj = null)
+    {
+        _current = _next;
+        _next = null;
+    }
+
+    public CellController GetNext(Vector2 direction)
+    {
+        direction.y = -direction.y;
+        var positionNextRoom = _current.GetGridPosition() + direction;
+        int index = (int)positionNextRoom.y * this.Columns + (int)positionNextRoom.x;
+        _next = GetValue(index);
+        direction.y = -direction.y;
+        _next.GetStartDoorPosition(-direction);
+        _current.UpdateStatusDoor(direction);
+
+        return _next;
     }
 }

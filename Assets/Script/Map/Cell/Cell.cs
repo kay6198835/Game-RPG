@@ -8,10 +8,10 @@ public class Cell
     public int Column;
     public bool Visited;
 
-    public int Top;
-    public int Bottom;
-    public int Right;
-    public int Left;
+    public STATUS_DOOR Top;
+    public STATUS_DOOR Bottom;
+    public STATUS_DOOR Right;
+    public STATUS_DOOR Left;
     public Cell(int row, int col)
     {
         Row = row;

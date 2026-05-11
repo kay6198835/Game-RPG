@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoomMapController : MonoBehaviour, IMapController
+public class RoomMapController : MonoBehaviour, IMapController<RoomController>
 {
     [SerializeField] RoomController prefabObject;
     [SerializeField] List<RoomController> _roomControllers;
@@ -10,20 +10,11 @@ public class RoomMapController : MonoBehaviour, IMapController
     public int Columns { get; private set; }
     public int Rows { get; private set; }
 
-    private void OnEnable()
-    {
-        EventManager.Resgister(EventID.ON_LOAD_MAP, OnLoadMap);
-    }
-
-    private void OnDisable()
-    {
-        EventManager.UnResgister(EventID.ON_LOAD_MAP, OnLoadMap);
-    }
-
-    private void OnLoadMap(object obj = null)
+    public void OnLoadMap()
     {
         _current = _next;
         _next = null;
+        Debug.Log("CALL LOADMAP");
     }
     public void AddCell(Cell cell)
     {
@@ -51,10 +42,6 @@ public class RoomMapController : MonoBehaviour, IMapController
     {
         return transform;
     }
-    public void Clear()
-    {
-        throw new System.NotImplementedException();
-    }
 
     public void Setting(int Columns,int Rows)
     {
@@ -62,21 +49,22 @@ public class RoomMapController : MonoBehaviour, IMapController
         this.Rows = Rows;
         _current = this._roomControllers[0];
     }
-    public void Setup()
-    {
-        throw new System.NotImplementedException();
-    }
 
-    public RoomController GetNextRoom(Vector2 direction)
+    public RoomController GetNext(Vector2 direction)
     {
+        Debug.Log("GetNext");
+        direction.y = -direction.y;
         var positionNextRoom = _current.GetGridPosition() + direction;
         int index = (int)positionNextRoom.y * this.Columns + (int)positionNextRoom.x;
         _next = GetValue(index);
-        _next.SetStartDoorPosition(direction);
+        direction.y = -direction.y;
+        _next.GetStartDoorPosition(-direction);
+        _current.UpdateStatusDoor(direction);
+
         return _next;
     }
 
-    public RoomController GetStartRoom()
+    public RoomController GetStart()
     {
         var start = GetValue(0);
         return start;

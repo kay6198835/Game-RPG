@@ -16,7 +16,7 @@ globs: ["Assets/Script/Character/Player/Core/**/*.cs", "Assets/Script/Character/
 - Components discover siblings via `Core.GetCoreComponent<T>()` pattern, never direct field references
 
 ## Interface-First
-- New capabilities must be expressed as interfaces first (`INegativeReciver`, `IEffectable`, `IInteractable`)
+- New capabilities must be expressed as interfaces first (`INegativeReceiver`, `IEffectable`, `IInteractable`)
 - MonoBehaviours implement interfaces; callers depend only on the interface, not the concrete type
 - New interfaces go in `Assets/Script/Interface/`
 

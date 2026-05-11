@@ -21,7 +21,7 @@ globs: ["Assets/Script/Character/**/*.cs", "Assets/Script/Weapons/**/*.cs", "Ass
 - Cache `GetComponent<>()` results in `Awake()` — never call in `Update()`
 
 ## Damage and Health
-- All damage flows through `INegativeReciver.TakeDamage(int amount, Vector2 attackPosition)`
+- All damage flows through `INegativeReceiver.TakeDamage(int amount, Vector2 attackPosition)`
 - No MonoBehaviour may directly mutate another entity's health field
 - Health changes must go through the Core/EntityCore component hub
 
