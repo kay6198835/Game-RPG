@@ -40,4 +40,9 @@ public static class GameConstants
     {
         //public static readonly string {{Name}} = {{Assets\Script\Skill_Ability}};
     }
+    public static class SettingStats
+    {
+        public static float LENGHT_ROOM = 10;
+        public static float PLAYER_SCALE = (float)1.5;
+    }
 }

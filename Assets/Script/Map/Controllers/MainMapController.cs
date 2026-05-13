@@ -15,7 +15,7 @@ public class MainMapController : MonoBehaviour
  {
         next = MazeController.Instance.RoomMapController.GetNext((Vector2)ojt);
         MazeController.Instance.RoomMapController.OnLoadMap();
-        fastMovement.gameObject.transform.SetLocalPositionAndRotation(next.StartDoorPosition.transform.position, Quaternion.identity);
+        fastMovement.gameObject.transform.SetLocalPositionAndRotation(next.StartDoorPosition, Quaternion.identity);
     }
     private void OnEnable()
     {

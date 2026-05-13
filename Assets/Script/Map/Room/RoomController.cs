@@ -2,29 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using Unity.VisualScripting;
 using UnityEngine;
+[ExecuteInEditMode]
 
 public class RoomController : MonoBehaviour
 {
-    [SerializeField] private int SCALE = 10;
+    [SerializeField] private float SCALE;
+    [Range(0, 100)]
+    [SerializeField] private float PADDING_SCALE = GameConstants.SettingStats.PLAYER_SCALE * GameConstants.SettingStats.LENGHT_ROOM / 10;
     [SerializeField] private Cell _cellData;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private DoorController _top, _left, _right, _bottom;
-    [SerializeField] public Transform StartDoorPosition { get; private set; }
-
-    private void Awake()
-    {
-
-    }
-    private void OnEnable()
-    {
-
-    }
-
-    private void OnDisable()
-    {
-
-    }
+    [SerializeField] public Vector3 StartDoorPosition { get; private set; }
     public void AddCell(Cell cell)
     {
         this._cellData = cell;
@@ -36,7 +26,8 @@ public class RoomController : MonoBehaviour
         {
             return;
         }
-        this.transform.SetPositionAndRotation(new Vector3(_cellData.Column * this.transform.localScale.x, -_cellData.Row * this.transform.localScale.y) * SCALE, Quaternion.identity);
+        this.transform.localScale = Vector3.one * SCALE;
+        this.transform.SetPositionAndRotation(new Vector3(_cellData.Column, -_cellData.Row) * SCALE * GameConstants.SettingStats.LENGHT_ROOM, Quaternion.identity);
         _top.Setting(GameConstants.Direction.TOP, _cellData.Top);
         _left.Setting(GameConstants.Direction.LEFT, _cellData.Left);
         _right.Setting(GameConstants.Direction.RIGHT, _cellData.Right);
@@ -46,28 +37,6 @@ public class RoomController : MonoBehaviour
     public void SetBeNextRoom(Vector2 direction)
     {
         _spriteRenderer.color = Color.red;
-    }
-    public void SetStartDoorPosition(Vector2 direction)
-    {
-        var nextDoor = new DoorController();
-        if (direction == GameConstants.Direction.TOP)
-        {
-            nextDoor = _top;
-        }
-        else if (direction == GameConstants.Direction.RIGHT)
-        {
-            nextDoor = _right;
-        }
-        else if (direction == GameConstants.Direction.LEFT)
-        {
-            nextDoor = _left;
-        }
-        else if (direction == GameConstants.Direction.BOTTOM)
-        {
-            nextDoor = _bottom;
-        }
-        StartDoorPosition = nextDoor.transform;
-        nextDoor.OpenDoor();
     }
 
 
@@ -87,7 +56,7 @@ public class RoomController : MonoBehaviour
     {
         var nextDoor = GetDoor(direction);
         nextDoor.OpenDoor();
-        StartDoorPosition = nextDoor.gameObject.transform;
+        StartDoorPosition = nextDoor.gameObject.transform.position - direction.ConvertTo<Vector3>() * PADDING_SCALE * SCALE;
     }
 
     public DoorController GetDoor(Vector2 direction)

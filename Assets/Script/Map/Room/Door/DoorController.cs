@@ -14,6 +14,8 @@ public class DoorController : MonoBehaviour
         spriteRenderer.GetComponent<SpriteRenderer>();
     }
 
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Player") || status == STATUS_DOOR.CLOSE)
@@ -26,18 +28,19 @@ public class DoorController : MonoBehaviour
     public void Setting(Vector2 direction, STATUS_DOOR status)
     {
         _direction = direction;
-        this.status = status;
-        switch (this.status)
+        switch (status)
         {
             case STATUS_DOOR.CLOSE:
-
+                this.status = STATUS_DOOR.CLOSE;
                 break;
 
             case STATUS_DOOR.OPEN:
-                spriteRenderer.color = Color.white;
+                this.status = STATUS_DOOR.BE_OPEN;
+                spriteRenderer.color = Color.red;
                 break;
 
             case STATUS_DOOR.BE_OPEN:
+                this.status = STATUS_DOOR.BE_OPEN;
                 spriteRenderer.color = Color.white;
                 break;
 
@@ -50,7 +53,7 @@ public class DoorController : MonoBehaviour
     {
         if (status == STATUS_DOOR.OPEN) return;
         status = STATUS_DOOR.OPEN;
-        spriteRenderer.gameObject.SetActive(false);
+        spriteRenderer.color = Color.white;
     }
 
     public void CheckCanBeOpened()
