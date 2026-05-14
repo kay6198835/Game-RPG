@@ -7,7 +7,7 @@ public class FastMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        this.transform.localScale = Vector3.one*GameConstants.SettingStats.GAME_SCALE;
     }
 
     // Update is called once per frame

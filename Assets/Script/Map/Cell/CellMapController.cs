@@ -63,8 +63,8 @@ public class CellMapController : MonoBehaviour, IMapController<CellController>
         int index = (int)positionNextRoom.y * this.Columns + (int)positionNextRoom.x;
         _next = GetValue(index);
         direction.y = -direction.y;
-        _next.GetStartDoorPosition(-direction);
-        _current.UpdateStatusDoor(direction);
+        //_next.GetStartDoorPosition(-direction);
+        //_current.UpdateStatusDoor(direction);
 
         return _next;
     }

@@ -8,9 +8,8 @@ using UnityEngine;
 
 public class RoomController : MonoBehaviour
 {
-    [SerializeField] private float SCALE;
-    [Range(0, 100)]
-    [SerializeField] private float PADDING_SCALE = GameConstants.SettingStats.PLAYER_SCALE * GameConstants.SettingStats.LENGHT_ROOM / 10;
+    private float SCALE = GameConstants.SettingStats.GAME_SCALE;
+    private float PADDING_DOOR_TELE_SCALE = GameConstants.SettingStats.PADDING_DOOR_TELE_SCALE;
     [SerializeField] private Cell _cellData;
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private DoorController _top, _left, _right, _bottom;
@@ -56,7 +55,7 @@ public class RoomController : MonoBehaviour
     {
         var nextDoor = GetDoor(direction);
         nextDoor.OpenDoor();
-        StartDoorPosition = nextDoor.gameObject.transform.position - direction.ConvertTo<Vector3>() * PADDING_SCALE * SCALE;
+        StartDoorPosition = nextDoor.gameObject.transform.position - direction.ConvertTo<Vector3>() * PADDING_DOOR_TELE_SCALE * SCALE;
     }
 
     public DoorController GetDoor(Vector2 direction)

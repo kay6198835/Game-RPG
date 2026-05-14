@@ -36,12 +36,14 @@ public class MiniMapController : MonoBehaviour
     public void OnLoadMap(object ojt = null)
     {
         current = MazeController.Instance.CellMapController.GetStart();
+        Avatar.transform.position = current.transform.position;
     }
 
     public void LoadRoom()
     {
         current = next;
         next = null;
+        Avatar.transform.position = current.transform.position;
         EventManager.Emit(EventID.ON_LOAD_MAP);
     }
 }

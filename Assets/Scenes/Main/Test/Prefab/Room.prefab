@@ -1845,6 +1845,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5899889836572834960}
+  - component: {fileID: 8328662817492756558}
   m_Layer: 0
   m_Name: Left-Top
   m_TagString: Untagged
@@ -1874,6 +1875,33 @@ Transform:
   - {fileID: 891272425716854656}
   m_Father: {fileID: 6745644510807035671}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &8328662817492756558
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3914201415244152700}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &3921270641827266441
 GameObject:
   m_ObjectHideFlags: 0
@@ -2413,8 +2441,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46674d27266eaaf42a5c146edcfc08b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SCALE: 3
-  PADDING_SCALE: 1
   _cellData:
     Row: 0
     Column: 0
