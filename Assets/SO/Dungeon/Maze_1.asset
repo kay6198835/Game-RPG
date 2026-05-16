@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cd8316ce8d05d42b6af196e476e277, type: 3}
+  m_Name: Maze_1
+  m_EditorClassIdentifier: 
+  room:
+  - roomName: room_0
+    filePath: /Data/Json/Room/room_0.json
+  - roomName: room_1
+    filePath: /Data/Json/Room/room_1.json
+  - roomName: room_2
+    filePath: /Data/Json/Room/room_2.json
+  - roomName: room_3
+    filePath: /Data/Json/Room/room_3.json
+  - roomName: room_4
+    filePath: /Data/Json/Room/room_4.json
