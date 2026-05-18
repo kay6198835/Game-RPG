@@ -1,16 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
-public class MiniMapController : MonoBehaviour
+
+public class MapTracker : MonoBehaviour
 {
     [SerializeField] GameObject Avatar;
-    [SerializeField] CellController current,next;
-    private void Start()
-    {
-
-    }
+    [SerializeField] MapCell current, next;
 
     private void OnEnable()
     {
@@ -26,16 +20,13 @@ public class MiniMapController : MonoBehaviour
 
     public void Move(object ojt = null)
     {
-        next = MazeController.Instance.CellMapController.GetNext((Vector2)ojt);
+        next = MazeController.Instance.MapGrid.GetNext((Vector2)ojt);
         LoadRoom();
     }
-    public void OnMove()
-    {
-        current = next;
-    }
+
     public void OnLoadMap(object ojt = null)
     {
-        current = MazeController.Instance.CellMapController.GetStart();
+        current = MazeController.Instance.MapGrid.GetStart();
         Avatar.transform.position = current.transform.position;
     }
 

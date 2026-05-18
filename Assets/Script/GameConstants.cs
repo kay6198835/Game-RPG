@@ -42,9 +42,9 @@ public static class GameConstants
     }
     public static class SettingStats
     {
-        public static float LENGHT_ROOM = 10;
-        public static float LENGHT_CELL = 1;
+        public static float LENGTH_ROOM = 10;
+        public static float LENGTH_CELL = 1;
         public static float GAME_SCALE = 1;
-        public static float PADDING_DOOR_TELE_SCALE = GAME_SCALE * LENGHT_ROOM / 10;
+        public static float PADDING_DOOR_TELE_SCALE = GAME_SCALE * LENGTH_ROOM / 10;
     }
 }

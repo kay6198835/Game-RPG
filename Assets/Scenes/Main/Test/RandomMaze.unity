@@ -172,8 +172,8 @@ MonoBehaviour:
   Columns: 3
   _generator:
     Gird: []
-  CellMapController: {fileID: 2004232071}
-  RoomMapController: {fileID: 874930595}
+  MapGrid: {fileID: 2004232071}
+  RoomGrid: {fileID: 874930595}
 --- !u!1 &651475988
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,7 +252,7 @@ Transform:
   m_GameObject: {fileID: 651475988}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.3075519, y: -10.180825, z: 0}
+  m_LocalPosition: {x: 2.3075519, y: -10.180825, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -489,9 +489,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabObject: {fileID: 3771263540025201820, guid: 7498ec212d26818429ef3c646d625158, type: 3}
-  _roomControllers: []
-  _current: {fileID: 0}
-  _next: {fileID: 0}
 --- !u!1 &1455180274
 GameObject:
   m_ObjectHideFlags: 0
@@ -574,8 +571,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 10, z: 10}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 763999027}
   m_Father: {fileID: 0}
@@ -694,9 +691,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabObject: {fileID: 4176243212576594380, guid: 713af1cb3059578479081f23ddccfc6f, type: 3}
-  _cellController: []
-  _current: {fileID: 0}
-  _next: {fileID: 0}
 --- !u!4 &2004232072
 Transform:
   m_ObjectHideFlags: 0
@@ -716,8 +710,8 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 322956314}
   - {fileID: 1455180276}
   - {fileID: 781509277}
   - {fileID: 807714240}
   - {fileID: 651475990}
+  - {fileID: 322956314}

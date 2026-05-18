@@ -92,12 +92,27 @@
 
       Map/
         Maze/   MazeGenerator.cs (DFS), MazeController.cs (singleton)
-        Cell/   Cell.cs, CellControll.cs, CellMapController.cs
-        Room/   RoomController.cs, RoomMapController.cs ✅, Door/DoorController.cs
+        Cell/   Cell.cs, CellControll.cs (CellController), CellMapController.cs
+        Room/   RoomController.cs ✅, RoomMapController.cs ✅, Door/DoorController.cs
         Controllers/
-          MainMapController.cs                  # ✅ compile-clean
-          MiniMapController.cs
+          MainMapController.cs                  # ✅ teleport working — Move() wires to FastMovement
+          MiniMapController.cs                  # ✅ avatar tracking via ON_PLAYER_ON_DOOR + ON_LOAD_MAZE_DONE
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
+
+      LevelEdit/                                # Editor tool for authoring room tilemaps
+        LevelEditor.cs                          # Stub — Tilemap/Camera refs, Update() empty
+        LevelManager.cs                         # Save tilemap → JSON; Load JSON → genmap Tilemap — editor-only tool, không liên quan game runtime
+
+    SO/
+      Dungeon/
+        DungeonRoomSO.cs                        # SO: List<RoomFile> (roomName, filePath)
+        TileSO.cs                               # SO: tile data
+
+    Editor/
+      LevelManagerEditor.cs                     # Custom Inspector button for LevelManager
+
+    Data/
+      Json/Room/                                # Saved room tilemap data (room_0.json … room_4.json)
 
       Weapons/
         Weapon.cs (abstract base), WeaponStats.cs, WeaponType.cs
@@ -117,7 +132,7 @@
         InternalSkillSO.cs                      # Talent tree node SO
 
       Manager/
-        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum: ON_PLAYER_ON_DOOR, ON_LOAD_MAP
+        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum: ON_PLAYER_ON_DOOR, ON_LOAD_MAP, ON_LOAD_MAZE_DONE
         AnimationEventManager.cs                # AnimationEventId enum: StartAnimation, MoveAnimation, AttactAnimation, DoSkillAnimation, EndAnimation
         UI/UIManager.cs                         # EMPTY STUB
 
@@ -215,12 +230,40 @@
   ### Map / Dungeon Generation
 
   ```
-  MazeGenerator.Generator(rows, cols)   DFS → Cell[] with door flags (OPEN/BE_OPEN/CLOSE)
-  MazeController (singleton)            distributes Cell data to CellMapController + RoomMapController
-  RoomController.AddCell(cell)          positions room prefab, enables matching DoorControllers
-  DoorController.OnTriggerEnter2D()     Player tag + isOpen → EventManager.Emit(ON_PLAYER_ON_DOOR, dir)
-  MainMapController.Move()              GetNextRoom(dir) → teleports player
+  MazeGenerator.Generator(rows, cols)
+    DFS → Cell[rows*cols], mỗi Cell có Row, Col, Top/Bottom/Left/Right: CLOSE|OPEN|BE_OPEN
+
+  MazeController.Awake() [singleton]
+    → Generator.Generator(Rows, Cols)
+    → SetCellData: for each Cell → CellMapController.AddCell() + RoomMapController.AddCell()
+    → EventManager.Emit(ON_LOAD_MAZE_DONE)
+
+  IMapController / IMapController<T>    interface chung cho cả hai controller
+    AddCell(cell)                       Instantiate prefab, đặt vị trí = (col, -row) * scale
+    Setting(cols, rows)                 lưu Columns/Rows, set _current = list[0]
+    GetNext(direction)                  flip Y → tính index = y*Columns+x → trả về _next
+    GetStart()                          trả về list[0]
+    GetValue(int) / SetValue(int, T)    truy cập list trực tiếp
+
+  CellMapController : IMapController<CellController>   minimap data layer
+    _current/_next advance qua ON_LOAD_MAP event
+
+  RoomMapController : IMapController<RoomController>   world/gameplay layer
+    _current/_next advance qua OnLoadMap() direct call từ MainMapController
+    GetNext() thêm: _next.GetStartDoorPosition(-dir) + _current.UpdateStatusDoor(dir)
+
+  DoorController.Setting(dir, status)   OPEN→màu đỏ, BE_OPEN→màu trắng, CLOSE→tắt trigger
+  DoorController.OnTriggerEnter2D()     Player tag + status != CLOSE → Emit(ON_PLAYER_ON_DOOR, dir)
+
+  MainMapController [ON_PLAYER_ON_DOOR] → RoomMapController.GetNext() → OnLoadMap()
+                                        → fastMovement.position = next.StartDoorPosition
+
+  MiniMapController [ON_PLAYER_ON_DOOR] → CellMapController.GetNext()
+                                        → Avatar.position = current.transform.position
+                                        → Emit(ON_LOAD_MAP) → CellMapController advance _current
   ```
+
+  **STATUS_DOOR semantics:** `OPEN` = cell này carve passage (màu đỏ) — `BE_OPEN` = nhận từ phía kia (màu trắng) — cả hai đều passable. `CLOSE` = tường kín.
 
   ### Event System
 
@@ -228,7 +271,7 @@
   EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, callback);  // note: typo in source — use as-is
   EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
   ```
-  Events currently defined: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`. Events needed but not yet added: `ON_ENEMY_DEATH`, `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`, `ON_ROOM_CLEAR`.
+  Events currently defined: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`. Events needed but not yet added: `ON_ENEMY_DEATH`, `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`, `ON_ROOM_CLEAR`.
 
   ---
 
@@ -245,6 +288,7 @@
   | 7 | LOGIC | ⚠️ OPEN | `EntityDeathState` extends `MonoBehaviour` instead of `EntityState` — not wired into state machine | [EntityDeathState.cs](Assets/Script/Character/Entity/States/EntityDeathState.cs) |
   | 8 | LOGIC | ⚠️ OPEN | `EntityBasicState.LogicUpdate()` — `Health <= 0` block is empty (line 21), no transition to `EntityDeathState` | [EntityBasicState.cs:21](Assets/Script/Character/Entity/States/EntityBasicState.cs#L21) |
   | 9 | LOGIC | ⚠️ OPEN | `AnimationPlayerController.OnEnable()` registers `StartAnimation` callback twice on line 21 — `EndAnimation` event never fires | [AnimationPlayerController.cs:21](Assets/Script/Character/Player/Animation/AnimationPlayerController.cs#L21) |
+  | 10 | BUILD | ✅ FIXED | `EventManager.cs` removed `using UnityEditor.PackageManager` — no longer breaks Player builds | [EventManager.cs](Assets/Script/Manager/EventManager.cs) |
 
   ---
 
@@ -262,16 +306,19 @@
   ## Demo Completion Checklist
 
   1. ~~**Fix map compile errors**~~ ✅ Done — `RoomMapController` and `MainMapController` compile-clean (bugs 1-3).
-  2. **Fix WeaponMelee.Attack()** ⚠️ (Bug #4) — add inside the `foreach`: `INegativeReceiver dmg = enemy.GetComponentInChildren<INegativeReceiver>(); if (dmg != null) dmg.TakeDamage(currrentSA.attackDamege, transform.position);` (keep typo `attackDamege`).
-  3. **Player death** ⚠️ (Bug #6) — in `Core.TakeDamage()`: after decrement, `if (player.Data.currentHealth <= 0) EventManager.Emit(EventID.ON_PLAYER_DEATH)`. Add `ON_PLAYER_DEATH` to `EventID` enum. New `GameManager` subscribes: calls `PlayerData.Reborn()` + reload `StartScene`.
-  4. **Deploy enemy** ⚠️ (Bugs #5, #7, #8) — three sub-tasks:
+  2. ~~**Dungeon navigation prototype**~~ ✅ Done — teleportation via `MainMapController.Move()` + `FastMovement` works; `MiniMapController` avatar tracks player position; `ON_LOAD_MAZE_DONE` event fires on maze ready.
+  3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` saves/loads room tilemaps as JSON under `Assets/Data/Json/Room/`; `DungeonRoomSO` tracks room file list; `LevelManagerEditor` custom Inspector button.
+  4. **Fix EventManager build break** ⚠️ (Bug #10) — remove `using UnityEditor.PackageManager;` from `EventManager.cs` (line 4); wrap any editor-only code with `#if UNITY_EDITOR`.
+  5. **Fix WeaponMelee.Attack()** ⚠️ (Bug #4) — add inside the `foreach`: `INegativeReceiver dmg = enemy.GetComponentInChildren<INegativeReceiver>(); if (dmg != null) dmg.TakeDamage(currrentSA.attackDamege, transform.position);` (keep typo `attackDamege`).
+  6. **Player death** ⚠️ (Bug #6) — in `Core.TakeDamage()`: after decrement, `if (player.Data.currentHealth <= 0) EventManager.Emit(EventID.ON_PLAYER_DEATH)`. Add `ON_PLAYER_DEATH` to `EventID` enum. New `GameManager` subscribes: calls `PlayerData.Reborn()` + reload `StartScene`.
+  7. **Deploy enemy** ⚠️ (Bugs #5, #7, #8) — three sub-tasks:
      - Fix `EntityMoveState` NullRef: move null guard `if (entity.Input.Target == null)` to top of `LogicUpdate()` before line 30.
      - Rewrite `EntityDeathState` to extend `EntityState` not `MonoBehaviour`.
      - Fill `EntityBasicState` empty death block: transition to `EntityDeathState`.
-  5. **Room clear condition** ⚠️ — `RoomController` counts enemies; locks doors on room enter via `EventManager`, unlocks when count reaches 0. Add `ON_ENEMY_DEATH` + `ON_ROOM_CLEAR` to `EventID` enum.
-  6. **HUD** ⚠️ — implement `UIManager`: bind health bar slider via `EventID.ON_PLAYER_TAKE_DAMAGE` subscription (currently empty stub).
-  7. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards (+damage / +speed / +maxHealth on `PlayerData`), apply chosen.
-  8. **Fix AnimationPlayerController** ⚠️ (Bug #9) — `OnEnable` line 21: change second `StartAnimation` registration to `EndAnimation`; mirror fix in `OnDisable`.
+  8. **Room clear condition** ⚠️ — `RoomController` counts enemies; locks doors on room enter via `EventManager`, unlocks when count reaches 0. Add `ON_ENEMY_DEATH` + `ON_ROOM_CLEAR` to `EventID` enum.
+  9. **HUD** ⚠️ — implement `UIManager`: bind health bar slider via `EventID.ON_PLAYER_TAKE_DAMAGE` subscription (currently empty stub).
+  10. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards (+damage / +speed / +maxHealth on `PlayerData`), apply chosen.
+  11. **Fix AnimationPlayerController** ⚠️ (Bug #9) — `OnEnable` line 21: change second `StartAnimation` registration to `EndAnimation`; mirror fix in `OnDisable`.
 
   ---
 

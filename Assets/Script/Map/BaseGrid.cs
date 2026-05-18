@@ -1,0 +1,45 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
+    where T : MonoBehaviour, IGridItem
+{
+    [SerializeField] protected T prefabObject;
+    protected List<T> _list = new List<T>();
+    protected T _current;
+    protected T _next;
+
+    public int Columns { get; private set; }
+    public int Rows { get; private set; }
+
+    public void AddCell(Cell cell)
+    {
+        T item = Instantiate(prefabObject, transform);
+        item.AddCell(cell);
+        _list.Add(item);
+    }
+
+    public void Setting(int columns, int rows)
+    {
+        Columns = columns;
+        Rows = rows;
+        _current = _list[0];
+    }
+
+    public T GetValue(int index) => _list[index];
+    public void SetValue(int index, T value) => _list[index] = value;
+    public T GetStart() => GetValue(0);
+
+    public T GetNext(Vector2 direction)
+    {
+        direction.y = -direction.y;
+        var position = _current.GetGridPosition() + direction;
+        int index = (int)position.y * Columns + (int)position.x;
+        _next = GetValue(index);
+        direction.y = -direction.y;
+        OnAfterGetNext(_current, _next, direction);
+        return _next;
+    }
+
+    protected virtual void OnAfterGetNext(T current, T next, Vector2 direction) { }
+}
