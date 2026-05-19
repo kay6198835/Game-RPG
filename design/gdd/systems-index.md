@@ -19,7 +19,7 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 1 | Event Bus | Foundation | Foundation | MVP | Designed | *(in character-system.md + CLAUDE.md)* |
 | 2 | Input System | Foundation | Foundation | MVP | Designed | *(in character-system.md)* |
 | 3 | Damage & Health | Foundation | Foundation | MVP | Designed | *(in character-system.md)* |
-| 4 | Animation System | Foundation | Foundation | MVP | Not Started | — |
+| 4 | Animation System | Foundation | Foundation | MVP | Designed | design/gdd/animation-system.md |
 | 5 | Character / Player Controller | Gameplay | Core | MVP | Designed | design/gdd/character-system.md |
 | 6 | Enemy AI | Gameplay | Core | MVP | Designed | design/gdd/character-system.md |
 | 7 | Dungeon Generation | Map | Core | MVP | Not Started | — |
