@@ -14,4 +14,19 @@ public class RoomFile
 {
     public string roomName;
     public string filePath;
+    public RoomType roomType;
+}
+
+public enum RoomType
+{
+    NormalRoom,
+    StartRoom,
+    BossRoom,
+    CombatRoom,
+    TreasureRoom,
+    ShopRoom,
+    RestRoom,
+    PuzzleRoom,
+    SecretRoom,
+    ExitRoom
 }

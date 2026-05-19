@@ -13,13 +13,12 @@ MonoBehaviour:
   m_Name: Maze_1
   m_EditorClassIdentifier: 
   room:
-  - roomName: room_0
-    filePath: /Data/Json/Room/room_0.json
-  - roomName: room_1
-    filePath: /Data/Json/Room/room_1.json
-  - roomName: room_2
-    filePath: /Data/Json/Room/room_2.json
-  - roomName: room_3
-    filePath: /Data/Json/Room/room_3.json
-  - roomName: room_4
-    filePath: /Data/Json/Room/room_4.json
+  - roomName: NormalRoom_0
+    filePath: /Data/Json/Room/NormalRoom_0.json
+    roomType: 0
+  - roomName: NormalRoom_1
+    filePath: /Data/Json/Room/NormalRoom_1.json
+    roomType: 0
+  - roomName: NormalRoom_2
+    filePath: /Data/Json/Room/NormalRoom_2.json
+    roomType: 0
