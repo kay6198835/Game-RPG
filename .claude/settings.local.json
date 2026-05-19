@@ -4,7 +4,15 @@
       "Bash(code --uninstall-extension ms-dotnettools.csdevkit)",
       "Bash(code --list-extensions)",
       "Bash(mkdir -p \"Assets/Script/Map\")",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Skill(schedule)",
+      "Skill(schedule:*)",
+      "mcp__a3cbf8c7-cb95-464f-b284-1a2db689cb33__update_event",
+      "mcp__a3cbf8c7-cb95-464f-b284-1a2db689cb33__create_event",
+      "mcp__a3cbf8c7-cb95-464f-b284-1a2db689cb33__delete_event",
+      "mcp__a3cbf8c7-cb95-464f-b284-1a2db689cb33__list_events"
     ]
   }
 }
