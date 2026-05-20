@@ -116,7 +116,7 @@ stateDiagram-v2
 
 ---
 
-## 4. Class Diagram — Full System
+## 4. Class Diagram — Full System (Draw.io Compatible)
 
 ```mermaid
 classDiagram
@@ -309,3 +309,239 @@ classDiagram
     CharacterStats --> RuntimeStat
     RuntimeStat --> StatModifier
 ```
+
+---
+
+## 5. Class Diagram — Full Stereotypes (Standard Mermaid)
+
+> Bản đầy đủ với `<<interface>>`, `<<ScriptableObject>>`, `<<MonoBehaviour>>` — dùng cho GitHub, Notion, VS Code
+
+```mermaid
+classDiagram
+    class AbilityDefinition {
+        <<ScriptableObject>>
+        +string Id
+        +string DisplayName
+        +AbilityActivationType ActivationType
+        +KeyCode DefaultKey
+        +float Cooldown
+        +float ManaCost
+        +float MaxHoldTime
+        +List~AbilityConditionDefinition~ Conditions
+        +List~AbilityEffectDefinition~ Effects
+    }
+
+    class AbilitySystem {
+        <<MonoBehaviour>>
+        +Equip(slot, definition)
+        +Unequip(slot)
+        +GetAbility(slot) AbilityInstance
+        -HandleInput()
+    }
+
+    class AbilityInstance {
+        +float CooldownRemaining
+        +bool IsHolding
+        +float CurrentHoldTime
+        +Tick(dt)
+        +CanStart() bool
+        +StartHold()
+        +CancelHold()
+        +TryRelease() bool
+        +TryActivateInstant() bool
+    }
+
+    class AbilityContext {
+        +IAbilityOwner Caster
+        +Vector3 Origin
+        +Vector3 Forward
+        +Vector3 TargetPoint
+        +float HoldTime
+        +float HoldRatio
+        +AbilityInstance AbilityInstance
+        +AbilityDefinition AbilityDefinition
+    }
+
+    class AbilityConditionDefinition {
+        <<ScriptableObject>>
+        +IsMet(context) bool
+    }
+
+    class AbilityEffectDefinition {
+        <<ScriptableObject>>
+        +Apply(context)
+    }
+
+    class IAbilityOwner {
+        <<interface>>
+        +Transform Transform
+        +CharacterStats Stats
+        +Health Health
+        +SimpleCharacterMotor Motor
+    }
+
+    class HasEnoughManaCondition {
+        <<ScriptableObject>>
+        +IsMet(context) bool
+    }
+
+    class NotDeadCondition {
+        <<ScriptableObject>>
+        +IsMet(context) bool
+    }
+
+    class ShootSpiritOrbEffect {
+        <<ScriptableObject>>
+        +GameObject OrbPrefab
+        +float Speed
+        +float SpawnOffset
+        +float OrbLifetime
+        +float DamagePerTick
+        +float Duration
+        +GameObject SummonPrefab
+        +Apply(context)
+    }
+
+    class DamageInFrontEffect {
+        <<ScriptableObject>>
+        +float BaseDamage
+        +float BonusDamageAtMaxHold
+        +float Radius
+        +float Angle
+        +LayerMask TargetMask
+        +Apply(context)
+    }
+
+    class LungeForwardEffect {
+        <<ScriptableObject>>
+        +float BaseDistance
+        +float BonusDistanceAtMaxHold
+        +float BaseDuration
+        +float MinDurationAtMaxHold
+        +Apply(context)
+    }
+
+    class SpiritOrbProjectile {
+        <<MonoBehaviour>>
+        +Launch(dir, speed, lifetime, dmg, dur, summon)
+        -OnTriggerEnter2D(other)
+    }
+
+    class SpiritDoTBehaviour {
+        <<MonoBehaviour>>
+        +Initialize(dmgPerTick, duration, summonPrefab)
+        -DoTRoutine() IEnumerator
+        -TrySummon()
+    }
+
+    class PlayerAbilityOwner {
+        <<MonoBehaviour>>
+        +CharacterStats Stats
+        +Health Health
+        +SimpleCharacterMotor Motor
+    }
+
+    class SimpleCharacterMotor {
+        <<MonoBehaviour>>
+        +Lunge(direction, distance, duration)
+    }
+
+    class Health {
+        <<MonoBehaviour>>
+        +float CurrentHealth
+        +bool IsDead
+        +TakeDamage(float damage)
+    }
+
+    class SimpleDamageReceiver {
+        <<MonoBehaviour>>
+        +ReceiveDamage(float damage)
+    }
+
+    class Damageable {
+        <<interface>>
+        +ReceiveDamage(float damage)
+    }
+
+    class CharacterStats {
+        <<MonoBehaviour>>
+        +RuntimeStat Attack
+        +RuntimeStat MoveSpeed
+        +RuntimeStat MaxMana
+        +float CurrentMana
+        +GetStatValue(type) float
+        +SpendMana(float)
+        +RecoverMana(float)
+    }
+
+    class RuntimeStat {
+        +float BaseValue
+        +float Value
+        +AddModifier(modifier)
+        +RemoveModifiersBySource(source)
+    }
+
+    class StatModifier {
+        +StatModifierType Type
+        +float Value
+        +object Source
+    }
+
+    class AbilityActivationType {
+        <<enumeration>>
+        Active
+        Hold
+        Passive
+    }
+
+    class StatModifierType {
+        <<enumeration>>
+        Flat
+        Percent
+    }
+
+    class StatType {
+        <<enumeration>>
+        Attack
+        MoveSpeed
+        MaxHealth
+        MaxMana
+    }
+
+    AbilityDefinition --> AbilityActivationType
+    AbilityDefinition "1" o-- "many" AbilityConditionDefinition
+    AbilityDefinition "1" o-- "many" AbilityEffectDefinition
+
+    AbilitySystem --> AbilityInstance
+    AbilitySystem --> IAbilityOwner
+    AbilitySystem --> AbilityDefinition
+
+    AbilityInstance --> AbilityDefinition
+    AbilityInstance --> AbilityContext
+    AbilityInstance --> IAbilityOwner
+
+    HasEnoughManaCondition --|> AbilityConditionDefinition
+    NotDeadCondition --|> AbilityConditionDefinition
+
+    ShootSpiritOrbEffect --|> AbilityEffectDefinition
+    DamageInFrontEffect --|> AbilityEffectDefinition
+    LungeForwardEffect --|> AbilityEffectDefinition
+
+    ShootSpiritOrbEffect ..> SpiritOrbProjectile : Instantiate
+    SpiritOrbProjectile ..> SpiritDoTBehaviour : AddComponent
+    SpiritDoTBehaviour --> Health
+
+    PlayerAbilityOwner ..|> IAbilityOwner
+    PlayerAbilityOwner --> CharacterStats
+    PlayerAbilityOwner --> Health
+    PlayerAbilityOwner --> SimpleCharacterMotor
+
+    SimpleDamageReceiver ..|> Damageable
+    SimpleDamageReceiver --> Health
+
+    CharacterStats --> RuntimeStat
+    CharacterStats --> StatType
+    RuntimeStat "1" *-- "many" StatModifier
+    StatModifier --> StatModifierType
+```
+
