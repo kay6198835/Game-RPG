@@ -25,7 +25,7 @@ public class SpiritOrbProjectile : MonoBehaviour
         _duration = duration;
         _summonPrefab = summonPrefab;
 
-        _rb.linearVelocity = direction * speed;
+        _rb.velocity = direction * speed;
 
         Destroy(gameObject, lifetime);
     }
