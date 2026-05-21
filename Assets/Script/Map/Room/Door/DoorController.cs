@@ -69,27 +69,19 @@ public class DoorController : MonoBehaviour
     public void SetDirectionFrom(Vector3 targetPosition)
     {
         Vector2 toTarget = (Vector2)(targetPosition - transform.position);
-        _direction = SnapToCardinal(toTarget);
+        _direction = ToCardinalDirection(toTarget);
     }
-
-    private static Vector2 SnapToCardinal(Vector2 dir)
+    // Maps any Vector2 to the nearest cardinal direction (TOP / BOTTOM / LEFT / RIGHT).
+    // Strategy: whichever axis has the larger magnitude is the dominant one;
+    // the sign of that axis then picks between the two opposing directions.
+    // Example: dir = (-3, 1) → |x|=3 > |y|=1 → horizontal dominant → x<0 → LEFT
+    private static Vector2 ToCardinalDirection(Vector2 dir)
     {
-        Vector2 n = dir.normalized;
+        bool dominantAxisIsHorizontal = Mathf.Abs(dir.x) >= Mathf.Abs(dir.y);
 
-        Vector2 best = GameConstants.Direction.TOP;
-        float bestDot = Vector2.Dot(n, GameConstants.Direction.TOP);
+        if (dominantAxisIsHorizontal)
+            return dir.x >= 0 ? GameConstants.Direction.RIGHT : GameConstants.Direction.LEFT;
 
-        float dot = Vector2.Dot(n, GameConstants.Direction.RIGHT);
-        if (dot > bestDot) { bestDot = dot; best = GameConstants.Direction.RIGHT; }
-
-        dot = Vector2.Dot(n, GameConstants.Direction.LEFT);
-        if (dot > bestDot) { bestDot = dot; best = GameConstants.Direction.LEFT; }
-
-        dot = Vector2.Dot(n, GameConstants.Direction.BOTTOM);
-        if (dot > bestDot) { best = GameConstants.Direction.BOTTOM; }
-
-        return best;
+        return dir.y >= 0 ? GameConstants.Direction.TOP : GameConstants.Direction.BOTTOM;
     }
-
-
 }
