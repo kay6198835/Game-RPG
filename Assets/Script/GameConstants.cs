@@ -47,4 +47,17 @@ public static class GameConstants
         public static float GAME_SCALE = 10;
         public static float PADDING_DOOR_TELE_SCALE = GAME_SCALE * LENGTH_ROOM / 10;
     }
+    public static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>
+    {
+        { RoomType.NormalRoom,   "NormalRoom"   },
+        { RoomType.StartRoom,    "StartRoom"    },
+        { RoomType.BossRoom,     "BossRoom"     },
+        { RoomType.CombatRoom,   "CombatRoom"   },
+        { RoomType.TreasureRoom, "TreasureRoom" },
+        { RoomType.ShopRoom,     "ShopRoom"     },
+        { RoomType.RestRoom,     "RestRoom"     },
+        { RoomType.PuzzleRoom,   "PuzzleRoom"   },
+        { RoomType.SecretRoom,   "SecretRoom"   },
+        { RoomType.ExitRoom,     "ExitRoom"     },
+    };
 }

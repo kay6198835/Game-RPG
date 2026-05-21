@@ -31,6 +31,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] public int index;
     [SerializeField] public int amount;
     [SerializeField] public List<RoomFile> listRooms;
+    [SerializeField] public List<TileSO> listTiles;
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -51,9 +52,11 @@ public class LevelManager : MonoBehaviour
                 for (int y = bounds.min.y; y < bounds.max.y; y++)
                 {
                     TileBase temp = tm.GetTile(new Vector3Int(x, y, 0));
-                    if (temp != null)
+
+                    TileSO tempTile = listTiles.Find(t => t.tile == temp);
+                    if (tempTile != null)
                     {
-                        levelData.tiles.Add(temp);
+                        levelData.tiles.Add(tempTile.id);
                         levelData.poses.Add(new Vector3Int(x, y, 0));
                         levelData.layerIndices.Add(tmIndex);
                     }
@@ -92,7 +95,7 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], data.tiles[i]);
+            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i].tile));
         }
     }
     #endregion
@@ -136,7 +139,7 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], data.tiles[i]);
+            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i].tile));
         }
 
         this.SetPosition(positionLoadMap);
@@ -152,7 +155,7 @@ public class LevelManager : MonoBehaviour
 [System.Serializable]
 public class LevelData
 {
-    public List<TileBase> tiles = new List<TileBase>();
+    public List<string> tiles = new List<string>();
     public List<Vector3Int> poses = new List<Vector3Int>();
     public List<int> layerIndices = new List<int>();
 }
