@@ -72,21 +72,29 @@ public class DoorController : MonoBehaviour
         _direction = SnapToCardinal(toTarget);
     }
 
+    private static readonly Vector2[] Cardinals =
+    {
+        GameConstants.Direction.TOP,
+        GameConstants.Direction.RIGHT,
+        GameConstants.Direction.LEFT,
+        GameConstants.Direction.BOTTOM,
+    };
+
     private static Vector2 SnapToCardinal(Vector2 dir)
     {
-        Vector2 n = dir.normalized;
+        Vector2 normalized = dir.normalized;
+        Vector2 best = Cardinals[0];
+        float bestDot = float.MinValue;
 
-        Vector2 best = GameConstants.Direction.TOP;
-        float bestDot = Vector2.Dot(n, GameConstants.Direction.TOP);
-
-        float dot = Vector2.Dot(n, GameConstants.Direction.RIGHT);
-        if (dot > bestDot) { bestDot = dot; best = GameConstants.Direction.RIGHT; }
-
-        dot = Vector2.Dot(n, GameConstants.Direction.LEFT);
-        if (dot > bestDot) { bestDot = dot; best = GameConstants.Direction.LEFT; }
-
-        dot = Vector2.Dot(n, GameConstants.Direction.BOTTOM);
-        if (dot > bestDot) { best = GameConstants.Direction.BOTTOM; }
+        foreach (Vector2 cardinal in Cardinals)
+        {
+            float dot = Vector2.Dot(normalized, cardinal);
+            if (dot > bestDot)
+            {
+                bestDot = dot;
+                best = cardinal;
+            }
+        }
 
         return best;
     }
