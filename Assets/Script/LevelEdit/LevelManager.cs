@@ -26,15 +26,18 @@ public class LevelManager : MonoBehaviour
     [SerializeField] public RoomType roomType = RoomType.NormalRoom;
     public string customRoomName = "";
     [Header("Load Map")]
-    [SerializeField] public List <Tilemap> genmap = new List<Tilemap>();
+    [SerializeField] public List<Tilemap> genmap = new List<Tilemap>();
     [SerializeField] public DungeonRoomSO dungeonRoomSO;
     [SerializeField] public int index;
     [SerializeField] public int amount;
+    [SerializeField] public List<RoomFile> listRooms;
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(this);
+        listRooms = GetRandomRooms();
     }
+    #region Editor Funtion
     public void SaveLevel()
     {
         LevelData levelData = new LevelData();
@@ -75,6 +78,26 @@ public class LevelManager : MonoBehaviour
         Debug.Log($"Saved: {roomName}");
     }
 
+    public void LoadLevel()
+    {
+        string json = File.ReadAllText(Application.dataPath + dungeonRoomSO.room[this.index].filePath);
+        LevelData data = JsonUtility.FromJson<LevelData>(json);
+
+        foreach (Tilemap tm in tilemap) tm.ClearAllTiles();
+        foreach (Tilemap gm in genmap) gm.ClearAllTiles();
+
+        bool hasLayerData = data.layerIndices != null && data.layerIndices.Count == data.poses.Count;
+
+        for (int i = 0; i < data.poses.Count; i++)
+        {
+            int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
+            if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
+            genmap[layerIdx].SetTile(data.poses[i], data.tiles[i]);
+        }
+    }
+    #endregion
+
+    #region public Funtion
     public List<RoomFile> GetRandomRooms()
     {
         List<RoomFile> shuffled = new List<RoomFile>(dungeonRoomSO.room);
@@ -89,13 +112,23 @@ public class LevelManager : MonoBehaviour
         return shuffled.GetRange(0, count);
     }
 
-    public void LoadLevel()
+
+    public void LoadRoom(int index, Vector3 positionLoadMap)
     {
-        string json = File.ReadAllText(Application.dataPath + dungeonRoomSO.room[index].filePath);
+
+        string filePath = "";
+        if (index == 0)
+        {
+            filePath = dungeonRoomSO.room[index].filePath;
+        }
+        else
+        {
+            filePath = listRooms[index].filePath;
+        }
+        string json = File.ReadAllText(Application.dataPath + filePath);
         LevelData data = JsonUtility.FromJson<LevelData>(json);
 
-        foreach (Tilemap tm in tilemap) tm.ClearAllTiles();
-        foreach (Tilemap gm in genmap)  gm.ClearAllTiles();
+        foreach (Tilemap gm in genmap) gm.ClearAllTiles();
 
         bool hasLayerData = data.layerIndices != null && data.layerIndices.Count == data.poses.Count;
 
@@ -105,13 +138,21 @@ public class LevelManager : MonoBehaviour
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
             genmap[layerIdx].SetTile(data.poses[i], data.tiles[i]);
         }
+
+        this.SetPosition(positionLoadMap);
     }
+
+    private void SetPosition(Vector3 positionLoadMap)
+    {
+        this.transform.SetPositionAndRotation(positionLoadMap, Quaternion.identity);
+    }
+    #endregion
 }
 
 [System.Serializable]
 public class LevelData
 {
-    public List<TileBase> tiles      = new List<TileBase>();
-    public List<Vector3Int> poses    = new List<Vector3Int>();
-    public List<int> layerIndices    = new List<int>();
+    public List<TileBase> tiles = new List<TileBase>();
+    public List<Vector3Int> poses = new List<Vector3Int>();
+    public List<int> layerIndices = new List<int>();
 }
