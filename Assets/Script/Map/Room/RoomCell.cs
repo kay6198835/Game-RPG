@@ -7,6 +7,7 @@ public class RoomCell : BaseCell
     private float SCALE = GameConstants.SettingStats.GAME_SCALE;
     private float PADDING_DOOR_TELE_SCALE = GameConstants.SettingStats.PADDING_DOOR_TELE_SCALE;
     [SerializeField] private DoorController _top, _left, _right, _bottom;
+    [SerializeField] private List<DoorController> listDoors;
     [SerializeField] public Vector3 StartDoorPosition { get; private set; }
 
     protected override void Setting()
@@ -16,6 +17,10 @@ public class RoomCell : BaseCell
         transform.SetPositionAndRotation(
             new Vector3(_cellData.Column, -_cellData.Row) * SCALE * GameConstants.SettingStats.LENGTH_ROOM,
             Quaternion.identity);
+        foreach (var door in listDoors)
+        {
+            door.SetDirectionFrom(this.transform.position);
+        }
         _top.Setting(GameConstants.Direction.TOP, _cellData.Top);
         _left.Setting(GameConstants.Direction.LEFT, _cellData.Left);
         _right.Setting(GameConstants.Direction.RIGHT, _cellData.Right);

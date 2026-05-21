@@ -5,6 +5,7 @@ public static class GameConstants
 {
     public static class Direction
     {
+        //Main Direction
         public static readonly Vector2 TOP = Vector2.up;
         public static readonly Vector2 RIGHT = Vector2.right;
         public static readonly Vector2 LEFT = Vector2.left;

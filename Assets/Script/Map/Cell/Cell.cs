@@ -22,6 +22,10 @@ public class Cell
     {
         this.Visited = true;
     }
+    public void GetStatusDoor(Vector2 direction)
+    {
+        Utility.Instance.ToCardinalDirection(direction);
+    }
 }
 public enum STATUS_DOOR
 {
