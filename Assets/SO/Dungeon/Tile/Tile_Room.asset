@@ -9,13 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18cd8316ce8d05d42b6af196e476e277, type: 3}
-  m_Name: Maze_1
+  m_Script: {fileID: 11500000, guid: be6a847028012bf418e8aa6de686e60f, type: 3}
+  m_Name: Tile_Room
   m_EditorClassIdentifier: 
-  room:
-  - roomName: NormalRoom_0
-    filePath: /Data/Json/Room/NormalRoom_0.json
-    roomType: 0
-  - roomName: NormalRoom_1
-    filePath: /Data/Json/Room/NormalRoom_1.json
-    roomType: 0
+  tile: {fileID: 11400000, guid: 9c0f9c78b82bb4746a0d13aaec44c36b, type: 2}
+  id: Tile_Room

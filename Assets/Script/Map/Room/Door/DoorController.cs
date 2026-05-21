@@ -63,4 +63,41 @@ public class DoorController : MonoBehaviour
             return;
         }
     }
+
+    // Computes direction from this door's position to targetPosition,
+    // then snaps _direction to the nearest cardinal (Top/Right/Left/Bottom).
+    public void SetDirectionFrom(Vector3 targetPosition)
+    {
+        Vector2 toTarget = (Vector2)(targetPosition - transform.position);
+        _direction = SnapToCardinal(toTarget);
+    }
+
+    private static readonly Vector2[] Cardinals =
+    {
+        GameConstants.Direction.TOP,
+        GameConstants.Direction.RIGHT,
+        GameConstants.Direction.LEFT,
+        GameConstants.Direction.BOTTOM,
+    };
+
+    private static Vector2 SnapToCardinal(Vector2 dir)
+    {
+        Vector2 normalized = dir.normalized;
+        Vector2 best = Cardinals[0];
+        float bestDot = float.MinValue;
+
+        foreach (Vector2 cardinal in Cardinals)
+        {
+            float dot = Vector2.Dot(normalized, cardinal);
+            if (dot > bestDot)
+            {
+                bestDot = dot;
+                best = cardinal;
+            }
+        }
+
+        return best;
+    }
+
+
 }
