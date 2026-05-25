@@ -2,20 +2,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[RequireComponent(typeof(SpriteRenderer))]
 public class DoorController : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer spriteRenderer;
     private STATUS_DOOR status = STATUS_DOOR.CLOSE;
     Vector2 _direction = new Vector2();
+    [SerializeField] string nameDoor = "dasdasdasdasd";
     string Name;
     public void Awake()
     {
-        spriteRenderer.GetComponent<SpriteRenderer>();
+        Debug.Log("Player on door " + nameDoor);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+
         if (!collision.CompareTag("Player") || status == STATUS_DOOR.CLOSE)
         {
             return;
@@ -33,7 +33,6 @@ public class DoorController : MonoBehaviour
     {
         if (status == STATUS_DOOR.OPEN) return;
         status = STATUS_DOOR.OPEN;
-        spriteRenderer.color = Color.white;
     }
 
     public void CheckCanBeOpened()
