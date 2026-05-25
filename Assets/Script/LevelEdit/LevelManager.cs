@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -34,8 +34,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField] public List<TileSO> listTiles;
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(this);
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
         listRooms = GetRandomRooms();
     }
     #region Editor Funtion
