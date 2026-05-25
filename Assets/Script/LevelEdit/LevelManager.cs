@@ -120,6 +120,7 @@ public class LevelManager : MonoBehaviour
     {
 
         string filePath = "";
+        index = index == null ? 0 : index;
         if (index == 0)
         {
             filePath = dungeonRoomSO.room[index].filePath;
@@ -139,8 +140,7 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i]).tile
-                );
+            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i]).tile);
         }
 
         this.SetPosition(positionLoadMap);
