@@ -150,6 +150,32 @@ public class LevelManager : MonoBehaviour
     {
         this.transform.SetPositionAndRotation(positionLoadMap, Quaternion.identity);
     }
+
+    /// <summary>
+    /// Wrapper: seal tất cả Tile_Door có hướng không nằm trong <paramref name="directions"/>.
+    /// Logic xử lý thực tế nằm ở <see cref="Utility.SealUnusedDoors"/>.
+    /// </summary>
+    public void SealUnusedDoors(Vector2[] directions)
+    {
+        TileBase roomTile = listTiles.Find(t => t.name == "Tile_Room")?.tile;
+        TileBase doorTile = listTiles.Find(t => t.name == "Tile_Door")?.tile;
+        if (roomTile == null || doorTile == null) return;
+
+        Utility.Instance.SealUnusedDoors(directions, genmap, roomTile, doorTile);
+    }
+
+    /// <summary>
+    /// Wrapper: trả về vị trí world của cụm Tile_Door nằm trên cạnh wall theo <paramref name="direction"/>.
+    /// Logic xử lý thực tế nằm ở <see cref="Utility.GetDoorWorldPosition"/>.
+    /// </summary>
+    public Vector2 GetDoorWorldPosition(Vector2 direction)
+    {
+        TileBase roomTile = listTiles.Find(t => t.name == "Tile_Room")?.tile;
+        TileBase doorTile = listTiles.Find(t => t.name == "Tile_Door")?.tile;
+        if (roomTile == null || doorTile == null) return Vector2.zero;
+
+        return Utility.Instance.GetDoorWorldPosition(direction, genmap, roomTile, doorTile);
+    }
     #endregion
 }
 
