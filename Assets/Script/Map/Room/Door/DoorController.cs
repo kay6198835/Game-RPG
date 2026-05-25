@@ -23,28 +23,10 @@ public class DoorController : MonoBehaviour
         EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, _direction);
     }
 
-    public void Setting(Vector2 direction, STATUS_DOOR status)
+    public void Setting(Vector3 targetPosition, STATUS_DOOR status)
     {
-        _direction = direction;
-        switch (status)
-        {
-            case STATUS_DOOR.CLOSE:
-                this.status = STATUS_DOOR.CLOSE;
-                break;
-
-            case STATUS_DOOR.OPEN:
-                this.status = STATUS_DOOR.BE_OPEN;
-                spriteRenderer.color = Color.red;
-                break;
-
-            case STATUS_DOOR.BE_OPEN:
-                this.status = STATUS_DOOR.BE_OPEN;
-                spriteRenderer.color = Color.white;
-                break;
-
-            default:
-                break;
-        }
+        this.SetDirection(targetPosition);
+        this.SetStatus(status);
     }
 
     public void OpenDoor()
@@ -64,9 +46,19 @@ public class DoorController : MonoBehaviour
 
     // Computes direction from this door's position to targetPosition,
     // then snaps _direction to the nearest cardinal (Top/Right/Left/Bottom).
-    public void SetDirectionFrom(Vector3 targetPosition)
+    public void SetDirection(Vector3 targetPosition)
     {
         Vector2 toTarget = (Vector2)(targetPosition - transform.position);
         _direction = Utility.Instance.ToCardinalDirection(toTarget);
+    }
+
+    public void SetStatus(STATUS_DOOR status)
+    {
+        this.status = status;
+    }
+
+    public Vector2 GetDirection()
+    {
+        return _direction;
     }
 }

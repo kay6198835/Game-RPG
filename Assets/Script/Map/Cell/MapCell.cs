@@ -22,9 +22,9 @@ public class MapCell : BaseCell
         _top.transform.SetLocalPositionAndRotation(Vector3.up, _top.transform.rotation);
         _left.transform.SetLocalPositionAndRotation(Vector3.left, _left.transform.rotation);
         _bottom.transform.SetLocalPositionAndRotation(Vector3.down, _bottom.transform.rotation);
-        if (_cellData.Top == STATUS_DOOR.OPEN) _top.SetActive(true);
-        if (_cellData.Left == STATUS_DOOR.OPEN) _left.SetActive(true);
-        if (_cellData.Right == STATUS_DOOR.OPEN) _right.SetActive(true);
-        if (_cellData.Bottom == STATUS_DOOR.OPEN) _bottom.SetActive(true);
+        if (_cellData.Doors[GameConstants.Direction.Name.TOP] == STATUS_DOOR.OPEN) _top.SetActive(true);
+        if (_cellData.Doors[GameConstants.Direction.Name.LEFT] == STATUS_DOOR.OPEN) _left.SetActive(true);
+        if (_cellData.Doors[GameConstants.Direction.Name.RIGHT] == STATUS_DOOR.OPEN) _right.SetActive(true);
+        if (_cellData.Doors[GameConstants.Direction.Name.BOTTOM] == STATUS_DOOR.OPEN) _bottom.SetActive(true);
     }
 }

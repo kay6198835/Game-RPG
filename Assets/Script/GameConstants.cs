@@ -27,6 +27,28 @@ public static class GameConstants
             public static readonly string DOWN_LEFT = "DOWN_LEFT";
             public static readonly string LEFT_TOP = "LEFT_TOP";
         }
+        public static readonly Dictionary<string, Vector2> NameToDirection = new Dictionary<string, Vector2>
+        {
+            { Name.TOP, TOP },
+            { Name.RIGHT, RIGHT },
+            { Name.LEFT, LEFT },
+            { Name.BOTTOM, BOTTOM },
+            { Name.TOP_RIGHT, TOP_RIGHT },
+            { Name.RIGHT_DOWN, RIGHT_DOWN },
+            { Name.DOWN_LEFT, DOWN_LEFT },
+            { Name.LEFT_TOP, LEFT_TOP },
+        };
+        public static readonly Dictionary<Vector2, string> DirectionToName = new Dictionary<Vector2, string>
+        {
+            { TOP, Name.TOP },
+            { RIGHT, Name.RIGHT },
+            { LEFT, Name.LEFT },
+            { BOTTOM, Name.BOTTOM },
+            { TOP_RIGHT, Name.TOP_RIGHT },
+            { RIGHT_DOWN, Name.RIGHT_DOWN },
+            { DOWN_LEFT, Name.DOWN_LEFT },
+            { LEFT_TOP, Name.LEFT_TOP },
+        };
     }
     public static class Input
     {

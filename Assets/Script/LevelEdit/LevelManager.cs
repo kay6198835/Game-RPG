@@ -139,7 +139,8 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i]).tile);
+            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i]).tile
+                );
         }
 
         this.SetPosition(positionLoadMap);

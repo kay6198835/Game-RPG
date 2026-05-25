@@ -13,7 +13,7 @@ public class Utility : MonoBehaviour
     // Strategy: whichever axis has the larger magnitude is the dominant one;
     // the sign of that axis then picks between the two opposing directions.
     // Example: dir = (-3, 1) → |x|=3 > |y|=1 → horizontal dominant → x<0 → LEFT
-    private static Vector2 ToCardinalDirection(Vector2 dir)
+    public Vector2 ToCardinalDirection(Vector2 dir)
     {
         bool dominantAxisIsHorizontal = Mathf.Abs(dir.x) >= Mathf.Abs(dir.y);
 
