@@ -1,5 +1,6 @@
- using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -95,7 +96,7 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i]).tile);
+            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t => t.name == data.tiles[i]).tile);
         }
     }
     #endregion
@@ -118,7 +119,6 @@ public class LevelManager : MonoBehaviour
 
     public void LoadRoom(int index, Vector3 positionLoadMap)
     {
-
         string filePath = "";
         index = index == null ? 0 : index;
         if (index == 0)
@@ -140,7 +140,22 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t=>t.name == data.tiles[i]).tile);
+            
+            tilemap = data.tiles[i];
+            //Refactor late
+            if (tilemap == "Tile_Door")
+            {
+                // get direction
+                Utility.Instance.ToCardinalDirection(data.poses[i]);
+                // check include
+
+                // true swap tile
+
+                // false save tile data in lobal class
+            }
+
+
+            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t => t.name == tilemap).tile);
         }
 
         this.SetPosition(positionLoadMap);
@@ -168,7 +183,7 @@ public class LevelManager : MonoBehaviour
     /// Wrapper: trả về vị trí world của cụm Tile_Door nằm trên cạnh wall theo <paramref name="direction"/>.
     /// Logic xử lý thực tế nằm ở <see cref="Utility.GetDoorWorldPosition"/>.
     /// </summary>
-    public Vector2 GetDoorWorldPosition(Vector2 direction)
+    public Vector2 GetDoorWorld Position(Vector2 direction)
     {
         TileBase roomTile = listTiles.Find(t => t.name == "Tile_Room")?.tile;
         TileBase doorTile = listTiles.Find(t => t.name == "Tile_Door")?.tile;
