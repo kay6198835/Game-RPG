@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -27,12 +27,12 @@ public class LevelManager : MonoBehaviour
     [SerializeField] public RoomType roomType = RoomType.NormalRoom;
     public string customRoomName = "";
     [Header("Load Map")]
-    [SerializeField] public List<Tilemap> genmap = new List<Tilemap>();
-    [SerializeField] public DungeonRoomSO dungeonRoomSO;
-    [SerializeField] public int index;
-    [SerializeField] public int amount;
-    [SerializeField] public List<RoomFile> listRooms;
-    [SerializeField] public List<TileSO> listTiles;
+    [SerializeField] private List<Tilemap> genmap = new List<Tilemap>();
+    [SerializeField] private DungeonRoomSO dungeonRoomSO;
+    [SerializeField] private int index;
+    [SerializeField] private int amount;
+    [SerializeField] private List<RoomFile> listRooms;
+    [SerializeField] private List<TileSO> _listTiles;
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -54,7 +54,7 @@ public class LevelManager : MonoBehaviour
                 {
                     TileBase temp = tm.GetTile(new Vector3Int(x, y, 0));
 
-                    TileSO tempTile = listTiles.Find(t => t.tile == temp);
+                    TileSO tempTile = _listTiles.Find(t => t.tile == temp);
                     if (tempTile != null)
                     {
                         levelData.tiles.Add(tempTile.id);
@@ -96,7 +96,7 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t => t.name == data.tiles[i]).tile);
+            genmap[layerIdx].SetTile(data.poses[i], _listTiles.Find(t => t.name == data.tiles[i]).tile);
         }
     }
     #endregion
@@ -141,12 +141,12 @@ public class LevelManager : MonoBehaviour
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
             
-            tilemap = data.tiles[i];
+            var tilemap = data.tiles[i];
             //Refactor late
             if (tilemap == "Tile_Door")
             {
                 // get direction
-                Utility.Instance.ToCardinalDirection(data.poses[i]);
+                Utility.ToCardinalDirection(data.poses[i].ConvertTo<Vector2>());
                 // check include
 
                 // true swap tile
@@ -155,7 +155,7 @@ public class LevelManager : MonoBehaviour
             }
 
 
-            genmap[layerIdx].SetTile(data.poses[i], listTiles.Find(t => t.name == tilemap).tile);
+            genmap[layerIdx].SetTile(data.poses[i], _listTiles.Find(t => t.name == data.tiles[i]).tile);
         }
 
         this.SetPosition(positionLoadMap);
@@ -172,26 +172,30 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public void SealUnusedDoors(Vector2[] directions)
     {
-        TileBase roomTile = listTiles.Find(t => t.name == "Tile_Room")?.tile;
-        TileBase doorTile = listTiles.Find(t => t.name == "Tile_Door")?.tile;
+        TileBase roomTile = _listTiles.Find(t => t.name == "Tile_Room")?.tile;
+        TileBase doorTile = _listTiles.Find(t => t.name == "Tile_Door")?.tile;
         if (roomTile == null || doorTile == null) return;
 
-        Utility.Instance.SealUnusedDoors(directions, genmap, roomTile, doorTile);
+        Utility.SealUnusedDoors(directions, genmap, roomTile, doorTile);
     }
 
     /// <summary>
     /// Wrapper: trả về vị trí world của cụm Tile_Door nằm trên cạnh wall theo <paramref name="direction"/>.
     /// Logic xử lý thực tế nằm ở <see cref="Utility.GetDoorWorldPosition"/>.
     /// </summary>
-    public Vector2 GetDoorWorld Position(Vector2 direction)
+    public Vector2 GetDoorWorldPosition(Vector2 direction)
     {
-        TileBase roomTile = listTiles.Find(t => t.name == "Tile_Room")?.tile;
-        TileBase doorTile = listTiles.Find(t => t.name == "Tile_Door")?.tile;
+        TileBase roomTile = _listTiles.Find(t => t.name == "Tile_Room")?.tile;
+        TileBase doorTile = _listTiles.Find(t => t.name == "Tile_Door")?.tile;
         if (roomTile == null || doorTile == null) return Vector2.zero;
 
-        return Utility.Instance.GetDoorWorldPosition(direction, genmap, roomTile, doorTile);
+        return Utility.GetDoorWorldPosition(direction, genmap, roomTile, doorTile);
     }
     #endregion
+
+    public List<TileSO> GetTileSOs() => _listTiles;
+    public List<Tilemap> GetTilemaps() => tilemap;
+    public DungeonRoomSO GetDungeonRoomSO() => dungeonRoomSO;
 }
 
 [System.Serializable]

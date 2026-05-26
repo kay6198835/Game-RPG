@@ -95,8 +95,8 @@ public class MazeGenerator
         }
         else if (colDiff == 1)
         {
-            current.Doors[GameConstants.Direction.Name.TOP] = STATUS_DOOR.OPEN;
-            next.Doors[GameConstants.Direction.Name.TOP] = STATUS_DOOR.BE_OPEN;
+            current.Doors[GameConstants.Direction.Name.RIGHT] = STATUS_DOOR.OPEN;
+            next.Doors[GameConstants.Direction.Name.LEFT] = STATUS_DOOR.BE_OPEN;
         }
     }
 }

@@ -23,11 +23,11 @@ public class DoorController : MonoBehaviour
         EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, _direction);
     }
 
-    public void Setting(Vector3 targetPosition, STATUS_DOOR status)
-    {
-        this.SetDirection(targetPosition);
-        this.SetStatus(status);
-    }
+    //public void Setting(Vector3 targetPosition, STATUS_DOOR status)
+    //{
+    //    this.SetDirection(targetPosition);
+    //    this.SetStatus(status);
+    //}
 
     public void OpenDoor()
     {
@@ -48,12 +48,17 @@ public class DoorController : MonoBehaviour
     public void SetDirection(Vector3 targetPosition)
     {
         Vector2 toTarget = (Vector2)(targetPosition - transform.position);
-        _direction = Utility.Instance.ToCardinalDirection(toTarget);
+        _direction = Utility.ToCardinalDirection(toTarget);
     }
 
     public void SetStatus(STATUS_DOOR status)
     {
         this.status = status;
+    }
+
+    public STATUS_DOOR GetStatus()
+    {
+        return status;
     }
 
     public Vector2 GetDirection()
