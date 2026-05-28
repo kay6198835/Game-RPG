@@ -87,6 +87,11 @@ public class RoomGridController : BaseGrid<RoomCell>
                 // get direction
                 Vector2 tilemapDirection = Utility.ToCardinalDirection
                     (data.poses[i].ConvertTo<Vector3>());
+                DoorPoints.Add(new DoorPoint
+                {
+                    position = _current.transform.position + data.poses[i],
+                    direction = tilemapDirection
+                });
                 // check include
                 bool isHaveTileDoor = this._current.ListDirectionDoors.Contains(tilemapDirection);
                 // true swap tile
@@ -97,11 +102,6 @@ public class RoomGridController : BaseGrid<RoomCell>
                     swapLevelData.levelData.poses.Add(data.poses[i]);
                     swapLevelData.levelData.layerIndices.Add(data.layerIndices[i]);
                     swapLevelData.directions.Add(tilemapDirection);
-                    DoorPoints.Add(new DoorPoint
-                    {
-                        position = _current.transform.position + data.poses[i],
-                        direction = tilemapDirection
-                    });
                 }
                 // false save tile data in lobal class
             }
@@ -116,7 +116,6 @@ public class RoomGridController : BaseGrid<RoomCell>
 
         for (int i = 0; i < levelData.directions.Count; i++)
         {
-            Debug.Log("position: " + levelData.levelData.poses[i] + " " + "direction" + levelData.directions[i]);
             convertVector3Int.Set((int)levelData.directions[i].x, (int)levelData.directions[i].y, 0);
             levelData.levelData.tiles[i] = tileMapName;
             levelData.levelData.poses[i] += convertVector3Int;
