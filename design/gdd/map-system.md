@@ -206,7 +206,7 @@ nextIndex = nextPos.y × Columns + nextPos.x
 | **Event Manager** | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_ENEMY_DEATH` **[GAP]**, `ON_ROOM_CLEAR` **[GAP]** | Map → EventManager |
 | **Character system** | `DoorController` tags player via "Player" tag; `fastMovement` is the player transform for teleport | Map → Character |
 | **Enemy AI** | Each enemy in a room increments `RoomCell.enemyCount` on spawn; emits `ON_ENEMY_DEATH` on death | Enemy → Map |
-| **Skill/Ability + Weapons** | No direct dependency | — |
+| **Skill/Ability System** | `ON_ROOM_CLEAR` event triggers talent card selection — map drives skill system indirectly | Map → Skills |
 | **LevelManager** | Loads room tilesets from JSON; called by `RoomGridController` on map load | Map → LevelEdit |
 | **Per-Run Upgrades** | Upgrade card selection triggered by `ON_ROOM_CLEAR` | Map → Progression |
 

@@ -103,9 +103,10 @@ Every `WeaponMeleeStats` SO carries two ability references:
 which is then registered with `AbilityHolder`. The ability lifecycle (Start→Cast→Do→Exit)
 is driven by `AbilityHolder` per frame — not by the weapon itself.
 
-### Block Mechanic
-Out of scope for the demo. `blockDamage` and `shieldEra` fields in `WeaponMeleeStats` are
-unused. The `BlockAbility` SO handles blocking when it is in scope.
+### Block Mechanic **[GAP — in MVP scope, not yet implemented]**
+Block is part of the demo MVP (`game-concept.md`). `BlockAbility.Cast()` is a stub — no
+damage reduction logic is wired. `blockDamage` and `shieldEra` fields in `WeaponMeleeStats`
+are defined but unused until `BlockAbility` is implemented (see `skill-ability-system.md`).
 
 ---
 

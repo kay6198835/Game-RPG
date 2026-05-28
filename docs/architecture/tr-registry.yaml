@@ -1,0 +1,212 @@
+last_updated: 2026-05-28
+version: 1
+source: /architecture-review 2026-05-28
+
+requirements:
+  - id: TR-char-001
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: Hierarchical state machine — all Player states extend PlayerState, all Entity states extend EntityState; no inline if/else in Update()
+    domain: State Machine
+    adr: ~
+    status: gap
+
+  - id: TR-char-002
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: Core.cs (player) and EntityCore.cs (enemy) are the only permitted component hubs
+    domain: Component Hub
+    adr: ~
+    status: gap
+
+  - id: TR-char-003
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: INegativeReceiver.TakeDamage(int, Vector2) is the only legal damage path
+    domain: Damage Interface
+    adr: ~
+    status: partial
+
+  - id: TR-char-004
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: ScriptableObject-driven stats (PlayerData, EntityStatsSO, EntityData) — no hardcoded values in state classes
+    domain: Data Model
+    adr: ~
+    status: partial
+
+  - id: TR-char-005
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: Physics2D.OverlapCircleNonAlloc in EntityInput.Update() for player detection
+    domain: Physics / Performance
+    adr: ~
+    status: gap
+
+  - id: TR-char-006
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: ON_PLAYER_DEATH event in EventID; GameManager subscribes, calls PlayerData.Reborn() + scene reload
+    domain: EventBus / Game Loop
+    adr: ~
+    status: gap
+
+  - id: TR-char-007
+    system: Character
+    gdd: design/gdd/character-system.md
+    requirement: 8-direction angle quantization (45° bins) for attack aiming and knockback
+    domain: Math / Input
+    adr: ~
+    status: gap
+
+  - id: TR-weap-001
+    system: Weapons
+    gdd: design/gdd/weapons-system.md
+    requirement: Physics2D.OverlapCircleAll for player melee hitbox (multi-hit AoE)
+    domain: Physics
+    adr: ~
+    status: gap
+
+  - id: TR-weap-002
+    system: Weapons
+    gdd: design/gdd/weapons-system.md
+    requirement: AnimatorOverrideController per combo hit (AttackSO.directionAttackAnimatorOV) — 8 directional variants
+    domain: Animation
+    adr: ~
+    status: gap
+
+  - id: TR-weap-003
+    system: Weapons
+    gdd: design/gdd/weapons-system.md
+    requirement: Projectile pooling — no Instantiate() per shot at runtime
+    domain: Pooling
+    adr: ~
+    status: gap
+
+  - id: TR-weap-004
+    system: Weapons
+    gdd: design/gdd/weapons-system.md
+    requirement: WeaponMeleeStats SO carries abilityWeapon + skillWeapon slots; equip wires them to AbilityHolder
+    domain: Data Model
+    adr: ~
+    status: gap
+
+  - id: TR-skill-001
+    system: Skills
+    gdd: design/gdd/skill-ability-system.md
+    requirement: ActivateSkill ScriptableObject 5-phase lifecycle; AbilityHolder drives it every frame
+    domain: Skill Architecture
+    adr: ~
+    status: partial
+
+  - id: TR-skill-002
+    system: Skills
+    gdd: design/gdd/skill-ability-system.md
+    requirement: runtimeAnimatorController swap on EnterAbility(); restored on ExitAbility() even on interrupted exit
+    domain: Animation
+    adr: ~
+    status: gap
+
+  - id: TR-skill-003
+    system: Skills
+    gdd: design/gdd/skill-ability-system.md
+    requirement: Per-skill cooldown in ActivateSkill SO; Exit() must call SetCanUseAbility(true) after delay
+    domain: State / Timing
+    adr: ~
+    status: gap
+
+  - id: TR-skill-004
+    system: Skills
+    gdd: design/gdd/skill-ability-system.md
+    requirement: TalentManager reads from InternalSkillSO — no hardcoded values in Awake()
+    domain: Data Model
+    adr: ~
+    status: partial
+
+  - id: TR-skill-005
+    system: Skills
+    gdd: design/gdd/skill-ability-system.md
+    requirement: ON_ROOM_CLEAR event triggers talent card UI (3 InternalSkillSO cards offered)
+    domain: Event / UI
+    adr: ~
+    status: gap
+
+  - id: TR-map-001
+    system: Map
+    gdd: design/gdd/map-system.md
+    requirement: MazeController (singleton) runs DFS in Awake() — initialization order critical; must complete before any room population
+    domain: Scene Lifecycle
+    adr: ~
+    status: gap
+
+  - id: TR-map-002
+    system: Map
+    gdd: design/gdd/map-system.md
+    requirement: Dual grid system — RoomMapController (world) and CellMapController (minimap) maintain parallel state
+    domain: Architecture
+    adr: ~
+    status: gap
+
+  - id: TR-map-003
+    system: Map
+    gdd: design/gdd/map-system.md
+    requirement: Five EventID entries required — ON_PLAYER_ON_DOOR, ON_LOAD_MAP, ON_LOAD_MAZE_DONE, ON_ENEMY_DEATH, ON_ROOM_CLEAR
+    domain: EventBus
+    adr: ~
+    status: partial
+
+  - id: TR-map-004
+    system: Map
+    gdd: design/gdd/map-system.md
+    requirement: JSON room tilemap loading via name-based tile lookup table (JsonUtility cannot serialize TileBase by value)
+    domain: Serialization
+    adr: ~
+    status: gap
+
+  - id: TR-map-005
+    system: Map
+    gdd: design/gdd/map-system.md
+    requirement: RoomController tracks _enemyCount; decrements on ON_ENEMY_DEATH; emits ON_ROOM_CLEAR when count = 0
+    domain: Game Loop
+    adr: ~
+    status: gap
+
+  - id: TR-anim-001
+    system: Animation
+    gdd: design/gdd/animation-system.md
+    requirement: AnimationEventManager is a separate static bus from EventManager — animation events do not route through gameplay bus
+    domain: Architecture
+    adr: ~
+    status: gap
+
+  - id: TR-anim-002
+    system: Animation
+    gdd: design/gdd/animation-system.md
+    requirement: Flag-based event consumption — isAnimationTrigger and isAnimationFinished reset to false in same LogicUpdate() frame after use
+    domain: Timing
+    adr: ~
+    status: gap
+
+  - id: TR-anim-003
+    system: Animation
+    gdd: design/gdd/animation-system.md
+    requirement: Animator depth contract — weapon override at depth 1 (AnimatorOverrideController); skill replaces depth 0 (runtimeAnimatorController); no stacking
+    domain: Animation
+    adr: ~
+    status: gap
+
+  - id: TR-sys-001
+    system: System
+    gdd: docs/technical-preferences.md
+    requirement: 60 FPS target; 16.7ms total frame budget; enemy update <= 0.1ms per entity per frame
+    domain: Performance
+    adr: ~
+    status: partial
+
+  - id: TR-sys-002
+    system: System
+    gdd: docs/technical-preferences.md
+    requirement: All Physics2D calls in hot paths use NonAlloc variants with pre-allocated buffers; no new allocations in Update/LogicUpdate/PhysicsUpdate
+    domain: Performance
+    adr: ~
+    status: partial

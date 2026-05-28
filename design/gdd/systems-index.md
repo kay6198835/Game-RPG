@@ -22,11 +22,11 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 4 | Animation System | Foundation | Foundation | MVP | Designed | design/gdd/animation-system.md |
 | 5 | Character / Player Controller | Gameplay | Core | MVP | Designed | design/gdd/character-system.md |
 | 6 | Enemy AI | Gameplay | Core | MVP | Designed | design/gdd/character-system.md |
-| 7 | Dungeon Generation | Map | Core | MVP | Not Started | — |
+| 7 | Dungeon Generation | Map | Core | MVP | Designed | design/gdd/map-system.md |
 | 8 | Melee Combat | Gameplay | Feature | MVP | Designed | design/gdd/weapons-system.md |
 | 9 | Weapon System | Gameplay | Feature | MVP | Designed | design/gdd/weapons-system.md |
 | 10 | Skill & Ability System | Gameplay | Feature | MVP | Designed | design/gdd/skill-ability-system.md |
-| 11 | Room Progression | Map | Feature | MVP | Not Started | — |
+| 11 | Room Progression | Map | Feature | MVP | Designed | design/gdd/map-system.md |
 | 12 | Death & Restart | Meta | Feature | MVP | Not Started | — |
 | 13 | HUD | UI | Presentation | MVP | Not Started | — |
 | 14 | Per-Run Upgrades | Progression | Presentation | MVP | Not Started | — |
