@@ -90,14 +90,18 @@ public class RoomCell : BaseCell
 
             result.Add(new DoorPoint
             {
-                position = sum / kvp.Value.Count,
+                // Tilemap cells are anchored at their bottom-left corner, so their visual centre sits
+                // +0.5 on Y in world space (Vector3.up * 0.5). An additional 0.5 offset along the door's
+                // direction pushes the door collider flush against the room wall edge, matching the
+                // tilemap boundary exactly.
+                position = (new Vector3(sum.x, sum.y, 0) / kvp.Value.Count) + (kvp.Key.ConvertTo<Vector3>() + Vector3.up) * 0.5f,
                 direction = kvp.Key
             });
         }
         foreach (var dp in result)
         {
 
-            var door = GetDoor(-dp.direction);
+            var door = GetDoor(dp.direction);
             if (door != null)
                 door.transform.position = dp.position;
         }

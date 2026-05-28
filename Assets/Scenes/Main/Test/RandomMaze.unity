@@ -495,7 +495,7 @@ Transform:
   m_GameObject: {fileID: 807714238}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13.733967, y: -10.4350395, z: -0.4354033}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -528,7 +528,7 @@ Transform:
   m_GameObject: {fileID: 874930593}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -13.733967, y: 10.4350395, z: 0.4354033}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -550,6 +550,7 @@ MonoBehaviour:
   _dungeonRoomSO: {fileID: 0}
   _listTiles: []
   _genmap: []
+  doorPoints: []
 --- !u!1839735485 &940411825 stripped
 Tilemap:
   m_CorrespondingSourceObject: {fileID: 3599266322025643715, guid: b064901d62dd548459e6392b56e3c884, type: 3}
