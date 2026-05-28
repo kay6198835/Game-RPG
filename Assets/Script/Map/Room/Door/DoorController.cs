@@ -4,14 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 public class DoorController : MonoBehaviour
 {
-    private STATUS_DOOR status = STATUS_DOOR.CLOSE;
+    public STATUS_DOOR status { get; private set; } = STATUS_DOOR.CLOSE;
     Vector2 _direction = new Vector2();
-    [SerializeField] string nameDoor = "dasdasdasdasd";
     string Name;
-    public void Awake()
-    {
-        Debug.Log("Player on door " + nameDoor);
-    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -22,12 +17,6 @@ public class DoorController : MonoBehaviour
         }
         EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, _direction);
     }
-
-    //public void Setting(Vector3 targetPosition, STATUS_DOOR status)
-    //{
-    //    this.SetDirection(targetPosition);
-    //    this.SetStatus(status);
-    //}
 
     public void OpenDoor()
     {
@@ -54,11 +43,6 @@ public class DoorController : MonoBehaviour
     public void SetStatus(STATUS_DOOR status)
     {
         this.status = status;
-    }
-
-    public STATUS_DOOR GetStatus()
-    {
-        return status;
     }
 
     public Vector2 GetDirection()

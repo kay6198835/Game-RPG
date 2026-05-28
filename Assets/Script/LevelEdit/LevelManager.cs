@@ -201,6 +201,7 @@ public class LevelManager : MonoBehaviour
 [System.Serializable]
 public class LevelData
 {
+    //Do not change parameter name or spell
     public List<string> tiles = new List<string>();
     public List<Vector3Int> poses = new List<Vector3Int>();
     public List<int> layerIndices = new List<int>();
