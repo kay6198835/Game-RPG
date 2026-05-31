@@ -11,7 +11,7 @@ public class RoomCell : BaseCell
     private float PADDING_DOOR_TELE_SCALE = GameConstants.SettingStats.PADDING_DOOR_TELE_SCALE;
 
     [SerializeField] private DoorController doorPrefab;
-    [SerializeField] private List<DoorController> listDoors = new List<DoorController>();
+    [SerializeField] private List<DoorController> _listDoors = new List<DoorController>();
     [SerializeField] public Vector3 StartDoorPosition { get; private set; }
     [SerializeField] public List<Vector2> ListDirectionDoors { get; private set; }
     protected override void Setting()
@@ -24,12 +24,12 @@ public class RoomCell : BaseCell
             Quaternion.identity);
         foreach (var (name, status) in _cellData.Doors)
         {
-            if (status != STATUS_DOOR.CLOSE)
+            if (status != STATUS_DOOR.DISABLE)
             {
                 var door = Instantiate(doorPrefab, transform);
                 door.SetDirection(GameConstants.Direction.NameToDirection[name]);
                 door.SetStatus(status);
-                listDoors.Add(door);
+                _listDoors.Add(door);
                 ListDirectionDoors.Add(GameConstants.Direction.NameToDirection[name]);
             }
         }
@@ -47,7 +47,7 @@ public class RoomCell : BaseCell
     public DoorController GetDoor(Vector2 direction)
     {
         DoorController nextDoor = new DoorController();
-        foreach (var door in listDoors)
+        foreach (var door in _listDoors)
         {
             if (door.GetDirection() == direction) nextDoor = door;
         }
@@ -94,7 +94,7 @@ public class RoomCell : BaseCell
                 // +0.5 on Y in world space (Vector3.up * 0.5). An additional 0.5 offset along the door's
                 // direction pushes the door collider flush against the room wall edge, matching the
                 // tilemap boundary exactly.
-                position = (new Vector3(sum.x, sum.y, 0) / kvp.Value.Count) + (kvp.Key.ConvertTo<Vector3>() + Vector3.up) * 0.5f,
+                position = (new Vector3(sum.x, sum.y, 0) / kvp.Value.Count) + (kvp.Key.ConvertTo<Vector3>() + Vector3.one) * 0.5f,
                 direction = kvp.Key
             });
         }
@@ -104,6 +104,14 @@ public class RoomCell : BaseCell
             var door = GetDoor(dp.direction);
             if (door != null)
                 door.transform.position = dp.position;
+        }
+    }
+
+    public void OpenDoor()
+    {
+        foreach (var door in _listDoors)
+        {
+            door.SetStatus(STATUS_DOOR.OPEN);
         }
     }
 }

@@ -16,10 +16,10 @@ public class Cell
         Column = col;
         Doors = new Dictionary<string, STATUS_DOOR>
         {
-            { GameConstants.Direction.Name.TOP,    STATUS_DOOR.CLOSE },
-            { GameConstants.Direction.Name.BOTTOM, STATUS_DOOR.CLOSE },
-            { GameConstants.Direction.Name.LEFT,   STATUS_DOOR.CLOSE },
-            { GameConstants.Direction.Name.RIGHT,  STATUS_DOOR.CLOSE },
+            { GameConstants.Direction.Name.TOP,    STATUS_DOOR.DISABLE },
+            { GameConstants.Direction.Name.BOTTOM, STATUS_DOOR.DISABLE },
+            { GameConstants.Direction.Name.LEFT,   STATUS_DOOR.DISABLE },
+            { GameConstants.Direction.Name.RIGHT,  STATUS_DOOR.DISABLE },
         };
     }
 
@@ -31,13 +31,17 @@ public class Cell
         if (direction == GameConstants.Direction.BOTTOM) return Doors[GameConstants.Direction.Name.BOTTOM];
         if (direction == GameConstants.Direction.LEFT) return Doors[GameConstants.Direction.Name.LEFT];
         if (direction == GameConstants.Direction.RIGHT) return Doors[GameConstants.Direction.Name.RIGHT];
-        return STATUS_DOOR.CLOSE;
+        return STATUS_DOOR.DISABLE;
     }
 }
 
 public enum STATUS_DOOR
 {
-    CLOSE = 0,
-    OPEN = 1,
-    BE_OPEN = 2
+    DISABLE = 0, // No door exists in this direction.
+    ENEBLE = 1, // The door is enabled but not yet open.
+    // Must ENABLE first to 
+    BE_OPEN = 2, // Like a door that is already open, but not yet passed through by the player. This status can be used to prevent the player from immediately closing the door after opening it. (For CellMap)
+    OPEN = 3, // The door is open and can be passed through by the player. (For RoomCell)
+    CLOSE = 4, // The door is closed and cannot be passed through by the player. (For RoomCell)
+
 }

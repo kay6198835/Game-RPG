@@ -35,6 +35,5 @@ public class MapTracker : MonoBehaviour
         current = next;
         next = null;
         Avatar.transform.position = current.transform.position;
-        EventManager.Emit(EventID.ON_LOAD_MAP);
     }
 }

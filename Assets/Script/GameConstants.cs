@@ -68,7 +68,7 @@ public static class GameConstants
     {
         public static float LENGTH_ROOM = 10;
         public static float LENGTH_CELL = 1;
-        public static float GAME_SCALE = 1;
+        public static float GAME_SCALE = 3;
         public static float PADDING_DOOR_TELE_SCALE = GAME_SCALE * LENGTH_ROOM / 10;
     }
     public static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>

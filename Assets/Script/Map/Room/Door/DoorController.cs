@@ -2,16 +2,24 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+[RequireComponent(typeof(BoxCollider2D))]
 public class DoorController : MonoBehaviour
 {
-    public STATUS_DOOR status { get; private set; } = STATUS_DOOR.CLOSE;
-    Vector2 _direction = new Vector2();
-    string Name;
+    [SerializeField] public STATUS_DOOR Status { get; private set; } = STATUS_DOOR.DISABLE;
+    [SerializeField] Vector2 _direction = new Vector2();
+    [SerializeField] BoxCollider2D _collider;
+    [SerializeField] string Name;
 
+    void Awake()
+    {
+        _collider = GetComponent<BoxCollider2D>();
+        _collider.size /= GameConstants.SettingStats.GAME_SCALE;;
+
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
 
-        if (!collision.CompareTag("Player") || status == STATUS_DOOR.CLOSE)
+        if (!collision.CompareTag("Player") || Status == STATUS_DOOR.DISABLE)
         {
             return;
         }
@@ -20,13 +28,13 @@ public class DoorController : MonoBehaviour
 
     public void OpenDoor()
     {
-        if (status == STATUS_DOOR.OPEN) return;
-        status = STATUS_DOOR.OPEN;
+        if (Status == STATUS_DOOR.ENEBLE) return;
+        Status = STATUS_DOOR.ENEBLE;
     }
 
     public void CheckCanBeOpened()
     {
-        if (status == STATUS_DOOR.CLOSE)
+        if (Status == STATUS_DOOR.DISABLE)
         {
             return;
         }
@@ -42,11 +50,18 @@ public class DoorController : MonoBehaviour
 
     public void SetStatus(STATUS_DOOR status)
     {
-        this.status = status;
+        this.Status = status;
+        SwitchColiderByStatus();
     }
 
     public Vector2 GetDirection()
     {
         return _direction;
     }
+
+    private void SwitchColiderByStatus()
+    {
+        _collider.enabled = Status == STATUS_DOOR.OPEN;
+    }
+
 }

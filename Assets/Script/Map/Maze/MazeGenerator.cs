@@ -80,22 +80,22 @@ public class MazeGenerator
 
         if (rowDiff == -1)
         {
-            current.Doors[GameConstants.Direction.Name.TOP] = STATUS_DOOR.OPEN;
+            current.Doors[GameConstants.Direction.Name.TOP] = STATUS_DOOR.ENEBLE;
             next.Doors[GameConstants.Direction.Name.BOTTOM] = STATUS_DOOR.BE_OPEN;
         }
         else if (rowDiff == 1)
         {
-            current.Doors[GameConstants.Direction.Name.BOTTOM] = STATUS_DOOR.OPEN;
+            current.Doors[GameConstants.Direction.Name.BOTTOM] = STATUS_DOOR.ENEBLE;
             next.Doors[GameConstants.Direction.Name.TOP] = STATUS_DOOR.BE_OPEN;
         }
         else if (colDiff == -1)
         {
-            current.Doors[GameConstants.Direction.Name.LEFT] = STATUS_DOOR.OPEN;
+            current.Doors[GameConstants.Direction.Name.LEFT] = STATUS_DOOR.ENEBLE;
             next.Doors[GameConstants.Direction.Name.RIGHT] = STATUS_DOOR.BE_OPEN;
         }
         else if (colDiff == 1)
         {
-            current.Doors[GameConstants.Direction.Name.RIGHT] = STATUS_DOOR.OPEN;
+            current.Doors[GameConstants.Direction.Name.RIGHT] = STATUS_DOOR.ENEBLE;
             next.Doors[GameConstants.Direction.Name.LEFT] = STATUS_DOOR.BE_OPEN;
         }
     }
