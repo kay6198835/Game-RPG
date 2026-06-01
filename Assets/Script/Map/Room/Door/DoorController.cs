@@ -2,65 +2,66 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class DoorController : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer spriteRenderer;
-    private STATUS_DOOR status = STATUS_DOOR.CLOSE;
-    Vector2 _direction = new Vector2();
+    [SerializeField] public STATUS_DOOR Status { get; private set; } = STATUS_DOOR.DISABLE;
+    [SerializeField] Vector2 _direction = new Vector2();
+    [SerializeField] BoxCollider2D _collider;
+    [SerializeField] string Name;
 
-    public void Awake()
+    void Awake()
     {
-        spriteRenderer.GetComponent<SpriteRenderer>();
+        _collider = GetComponent<BoxCollider2D>();
+        _collider.size /= GameConstants.SettingStats.GAME_SCALE;;
+
     }
-
-
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player") || status == STATUS_DOOR.CLOSE)
+
+        if (!collision.CompareTag("Player") || Status == STATUS_DOOR.DISABLE)
         {
             return;
         }
         EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, _direction);
     }
 
-    public void Setting(Vector2 direction, STATUS_DOOR status)
-    {
-        _direction = direction;
-        switch (status)
-        {
-            case STATUS_DOOR.CLOSE:
-                this.status = STATUS_DOOR.CLOSE;
-                break;
-
-            case STATUS_DOOR.OPEN:
-                this.status = STATUS_DOOR.BE_OPEN;
-                spriteRenderer.color = Color.red;
-                break;
-
-            case STATUS_DOOR.BE_OPEN:
-                this.status = STATUS_DOOR.BE_OPEN;
-                spriteRenderer.color = Color.white;
-                break;
-
-            default:
-                break;
-        }
-    }
-
     public void OpenDoor()
     {
-        if (status == STATUS_DOOR.OPEN) return;
-        status = STATUS_DOOR.OPEN;
-        spriteRenderer.color = Color.white;
+        if (Status == STATUS_DOOR.ENEBLE) return;
+        Status = STATUS_DOOR.ENEBLE;
     }
 
     public void CheckCanBeOpened()
     {
-        if (status == STATUS_DOOR.CLOSE)
+        if (Status == STATUS_DOOR.DISABLE)
         {
             return;
         }
     }
+
+    // Computes direction from this door's position to targetPosition,
+    // then snaps _direction to the nearest cardinal (Top/Right/Left/Bottom).
+    public void SetDirection(Vector3 targetPosition)
+    {
+        Vector2 toTarget = (Vector2)(targetPosition - transform.position);
+        _direction = Utility.ToCardinalDirection(toTarget);
+    }
+
+    public void SetStatus(STATUS_DOOR status)
+    {
+        this.Status = status;
+        SwitchColiderByStatus();
+    }
+
+    public Vector2 GetDirection()
+    {
+        return _direction;
+    }
+
+    private void SwitchColiderByStatus()
+    {
+        _collider.enabled = Status == STATUS_DOOR.OPEN;
+    }
+
 }

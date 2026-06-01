@@ -1,18 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[RequireComponent(typeof(Rigidbody2D))]
 public class FastMovement : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] protected Rigidbody2D rb;
+    [SerializeField] protected Vector2 input;
+    protected void Awake()
     {
-        this.transform.localScale = Vector3.one*GameConstants.SettingStats.GAME_SCALE;
+        rb = GetComponentInParent<Rigidbody2D>();
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+    protected void Update()
+    {
+        input.x = Input.GetAxisRaw(GameConstants.Input.HORIZONTAL);
+        input.y = Input.GetAxisRaw(GameConstants.Input.VERTICAL);
+        input.Normalize();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void FixedUpdate()
     {
-        transform.position += new Vector3(Input.GetAxisRaw(GameConstants.Input.HORIZONTAL), Input.GetAxisRaw(GameConstants.Input.VERTICAL),0) *Time.deltaTime*10;
+        rb.velocity = input * 10f;
+    }
+    public void SetVeclocity(Vector2 velocity)
+    {
+        rb.velocity = velocity;
     }
 }

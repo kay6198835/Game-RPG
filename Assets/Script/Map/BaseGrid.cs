@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
     where T : MonoBehaviour, IGridItem
@@ -19,7 +21,7 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
         _list.Add(item);
     }
 
-    public void Setting(int columns, int rows)
+    public virtual void Setting(int columns, int rows)
     {
         Columns = columns;
         Rows = rows;
@@ -33,13 +35,19 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
     public T GetNext(Vector2 direction)
     {
         direction.y = -direction.y;
-        var position = _current.GetGridPosition() + direction;
-        int index = (int)position.y * Columns + (int)position.x;
-        _next = GetValue(index);
+        var positionNextRoom = _current.GetGridPosition() + direction;
+        int index = this.CaculateIndex(positionNextRoom);
         direction.y = -direction.y;
+        if (index < 0 || index >= _list.Count) return _current;
+        _next = GetValue(index);
         OnAfterGetNext(_current, _next, direction);
         return _next;
     }
 
     protected virtual void OnAfterGetNext(T current, T next, Vector2 direction) { }
+
+    public int CaculateIndex(Vector2 positionInGrid)
+    {
+        return (int)positionInGrid.y * Columns + (int)positionInGrid.x;
+    }
 }
