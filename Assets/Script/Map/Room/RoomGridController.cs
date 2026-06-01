@@ -7,6 +7,8 @@ using UnityEngine.Tilemaps;
 
 public class RoomGridController : BaseGrid<RoomCell>
 {
+
+    [SerializeField] private FastMovement _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
@@ -35,6 +37,7 @@ public class RoomGridController : BaseGrid<RoomCell>
         _current = _next;
         _next = null;
         this.LoadRoom(index, _current.transform.position);
+        fastMovement.transform.SetPositionAndRotation(next.StartDoorPosition, Quaternion.identity);
     }
 
     protected override void OnAfterGetNext(RoomCell current, RoomCell next, Vector2 direction)
@@ -43,17 +46,11 @@ public class RoomGridController : BaseGrid<RoomCell>
         current.UpdateStatusDoor(direction);
     }
 
-    public override void Setting(int columns, int rows)
+    public void OnDoneLoadRoomGrid(object obj = null)
     {
-        base.Setting(columns, rows);
-        //LevelManager.Instance.LoadRoom(0, _current.transform.position);
         _dungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
         _listTiles = LevelManager.Instance.GetTileSOs();
         _genmap = LevelManager.Instance.GetTilemaps();
-    }
-
-    public void OnDoneLoadRoomGrid(object obj = null)
-    {
         this.LoadRoom(0, _current.transform.position);
     }
 
@@ -61,14 +58,6 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         string filePath = "";
         index = index == null ? 0 : index;
-        // if (index == 0)
-        // {
-
-        // }
-        // else
-        // {
-        //     filePath = listRooms[index].filePath;
-        // }
         filePath = _dungeonRoomSO.room[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         Data = JsonUtility.FromJson<LevelData>(json);
@@ -98,7 +87,6 @@ public class RoomGridController : BaseGrid<RoomCell>
                     tilemap = "Tile_Room";
                     _swapLevelData.directions.Add(tilemapDirection);
                     _swapLevelData.indexToLayer.Add(i, layerIdx);
-                    //_swapLevelData._swapLevelDataIndex.Add(i);
                 }
                 else
                 {
