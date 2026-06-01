@@ -28,8 +28,7 @@ public class DoorController : MonoBehaviour
 
     public void OpenDoor()
     {
-        if (Status == STATUS_DOOR.ENEBLE) return;
-        Status = STATUS_DOOR.ENEBLE;
+        if (Status == STATUS_DOOR.DISABLE) Status = STATUS_DOOR.ENEBLE;
     }
 
     public void CheckCanBeOpened()

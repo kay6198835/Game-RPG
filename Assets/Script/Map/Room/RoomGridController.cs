@@ -34,10 +34,10 @@ public class RoomGridController : BaseGrid<RoomCell>
         int index = CaculateIndex(_current.GetGridPosition());
         _next = GetNext(nextMap);
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
+        this.LoadRoom(index, _next.transform.position);
+        fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
         _current = _next;
         _next = null;
-        this.LoadRoom(index, _current.transform.position);
-        fastMovement.transform.SetPositionAndRotation(next.StartDoorPosition, Quaternion.identity);
     }
 
     protected override void OnAfterGetNext(RoomCell current, RoomCell next, Vector2 direction)

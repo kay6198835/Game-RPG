@@ -25,7 +25,7 @@ public class MapGridController : BaseGrid<MapCell>
 
     public void Move(object ojt = null)
     {
-        next = GetNext((Vector2)ojt);
+        _next = GetNext((Vector2)ojt);
         LoadRoom();
     }
 
@@ -37,8 +37,8 @@ public class MapGridController : BaseGrid<MapCell>
 
     public void LoadRoom()
     {
-        current = next;
-        next = null;
+        _current = _next;
+        _next = null;
         Avatar.transform.position = current.transform.position;
     }
 }
