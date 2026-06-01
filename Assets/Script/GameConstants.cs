@@ -50,6 +50,7 @@ public static class GameConstants
             { LEFT_TOP, Name.LEFT_TOP },
         };
     }
+    
     public static class Input
     {
         //public static readonly {{Type}} {{Name}} = Button_Name;
@@ -60,10 +61,12 @@ public static class GameConstants
 
         }
     }
+    
     public static class RouteAsset
     {
         //public static readonly string {{Name}} = {{Assets\Script\Skill_Ability}};
     }
+    
     public static class SettingStats
     {
         public static float LENGTH_ROOM = 10;
@@ -71,6 +74,7 @@ public static class GameConstants
         public static float GAME_SCALE = 3;
         public static float PADDING_DOOR_TELE_SCALE = GAME_SCALE * LENGTH_ROOM / 10;
     }
+    
     public static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>
     {
         { RoomType.NormalRoom,   "NormalRoom"   },
@@ -84,4 +88,11 @@ public static class GameConstants
         { RoomType.SecretRoom,   "SecretRoom"   },
         { RoomType.ExitRoom,     "ExitRoom"     },
     };
+
+    public static class TileName{
+        public static string ROOM = "Tile_Room";
+        public static string DOOR = "Tile_Door";
+        public static string FLOOR = "Tile_Floor";
+        public static string SPAWN = "Tile_Spawn";
+    }
 }

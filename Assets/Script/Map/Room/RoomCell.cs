@@ -55,18 +55,18 @@ public class RoomCell : BaseCell
         return nextDoor;
     }
 
-    public static List<Vector2> GetPositionsByDirections(List<DoorPoint> doorPoints, List<Vector2> directions)
-    {
-        var result = new List<Vector2>();
+    // public static List<Vector2> GetPositionsByDirections(List<DoorPoint> doorPoints, List<Vector2> directions)
+    // {
+    //     var result = new List<Vector2>();
 
-        foreach (var dp in doorPoints)
-        {
-            if (directions.Contains(dp.direction))
-                result.Add(dp.position);
-        }
+    //     foreach (var dp in doorPoints)
+    //     {
+    //         if (directions.Contains(dp.direction))
+    //             result.Add(dp.position);
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 
     public void SetDoorPoints(List<DoorPoint> points)
     {

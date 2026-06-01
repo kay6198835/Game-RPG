@@ -84,7 +84,7 @@ public class RoomGridController : BaseGrid<RoomCell>
                 // true swap tile
                 if (!isHaveTileDoor)
                 {
-                    tilemap = "Tile_Room";
+                    tilemap = GameConstants.TileName.ROOM;
                     _swapLevelData.directions.Add(tilemapDirection);
                     _swapLevelData.indexToLayer.Add(i, layerIdx);
                 }
@@ -105,7 +105,7 @@ public class RoomGridController : BaseGrid<RoomCell>
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         _current.SetDoorPoints(this.DoorPoints);
-        SwapTileMap("Tile_Room");
+        SwapTileMap(GameConstants.TileName.DOOR);
     }
     private void SwapTileMap(string tileMapName)
     {

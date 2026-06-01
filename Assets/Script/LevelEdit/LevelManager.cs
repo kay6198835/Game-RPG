@@ -172,8 +172,8 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public void SealUnusedDoors(Vector2[] directions)
     {
-        TileBase roomTile = _listTiles.Find(t => t.name == "Tile_Room")?.tile;
-        TileBase doorTile = _listTiles.Find(t => t.name == "Tile_Door")?.tile;
+        TileBase roomTile = _listTiles.Find(t => t.name == GameConstants.TileName.ROOM)?.tile;
+        TileBase doorTile = _listTiles.Find(t => t.name == GameConstants.TileName.DOOR)?.tile;
         if (roomTile == null || doorTile == null) return;
 
         Utility.SealUnusedDoors(directions, genmap, roomTile, doorTile);
@@ -185,8 +185,8 @@ public class LevelManager : MonoBehaviour
     /// </summary>
     public Vector2 GetDoorWorldPosition(Vector2 direction)
     {
-        TileBase roomTile = _listTiles.Find(t => t.name == "Tile_Room")?.tile;
-        TileBase doorTile = _listTiles.Find(t => t.name == "Tile_Door")?.tile;
+        TileBase roomTile = _listTiles.Find(t => t.name == GameConstants.TileName.ROOM)?.tile;
+        TileBase doorTile = _listTiles.Find(t => t.name == GameConstants.TileName.DOOR)?.tile;
         if (roomTile == null || doorTile == null) return Vector2.zero;
 
         return Utility.GetDoorWorldPosition(direction, genmap, roomTile, doorTile);
