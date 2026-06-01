@@ -3,12 +3,15 @@ using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class RoomGridController : BaseGrid<RoomCell>
 {
     [SerializeField] private FastMovement _fastMovement;
-    [SerializeField] private DungeonRoomSO _dungeonRoomSO;
-    [SerializeField] private List<TileSO> _listTiles;
+    private DungeonRoomSO _dungeonRoomSO;
+    private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
     [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
     public LevelData CurrentDoorLevelData { get; private set; } = new LevelData();
@@ -50,11 +53,28 @@ public class RoomGridController : BaseGrid<RoomCell>
 
     public void OnDoneLoadRoomGrid(object obj = null)
     {
-        _dungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
-        _listTiles = LevelManager.Instance.GetTileSOs();
-        _genmap = LevelManager.Instance.GetTilemaps();
+#if UNITY_EDITOR
+        LoadAssetsFromFolder();
+#endif
         LoadRoom(0, _current.transform.position);
     }
+
+#if UNITY_EDITOR
+    private void LoadAssetsFromFolder()
+    {
+        var tileGuids = AssetDatabase.FindAssets("t:TileSO", new[] { "Assets/SO/Dungeon/Tile" });
+        _listTiles = new List<TileSO>();
+        foreach (var guid in tileGuids)
+        {
+            var so = AssetDatabase.LoadAssetAtPath<TileSO>(AssetDatabase.GUIDToAssetPath(guid));
+            if (so != null) _listTiles.Add(so);
+        }
+
+        var dungeonGuids = AssetDatabase.FindAssets("t:DungeonRoomSO", new[] { "Assets/SO/Dungeon" });
+        if (dungeonGuids.Length > 0)
+            _dungeonRoomSO = AssetDatabase.LoadAssetAtPath<DungeonRoomSO>(AssetDatabase.GUIDToAssetPath(dungeonGuids[0]));
+    }
+#endif
 
     public void LoadRoom(int index, Vector3 positionLoadMap)
     {
