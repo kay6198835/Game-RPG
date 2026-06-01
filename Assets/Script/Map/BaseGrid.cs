@@ -37,8 +37,9 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
         direction.y = -direction.y;
         var positionNextRoom = _current.GetGridPosition() + direction;
         int index = this.CaculateIndex(positionNextRoom);
-        _next = GetValue(index);
         direction.y = -direction.y;
+        if (index < 0 || index >= _list.Count) return _current;
+        _next = GetValue(index);
         OnAfterGetNext(_current, _next, direction);
         return _next;
     }

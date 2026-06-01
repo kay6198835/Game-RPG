@@ -35,24 +35,23 @@ public class RoomCell : BaseCell
         }
     }
 
-    public void UpdateStatusDoor(Vector2 direction) => GetDoor(direction).OpenDoor();
+    public void UpdateStatusDoor(Vector2 direction) => GetDoor(direction)?.OpenDoor();
 
     public void GetStartDoorPosition(Vector2 direction)
     {
         var nextDoor = GetDoor(direction);
+        if (nextDoor == null) return;
         nextDoor.OpenDoor();
         StartDoorPosition = nextDoor.transform.position - direction.ConvertTo<Vector3>() * PADDING_DOOR_TELE_SCALE * SCALE * 1.1f;
     }
 
     public DoorController GetDoor(Vector2 direction)
     {
-        DoorController nextDoor = new DoorController();
         foreach (var door in _listDoors)
         {
-            if (door.GetDirection() == direction) nextDoor = door;
+            if (door.GetDirection() == direction) return door;
         }
-
-        return nextDoor;
+        return null;
     }
 
     // public static List<Vector2> GetPositionsByDirections(List<DoorPoint> doorPoints, List<Vector2> directions)
