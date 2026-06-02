@@ -44,7 +44,7 @@ public class RoomGridController : BaseGrid<RoomCell>
 
     protected override void OnAfterGetNext(RoomCell current, RoomCell next, Vector2 direction)
     {
-        next.GetStartDoorPosition(-direction);
+        next.GetStartDoorPosition(direction);
         current.UpdateStatusDoor(direction);
     }
 
