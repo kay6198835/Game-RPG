@@ -44,7 +44,7 @@ public class RoomGridController : BaseGrid<RoomCell>
 
     protected override void OnAfterGetNext(RoomCell current, RoomCell next, Vector2 direction)
     {
-        next.GetStartDoorPosition(direction);
+        next.GetStartDoorPosition(-direction);
         current.UpdateStatusDoor(direction);
     }
 
@@ -67,15 +67,15 @@ public class RoomGridController : BaseGrid<RoomCell>
         filePath = _dungeonRoomSO.room[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         Data = JsonUtility.FromJson<LevelData>(json);
-        convertTileMapPosition = poses[i] + 
-        new Vector3Int((int)_current.transform.position.x, (int)_current.transform.position.y, 0);
+
         foreach (Tilemap gm in _genmap) gm.ClearAllTiles();
 
         bool hasLayerData = Data.layerIndices != null && Data.layerIndices.Count == Data.poses.Count;
 
         for (int i = 0; i < Data.poses.Count; i++)
         {
-
+            Vector3Int origanalTileMapPosition = Data.poses[i];
+            Data.poses[i] += Vector3Int.RoundToInt(_current.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
@@ -101,16 +101,16 @@ public class RoomGridController : BaseGrid<RoomCell>
                 {
                     DoorPoints.Add(new DoorPoint
                     {
-                        position = convertTileMapPosition,
+                        position = Data.poses[i],
                         direction = tilemapDirection
                     });
                     CurentDoorLevelData.tiles.Add(tilemap);
-                    CurentDoorLevelData.poses.Add(convertTileMapPosition);
+                    CurentDoorLevelData.poses.Add(Data.poses[i]);
                     CurentDoorLevelData.layerIndices.Add(Data.layerIndices[i]);
 
                 }
             }
-            _genmap[layerIdx].SetTile(convertTileMapPosition, _listTiles.Find(t => t.name == tilemap).tile);
+            _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         _current.SetDoorPoints(this.DoorPoints);
         SwapTileMap("Tile_Room");
