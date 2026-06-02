@@ -41,5 +41,8 @@ public enum EventID
     ON_PLAYER_ON_DOOR,
     ON_LOAD_MAZE_DONE,
     ON_LOAD_MAP,
+    ON_CLEAR_ENEMY,
+
+    ON_TEST,
 }
 

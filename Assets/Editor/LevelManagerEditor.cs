@@ -20,6 +20,14 @@ public class LevelManagerEditor : Editor
         {
             levelManager.LoadLevel();
         }
+        if (GUILayout.Button("Clear Enemy"))
+        {
+            EventManager.Emit(EventID.ON_CLEAR_ENEMY);
+        }
+        if (GUILayout.Button("Load test"))
+        {
+            EventManager.Emit(EventID.ON_TEST);
+        }
     }
 }
 #endif

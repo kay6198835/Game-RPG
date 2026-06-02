@@ -6,6 +6,7 @@ public interface IGrid
     int Rows { get; }
     void AddCell(Cell cell);
     void Setting(int columns, int rows);
+    int CaculateIndex(Vector2 positionInGrid);
 }
 
 public interface IGrid<T> : IGrid
