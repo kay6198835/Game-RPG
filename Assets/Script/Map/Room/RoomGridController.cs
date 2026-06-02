@@ -7,7 +7,9 @@ using UnityEngine.Tilemaps;
 
 public class RoomGridController : BaseGrid<RoomCell>
 {
-
+    [SerializeField] private float delayLoadRoom = 0.5f;
+    [SerializeField] private int indexTest = 0;
+    [SerializeField] private bool isTest = false;
     [SerializeField] private FastMovement _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
@@ -24,20 +26,20 @@ public class RoomGridController : BaseGrid<RoomCell>
     }
     public void OnDisable()
     {
-        EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
-        EventManager.Resgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
-        EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
+        EventManager.UnResgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
+        EventManager.UnResgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
+        EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
     }
     public void OnLoadMap(Vector2 nextMap)
     {
-        this._swapLevelData.Clear();
         int index = CaculateIndex(_current.GetGridPosition());
         _next = GetNext(nextMap);
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
-        this.LoadRoom(index, _next.transform.position);
-        fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
+        _fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
         _current = _next;
         _next = null;
+        Debug.Log("Load Room " + index);
+        this.LoadRoom(index, _current.transform.position);
     }
 
     protected override void OnAfterGetNext(RoomCell current, RoomCell next, Vector2 direction)
@@ -46,18 +48,22 @@ public class RoomGridController : BaseGrid<RoomCell>
         current.UpdateStatusDoor(direction);
     }
 
-    public void OnDoneLoadRoomGrid(object obj = null)
+    public override void Setting(int columns, int rows)
     {
+        base.Setting(columns, rows);
+        //LevelManager.Instance.LoadRoom(0, _current.transform.position);
         _dungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
         _listTiles = LevelManager.Instance.GetTileSOs();
         _genmap = LevelManager.Instance.GetTilemaps();
-        this.LoadRoom(0, _current.transform.position);
     }
 
+    public void OnDoneLoadRoomGrid(object obj = null)
+    {
+        this.LoadRoom(0, Vector3.zero);
+    }
     public void LoadRoom(int index, Vector3 positionLoadMap)
     {
         string filePath = "";
-        index = index == null ? 0 : index;
         filePath = _dungeonRoomSO.room[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         Data = JsonUtility.FromJson<LevelData>(json);
@@ -68,7 +74,7 @@ public class RoomGridController : BaseGrid<RoomCell>
 
         for (int i = 0; i < Data.poses.Count; i++)
         {
-            Data.poses[i] += new Vector3Int((int)_current.transform.position.x, (int)_current.transform.position.y, 0);
+
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
@@ -80,14 +86,16 @@ public class RoomGridController : BaseGrid<RoomCell>
                 Vector2 tilemapDirection = Utility.ToCardinalDirection
                     (Data.poses[i].ConvertTo<Vector3>());
                 // check include
-                bool isHaveTileDoor = this._current.ListDirectionDoors.Contains(tilemapDirection);
+                bool isIncludeDirection = this._current.ListDirectionDoors.Contains(tilemapDirection);
                 // true swap tile
-                if (!isHaveTileDoor)
+                if (!isIncludeDirection)
                 {
-                    tilemap = GameConstants.TileName.ROOM;
+                    tilemap = "Tile_Room";
                     _swapLevelData.directions.Add(tilemapDirection);
                     _swapLevelData.indexToLayer.Add(i, layerIdx);
+                    //_swapLevelData._swapLevelDataIndex.Add(i);
                 }
+                // false save tile data in lobal class
                 else
                 {
                     DoorPoints.Add(new DoorPoint
@@ -100,12 +108,11 @@ public class RoomGridController : BaseGrid<RoomCell>
                     CurentDoorLevelData.layerIndices.Add(Data.layerIndices[i]);
 
                 }
-                // false save tile data in lobal class
             }
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         _current.SetDoorPoints(this.DoorPoints);
-        SwapTileMap(GameConstants.TileName.DOOR);
+        SwapTileMap("Tile_Room");
     }
     private void SwapTileMap(string tileMapName)
     {
@@ -116,8 +123,6 @@ public class RoomGridController : BaseGrid<RoomCell>
         {
 
             convertVector3Int.Set((int)_swapLevelData.directions[i].x, (int)_swapLevelData.directions[i].y, 0);
-
-
             int tileIndex = entries[i].Key;
             int layerIndex = entries[i].Value;
             Vector3Int originalPos = Data.poses[tileIndex];
@@ -129,18 +134,24 @@ public class RoomGridController : BaseGrid<RoomCell>
             Data.tiles.Add(tileMapName);
             Data.layerIndices.Add(layerIndex);
             Data.poses.Add(originalPos);
+
+            Debug.Log("Swap TileMap: " + tileMapName + " at position " + originalPos);
         }
     }
 
     public void ClearRoom(object obj = null)
     {
-        Debug.Log(_genmap.Count.ToString());
         for (int i = 0; i < Data.tiles.Count; i++)
         {
             var layerIndices = Data.layerIndices[i];
             var pos = Data.poses[i];
             _genmap[layerIndices].SetTile(pos, null);
         }
+        this._swapLevelData.Clear();
+        this.CurentDoorLevelData.Clear();
+        this.DoorPoints.Clear();
+        this.Data.Clear();
+        this._current.CloseDoor();
         this.OnLoadMap((Vector2)obj);
     }
 

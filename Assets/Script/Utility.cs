@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -168,6 +169,11 @@ public static class Utility
             tilemaps[layerIdx].SetTile(pos + inward,     roomTile);
             tilemaps[layerIdx].SetTile(pos + inward * 2, roomTile);
         }
+    }
+
+    internal static Vector2 ToCardinalDirection(object value)
+    {
+        throw new NotImplementedException();
     }
 
     #endregion

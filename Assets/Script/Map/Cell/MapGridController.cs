@@ -19,8 +19,12 @@ public class MapGridController : BaseGrid<MapCell>
 
     private void OnLoadMap(object obj = null)
     {
+        
         _current = _next;
         _next = null;
+        
+        _current = GetStart();
+        Avatar.transform.position = _current.transform.position;
     }
 
     public void Move(object ojt = null)
@@ -29,16 +33,10 @@ public class MapGridController : BaseGrid<MapCell>
         LoadRoom();
     }
 
-    public void OnLoadMap(object ojt = null)
-    {
-        current = GetStart();
-        Avatar.transform.position = current.transform.position;
-    }
-
     public void LoadRoom()
     {
         _current = _next;
         _next = null;
-        Avatar.transform.position = current.transform.position;
+        Avatar.transform.position = _current.transform.position;
     }
 }

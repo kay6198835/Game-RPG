@@ -114,6 +114,14 @@ public class RoomCell : BaseCell
             door.SetStatus(STATUS_DOOR.OPEN);
         }
     }
+
+    public void CloseDoor()
+    {
+        foreach (var door in _listDoors)
+        {
+            door.SetStatus(STATUS_DOOR.CLOSE);
+        }
+    }
 }
 
 [System.Serializable]
