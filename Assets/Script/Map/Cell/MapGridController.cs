@@ -23,7 +23,7 @@ public class MapGridController : BaseGrid<MapCell>
         _current = _next;
         _next = null;
         
-        _current = GetStart();
+        _current = GetStartRoom();
         Avatar.transform.position = _current.transform.position;
     }
 

@@ -13,7 +13,7 @@ public class DoorController : MonoBehaviour
     void Awake()
     {
         _collider = GetComponent<BoxCollider2D>();
-        _collider.size /= GameConstants.SettingStats.GAME_SCALE;;
+        _collider.size /= GameConstants.SettingStats.GAME_SCALE; ;
 
     }
     private void OnTriggerEnter2D(Collider2D collision)
@@ -43,8 +43,10 @@ public class DoorController : MonoBehaviour
     // then snaps _direction to the nearest cardinal (Top/Right/Left/Bottom).
     public void SetDirection(string name)
     {
+
         this.Name = name;
         _direction = GameConstants.Direction.NameToDirection[name];
+        this.gameObject.name = name + "" + _direction;
     }
 
     public void SetStatus(STATUS_DOOR status)

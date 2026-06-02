@@ -140,13 +140,13 @@ public class LevelManager : MonoBehaviour
         {
             int layerIdx = hasLayerData ? data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= genmap.Count) layerIdx = 0;
-            
+
             var tilemap = data.tiles[i];
             //Refactor late
             if (tilemap == "Tile_Door")
             {
                 // get direction
-                Utility.ToCardinalDirection(data.poses[i].ConvertTo<Vector2>());
+                Utility.ToCardinalDirection((Vector3)data.poses[i]);
                 // check include
 
                 // true swap tile
@@ -205,6 +205,20 @@ public class LevelData
     public List<string> tiles = new List<string>();
     public List<Vector3Int> poses = new List<Vector3Int>();
     public List<int> layerIndices = new List<int>();
+    public LevelData() { }
+    public LevelData(LevelData other)
+    {
+        this.tiles = new List<string>(other.tiles);
+        this.poses = new List<Vector3Int>(other.poses);
+        this.layerIndices = new List<int>(other.layerIndices);
+    }
+
+    public void CopyData(LevelData other)
+    {
+        this.tiles = new List<string>(other.tiles);
+        this.poses = new List<Vector3Int>(other.poses);
+        this.layerIndices = new List<int>(other.layerIndices);
+    }
 
     public void Clear()
     {

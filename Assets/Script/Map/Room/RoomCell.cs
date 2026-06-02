@@ -14,6 +14,13 @@ public class RoomCell : BaseCell
     [SerializeField] private List<DoorController> _listDoors = new List<DoorController>();
     [SerializeField] public Vector3 StartDoorPosition { get; private set; }
     [SerializeField] public List<Vector2> ListDirectionDoors { get; private set; }
+
+    // parameter levelData is used to set the room as cleared and open doors,
+    //  also store the data of the room for reloading when player come back to this room
+    [SerializeField] public bool IsCleared { get; private set; } = false;
+    [SerializeField] public LevelData Data { get; private set; } = new LevelData();
+    [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
+    [SerializeField] public LevelData CurentDoorLevelData { get; private set; } = new LevelData();
     protected override void Setting()
     {
         ListDirectionDoors = new List<Vector2>();
@@ -41,7 +48,7 @@ public class RoomCell : BaseCell
     {
         var nextDoor = GetDoor(direction);
         nextDoor.OpenDoor();
-        StartDoorPosition = nextDoor.transform.position - direction.ConvertTo<Vector3>() * PADDING_DOOR_TELE_SCALE * SCALE * 1.1f;
+        StartDoorPosition = nextDoor.transform.position - (Vector3)direction * PADDING_DOOR_TELE_SCALE;
     }
 
     public DoorController GetDoor(Vector2 direction)
@@ -54,19 +61,6 @@ public class RoomCell : BaseCell
 
         return nextDoor;
     }
-
-    // public static List<Vector2> GetPositionsByDirections(List<DoorPoint> doorPoints, List<Vector2> directions)
-    // {
-    //     var result = new List<Vector2>();
-
-    //     foreach (var dp in doorPoints)
-    //     {
-    //         if (directions.Contains(dp.direction))
-    //             result.Add(dp.position);
-    //     }
-
-    //     return result;
-    // }
 
     public void SetDoorPoints(List<DoorPoint> points)
     {
@@ -94,20 +88,19 @@ public class RoomCell : BaseCell
                 // +0.5 on Y in world space (Vector3.up * 0.5). An additional 0.5 offset along the door's
                 // direction pushes the door collider flush against the room wall edge, matching the
                 // tilemap boundary exactly.
-                position = (new Vector3(sum.x, sum.y, 0) / kvp.Value.Count) + (kvp.Key.ConvertTo<Vector3>() + Vector3.one) * 0.5f,
+                position = (new Vector3(sum.x, sum.y, 0) / kvp.Value.Count) + ((Vector3)kvp.Key + Vector3.one) * 0.5f,
                 direction = kvp.Key
             });
         }
         foreach (var dp in result)
         {
-
             var door = GetDoor(dp.direction);
             if (door != null)
                 door.transform.position = dp.position;
         }
     }
 
-    public void OpenDoor()
+    public void OpenDoors()
     {
         foreach (var door in _listDoors)
         {
@@ -122,6 +115,20 @@ public class RoomCell : BaseCell
             door.SetStatus(STATUS_DOOR.CLOSE);
         }
     }
+
+    public void ClearRoom(LevelData levelData, LevelData curentDoorLevelData, List<DoorPoint> points)
+    {
+        this.DoorPoints.Clear();
+        this.Data.Clear();
+        this.CurentDoorLevelData.Clear();
+        
+        this.DoorPoints.AddRange(points);
+        this.Data.CopyData(levelData);
+        this.CurentDoorLevelData.CopyData(curentDoorLevelData);
+        this.IsCleared = true;
+        CloseDoor();
+    }
+
 }
 
 [System.Serializable]

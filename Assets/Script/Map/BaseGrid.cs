@@ -17,6 +17,7 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
     public void AddCell(Cell cell)
     {
         T item = Instantiate(prefabObject, transform);
+        item.name = "Room_" + _list.Count;
         item.AddCell(cell);
         _list.Add(item);
     }
@@ -30,7 +31,7 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
 
     public T GetValue(int index) => _list[index];
     public void SetValue(int index, T value) => _list[index] = value;
-    public T GetStart() => GetValue(0);
+    public T GetStartRoom() => GetValue(0);
 
     public T GetNext(Vector2 direction)
     {
@@ -38,12 +39,8 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
         var positionNextRoom = _current.GetGridPosition() + direction;
         int index = this.CaculateIndex(positionNextRoom);
         _next = GetValue(index);
-        direction.y = -direction.y;
-        OnAfterGetNext(_current, _next, direction);
         return _next;
     }
-
-    protected virtual void OnAfterGetNext(T current, T next, Vector2 direction) { }
 
     public int CaculateIndex(Vector2 positionInGrid)
     {
