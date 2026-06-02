@@ -41,10 +41,10 @@ public class DoorController : MonoBehaviour
 
     // Computes direction from this door's position to targetPosition,
     // then snaps _direction to the nearest cardinal (Top/Right/Left/Bottom).
-    public void SetDirection(Vector3 targetPosition)
+    public void SetDirection(string name)
     {
-        Vector2 toTarget = (Vector2)(targetPosition - transform.position);
-        _direction = Utility.ToCardinalDirection(toTarget);
+        this.Name = name;
+        _direction = GameConstants.Direction.NameToDirection[name];
     }
 
     public void SetStatus(STATUS_DOOR status)

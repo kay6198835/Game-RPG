@@ -27,7 +27,7 @@ public class RoomCell : BaseCell
             if (status != STATUS_DOOR.DISABLE)
             {
                 var door = Instantiate(doorPrefab, transform);
-                door.SetDirection(GameConstants.Direction.NameToDirection[name]);
+                door.SetDirection(name);
                 door.SetStatus(status);
                 _listDoors.Add(door);
                 ListDirectionDoors.Add(GameConstants.Direction.NameToDirection[name]);
