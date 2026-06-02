@@ -67,7 +67,8 @@ public class RoomGridController : BaseGrid<RoomCell>
         filePath = _dungeonRoomSO.room[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         Data = JsonUtility.FromJson<LevelData>(json);
-
+        convertTileMapPosition = poses[i] + 
+        new Vector3Int((int)_current.transform.position.x, (int)_current.transform.position.y, 0);
         foreach (Tilemap gm in _genmap) gm.ClearAllTiles();
 
         bool hasLayerData = Data.layerIndices != null && Data.layerIndices.Count == Data.poses.Count;
@@ -100,16 +101,16 @@ public class RoomGridController : BaseGrid<RoomCell>
                 {
                     DoorPoints.Add(new DoorPoint
                     {
-                        position = _current.transform.position + Data.poses[i],
+                        position = convertTileMapPosition,
                         direction = tilemapDirection
                     });
                     CurentDoorLevelData.tiles.Add(tilemap);
-                    CurentDoorLevelData.poses.Add(Data.poses[i]);
+                    CurentDoorLevelData.poses.Add(convertTileMapPosition);
                     CurentDoorLevelData.layerIndices.Add(Data.layerIndices[i]);
 
                 }
             }
-            _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
+            _genmap[layerIdx].SetTile(convertTileMapPosition, _listTiles.Find(t => t.name == tilemap).tile);
         }
         _current.SetDoorPoints(this.DoorPoints);
         SwapTileMap("Tile_Room");
