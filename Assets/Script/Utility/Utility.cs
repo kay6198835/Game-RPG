@@ -90,17 +90,17 @@ public static class Utility
     /// </summary>
     public static Vector2 GetDoorFacingDirection(Vector3Int pos, int minX, int maxX, int minY, int maxY)
     {
-        int distLeft  = pos.x - minX;  // = 0 nếu đang ở cạnh trái
+        int distLeft = pos.x - minX;  // = 0 nếu đang ở cạnh trái
         int distRight = maxX - pos.x;  // = 0 nếu đang ở cạnh phải
-        int distDown  = pos.y - minY;  // = 0 nếu đang ở cạnh dưới
-        int distUp    = maxY - pos.y;  // = 0 nếu đang ở cạnh trên
+        int distDown = pos.y - minY;  // = 0 nếu đang ở cạnh dưới
+        int distUp = maxY - pos.y;  // = 0 nếu đang ở cạnh trên
 
         // Cạnh có khoảng cách nhỏ nhất là cạnh mà door thuộc về.
         int minDist = Mathf.Min(distLeft, Mathf.Min(distRight, Mathf.Min(distDown, distUp)));
 
-        if (minDist == distLeft)  return GameConstants.Direction.LEFT;
+        if (minDist == distLeft) return GameConstants.Direction.LEFT;
         if (minDist == distRight) return GameConstants.Direction.RIGHT;
-        if (minDist == distDown)  return GameConstants.Direction.BOTTOM;
+        if (minDist == distDown) return GameConstants.Direction.BOTTOM;
         return GameConstants.Direction.TOP;
     }
 
@@ -165,8 +165,8 @@ public static class Utility
 
             // Seal: tile door + 2 tile kề theo hướng inward đều trở thành roomTile.
             // Lấp kín cả outer wall lẫn inner wall của đoạn corridor door.
-            tilemaps[layerIdx].SetTile(pos,             roomTile);
-            tilemaps[layerIdx].SetTile(pos + inward,     roomTile);
+            tilemaps[layerIdx].SetTile(pos, roomTile);
+            tilemaps[layerIdx].SetTile(pos + inward, roomTile);
             tilemaps[layerIdx].SetTile(pos + inward * 2, roomTile);
         }
     }
@@ -177,4 +177,17 @@ public static class Utility
     }
 
     #endregion
+
+
+    public static T AssetLoader<T>(string path) where T : Object
+    {
+        T asset = Resources.Load<T>(path);
+
+        if (asset == null)
+        {
+            Debug.LogError($"Asset not found at path: {path}");
+        }
+
+        return asset;
+    }
 }
