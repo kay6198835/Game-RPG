@@ -15,6 +15,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     [SerializeField] public LevelData CurentDoorLevelData { get; private set; } = new LevelData();
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
+    [SerializeField] public int[] RandomRoomIndex { get; private set; }
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
@@ -48,6 +49,11 @@ public class RoomGridController : BaseGrid<RoomCell>
         _dungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
         _listTiles = LevelManager.Instance.GetTileSOs();
         _genmap = LevelManager.Instance.GetTilemaps();
+        RandomRoomIndex = new int[_list.Count];
+        for (int i = 0; i < RandomRoomIndex.Length; i++)
+        {
+            
+        }
     }
 
     public void OnDoneLoadRoomGrid(object obj = null)
@@ -78,8 +84,8 @@ public class RoomGridController : BaseGrid<RoomCell>
         for (int i = 0; i < Data.poses.Count; i++)
         {
             Vector3Int origanalTileMapPosition = Data.poses[i];
-            Data.poses[i] = nextRoomCell.IsCleared ? Data.poses[i] 
-            :  Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
+            Data.poses[i] = nextRoomCell.IsCleared ? Data.poses[i]
+            : Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
