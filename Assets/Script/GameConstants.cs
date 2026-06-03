@@ -3,6 +3,7 @@ using UnityEngine;
 
 public static class GameConstants
 {
+    #region Direction
     public static class Direction
     {
         //Main Direction
@@ -50,7 +51,9 @@ public static class GameConstants
             { LEFT_TOP, Name.LEFT_TOP },
         };
     }
-    
+    #endregion
+
+    #region Input
     public static class Input
     {
         //public static readonly {{Type}} {{Name}} = Button_Name;
@@ -61,12 +64,32 @@ public static class GameConstants
 
         }
     }
-    
+    #endregion
+
+    #region Route Asset
     public static class RouteAsset
     {
-        //public static readonly string {{Name}} = {{Assets\Script\Skill_Ability}};
+        //public static readonly string {{Name}} = (Resources){{Data\Skill_Ability}};
+        public static class GO_PREFABS
+        {
+            // Tile Map
+            public static string TILE_MAP_DOOR = "Tile_Spawn";
+            public static string TILE_MAP_ROOM = "Tile_Spawn";
+            public static string TILE_MAP_FLOOR = "Tile_Spawn";
+        }
+        public static class SO_DATAS
+        {
+            public static string DUNGEON_ROOM = "Tile_Spawn";
+            // Tile Map
+            public static string TILE_MAP_DOOR = "Tile_Spawn";
+            public static string TILE_MAP_ROOM = "Tile_Spawn";
+            public static string TILE_MAP_FLOOR = "Tile_Spawn";
+
+        }
     }
-    
+    #endregion
+
+    #region Setup Stats
     public static class SettingStats
     {
         public static float LENGTH_ROOM = 10;
@@ -74,9 +97,10 @@ public static class GameConstants
         public static float GAME_SCALE = 3;
         public static float PADDING_DOOR_TELE_SCALE = 2f * LENGTH_ROOM / 10;
     }
-    
-    public static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>
-    {
+    #endregion
+
+    #region Dics Type-Name
+    public static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>{
         { RoomType.NormalRoom,   "NormalRoom"   },
         { RoomType.StartRoom,    "StartRoom"    },
         { RoomType.BossRoom,     "BossRoom"     },
@@ -88,8 +112,11 @@ public static class GameConstants
         { RoomType.SecretRoom,   "SecretRoom"   },
         { RoomType.ExitRoom,     "ExitRoom"     },
     };
+    #endregion
 
-    public static class TileName{
+    #region Tile name
+    public static class TileName
+    {
         public static string ROOM = "Tile_Room";
         public static string DOOR = "Tile_Door";
         public static string FLOOR = "Tile_Floor";

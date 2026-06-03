@@ -143,7 +143,7 @@ public class LevelManager : MonoBehaviour
 
             var tilemap = data.tiles[i];
             //Refactor late
-            if (tilemap == "Tile_Door")
+            if (tilemap == GameConstants.TileName.ROOM)
             {
                 // get direction
                 Utility.ToCardinalDirection((Vector3)data.poses[i]);

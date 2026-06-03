@@ -85,7 +85,7 @@ public class RoomGridController : BaseGrid<RoomCell>
 
             var tilemap = Data.tiles[i];
             //Refactor late
-            if (tilemap == "Tile_Door" && !nextRoomCell.IsCleared)
+            if (tilemap == GameConstants.TileName.ROOM && !nextRoomCell.IsCleared)
             {
                 // get direction
                 Vector2 tilemapDirection = Utility.ToCardinalDirection
@@ -96,7 +96,7 @@ public class RoomGridController : BaseGrid<RoomCell>
                 // true swap tile
                 if (!isIncludeDirection)
                 {
-                    tilemap = "Tile_Room";
+                    tilemap = GameConstants.TileName.ROOM;
                     _swapLevelData.directions.Add(tilemapDirection);
                     _swapLevelData.indexToLayer.Add(i, layerIdx);
                     //_swapLevelData._swapLevelDataIndex.Add(i);
@@ -117,7 +117,7 @@ public class RoomGridController : BaseGrid<RoomCell>
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         nextRoomCell.SetDoorPoints(this.DoorPoints);
-        if (!nextRoomCell.IsCleared) { SwapTileMap("Tile_Room"); }
+        if (!nextRoomCell.IsCleared) { SwapTileMap(GameConstants.TileName.ROOM); }
     }
     private void SwapTileMap(string tileMapName)
     {
