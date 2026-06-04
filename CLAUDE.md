@@ -95,28 +95,41 @@
         INegativeReceiver.cs                     # filename kept old typo; interface name is INegativeReceiver — TakeDamage(int amountDamage, Vector2 attackPosition)
 
       Map/
-        Maze/   MazeGenerator.cs (DFS), MazeController.cs (singleton)
-        Cell/   Cell.cs, CellControll.cs (CellController), CellMapController.cs
-        Room/   RoomController.cs ✅, RoomMapController.cs ✅, Door/DoorController.cs
-        Controllers/
-          MainMapController.cs                  # ✅ teleport working — Move() wires to FastMovement
-          MiniMapController.cs                  # ✅ avatar tracking via ON_PLAYER_ON_DOOR + ON_LOAD_MAZE_DONE
+        BaseGrid.cs                             # Generic MonoBehaviour grid: AddCell, Setting, GetNext, CaculateIndex
+        BaseCell.cs                             # Abstract cell base: AddCell, GetGridPosition, Setting()
+        Interface/
+          IGrid.cs                              # IGrid / IGrid<T>: Columns, Rows, AddCell, Setting, GetNext
+          IGridItem.cs                          # IGridItem: AddCell, GetGridPosition
+        Maze/
+          MazeGenerator.cs                      # DFS; random Start cell, last-visited End cell; public Start/End
+          MazeController.cs                     # Singleton; wires MapGrid + RoomGrid; GetCellStart() / GetCellEnd()
+        Cell/
+          Cell.cs                               # Data class: Row, Col, Doors dict (string→STATUS_DOOR)
+          MapCell.cs                            # Minimap cell MonoBehaviour (extends BaseCell) — wall visibility per door
+          MapGridController.cs                  # ⚠️ Minimap grid (extends BaseGrid<MapCell>) — methods commented out (WIP)
+        Room/
+          RoomCell.cs                           # World room cell: doors, StartDoorPosition, IsCleared, ClearRoom(), OpenDoors()
+          RoomGridController.cs                 # ✅ Room grid + tilemap loader: LoadRoom(), ClearRoom(), OnLoadMap(); listens ON_LOAD_MAZE_DONE / ON_PLAYER_ON_DOOR / ON_CLEAR_ENEMY
+          Door/
+            DoorController.cs                   # ✅ Manages door collider; collider enabled only when Status==OPEN; Emit ON_PLAYER_ON_DOOR on player touch
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
 
-      LevelEdit/                                # Editor tool for authoring room tilemaps
+      LevelEdit/                                # Editor + runtime room loading
         LevelEditor.cs                          # Stub — Tilemap/Camera refs, Update() empty
-        LevelManager.cs                         # Save tilemap → JSON; Load JSON → genmap Tilemap — editor-only tool, không liên quan game runtime
+        LevelManager.cs                         # Singleton ⚠️; SaveLevel() / ImportRoomJsonFiles() (editor); GetDungeonRoomSO() / GetRandomRooms() (runtime); GetTileSOs() / GetTilemaps() for RoomGridController
 
     SO/
       Dungeon/
-        DungeonRoomSO.cs                        # SO: List<RoomFile> (roomName, filePath)
-        TileSO.cs                               # SO: tile data
+        DungeonRoomSO.cs                        # SO: List<RoomFile> (roomName, filePath, roomType)
+        TileSO.cs                               # SO: tile id → TileBase mapping
+        Maze_Storage.asset                      # Full room pool (all authored rooms)
+        Maze_Load_Room.asset                    # Runtime pool (subset selected per run)
 
     Editor/
       LevelManagerEditor.cs                     # Custom Inspector button for LevelManager
 
     Data/
-      Json/Room/                                # Saved room tilemap data (room_0.json … room_4.json)
+      Json/Room/                                # Room tilemap data: NormalRoom_0.json … NormalRoom_12.json (13 rooms)
 
       Weapons/
         Weapon.cs (abstract base), WeaponStats.cs, WeaponType.cs
@@ -140,8 +153,11 @@
         AnimationEventManager.cs                # AnimationEventId enum: StartAnimation, MoveAnimation, AttactAnimation, DoSkillAnimation, EndAnimation
         UI/UIManager.cs                         # EMPTY STUB
 
-      Item/, Interact/, Pooling/, MainMenu/, Utility/
-      GameConstants.cs                          # Direction vectors + Input axis name constants
+      Item/, Interact/, Pooling/, MainMenu/
+      Utility/
+        GameConstants.cs                        # Direction vectors, tile names, room scale constants (GAME_SCALE=3, LENGTH_ROOM=10)
+        Utility.cs                              # Static helpers: PickUniqueIndex, ToCardinalDirection, SealUnusedDoors, GetDoorWorldPosition
+        DirectionTarget.cs                      # Direction targeting helper
 
       Enemy/
         EnemySO.cs                              # Data-only SO: speed, FOV, damage, projectile, drops
@@ -234,40 +250,75 @@
   ### Map / Dungeon Generation
 
   ```
-  MazeGenerator.Generator(rows, cols)
-    DFS → Cell[rows*cols], mỗi Cell có Row, Col, Top/Bottom/Left/Right: CLOSE|OPEN|BE_OPEN
-
   MazeController.Awake() [singleton]
-    → Generator.Generator(Rows, Cols)
-    → SetCellData: for each Cell → CellMapController.AddCell() + RoomMapController.AddCell()
+    → MazeGenerator.Generator(Rows, Cols)
+        DFS từ random start cell → Cell[rows*cols]
+        Start = random cell; End = last visited cell
+    → SetCellData: for each Cell → MapGrid.AddCell() + RoomGrid.AddCell()
+    → MapGrid.Setting() / RoomGrid.Setting()
+        RoomGridController.Setting():
+          → GetCellStart/End → _startIndex / _endIndex
+          → LevelManager.GetDungeonRoomSO() → _fullDungeonRoomSO (full pool)
+          → Utility.PickUniqueIndex(total, mazeSize) → randomMazeRoomsIndex
+          → gán random rooms; force [_startIndex]=room[0], [_endIndex]=room[last]
     → EventManager.Emit(ON_LOAD_MAZE_DONE)
 
-  IMapController / IMapController<T>    interface chung cho cả hai controller
-    AddCell(cell)                       Instantiate prefab, đặt vị trí = (col, -row) * scale
-    Setting(cols, rows)                 lưu Columns/Rows, set _current = list[0]
-    GetNext(direction)                  flip Y → tính index = y*Columns+x → trả về _next
-    GetStart()                          trả về list[0]
-    GetValue(int) / SetValue(int, T)    truy cập list trực tiếp
+  IGrid<T> — interface chung cho BaseGrid<T>
+    AddCell(cell)           Instantiate prefab cell
+    Setting(cols, rows)     lưu Columns/Rows
+    GetNext(direction)      flip Y → index = y*Columns+x → trả về _next
+    GetValue(int)           truy cập _list trực tiếp
+    CaculateIndex(Vector2)  row*Columns + col
 
-  CellMapController : IMapController<CellController>   minimap data layer
-    _current/_next advance qua ON_LOAD_MAP event
+  RoomGridController [ON_LOAD_MAZE_DONE] → OnDoneLoadRoomGrid()
+    → LoadRoom(_startIndex, _current)
+    → fastMovement.position = _current.StartDoorPosition
 
-  RoomMapController : IMapController<RoomController>   world/gameplay layer
-    _current/_next advance qua OnLoadMap() direct call từ MainMapController
-    GetNext() thêm: _next.GetStartDoorPosition(-dir) + _current.UpdateStatusDoor(dir)
+  RoomGridController.LoadRoom(index, roomCell):
+    → đọc JSON từ _dungeonRoomSO.room[index].filePath (hoặc dùng cached data nếu IsCleared)
+    → clear tilemaps
+    → for each tile:
+        if DOOR tile && !IsCleared:
+          direction = Utility.ToCardinalDirection(tilePos)
+          if direction IN roomCell.ListDirectionDoors → giữ door; lưu vào DoorPoints + CurentDoorLevelData
+          else → swap sang ROOM tile (wall); lưu vào SwapLevelData
+    → SetTile trên _genmap[layerIdx]
+    → roomCell.SetDoorPoints(DoorPoints) → reposition DoorController transforms
 
-  DoorController.Setting(dir, status)   OPEN→màu đỏ, BE_OPEN→màu trắng, CLOSE→tắt trigger
-  DoorController.OnTriggerEnter2D()     Player tag + status != CLOSE → Emit(ON_PLAYER_ON_DOOR, dir)
+  DoorController.OnTriggerEnter2D()    tag=="Player" && Status==OPEN → Emit(ON_PLAYER_ON_DOOR, dir)
 
-  MainMapController [ON_PLAYER_ON_DOOR] → RoomMapController.GetNext() → OnLoadMap()
-                                        → fastMovement.position = next.StartDoorPosition
+  RoomGridController [ON_PLAYER_ON_DOOR] → ClearRoom(direction):
+    → cache state: Data, CurentDoorLevelData, DoorPoints → RoomCell.IsCleared = true
+    → clear tilemaps; clear SwapLevelData / DoorPoints
+    → OnLoadMap(direction)
 
-  MiniMapController [ON_PLAYER_ON_DOOR] → CellMapController.GetNext()
-                                        → Avatar.position = current.transform.position
-                                        → Emit(ON_LOAD_MAP) → CellMapController advance _current
+  RoomGridController.OnLoadMap(direction):
+    → _next = GetNext(direction)
+    → LoadRoom(index, _next)
+    → _next.GetStartDoorPosition(-direction)   [open entry door; calc StartDoorPosition]
+    → _current.UpdateStatusDoor(direction)     [open exit door]
+    → fastMovement.position = _next.StartDoorPosition
+    → _current = _next
+    → Emit(ON_LOAD_MAP, index)
+
+  RoomGridController [ON_CLEAR_ENEMY] → DeleteDoorTileMap():
+    → xóa CurentDoorLevelData tiles khỏi tilemap (lộ cửa ra)
+    → RoomCell.OpenDoors() → tất cả door SetStatus(OPEN)
+
+  MapGridController [ON_LOAD_MAP / ON_PLAYER_ON_DOOR / ON_LOAD_MAZE_DONE]
+    → ⚠️ toàn bộ handler bị comment out — minimap WIP
   ```
 
-  **STATUS_DOOR semantics:** `OPEN` = cell này carve passage (màu đỏ) — `BE_OPEN` = nhận từ phía kia (màu trắng) — cả hai đều passable. `CLOSE` = tường kín.
+  **STATUS_DOOR semantics:**
+  | Value | Tên | Ý nghĩa | Collider |
+  |-------|-----|---------|----------|
+  | 0 | `DISABLE` | Hướng này không có door trong maze | Off |
+  | 1 | `ENEBLE` | Door tồn tại, đang bị khóa | Off |
+  | 2 | `BE_OPEN` | Receiver side của passage | Off |
+  | 3 | `OPEN` | Passable — player đi qua được | **On** |
+  | 4 | `CLOSE` | Tường kín runtime | Off |
+
+  **Setup quan trọng (Inspector):** `RoomGridController` cần wire: `_fastMovement`, `_dungeonRoomSO` (= `Maze_Load_Room.asset`), `_fullDungeonRoomSO` (= `Maze_Storage.asset`), `_listTiles`, `_genmap` (list Tilemap layers). `LevelManager` phải có trong scene với `dungeonRoomSO` = `Maze_Storage.asset`.
 
   ### Event System
 
@@ -275,7 +326,7 @@
   EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, callback);  // note: typo in source — use as-is
   EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
   ```
-  Events currently defined: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`. Events needed but not yet added: `ON_ENEMY_DEATH`, `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`, `ON_ROOM_CLEAR`.
+  Events currently defined: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY` (enemy all dead → open doors), `ON_TEST` (debug only). Events needed but not yet added: `ON_ENEMY_DEATH`, `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`, `ON_ROOM_CLEAR`.
 
   ---
 
@@ -283,9 +334,9 @@
 
   | # | Severity | Status | Description | Location |
   |---|----------|--------|-------------|----------|
-  | 1 | COMPILE | ✅ FIXED | `RoomMapController.GetNextRoom()` — `Columns` property added, `GetValue(index)` correct | [RoomMapController.cs](Script/Map/Room/RoomMapController.cs) |
-  | 2 | COMPILE | ✅ FIXED | `MainMapController.LoadRoom()` typo `cuonefsakdjfhnasdklfhjasdrrent` removed | [MainMapController.cs](Script/Map/Controllers/MainMapController.cs) |
-  | 3 | LOGIC | ✅ FIXED | `MainMapController.Start()` now calls `MazeController.Instance.RoomMapController.GetStartRoom()` | [MainMapController.cs:12](Script/Map/Controllers/MainMapController.cs#L12) |
+  | 1 | COMPILE | ✅ SUPERSEDED | `RoomMapController` — class đã bị xóa, thay bởi `RoomGridController` (2026-06-04) | — |
+  | 2 | COMPILE | ✅ SUPERSEDED | `MainMapController` — class đã bị xóa, logic chuyển vào `RoomGridController` (2026-06-04) | — |
+  | 3 | LOGIC | ✅ SUPERSEDED | `MainMapController.Start()` — class không còn tồn tại (2026-06-04) | — |
   | 4 | LOGIC | ⚠️ OPEN | `WeaponMelee.Attack()` — `OverlapCircleAll` runs but `foreach` body is empty, no `INegativeReceiver.TakeDamage()` call | [WeaponMelee.cs:29](Assets/Script/Weapons/MeleeWeapon/WeaponMelee.cs#L29) |
   | 5 | LOGIC | ⚠️ OPEN | `EntityMoveState.LogicUpdate()` dereferences `entity.Input.Target.transform.position` (line 30) before null check (line 34) — NullRef if target lost mid-chase | [EntityMoveState.cs:30](Assets/Script/Character/Entity/States/EntityMoveState.cs#L30) |
   | 6 | LOGIC | ⚠️ OPEN | No player death — `Core.TakeDamage()` decrements health but no death check; `EventID` missing `ON_PLAYER_DEATH` | [Core.cs:20](Assets/Script/Character/Player/Core/Core.cs#L20) |
@@ -293,6 +344,8 @@
   | 8 | LOGIC | ⚠️ OPEN | `EntityBasicState.LogicUpdate()` — `Health <= 0` block is empty (line 21), no transition to `EntityDeathState` | [EntityBasicState.cs:21](Assets/Script/Character/Entity/States/EntityBasicState.cs#L21) |
   | 9 | LOGIC | ⚠️ OPEN | `AnimationPlayerController.OnEnable()` registers `StartAnimation` callback twice on line 21 — `EndAnimation` event never fires | [AnimationPlayerController.cs:21](Assets/Script/Character/Player/Animation/AnimationPlayerController.cs#L21) |
   | 10 | BUILD | ✅ FIXED | `EventManager.cs` removed `using UnityEditor.PackageManager` — no longer breaks Player builds | [EventManager.cs](Assets/Script/Manager/EventManager.cs) |
+  | 11 | LOGIC | ⚠️ OPEN | `MapGridController` — toàn bộ methods (`OnLoadMap`, `Move`, `LoadRoom`) bị comment out — minimap không hoạt động | [MapGridController.cs](Assets/Script/Map/Cell/MapGridController.cs) |
+  | 12 | ARCH | ⚠️ OPEN | `LevelManager` dùng singleton pattern (`public static Instance`) — vi phạm quy tắc "no new singletons"; cần refactor thành Inspector ref | [LevelManager.cs](Assets/Script/LevelEdit/LevelManager.cs) |
 
   ---
 
@@ -309,8 +362,8 @@
 
   ## Demo Completion Checklist
 
-  1. ~~**Fix map compile errors**~~ ✅ Done — `RoomMapController` and `MainMapController` compile-clean (bugs 1-3).
-  2. ~~**Dungeon navigation prototype**~~ ✅ Done — teleportation via `MainMapController.Move()` + `FastMovement` works; `MiniMapController` avatar tracks player position; `ON_LOAD_MAZE_DONE` event fires on maze ready.
+  1. ~~**Fix map compile errors**~~ ✅ Done — `RoomMapController`/`MainMapController` superseded; `RoomGridController` compile-clean (bugs 1-3 SUPERSEDED).
+  2. ~~**Dungeon navigation + random room load**~~ ✅ Done — random DFS start/end; random room pool via `Utility.PickUniqueIndex`; `RoomGridController.LoadRoom()` loads JSON + door tile swap; teleport via `fastMovement`; `ON_LOAD_MAZE_DONE` / `ON_PLAYER_ON_DOOR` / `ON_CLEAR_ENEMY` wired.
   3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` saves/loads room tilemaps as JSON under `Assets/Data/Json/Room/`; `DungeonRoomSO` tracks room file list; `LevelManagerEditor` custom Inspector button.
   4. **Fix EventManager build break** ⚠️ (Bug #10) — remove `using UnityEditor.PackageManager;` from `EventManager.cs` (line 4); wrap any editor-only code with `#if UNITY_EDITOR`.
   5. **Fix WeaponMelee.Attack()** ⚠️ (Bug #4) — add inside the `foreach`: `INegativeReceiver dmg = enemy.GetComponentInChildren<INegativeReceiver>(); if (dmg != null) dmg.TakeDamage(currrentSA.attackDamege, transform.position);` (keep typo `attackDamege`).
@@ -319,7 +372,7 @@
      - Fix `EntityMoveState` NullRef: move null guard `if (entity.Input.Target == null)` to top of `LogicUpdate()` before line 30.
      - Rewrite `EntityDeathState` to extend `EntityState` not `MonoBehaviour`.
      - Fill `EntityBasicState` empty death block: transition to `EntityDeathState`.
-  8. **Room clear condition** ⚠️ — `RoomController` counts enemies; locks doors on room enter via `EventManager`, unlocks when count reaches 0. Add `ON_ENEMY_DEATH` + `ON_ROOM_CLEAR` to `EventID` enum.
+  8. **Room clear condition** ⚠️ — `RoomCell` cần đếm enemy; lock doors khi player vào room; unlock khi count = 0. `ON_CLEAR_ENEMY` đã có trong EventID — cần emit từ EntityDeathState. Thêm `ON_ENEMY_DEATH` + `ON_ROOM_CLEAR` nếu cần granular events.
   9. **HUD** ⚠️ — implement `UIManager`: bind health bar slider via `EventID.ON_PLAYER_TAKE_DAMAGE` subscription (currently empty stub).
   10. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards (+damage / +speed / +maxHealth on `PlayerData`), apply chosen.
   11. **Fix AnimationPlayerController** ⚠️ (Bug #9) — `OnEnable` line 21: change second `StartAnimation` registration to `EndAnimation`; mirror fix in `OnDisable`.

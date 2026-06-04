@@ -22,11 +22,11 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 4 | Animation System | Foundation | Foundation | MVP | Designed | design/gdd/animation-system.md |
 | 5 | Character / Player Controller | Gameplay | Core | MVP | Designed | design/gdd/character-system.md |
 | 6 | Enemy AI | Gameplay | Core | MVP | Designed | design/gdd/character-system.md |
-| 7 | Dungeon Generation | Map | Core | MVP | Not Started | — |
+| 7 | Dungeon Generation | Map | Core | MVP | In Progress | design/gdd/map-system.md |
 | 8 | Melee Combat | Gameplay | Feature | MVP | Designed | design/gdd/weapons-system.md |
 | 9 | Weapon System | Gameplay | Feature | MVP | Designed | design/gdd/weapons-system.md |
 | 10 | Skill & Ability System | Gameplay | Feature | MVP | Designed | design/gdd/skill-ability-system.md |
-| 11 | Room Progression | Map | Feature | MVP | Not Started | — |
+| 11 | Room Progression | Map | Feature | MVP | In Progress | design/gdd/map-system.md |
 | 12 | Death & Restart | Meta | Feature | MVP | Not Started | — |
 | 13 | HUD | UI | Presentation | MVP | Not Started | — |
 | 14 | Per-Run Upgrades | Progression | Presentation | MVP | Not Started | — |
@@ -94,11 +94,11 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 | 4 | Animation System | MVP | Not Started | Character, Combat |
 | 5 | Character / Player Controller | MVP | Designed ✅ | Combat, Weapons, Skills, HUD |
 | 6 | Enemy AI | MVP | Designed ✅ | Room Progression, Melee Combat |
-| 7 | Dungeon Generation | MVP | Not Started | Room Progression, Minimap |
+| 7 | Dungeon Generation | MVP | In Progress ✅ | Room Progression, Minimap |
 | 8 | Melee Combat | MVP | Designed ✅ | — |
 | 9 | Weapon System | MVP | Designed ✅ | Skill & Ability |
 | 10 | Skill & Ability System | MVP | Designed ✅ | HUD |
-| 11 | Room Progression | MVP | Not Started | Per-Run Upgrades |
+| 11 | Room Progression | MVP | In Progress ✅ | Per-Run Upgrades |
 | 12 | Death & Restart | MVP | Not Started | Start Menu |
 | 13 | HUD | MVP | Not Started | — |
 | 14 | Per-Run Upgrades | MVP | Not Started | — |
@@ -112,9 +112,9 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 ## GDD Progress
 
 - **Total systems**: 18
-- **Designed**: 9 (Event Bus, Input, Damage & Health, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap — partial: some in CLAUDE.md)
-- **With standalone GDD files**: 3 (character-system.md, weapons-system.md, skill-ability-system.md)
-- **Not Started**: 6 MVP systems still need standalone GDDs (Animation, Dungeon Generation, Room Progression, Death & Restart, HUD, Per-Run Upgrades)
+- **Designed / In Progress**: 11 (Event Bus, Input, Damage & Health, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**)
+- **With standalone GDD files**: 4 (character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**)
+- **Not Started**: 4 MVP systems still need standalone GDDs (Animation, Death & Restart, HUD, Per-Run Upgrades)
 - **Alpha/Tools (lower priority)**: 2 remaining
 
 ---
@@ -123,8 +123,7 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 
 Priority order for next GDD sessions:
 
-1. **Dungeon Generation + Room Progression** → `/reverse-document design Assets/Script/Map/`
-   *(These share heavy coupling — design together or back-to-back)*
+1. ~~**Dungeon Generation + Room Progression**~~ ✅ Done — `map-system.md` created; random load implemented
 2. **Death & Restart** → short GDD, closely tied to Character system
 3. **HUD** → depends on Character + Skills being stable
-4. **Per-Run Upgrades** → depends on Room Progression
+4. **Per-Run Upgrades** → depends on Room Progression (room-clear event flow needed first)
