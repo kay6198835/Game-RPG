@@ -9,6 +9,7 @@ public class RoomGridController : BaseGrid<RoomCell>
 {
     [SerializeField] private FastMovement _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
+    [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
     [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
@@ -18,8 +19,10 @@ public class RoomGridController : BaseGrid<RoomCell>
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
 
-    public void Start()
+    public override void Setting(int columns, int rows)
     {
+        base.Setting(columns, rows);
+
         Vector2 position = new Vector2();
         position.x = MazeController.Instance.GetCellStart().Row;
         position.y = MazeController.Instance.GetCellStart().Column;
@@ -28,6 +31,19 @@ public class RoomGridController : BaseGrid<RoomCell>
         position.x = MazeController.Instance.GetCellEnd().Row;
         position.y = MazeController.Instance.GetCellEnd().Column;
         _endIndex = CaculateIndex(position);
+
+
+        _fullDungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
+        _listTiles = LevelManager.Instance.GetTileSOs();
+        _genmap = LevelManager.Instance.GetTilemaps();
+
+        // get start, get radoom, get end
+        _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[0]);
+        for (int i = 0; i < Utility.PickUniqueIndex(_fullDungeonRoomSO.count, _listTiles.Count); i++)
+        {
+            _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[i]);
+        }
+        _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[_fullDungeonRoomSO.count - 1]);
     }
     public void OnEnable()
     {
@@ -59,15 +75,6 @@ public class RoomGridController : BaseGrid<RoomCell>
         _current = _next;
         _next = null;
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
-    }
-
-    public override void Setting(int columns, int rows)
-    {
-        base.Setting(columns, rows);
-        //LevelManager.Instance.LoadRoom(0, _current.transform.position);
-        _dungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
-        _listTiles = LevelManager.Instance.GetTileSOs();
-        _genmap = LevelManager.Instance.GetTilemaps();
     }
 
     public void OnDoneLoadRoomGrid(object obj = null)

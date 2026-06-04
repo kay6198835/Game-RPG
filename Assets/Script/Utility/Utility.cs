@@ -190,4 +190,23 @@ public static class Utility
 
         return asset;
     }
+
+    public static List<int> PickUniqueIndex(int totalCount, int pickCount)
+    {
+        // Exclude index 0 và index cuối (totalCount - 1)
+        List<int> indices = Enumerable.Range(1, totalCount - 2).ToList();
+
+        if (pickCount > indices.Count)
+        {
+            pickCount = indices.Count;
+        }
+
+        for (int i = indices.Count - 1; i > 0; i--)
+        {
+            int rand = Random.Range(0, i + 1);
+            (indices[i], indices[rand]) = (indices[rand], indices[i]);
+        }
+
+        return indices.GetRange(0, pickCount);
+    }
 }
