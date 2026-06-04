@@ -20,23 +20,23 @@ public class MapGridController : BaseGrid<MapCell>
     private void OnLoadMap(object obj = null)
     {
         
-        _current = _next;
-        _next = null;
+        // _current = _next;
+        // _next = null;
         
-        _current = GetStartRoom();
-        Avatar.transform.position = _current.transform.position;
+        // _current = GetStartRoom();
+        // Avatar.transform.position = _current.transform.position;
     }
 
     public void Move(object ojt = null)
     {
-        _next = GetNext((Vector2)ojt);
-        LoadRoom();
+        // _next = GetNext((Vector2)ojt);
+        // LoadRoom();
     }
 
     public void LoadRoom()
     {
-        _current = _next;
-        _next = null;
-        Avatar.transform.position = _current.transform.position;
+        // _current = _next;
+        // _next = null;
+        // Avatar.transform.position = _current.transform.position;
     }
 }

@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -171,15 +171,10 @@ public static class Utility
         }
     }
 
-    internal static Vector2 ToCardinalDirection(object value)
-    {
-        throw new NotImplementedException();
-    }
-
     #endregion
 
 
-    public static T AssetLoader<T>(string path) where T : Object
+    public static T AssetLoader<T>(string path) where T :  UnityEngine.Object
     {
         T asset = Resources.Load<T>(path);
 

@@ -5,7 +5,7 @@ public class MazeGenerator
 {
     private int _rows = 10;
     private int _columns = 10;
-    private Cell[] Gird;
+    public Cell[] Gird;
     private Stack<Cell> stack = new Stack<Cell>();
     private readonly Random _random = new Random();
     public Cell Start { get; private set; }
@@ -37,7 +37,7 @@ public class MazeGenerator
     {
         int row = _random.Next(0, _rows);
         int col = _random.Next(0, _columns);
-        return grid[row, col];
+        return GetValue(row, col);
     }
     private Cell[] Generate()
     {

@@ -24,9 +24,9 @@ public class LevelManagerEditor : Editor
         {
             EventManager.Emit(EventID.ON_CLEAR_ENEMY);
         }
-        if (GUILayout.Button("Load test"))
+        if (GUILayout.Button("Import Room Json Files"))
         {
-            EventManager.Emit(EventID.ON_TEST);
+            levelManager.ImportRoomJsonFiles();
         }
     }
 }

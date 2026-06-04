@@ -82,6 +82,73 @@ public class LevelManager : MonoBehaviour
         Debug.Log($"Saved: {roomName}");
     }
 
+    [ContextMenu("Import Room Json Files")]
+    public void ImportRoomJsonFiles()
+    {
+#if UNITY_EDITOR
+        string roomFolder = Application.dataPath + "/Data/Json/Room";
+        if (!Directory.Exists(roomFolder))
+        {
+            Debug.LogWarning($"Import failed: folder not found {roomFolder}");
+            return;
+        }
+
+        string[] jsonFiles = Directory.GetFiles(roomFolder, "*.json", SearchOption.TopDirectoryOnly);
+        int importedCount = 0;
+
+        foreach (string file in jsonFiles)
+        {
+            string relativePath = file.Substring(Application.dataPath.Length).Replace("\\", "/");
+            if (!relativePath.StartsWith("/"))
+            {
+                relativePath = "/" + relativePath;
+            }
+
+            if (dungeonRoomSO.room.Exists(r => r.filePath == relativePath))
+            {
+                continue;
+            }
+
+            string roomName = Path.GetFileNameWithoutExtension(file);
+            RoomType roomType = InferRoomTypeFromName(roomName);
+
+            dungeonRoomSO.room.Add(new RoomFile
+            {
+                roomName = roomName,
+                filePath = relativePath,
+                roomType = roomType
+            });
+
+            importedCount++;
+        }
+
+        if (importedCount > 0)
+        {
+            UnityEditor.EditorUtility.SetDirty(dungeonRoomSO);
+            UnityEditor.AssetDatabase.SaveAssets();
+        }
+
+        Debug.Log($"Imported {importedCount} room json files into {dungeonRoomSO.name}");
+#else
+        Debug.LogWarning("ImportRoomJsonFiles is only supported in the Unity Editor.");
+#endif
+    }
+
+#if UNITY_EDITOR
+    private RoomType InferRoomTypeFromName(string roomName)
+    {
+        foreach (RoomType type in System.Enum.GetValues(typeof(RoomType)))
+        {
+            if (roomName.StartsWith(type.ToString()))
+            {
+                return type;
+            }
+        }
+
+        return RoomType.NormalRoom;
+    }
+#endif
+
     public void LoadLevel()
     {
         string json = File.ReadAllText(Application.dataPath + dungeonRoomSO.room[this.index].filePath);
@@ -143,7 +210,7 @@ public class LevelManager : MonoBehaviour
 
             var tilemap = data.tiles[i];
             //Refactor late
-            if (tilemap == GameConstants.TileName.ROOM)
+            if (tilemap == GameConstants.TileName.DOOR)
             {
                 // get direction
                 Utility.ToCardinalDirection((Vector3)data.poses[i]);

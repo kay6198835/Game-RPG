@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18cd8316ce8d05d42b6af196e476e277, type: 3}
-  m_Name: Maze_1
+  m_Name: Maze_Storage
   m_EditorClassIdentifier: 
   room:
   - roomName: NormalRoom_0
     filePath: /Data/Json/Room/NormalRoom_0.json
-    roomType: 0
+    roomType: 1
   - roomName: NormalRoom_1
     filePath: /Data/Json/Room/NormalRoom_1.json
     roomType: 0
@@ -40,3 +40,15 @@ MonoBehaviour:
   - roomName: NormalRoom_8
     filePath: /Data/Json/Room/NormalRoom_8.json
     roomType: 0
+  - roomName: NormalRoom_9
+    filePath: /Data/Json/Room/NormalRoom_9.json
+    roomType: 0
+  - roomName: NormalRoom_10
+    filePath: /Data/Json/Room/NormalRoom_10.json
+    roomType: 0
+  - roomName: NormalRoom_11
+    filePath: /Data/Json/Room/NormalRoom_11.json
+    roomType: 0
+  - roomName: NormalRoom_12
+    filePath: /Data/Json/Room/NormalRoom_12.json
+    roomType: 9

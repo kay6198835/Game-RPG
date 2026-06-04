@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 [CreateAssetMenu(fileName = "DungeonRoomPrefab", menuName = "Data/Dungeon Room")]
 public class DungeonRoomSO : ScriptableObject
 {
-    public List<RoomFile> room;
+    public List<RoomFile> room = new List<RoomFile>();
 }
 
 [System.Serializable]

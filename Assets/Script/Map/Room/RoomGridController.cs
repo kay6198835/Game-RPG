@@ -12,24 +12,27 @@ public class RoomGridController : BaseGrid<RoomCell>
     [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
+    [SerializeField] private float _tileSetDelay = 10f;
     [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
     [SerializeField] public LevelData CurentDoorLevelData { get; private set; } = new LevelData();
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
+    [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
+
 
     public override void Setting(int columns, int rows)
     {
         base.Setting(columns, rows);
 
         Vector2 position = new Vector2();
-        position.x = MazeController.Instance.GetCellStart().Row;
-        position.y = MazeController.Instance.GetCellStart().Column;
+        position.y = MazeController.Instance.GetCellStart().Row;
+        position.x = MazeController.Instance.GetCellStart().Column;
         _startIndex = CaculateIndex(position);
 
-        position.x = MazeController.Instance.GetCellEnd().Row;
-        position.y = MazeController.Instance.GetCellEnd().Column;
+        position.y = MazeController.Instance.GetCellEnd().Row;
+        position.x = MazeController.Instance.GetCellEnd().Column;
         _endIndex = CaculateIndex(position);
 
 
@@ -38,12 +41,15 @@ public class RoomGridController : BaseGrid<RoomCell>
         _genmap = LevelManager.Instance.GetTilemaps();
 
         // get start, get radoom, get end
-        _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[0]);
-        for (int i = 0; i < Utility.PickUniqueIndex(_fullDungeonRoomSO.count, _listTiles.Count); i++)
+        var totalCount = _fullDungeonRoomSO.room.Count;
+        var pickCount = _list.Count;
+        randomMazeRoomsIndex = Utility.PickUniqueIndex(totalCount, pickCount);
+        for (int i = 0; i < randomMazeRoomsIndex.Count; i++)
         {
-            _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[i]);
+            _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[randomMazeRoomsIndex[i]]);
         }
-        _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[_fullDungeonRoomSO.count - 1]);
+        _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
+        _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
     }
     public void OnEnable()
     {
@@ -56,19 +62,13 @@ public class RoomGridController : BaseGrid<RoomCell>
         EventManager.UnResgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
         EventManager.UnResgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
         EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
+        this._dungeonRoomSO.room.Clear();
     }
     public void OnLoadMap(Vector2 directionToNextMap)
     {
-        int index = CaculateIndex(_current.GetGridPosition());
         _next = GetNext(directionToNextMap);
-        if (index == _endIndex)
-        {
-            this.LoadRoom(_dungeonRoomSO.Count - 1, _next);
-        }
-        else
-        {
-            this.LoadRoom(index, _next);
-        }
+        int index = CaculateIndex(_next.GetGridPosition());
+        this.LoadRoom(index, _next);
         _next.GetStartDoorPosition(-directionToNextMap);
         _current.UpdateStatusDoor(directionToNextMap);
         _fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
@@ -79,7 +79,9 @@ public class RoomGridController : BaseGrid<RoomCell>
 
     public void OnDoneLoadRoomGrid(object obj = null)
     {
-        this.LoadRoom(0, GetValue(_startIndex));
+        _current = GetValue(_startIndex);
+        this.LoadRoom(_startIndex, _current);
+        this._fastMovement.transform.SetPositionAndRotation(this._current.StartDoorPosition, Quaternion.identity);
     }
 
     public void LoadRoom(int index, RoomCell nextRoomCell)
@@ -113,7 +115,7 @@ public class RoomGridController : BaseGrid<RoomCell>
 
             var tilemap = Data.tiles[i];
             //Refactor late
-            if (tilemap == GameConstants.TileName.ROOM && !nextRoomCell.IsCleared)
+            if (tilemap == GameConstants.TileName.DOOR && !nextRoomCell.IsCleared)
             {
                 // get direction
                 Vector2 tilemapDirection = Utility.ToCardinalDirection
@@ -188,10 +190,8 @@ public class RoomGridController : BaseGrid<RoomCell>
 
     private void DeleteDoorTileMap(object obj = null)
     {
-        Debug.Log("DeleteDoorTileMap " + CurentDoorLevelData.tiles.Count);
         for (int i = 0; i < CurentDoorLevelData.tiles.Count; i++)
         {
-            Debug.Log("DeleteDoorTileMap" + i);
             _genmap[CurentDoorLevelData.layerIndices[i]].SetTile(CurentDoorLevelData.poses[i], null);
         }
         _current.OpenDoors();

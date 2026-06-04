@@ -7,9 +7,9 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
     where T : MonoBehaviour, IGridItem
 {
     [SerializeField] protected T prefabObject;
-    protected List<T> _list = new List<T>();
-    protected T _current;
-    protected T _next;
+    [SerializeField] protected List<T> _list = new List<T>();
+    [SerializeField] protected T _current;
+    [SerializeField] protected T _next;
 
     public int Columns { get; private set; }
     public int Rows { get; private set; }
@@ -26,7 +26,6 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
     {
         Columns = columns;
         Rows = rows;
-        _current = _list[0];
     }
 
     public T GetValue(int index) => _list[index];
