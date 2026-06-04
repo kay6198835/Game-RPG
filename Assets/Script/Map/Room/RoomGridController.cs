@@ -15,7 +15,20 @@ public class RoomGridController : BaseGrid<RoomCell>
     [SerializeField] public LevelData CurentDoorLevelData { get; private set; } = new LevelData();
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
-    [SerializeField] public int[] RandomRoomIndex { get; private set; }
+    [SerializeField] private int _startIndex;
+    [SerializeField] private int _endIndex;
+
+    public void Start()
+    {
+        Vector2 position = new Vector2();
+        position.x = MazeController.Instance.GetCellStart().Row;
+        position.y = MazeController.Instance.GetCellStart().Column;
+        _startIndex = CaculateIndex(position);
+
+        position.x = MazeController.Instance.GetCellEnd().Row;
+        position.y = MazeController.Instance.GetCellEnd().Column;
+        _endIndex = CaculateIndex(position);
+    }
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
@@ -32,11 +45,17 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         int index = CaculateIndex(_current.GetGridPosition());
         _next = GetNext(directionToNextMap);
-        this.LoadRoom(index, _next);
+        if (index == _endIndex)
+        {
+            this.LoadRoom(_dungeonRoomSO.Count - 1, _next);
+        }
+        else
+        {
+            this.LoadRoom(index, _next);
+        }
         _next.GetStartDoorPosition(-directionToNextMap);
         _current.UpdateStatusDoor(directionToNextMap);
         _fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
-
         _current = _next;
         _next = null;
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
@@ -49,17 +68,13 @@ public class RoomGridController : BaseGrid<RoomCell>
         _dungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
         _listTiles = LevelManager.Instance.GetTileSOs();
         _genmap = LevelManager.Instance.GetTilemaps();
-        RandomRoomIndex = new int[_list.Count];
-        for (int i = 0; i < RandomRoomIndex.Length; i++)
-        {
-            
-        }
     }
 
     public void OnDoneLoadRoomGrid(object obj = null)
     {
-        this.LoadRoom(0, GetStartRoom());
+        this.LoadRoom(0, GetValue(_startIndex));
     }
+
     public void LoadRoom(int index, RoomCell nextRoomCell)
     {
         string filePath = "";

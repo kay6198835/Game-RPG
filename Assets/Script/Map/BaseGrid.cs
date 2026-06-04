@@ -31,7 +31,6 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
 
     public T GetValue(int index) => _list[index];
     public void SetValue(int index, T value) => _list[index] = value;
-    public T GetStartRoom() => GetValue(0);
 
     public T GetNext(Vector2 direction)
     {

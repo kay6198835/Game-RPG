@@ -5,15 +5,16 @@ public class MazeGenerator
 {
     private int _rows = 10;
     private int _columns = 10;
-    public Cell [] Gird;
+    private Cell[] Gird;
     private Stack<Cell> stack = new Stack<Cell>();
     private readonly Random _random = new Random();
-
+    public Cell Start { get; private set; }
+    public Cell End { get; private set; }
     public void Generator(int rows, int cols)
     {
         _rows = rows;
         _columns = cols;
-        Gird = new Cell[rows*cols];
+        Gird = new Cell[rows * cols];
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < cols; c++)
@@ -24,21 +25,25 @@ public class MazeGenerator
         }
         Generate();
     }
-
-    public Cell GetValue (int row, int col) {
-        return Gird[row * this._columns+ col];    
+    private Cell GetValue(int row, int col)
+    {
+        return Gird[row * this._columns + col];
     }
-
-    public void SetValue (int row, int col,Cell cell)
+    private void SetValue(int row, int col, Cell cell)
     {
         Gird[row * this._columns + col] = cell;
     }
-
+    private Cell GetRandomCell()
+    {
+        int row = _random.Next(0, _rows);
+        int col = _random.Next(0, _columns);
+        return grid[row, col];
+    }
     private Cell[] Generate()
     {
-        var start = GetValue(0,0);
-        start.Visited = true;
-        stack.Push(start);
+        Start = GetRandomCell();
+        Start.Visited = true;
+        stack.Push(Start);
 
         while (stack.Count > 0)
         {
@@ -55,11 +60,11 @@ public class MazeGenerator
             RemoveWall(current, next);
             next.Visited = true;
             stack.Push(next);
+            End = next;
         }
 
         return this.Gird;
     }
-
     private List<Cell> GetUnvisitedNeighbors(Cell cell)
     {
         var result = new List<Cell>();

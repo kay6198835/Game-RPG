@@ -43,4 +43,14 @@ public class MazeController : MonoBehaviour
 
         EventManager.Emit(EventID.ON_LOAD_MAZE_DONE);
     }
+
+    public Cell GetCellStart()
+    {
+        return _generator.Start;
+    }
+
+    public Cell GetCellEnd()
+    {
+        return _generator.End;
+    }
 }
