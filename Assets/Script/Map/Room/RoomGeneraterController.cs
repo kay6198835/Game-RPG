@@ -55,18 +55,18 @@ public class RoomGeneraterController : MonoBehaviour
         EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
         this._dungeonRoomSO.room.Clear();
     }
-    public void OnLoadMap(Vector2 directionToNextMap)
-    {
-        _next = GetNext(directionToNextMap);
-        int index = CaculateIndex(_next.GetGridPosition());
-        this.LoadRoom(index, _next);
-        _next.GetStartDoorPosition(-directionToNextMap);
-        _current.UpdateStatusDoor(directionToNextMap);
-        _fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
-        _current = _next;
-        _next = null;
-        EventManager.Emit(EventID.ON_LOAD_MAP, index);
-    }
+    // public void OnLoadMap(Vector2 directionToNextMap)
+    // {
+    //     _next = GetNext(directionToNextMap);
+    //     int index = CaculateIndex(_next.GetGridPosition());
+    //     this.LoadRoom(index, _next);
+    //     _next.GetStartDoorPosition(-directionToNextMap);
+    //     _current.UpdateStatusDoor(directionToNextMap);
+    //     _fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
+    //     _current = _next;
+    //     _next = null;
+    //     EventManager.Emit(EventID.ON_LOAD_MAP, index);
+    // }
 
     public void OnDoneLoadRoomGrid(object obj = null)
     {
