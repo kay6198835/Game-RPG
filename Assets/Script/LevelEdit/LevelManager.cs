@@ -261,7 +261,7 @@ public class LevelManager : MonoBehaviour
     #endregion
 
     public List<TileSO> GetTileSOs() => _listTiles;
-    public List<Tilemap> GetTilemaps() => tilemap;
+    public List<Tilemap> GetTilemaps() => genmap;
     public DungeonRoomSO GetDungeonRoomSO() => dungeonRoomSO;
 }
 

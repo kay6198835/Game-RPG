@@ -1,6 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Tilemaps;
 public class RoomGeneraterController : MonoBehaviour
 {
-    [SerializeField] private FastMovement _fastMovement;
+    [SerializeField] public FastMovement _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
     [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
@@ -13,19 +19,14 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
-
-    public void Setting()
+    public void OnDisable()
     {
-
-        Vector2 position = new Vector2();
-        position.y = MazeController.Instance.GetCellStart().Row;
-        position.x = MazeController.Instance.GetCellStart().Column;
-        _startIndex = CaculateIndex(position);
-
-        position.y = MazeController.Instance.GetCellEnd().Row;
-        position.x = MazeController.Instance.GetCellEnd().Column;
-        _endIndex = CaculateIndex(position);
-
+        _dungeonRoomSO.room.Clear();
+    }
+    public void Setting(int startIndex, int endIndex, int listCount)
+    {
+        _startIndex = startIndex;
+        _endIndex = endIndex;
 
         _fullDungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
         _listTiles = LevelManager.Instance.GetTileSOs();
@@ -33,7 +34,7 @@ public class RoomGeneraterController : MonoBehaviour
 
         // get start, get radoom, get end
         var totalCount = _fullDungeonRoomSO.room.Count;
-        var pickCount = _list.Count;
+        var pickCount = listCount;
         randomMazeRoomsIndex = Utility.PickUniqueIndex(totalCount, pickCount);
         for (int i = 0; i < randomMazeRoomsIndex.Count; i++)
         {
@@ -42,37 +43,11 @@ public class RoomGeneraterController : MonoBehaviour
         _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
         _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
     }
-    public void OnEnable()
-    {
-        EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
-        EventManager.Resgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
-        EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
-    }
-    public void OnDisable()
-    {
-        EventManager.UnResgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
-        EventManager.UnResgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
-        EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
-        this._dungeonRoomSO.room.Clear();
-    }
-    // public void OnLoadMap(Vector2 directionToNextMap)
-    // {
-    //     _next = GetNext(directionToNextMap);
-    //     int index = CaculateIndex(_next.GetGridPosition());
-    //     this.LoadRoom(index, _next);
-    //     _next.GetStartDoorPosition(-directionToNextMap);
-    //     _current.UpdateStatusDoor(directionToNextMap);
-    //     _fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
-    //     _current = _next;
-    //     _next = null;
-    //     EventManager.Emit(EventID.ON_LOAD_MAP, index);
-    // }
 
-    public void OnDoneLoadRoomGrid(object obj = null)
+    public void OnDoneLoadRoomGrid(RoomCell _current)
     {
-        _current = GetValue(_startIndex);
         this.LoadRoom(_startIndex, _current);
-        this._fastMovement.transform.SetPositionAndRotation(this._current.StartDoorPosition, Quaternion.identity);
+        this._fastMovement.transform.SetPositionAndRotation(_current.StartDoorPosition, Quaternion.identity);
     }
 
     public void LoadRoom(int index, RoomCell nextRoomCell)
@@ -162,9 +137,9 @@ public class RoomGeneraterController : MonoBehaviour
         }
     }
 
-    public void ClearRoom(object obj = null)
+    public void ClearRoom(RoomCell _current)
     {
-        this._current.ClearRoom(Data, CurentDoorLevelData, DoorPoints);
+        _current.ClearRoom(Data, CurentDoorLevelData, DoorPoints);
         for (int i = 0; i < Data.tiles.Count; i++)
         {
             var layerIndices = Data.layerIndices[i];
@@ -175,11 +150,9 @@ public class RoomGeneraterController : MonoBehaviour
         this.CurentDoorLevelData.Clear();
         this.DoorPoints.Clear();
         this.Data.Clear();
-
-        this.OnLoadMap((Vector2)obj);
     }
 
-    private void DeleteDoorTileMap(object obj = null)
+    public void DeleteDoorTileMap(RoomCell _current)
     {
         for (int i = 0; i < CurentDoorLevelData.tiles.Count; i++)
         {

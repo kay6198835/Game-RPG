@@ -8,12 +8,21 @@ using UnityEngine.Tilemaps;
 public class RoomGridController : BaseGrid<RoomCell>
 {
     [SerializeField] public RoomGeneraterController roomGeneraterController;
-
+    [SerializeField] private int _startIndex;
+    [SerializeField] private int _endIndex;
     public override void Setting(int columns, int rows)
     {
         base.Setting(columns, rows);
         roomGeneraterController = GetComponent<RoomGeneraterController>();
-        roomGeneraterController.Setting();
+        Vector2 position = new Vector2();
+        position.y = MazeController.Instance.GetCellStart().Row;
+        position.x = MazeController.Instance.GetCellStart().Column;
+        _startIndex = CaculateIndex(position);
+
+        position.y = MazeController.Instance.GetCellEnd().Row;
+        position.x = MazeController.Instance.GetCellEnd().Column;
+        _endIndex = CaculateIndex(position);
+        roomGeneraterController.Setting(_startIndex, _endIndex,_list.Count);
     }
     public void OnEnable()
     {
@@ -44,17 +53,16 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         _current = GetValue(_startIndex);
         this.roomGeneraterController.LoadRoom(_startIndex, _current);
-        this.roomGeneraterController._fastMovement.transform.SetPositionAndRotation(this._current.StartDoorPosition, Quaternion.identity);
+        //this.roomGeneraterController._fastMovement.transform.SetPositionAndRotation(this._current.StartDoorPosition, Quaternion.identity);
     }
     public void ClearRoom(object obj = null)
     {
-        this._current.ClearRoom(Data, CurentDoorLevelData, DoorPoints);
-        roomGeneraterController.ClearRoom(obj);
+        roomGeneraterController.ClearRoom(_current);
         this.OnLoadMap((Vector2)obj);
     }
 
     private void DeleteDoorTileMap(object obj = null)
     {
-        roomGeneraterController.DeleteDoorTileMap(obj);
+        roomGeneraterController.DeleteDoorTileMap(_current);
     }
 }
