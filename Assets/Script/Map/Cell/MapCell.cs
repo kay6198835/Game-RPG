@@ -9,7 +9,7 @@ public class MapCell : BaseCell
     private float PADDING_SCALE = GameConstants.SettingStats.LENGTH_CELL * 2;
     [SerializeField] private GameObject _top, _left, _right, _bottom;
     [SerializeField] public Transform StartDoorPosition { get; private set; }
-
+    [SerializeField] public bool IsVisited { get; private set; } = false;
     protected override void Setting()
     {
         if (_cellData == null) return;
@@ -26,5 +26,14 @@ public class MapCell : BaseCell
         if (_cellData.Doors[GameConstants.Direction.Name.LEFT] == STATUS_DOOR.ENEBLE) _left.SetActive(true);
         if (_cellData.Doors[GameConstants.Direction.Name.RIGHT] == STATUS_DOOR.ENEBLE) _right.SetActive(true);
         if (_cellData.Doors[GameConstants.Direction.Name.BOTTOM] == STATUS_DOOR.ENEBLE) _bottom.SetActive(true);
+
+        this.gameObject.SetActive(IsVisited);
+    }
+
+    public void VisitRoom()
+    {
+        if (IsVisited) return;
+        IsVisited = true;
+        this.gameObject.SetActive(IsVisited);
     }
 }
