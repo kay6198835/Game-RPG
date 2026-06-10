@@ -20,7 +20,7 @@ public class RoomCell : BaseCell
     [SerializeField] public bool IsCleared { get; private set; } = false;
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
-    [SerializeField] public LevelData CurentDoorLevelData { get; private set; } = new LevelData();
+    [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
     protected override void Setting()
     {
         ListDirectionDoors = new List<Vector2>();
@@ -116,15 +116,15 @@ public class RoomCell : BaseCell
         }
     }
 
-    public void ClearRoom(LevelData levelData, LevelData curentDoorLevelData, List<DoorPoint> points)
+    public void ClearRoom(LevelData levelData, List<int> indexLevelDataDoor, List<DoorPoint> points)
     {
         this.DoorPoints.Clear();
         this.Data.Clear();
-        this.CurentDoorLevelData.Clear();
-        
+        this.IndexLevelDataDoor.Clear();
+
         this.DoorPoints.AddRange(points);
         this.Data.CopyData(levelData);
-        this.CurentDoorLevelData.CopyData(curentDoorLevelData);
+        this.IndexLevelDataDoor.AddRange(indexLevelDataDoor);
         this.IsCleared = true;
         CloseDoor();
     }

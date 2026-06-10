@@ -13,7 +13,7 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
     [SerializeField] private float _tileSetDelay = 10f;
     [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
-    [SerializeField] public LevelData CurentDoorLevelData { get; private set; } = new LevelData();
+    [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
     [SerializeField] private int _startIndex;
@@ -63,7 +63,7 @@ public class RoomGeneraterController : MonoBehaviour
         {
             Data.CopyData(nextRoomCell.Data);
             DoorPoints.AddRange(nextRoomCell.DoorPoints);
-            CurentDoorLevelData.CopyData(nextRoomCell.CurentDoorLevelData);
+            IndexLevelDataDoor.AddRange(nextRoomCell.IndexLevelDataDoor);
         }
 
 
@@ -80,6 +80,7 @@ public class RoomGeneraterController : MonoBehaviour
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
             var tilemap = Data.tiles[i];
+            if (tilemap == null) continue;
             //Refactor late
             if (tilemap == GameConstants.TileName.DOOR && !nextRoomCell.IsCleared)
             {
@@ -105,15 +106,22 @@ public class RoomGeneraterController : MonoBehaviour
                         position = Data.poses[i],
                         direction = tilemapDirection
                     });
-                    CurentDoorLevelData.tiles.Add(tilemap);
-                    CurentDoorLevelData.poses.Add(Data.poses[i]);
-                    CurentDoorLevelData.layerIndices.Add(Data.layerIndices[i]);
+                    // CurentDoorLevelData.tiles.Add(tilemap);
+                    // CurentDoorLevelData.poses.Add(Data.poses[i]);
+                    // CurentDoorLevelData.layerIndices.Add(Data.layerIndices[i]);
+                    IndexLevelDataDoor.Add(i);
                 }
             }
+
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         nextRoomCell.SetDoorPoints(this.DoorPoints);
         if (!nextRoomCell.IsCleared) { SwapTileMap(GameConstants.TileName.ROOM); }
+        else
+        {
+            // on colider door
+            nextRoomCell.OpenDoors();
+        }
     }
     private void SwapTileMap(string tileMapName)
     {
@@ -137,9 +145,9 @@ public class RoomGeneraterController : MonoBehaviour
         }
     }
 
-    public void ClearRoom(RoomCell _current)
+    public void ClearRoom(ref RoomCell _current)
     {
-        _current.ClearRoom(Data, CurentDoorLevelData, DoorPoints);
+        _current.ClearRoom(Data, IndexLevelDataDoor, DoorPoints);
         for (int i = 0; i < Data.tiles.Count; i++)
         {
             var layerIndices = Data.layerIndices[i];
@@ -147,16 +155,19 @@ public class RoomGeneraterController : MonoBehaviour
             _genmap[layerIndices].SetTile(pos, null);
         }
         this._swapLevelData.Clear();
-        this.CurentDoorLevelData.Clear();
+        this.IndexLevelDataDoor.Clear();
         this.DoorPoints.Clear();
         this.Data.Clear();
     }
 
     public void DeleteDoorTileMap(RoomCell _current)
     {
-        for (int i = 0; i < CurentDoorLevelData.tiles.Count; i++)
+        for (int i = 0; i < IndexLevelDataDoor.Count; i++)
         {
-            _genmap[CurentDoorLevelData.layerIndices[i]].SetTile(CurentDoorLevelData.poses[i], null);
+            _genmap[Data.layerIndices[IndexLevelDataDoor[i]]].SetTile(Data.poses[IndexLevelDataDoor[i]], null);
+            Data.layerIndices[IndexLevelDataDoor[i]] = 0;
+            Data.poses[IndexLevelDataDoor[i]] = Vector3Int.zero;
+            Data.tiles[IndexLevelDataDoor[i]] = null;
         }
         _current.OpenDoors();
     }

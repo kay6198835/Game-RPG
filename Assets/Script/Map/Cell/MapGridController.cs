@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class MapGridController : BaseGrid<MapCell>
 {
@@ -14,19 +15,19 @@ public class MapGridController : BaseGrid<MapCell>
             _current = GetValue(_startIndex);
         }
     }
-    private void OnEnable()
+    public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, Move);
         EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnLoadMap);
     }
 
-    private void OnDisable()
+    public void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, Move);
         EventManager.UnResgister(EventID.ON_LOAD_MAZE_DONE, OnLoadMap);
     }
 
-    private void OnLoadMap(object obj = null)
+    public void OnLoadMap(object obj = null)
     {
         _current.VisitRoom();
         Avatar.transform.position = _current.transform.position;
@@ -34,7 +35,7 @@ public class MapGridController : BaseGrid<MapCell>
         Avatar.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
     }
 
-    public void Move(object ojt = null)
+    public void Move(object obj = null)
     {
         _next = GetNext((Vector2)obj);
         _next.VisitRoom();
