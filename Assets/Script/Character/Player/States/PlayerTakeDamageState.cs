@@ -17,7 +17,7 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionExternality);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionExternality);
     }
     public override void Exit()
     {

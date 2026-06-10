@@ -12,13 +12,12 @@ public class PlayerIdleState : PlayerBasicState
     {
         base.Enter();
         player.Core.Movement.SetVeclocity(Vector2.zero);
-        //stateStyle = StateStyle.Motion;
     }
 
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionMouse);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionMouse);
         if (player.InputHandler.MoveVector != Vector2.zero)
         {
             stateMachine.ChangeState(player.MoveState);

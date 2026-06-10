@@ -121,7 +121,7 @@ public class EntityInput : MonoBehaviour
         {
             direction = 7;
         }
-        //entity.Anim.SetFloat("Direction", direction);
+        //entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, direction);
     }
     private void DirectionMehod()
     {

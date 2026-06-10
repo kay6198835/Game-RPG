@@ -35,7 +35,7 @@ public class DualAbility : ActivateSkill
     //        RandomAttack(player);
     //        //randomDirection = (int)Random.Range(0, 8);
     //        //playerClone.Animator.runtimeAnimatorController = animators[randomDirection];
-    //        playerClone.Animator.runtimeAnimatorController = animators[(int)playerClone.Animator.GetFloat("Direction")];
+    //        playerClone.Animator.runtimeAnimatorController = animators[(int)playerClone.Animator.GetFloat(GameConstants.AnimationName.Parameter.DIRECTION)];
     //        Debug.Log(playerClone.Animator.runtimeAnimatorController + " " + randomDirection);
     //        playerClone.GetComponent<Player>().AnimationManager.Animation_5_Ability();
     //        //SetBool 

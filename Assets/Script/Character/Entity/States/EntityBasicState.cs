@@ -14,7 +14,7 @@ public class EntityBasicState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        entity.Anim.SetFloat("Direction", entity.Input.DirectionLook);
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
         if (entity.Input.IsTakeDamage)
         {
             if (entity.Data.StatsSO.Health <= 0)

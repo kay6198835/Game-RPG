@@ -45,7 +45,6 @@ public class NewPlayer : MonoBehaviour
     #region Unity Callback Functions
     private void Awake()
     {
-        Debug.Log("On");
         stateMachine = new PlayerStateMachine();
         core = GetComponentInChildren<Core>();
         inputHandler = GetComponentInChildren<PlayerInputHandler>();
@@ -58,20 +57,20 @@ public class NewPlayer : MonoBehaviour
         takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
     }
 
-    private void Start()
+    public void Start()
     {
         anim = GetComponent<Animator>();
         rigidbodyPlayer = GetComponent<Rigidbody2D>();
         stateMachine.Initialize(idleState);
     }
 
-    private void Update()
+    public void Update()
     {
         //core.LogicUpdate();
         stateMachine.CurrentState.LogicUpdate();
     }
 
-    private void FixedUpdate()
+    public void FixedUpdate()
     {
         stateMachine.CurrentState.PhysicsUpdate();
     }

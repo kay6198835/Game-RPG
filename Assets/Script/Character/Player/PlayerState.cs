@@ -43,7 +43,7 @@ public class PlayerState
         isAnimationTrigger = false;
         isAnimationFinished = false;
         isExitingState = false;
-        //player.Anim.SetFloat("Direction", player.InputHandler.DirectionExtra);
+        //player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionExtra);
     }
     public virtual void Exit()
     {
@@ -56,7 +56,7 @@ public class PlayerState
     {
         //if(stateStyle == StateStyle.Motion)
         //{
-        //    player.Anim.SetFloat("Direction", player.InputHandler.DirectionExtra);
+        //    player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionExtra);
         //}
     }
     public virtual void PhysicsUpdate()

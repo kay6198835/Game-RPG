@@ -65,7 +65,7 @@ public class PlayerCombat : MonoBehaviour
     //        if (attackState.directionAttackAnimatorOV != null)
     //        {
     //            animator.runtimeAnimatorController = attackState.
-    //                directionAttackAnimatorOV[(int)animator.GetFloat("Direction")];
+    //                directionAttackAnimatorOV[(int)animator.GetFloat(GameConstants.AnimationName.Parameter.DIRECTION)];
     //            animator.Play("Attack", 0, 0);
     //        }
     //        if (attackState.ability != null)

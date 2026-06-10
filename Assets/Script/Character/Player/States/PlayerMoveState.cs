@@ -11,11 +11,11 @@ public class PlayerMoveState : PlayerBasicState
     {
         base.Enter();
         //stateStyle = StateStyle.Motion;
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionKeyboard);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionKeyboard);
     }
     public override void LogicUpdate()
     {
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionKeyboard);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionKeyboard);
         player.Core.Movement.SetVeclocity(player.InputHandler.MoveVector * playerData.movementVelocities);
         if (player.InputHandler.MoveVector == Vector2.zero)
         {

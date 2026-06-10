@@ -11,7 +11,7 @@ public class EntityUseWeaponState : EntityState
     {
         base.Enter();
         entity.Core.EntityMovement.MoveForwardTarget(Vector2.zero);
-        entity.Anim.SetFloat("Direction", entity.Input.DirectionLook);
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
     }
     public override void LogicUpdate()
     {

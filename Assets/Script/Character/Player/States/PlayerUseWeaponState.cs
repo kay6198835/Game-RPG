@@ -11,7 +11,7 @@ public class PlayerUseWeaponState : PlayerState
     {
         base.Enter();
         player.Core.Movement.SetVeclocity(Vector2.zero);
-        player.Anim.SetFloat("Direction", player.InputHandler.DirectionMouse);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionMouse);
     }
     public override void Exit()
     {

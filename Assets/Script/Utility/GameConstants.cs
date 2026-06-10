@@ -3,6 +3,24 @@ using UnityEngine;
 
 public static class GameConstants
 {
+    #region Animation
+    public static class AnimationName
+    {
+        public static readonly string IDLE = "Idle";
+        public static readonly string MOVE = "Move";
+        public static readonly string ATTACK = "Attack";
+        public static readonly string EQUIP_UNEQUIP = "EquipUnequip";
+        public static readonly string INTERACTOR = "Interactor";
+        public static readonly string ABILITY = "Ability";
+        public static readonly string TAKE_DAMAGE = "TakeDamage";
+
+        public static class Parameter
+        {
+             public static readonly string DIRECTION = "Direction";
+        }
+    }
+    #endregion
+    
     #region Direction
     public static class Direction
     {

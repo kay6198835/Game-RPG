@@ -7,7 +7,7 @@ public class EntityTakeDamageState : EntityDisadvantageState
     public override void Enter()
     {
         base.Enter();
-        entity.Anim.SetFloat("Direction", entity.Input.DirectionIsAttaked);
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionIsAttaked);
     }
     public EntityTakeDamageState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
