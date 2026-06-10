@@ -29,15 +29,16 @@ public class MapGridController : BaseGrid<MapCell>
     private void OnLoadMap(object obj = null)
     {
         _current.VisitRoom();
-        //Avatar.transform.position = _current.transform.position;
-        //Use dotween to scale up avatar in map
+        Avatar.transform.position = _current.transform.position;
+        Avatar.transform.localScale = Vector3.zero;
+        Avatar.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
     }
 
     public void Move(object ojt = null)
     {
-        _next = GetNext(directionToNextMap);
+        _next = GetNext((Vector2)obj);
         _next.VisitRoom();
-        //use dotween to move to _next's position;
+        Avatar.transform.DOMove(_next.transform.position, 0.3f).SetEase(Ease.InOutQuad);
         _current = _next;
         _next = null;
     }
