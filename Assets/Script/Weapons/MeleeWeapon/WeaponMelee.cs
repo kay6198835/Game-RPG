@@ -20,7 +20,7 @@ public class WeaponMelee : Weapon
     }
     private void Start()
     {
-        deplayTime = 0.5f;
+        deplayTime = 0.02f;
         durationNextAttack = 2f;
     }
     public override void Attack()
