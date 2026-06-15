@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerEquidUnequid : PlayerUseWeaponState
 {
-    public PlayerEquidUnequid(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerEquidUnequid(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void Enter()
@@ -23,7 +23,7 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            player.Core.WeaponHolder.Intertion();
+            //player.Core.WeaponHolder.Intertion();
             isAnimationTrigger = false;
         }
     }

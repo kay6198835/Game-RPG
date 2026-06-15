@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class PlayerTakeDamageState : PlayerDisadvantageState
 {
-    public PlayerTakeDamageState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerTakeDamageState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
 
     public override void Enter()
     {
         base.Enter();
-        player.Core.Movement.SetVeclocity(Vector2.zero);
+        //player.Core.Movement.SetVeclocity(Vector2.zero);
 
     }
     public override void LogicUpdate()

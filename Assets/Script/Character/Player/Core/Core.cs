@@ -1,34 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static UnityEngine.EventSystems.EventTrigger;
 
-public class Core : MonoBehaviour,INegativeReceiver
+public class Core : MonoBehaviour
 {
-    [SerializeField] private NewPlayer player;
-    [SerializeField] private PlayerMovement movement;
-    [SerializeField] private WeaponHolder weaponHolder;
-    [SerializeField] private AbilityHolder abilityHolder;
-    [SerializeField] private Interactor interactor;
+    [SerializeField] public Player Player { get; private set; }
+    // [SerializeField] public PlayerMovement Movement { get; private set; }
+    // [SerializeField] public WeaponHolder WeaponHolder { get; private set; }
+    // [SerializeField] public AbilityHolder AbilityHolder { get; private set; }
+    // [SerializeField] public Interactor Interactor { get; private set; }
+    // [SerializeField] public PlayerInputHandler InputHandler { get; private set; }
 
-    public PlayerMovement Movement { get => movement;}
-    public WeaponHolder WeaponHolder { get => weaponHolder; }
-    public AbilityHolder AbilityHolder { get => abilityHolder; }
-    public Interactor Interactor { get => interactor; }
-    public NewPlayer Player { get => player; }
+    [SerializeField] private List<CoreComponent> coreComponents = new List<CoreComponent>();
 
-    public void TakeDamage(int amoutDamage, Vector2 attackPosition)
+    public void AddCoreComponent(CoreComponent coreComponent)
     {
-        if (player.Data.currentHealth <= 0) return;
-        player.Data.currentHealth -= amoutDamage;
-        player.InputHandler.OnTakeDamage(attackPosition);
+        if (!coreComponents.Contains(coreComponent)) coreComponents.Add(coreComponent);
+    }
+
+    public void GetCoreComponent<T>(out T coreComponent) where T : CoreComponent
+    {
+        var comp = coreComponents.OfType<T>().FirstOrDefault();
+        if (comp != null) coreComponent = comp;
+        else coreComponent = null;
     }
     private void Awake()
     {
-        player = GetComponentInParent<NewPlayer>();
-        movement = GetComponentInChildren<PlayerMovement>();
-        weaponHolder = GetComponentInChildren<WeaponHolder>();
-        abilityHolder = GetComponentInChildren<AbilityHolder>();
-        interactor = GetComponentInChildren<Interactor>();
+        Player = GetComponentInParent<Player>();
+        // Movement = GetComponentInChildren<PlayerMovement>();
+        // WeaponHolder = GetComponentInChildren<WeaponHolder>();
+        // AbilityHolder = GetComponentInChildren<AbilityHolder>();
+        // Interactor = GetComponentInChildren<Interactor>();
     }
 }

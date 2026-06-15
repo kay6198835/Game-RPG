@@ -8,7 +8,7 @@ public class PlayerState
 {
     //protected Core core;
 
-    protected NewPlayer player;
+    protected Player player;
     protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
 
@@ -25,7 +25,7 @@ public class PlayerState
         Freeze,
         Motion
     }
-    public PlayerState(NewPlayer player, string animBoolName)
+    public PlayerState(Player player, string animBoolName)
     {
         this.player = player;
         this.stateMachine = player.StateMachine;

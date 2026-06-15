@@ -7,7 +7,7 @@ using UnityEngine;
 public class DashAbility : ActivateSkill
 {
     [SerializeField] private float dashingPower;
-    public override void Enter(NewPlayer player)
+    public override void Enter(Player player)
     {
         base.Enter(player);
         this.player.Anim.speed = 2f;
@@ -25,7 +25,7 @@ public class DashAbility : ActivateSkill
     public override void Do()
     {
         base.Do();
-        player.Core.Movement.SetVeclocity(player.InputHandler.DirectionMouseVector * dashingPower);
+        //player.Core.Movement.SetVeclocity(player.InputHandler.DirectionMouseVector * dashingPower);
     }
     public override void Exit()
     {

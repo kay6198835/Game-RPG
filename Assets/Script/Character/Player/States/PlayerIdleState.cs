@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerBasicState
 {
-    public PlayerIdleState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerIdleState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
 
     public override void Enter()
     {
         base.Enter();
-        player.Core.Movement.SetVeclocity(Vector2.zero);
+        //player.Core.Movement.SetVeclocity(Vector2.zero);
     }
 
     public override void LogicUpdate()

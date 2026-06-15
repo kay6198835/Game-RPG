@@ -6,7 +6,7 @@ public class PlayerAttackState : PlayerUseWeaponState
 {
     private float startAttackTime;
 
-    public PlayerAttackState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerAttackState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }   
 
@@ -29,7 +29,7 @@ public class PlayerAttackState : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            player.Core.WeaponHolder.Weapon.Attack();
+            //player.Core.WeaponHolder.Weapon.Attack();
             isAnimationTrigger = false;
         }
     }

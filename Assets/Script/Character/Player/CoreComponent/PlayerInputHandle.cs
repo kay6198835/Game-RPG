@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : MonoBehaviour
+public class PlayerInputHandler : CoreComponent
 {
     #region Attribute
     public float starTime;
@@ -20,7 +20,6 @@ public class PlayerInputHandler : MonoBehaviour
     {
         TakeDamaged,
     }
-    [SerializeField] private NewPlayer player;
     [SerializeField] private PlayerInput playerInput;
 
     [SerializeField] private Vector2 moveVector;
@@ -30,7 +29,7 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private Vector2 directionKeyboardVector;
     [SerializeField] private float angleKeyboardDirection;
     [SerializeField] private int directionKeyboard;
-    
+
     [Header("Direction by Externality")]
     [SerializeField] private Vector2 directionExternalityVector;
     [SerializeField] private float angleExternalityDirection;
@@ -49,7 +48,7 @@ public class PlayerInputHandler : MonoBehaviour
     [SerializeField] private bool isSkill;
     [SerializeField] private bool isDisadvantage;
     [SerializeField] private bool isTakeDamage;
-    [SerializeField] private bool isEquip_Unequip= false;
+    [SerializeField] private bool isEquip_Unequip = false;
     [SerializeField] private bool isInteractor = false;
 
     [Header("Enum Value")]
@@ -85,7 +84,6 @@ public class PlayerInputHandler : MonoBehaviour
     #endregion
     private void Awake()
     {
-        player = GetComponentInParent<NewPlayer>();
         playerInput = new PlayerInput();
     }
     private void Start()
@@ -102,7 +100,7 @@ public class PlayerInputHandler : MonoBehaviour
         playerInput.Control.SkillWeapon.started += OnSkillWeapon;
         playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
         playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
-        
+
         playerInput.Control.Block.started += OnAbilityWeapon;
         playerInput.Control.Block.performed += OnAbilityWeapon;
         playerInput.Control.Block.canceled += OnAbilityWeapon;
@@ -129,7 +127,7 @@ public class PlayerInputHandler : MonoBehaviour
     {
         mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         directionMouseVector = (mouseVector - (Vector2)this.transform.position).normalized;
-        AngleCalculate(directionMouseVector,ref angleMouseDirection,ref directionMouse);
+        AngleCalculate(directionMouseVector, ref angleMouseDirection, ref directionMouse);
         this.angleRotationPlayer = Vector2.SignedAngle(transform.right, directionMouseVector);
         this.angleRotationPlayer = (this.angleRotationPlayer + 360) % 360;
     }
@@ -139,7 +137,7 @@ public class PlayerInputHandler : MonoBehaviour
         {
             isEquip_Unequip = true;
         }
-        if(context.canceled)
+        if (context.canceled)
         {
             isEquip_Unequip = false;
         }
@@ -150,7 +148,7 @@ public class PlayerInputHandler : MonoBehaviour
         {
             isInteractor = true;
             Debug.Log(" Start " + Time.time);
-        }   
+        }
         if (context.canceled)
         {
             isInteractor = false;
@@ -164,10 +162,10 @@ public class PlayerInputHandler : MonoBehaviour
     }
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (context.started)
-        {
-            isAttack = true;
-        }
+        // if (context.started && core.WeaponHolder.Weapon.CheckCanAttack(core.Player))
+        // {
+        //     isAttack = true;
+        // }
         if (context.canceled)
         {
             isAttack = false;
@@ -175,17 +173,17 @@ public class PlayerInputHandler : MonoBehaviour
     }
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
-        if(player.Core.WeaponHolder.Weapon == null)
-        {
-            return;
-        }
+        // if (core.WeaponHolder.Weapon == null)
+        // {
+        //     return;
+        // }
         skill = SkillType.Special;
         if (context.started)
         {
             state = SkillState.Start;
             isSkill = true;
-            player.Core.WeaponHolder.Weapon.SetAbility();
-            player.Core.AbilityHolder.SetCanUseAbility(true);
+            // core.WeaponHolder.Weapon.SetAbility();
+            // core.AbilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {
@@ -199,17 +197,17 @@ public class PlayerInputHandler : MonoBehaviour
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {
-        if (player.Core.WeaponHolder.Weapon == null)
-        {
-            return;
-        }
+        // if (core.WeaponHolder.Weapon == null)
+        // {
+        //     return;
+        // }
         skill = SkillType.Ability;
         if (context.started)
         {
             state = SkillState.Start;
             isSkill = true;
-            player.Core.WeaponHolder.Weapon.SetAbility();
-            player.Core.AbilityHolder.SetCanUseAbility(true);
+            // core.WeaponHolder.Weapon.SetAbility();
+            // core.AbilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {

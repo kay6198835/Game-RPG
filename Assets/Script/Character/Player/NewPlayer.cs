@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class NewPlayer : MonoBehaviour
+public class Player : MonoBehaviour
 {
     #region State Variables
 

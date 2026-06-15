@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerBasicState : PlayerState
 {
-    public PlayerBasicState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void LogicUpdate()
@@ -12,29 +12,29 @@ public class PlayerBasicState : PlayerState
         base.LogicUpdate();
         if (player.InputHandler.IsEquip_Unequip)
         {
-            if (player.Core.WeaponHolder.FindInteraction())
-            {
-                stateMachine.ChangeState(player.EquidUnequidState);
-            }
+            // if (player.Core.WeaponHolder.FindInteraction())
+            // {
+            //     stateMachine.ChangeState(player.EquidUnequidState);
+            // }
         }
         else if (player.InputHandler.IsInteractor)
         {
-            if (player.Core.Interactor.FindInteraction())
-            {
-                stateMachine.ChangeState(player.IntertorState);
-            }
+            // if (player.Core.Interactor.FindInteraction())
+            // {
+            //     stateMachine.ChangeState(player.IntertorState);
+            // }
         }
-        else if(player.Core.WeaponHolder.Weapon != null)
-        {
-            if (player.InputHandler.IsAttack && player.Core.WeaponHolder.Weapon.CheckCanAttack(player))
-            {
-                stateMachine.ChangeState(player.AttackState);
-            }
-            else if(player.InputHandler.IsSkill && player.Core.AbilityHolder.CanUseAbility)
-            {
-                stateMachine.ChangeState(player.AbilityState);
-            }
-        }
+        // else if(player.Core.WeaponHolder.Weapon != null)
+        // {
+        //     // if (player.InputHandler.IsAttack && player.Core.WeaponHolder.Weapon.CheckCanAttack(player))
+        //     // {
+        //     //     stateMachine.ChangeState(player.AttackState);
+        //     // }
+        //     // else if(player.InputHandler.IsSkill && player.Core.AbilityHolder.CanUseAbility)
+        //     // {
+        //     //     stateMachine.ChangeState(player.AbilityState);
+        //     // }
+        // }
         if(player.InputHandler.IsTakeDamage)
         {
             stateMachine.ChangeState(player.TakeDamageState);

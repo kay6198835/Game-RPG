@@ -5,12 +5,7 @@ using UnityEngine;
 
 public class WeaponHolder : Interact
 {
-    [SerializeField] private Weapon weapon;
-
-    public Weapon Weapon
-    {
-        get { return weapon; }
-    }
+    [SerializeField] public  Weapon Weapon {get; private set;}
 
     protected override void Awake()
     {
@@ -19,22 +14,22 @@ public class WeaponHolder : Interact
     }
     public void Equid_UnEquid(Weapon weapon)
     {
-        if(this.weapon == null)
+        if(this.Weapon == null)
         {
-            this.weapon = weapon;
+            this.Weapon = weapon;
         }else
         {
-            this.weapon = null;
+            this.Weapon = null;
         }
     }
     public override void Intertion()
     {
-        if(weapon != null)
+        if(Weapon != null)
         {
-            weapon.UnEquid();
+            Weapon.UnEquid();
 
         }
-        if(weapon == null)
+        if(Weapon == null)
         {
             base.Intertion();
         }

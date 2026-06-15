@@ -13,7 +13,7 @@ public class RangeWeapon : Weapon
 
     }
 
-    public override bool CheckCanAttack(NewPlayer player)
+    public override bool CheckCanAttack(Player player)
     {
         return canAttack;
     }

@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PlayerUseWeaponState : PlayerState
 {
-    public PlayerUseWeaponState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerUseWeaponState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void Enter()
     {
         base.Enter();
-        player.Core.Movement.SetVeclocity(Vector2.zero);
+        //player.Core.Movement.SetVeclocity(Vector2.zero);
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionMouse);
     }
     public override void Exit()

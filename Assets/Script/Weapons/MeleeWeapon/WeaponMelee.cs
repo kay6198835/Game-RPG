@@ -33,27 +33,27 @@ public class WeaponMelee : Weapon
     }
     public override void SetAbility()
     {
-        if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
-        {
-            currentAbilitySO = statsMelee.AbilityWeapon;
-        }
-        else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
-        {
-            currentAbilitySO = statsMelee.SkillWeapon;
-        }
+        // if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
+        // {
+        //     currentAbilitySO = statsMelee.AbilityWeapon;
+        // }
+        // else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
+        // {
+        //     currentAbilitySO = statsMelee.SkillWeapon;
+        // }
         base.SetAbility();
     }
-    public override bool CheckCanAttack(NewPlayer player)
+    public override bool CheckCanAttack(Player player)
     {
         if (base.CheckCanAttack(player))
         {
-
             if (currentStateIndex == statsMelee.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
             {
                 currentStateIndex = 0;
             }
             durationNextAttack = DurationNextAttack();
             currrentSA = statsMelee.AttackState[currentStateIndex];
+            // Send AnimationController to Player by Event
             player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
             //Attack Position
             CenterAttackPosition(player);
@@ -91,7 +91,7 @@ public class WeaponMelee : Weapon
         return totalDuration/8;
     }
 
-    protected void CenterAttackPosition(NewPlayer player)
+    protected void CenterAttackPosition(Player player)
     {
         centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
     }

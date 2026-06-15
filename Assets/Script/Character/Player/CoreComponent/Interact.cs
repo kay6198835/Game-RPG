@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Interact : CoreCompoment
+public class Interact : CoreComponent
 {
     [SerializeField] protected float intertionPointRadius = 0.5f;
     [SerializeField] protected LayerMask interactableMask;

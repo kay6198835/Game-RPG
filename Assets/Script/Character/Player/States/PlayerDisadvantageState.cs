@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerDisadvantageState : PlayerState
 {
-    public PlayerDisadvantageState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerDisadvantageState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void LogicUpdate()

@@ -14,7 +14,7 @@ public class ActivateSkill: AbstractSkillSO
         DoCast,
         DoNonCast,
     }
-    protected NewPlayer player;
+    protected Player player;
     [Header("Stats Base")]
     [SerializeField] protected float maxCastTime;
     [SerializeField] protected float cooldownTime;
@@ -32,7 +32,7 @@ public class ActivateSkill: AbstractSkillSO
     public SkillType Type { get => type;}
     #endregion
     
-    public virtual void Enter(NewPlayer player)
+    public virtual void Enter(Player player)
     {
         this.player = player;
     }

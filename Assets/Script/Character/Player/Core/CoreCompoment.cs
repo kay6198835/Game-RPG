@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CoreCompoment : MonoBehaviour
+public class CoreComponent : MonoBehaviour
 {
     [SerializeField] protected Core core;
 
@@ -11,5 +11,6 @@ public class CoreCompoment : MonoBehaviour
     protected virtual void Awake()
     {
         core = transform.parent.GetComponent<Core>();
+        core.AddCoreComponent(this);
     }
 }

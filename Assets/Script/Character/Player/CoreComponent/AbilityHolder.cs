@@ -5,7 +5,7 @@ using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class AbilityHolder : CoreCompoment
+public class AbilityHolder : CoreComponent
 {
     [SerializeField] private ActivateSkill ability;
     [SerializeField] private float cooldownTime;

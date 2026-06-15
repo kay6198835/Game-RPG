@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerIntertorState : PlayerUseWeaponState
 {
-    public PlayerIntertorState(NewPlayer player, string animBoolName) : base(player, animBoolName)
+    public PlayerIntertorState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void Enter()
@@ -23,7 +23,7 @@ public class PlayerIntertorState : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            player.Core.Interactor.Intertion();
+            //player.Core.Interactor.Intertion();
             isAnimationTrigger = false;
         }
     }

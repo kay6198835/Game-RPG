@@ -15,7 +15,7 @@ public class SlashAbility : ActivateSkill
     public Vector3 Shoot { get => shoot; }
     public float SpeedSlash { get => speedSlash; }
     #endregion
-    public override void Enter(NewPlayer player)
+    public override void Enter(Player player)
     {
         base.Enter(player);
         positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionMouseVector.normalized * 3;
