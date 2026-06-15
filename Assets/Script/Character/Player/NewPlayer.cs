@@ -19,7 +19,6 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerStateMachine stateMachine;
     [SerializeField] private PlayerData data;
     [SerializeField] private Core core;
-    [SerializeField] private PlayerInputHandler inputHandler;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
     
@@ -29,7 +28,6 @@ public class Player : MonoBehaviour
     public Core Core { get => core;}
     public Animator Anim { get => anim;}
     public Rigidbody2D RigidbodyPlayer { get => rigidbodyPlayer;}
-    public PlayerInputHandler InputHandler { get => inputHandler;}
     public PlayerStateMachine StateMachine { get => stateMachine;}
     public PlayerIdleState IdleState { get => idleState;}
     public PlayerMoveState MoveState { get => moveState;}
@@ -47,7 +45,6 @@ public class Player : MonoBehaviour
     {
         stateMachine = new PlayerStateMachine();
         core = GetComponentInChildren<Core>();
-        inputHandler = GetComponentInChildren<PlayerInputHandler>();
         idleState = new PlayerIdleState(this,"Idle");
         moveState = new PlayerMoveState(this,"Move");
         attackState = new PlayerAttackState(this,"Attack");

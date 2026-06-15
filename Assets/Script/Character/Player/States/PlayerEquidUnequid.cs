@@ -23,7 +23,7 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            //player.Core.WeaponHolder.Intertion();
+            weaponHolder.Intertion();
             isAnimationTrigger = false;
         }
     }

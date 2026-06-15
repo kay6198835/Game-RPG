@@ -16,7 +16,6 @@ public class PlayerAttackState : PlayerUseWeaponState
     {
         base.Enter();
         startAttackTime = startTime;
-        
     }
 
     public override void Exit()
@@ -29,7 +28,7 @@ public class PlayerAttackState : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            //player.Core.WeaponHolder.Weapon.Attack();
+            weaponHolder.Weapon.Attack();
             isAnimationTrigger = false;
         }
     }

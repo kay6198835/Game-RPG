@@ -7,6 +7,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     private int stateIndex;
     //private AbilitySO ability;
     //bool isCanUseSkills;
+    AbilityHolder abilityHolder;
     public PlayerSkillWeaponState(Player player, string animBoolName) : base(player, animBoolName)
     {
 
@@ -14,7 +15,8 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void Enter()
     {
         base.Enter();
-        //player.Core.AbilityHolder.EnterAbility();
+        abilityHolder = player.Core.GetCoreComponent<PlayerMovement>();
+        abilityHolder.EnterAbility();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
         //stateStyle = StateStyle.Freeze;
@@ -24,7 +26,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
         base.LogicUpdate();
         if (isAnimationTrigger)
         {
-            //player.Core.AbilityHolder.SetStateAbility();
+            abilityHolder.SetStateAbility();
             isAnimationTrigger = false;
         }
     }
@@ -35,6 +37,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void Exit()
     {
         base.Exit();
-        //player.Core.AbilityHolder.ExitAbility();
+        abilityHolder.ExitAbility();
+        abilityHolder = null;
     }
 }

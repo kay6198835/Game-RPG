@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[CreateAssetMenu(menuName= "Ability SO/Activate Skill/Dash Ability")]
+[CreateAssetMenu(menuName = "Ability SO/Activate Skill/Dash Ability")]
 public class DashAbility : ActivateSkill
 {
+    PlayerMovement playerMovement;
     [SerializeField] private float dashingPower;
     public override void Enter(Player player)
     {
         base.Enter(player);
         this.player.Anim.speed = 2f;
+        playerMovement = player.Core.GetCoreComponent<PlayerMovement>();
     }
     public override void Activate()
     {
@@ -25,7 +27,7 @@ public class DashAbility : ActivateSkill
     public override void Do()
     {
         base.Do();
-        //player.Core.Movement.SetVeclocity(player.InputHandler.DirectionMouseVector * dashingPower);
+        playerMovement.SetVeclocity(player.InputHandler.DirectionMouseVector * dashingPower);
     }
     public override void Exit()
     {

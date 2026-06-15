@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerTakeDamageState : PlayerDisadvantageState
 {
+    PlayerMovement playerMovement;
     public PlayerTakeDamageState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -11,7 +12,8 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
     public override void Enter()
     {
         base.Enter();
-        //player.Core.Movement.SetVeclocity(Vector2.zero);
+        playerMovement =  player.Core.GetCoreComponent<PlayerMovement>();
+        playerMovement.SetVeclocity(Vector2.zero);
 
     }
     public override void LogicUpdate()
