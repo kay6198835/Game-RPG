@@ -32,8 +32,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     }
     public override void Exit()
     {
-        base.Exit();
         abilityHolder.ExitAbility();
-        abilityHolder = null;
+        base.Exit();
     }
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerDisadvantageState : PlayerState
 {
-    protected PlayerInputHandler playerInputHandler;
     public PlayerDisadvantageState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -12,14 +11,14 @@ public class PlayerDisadvantageState : PlayerState
     public override void Enter()
     {
         base.Enter();
-        player.Core.GetCoreComponent(out playerInputHandler);
+        player.Core.GetCoreComponent(out inputHandler);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
         if (isAnimationFinished)
         {
-            if (playerInputHandler.MoveVector == Vector2.zero)
+            if (inputHandler.MoveVector == Vector2.zero)
             {
                 stateMachine.ChangeState(player.IdleState);
             }

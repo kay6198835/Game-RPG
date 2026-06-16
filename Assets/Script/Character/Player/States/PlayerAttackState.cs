@@ -8,9 +8,9 @@ public class PlayerAttackState : PlayerUseWeaponState
 
     public PlayerAttackState(Player player, string animBoolName) : base(player, animBoolName)
     {
-    }   
+    }
 
-    public float StartAttackTime { get => startAttackTime;}
+    public float StartAttackTime { get => startAttackTime; }
 
     public override void Enter()
     {
@@ -26,6 +26,10 @@ public class PlayerAttackState : PlayerUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (isAnimationFinished && playerInputHandler.IsAttack && weaponHolder.Weapon.CheckCanAttack(player))
+        {
+            stateMachine.ChangeState(player.AttackState);
+        }
         if (isAnimationTrigger)
         {
             weaponHolder.Weapon.Attack();

@@ -7,7 +7,6 @@ public class PlayerUseWeaponState : PlayerState
     protected PlayerMovement playerMovement;
     protected WeaponHolder weaponHolder;
     protected AbilityHolder abilityHolder;
-    protected PlayerInputHandler playerInputHandler;
     public PlayerUseWeaponState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -17,20 +16,22 @@ public class PlayerUseWeaponState : PlayerState
         player.Core.GetCoreComponent(out playerMovement);
         player.Core.GetCoreComponent(out weaponHolder);
         player.Core.GetCoreComponent(out abilityHolder);
-        player.Core.GetCoreComponent(out playerInputHandler);
         playerMovement.SetVeclocity(Vector2.zero);
-        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, playerInputHandler.DirectionMouse);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionMouse);
     }
     public override void Exit()
     {
         base.Exit();
+        weaponHolder = null;
+        abilityHolder = null;
+        playerMovement = null;
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
         if (isAnimationFinished)
         {
-            if (playerInputHandler.MoveVector == Vector2.zero)
+            if (inputHandler.MoveVector == Vector2.zero)
             {
                 stateMachine.ChangeState(player.IdleState);
             }

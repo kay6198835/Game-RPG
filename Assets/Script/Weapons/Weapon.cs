@@ -3,9 +3,6 @@ using UnityEngine;
 public abstract class Weapon : InteractiveObjects
 {
     [Header("Abtract Weapon")]
-    // Refactor Weapon can't have weapon holder, and ability holder, ability holder is on player, when player equid weapon, set ability to player, when unequid, remove ability on player
-    // [SerializeField] protected WeaponHolder holder;
-    // [SerializeField] protected AbilityHolder abilityHolder;
     [SerializeField] protected WeaponStats stats;
     [SerializeField] protected ActivateSkill currentAbilitySO;
     [SerializeField] protected Collider2D collider;
@@ -13,7 +10,8 @@ public abstract class Weapon : InteractiveObjects
     protected float deplayTime;
     protected float durationNextAttack;
     protected bool canAttack;
-    // public AbilityHolder AbilityHolder { get => abilityHolder; }
+    protected AbilityHolder abilityHolder;
+    protected WeaponHolder weaponHolder;
     protected override void Awake()
     {
         base.Awake();
@@ -22,8 +20,6 @@ public abstract class Weapon : InteractiveObjects
     public abstract void Attack();
     public virtual bool CheckCanAttack(Player player)
     {
-        lastClickTime = player.AttackState.StartAttackTime;
-
         if (lastClickTime + deplayTime > Time.time)
         {
             canAttack = false;
@@ -31,12 +27,13 @@ public abstract class Weapon : InteractiveObjects
         else
         {
             canAttack = true;
+            lastClickTime = Time.time;
         }
         return canAttack;
     }
     public virtual void SetAbility()
     {
-        // abilityHolder.SetAblityWeapon(currentAbilitySO);
+        abilityHolder.SetAblityWeapon(currentAbilitySO);
     }
     public virtual void SetWeaponHolder(WeaponHolder weaponHolder)
     {
@@ -62,22 +59,22 @@ public abstract class Weapon : InteractiveObjects
         Equid((WeaponHolder)interactor);
         return true;
     }
-    public void Equid(WeaponHolder weaponHolder)
+    public virtual void Equid(WeaponHolder weaponHolder)
     {
-        // holder = weaponHolder;
-        // holder.Equid_UnEquid(this);
         collider.enabled = false;
-        //abilityHolder = holder.Core.AbilityHolder;
-        // transform.SetParent(holder.transform);
+        weaponHolder.Core.GetCoreComponent(out this.weaponHolder);
+        weaponHolder.Core.GetCoreComponent(out this.abilityHolder);
+        weaponHolder.Equid_UnEquid(this);
+        transform.SetParent(weaponHolder.transform);
         transform.position = transform.parent.position;
     }
-    public void UnEquid()
+    public virtual void UnEquid()
     {
         transform.position = transform.parent.position + Vector3.one * 1f;
         transform.SetParent(null);
-        // abilityHolder = null;
         collider.enabled = true;
-        // holder.Equid_UnEquid(this);
-        // holder = null;
+        weaponHolder.Equid_UnEquid(this);
+        abilityHolder = null;
+        weaponHolder = null;
     }
 }

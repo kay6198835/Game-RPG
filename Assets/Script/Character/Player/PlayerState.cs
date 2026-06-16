@@ -25,6 +25,7 @@ public class PlayerState
         Freeze,
         Motion
     }
+    protected PlayerInputHandler inputHandler;
     public PlayerState(Player player, string animBoolName)
     {
         this.player = player;
@@ -43,13 +44,14 @@ public class PlayerState
         isAnimationTrigger = false;
         isAnimationFinished = false;
         isExitingState = false;
-        //player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionExtra);
+        player.Core.GetCoreComponent(out inputHandler);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionExtra);
     }
     public virtual void Exit()
     {
-        //Debug.Log("End" + animBoolName);
         player.Anim.SetBool(animBoolName, false);
         isExitingState = true;
+        inputHandler = null;
     }
 
     public virtual void LogicUpdate()
@@ -70,20 +72,20 @@ public class PlayerState
     {
         isAnimationTrigger = true;
     }
+
     public virtual void AnimationAction()
     {
-        isAnimationAction= true;
+        isAnimationAction = true;
     }
+
     public virtual void AnimationFinishTrigger()
     {
         isAnimationFinished = true;
     }
 
-
     public virtual void AnimationExitingState()
     {
         isAnimationExitingState = true;
-        //Debug.Log("isAnimationExitingState: " + isAnimationExitingState);
     }
 
 

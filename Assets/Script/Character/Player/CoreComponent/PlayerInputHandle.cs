@@ -82,6 +82,8 @@ public class PlayerInputHandler : CoreComponent
 
 
     #endregion
+    WeaponHolder weaponHolder;
+    AbilityHolder abilityHolder;
     private void Awake()
     {
         playerInput = new PlayerInput();
@@ -162,10 +164,10 @@ public class PlayerInputHandler : CoreComponent
     }
     private void OnAttack(InputAction.CallbackContext context)
     {
-        // if (context.started && core.WeaponHolder.Weapon.CheckCanAttack(core.Player))
-        // {
-        //     isAttack = true;
-        // }
+        if (context.started && weaponHolder.Weapon.CheckCanAttack(core.Player))
+        {
+            isAttack = true;
+        }
         if (context.canceled)
         {
             isAttack = false;
@@ -173,17 +175,17 @@ public class PlayerInputHandler : CoreComponent
     }
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
-        // if (core.WeaponHolder.Weapon == null)
-        // {
-        //     return;
-        // }
+        if (weaponHolder.Weapon == null)
+        {
+            return;
+        }
         skill = SkillType.Special;
         if (context.started)
         {
             state = SkillState.Start;
             isSkill = true;
-            // core.WeaponHolder.Weapon.SetAbility();
-            // core.AbilityHolder.SetCanUseAbility(true);
+            weaponHolder.Weapon.SetAbility();
+            abilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {
@@ -197,17 +199,17 @@ public class PlayerInputHandler : CoreComponent
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {
-        // if (core.WeaponHolder.Weapon == null)
-        // {
-        //     return;
-        // }
+        if (weaponHolder.Weapon == null)
+        {
+            return;
+        }
         skill = SkillType.Ability;
         if (context.started)
         {
             state = SkillState.Start;
             isSkill = true;
-            // core.WeaponHolder.Weapon.SetAbility();
-            // core.AbilityHolder.SetCanUseAbility(true);
+            weaponHolder.Weapon.SetAbility();
+            abilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {

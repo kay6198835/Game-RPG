@@ -8,20 +8,21 @@ public class WeaponMelee : Weapon
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
+    protected PlayerInputHandler inputHandler;
     protected override void Awake()
     {
         base.Awake();
         if (stats.GetType() == typeof(WeaponMeleeStats))
         {
             statsMelee = (WeaponMeleeStats)stats;
-            
+
             //stats = new WeaponMeleeStats();
         }
     }
     private void Start()
     {
         deplayTime = 0.02f;
-        durationNextAttack = 2f;
+        durationNextAttack = 0f;
     }
     public override void Attack()
     {
@@ -33,21 +34,27 @@ public class WeaponMelee : Weapon
     }
     public override void SetAbility()
     {
-        // if (holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Ability)
-        // {
-        //     currentAbilitySO = statsMelee.AbilityWeapon;
-        // }
-        // else if(holder.Core.Player.InputHandler.Skill == PlayerInputHandler.SkillType.Special)
-        // {
-        //     currentAbilitySO = statsMelee.SkillWeapon;
-        // }
+        if (inputHandler.Skill == PlayerInputHandler.SkillType.Ability)
+        {
+            currentAbilitySO = statsMelee.AbilityWeapon;
+        }
+        else if (inputHandler.Skill == PlayerInputHandler.SkillType.Special)
+        {
+            currentAbilitySO = statsMelee.SkillWeapon;
+        }
         base.SetAbility();
+    }
+    public override void Equid()
+    {
+        base.Equid();
+        weaponHolder.Core.GetCoreComponent(out inputHandler);
     }
     public override bool CheckCanAttack(Player player)
     {
         if (base.CheckCanAttack(player))
         {
-            if (currentStateIndex == statsMelee.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
+            if (currentStateIndex == statsMelee.AttackState.Count ||
+            lastClickTime + durationNextAttack + deplayTime < Time.time)
             {
                 currentStateIndex = 0;
             }
@@ -58,11 +65,6 @@ public class WeaponMelee : Weapon
             //Attack Position
             CenterAttackPosition(player);
             currentStateIndex++;
-            canAttack = true;
-        }
-        else
-        {
-            canAttack = false;
         }
         return canAttack;
     }
@@ -88,17 +90,18 @@ public class WeaponMelee : Weapon
             }
         }
         Debug.Log("totalDuration" + totalDuration);
-        return totalDuration/8;
+        return totalDuration / 8;
     }
 
     protected void CenterAttackPosition(Player player)
     {
         // need check late
-        //centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
+        centerAttackPosition = (Vector2)player.transform.position
+        + inputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {
-        if(currrentSA != null)
+        if (currrentSA != null)
         {
             Gizmos.DrawWireSphere(centerAttackPosition, currrentSA.attackRange);
         }

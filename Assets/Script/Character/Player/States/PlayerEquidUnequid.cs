@@ -10,7 +10,8 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
     public override void Enter()
     {
         base.Enter();
-        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, playerInputHandler.DirectionExternality);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION,
+         inputHandler.DirectionExternality);
     }
 
     public override void Exit()
