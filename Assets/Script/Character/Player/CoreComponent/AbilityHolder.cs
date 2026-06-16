@@ -23,6 +23,8 @@ public class AbilityHolder : CoreComponent
     public ActivateSkill Ability { get => ability; }
     public bool CanUseAbility { get => canUseAbility; }
 
+    [SerializeField] private PlayerInputHandler playerInputHandler;
+
     protected override void Awake()
     {
         base.Awake();
@@ -32,6 +34,7 @@ public class AbilityHolder : CoreComponent
     private void Start()
     {
         canUseAbility = false;
+        core.GetCoreComponent(out playerInputHandler);
     }
     public void SetCanUseAbility(bool canUseAbility)
     {
@@ -71,7 +74,7 @@ public class AbilityHolder : CoreComponent
                 break;
             case SkillState.Cast:
                 ability.Cast();
-                if (core.Player.InputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == ActivateSkill.SkillType.DoNonCast)
+                if (playerInputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == ActivateSkill.SkillType.DoNonCast)
                 {
                     SetCanUseAbility(false);
                     currentState = SkillState.Do;

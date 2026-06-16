@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerBasicState
 {
-    PlayerMovement playerMovement;
     public PlayerMoveState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -12,14 +11,13 @@ public class PlayerMoveState : PlayerBasicState
     {
         base.Enter();
         //stateStyle = StateStyle.Motion;
-        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionKeyboard);
-        playerMovement = player.Core.GetCoreComponent<PlayerMovement>();
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
     }
     public override void LogicUpdate()
     {
-        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionKeyboard);
-        playerMovement.SetVeclocity(player.InputHandler.MoveVector * playerData.movementVelocities);
-        if (player.InputHandler.MoveVector == Vector2.zero)
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
+        playerMovement.SetVeclocity(inputHandler.MoveVector * playerData.movementVelocities);
+        if (inputHandler.MoveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);
         }

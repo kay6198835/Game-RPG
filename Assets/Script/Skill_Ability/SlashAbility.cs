@@ -14,13 +14,16 @@ public class SlashAbility : ActivateSkill
     public GameObject SlashPrefab { get => slashPrefab;}
     public Vector3 Shoot { get => shoot; }
     public float SpeedSlash { get => speedSlash; }
+
+    public PlayerInputHandler playerInputHandler;
     #endregion
     public override void Enter(Player player)
     {
         base.Enter(player);
-        positon = (Vector2)player.InputHandler.transform.position + player.InputHandler.DirectionMouseVector.normalized * 3;
-        rotation = Quaternion.Euler(0, 0, player.InputHandler.AngleRotationPlayer);
-        shoot = player.InputHandler.DirectionMouseVector;
+        player.Core.GetCoreComponent(out playerInputHandler);
+        positon = (Vector2)playerInputHandler.transform.position + playerInputHandler.DirectionMouseVector.normalized * 3;
+        rotation = Quaternion.Euler(0, 0, playerInputHandler.AngleRotationPlayer);
+        shoot = playerInputHandler.DirectionMouseVector;
     }
     public override void Activate()
     {

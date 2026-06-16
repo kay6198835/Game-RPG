@@ -19,10 +19,18 @@ public class Interact : CoreComponent
     public IInteractable Interactable { get => interactable; }
     public int NumFound { get => numFound; }
 
+    private PlayerInputHandler playerInputHandler;
+
     protected override void Awake()
     {
         base.Awake();
         interactableMask = LayerMask.GetMask("Interactable");
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        core.GetCoreComponent(out playerInputHandler);
     }
     public virtual bool FindInteraction()
     {
@@ -30,7 +38,7 @@ public class Interact : CoreComponent
         if (numFound > 0)
         {
             nearestObject = FindNearestObject();
-            core.Player.InputHandler.AngleCalculateExternality(nearestObject.transform.position - transform.position);
+            playerInputHandler.AngleCalculateExternality(nearestObject.transform.position - transform.position);
             return true;
         }
         else
@@ -55,7 +63,7 @@ public class Interact : CoreComponent
             {
                 break;
             }
-            float distance = Vector2.Distance(collider.transform.position, core.Player.InputHandler.MouseVector);
+            float distance = Vector2.Distance(collider.transform.position, playerInputHandler.MouseVector);
             if (distance < minDistance)
             {
                 minDistance = distance;

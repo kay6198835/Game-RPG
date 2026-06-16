@@ -4,48 +4,52 @@ using UnityEngine;
 
 public class PlayerBasicState : PlayerState
 {
-    WeaponHolder weaponHolder;
-    Interactor interactor;
-    AbilityHolder abilityHolder;
+    protected WeaponHolder weaponHolder;
+    protected Interactor interactor;
+    protected AbilityHolder abilityHolder;
+    protected PlayerInputHandler inputHandler;
+    protected PlayerMovement playerMovement;
     public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void Enter()
     {
         base.Enter();
-        weaponHolder = player.Core.GetCoreComponent<WeaponHolder>();
-        weaponHolder = player.Core.GetCoreComponent<WeaponHolder>();
-        abilityHolder = player.Core.GetCoreComponent<AbilityHolder>();
+        player.Core.GetCoreComponent(out weaponHolder);
+        player.Core.GetCoreComponent(out interactor);
+        player.Core.GetCoreComponent(out abilityHolder);
+        player.Core.GetCoreComponent(out inputHandler);
+        player.Core.GetCoreComponent(out playerMovement);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (player.InputHandler.IsEquip_Unequip)
+        if (inputHandler.IsEquip_Unequip)
         {
             if (weaponHolder.FindInteraction())
             {
                 stateMachine.ChangeState(player.EquidUnequidState);
             }
         }
-        else if (player.InputHandler.IsInteractor)
+        else if (inputHandler.IsInteractor)
         {
             if (interactor.FindInteraction())
             {
                 stateMachine.ChangeState(player.IntertorState);
             }
         }
-        else if(weaponHolder.Weapon != null)
+        else if (weaponHolder.Weapon != null)
         {
-            if (player.InputHandler.IsAttack && weaponHolder.Weapon.CheckCanAttack(player))
+            if (inputHandler.IsAttack && weaponHolder.Weapon.CheckCanAttack(player))
             {
                 stateMachine.ChangeState(player.AttackState);
             }
-            else if(player.InputHandler.IsSkill && abilityHolder.CanUseAbility)
+            else if (inputHandler.IsSkill && abilityHolder.CanUseAbility)
             {
                 stateMachine.ChangeState(player.AbilityState);
             }
         }
-        if (player.InputHandler.IsTakeDamage)
+        if (inputHandler.IsTakeDamage)
         {
             stateMachine.ChangeState(player.TakeDamageState);
         }

@@ -93,7 +93,8 @@ public class WeaponMelee : Weapon
 
     protected void CenterAttackPosition(Player player)
     {
-        centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
+        // need check late
+        //centerAttackPosition = (Vector2)player.transform.position + player.InputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {

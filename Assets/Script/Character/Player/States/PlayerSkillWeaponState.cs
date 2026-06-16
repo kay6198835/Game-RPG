@@ -5,9 +5,6 @@ using UnityEngine;
 public class PlayerSkillWeaponState : PlayerUseWeaponState
 {
     private int stateIndex;
-    //private AbilitySO ability;
-    //bool isCanUseSkills;
-    AbilityHolder abilityHolder;
     public PlayerSkillWeaponState(Player player, string animBoolName) : base(player, animBoolName)
     {
 
@@ -15,7 +12,6 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void Enter()
     {
         base.Enter();
-        abilityHolder = player.Core.GetCoreComponent<PlayerMovement>();
         abilityHolder.EnterAbility();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);

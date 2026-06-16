@@ -12,14 +12,14 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
     public override void Enter()
     {
         base.Enter();
-        playerMovement =  player.Core.GetCoreComponent<PlayerMovement>();
+        player.Core.GetCoreComponent(out playerMovement);
         playerMovement.SetVeclocity(Vector2.zero);
 
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, player.InputHandler.DirectionExternality);
+        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, playerInputHandler.DirectionExternality);
     }
     public override void Exit()
     {
