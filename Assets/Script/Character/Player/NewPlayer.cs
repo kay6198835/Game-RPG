@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerTakeDamageState takeDamageState;
     #endregion
 
-    [SerializeField] private PlayerStateMachine stateMachine;
+    [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
     [SerializeField] private PlayerData data;
     [SerializeField] private Core core;
     [SerializeField] private Animator anim;
@@ -43,7 +43,6 @@ public class Player : MonoBehaviour
     #region Unity Callback Functions
     private void Awake()
     {
-        stateMachine = new PlayerStateMachine();
         core = GetComponentInChildren<Core>();
         idleState = new PlayerIdleState(this,"Idle");
         moveState = new PlayerMoveState(this,"Move");

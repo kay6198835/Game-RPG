@@ -26,7 +26,7 @@ public class PlayerAttackState : PlayerUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (isAnimationFinished && playerInputHandler.IsAttack && weaponHolder.Weapon.CheckCanAttack(player))
+        if (isAnimationFinished && inputHandler.IsAttack && weaponHolder.Weapon.CheckCanAttack(player))
         {
             stateMachine.ChangeState(player.AttackState);
         }

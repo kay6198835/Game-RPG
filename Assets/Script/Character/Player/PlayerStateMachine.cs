@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+[System.Serializable]
 public class PlayerStateMachine
 {
-    int alskdjasd;
     public PlayerState CurrentState { get; private set; }
     public void Initialize(PlayerState startingState)
     {

@@ -84,12 +84,23 @@ public class PlayerInputHandler : CoreComponent
     #endregion
     WeaponHolder weaponHolder;
     AbilityHolder abilityHolder;
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         playerInput = new PlayerInput();
     }
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
+        core.GetCoreComponent(out weaponHolder);
+        core.GetCoreComponent(out abilityHolder);
+
+    }
+
+    #region OnMethod
+    private void OnEnable()
+    {
+        playerInput.Control.Enable();
         playerInput.Control.Movement.started += OnMove;
         playerInput.Control.Movement.performed += OnMove;
         playerInput.Control.Movement.canceled += OnMove;
@@ -112,18 +123,35 @@ public class PlayerInputHandler : CoreComponent
 
 
         playerInput.Control.Interactor.started += OnInteractor;
-        //playerInput.Control.Interactor.performed += OnInteractor;
         playerInput.Control.Interactor.canceled += OnInteractor;
-    }
-
-    #region OnMethod
-    private void OnEnable()
-    {
-        playerInput.Control.Enable();
     }
     private void OnDisable()
     {
+        playerInput.Control.Movement.started -= OnMove;
+        playerInput.Control.Movement.performed -= OnMove;
+        playerInput.Control.Movement.canceled -= OnMove;
+
+        playerInput.Control.MousePosition.performed -= OnDirection;
+
+        playerInput.Control.Attack.started -= OnAttack;
+        playerInput.Control.Attack.canceled -= OnAttack;
+
+        playerInput.Control.SkillWeapon.started -= OnSkillWeapon;
+        playerInput.Control.SkillWeapon.performed -= OnSkillWeapon;
+        playerInput.Control.SkillWeapon.canceled -= OnSkillWeapon;
+
+        playerInput.Control.Block.started -= OnAbilityWeapon;
+        playerInput.Control.Block.performed -= OnAbilityWeapon;
+        playerInput.Control.Block.canceled -= OnAbilityWeapon;
+
+        playerInput.Control.EquipUnequip.started -= OnEquipUnequip;
+        playerInput.Control.EquipUnequip.canceled -= OnEquipUnequip;
+
+
+        playerInput.Control.Interactor.started -= OnInteractor;
+        playerInput.Control.Interactor.canceled -= OnInteractor;
         playerInput.Control.Disable();
+
     }
     private void OnDirection(InputAction.CallbackContext context)
     {
@@ -164,6 +192,8 @@ public class PlayerInputHandler : CoreComponent
     }
     private void OnAttack(InputAction.CallbackContext context)
     {
+        if (weaponHolder.Weapon == null)
+            return;
         if (context.started && weaponHolder.Weapon.CheckCanAttack(core.Player))
         {
             isAttack = true;

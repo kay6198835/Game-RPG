@@ -44,9 +44,9 @@ public class WeaponMelee : Weapon
         }
         base.SetAbility();
     }
-    public override void Equid()
+    public override void Equid(WeaponHolder weaponHolder)
     {
-        base.Equid();
+        base.Equid(weaponHolder);
         weaponHolder.Core.GetCoreComponent(out inputHandler);
     }
     public override bool CheckCanAttack(Player player)

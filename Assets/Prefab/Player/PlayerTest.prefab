@@ -36,7 +36,6 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4525166674902496624}
-  - {fileID: 1732549513691302014}
   - {fileID: 6473079460939100669}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -199,7 +198,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
   core: {fileID: 0}
-  inputHandler: {fileID: 0}
   anim: {fileID: 0}
   rigidbodyPlayer: {fileID: 0}
 --- !u!114 &879482146237950515
@@ -251,6 +249,7 @@ Transform:
   - {fileID: 9186174902540422970}
   - {fileID: 5586699658989112642}
   - {fileID: 8356675060062760481}
+  - {fileID: 1732549513691302014}
   m_Father: {fileID: 6345384194108746772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4030715832189692962
@@ -265,11 +264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 427f7bf7546d1a34abc3f44e9deb9282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  movement: {fileID: 0}
-  weaponHolder: {fileID: 0}
-  abilityHolder: {fileID: 0}
-  interactor: {fileID: 0}
+  coreComponents: []
 --- !u!1 &5103207770926509092
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,6 +371,7 @@ MonoBehaviour:
   keyCode: 0
   canUseAbility: 0
   currentState: 0
+  playerInputHandler: {fileID: 0}
 --- !u!1 &5519547563718807823
 GameObject:
   m_ObjectHideFlags: 0
@@ -478,12 +474,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8234510148857361678}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.3, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6345384194108746772}
+  m_Father: {fileID: 4525166674902496624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2918458448504357915
 MonoBehaviour:
@@ -497,8 +493,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff757ce8ac159bc45a7bdbfcb60cfd03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  core: {fileID: 0}
   starTime: 0
-  player: {fileID: 0}
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}
   directionKeyboardVector: {x: 0, y: 0}
@@ -575,4 +571,3 @@ MonoBehaviour:
   - {fileID: 0}
   nearestObject: {fileID: 0}
   numFound: 0
-  weapon: {fileID: 0}

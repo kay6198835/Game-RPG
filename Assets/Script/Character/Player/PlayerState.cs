@@ -1,9 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
-
+[System.Serializable]
 public class PlayerState
 {
     //protected Core core;
@@ -26,6 +22,10 @@ public class PlayerState
         Motion
     }
     protected PlayerInputHandler inputHandler;
+    protected WeaponHolder weaponHolder;
+    protected Interactor interactor;
+    protected AbilityHolder abilityHolder;
+    protected PlayerMovement playerMovement;
     public PlayerState(Player player, string animBoolName)
     {
         this.player = player;
@@ -38,20 +38,23 @@ public class PlayerState
     public virtual void Enter()
     {
         DoChecks();
+        player.Core.GetCoreComponent(out inputHandler);
+        player.Core.GetCoreComponent(out weaponHolder);
+        player.Core.GetCoreComponent(out interactor);
+        player.Core.GetCoreComponent(out abilityHolder);
+        player.Core.GetCoreComponent(out playerMovement);
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
         //Debug.Log("Start" + animBoolName);
         isAnimationTrigger = false;
         isAnimationFinished = false;
         isExitingState = false;
-        player.Core.GetCoreComponent(out inputHandler);
-        player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionExtra);
+
     }
     public virtual void Exit()
     {
         player.Anim.SetBool(animBoolName, false);
         isExitingState = true;
-        inputHandler = null;
     }
 
     public virtual void LogicUpdate()
