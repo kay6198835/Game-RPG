@@ -70,3 +70,54 @@ None — all work is internal to the Player Core / Weapon / Ability framework an
 - [ ] Code reviewed and merged into `feature/refactor-state-system`
 
 > **Scope check**: Must Haves trace to the refactor plan + Sprint-1 demo-blocker backlog (Bug #9, #4); no new feature scope. Run `/scope-check sprint-2` mid-sprint if stories get added.
+
+---
+
+## Added Note (2026-06-16) — Animation Control & Combo Attack Logic
+
+> Source branch: `claude/keen-shannon-j91iry`. Full plan: `/root/.claude/plans/hi-n-t-i-game-c-a-cheeky-lecun.md`.
+> Combat is Cult-of-the-Lamb style: top-down, 8-direction melee, one blend tree per action.
+> **Status of this note**: design/decision context for upcoming weapon-animation work. Not yet pulled into the Sprint 2 Must Haves above — recorded here so it is not lost and can be scoped (likely a follow-up sprint, partly overlapping the S2-02/S2-05 weapon code).
+
+### Problem 1 — Animation clip control (solution DECIDED, not yet coded)
+Each action uses an 8-direction blend tree driven by a `Direction` parameter. Actions with multiple
+variants (attack combo — one clip per hit) currently store one `AnimatorOverrideController` (AOC) **per
+variant** in `AttackSO.directionAttackAnimatorOV`, which does not scale.
+
+**Approved solution (Option 1):**
+- Keep a single base Animator Controller.
+- Instantiate one runtime AOC on weapon equip (stored on `WeaponMelee`), assign it to the `Animator` once.
+- Each combo step overrides only the 8 directional clip slots (clips sourced from
+  `AttackSO.directionClips : AnimationClip[8]`) — do **not** swap the whole controller.
+- Keep the existing Animation Event → damage chain intact.
+- Slot key = the original clip name in the blend-tree leaves → store as `string[8]` in
+  `GameConstants.AnimationName` (no hardcoded literals).
+
+**Files to change:** `AttackSO.cs` (replace the AOC field with `AnimationClip[8]`),
+`WeaponMelee.cs` (`CheckCanAttack` + `DurationNextAttack`), `GameConstants.cs`.
+
+**Caveat:** under Option 1, `AOC.clips` returns more than 8 pairs, so `DurationNextAttack` must read
+`directionClips[0].length` directly and **drop the `/8` division**.
+
+### Problem 2 — Combo not smooth between hit 1 → hit 2 (analyzed, not yet fixed)
+Root causes:
+1. **No combo-cancel window**: `PlayerAttackState` inherits `PlayerUseWeaponState` (not `PlayerBasicState`),
+   so the `IsAttack → AttackState` transition (only present in `PlayerBasicState:29`) is unreachable while
+   attacking → the flow is forced through Attack → Idle/Move → Attack → stutter.
+2. **No input buffer**: `OnAttack` (`PlayerInputHandle.cs:165`) only sets `isAttack` from the held flag; it
+   is read on exactly one frame after the clip ends → fast taps get dropped.
+3. **`lastClickTime` wrong semantics**: `Weapon.CheckCanAttack:24` assigns it to `StartAttackTime` (the
+   moment the state is entered), not the actual click time.
+4. **(Not a bug)** the `/8` in `DurationNextAttack` is intentional: `totalDuration` sums 8 same-length
+   directional clips, so `/8` yields the length of a single clip. (Note: superseded by Problem 1's caveat
+   once `directionClips` lands — read `directionClips[0].length` instead.)
+
+**Fix direction (not yet done):**
+- Add a combo-cancel window: an Animation Event at ~60-70% of the clip opens a window that allows
+  re-entering `AttackState` (incrementing `currentStateIndex`) instead of bouncing through Idle.
+- Buffer attack input (store `lastAttackPressedTime` on press, valid ~0.2s).
+- Separate the real `lastClickTime` from `StartAttackTime`; compute the reset window from the current
+  clip length instead of `/8`.
+
+**Environment caveat:** Unity Play Mode cannot run here → static analysis only. Smoothness is a
+Visual/Feel concern (ADVISORY per `test-standards.md`) and must be confirmed by playtest.
