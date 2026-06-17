@@ -3,10 +3,12 @@
 > **Sprint**: 2026-06-15 (Mon) → 2026-06-19 (Fri)
 > **Companion to**: `sprint-02.md` (formal plan) — this file is the day-by-day breakdown + live tracker
 > **Maintained by**: PM assistant — updated each session/standup
-> **Daily routine**: 10:00 every day → run `/daily-standup` — summarizes/analyzes
->   yesterday from git + this tracker, updates statuses below, and lists today's
->   tasks (with estimates) from the day-by-day breakdown. Wire it as a 10:00
->   daily routine in the Claude Code web app.
+> **Routines (10:00, working days Mon–Fri)**:
+>   - **Mon** → `/weekly-kickoff` — closes last sprint, auto-creates the new
+>     sprint (`sprint-NN.md` + `sprint-NN-daily-plan.md`), gives Monday standup.
+>   - **Tue–Fri** → `/daily-standup` — summarizes/analyzes yesterday from git +
+>     this tracker, updates statuses below, lists today's tasks with estimates.
+>   Wire both as 10:00 routines in the Claude Code web app. Weekends off.
 > **Last updated**: 2026-06-17 (Wed)
 
 ---
