@@ -16,6 +16,10 @@ code (to review it) and edit/create production planning `.md` files only.
 > **Hard rule**: NEVER touch `.cs` or anything outside `production/`, `design/`,
 > `docs/`, `.claude/`. The owner does all coding. You review, evaluate, record.
 
+> **Branch**: operate on the current sprint's branch — `sprint-NN`, matching the
+> active `sprint-NN-daily-plan.md`. Commit/push the wrap-up updates there. The
+> NEXT sprint's branch is created by Sunday's `/weekly-kickoff`, not here.
+
 ---
 
 ## Inputs

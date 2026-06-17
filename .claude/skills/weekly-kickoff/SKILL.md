@@ -38,8 +38,23 @@ edit/create production planning `.md` files.
   if last week underdelivered.
 - List carry-over tasks (anything not ✅) — these seed the new sprint first.
 
-### 2. Create the new sprint
-- Determine the new sprint number (last + 1) and the Mon–Fri date range.
+### 2. Create the sprint branch
+- Each sprint lives on its OWN git branch — do not reuse a fixed branch.
+- Determine the new sprint number (last + 1). Create and switch to a new branch
+  named `sprint-NN` (zero-padded, e.g. `sprint-03`), based off the LATEST branch
+  (the previous sprint's branch / current HEAD) so all prior work carries
+  forward — do NOT base it off `main`:
+  ```
+  git fetch origin
+  git checkout -b sprint-NN          # branches from the current latest branch
+  ```
+- If a branch `sprint-NN` already exists, switch to it instead of recreating.
+- ALL of this week's commits — the sprint docs, the tracker, and the owner's
+  code — live on `sprint-NN`. Push with `git push -u origin sprint-NN` and open
+  a draft PR for it.
+
+### 3. Write the new sprint plan
+- Determine the Mon–Fri date range.
 - Write the formal plan `production/sprints/sprint-NN.md` (mirror the structure
   of the previous sprint-NN.md: Goal, Capacity, Tasks Must/Should, Risks,
   Definition of Done). Capacity = 5 days − 20% buffer = 4 available.
@@ -48,7 +63,7 @@ edit/create production planning `.md` files.
 - **Never load more than 4 days of estimate.** If the backlog exceeds capacity,
   cut the lowest-priority items and list them as deferred. Flag over-commit.
 
-### 3. Create the companion daily tracker
+### 4. Create the companion daily tracker
 - Write `production/sprints/sprint-NN-daily-plan.md` in the SAME format as the
   previous one: Status Verdict, Burn Summary, Task Estimates table, a
   **Day-by-Day Breakdown (Mon–Fri)** with each task placed on a day in priority
@@ -56,15 +71,16 @@ edit/create production planning `.md` files.
   and an empty Daily Log. Include the `Daily routine: 10:00 → /daily-standup`
   header note.
 
-### 4. Week-ahead preview (look forward)
+### 5. Week-ahead preview (look forward)
 - Present Monday's tasks with estimates and one focus recommendation for the
   start of the week.
 - Surface the top risk and any task that has been deferred multiple weeks
   (call out recurring slippage explicitly — it is a pattern worth naming).
 
-### 5. Output (chat) — under ~30 lines
+### 6. Output (chat) — under ~30 lines
 ```
-🗓️ Weekly Kickoff (Sun 22:00) — Sprint NN (<Mon date> → <Fri date>)
+🗓️ Weekly Kickoff (Sun 22:00) — Sprint NN  ·  branch: sprint-NN
+(<Mon date> → <Fri date>)
 
 ⏪ Last sprint (NN-1)
   • Done:        <tasks> (<X>/4 d velocity)
