@@ -3,12 +3,14 @@
 > **Sprint**: 2026-06-15 (Mon) → 2026-06-19 (Fri)
 > **Companion to**: `sprint-02.md` (formal plan) — this file is the day-by-day breakdown + live tracker
 > **Maintained by**: PM assistant — updated each session/standup
-> **Routines (10:00, working days Mon–Fri)**:
->   - **Mon** → `/weekly-kickoff` — closes last sprint, auto-creates the new
->     sprint (`sprint-NN.md` + `sprint-NN-daily-plan.md`), gives Monday standup.
->   - **Tue–Fri** → `/daily-standup` — summarizes/analyzes yesterday from git +
->     this tracker, updates statuses below, lists today's tasks with estimates.
->   Wire both as 10:00 routines in the Claude Code web app. Weekends off.
+> **Routines (Claude Code web app, working days Mon–Fri; weekends off)**:
+>   - **Mon 10:00** → `/weekly-kickoff` — closes last sprint, auto-creates the
+>     new sprint (`sprint-NN.md` + `sprint-NN-daily-plan.md`), gives Monday standup.
+>   - **Tue–Fri 10:00** → `/daily-standup` — summarizes/analyzes yesterday from
+>     git + this tracker, updates statuses below, lists today's tasks with estimates.
+>   - **Fri 22:00** → `/weekly-wrapup` — end-of-week close: code-review of the
+>     week's `.cs`, playtest log, bug-triage, light retro; finalizes the weekly
+>     verdict and records carry-over + velocity for Monday's kickoff.
 > **Last updated**: 2026-06-17 (Wed)
 
 ---
