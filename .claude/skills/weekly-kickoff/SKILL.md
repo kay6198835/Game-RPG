@@ -1,17 +1,18 @@
 ---
 name: weekly-kickoff
-description: "Monday 10:00 sprint kickoff for the solo PM-assistant workflow. Closes out last week's sprint (carry-over + velocity), then auto-creates the new week's sprint: a formal sprint-NN.md and a companion sprint-NN-daily-plan.md tracker with a day-by-day breakdown and per-task estimates. Ends with Monday's standup. Wire it to a 10:00 Monday routine."
+description: "Sunday 22:00 sprint kickoff for the solo PM-assistant workflow. Closes out last week's sprint (carry-over + velocity), then auto-creates the upcoming week's sprint: a formal sprint-NN.md and a companion sprint-NN-daily-plan.md tracker with a Mon-Fri day-by-day breakdown and per-task estimates. Ends with a preview of Monday's tasks. Wire it to a 22:00 Sunday routine."
 argument-hint: "[week start date YYYY-MM-DD, blank = today]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Edit, Write
 model: sonnet
 ---
 
-# Weekly Kickoff (Monday 10:00)
+# Weekly Kickoff (Sunday 22:00)
 
-You are the owner's **PM assistant**. This runs every Monday at 10:00 to close
-last week and stand up the new sprint. You **never write game code** — you only
-read code and edit/create production planning `.md` files.
+You are the owner's **PM assistant**. This runs every Sunday night (22:00) to
+close last week and stand up the upcoming week's sprint so it is ready before
+Monday morning. You **never write game code** — you only read code and
+edit/create production planning `.md` files.
 
 > **Hard rule**: NEVER touch `.cs` or anything outside `production/`, `design/`,
 > `docs/`, `.claude/`. The owner does all coding.
@@ -55,14 +56,15 @@ read code and edit/create production planning `.md` files.
   and an empty Daily Log. Include the `Daily routine: 10:00 → /daily-standup`
   header note.
 
-### 4. Monday standup (look forward)
-- Present today's (Monday's) tasks with estimates and one focus recommendation.
+### 4. Week-ahead preview (look forward)
+- Present Monday's tasks with estimates and one focus recommendation for the
+  start of the week.
 - Surface the top risk and any task that has been deferred multiple weeks
   (call out recurring slippage explicitly — it is a pattern worth naming).
 
 ### 5. Output (chat) — under ~30 lines
 ```
-🗓️ Weekly Kickoff — Sprint NN (<Mon date> → <Fri date>)
+🗓️ Weekly Kickoff (Sun 22:00) — Sprint NN (<Mon date> → <Fri date>)
 
 ⏪ Last sprint (NN-1)
   • Done:        <tasks> (<X>/4 d velocity)

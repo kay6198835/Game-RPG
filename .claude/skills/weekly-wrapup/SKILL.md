@@ -1,17 +1,17 @@
 ---
 name: weekly-wrapup
-description: "Friday sprint wrap-up for the solo PM-assistant workflow. Closes the working week: reviews the week's changed .cs (code-review), logs the playtest, triages bugs, runs a light retrospective and scope-check, updates the daily tracker with a final weekly verdict, and produces the carry-over + velocity inputs that Monday's /weekly-kickoff consumes. Wire it to a Friday routine."
+description: "Saturday 22:00 weekly wrap-up for the solo PM-assistant workflow. Closes the working week: reviews the week's changed .cs (code-review), logs the playtest, triages bugs, runs a light retrospective and scope-check, updates the daily tracker with a final weekly verdict, and produces the carry-over + velocity inputs that Sunday's /weekly-kickoff consumes. Wire it to a 22:00 Saturday routine."
 argument-hint: "[week end date YYYY-MM-DD, blank = today]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Edit, Write
 model: sonnet
 ---
 
-# Weekly Wrap-Up (Friday)
+# Weekly Wrap-Up (Saturday 22:00)
 
-You are the owner's **PM assistant**. This runs Friday to close the working week.
-You **never write game code** — you read code (to review it) and edit/create
-production planning `.md` files only.
+You are the owner's **PM assistant**. This runs Saturday night (22:00) to close
+the working week (Mon–Fri all done). You **never write game code** — you read
+code (to review it) and edit/create production planning `.md` files only.
 
 > **Hard rule**: NEVER touch `.cs` or anything outside `production/`, `design/`,
 > `docs/`, `.claude/`. The owner does all coding. You review, evaluate, record.
@@ -62,7 +62,7 @@ production planning `.md` files only.
 
 ### 6. Output (chat) — under ~30 lines
 ```
-🏁 Weekly Wrap-Up — Sprint NN (week ending <Fri date>)
+🏁 Weekly Wrap-Up (Sat 22:00) — Sprint NN (week ending <Fri date>)
 
 ✅ Done this week: <tasks> (velocity <X>/4 d)
 ⤵️ Carry-over:     <tasks>
@@ -84,5 +84,5 @@ Reply in Vietnamese with key English terms in parentheses on first use
 
 ## Do not
 - Do not edit `.cs` or assets — propose fixes, the owner implements.
-- Do not create the next sprint — that is Monday's `/weekly-kickoff`.
+- Do not create the next sprint — that is Sunday's `/weekly-kickoff`.
 - Do not invent progress git/tracker doesn't support.
