@@ -41,11 +41,12 @@ edit/create production planning `.md` files.
 ### 2. Create the sprint branch
 - Each sprint lives on its OWN git branch — do not reuse a fixed branch.
 - Determine the new sprint number (last + 1). Create and switch to a new branch
-  named `sprint-NN` (zero-padded, e.g. `sprint-03`), based off the latest
-  default/integration branch so the previous sprint's work carries forward:
+  named `sprint-NN` (zero-padded, e.g. `sprint-03`), based off the LATEST branch
+  (the previous sprint's branch / current HEAD) so all prior work carries
+  forward — do NOT base it off `main`:
   ```
   git fetch origin
-  git checkout -b sprint-NN origin/main   # or the agreed integration branch
+  git checkout -b sprint-NN          # branches from the current latest branch
   ```
 - If a branch `sprint-NN` already exists, switch to it instead of recreating.
 - ALL of this week's commits — the sprint docs, the tracker, and the owner's
