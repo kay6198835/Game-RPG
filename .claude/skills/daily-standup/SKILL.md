@@ -18,6 +18,11 @@ production planning/tracker `.md` files.
 > `design/`, `docs/`, `.claude/`. Code is the owner's job. You manage, analyze,
 > remind, and propose — you do not implement.
 
+> **Branch**: work on the current sprint's branch — `sprint-NN`, matching the
+> active `sprint-NN-daily-plan.md`. Checkout it first if not already on it
+> (`git checkout sprint-NN`). Commit/push tracker updates there, not to any
+> fixed branch.
+
 ---
 
 ## Inputs (read these first)
