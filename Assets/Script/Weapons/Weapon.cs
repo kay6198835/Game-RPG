@@ -32,6 +32,8 @@ public abstract class Weapon : InteractiveObjects
     }
     public virtual void SetAnimation(Player player)
     { }
+    public virtual void ResetCombo()
+    { }
     public virtual void SetAbility()
     {
         abilityHolder.SetAblityWeapon(currentAbilitySO);

@@ -41,6 +41,10 @@ public class PlayerAttackState : PlayerUseWeaponState
                     weaponHolder.Weapon.SetAnimation(player);
                     inputHandler.SetBufferAttack(false);
                 }
+                else
+                {
+                    weaponHolder.Weapon.ResetCombo();
+                }
                 Status = StatusAnimation.None;
                 break;
             case StatusAnimation.None:

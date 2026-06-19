@@ -6,6 +6,7 @@ public class WeaponMelee : Weapon
     [Header("Melee Weapon")]
     [SerializeField] private WeaponMeleeStats statsMelee;
     private int currentStateIndex = 0;
+    private int comboCount = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
     protected PlayerInputHandler inputHandler;
@@ -26,9 +27,21 @@ public class WeaponMelee : Weapon
     public override void Attack()
     {
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, statsMelee.LayerMask);
+        int damage = Mathf.RoundToInt(currrentSA.attackDamege * currrentSA.damageMultiplier);
+        bool didHit = false;
         foreach (Collider2D enemy in hitEnemies)
         {
-
+            INegativeReceiver dmg = enemy.GetComponentInChildren<INegativeReceiver>();
+            if (dmg != null)
+            {
+                dmg.TakeDamage(damage, transform.position);
+                didHit = true;
+            }
+        }
+        if (didHit)
+        {
+            comboCount++;
+            EventManager.Emit(EventID.ON_COMBO_HIT, comboCount);
         }
     }
     public override void SetAbility()
@@ -56,6 +69,7 @@ public class WeaponMelee : Weapon
             if (currentStateIndex == statsMelee.AttackState.Count ||
             lastClickTime + deplayTime < Time.time)
             {
+                if (lastClickTime + deplayTime < Time.time) comboCount = 0;
                 currentStateIndex = 0;
             }
             SetAnimation(player);
@@ -66,6 +80,12 @@ public class WeaponMelee : Weapon
             canAttack = false;
         }
         return canAttack;
+    }
+
+    public override void ResetCombo()
+    {
+        currentStateIndex = 0;
+        comboCount = 0;
     }
 
     public override void SetAnimation(Player player)
