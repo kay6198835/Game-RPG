@@ -44,12 +44,13 @@ public class PlayerAttackState : PlayerUseWeaponState
                     Debug.Log("On Check Attack");
                     weaponHolder.Weapon.SetAnimation(player);
                     inputHandler.SetBufferAttack(false);
+                    Status = StatusAnimation.Start;
                 }
                 else
                 {
                     weaponHolder.Weapon.ResetCombo();
+                    Status = StatusAnimation.None;
                 }
-                Status = StatusAnimation.None;
                 break;
             case StatusAnimation.None:
                 player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
