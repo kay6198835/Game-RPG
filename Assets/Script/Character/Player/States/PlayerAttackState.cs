@@ -34,6 +34,10 @@ public class PlayerAttackState : PlayerUseWeaponState
             case StatusAnimation.Start:
                 player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
                 break;
+            case StatusAnimation.StartRangeTrigger:
+                weaponHolder.Weapon.Attack();
+                Status = StatusAnimation.OnActivate;
+                break;
             case StatusAnimation.EndRangeTrigger:
                 if (inputHandler.BufferIsAttack)
                 {
