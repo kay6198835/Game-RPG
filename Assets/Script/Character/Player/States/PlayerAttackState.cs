@@ -25,15 +25,36 @@ public class PlayerAttackState : PlayerUseWeaponState
 
     public override void LogicUpdate()
     {
-        base.LogicUpdate();
-        if (isAnimationFinished && inputHandler.IsAttack && weaponHolder.Weapon.CheckCanAttack(player))
+        // if (isAnimationFinishedTrigger && inputHandler.IsAttack)
+        // {
+        //     stateMachine.ChangeState(player.AttackState);
+        // }
+        switch (Status)
         {
-            stateMachine.ChangeState(player.AttackState);
+            case StatusAnimation.Start:
+                player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
+                break;
+            case StatusAnimation.EndRangeTrigger:
+                if (inputHandler.BufferIsAttack)
+                {
+                    Debug.Log("On Check Attack");
+                    weaponHolder.Weapon.SetAnimation(player);
+                    inputHandler.SetBufferAttack(false);
+                }
+                Status = StatusAnimation.None;
+                break;
+            case StatusAnimation.None:
+                player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
+                base.LogicUpdate();
+                break;
+            default:
+                break;
         }
-        if (isAnimationTrigger)
-        {
-            weaponHolder.Weapon.Attack();
-            isAnimationTrigger = false;
-        }
+    }
+
+    public override void SetAnimationStatus(StatusAnimation statusAnimation)
+    {
+        base.SetAnimationStatus(statusAnimation);
+        Debug.Log("Event Call: " + statusAnimation);
     }
 }

@@ -18,14 +18,4 @@ public class PlayerIntertorState : PlayerUseWeaponState
     {
         base.Exit();
     }
-
-    public override void LogicUpdate()
-    {
-        base.LogicUpdate();
-        if (isAnimationTrigger)
-        {
-            //player.Core.Interactor.Intertion();
-            isAnimationTrigger = false;
-        }
-    }
 }

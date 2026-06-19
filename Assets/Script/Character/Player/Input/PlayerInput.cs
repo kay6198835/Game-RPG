@@ -131,7 +131,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""Equip/Unequip"",
                     ""type"": ""Button"",
                     ""id"": ""949822f0-c4cb-4a19-b25d-e001bd023ba9"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": ""Press"",
                     ""initialStateCheck"": false

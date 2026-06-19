@@ -20,10 +20,9 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (isAnimationTrigger)
+        if (StatusAnimation.StartRangeTrigger <= Status &&  Status <= StatusAnimation.EndRangeTrigger)
         {
             abilityHolder.SetStateAbility();
-            isAnimationTrigger = false;
         }
     }
     public override void PhysicsUpdate()

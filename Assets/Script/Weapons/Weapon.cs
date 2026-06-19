@@ -8,7 +8,6 @@ public abstract class Weapon : InteractiveObjects
     [SerializeField] protected Collider2D collider;
     protected float lastClickTime;
     protected float deplayTime;
-    protected float durationNextAttack;
     protected bool canAttack;
     protected AbilityHolder abilityHolder;
     protected WeaponHolder weaponHolder;
@@ -31,6 +30,8 @@ public abstract class Weapon : InteractiveObjects
         }
         return canAttack;
     }
+    public virtual void SetAnimation(Player player)
+    { }
     public virtual void SetAbility()
     {
         abilityHolder.SetAblityWeapon(currentAbilitySO);

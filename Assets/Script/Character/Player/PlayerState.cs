@@ -7,12 +7,11 @@ public class PlayerState
     protected Player player;
     protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
+    public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
 
-    protected bool isAnimationTrigger;
-    protected bool isAnimationAction;
-    protected bool isAnimationFinished;
-    protected bool isAnimationExitingState;
-    protected bool isExitingState;
+    // protected bool isAnimationTrigger;
+    // protected bool isAnimationAction;
+    // protected bool isExitingState;
     protected float startTime;
     protected string animBoolName;
     //protected StateStyle stateStyle;
@@ -46,15 +45,13 @@ public class PlayerState
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
         //Debug.Log("Start" + animBoolName);
-        isAnimationTrigger = false;
-        isAnimationFinished = false;
-        isExitingState = false;
+        this.Status = StatusAnimation.Start;
 
     }
     public virtual void Exit()
     {
         player.Anim.SetBool(animBoolName, false);
-        isExitingState = true;
+        this.Status = StatusAnimation.End;
     }
 
     public virtual void LogicUpdate()
@@ -71,25 +68,19 @@ public class PlayerState
 
     public virtual void DoChecks() { }
 
-    public virtual void AnimationTrigger()
+    public virtual void SetAnimationStatus(StatusAnimation statusAnimation)
     {
-        isAnimationTrigger = true;
+        this.Status = statusAnimation;
     }
+}
 
-    public virtual void AnimationAction()
-    {
-        isAnimationAction = true;
-    }
-
-    public virtual void AnimationFinishTrigger()
-    {
-        isAnimationFinished = true;
-    }
-
-    public virtual void AnimationExitingState()
-    {
-        isAnimationExitingState = true;
-    }
-
-
+public enum StatusAnimation
+{
+    None,
+    Start,
+    StartRangeTrigger,
+    OnActivate,
+    OffActivate,
+    EndRangeTrigger,
+    End
 }

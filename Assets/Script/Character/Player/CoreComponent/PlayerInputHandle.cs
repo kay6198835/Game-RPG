@@ -45,6 +45,7 @@ public class PlayerInputHandler : CoreComponent
 
     [Header("Bool Value")]
     [SerializeField] private bool isAttack;
+    [SerializeField] public bool BufferIsAttack { get; private set; } = false;
     [SerializeField] private bool isSkill;
     [SerializeField] private bool isDisadvantage;
     [SerializeField] private bool isTakeDamage;
@@ -98,7 +99,7 @@ public class PlayerInputHandler : CoreComponent
     }
 
     #region OnMethod
-    private void OnEnable()
+    protected void OnEnable()
     {
         playerInput.Control.Enable();
         playerInput.Control.Movement.started += OnMove;
@@ -125,7 +126,7 @@ public class PlayerInputHandler : CoreComponent
         playerInput.Control.Interactor.started += OnInteractor;
         playerInput.Control.Interactor.canceled += OnInteractor;
     }
-    private void OnDisable()
+    protected void OnDisable()
     {
         playerInput.Control.Movement.started -= OnMove;
         playerInput.Control.Movement.performed -= OnMove;
@@ -166,10 +167,12 @@ public class PlayerInputHandler : CoreComponent
         if (context.started)
         {
             isEquip_Unequip = true;
+            Debug.Log(" Start " + Time.time);
         }
         if (context.canceled)
         {
             isEquip_Unequip = false;
+            Debug.Log("Canceled " + Time.time);
         }
     }
     private void OnInteractor(InputAction.CallbackContext context)
@@ -177,12 +180,11 @@ public class PlayerInputHandler : CoreComponent
         if (context.started)
         {
             isInteractor = true;
-            Debug.Log(" Start " + Time.time);
+
         }
         if (context.canceled)
         {
             isInteractor = false;
-            Debug.Log("Canceled " + Time.time);
         }
     }
     private void OnMove(InputAction.CallbackContext context)
@@ -192,11 +194,21 @@ public class PlayerInputHandler : CoreComponent
     }
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (weaponHolder.Weapon == null)
-            return;
-        if (context.started && weaponHolder.Weapon.CheckCanAttack(core.Player))
+        if (weaponHolder.Weapon == null) return;
+
+        if (context.started && !BufferIsAttack)
         {
-            isAttack = true;
+            if (StatusAnimation.StartRangeTrigger <= core.Player.stateMachine.CurrentState.Status
+            && core.Player.stateMachine.CurrentState.Status <= StatusAnimation.EndRangeTrigger)
+            {
+                Debug.Log("Set Buffer");
+                SetBufferAttack(true);
+            }
+            else if (weaponHolder.Weapon.CheckCanAttack(core.Player))
+            {
+                Debug.Log("Call Check Can Attack");
+                isAttack = true;
+            }
         }
         if (context.canceled)
         {
@@ -317,4 +329,23 @@ public class PlayerInputHandler : CoreComponent
         AngleCalculate(directionExternalityVector, ref angleExternalityDirection, ref directionExternality);
     }
     #endregion
+
+
+    #region 
+    // public bool GetBufferAttack()
+    // {
+    //     if (bufferIsAttack)
+    //     {
+    //         weaponHolder.Weapon.CheckCanAttack(core.Player);
+    //     }
+    //     return bufferIsAttack;
+    // }
+
+    public void SetBufferAttack(bool bufferIsAttack)
+    {
+        this.BufferIsAttack = bufferIsAttack;
+        Debug.Log("Buffer Attack: " + BufferIsAttack);
+    }
+    #endregion
+
 }

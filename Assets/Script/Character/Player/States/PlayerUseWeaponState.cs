@@ -29,7 +29,7 @@ public class PlayerUseWeaponState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (isAnimationFinished)
+        if (Status == StatusAnimation.None)
         {
             if (inputHandler.MoveVector == Vector2.zero)
             {

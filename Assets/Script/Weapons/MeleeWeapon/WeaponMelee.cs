@@ -21,8 +21,7 @@ public class WeaponMelee : Weapon
     }
     private void Start()
     {
-        deplayTime = 0.02f;
-        durationNextAttack = 0f;
+
     }
     public override void Attack()
     {
@@ -51,22 +50,35 @@ public class WeaponMelee : Weapon
     }
     public override bool CheckCanAttack(Player player)
     {
-        if (base.CheckCanAttack(player))
+        if (base.CheckCanAttack(player) && !inputHandler.BufferIsAttack)
         {
+
             if (currentStateIndex == statsMelee.AttackState.Count ||
-            lastClickTime + durationNextAttack + deplayTime < Time.time)
+            lastClickTime + deplayTime < Time.time)
             {
                 currentStateIndex = 0;
             }
-            durationNextAttack = DurationNextAttack();
-            currrentSA = statsMelee.AttackState[currentStateIndex];
-            // Send AnimationController to Player by Event
-            player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
-            //Attack Position
-            CenterAttackPosition(player);
-            currentStateIndex++;
+            SetAnimation(player);
+        }
+        else
+        {
+            Debug.Log("Can't call check Attack");
+            canAttack = false;
         }
         return canAttack;
+    }
+
+    public override void SetAnimation(Player player)
+    {
+        deplayTime = DurationNextAttack() * 0.8f;
+        if (currentStateIndex > statsMelee.AttackState.Count) currentStateIndex = 0;
+        currrentSA = statsMelee.AttackState[currentStateIndex];
+        // Send AnimationController to Player by Event
+        player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
+        player.Anim.speed = 0.2f;
+        //Attack Position
+        CenterAttackPosition(player);
+        currentStateIndex++;
     }
     private float DurationNextAttack()
     {
@@ -89,7 +101,7 @@ public class WeaponMelee : Weapon
                 totalDuration += pair.overrideClip.length;
             }
         }
-        Debug.Log("totalDuration" + totalDuration);
+        Debug.Log("totalDuration" + totalDuration / 8);
         return totalDuration / 8;
     }
 
