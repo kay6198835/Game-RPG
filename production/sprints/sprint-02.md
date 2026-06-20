@@ -65,11 +65,49 @@ None — all work is internal to the Player Core / Weapon / Ability framework an
 - [ ] Editor compiles clean; no `UnityEditor` import in runtime code; no `"<T> not found"` Console warnings
 - [ ] Play Mode smoke: equip weapon → melee deals damage (S2-05) → E/RMB run the correct ability and Exit cleanly (S2-02 + S2-04)
 - [ ] S2-06 EditMode test passes (`/smoke-check sprint`)
-- [ ] Carryover decision recorded (Sprint 3 defer vs pull-in)
-- [ ] Refactor deviations from the plan documented in the plan file
+- [x] Carryover decision recorded (Sprint 3 defer vs pull-in)
+- [x] Refactor deviations from the plan documented in the plan file
 - [ ] Code reviewed and merged into `feature/refactor-state-system`
 
 > **Scope check**: Must Haves trace to the refactor plan + Sprint-1 demo-blocker backlog (Bug #9, #4); no new feature scope. Run `/scope-check sprint-2` mid-sprint if stories get added.
+
+---
+
+## Sprint Close — 2026-06-20
+
+**Verdict**: 🔴 CONCERNS (sprint branch) / ⚠️ PARTIAL RECOVERY via parallel branch
+
+### Final Task Status
+
+| ID | Task | Status | Notes |
+|----|------|--------|-------|
+| S2-01 | Stabilize + commit 28-file working tree | ✅ DONE | Clean base committed Mon–Wed |
+| S2-02 | Decouple Weapon ↔ WeaponHolder/AbilityHolder | ✂️ CUT | Carry to Sprint 3 |
+| S2-03 | `Core.GetCoreComponent<T>()` + self-register | 🟡 PARTIAL | Self-register works; **LINQ still present** (acceptance criteria violated) |
+| S2-04 | Fix Bug #9 — AnimController double-registration | ⬜ NOT DONE | `AnimationPlayerController.cs` unchanged |
+| S2-05 | Fix Bug #4 — WeaponMelee.Attack() empty foreach | ⚠️ PARALLEL | Fixed in parallel branch (e314b88) — **not yet merged** to sprint branch |
+| S2-06 | EditMode test for equip→ability | ✂️ CUT | No capacity |
+
+**Velocity**: 0.5d done / 3.5d estimated = **14%** on sprint branch. Including parallel branch: ~1.25d / 3.5d = **36%**.
+
+### Carry-Over to Sprint 3
+
+| Item | Type | Priority |
+|------|------|----------|
+| Merge e314b88 / 5fa5e27 / 81c95de into sprint branch | Action | Before planning |
+| Fix Bug #9 (AnimationPlayerController lines 21, 29) | Bug | P1 — Day 1 commit |
+| Fix BUG-AH-1 (AbilityHolder Editor imports — build-breaking) | Bug | P1 |
+| Complete S2-03 (Core.GetCoreComponent LINQ → foreach) | Task | P1 |
+| Fix BUG-PIH-1 (CancelInvoke missing in PlayerInputHandle) | Bug | P2 |
+| S2-02 Decouple Weapon↔WeaponHolder | Task | P2 |
+
+### Playtest
+No playtest session logged this week (2026-06-15 to 2026-06-19). Most recent: `production/qa/playtests/playtest-2026-06-12-weekly-wrapup.md`. Run `/playtest-report` manually when Player build is unblocked (after BUG-AH-1 + BUG-09 fixed).
+
+### Reference Files
+- Code review + triage: `production/qa/bug-triage-2026-06-20.md`
+- Retrospective: `production/retros/retro-sprint-02-2026-06-20.md`
+- Daily plan tracker: `production/sprints/sprint-02-daily-plan.md`
 
 ---
 
