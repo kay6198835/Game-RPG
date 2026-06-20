@@ -12,7 +12,10 @@ public class AttackSO : ScriptableObject
     [SerializeField] public float attackRange = 1f;
     [SerializeField] public int attackDamege = 0;
     [SerializeField] public float attackRate = 1f;
-    
+
+    [Header("Combo")]
+    [SerializeField] [Range(0.1f, 5f)] public float damageMultiplier = 1f;
+
     [Header("Atributte")]
     [SerializeField] public AnimatorOverrideController directionAttackAnimatorOV;
     [SerializeField] public ActivateSkill ability;

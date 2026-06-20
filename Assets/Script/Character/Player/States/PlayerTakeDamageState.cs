@@ -14,7 +14,11 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
         base.Enter();
         player.Core.GetCoreComponent(out playerMovement);
         playerMovement.SetVeclocity(Vector2.zero);
-
+        inputHandler.SetBufferAttack(false);
+        if (weaponHolder.Weapon != null)
+        {
+            weaponHolder.Weapon.ResetCombo();
+        }
     }
     public override void LogicUpdate()
     {
