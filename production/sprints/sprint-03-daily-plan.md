@@ -109,7 +109,7 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Dirty working tree (4 `.cs` + 4 assets) blocks Sprint 3 start | 🔴 Active | Commit first thing Mon 23/06 before any sprint task |
+| Dirty working tree (5 `.cs` + 4 assets + 2 untracked = 11 files) blocks Sprint 3 start | 🔴 Active | Commit first thing Mon 23/06 before any sprint task; note Bug #4 NOT fixed in dirty tree yet |
 | Recurring developer absence (zero-commit days) pattern | 🔴 Watch | S3-01→S3-04 total ~1d; even 2 productive days covers all Must-Haves |
 | BUG-AH-1 unknown scope (how many files have `UnityEditor` import?) | 🟡 Unknown | Grep `using UnityEditor` in `Assets/Script/` Mon; fix all at once |
 | Stats system (S3-06) larger than 1d estimate | 🟡 Watch | Should Have — cut to Sprint 4 if Must-Haves + S3-05 absorb Mon–Tue |
@@ -120,3 +120,5 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 > Owner reports what was done; PM updates estimates/status here each standup.
 
 - **2026-06-22 (Sun)**: Sprint-03 kickoff — branch `sprint-03` created from `origin/fix-player-control`; `sprint-03.md` + this tracker written. Carry-over: 4 P1 items + 1 P2 bug + S2-02 task.
+
+- **2026-06-22 (Sun standup — pre-sprint day)**: No new commits landed. Code inspection reveals the dirty working tree is larger than originally noted: **9 modified files** (`PlayerInputHandle.cs`, `PlayerState.cs`, `PlayerAttackState.cs`, `WeaponMelee.cs`, `Weapon.cs`, 2 animation clips, `SetLevel.unity`, `.claude/settings.local.json`) plus 2 untracked (`UIControlTest.cs` + `.meta`). Key changes in the dirty tree: `PlayerAttackState.cs` and `WeaponMelee.cs` include a combo-attack buffer (`BufferIsAttack`) and `StatusAnimation` state machine (Start→EndRangeTrigger→None); `PlayerState.cs` adds the `StatusAnimation` enum. **Bug #4 (WeaponMelee.Attack() empty foreach) remains unfixed** in the dirty tree — the foreach body is still empty at line 29. Risk table updated: dirty tree is 9 files, not 4. Sprint begins Mon 23/06 — commit dirty tree first action.
