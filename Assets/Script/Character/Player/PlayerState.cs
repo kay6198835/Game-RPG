@@ -44,7 +44,6 @@ public class PlayerState
         player.Core.GetCoreComponent(out playerMovement);
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        Debug.Log("Start" + animBoolName);
         this.Status = StatusAnimation.Start;
 
     }

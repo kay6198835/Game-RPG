@@ -50,7 +50,6 @@ public class WeaponMelee : Weapon
     }
     public override bool CheckCanAttack(Player player)
     {                                                                                  // dòng 52 (anchor)
-        Debug.Log($"[ATK-CHK] buffer={inputHandler.BufferIsAttack} cdLeft={(lastClickTime + deplayTime - Time.time):F3} idx={currentStateIndex} t={Time.time:F3} f={Time.frameCount}");
         if (base.CheckCanAttack(player) && !inputHandler.BufferIsAttack)
         {
             SetAnimation(player);
@@ -74,7 +73,6 @@ public class WeaponMelee : Weapon
         player.Anim.speed = 1f;
         deplayTime = DurationNextAttack() / player.Anim.speed;
         currrentSA = statsMelee.AttackState[currentStateIndex];
-        Debug.Log($"[ATK-SET] selIdx={currentStateIndex} clip={currrentSA?.name} prevNormT={player.Anim.GetCurrentAnimatorStateInfo(0).normalizedTime:F2} t={Time.time:F3} f={Time.frameCount}");
         // Send AnimationController to Player by Event
         player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
         //Attack Position

@@ -32,15 +32,15 @@ public class PlayerAttackState : PlayerUseWeaponState
         switch (Status)
         {
             case StatusAnimation.Start:
-
-
+                if (inputHandler.BufferIsAttack)
+                {
+                    inputHandler.SetBufferAttack(false);
+                }
                 //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
                 break;
             case StatusAnimation.EndRangeTrigger:
-                if (inputHandler.BufferIsAttack || inputHandler.IsAttack)            // dòng 40
-                {                                                                     // dòng 41 (anchor)
-                    Debug.Log($"[ATK-END] advance buffer={inputHandler.BufferIsAttack} isAtk={inputHandler.IsAttack} normT={player.Anim.GetCurrentAnimatorStateInfo(0).normalizedTime:F2} t={Time.time:F3} f={Time.frameCount}");
-                    inputHandler.SetBufferAttack(false);
+                if (inputHandler.BufferIsAttack || inputHandler.IsAttack)
+                {
                     weaponHolder.Weapon.SetAnimation(player);
                     int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
                     player.Anim.Play(stateHash, 0, 0f);
@@ -48,7 +48,6 @@ public class PlayerAttackState : PlayerUseWeaponState
                 }
                 else
                 {
-                    Debug.Log(Status);
                     Status = StatusAnimation.None;
                 }
                 break;
@@ -62,8 +61,7 @@ public class PlayerAttackState : PlayerUseWeaponState
     }
 
     public override void SetAnimationStatus(StatusAnimation statusAnimation)
-    {                                                                                  // dòng 64 (anchor)
-        Debug.Log($"[ATK-EVT] {statusAnimation} normT={player.Anim.GetCurrentAnimatorStateInfo(0).normalizedTime:F2} t={Time.time:F3} f={Time.frameCount}");
-        base.SetAnimationStatus(statusAnimation);                                      // dòng 65
+    {
+        base.SetAnimationStatus(statusAnimation);
     }
 }
