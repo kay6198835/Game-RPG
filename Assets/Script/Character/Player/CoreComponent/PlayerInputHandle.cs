@@ -97,7 +97,6 @@ public class PlayerInputHandler : CoreComponent
         core.GetCoreComponent(out abilityHolder);
 
     }
-
     #region OnMethod
     protected void OnEnable()
     {
@@ -167,12 +166,10 @@ public class PlayerInputHandler : CoreComponent
         if (context.started)
         {
             isEquip_Unequip = true;
-            Debug.Log(" Start " + Time.time);
         }
         if (context.canceled)
         {
             isEquip_Unequip = false;
-            Debug.Log("Canceled " + Time.time);
         }
     }
     private void OnInteractor(InputAction.CallbackContext context)
@@ -201,12 +198,10 @@ public class PlayerInputHandler : CoreComponent
             if (StatusAnimation.StartRangeTrigger <= core.Player.stateMachine.CurrentState.Status
             && core.Player.stateMachine.CurrentState.Status <= StatusAnimation.EndRangeTrigger)
             {
-                Debug.Log("Set Buffer");
                 SetBufferAttack(true);
             }
             else if (weaponHolder.Weapon.CheckCanAttack(core.Player))
             {
-                Debug.Log("Call Check Can Attack");
                 isAttack = true;
             }
         }
@@ -344,7 +339,6 @@ public class PlayerInputHandler : CoreComponent
     public void SetBufferAttack(bool bufferIsAttack)
     {
         this.BufferIsAttack = bufferIsAttack;
-        Debug.Log("Buffer Attack: " + BufferIsAttack);
     }
     #endregion
 

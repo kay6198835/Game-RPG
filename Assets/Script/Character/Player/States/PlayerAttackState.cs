@@ -32,19 +32,28 @@ public class PlayerAttackState : PlayerUseWeaponState
         switch (Status)
         {
             case StatusAnimation.Start:
-                player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
+
+
+                //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
                 break;
             case StatusAnimation.EndRangeTrigger:
-                if (inputHandler.BufferIsAttack)
-                {
-                    Debug.Log("On Check Attack");
-                    weaponHolder.Weapon.SetAnimation(player);
+                if (inputHandler.BufferIsAttack || inputHandler.IsAttack)            // dòng 40
+                {                                                                     // dòng 41 (anchor)
+                    Debug.Log($"[ATK-END] advance buffer={inputHandler.BufferIsAttack} isAtk={inputHandler.IsAttack} normT={player.Anim.GetCurrentAnimatorStateInfo(0).normalizedTime:F2} t={Time.time:F3} f={Time.frameCount}");
                     inputHandler.SetBufferAttack(false);
+                    weaponHolder.Weapon.SetAnimation(player);
+                    int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                    player.Anim.Play(stateHash, 0, 0f);
+                    Status = StatusAnimation.Start;
                 }
-                Status = StatusAnimation.None;
+                else
+                {
+                    Debug.Log(Status);
+                    Status = StatusAnimation.None;
+                }
                 break;
             case StatusAnimation.None:
-                player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
+                //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
                 base.LogicUpdate();
                 break;
             default:
@@ -53,8 +62,8 @@ public class PlayerAttackState : PlayerUseWeaponState
     }
 
     public override void SetAnimationStatus(StatusAnimation statusAnimation)
-    {
-        base.SetAnimationStatus(statusAnimation);
-        Debug.Log("Event Call: " + statusAnimation);
+    {                                                                                  // dòng 64 (anchor)
+        Debug.Log($"[ATK-EVT] {statusAnimation} normT={player.Anim.GetCurrentAnimatorStateInfo(0).normalizedTime:F2} t={Time.time:F3} f={Time.frameCount}");
+        base.SetAnimationStatus(statusAnimation);                                      // dòng 65
     }
 }

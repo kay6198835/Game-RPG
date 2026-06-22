@@ -19,7 +19,7 @@ public abstract class Weapon : InteractiveObjects
     public abstract void Attack();
     public virtual bool CheckCanAttack(Player player)
     {
-        if (lastClickTime + deplayTime > Time.time)
+        if (lastClickTime + deplayTime >= Time.time)
         {
             canAttack = false;
         }

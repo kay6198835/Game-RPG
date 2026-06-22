@@ -5,7 +5,7 @@ public class WeaponMelee : Weapon
 {
     [Header("Melee Weapon")]
     [SerializeField] private WeaponMeleeStats statsMelee;
-    private int currentStateIndex = 0;
+    public int currentStateIndex { get; private set; } = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
     protected PlayerInputHandler inputHandler;
@@ -49,20 +49,14 @@ public class WeaponMelee : Weapon
         weaponHolder.Core.GetCoreComponent(out inputHandler);
     }
     public override bool CheckCanAttack(Player player)
-    {
+    {                                                                                  // dòng 52 (anchor)
+        Debug.Log($"[ATK-CHK] buffer={inputHandler.BufferIsAttack} cdLeft={(lastClickTime + deplayTime - Time.time):F3} idx={currentStateIndex} t={Time.time:F3} f={Time.frameCount}");
         if (base.CheckCanAttack(player) && !inputHandler.BufferIsAttack)
         {
-
-            if (currentStateIndex == statsMelee.AttackState.Count ||
-            lastClickTime + deplayTime < Time.time)
-            {
-                currentStateIndex = 0;
-            }
             SetAnimation(player);
         }
         else
         {
-            Debug.Log("Can't call check Attack");
             canAttack = false;
         }
         return canAttack;
@@ -70,25 +64,26 @@ public class WeaponMelee : Weapon
 
     public override void SetAnimation(Player player)
     {
-        deplayTime = DurationNextAttack() * 0.8f;
-        if (currentStateIndex > statsMelee.AttackState.Count) currentStateIndex = 0;
+        if (currentStateIndex >= statsMelee.AttackState.Count
+        //|| lastClickTime + deplayTime < Time.time
+        )
+        {
+            currentStateIndex = 0;
+        }
+        lastClickTime = Time.time;
+        player.Anim.speed = 1f;
+        deplayTime = DurationNextAttack() / player.Anim.speed;
         currrentSA = statsMelee.AttackState[currentStateIndex];
+        Debug.Log($"[ATK-SET] selIdx={currentStateIndex} clip={currrentSA?.name} prevNormT={player.Anim.GetCurrentAnimatorStateInfo(0).normalizedTime:F2} t={Time.time:F3} f={Time.frameCount}");
         // Send AnimationController to Player by Event
         player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
-        player.Anim.speed = 0.2f;
         //Attack Position
         CenterAttackPosition(player);
         currentStateIndex++;
+        lastClickTime = Time.time;
     }
     private float DurationNextAttack()
     {
-        //List<KeyValuePair<AnimationClip, AnimationClip>> overridesClip;
-
-        //overridesClip = new List<KeyValuePair<AnimationClip, AnimationClip>>(statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV.overridesCount);
-
-        //statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV.GetOverrides(overridesClip);
-
-        //durationNextAttack = overridesClip.
 
         var clipPairs = statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV.clips;
 
@@ -101,7 +96,6 @@ public class WeaponMelee : Weapon
                 totalDuration += pair.overrideClip.length;
             }
         }
-        Debug.Log("totalDuration" + totalDuration / 8);
         return totalDuration / 8;
     }
 
