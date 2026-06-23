@@ -7,11 +7,11 @@
 >   - **Mon–Fri 10:00** → `/daily-standup` — summarizes yesterday from git + this tracker, updates statuses, lists today's tasks with estimates.
 >   - **Sat 22:00** → `/weekly-wrapup` — end-of-week close: code-review of the week's `.cs`, playtest log, bug-triage, light retro; finalizes verdict and records carry-over + velocity.
 >   - **Sun 22:00** → `/weekly-kickoff` — closes last sprint, auto-creates upcoming week's sprint plan.
-> **Last updated**: 2026-06-22 (Sun) — kickoff
+> **Last updated**: 2026-06-23 (Mon) — standup
 
 ---
 
-## Status Verdict: ⬜ NOT STARTED — Sprint begins Mon 2026-06-23
+## Status Verdict: 🟡 SLIPPED — Day 1 morning, all 4 Must-Haves still unstarted
 
 ---
 
@@ -21,11 +21,11 @@
 |--------|-------|
 | Total work estimated | 2.5 days (Must + Should) |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 0 |
+| Days elapsed | 0 (Day 1 morning) |
 | Days remaining | 5 |
 | Work committed/done | 0 |
 | Work remaining | 2.5 days |
-| Slack | +1.5 days |
+| Slack | +1.5 days (shrinking — Day 1 starting with zero Must-Have progress) |
 
 ---
 
@@ -33,10 +33,10 @@
 
 | ID | Task | Est (d) | Priority | Status |
 |----|------|---------|----------|--------|
-| S3-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` | 0.25 | Must | ⬜ Not started |
-| S3-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ⬜ Not started |
-| S3-03 | Complete S2-03 — `Core.GetCoreComponent<T>()` LINQ → foreach | 0.25 | Must | ⬜ Not started |
-| S3-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (melee damage) | 0.25 | Must | ⬜ Not started |
+| S3-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` | 0.25 | Must | ⬜ Not started (confirmed still present 06-23) |
+| S3-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ⬜ Not started (confirmed still present 06-23) |
+| S3-03 | Complete S2-03 — `Core.GetCoreComponent<T>()` LINQ → foreach | 0.25 | Must | ⬜ Not started (confirmed still LINQ 06-23) |
+| S3-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (melee damage) | 0.25 | Must | ⬜ Not started (confirmed still empty 06-23) |
 | S3-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⬜ Not started |
 | S3-06 | Stats system promotion — `TalentManager` → SO-driven | 1.0 | Should | ⬜ Not started |
 | S3-07 | S2-02 carry — decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ⬜ Not started |
@@ -53,12 +53,12 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | # | Task | Est | Priority |
 |---|------|-----|----------|
-| 0 | **Commit dirty working tree** (PlayerInputHandle, PlayerState, PlayerAttackState, WeaponMelee, animation clips, SetLevel.unity) | 0.25d | Prerequisite |
-| 1 | **S3-01** — Fix BUG-AH-1: `AbilityHolder.cs` remove `using UnityEditor.*`; wrap editor-only code in `#if UNITY_EDITOR` | 0.25d | 🔴 Must |
-| 2 | **S3-02** — Fix Bug #9: `AnimationPlayerController.cs` line 21 `StartAnimation` → `EndAnimation`; line 29 OnDisable mirror | 0.25d | 🔴 Must |
-| 3 | **S3-03** — `Core.GetCoreComponent<T>()`: replace LINQ with `foreach`; verify no `"<T> not found"` warnings | 0.25d | 🔴 Must |
-| 4 | **S3-04** — `WeaponMelee.Attack()`: add `INegativeReceiver.TakeDamage(currrentSA.attackDamege, transform.position)` | 0.25d | 🔴 Must |
-| 5 | Smoke check: equip → attack → enemy takes damage | — | Advisory |
+| 0 | **Commit dirty working tree** (PlayerInputHandle, PlayerState, PlayerAttackState, WeaponMelee, animation clips, SetLevel.unity) | 0.25d | Prerequisite | ✅ Done (commits `2eb0765`, `a654831`, landed Sun evening 06-22 — early, but the commits added combo-attack feature work, not the Must-Have fixes below) |
+| 1 | **S3-01** — Fix BUG-AH-1: `AbilityHolder.cs` remove `using UnityEditor.*`; wrap editor-only code in `#if UNITY_EDITOR` | 0.25d | 🔴 Must | ⬜ Not started — `AbilityHolder.cs:4` still has `using UnityEditor.Experimental.GraphView;` |
+| 2 | **S3-02** — Fix Bug #9: `AnimationPlayerController.cs` line 21 `StartAnimation` → `EndAnimation`; line 29 OnDisable mirror | 0.25d | 🔴 Must | ⬜ Not started — line 21/29 still double-register `StartAnimation` |
+| 3 | **S3-03** — `Core.GetCoreComponent<T>()`: replace LINQ with `foreach`; verify no `"<T> not found"` warnings | 0.25d | 🔴 Must | ⬜ Not started — still `coreComponents.OfType<T>().FirstOrDefault()` |
+| 4 | **S3-04** — `WeaponMelee.Attack()`: add `INegativeReceiver.TakeDamage(currrentSA.attackDamege, transform.position)` | 0.25d | 🔴 Must | ⬜ Not started — `foreach` body at line 29-32 still empty |
+| 5 | Smoke check: equip → attack → enemy takes damage | — | Advisory | ⏸️ Blocked on S3-04 |
 
 *If all 4 Must-Haves land Mon: combat is testable for the first time in 6 weeks.*
 
@@ -109,9 +109,10 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Dirty working tree (5 `.cs` + 4 assets + 2 untracked = 11 files) blocks Sprint 3 start | 🔴 Active | Commit first thing Mon 23/06 before any sprint task; note Bug #4 NOT fixed in dirty tree yet |
+| Dirty working tree blocked Sprint 3 start | ✅ Resolved | Committed Sun evening 06-22 (`2eb0765`, `a654831`); working tree clean as of 06-23 standup |
+| Off-plan work displacing Must-Haves — yesterday's 2 commits were combo-attack polish (`BufferIsAttack`/`StatusAnimation`, debug-log cleanup), not S3-01→S3-04 | 🔴 Active (new) | All 4 Must-Haves are ≤0.25d each — timebox today strictly to S3-01→S3-04 before touching anything else |
 | Recurring developer absence (zero-commit days) pattern | 🔴 Watch | S3-01→S3-04 total ~1d; even 2 productive days covers all Must-Haves |
-| BUG-AH-1 unknown scope (how many files have `UnityEditor` import?) | 🟡 Unknown | Grep `using UnityEditor` in `Assets/Script/` Mon; fix all at once |
+| BUG-AH-1 scope confirmed wider than `AbilityHolder.cs` alone | 🟡 Confirmed | Grep `using UnityEditor` in `Assets/Script/` found 7 files with editor imports (`AbilityHolder.cs`, `EntityData.cs`, `StatsCharacter.cs`, `EnemySO.cs`, `LevelManager.cs`, `AnimationEventManager.cs`, `DualAbility.cs`, `WeaponMeleeStats.cs`); S3-01 acceptance criteria only requires `AbilityHolder.cs` + "any other runtime script" — scope the fix to `AbilityHolder.cs` first, log the rest as tech debt rather than expanding S3-01 |
 | Stats system (S3-06) larger than 1d estimate | 🟡 Watch | Should Have — cut to Sprint 4 if Must-Haves + S3-05 absorb Mon–Tue |
 
 ---
@@ -122,3 +123,5 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 - **2026-06-22 (Sun)**: Sprint-03 kickoff — branch `sprint-03` created from `origin/fix-player-control`; `sprint-03.md` + this tracker written. Carry-over: 4 P1 items + 1 P2 bug + S2-02 task.
 
 - **2026-06-22 (Sun standup — pre-sprint day)**: No new commits landed. Code inspection reveals the dirty working tree is larger than originally noted: **9 modified files** (`PlayerInputHandle.cs`, `PlayerState.cs`, `PlayerAttackState.cs`, `WeaponMelee.cs`, `Weapon.cs`, 2 animation clips, `SetLevel.unity`, `.claude/settings.local.json`) plus 2 untracked (`UIControlTest.cs` + `.meta`). Key changes in the dirty tree: `PlayerAttackState.cs` and `WeaponMelee.cs` include a combo-attack buffer (`BufferIsAttack`) and `StatusAnimation` state machine (Start→EndRangeTrigger→None); `PlayerState.cs` adds the `StatusAnimation` enum. **Bug #4 (WeaponMelee.Attack() empty foreach) remains unfixed** in the dirty tree — the foreach body is still empty at line 29. Risk table updated: dirty tree is 9 files, not 4. Sprint begins Mon 23/06 — commit dirty tree first action.
+
+- **2026-06-23 (Mon standup)**: Two commits landed Sun evening 06-22 (`2eb0765 fix attack combo`, `a654831 done combo attack`) — these committed the dirty tree, closing that risk. However, the commits' content is combo-attack feature polish (finishing `BufferIsAttack`/`StatusAnimation`, removing `Debug.Log` lines, minor cleanup in `EntityIdleState.cs`/`Door.cs`), **not** any of the Sprint 3 Must-Haves. Verified by direct code read: `AbilityHolder.cs` still imports `UnityEditor.Experimental.GraphView` (S3-01 open); `AnimationPlayerController.cs` lines 21/29 still double-register `StartAnimation` instead of `EndAnimation` (S3-02 open); `Core.GetCoreComponent<T>()` still uses `coreComponents.OfType<T>().FirstOrDefault()` LINQ (S3-03 open); `WeaponMelee.Attack()` foreach body is still empty, no `TakeDamage` call (S3-04 open). Verdict: **SLIPPED** — Day 1 begins with 0/2.5d of planned Must-Have work done; biggest reason is time spent on unplanned combo-attack polish instead of the P1 backlog the sprint exists to clear.
