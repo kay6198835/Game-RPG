@@ -42,24 +42,30 @@ public class RoomCell : BaseCell
         }
     }
 
-    public void UpdateStatusDoor(Vector2 direction) => GetDoor(direction).OpenDoor();
+    public void UpdateStatusDoor(Vector2 direction)
+    {
+        var door = GetDoor(direction);
+        if (door != null) door.OpenDoor();
+    }
 
     public void GetStartDoorPosition(Vector2 direction)
     {
         var nextDoor = GetDoor(direction);
+        if (nextDoor == null) return;
+
         nextDoor.OpenDoor();
         StartDoorPosition = nextDoor.transform.position - (Vector3)direction * PADDING_DOOR_TELE_SCALE;
     }
 
     public DoorController GetDoor(Vector2 direction)
     {
-        DoorController nextDoor = new DoorController();
         foreach (var door in _listDoors)
         {
-            if (door.GetDirection() == direction) nextDoor = door;
+            if (door.GetDirection() == direction) return door;
         }
 
-        return nextDoor;
+        Debug.LogWarning($"[{nameof(RoomCell)}] Không tìm thấy door theo hướng {direction} trong room {name}.");
+        return null;
     }
 
     public void SetDoorPoints(List<DoorPoint> points)
