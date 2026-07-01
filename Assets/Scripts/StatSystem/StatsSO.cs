@@ -22,7 +22,11 @@ public class StatsSO : ScriptableObject
         get => level;
         set { level = Mathf.Max(1, value); RecalculateDerived(); }
     }
-
+    
+    public void Start()
+    {
+        Initialize();
+    }
     private void Initialize()
     {
         if (initialized) return;
@@ -63,7 +67,6 @@ public class StatsSO : ScriptableObject
             if (pair.Value.RemoveModifiersFromSource(source))
             {
                 if (pair.Key.IsPrimary()) primaryChanged = true;
-                OnStatChanged?.Invoke(pair.Key);
             }
         if (primaryChanged) RecalculateDerived();
     }
@@ -85,7 +88,6 @@ public class StatsSO : ScriptableObject
     private void AfterChanged(StatType type)
     {
         if (type.IsPrimary()) RecalculateDerived();
-        OnStatChanged?.Invoke(type);
     }
 
     private void RecalculateDerived()
@@ -99,8 +101,8 @@ public class StatsSO : ScriptableObject
             if (!Mathf.Approximately(target.BaseValue, newBase))
             {
                 target.BaseValue = newBase;
-                OnStatChanged?.Invoke(formula.targetStat);
             }
+            stats[formula.targetStat] = target;
         }
     }
 
