@@ -15,8 +15,9 @@ public class RoomCell : BaseCell
     [SerializeField] public Vector3 StartDoorPosition { get; private set; }
     [SerializeField] public List<Vector2> ListDirectionDoors { get; private set; }
 
-    // parameter levelData is used to set the room as cleared and open doors,
-    //  also store the data of the room for reloading when player come back to this room
+    // IsVisited: room tiles were cached on leave — reload from cache instead of JSON.
+    // IsCleared: all enemies defeated — set by RoomEnemySpawner, gates door opening and respawn.
+    [SerializeField] public bool IsVisited { get; private set; } = false;
     [SerializeField] public bool IsCleared { get; private set; } = false;
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
@@ -42,18 +43,11 @@ public class RoomCell : BaseCell
         }
     }
 
-    public void UpdateStatusDoor(Vector2 direction)
-    {
-        var door = GetDoor(direction);
-        if (door != null) door.OpenDoor();
-    }
-
     public void GetStartDoorPosition(Vector2 direction)
     {
         var nextDoor = GetDoor(direction);
         if (nextDoor == null) return;
 
-        nextDoor.OpenDoor();
         StartDoorPosition = nextDoor.transform.position - (Vector3)direction * PADDING_DOOR_TELE_SCALE;
     }
 
@@ -131,8 +125,13 @@ public class RoomCell : BaseCell
         this.DoorPoints.AddRange(points);
         this.Data.CopyData(levelData);
         this.IndexLevelDataDoor.AddRange(indexLevelDataDoor);
-        this.IsCleared = true;
+        this.IsVisited = true;
         CloseDoor();
+    }
+
+    public void MarkCleared()
+    {
+        IsCleared = true;
     }
 
 }

@@ -26,19 +26,6 @@ public class DoorController : MonoBehaviour
         EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, _direction);
     }
 
-    public void OpenDoor()
-    {
-        if (Status == STATUS_DOOR.DISABLE) Status = STATUS_DOOR.ENEBLE;
-    }
-
-    public void CheckCanBeOpened()
-    {
-        if (Status == STATUS_DOOR.DISABLE)
-        {
-            return;
-        }
-    }
-
     // Computes direction from this door's position to targetPosition,
     // then snaps _direction to the nearest cardinal (Top/Right/Left/Bottom).
     public void SetDirection(string name)

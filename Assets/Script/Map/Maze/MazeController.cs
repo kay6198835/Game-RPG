@@ -17,6 +17,7 @@ public class MazeController : MonoBehaviour
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
         Instance = this;
         _generator = new MazeGenerator();

@@ -16,6 +16,7 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
+    [SerializeField] public List<Vector3> SpawnPoints { get; private set; } = new List<Vector3>();
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
@@ -50,12 +51,18 @@ public class RoomGeneraterController : MonoBehaviour
         this._fastMovement.transform.SetPositionAndRotation(_current.StartDoorPosition, Quaternion.identity);
     }
 
+    public RoomFile GetRoomFile(int index)
+    {
+        return _dungeonRoomSO.room[index];
+    }
+
     public void LoadRoom(int index, RoomCell nextRoomCell)
     {
+        SpawnPoints.Clear();
         string filePath = "";
         filePath = _dungeonRoomSO.room[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
-        if (!nextRoomCell.IsCleared)
+        if (!nextRoomCell.IsVisited)
         {
             Data = JsonUtility.FromJson<LevelData>(json);
         }
@@ -74,15 +81,23 @@ public class RoomGeneraterController : MonoBehaviour
         for (int i = 0; i < Data.poses.Count; i++)
         {
             Vector3Int origanalTileMapPosition = Data.poses[i];
-            Data.poses[i] = nextRoomCell.IsCleared ? Data.poses[i]
+            Data.poses[i] = nextRoomCell.IsVisited ? Data.poses[i]
             : Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
             var tilemap = Data.tiles[i];
             if (tilemap == null) continue;
+            if (tilemap == GameConstants.TileName.SPAWN)
+            {
+                // marker tile: never painted — collect the world-space point for RoomEnemySpawner,
+                // null the entry so cached re-loads skip it
+                SpawnPoints.Add(Data.poses[i] + new Vector3(0.5f, 0.5f, 0f));
+                Data.tiles[i] = null;
+                continue;
+            }
             //Refactor late
-            if (tilemap == GameConstants.TileName.DOOR && !nextRoomCell.IsCleared)
+            if (tilemap == GameConstants.TileName.DOOR && !nextRoomCell.IsVisited)
             {
                 // get direction
                 Vector2 tilemapDirection = Utility.ToCardinalDirection
@@ -116,8 +131,8 @@ public class RoomGeneraterController : MonoBehaviour
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         nextRoomCell.SetDoorPoints(this.DoorPoints);
-        if (!nextRoomCell.IsCleared) { SwapTileMap(GameConstants.TileName.ROOM); }
-        else
+        if (!nextRoomCell.IsVisited) { SwapTileMap(GameConstants.TileName.ROOM); }
+        else if (nextRoomCell.IsCleared)
         {
             // on colider door
             nextRoomCell.OpenDoors();

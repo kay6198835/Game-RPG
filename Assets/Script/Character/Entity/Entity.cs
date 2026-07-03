@@ -17,7 +17,7 @@ public class Entity : MonoBehaviour
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
-    //[SerializeField] private Ene takeDamageState;
+    [SerializeField] private EntityDeathState deathState;
     public EntityInput Input { get => input;}
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }
@@ -28,6 +28,7 @@ public class Entity : MonoBehaviour
     public EntityMoveState MoveState { get => moveState; }
     public EntityAttackState AttackState { get => attackState; }
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
+    public EntityDeathState DeathState { get => deathState; }
     public EntityData Data { get => data;}
 
     private void Awake()
@@ -51,6 +52,8 @@ public class Entity : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         particle = GetComponentInChildren<ParticleSystem>();
+        data = Instantiate(data);
+        data.MakeRuntimeStats();
         anim.runtimeAnimatorController = data.Aima;
     }
     private void LoadState()
@@ -59,12 +62,15 @@ public class Entity : MonoBehaviour
         moveState = new EntityMoveState(this, stateMachine, data, "Move");
         attackState = new EntityAttackState(this, stateMachine, data, "Attack");
         takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
+        deathState = new EntityDeathState(this, stateMachine, data, "Death");
     }
 
     public void SetDataEntity(EntityData data)
     {
-        this.data = data;
+        this.data = Instantiate(data);
+        this.data.MakeRuntimeStats();
         gameObject.name = data.name;
+        anim.runtimeAnimatorController = this.data.Aima;
     }
 
     protected void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();

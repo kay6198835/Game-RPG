@@ -53,7 +53,7 @@
             AbilityHolder.cs                    # Skill state machine Start→Cast→Do→Exit per frame
             Interact.cs                         # Base: OverlapCircleNonAlloc + nearest-by-mouse
             Interactor.cs                       # FindInteraction via OverlapCircle
-            NegativeReciver.cs                  # ⚠️ CoreComponent implements INegativeReceiver — TakeDamage() throws NotImplementedException (moved from Interface/ 2026-07-01)
+            NegativeReciver.cs                  # ✅ CoreComponent implements INegativeReceiver — decrements PlayerData.currentHealth (2026-07-03); death flow còn thiếu
           States/                               # All player states (sub + super flattened)
             PlayerBasicState.cs                 # Shared: attack/skill/equip/interact/damage transitions
             PlayerUseWeaponState.cs             # Freezes movement, exits on animFinish
@@ -83,13 +83,14 @@
             EntityMoveState.cs                  # Move toward player; wall avoidance; timer → IdleState
             EntityAttackState.cs                # Triggers weapon.Attack() on anim event
             EntityTakeDamageState.cs
-            EntityDeathState.cs                 # ⚠️ wrong base class (MonoBehaviour), fix needed
+            EntityDeathState.cs                 # ✅ Extends EntityDisadvantageState; emits ON_ENEMY_DEATH + Destroy (2026-07-03)
             EntityUseWeaponState.cs, EntityDisadvantageState.cs
         StatsCharacter.cs                       # SO base: blockDMG, maxMana, maxHealth, AnimatorController
 
       Enemy/
         EnemySO.cs                              # Data-only SO: speed, FOV, damage, projectile, drops
         NewEnemy.cs                             # Extends Entity — ready to wire up
+        EncounterSO.cs                          # ✅ NEW 2026-07-03: SO "Data/Encounter" — RoomType + entries (Entity prefab, count, weight)
 
       Interface/
         IInteractable.cs, IEffectable.cs
@@ -111,7 +112,9 @@
         Room/
           RoomCell.cs                           # World room cell: doors, StartDoorPosition, IsCleared, ClearRoom(), OpenDoors()
           RoomGridController.cs                 # ✅ Room grid event hub: OnLoadMap(); listens ON_LOAD_MAZE_DONE / ON_PLAYER_ON_DOOR / ON_CLEAR_ENEMY; delegates to RoomGeneraterController
-          RoomGeneraterController.cs            # ✅ Tilemap loader (same GameObject, RequireComponent): Setting() random room pick, LoadRoom(), ClearRoom(), DeleteDoorTileMap(), SwapTileMap()
+          RoomGeneraterController.cs            # ✅ Tilemap loader (same GameObject, RequireComponent): Setting() random room pick, LoadRoom() (+ parse Tile_Spawn → SpawnPoints), ClearRoom(), DeleteDoorTileMap(), SwapTileMap()
+          RoomEnemySpawner.cs                   # ✅ NEW 2026-07-03: listen ON_LOAD_MAP/ON_ENEMY_DEATH; spawn theo EncounterSO tại SpawnPoints; lock/unlock cửa; emit ON_CLEAR_ENEMY + ON_ROOM_CLEAR
+          RoomEncounterTracker.cs               # ✅ NEW 2026-07-03: plain class đếm alive — unit-testable
           Door/
             DoorController.cs                   # ✅ Manages door collider; collider enabled only when Status==OPEN; Emit ON_PLAYER_ON_DOOR on player touch
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
@@ -339,7 +342,7 @@
   EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, callback);  // note: typo in source — use as-is
   EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
   ```
-  Events currently defined: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY` (enemy all dead → open doors), `ON_TEST` (debug only). Events needed but not yet added: `ON_ENEMY_DEATH`, `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`, `ON_ROOM_CLEAR`.
+  Events currently defined: `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY` (enemy all dead → open doors), `ON_ENEMY_DEATH` (EntityDeathState → spawner đếm), `ON_ROOM_CLEAR` (spawner emit khi combat clear — dành cho upgrade screen), `ON_TEST` (debug only). Events needed but not yet added: `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`.
 
   ---
 
@@ -351,19 +354,20 @@
   | 2 | COMPILE | ✅ SUPERSEDED | `MainMapController` — class đã bị xóa, logic chuyển vào `RoomGridController` (2026-06-04) | — |
   | 3 | LOGIC | ✅ SUPERSEDED | `MainMapController.Start()` — class không còn tồn tại (2026-06-04) | — |
   | 4 | LOGIC | ⚠️ OPEN | `WeaponMelee.Attack()` — `OverlapCircleAll` runs but `foreach` body is empty, no `INegativeReceiver.TakeDamage()` call | [WeaponMelee.cs:29](Assets/Script/Weapons/MeleeWeapon/WeaponMelee.cs#L29) |
-  | 5 | LOGIC | ⚠️ OPEN | `EntityMoveState.LogicUpdate()` dereferences `entity.Input.Target.transform.position` (line 30) before null check (line 34) — NullRef if target lost mid-chase | [EntityMoveState.cs:30](Assets/Script/Character/Entity/States/EntityMoveState.cs#L30) |
-  | 6 | LOGIC | ⚠️ OPEN | Player damage chain broken — `Core.TakeDamage()` đã bị xóa; `NegativeReciver.TakeDamage()` hiện `throw NotImplementedException`; `EventID` vẫn thiếu `ON_PLAYER_DEATH` (re-verified 2026-07-02) | [NegativeReciver.cs:8](Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs#L8) |
-  | 7 | LOGIC | ⚠️ OPEN | `EntityDeathState` extends `MonoBehaviour` instead of `EntityState` — not wired into state machine | [EntityDeathState.cs](Assets/Script/Character/Entity/States/EntityDeathState.cs) |
-  | 8 | LOGIC | ⚠️ OPEN | `EntityBasicState.LogicUpdate()` — `Health <= 0` block is empty (line 21), no transition to `EntityDeathState` | [EntityBasicState.cs:21](Assets/Script/Character/Entity/States/EntityBasicState.cs#L21) |
+  | 5 | LOGIC | ✅ FIXED | `EntityMoveState.LogicUpdate()` — null guard moved to top; chase range now from `EntityData.RangeCheckChase` (2026-07-03) | [EntityMoveState.cs](Assets/Script/Character/Entity/States/EntityMoveState.cs) |
+  | 6 | LOGIC | ⚠️ PARTIAL | `NegativeReciver.TakeDamage()` implemented (decrements `PlayerData.currentHealth`, 2026-07-03) — còn thiếu: `ON_PLAYER_DEATH` event + death flow + player take-damage state trigger | [NegativeReciver.cs](Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs) |
+  | 7 | LOGIC | ✅ FIXED | `EntityDeathState` rewritten extends `EntityDisadvantageState`; emits `ON_ENEMY_DEATH` + Destroy on anim finish / `DeathDurationTime` fallback (2026-07-03) | [EntityDeathState.cs](Assets/Script/Character/Entity/States/EntityDeathState.cs) |
+  | 8 | LOGIC | ✅ FIXED | `EntityBasicState` death block transitions to `DeathState`; mirror check in `EntityTakeDamageState` on anim finish (2026-07-03) | [EntityBasicState.cs](Assets/Script/Character/Entity/States/EntityBasicState.cs) |
   | 9 | LOGIC | ⚠️ OPEN | `AnimationPlayerController.OnEnable()` registers `StartAnimation` callback twice on line 21 — `EndAnimation` event never fires; mirror bug in `OnDisable` line 29 | [AnimationPlayerController.cs:21](Assets/Script/Character/Player/Animation/AnimationPlayerController.cs#L21) |
   | 10 | BUILD | ✅ FIXED | `EventManager.cs` removed `using UnityEditor.PackageManager` — no longer breaks Player builds | [EventManager.cs](Assets/Script/Manager/EventManager.cs) |
   | 11 | LOGIC | ✅ FIXED | `MapGridController` — `Move`/`OnLoadMap` đã implement với DOTween; minimap avatar hoạt động (2026-07-02) | [MapGridController.cs](Assets/Script/Map/Cell/MapGridController.cs) |
   | 12 | ARCH | ⚠️ OPEN | `LevelManager` dùng singleton pattern (`public static Instance`) — vi phạm quy tắc "no new singletons"; cần refactor thành Inspector ref | [LevelManager.cs](Assets/Script/LevelEdit/LevelManager.cs) |
-  | 13 | LOGIC | ⚠️ OPEN | Player không được teleport vào phòng start — dòng teleport bị comment; `RoomGeneraterController.OnDoneLoadRoomGrid()` (có teleport) không được gọi từ đâu | [RoomGridController.cs:56](Assets/Script/Map/Room/RoomGridController.cs#L56) |
-  | 14 | LOGIC | ⚠️ OPEN | `MazeController.Awake()` thiếu `return` sau `Destroy(gameObject)` — instance trùng vẫn ghi đè `Instance` và chạy generator lần nữa | [MazeController.cs:17](Assets/Script/Map/Maze/MazeController.cs#L17) |
+  | 13 | LOGIC | ✅ FIXED | Player teleport vào tâm phòng start trong `OnDoneLoadRoomGrid()`; đồng thời emit `ON_LOAD_MAP(_startIndex)` cho spawner (2026-07-03) | [RoomGridController.cs](Assets/Script/Map/Room/RoomGridController.cs) |
+  | 14 | LOGIC | ✅ FIXED | `MazeController.Awake()` đã thêm `return` sau `Destroy(gameObject)` (2026-07-03) | [MazeController.cs](Assets/Script/Map/Maze/MazeController.cs) |
   | 15 | BUILD | ⚠️ OPEN | Room JSON load qua `File.ReadAllText(Application.dataPath + filePath)` — chỉ chạy trong Editor; `Assets/Data/Json/` không được đóng gói vào Player build (cùng pattern trong `LevelManager.cs`) | [RoomGeneraterController.cs:57](Assets/Script/Map/Room/RoomGeneraterController.cs#L57) |
   | 16 | LOGIC | ⚠️ OPEN | `RoomType` enum không được đọc ở runtime — start/end room ép theo vị trí list `room[0]`/`room[last]`; vỡ ngầm nếu `Maze_Storage.asset` bị sắp xếp lại | [RoomGeneraterController.cs:43](Assets/Script/Map/Room/RoomGeneraterController.cs#L43) |
-  | 17 | ARCH | ⚠️ OPEN | Dead code gây hiểu nhầm: `DoorController.OpenDoor()`/`CheckCanBeOpened()` và `RoomCell.UpdateStatusDoor()` là no-op (door instance không bao giờ DISABLE) — cơ chế đóng/mở thật là `OpenDoors()`/`CloseDoor()`; nên xóa | [DoorController.cs:29](Assets/Script/Map/Room/Door/DoorController.cs#L29) |
+  | 17 | ARCH | ✅ FIXED | Dead code đã xóa: `DoorController.OpenDoor()`/`CheckCanBeOpened()`, `RoomCell.UpdateStatusDoor()` + call sites — `OpenDoors()`/`CloseDoor()` là cơ chế duy nhất (2026-07-03) | [DoorController.cs](Assets/Script/Map/Room/Door/DoorController.cs) |
+  | 18 | LOGIC | ⚠️ OPEN | Enemy health nằm trên SO asset dùng chung — đã vá bằng runtime copy trong `Entity.LoadEntity()`/`SetDataEntity()`; các state giữ ref `entityData` cũ nếu `SetDataEntity` gọi sau `Awake` | [Entity.cs](Assets/Script/Character/Entity/Entity.cs) |
 
   ---
 
@@ -386,18 +390,15 @@
   4. ~~**Fix EventManager build break**~~ ✅ Done (Bug #10 FIXED) — `using UnityEditor.PackageManager` removed from `EventManager.cs`.
   5. **Fix WeaponMelee.Attack()** ⚠️ (Bug #4) — add inside the `foreach`: `INegativeReceiver dmg = enemy.GetComponentInChildren<INegativeReceiver>(); if (dmg != null) dmg.TakeDamage(currrentSA.attackDamege, transform.position);` (keep typo `attackDamege`).
   6. **Player death** ⚠️ (Bug #6) — implement `NegativeReciver.TakeDamage()` (hiện `throw NotImplementedException`): decrement `PlayerData.currentHealth`, rồi `if (currentHealth <= 0) EventManager.Emit(EventID.ON_PLAYER_DEATH)`. Add `ON_PLAYER_DEATH` to `EventID` enum. New `GameManager` subscribes: calls `PlayerData.Reborn()` + reload `StartScene`.
-  7. **Deploy enemy** ⚠️ (Bugs #5, #7, #8) — three sub-tasks:
-     - Fix `EntityMoveState` NullRef: move null guard `if (entity.Input.Target == null)` to top of `LogicUpdate()` before line 30.
-     - Rewrite `EntityDeathState` to extend `EntityState` not `MonoBehaviour`.
-     - Fill `EntityBasicState` empty death block: transition to `EntityDeathState`.
-  8. **Room clear condition** ⚠️ — `RoomCell` cần đếm enemy; lock doors khi player vào room; unlock khi count = 0. `ON_CLEAR_ENEMY` đã có trong EventID — cần emit từ EntityDeathState. Thêm `ON_ENEMY_DEATH` + `ON_ROOM_CLEAR` nếu cần granular events.
+  7. ~~**Deploy enemy**~~ ✅ Done (2026-07-03) — Bugs #5/#7/#8 fixed: null guard, `EntityDeathState` rewrite (emit `ON_ENEMY_DEATH`), death transitions; per-instance stats copy trong `Entity.LoadEntity()`.
+  8. ~~**Room clear condition**~~ ✅ Done (2026-07-03) — `RoomEnemySpawner` + `RoomEncounterTracker`: lock cửa khi vào phòng chưa clear, đếm alive qua `ON_ENEMY_DEATH`, emit `ON_CLEAR_ENEMY` + `ON_ROOM_CLEAR` khi count = 0; `RoomCell` tách `IsVisited` (cache) / `IsCleared` (spawner set).
   9. **HUD** ⚠️ — implement `UIManager`: bind health bar slider via `EventID.ON_PLAYER_TAKE_DAMAGE` subscription (currently empty stub).
   10. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards (+damage / +speed / +maxHealth on `PlayerData`), apply chosen.
   11. **Fix AnimationPlayerController** ⚠️ (Bug #9) — `OnEnable` line 21: change second `StartAnimation` registration to `EndAnimation`; mirror fix in `OnDisable` (line 29).
   12. ~~**Combo attack**~~ ✅ Done (2026-06-22) — multi-stage `AttackState` list trên `WeaponMeleeStats`; `WeaponMelee.SetAnimation()` cycle qua các state, `DurationNextAttack()` tính delay; damage vẫn bị chặn bởi Bug #4.
-  13. **Fix start-room teleport** ⚠️ (Bug #13) — bật lại dòng teleport trong `RoomGridController.OnDoneLoadRoomGrid()` (line 56) hoặc gọi `RoomGeneraterController.OnDoneLoadRoomGrid()`; phòng start không có cửa vào nên cần tính `StartDoorPosition` riêng.
+  13. ~~**Fix start-room teleport**~~ ✅ Done (2026-07-03, Bug #13) — teleport vào tâm phòng start + emit `ON_LOAD_MAP(_startIndex)`.
   14. **Build-safe room JSON loading** ⚠️ (Bug #15) — thay `File.ReadAllText(Application.dataPath...)` bằng `TextAsset` refs trong `DungeonRoomSO` hoặc StreamingAssets.
-  15. **Enemy spawn system** ⚠️ — hướng đã chốt (2026-07-02): `Tile_Spawn` marker tiles trong room JSON (constant có sẵn trong `GameConstants.TileName.SPAWN`, chưa dùng) + `EncounterSO` theo `RoomType` + `RoomEnemySpawner` (listen `ON_LOAD_MAP`, track alive count, emit `ON_ENEMY_DEATH` mới + `ON_CLEAR_ENEMY` có sẵn). Phụ thuộc Bug #7/#8 (enemy chưa chết được). Hiện `ON_CLEAR_ENEMY` chỉ được phát từ nút debug trong `LevelManagerEditor`.
+  15. **Enemy spawn system** 🔶 CODE DONE (2026-07-03) — `EncounterSO` + `RoomEnemySpawner` + `RoomEncounterTracker` + parse `Tile_Spawn` trong `LoadRoom()`. **Còn thiếu (Editor):** tạo tile asset `Tile_Spawn` + `TileSO`, author marker vào room tilemap rồi re-save JSON, tạo asset `EncounterSO` + prefab variant enemy, gắn `RoomEnemySpawner` + list encounters vào RoomGrid GameObject, gắn `NegativeReciver` vào child của Core trong Player prefab.
 
   ---
 

@@ -42,7 +42,6 @@ public class RoomGridController : BaseGrid<RoomCell>
         int index = CaculateIndex(_next.GetGridPosition());
         this.roomGeneraterController.LoadRoom(index, _next);
         _next.GetStartDoorPosition(-directionToNextMap);
-        _current.UpdateStatusDoor(directionToNextMap);
         roomGeneraterController._fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
         _current = _next;
         _next = null;
@@ -53,7 +52,9 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         _current = GetValue(_startIndex);
         this.roomGeneraterController.LoadRoom(_startIndex, _current);
-        //this.roomGeneraterController._fastMovement.transform.SetPositionAndRotation(this._current.StartDoorPosition, Quaternion.identity);
+        // start room has no entry door, so teleport to the room centre instead of StartDoorPosition
+        roomGeneraterController._fastMovement.transform.SetPositionAndRotation(_current.transform.position, Quaternion.identity);
+        EventManager.Emit(EventID.ON_LOAD_MAP, _startIndex);
     }
     public void ClearRoom(object obj = null)
     {
