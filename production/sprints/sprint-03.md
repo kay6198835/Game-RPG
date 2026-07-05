@@ -106,25 +106,32 @@ Clear the P1 debt that is actively blocking combat verification, then begin the 
 
 > Closed 8 days late — wrapup routine ran 2026-07-05 (should have run 2026-06-28).
 
-### Verdict: FAIL — 0% velocity
+### Verdict: CONCERNS — 0% Must-Have, ~1.5d total work (post-sprint burst)
 
-**0 of 4 Must-Have tasks completed. 0 commits in sprint window (2026-06-23 to 2026-06-27).**
-7th consecutive sprint with P1 backlog unresolved.
+**0 of 4 Must-Have tasks completed. 0 commits in formal sprint window (2026-06-23 to 2026-06-27).**
+Post-sprint burst (2026-06-30 to 2026-07-04) delivered StatSystem, BUG-RC-1 fix, Skill Enhance system.
 
 ### Final Task Status
 
 | ID | Task | Status | Notes |
 |----|------|--------|-------|
-| S3-01 | Fix BUG-AH-1 — AbilityHolder UnityEditor imports | CUT → S4 | Confirmed still present (2026-07-05 triage) |
+| S3-01 | Fix BUG-AH-1 — AbilityHolder UnityEditor imports | CUT → S4 | Confirmed still present |
 | S3-02 | Fix Bug #9 — AnimationPlayerController double-registration | CUT → S4 | Confirmed still present |
 | S3-03 | Complete S2-03 — Core.GetCoreComponent LINQ → foreach | CUT → S4 | LINQ confirmed still in PlayerState.cs:40-44 |
 | S3-04 | Fix Bug #4 — WeaponMelee.Attack() empty foreach | CUT → S4 | Confirmed still empty (WeaponMelee.cs:29-32) |
 | S3-05 | Fix BUG-PIH-1 — CancelInvoke pairing | CUT → S4 | |
-| S3-06 | Stats system — TalentManager SO promotion | CUT → S5 | Defer until P1 backlog clear |
+| S3-06 | Stats system — TalentManager SO promotion | PARTIAL | StatsSO + Stat + StatModifier + DerivedStatFormula landed (9d1ecbf, 0bf02f0); not yet wired to player; BUG-SS-2 (shared mutable SO) found |
 | S3-07 | S2-02 — decouple Weapon↔WeaponHolder/AbilityHolder | CUT → S4 | |
 | S3-08 | EditMode test for Core.GetCoreComponent | CUT → S4 | |
 
-**Velocity: 0% — 0d done / 2.5d estimated**
+**Must-Have Velocity: 0% — 0d done / 1.0d estimated**
+**Total Velocity: ~1.5d / 2.5d estimated** (S3-06 partial + BUG-RC-1 + Skill Enhance)
+
+### Notable Post-Sprint Additions (out-of-scope but landed on sprint-03 branch)
+- BUG-RC-1 CLOSED: `RoomCell.GetDoor()` returns `null` correctly (commit 05b76cc)
+- Skill Enhance system: new data-driven ability pipeline in `Assets/Skill Enhance/` — not yet integrated with `ActivateSkill`; ADR needed in Sprint 4
+- `NegativeReciver.cs` CoreComponent added
+- Docs: CLAUDE.md, map-system.md GDD, tech-debt-register TD-021–TD-032 updated
 
 ### Carry-Over to Sprint 4
 
@@ -135,13 +142,16 @@ Clear the P1 debt that is actively blocking combat verification, then begin the 
 | Fix BUG-CORE-1 (Core.GetCoreComponent LINQ → foreach) | Bug | P1 |
 | Fix Bug #4 (WeaponMelee.Attack empty foreach — melee damage) | Bug | P1 |
 | Fix BUG-PIH-1 (CancelInvoke missing in PlayerInputHandle) | Bug | P2 |
-| Fix BUG-WM-3 (DurationNextAttack zero-duration guard) | Bug | P2 — NEW |
+| Fix BUG-SS-2 (StatsSO mutable shared runtime state) | Bug | P2 — NEW |
+| ADR: Skill Enhance vs. ActivateSkill pipeline | Design | P2 |
+| Wire StatsSO to player + remove TalentManager prototype | Task | P2 |
 | S2-02 — decouple Weapon↔WeaponHolder/AbilityHolder | Task | P2 |
+| Fix BUG-WM-3 (DurationNextAttack zero-duration guard) | Bug | P2 |
 | S3-08 — EditMode test for Core.GetCoreComponent | Task | Nice |
 
 ### Playtest
-No playtest session in sprint window. Most recent: `production/qa/playtests/playtest-2026-06-12-weekly-wrapup.md`.
-Combat not testable until BUG-04 (melee damage) + BUG-09 (state exit) are fixed.
+No playtest this sprint. Most recent: `production/qa/playtests/playtest-2026-06-12-weekly-wrapup.md`.
+Combat still blocked: BUG-04 (melee damage) and BUG-09 (state exit) both unresolved.
 
 ### Reference Files
 - Code review + triage: `production/qa/bug-triage-2026-07-05.md`
