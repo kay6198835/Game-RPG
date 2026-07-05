@@ -102,6 +102,54 @@ Clear the P1 debt that is actively blocking combat verification, then begin the 
 
 ---
 
+## Sprint Close (2026-07-05)
+
+> Closed 8 days late — wrapup routine ran 2026-07-05 (should have run 2026-06-28).
+
+### Verdict: FAIL — 0% velocity
+
+**0 of 4 Must-Have tasks completed. 0 commits in sprint window (2026-06-23 to 2026-06-27).**
+7th consecutive sprint with P1 backlog unresolved.
+
+### Final Task Status
+
+| ID | Task | Status | Notes |
+|----|------|--------|-------|
+| S3-01 | Fix BUG-AH-1 — AbilityHolder UnityEditor imports | CUT → S4 | Confirmed still present (2026-07-05 triage) |
+| S3-02 | Fix Bug #9 — AnimationPlayerController double-registration | CUT → S4 | Confirmed still present |
+| S3-03 | Complete S2-03 — Core.GetCoreComponent LINQ → foreach | CUT → S4 | LINQ confirmed still in PlayerState.cs:40-44 |
+| S3-04 | Fix Bug #4 — WeaponMelee.Attack() empty foreach | CUT → S4 | Confirmed still empty (WeaponMelee.cs:29-32) |
+| S3-05 | Fix BUG-PIH-1 — CancelInvoke pairing | CUT → S4 | |
+| S3-06 | Stats system — TalentManager SO promotion | CUT → S5 | Defer until P1 backlog clear |
+| S3-07 | S2-02 — decouple Weapon↔WeaponHolder/AbilityHolder | CUT → S4 | |
+| S3-08 | EditMode test for Core.GetCoreComponent | CUT → S4 | |
+
+**Velocity: 0% — 0d done / 2.5d estimated**
+
+### Carry-Over to Sprint 4
+
+| Item | Type | Priority |
+|------|------|----------|
+| Fix BUG-AH-1 (AbilityHolder Editor import — build-blocking) | Bug | P1 — Day 1 |
+| Fix Bug #9 (AnimationPlayerController lines 21, 29) | Bug | P1 — Day 1 |
+| Fix BUG-CORE-1 (Core.GetCoreComponent LINQ → foreach) | Bug | P1 |
+| Fix Bug #4 (WeaponMelee.Attack empty foreach — melee damage) | Bug | P1 |
+| Fix BUG-PIH-1 (CancelInvoke missing in PlayerInputHandle) | Bug | P2 |
+| Fix BUG-WM-3 (DurationNextAttack zero-duration guard) | Bug | P2 — NEW |
+| S2-02 — decouple Weapon↔WeaponHolder/AbilityHolder | Task | P2 |
+| S3-08 — EditMode test for Core.GetCoreComponent | Task | Nice |
+
+### Playtest
+No playtest session in sprint window. Most recent: `production/qa/playtests/playtest-2026-06-12-weekly-wrapup.md`.
+Combat not testable until BUG-04 (melee damage) + BUG-09 (state exit) are fixed.
+
+### Reference Files
+- Code review + triage: `production/qa/bug-triage-2026-07-05.md`
+- Retrospective: `production/retros/retro-sprint-03-2026-07-05.md`
+- Daily plan tracker: `production/sprints/sprint-03-daily-plan.md`
+
+---
+
 ## Sprint Close — 2026-07-05
 
 **Status:** CLOSED — FAILED
