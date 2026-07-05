@@ -24,7 +24,6 @@ public class Door : InteractiveObjects
     protected void OpenDoor()
     {
         gameObject.SetActive(false);
-        Debug.Log("Open Door");
     }
 
     public override bool Interact(Interact interactor)

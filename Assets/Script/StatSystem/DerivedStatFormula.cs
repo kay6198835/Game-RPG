@@ -10,8 +10,8 @@ using UnityEngine;
 /// LƯU Ý: contributions chỉ nên tham chiếu PRIMARY stat để tránh phụ thuộc vòng
 /// giữa các derived stat với nhau.
 /// </summary>
-[CreateAssetMenu(fileName = "Formula_", menuName = "Game/Stats/Derived Stat Formula")]
-public class DerivedStatFormula : ScriptableObject
+
+public class DerivedStatFormula
 {
     [Serializable]
     public struct StatContribution

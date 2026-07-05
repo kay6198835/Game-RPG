@@ -2,7 +2,7 @@
 status: reverse-documented
 source: Assets/Script/Map/
 date: 2026-05-19
-updated: 2026-06-04
+updated: 2026-07-02
 verified-by: Kiet
 ---
 
@@ -26,9 +26,10 @@ of interconnected rooms. Each room is a pre-authored tilemap layout loaded from 
 The player navigates by walking through doors; room-clear locks and unlocks doors as
 enemies are defeated.
 
-Two parallel grids run simultaneously: a **world grid** (`RoomGridController`) that places
-playable rooms in 3D space, and a **minimap grid** (`MapGridController`) that tracks the
-player's position in a small overlay.
+Two parallel grids run simultaneously: a **world grid** — `RoomGridController` (event hub,
+extends `BaseGrid<RoomCell>`) working with `RoomGeneraterController` (tilemap loader; same
+GameObject, wired via `RequireComponent`) — and a **minimap grid** (`MapGridController`) that
+tracks the player's position in a small overlay.
 
 ---
 
@@ -69,15 +70,18 @@ Set via `MazeController.Rows = 4`, `MazeController.Columns = 4`.
 **Door status semantics:**
 | Value | Status | Meaning | Collider |
 |-------|--------|---------|----------|
-| 0 | `DISABLE` | Hướng này không có door trong maze | Off |
-| 1 | `ENEBLE` | Door tồn tại, đang bị khóa (combat) | Off |
-| 2 | `BE_OPEN` | Receiver side — passage từ phía kia carve | Off |
-| 3 | `OPEN` | Passable — player đi qua được | **On** |
-| 4 | `CLOSE` | Tường kín runtime | Off |
+| 0 | `DISABLE` | No passage in this direction (maze wall) | Off |
+| 1 | `ENEBLE` | Passage exists — carver side (earlier-visited cell in DFS) | Off |
+| 2 | `BE_OPEN` | Passage exists — receiver side | Off |
+| 3 | `OPEN` | Passable — player can walk through | **On** |
+| 4 | `CLOSE` | Sealed at runtime | Off |
 
-`DoorController` collider chỉ enabled khi `Status == OPEN`. `ENEBLE` và `BE_OPEN` là door
-tồn tại nhưng chưa mở; gọi `SetStatus(OPEN)` để kích hoạt. Khi enemy cleared,
-`RoomCell.OpenDoors()` gọi `SetStatus(OPEN)` cho toàn bộ door trong room.
+`DoorController` collider is enabled only when `Status == OPEN`. `ENEBLE` and `BE_OPEN` are
+**maze-generation / minimap semantics only** (clarified 2026-07-02): the DFS carver marks the
+earlier-visited side of each passage `ENEBLE` and the receiver side `BE_OPEN`; the minimap uses
+this asymmetry to draw each connector exactly once. Room-door gating uses only `OPEN`/`CLOSE`,
+always in bulk: `RoomCell.OpenDoors()` on room clear / re-entry, `RoomCell.CloseDoor()` on leave.
+Per-door open methods exist in code but are dead — see **[BUG #17]** under Room Transition.
 
 ### Room Placement
 
@@ -100,7 +104,7 @@ Tiles are identified by name matching `TileSO.id` (e.g. `"Tile_Room"`, `"Tile_Do
 
 ### Random Room Assignment
 
-On each run, `RoomGridController.Setting()` picks a unique random subset of rooms:
+On each run, `RoomGridController.Setting()` → `RoomGeneraterController.Setting()` picks a unique random subset of rooms:
 
 ```
 1. _fullDungeonRoomSO = LevelManager.GetDungeonRoomSO()     // = Maze_Storage.asset (full pool)
@@ -114,17 +118,22 @@ On each run, `RoomGridController.Setting()` picks a unique random subset of room
 
 Result: maze layout differs each run (random DFS start) AND room content differs (random file pool).
 
+**[BUG #16]** `RoomFile.roomType` is never read at runtime — start/end rooms are forced purely
+by list position (`room[0]` / `room[last]`, RoomGeneraterController.cs:43-44). Reordering
+`Maze_Storage.asset` silently breaks start/boss room selection.
+
 ### Door Tile Resolution (LoadRoom)
 
-Each room JSON contains `Tile_Door` tiles at all four cardinal walls. `LoadRoom()` resolves which
-doors to keep vs. wall off based on the cell's actual passages:
+Each room JSON contains `Tile_Door` tiles at all four cardinal walls.
+`RoomGeneraterController.LoadRoom()` resolves which doors to keep vs. wall off based on the
+cell's actual passages:
 
 ```
 for each tile in LevelData:
   if tile.name == "Tile_Door" && !roomCell.IsCleared:
     direction = Utility.ToCardinalDirection(tile.position)
     if direction IN roomCell.ListDirectionDoors:
-      → keep tile; save to DoorPoints + CurentDoorLevelData
+      → keep tile; record in DoorPoints + IndexLevelDataDoor
     else:
       → swap tile to "Tile_Room" (wall); save to SwapLevelData
 ```
@@ -134,7 +143,13 @@ After tiling, `SwapTileMap()` corrects positions of swapped wall tiles.
 centre of each door tile cluster.
 
 **Cleared room re-entry:** if `RoomCell.IsCleared == true`, `LoadRoom()` uses `roomCell.Data`
-(cached `LevelData`) instead of reading the JSON file again — preserving the room state.
+(cached `LevelData`) instead of reading the JSON file again — preserving the room state — and
+calls `OpenDoors()` so all doors are immediately passable.
+
+**[BUG #15]** Room JSON is read with `File.ReadAllText(Application.dataPath + filePath)`
+(RoomGeneraterController.cs:57; same pattern in LevelManager.cs) — Editor-only. `Assets/Data/Json/`
+is not packaged into Player builds; must move to `TextAsset` references or StreamingAssets before
+the first standalone build.
 
 ### Room Transition
 
@@ -144,24 +159,23 @@ DoorController.OnTriggerEnter2D():
   → EventManager.Emit(ON_PLAYER_ON_DOOR, (Vector2)direction)
 
 RoomGridController [ON_PLAYER_ON_DOOR] → ClearRoom(direction):
-  1. Cache current room state vào RoomCell:
+  1. Cache current room state into RoomCell:
        roomCell.Data ← current LevelData
-       roomCell.CurentDoorLevelData ← door tile layer data
-       roomCell.DoorPoints ← door positions
-       roomCell.IsCleared = true
-  2. Gọi roomCell.CloseDoor() — set tất cả doors → CLOSE
-  3. Clear tất cả tilemaps; reset SwapLevelData / DoorPoints / CurentDoorLevelData
-  4. Gọi OnLoadMap(direction)
+       roomCell.DoorPoints / roomCell.IndexLevelDataDoor ← door tile bookkeeping
+       roomCell.IsCleared = true             [temporary semantics — see Room-Clear Locking]
+  2. roomCell.CloseDoor() — ALL doors → CLOSE
+  3. Clear all tilemaps; reset SwapLevelData / DoorPoints / IndexLevelDataDoor
+  4. OnLoadMap(direction)
 
 RoomGridController.OnLoadMap(direction):
   1. _next = GetNext(direction)              [BaseGrid: invert Y, CaculateIndex]
   2. index = CaculateIndex(_next.GetGridPosition())
-  3. LoadRoom(index, _next)
-  4. _next.GetStartDoorPosition(-direction)  [open entry door; calc StartDoorPosition inward offset]
-  5. _current.UpdateStatusDoor(direction)    [open exit door của room cũ]
+  3. RoomGeneraterController.LoadRoom(index, _next)
+  4. _next.GetStartDoorPosition(-direction)  [computes StartDoorPosition only — its OpenDoor() call is a no-op, BUG #17]
+  5. _current.UpdateStatusDoor(direction)    [no-op — dead code, BUG #17]
   6. fastMovement.position = _next.StartDoorPosition
   7. _current = _next; _next = null
-  8. Emit(ON_LOAD_MAP, index)               [MapGridController — WIP, currently no-op]
+  8. Emit(ON_LOAD_MAP, index)               [MapGridController moves the minimap avatar]
 ```
 
 **Entry door position formula:**
@@ -170,29 +184,56 @@ entryPosition = door.transform.position - direction × PADDING_DOOR_TELE_SCALE
 PADDING_DOOR_TELE_SCALE = 2f × LENGTH_ROOM / 10 = 2.0 units inward
 ```
 
-**⚠️ Note:** `DoorController` trigger fires only when `Status == OPEN`. Doors bắt đầu ở `ENEBLE`/`BE_OPEN` — chưa passable cho đến khi `ON_CLEAR_ENEMY` gọi `OpenDoors()`.
+**Note:** the door trigger fires only when `Status == OPEN` (collider disabled otherwise). Doors
+start at `ENEBLE`/`BE_OPEN` and become passable only when `ON_CLEAR_ENEMY` triggers `OpenDoors()`.
+After leaving a room, ALL of its doors are `CLOSE`; they reopen in bulk on re-entry
+(`IsCleared` branch of `LoadRoom`). Backtracking through cleared rooms is **intended design**
+(confirmed 2026-07-02).
+
+**[BUG #13]** The player is never teleported into the start room: the teleport line in
+`RoomGridController.OnDoneLoadRoomGrid()` is commented out (RoomGridController.cs:56) and
+`RoomGeneraterController.OnDoneLoadRoomGrid()` (which performs the teleport) is never called.
+The start room has no entry door, so `StartDoorPosition` needs its own computation.
+
+**[BUG #14]** `MazeController.Awake()` is missing `return` after `Destroy(gameObject)`
+(MazeController.cs:17-21) — a duplicate instance still overwrites `Instance` and re-runs the
+generator.
+
+**[BUG #17]** Dead code: `DoorController.OpenDoor()` / `CheckCanBeOpened()` and
+`RoomCell.UpdateStatusDoor()` are no-ops — door instances are only created for non-DISABLE
+directions, so the `Status == DISABLE` guard never passes; `OpenDoor()` also bypasses the
+collider sync in `SetStatus()`. Real gating is exclusively `OpenDoors()`/`CloseDoor()`.
+Remove these methods to stop misleading readers.
 
 ### Room-Clear Locking **[PARTIAL — event wired, lock-on-entry not yet implemented]**
 
 **Implemented (2026-06-04):**
-- `EventID.ON_CLEAR_ENEMY` đã có trong enum.
+- `EventID.ON_CLEAR_ENEMY` exists in the enum.
 - `RoomGridController [ON_CLEAR_ENEMY] → DeleteDoorTileMap()`:
-  - Xóa door tile layer (`CurentDoorLevelData`) khỏi tilemap — lộ cửa ra.
-  - Gọi `RoomCell.OpenDoors()` → set tất cả `DoorController.Status = OPEN`.
-- `RoomCell.CloseDoor()` / `OpenDoors()` implemented — có thể gọi trực tiếp.
+  - Erases the door tiles (via `IndexLevelDataDoor`) from the tilemap — reveals the exits.
+  - Calls `RoomCell.OpenDoors()` → sets every `DoorController.Status = OPEN`.
+- `RoomCell.CloseDoor()` / `OpenDoors()` implemented — callable directly.
 
-**Còn thiếu [GAP]:**
-1. Doors chưa bị lock khi player vào room — `ON_PLAYER_ON_DOOR` không gọi `CloseDoor()`.
-2. Enemy count không được track — không biết khi nào emit `ON_CLEAR_ENEMY`.
-3. `EntityDeathState` chưa emit event nào.
+**Still missing [GAP]:**
+1. Doors are not locked when the player enters a room — nothing calls `CloseDoor()` on entry.
+2. Enemy count is not tracked — nothing knows when to emit `ON_CLEAR_ENEMY`.
+3. `EntityDeathState` emits no events (and is not a usable state — wrong base class, Bug #7).
+4. The ONLY producer of `ON_CLEAR_ENEMY` is the editor debug button
+   (LevelManagerEditor.cs:23-26) — in a real run, doors never open and the player is stuck
+   in the first room.
 
-**Flow đầy đủ cần implement:**
-```
-ON_PLAYER_ON_DOOR → RoomCell.CloseDoor()    [lock doors]
-EntityDeathState  → check roomEnemyCount == 0
-                  → Emit(ON_CLEAR_ENEMY)
-ON_CLEAR_ENEMY    → DeleteDoorTileMap() + OpenDoors()  [already implemented]
-```
+**Agreed spawn architecture (2026-07-02) [PLANNED]:**
+- **Spawn points**: `Tile_Spawn` marker tiles authored in room tilemaps, serialized into room
+  JSON by the existing save path (`GameConstants.TileName.SPAWN` constant exists, currently
+  unused and absent from all 13 room JSONs).
+- **Encounter data**: `EncounterSO` keyed by `RoomType` — enemy pool entries
+  (prefab + `EntityData` + weight); single wave for the demo, wave list in the schema for later.
+- **`RoomEnemySpawner`**: listens `ON_LOAD_MAP`; spawns at markers; locks doors (`CloseDoor()`);
+  tracks alive count via new `ON_ENEMY_DEATH`; emits existing `ON_CLEAR_ENEMY` when the count
+  reaches zero (immediately for enemy-less rooms).
+- **`RoomCell.IsCleared` decision (2026-07-02)**: will mean "enemies defeated", set on
+  `ON_CLEAR_ENEMY`. The current set-on-leave behavior (`ClearRoom` on door transition) is
+  temporary and will move when the spawner lands.
 
 **Required EventID additions (still needed):**
 - `ON_ENEMY_DEATH` (payload: none or Vector2 position) — per-enemy granular event
@@ -200,16 +241,26 @@ ON_CLEAR_ENEMY    → DeleteDoorTileMap() + OpenDoors()  [already implemented]
 
 ### Minimap
 
-`MapGridController` maintains a `MapCell` grid — one cell per room, each showing which
-doors are open. `MapTracker` moves an `Avatar` GameObject to the current cell position
-on every room transition, giving the player a live position indicator.
+**[IMPLEMENTED 2026-07-02 — Bug #11 fixed]** `MapGridController` maintains a `MapCell` grid —
+one cell per room. On `ON_LOAD_MAZE_DONE` it pops the `Avatar` in at the start cell (DOTween
+scale-in); on `ON_PLAYER_ON_DOOR` (`Move`) it tweens the avatar to the next cell.
+`MapCell.VisitRoom()` reveals a cell the first time the player enters it; unvisited cells
+stay hidden.
+
+Connector de-duplication: each passage's connector (child objects `_top/_left/_right/_bottom`)
+is drawn only by the cell holding the `ENEBLE` side — the two sides would overlap at the same
+world point (cells sit 6 units apart; each connector sits 3 units from its cell centre).
+Because the `ENEBLE` side is assigned by DFS generation order, some connectors of the current
+room appear only after the neighbouring room has been visited — **accepted behavior**
+(confirmed 2026-07-02).
 
 Map cell positioning:
 ```
 cellPosition = mapGrid.transform.position + (Column, -Row) × CELL_SCALE × 2 units
 ```
 
-Door visualization per cell: four child GameObjects active/inactive based on door status.
+Door visualization per cell: four child GameObjects, activated when that direction's maze
+status is `ENEBLE` (see connector de-duplication above).
 
 ---
 
@@ -247,10 +298,13 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 | Scenario | Current Behaviour | Correct Behaviour |
 |----------|------------------|-------------------|
 | Player at maze edge walks into a `CLOSE` door | Door trigger disabled → no event fires | ✓ Correct — CLOSE doors are non-interactive |
-| GetNext() for a cell at column 0 moving left | **[BUG]** No bounds check — calculates negative index → `IndexOutOfRangeException` | Guard: clamp position within `(0,0)` to `(Cols-1, Rows-1)` before index calculation |
+| GetNext() for a cell at column 0 moving left | **[BUG — latent]** No bounds check (re-verified 2026-07-02, BaseGrid.cs:34-41) — negative/wrapping index → `IndexOutOfRangeException`. Masked today: edge cells never carve outward passages, so only reachable via misuse | Guard: clamp position within `(0,0)` to `(Cols-1, Rows-1)` before index calculation |
 | Room-clear doors lock on entry | **[GAP]** Doors always passable — player can leave without clearing room | Implement `RoomCell.LockRoom()` on `ON_PLAYER_ON_DOOR` |
 | Enemy count reaches 0 but no event fires | **[GAP]** `ON_ENEMY_DEATH` not in `EventID` enum — death state has no emission | Add to enum; entity death state emits it |
-| Previous room exit door stays open after transition | Open door remains open visually | Acceptable — player sees where they came from |
+| Doors of the previous room after transition | ALL set to `CLOSE` on leave; reopened in bulk on re-entry (`IsCleared` branch) | ✓ Acceptable — backtracking through cleared rooms allowed by design (2026-07-02) |
+| Scene starts — player position in start room | **[BUG #13]** No teleport (line commented out); `StartDoorPosition` = (0,0,0) | Re-enable teleport; compute start position without an entry door |
+| Two `MazeController` instances in scene | **[BUG #14]** Duplicate destroys itself but still overwrites `Instance` and re-runs the generator | Add `return` after `Destroy(gameObject)` |
+| Standalone Player build | **[BUG #15]** Room JSON read from `Application.dataPath` — files absent in build → load failure | Move to `TextAsset` refs or StreamingAssets |
 | Player re-enters a cleared room | Doors already open; no enemies → room-clear instant | ✓ Acceptable — no lock triggered if `enemyCount == 0` |
 | `LevelData.tiles` serialization | **[BUG — potential]** `JsonUtility` cannot serialize `TileBase` references by value — JSON round-trip may fail or produce null tiles on load | Verify in editor; may need a tile-by-name lookup table instead |
 | `fastMovement` null reference | `RoomNavigator` requires `FastMovement` field wired in Inspector — if unset, teleport silently fails | Add null check + warning log |
@@ -263,9 +317,9 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 |--------|------|-----------|
 | **Event Manager** | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY` **[IMPLEMENTED]**, `ON_ENEMY_DEATH` **[GAP]**, `ON_ROOM_CLEAR` **[GAP]** | Map → EventManager |
 | **Character system** | `DoorController` tags player via "Player" tag; `fastMovement` is the player transform for teleport | Map → Character |
-| **Enemy AI** | `EntityDeathState` cần emit `ON_CLEAR_ENEMY` (hoặc `ON_ENEMY_DEATH`) khi tất cả enemy trong room chết | Enemy → Map |
+| **Enemy AI** | `EntityDeathState` must emit `ON_ENEMY_DEATH`; planned `RoomEnemySpawner` tracks the count and emits `ON_CLEAR_ENEMY` when all enemies in the room are dead | Enemy → Map |
 | **Skill/Ability + Weapons** | No direct dependency | — |
-| **LevelManager** | `RoomGridController` gọi `LevelManager.GetDungeonRoomSO()`, `GetTileSOs()`, `GetTilemaps()` trong `Setting()`; `LevelManager` phải có trong scene | Map → LevelEdit |
+| **LevelManager** | `RoomGeneraterController.Setting()` calls `LevelManager.GetDungeonRoomSO()`, `GetTileSOs()`, `GetTilemaps()`; `LevelManager` must exist in the scene (singleton — Bug #12) | Map → LevelEdit |
 | **Per-Run Upgrades** | Upgrade card selection triggered by `ON_ROOM_CLEAR` | Map → Progression |
 
 ---
@@ -281,9 +335,9 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 | Room world size | `GameConstants.SettingStats.LENGTH_ROOM` | **10** units | Gap between room centres (before GAME_SCALE) |
 | Cell minimap size | `GameConstants.SettingStats.LENGTH_CELL` | **1** unit | Scale of minimap cells |
 | Global scale | `GameConstants.SettingStats.GAME_SCALE` | **3.0** | Multiplier on all positions — rooms are 30 units apart |
-| Entry teleport offset | `GameConstants.SettingStats.PADDING_DOOR_TELE_SCALE` | **2.0** units | `= 2f × LENGTH_ROOM / 10` — khoảng cách spawn vào trong room |
-| Room pool — Inspector | `RoomGridController._fullDungeonRoomSO` | `Maze_Storage.asset` | Full pool — tất cả room đã author |
-| Room pool — runtime | `RoomGridController._dungeonRoomSO` | `Maze_Load_Room.asset` | Được clear và fill mỗi run — không edit trực tiếp |
+| Entry teleport offset | `GameConstants.SettingStats.PADDING_DOOR_TELE_SCALE` | **2.0** units | `= 2f × LENGTH_ROOM / 10` — inward spawn distance from the entry door |
+| Room pool — Inspector | `RoomGeneraterController._fullDungeonRoomSO` | `Maze_Storage.asset` | Full pool — all authored rooms |
+| Room pool — runtime | `RoomGeneraterController._dungeonRoomSO` | `Maze_Load_Room.asset` | Cleared and refilled every run — do not edit directly |
 
 ---
 
@@ -301,25 +355,33 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 - [x] Door tiles not matching cell's actual passages are swapped to wall tiles
 - [x] `DoorController` transforms repositioned to average door tile cluster centre
 - [x] Cleared rooms use cached `LevelData` instead of re-reading JSON
-- [ ] No `IndexOutOfRangeException` when navigating any valid maze path — bounds check missing in `GetNext()`
+- [ ] No `IndexOutOfRangeException` when navigating any valid maze path — bounds check missing in `GetNext()` (latent)
+- [ ] Room JSON loads in a standalone Player build (Bug #15)
+- [ ] `RoomType` drives start/boss room selection instead of list position (Bug #16)
 
 ### Room Transitions
 - [x] Walking into an `OPEN` door triggers `ON_PLAYER_ON_DOOR`
 - [x] Player teleports to entry door of next room (no visible cross-room travel)
-- [x] Exit door of previous room visually opens after transition
-- [ ] Minimap avatar updates — `MapGridController` WIP (Bug #11)
+- [ ] Player teleports into the START room on maze load (Bug #13 — currently commented out)
+- [x] Doors of previous room close on leave and reopen on re-entry — backtrack by design
+- [x] Minimap avatar updates on every transition (Bug #11 fixed 2026-07-02)
 - [ ] Doors cannot be traversed before room is cleared — lock-on-entry not implemented
+- [ ] `MazeController` duplicate-instance guard (`return` after `Destroy`, Bug #14)
 
-### Room-Clear Locking **[PARTIAL]**
+### Room-Clear Locking **[PARTIAL — spawn architecture agreed 2026-07-02]**
 - [x] `ON_CLEAR_ENEMY` event defined; `DeleteDoorTileMap()` + `OpenDoors()` implemented
-- [ ] Doors lock when player enters room — `CloseDoor()` not called on `ON_PLAYER_ON_DOOR`
-- [ ] Enemy death emits `ON_CLEAR_ENEMY` — EntityDeathState does not emit
+- [ ] Doors lock when player enters an uncleared room — `RoomEnemySpawner` calls `CloseDoor()`
+- [ ] `RoomEnemySpawner` spawns from `Tile_Spawn` markers + `EncounterSO` per `RoomType`
+- [ ] Enemy death emits `ON_ENEMY_DEATH`; spawner emits `ON_CLEAR_ENEMY` at zero alive
 - [ ] `ON_ROOM_CLEAR` fires when all enemies dead → upgrade screen
-- [ ] Re-entering a cleared room does not re-lock doors (RoomCell.IsCleared check needed)
+- [x] Re-entering a cleared room does not re-lock doors (`IsCleared` branch calls `OpenDoors()`)
+- [ ] `IsCleared` set on `ON_CLEAR_ENEMY` (= enemies defeated) instead of on room-leave
+- [ ] Dead door methods removed — `OpenDoor()`, `CheckCanBeOpened()`, `UpdateStatusDoor()` (Bug #17)
 
-### Minimap **[WIP]**
-- [ ] Avatar position matches player's current room on every transition
-- [ ] Room grid layout visible after maze generation
+### Minimap **[IMPLEMENTED 2026-07-02]**
+- [x] Avatar position matches player's current room on every transition (DOTween)
+- [x] Visited cells revealed via `MapCell.VisitRoom()`; unvisited cells hidden
+- [x] Connector reveal follows DFS-side ownership — accepted behavior
 
 ### Dead Code Removal
 - [ ] `Assets/Script/Map/Legacy/Door.cs` removed from project
