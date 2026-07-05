@@ -7,11 +7,11 @@
 >   - **Mon–Fri 10:00** → `/daily-standup` — summarizes yesterday from git + this tracker, updates statuses, lists today's tasks with estimates.
 >   - **Sat 22:00** → `/weekly-wrapup` — end-of-week close: code-review of the week's `.cs`, playtest log, bug-triage, light retro; finalizes verdict and records carry-over + velocity.
 >   - **Sun 22:00** → `/weekly-kickoff` — closes last sprint, auto-creates upcoming week's sprint plan.
-> **Last updated**: 2026-06-23 (Mon) — standup
+> **Last updated**: 2026-07-05 (Sun) — post-sprint standup (automated)
 
 ---
 
-## Status Verdict: 🟡 SLIPPED — Day 1 morning, all 4 Must-Haves still unstarted
+## Status Verdict: 🔴 CLOSED — FAILED (0% Must-Have velocity; sprint ended 2026-06-27 with no code progress)
 
 ---
 
@@ -21,11 +21,12 @@
 |--------|-------|
 | Total work estimated | 2.5 days (Must + Should) |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 0 (Day 1 morning) |
-| Days remaining | 5 |
+| Days elapsed | 5 (sprint closed 2026-06-27) |
+| Days remaining | 0 |
 | Work committed/done | 0 |
-| Work remaining | 2.5 days |
-| Slack | +1.5 days (shrinking — Day 1 starting with zero Must-Have progress) |
+| Work remaining | 2.5 days (ALL must-haves carry to Sprint 4) |
+| Velocity | **0%** — 7th consecutive sprint with P1 backlog unresolved |
+| Post-sprint gap | 12 days zero-commit (2026-06-23 → 2026-07-05) |
 
 ---
 
@@ -33,14 +34,14 @@
 
 | ID | Task | Est (d) | Priority | Status |
 |----|------|---------|----------|--------|
-| S3-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` | 0.25 | Must | ⬜ Not started (confirmed still present 06-23) |
-| S3-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ⬜ Not started (confirmed still present 06-23) |
-| S3-03 | Complete S2-03 — `Core.GetCoreComponent<T>()` LINQ → foreach | 0.25 | Must | ⬜ Not started (confirmed still LINQ 06-23) |
-| S3-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (melee damage) | 0.25 | Must | ⬜ Not started (confirmed still empty 06-23) |
-| S3-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⬜ Not started |
-| S3-06 | Stats system promotion — `TalentManager` → SO-driven | 1.0 | Should | ⬜ Not started |
-| S3-07 | S2-02 carry — decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ⬜ Not started |
-| S3-08 | EditMode test for `Core.GetCoreComponent<T>()` | 0.5 | Nice | ⬜ Not started |
+| S3-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` | 0.25 | Must | ✂️ Cut → S4 (confirmed still present 07-05) |
+| S3-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ✂️ Cut → S4 (confirmed still present 07-05) |
+| S3-03 | Complete S2-03 — `Core.GetCoreComponent<T>()` LINQ → foreach | 0.25 | Must | ✂️ Cut → S4 (confirmed still LINQ 07-05) |
+| S3-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (melee damage) | 0.25 | Must | ✂️ Cut → S4 (confirmed still empty 07-05) |
+| S3-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ✂️ Cut → S4 |
+| S3-06 | Stats system promotion — `TalentManager` → SO-driven | 1.0 | Should | ✂️ Cut → S4 |
+| S3-07 | S2-02 carry — decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ✂️ Cut → S4 |
+| S3-08 | EditMode test for `Core.GetCoreComponent<T>()` | 0.5 | Nice | ✂️ Cut → S4 |
 
 Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked · ✂️ Cut
 
@@ -109,11 +110,11 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Dirty working tree blocked Sprint 3 start | ✅ Resolved | Committed Sun evening 06-22 (`2eb0765`, `a654831`); working tree clean as of 06-23 standup |
-| Off-plan work displacing Must-Haves — yesterday's 2 commits were combo-attack polish (`BufferIsAttack`/`StatusAnimation`, debug-log cleanup), not S3-01→S3-04 | 🔴 Active (new) | All 4 Must-Haves are ≤0.25d each — timebox today strictly to S3-01→S3-04 before touching anything else |
-| Recurring developer absence (zero-commit days) pattern | 🔴 Watch | S3-01→S3-04 total ~1d; even 2 productive days covers all Must-Haves |
-| BUG-AH-1 scope confirmed wider than `AbilityHolder.cs` alone | 🟡 Confirmed | Grep `using UnityEditor` in `Assets/Script/` found 7 files with editor imports (`AbilityHolder.cs`, `EntityData.cs`, `StatsCharacter.cs`, `EnemySO.cs`, `LevelManager.cs`, `AnimationEventManager.cs`, `DualAbility.cs`, `WeaponMeleeStats.cs`); S3-01 acceptance criteria only requires `AbilityHolder.cs` + "any other runtime script" — scope the fix to `AbilityHolder.cs` first, log the rest as tech debt rather than expanding S3-01 |
-| Stats system (S3-06) larger than 1d estimate | 🟡 Watch | Should Have — cut to Sprint 4 if Must-Haves + S3-05 absorb Mon–Tue |
+| Dirty working tree blocked Sprint 3 start | ✅ Resolved | Committed Sun evening 06-22 |
+| Off-plan work displacing Must-Haves | ✅ Confirmed (root cause) | Sprint closed with 0% velocity; all 4 Must-Haves carry to S4 as P1 |
+| Recurring developer absence — **7th sprint** with P1 backlog unresolved | 🔴 Critical | Post-sprint gap: 12 zero-commit days (06-23 → 07-05). Pattern is structural; requires explicit Sprint 4 time-box commitment |
+| BUG-AH-1 scope wider than `AbilityHolder.cs` alone | 🟡 Carry to S4 | 7+ runtime files with `using UnityEditor.*`; fix `AbilityHolder.cs` first, log rest as TD |
+| Sprint-03 wrapup + Sprint-04 kickoff never ran | 🔴 Action needed | `/weekly-wrapup` and `/weekly-kickoff` are overdue by 8+ days; run manually ASAP |
 
 ---
 
@@ -125,3 +126,5 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 - **2026-06-22 (Sun standup — pre-sprint day)**: No new commits landed. Code inspection reveals the dirty working tree is larger than originally noted: **9 modified files** (`PlayerInputHandle.cs`, `PlayerState.cs`, `PlayerAttackState.cs`, `WeaponMelee.cs`, `Weapon.cs`, 2 animation clips, `SetLevel.unity`, `.claude/settings.local.json`) plus 2 untracked (`UIControlTest.cs` + `.meta`). Key changes in the dirty tree: `PlayerAttackState.cs` and `WeaponMelee.cs` include a combo-attack buffer (`BufferIsAttack`) and `StatusAnimation` state machine (Start→EndRangeTrigger→None); `PlayerState.cs` adds the `StatusAnimation` enum. **Bug #4 (WeaponMelee.Attack() empty foreach) remains unfixed** in the dirty tree — the foreach body is still empty at line 29. Risk table updated: dirty tree is 9 files, not 4. Sprint begins Mon 23/06 — commit dirty tree first action.
 
 - **2026-06-23 (Mon standup)**: Two commits landed Sun evening 06-22 (`2eb0765 fix attack combo`, `a654831 done combo attack`) — these committed the dirty tree, closing that risk. However, the commits' content is combo-attack feature polish (finishing `BufferIsAttack`/`StatusAnimation`, removing `Debug.Log` lines, minor cleanup in `EntityIdleState.cs`/`Door.cs`), **not** any of the Sprint 3 Must-Haves. Verified by direct code read: `AbilityHolder.cs` still imports `UnityEditor.Experimental.GraphView` (S3-01 open); `AnimationPlayerController.cs` lines 21/29 still double-register `StartAnimation` instead of `EndAnimation` (S3-02 open); `Core.GetCoreComponent<T>()` still uses `coreComponents.OfType<T>().FirstOrDefault()` LINQ (S3-03 open); `WeaponMelee.Attack()` foreach body is still empty, no `TakeDamage` call (S3-04 open). Verdict: **SLIPPED** — Day 1 begins with 0/2.5d of planned Must-Have work done; biggest reason is time spent on unplanned combo-attack polish instead of the P1 backlog the sprint exists to clear.
+
+- **2026-07-05 (Sun — post-sprint automated standup)**: Sprint-03 officially CLOSED — **0% velocity** (0/4 Must-Have tasks completed; 0/2.5 estimated days delivered). Last code commit was `406e41b` on 2026-06-23 — **12 consecutive zero-commit days** through today. Code inspection confirms all 4 P1 bugs remain unresolved: `AbilityHolder.cs:4` still `using UnityEditor.Experimental.GraphView`; `AnimationPlayerController.cs:21` still double-registers `StartAnimation`; `Core.GetCoreComponent<T>()` still uses LINQ; `WeaponMelee.Attack()` foreach body still empty. Weekly wrapup (/weekly-wrapup) and Sprint-04 kickoff (/weekly-kickoff) are overdue by 8+ days — must be run manually. All 4 Must-Haves carry forward to Sprint 4 as P1. Pattern: 7 consecutive sprints with the same P1 backlog unresolved; root cause is off-plan feature work (combo-attack polish) consistently displacing architecture debt items.

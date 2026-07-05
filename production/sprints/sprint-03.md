@@ -99,3 +99,32 @@ Clear the P1 debt that is actively blocking combat verification, then begin the 
 - **If S3-07 (Weapon decoupling) not done:** pull forward to Sprint 4 Must Have.
 - **Combat-loop blockers:** Player death (Bug #6), enemy death chain (Bugs #5/#7/#8), room-clear — target Sprint 4 if stats land early, Sprint 5 otherwise.
 - **First playtest session** should happen once S3-04 (melee damage) and S3-02 (ability exit) both land — book one this sprint if possible.
+
+---
+
+## Sprint Close — 2026-07-05
+
+**Status:** CLOSED — FAILED
+
+| Metric | Value |
+|--------|-------|
+| Velocity | **0%** (0/2.5d Must+Should completed) |
+| Commits | 2 (combo-attack polish — unplanned; 0 Must-Have fixes) |
+| Sprint dates | 2026-06-23 → 2026-06-27 |
+| Post-sprint gap | 12 days zero-commit (2026-06-23 → 2026-07-05) |
+| Consecutive sprints with open P1 backlog | **8** |
+
+**All tasks carry to Sprint 4:**
+
+| Item | ID | Priority | Status |
+|------|----|----------|--------|
+| Fix BUG-AH-1 — `AbilityHolder.cs` remove `UnityEditor` imports | S4-01 | Must | Carry |
+| Fix Bug #9 — `AnimationPlayerController` double-registration | S4-02 | Must | Carry |
+| `Core.GetCoreComponent<T>()` LINQ → foreach | S4-03 | Must | Carry |
+| `WeaponMelee.Attack()` add `TakeDamage` call | S4-04 | Must | Carry |
+| Fix BUG-PIH-1 — `CancelInvoke` in `PlayerInputHandle` | S4-05 | Should | Carry |
+| Stats system — `TalentManager` SO-driven | S4-06 | Should | Carry |
+| Decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | S4-07 | Nice | Carry |
+| EditMode test for `Core.GetCoreComponent<T>()` | S4-08 | Nice | Carry |
+
+**Root cause note:** Off-plan feature work (combo-attack) displaced all 4 Must-Have items (each ≤0.25d). Sprint 4 must treat any non-P1-backlog work as strictly deferred until S4-01 → S4-04 are done.
