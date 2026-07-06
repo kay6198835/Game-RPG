@@ -11,6 +11,7 @@ using UnityEngine;
 /// giữa các derived stat với nhau.
 /// </summary>
 
+[Serializable]
 public class DerivedStatFormula
 {
     [Serializable]

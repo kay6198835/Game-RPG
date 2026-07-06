@@ -1,92 +1,115 @@
 using System;
-using System.Collections.Generic;   // [1]
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "StatsProfile", menuName = "Game/Stats Profile")]
 public class StatsSO : ScriptableObject
 {
-    [Serializable]
-    public struct StatEntry { public StatType type; public float baseValue; }   // [7] author primary
-
     [SerializeField, Min(1)] private int level = 1;
-    [SerializeField] private StatEntry[] primaryBase;            // STR/DEX/INT/VIT/LUK
-    [SerializeField] private DerivedStatFormula[] statFormulas;  // [3] tên thống nhất
+    [SerializeField] private List<Stat> stats = new();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
+    [SerializeField] private DerivedStatFormula[] statFormulas;
 
-    private readonly Dictionary<StatType, Stat> stats = new();   // [2][6] khởi tạo sẵn
+    private readonly Dictionary<StatType, Stat> lookup = new(); // index runtime, KHÔNG serialize -> Get O(1)
     private bool initialized;
 
+    /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
     public event Action<StatType> OnStatChanged;
 
     public int Level
     {
         get => level;
-        set { level = Mathf.Max(1, value); RecalculateDerived(); }
+        set
+        {
+            int clamped = Mathf.Max(1, value);
+            if (clamped == level) return;
+            level = clamped;
+            RecalculateDerived();
+        }
     }
-    
-    public void Start()
-    {
-        Initialize();
-    }
-    private void Initialize()
-    {
-        if (initialized) return;
-        initialized = true;
 
-        // full enum -> không thiếu key (tùy chọn, đúng ý "full biến theo enum")
-        foreach (var t in StatTypes.Primary) stats[t] = new Stat(0f);
-        foreach (var t in StatTypes.Derived) stats[t] = new Stat(0f);
-
-        // [7] nạp base author cho primary
-        if (primaryBase != null)
-            foreach (var e in primaryBase)
-                GetOrCreate(e.type).BaseValue = e.baseValue;
-
-        RecalculateDerived();
-    }
+    private void OnEnable() => initialized = false;   // rebuild index khi SO nạp lại (vào/ra Play Mode)
 
     // ------------------------- API chính -------------------------
 
+    /// <summary>Đọc giá trị cuối cùng của một chỉ số. O(1).</summary>
     public float Get(StatType type)
     {
-        Initialize();
-        return stats.TryGetValue(type, out Stat stat) ? stat.Value : 0f;
+        EnsureInitialized();
+        return lookup.TryGetValue(type, out Stat stat) ? stat.Value : 0f;
     }
 
+    /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số.</summary>
     public void AddModifier(StatType type, StatModifier modifier)
     {
-        Initialize();
+        EnsureInitialized();
         GetOrCreate(type).AddModifier(modifier);
         AfterChanged(type);
     }
 
+    /// <summary>Gỡ mọi modifier đến từ một nguồn (tháo trang bị, hết buff).</summary>
     public void RemoveModifiersFromSource(object source)
     {
-        Initialize();
+        EnsureInitialized();
         bool primaryChanged = false;
-        foreach (var pair in stats)
-            if (pair.Value.RemoveModifiersFromSource(source))
-            {
-                if (pair.Key.IsPrimary()) primaryChanged = true;
-            }
+        for (int i = 0; i < stats.Count; i++)
+        {
+            Stat stat = stats[i];
+            if (!stat.RemoveModifiersFromSource(source)) continue;
+
+            OnStatChanged?.Invoke(stat.Type);
+            if (stat.Type.IsPrimary()) primaryChanged = true;
+        }
         if (primaryChanged) RecalculateDerived();
     }
 
+    /// <summary>Cộng điểm gốc cho một primary stat (lên cấp / phân bổ điểm).</summary>
     public void AddPrimaryPoint(StatType type, float amount = 1f)
     {
         if (!type.IsPrimary())
         {
-            Debug.LogWarning($"[StatsSO] {type} không phải primary stat.");   // [11]
+            Debug.LogWarning($"[StatsSO] {type} không phải primary stat.");
             return;
         }
-        Initialize();
+        EnsureInitialized();
         GetOrCreate(type).BaseValue += amount;
         AfterChanged(type);
     }
 
     // ------------------------- Nội bộ -------------------------
 
+    private void EnsureInitialized()
+    {
+        if (initialized) return;
+        initialized = true;
+
+        lookup.Clear();
+        // Bỏ null / trùng key ngay trong list authored -> giữ bất biến list ↔ dict 1:1.
+        for (int i = stats.Count - 1; i >= 0; i--)
+        {
+            Stat s = stats[i];
+            if (s == null || lookup.ContainsKey(s.Type))
+            {
+                stats.RemoveAt(i);
+                continue;
+            }
+            lookup[s.Type] = s;
+        }
+
+        // Bù các StatType còn thiếu trong enum, không thiếu chỉ số nào.
+        foreach (StatType t in Enum.GetValues(typeof(StatType)))
+            if (!lookup.ContainsKey(t))
+            {
+                Stat s = new Stat(t, 0f);
+                stats.Add(s);
+                lookup[t] = s;
+            }
+
+        RecalculateDerived();
+    }
+
     private void AfterChanged(StatType type)
     {
+        OnStatChanged?.Invoke(type);
         if (type.IsPrimary()) RecalculateDerived();
     }
 
@@ -96,23 +119,23 @@ public class StatsSO : ScriptableObject
         foreach (var formula in statFormulas)
         {
             if (formula == null) continue;
+
             Stat target = GetOrCreate(formula.targetStat);
-            float newBase = formula.Evaluate(Get, level);    // [4][8] gán kết quả
-            if (!Mathf.Approximately(target.BaseValue, newBase))
-            {
-                target.BaseValue = newBase;
-            }
-            stats[formula.targetStat] = target;
+            float newBase = formula.Evaluate(Get, level);
+            if (Mathf.Approximately(target.BaseValue, newBase)) continue;
+
+            target.BaseValue = newBase;
+            OnStatChanged?.Invoke(formula.targetStat);
         }
     }
 
     private Stat GetOrCreate(StatType type)
     {
-        if (!stats.TryGetValue(type, out Stat stat))
-        {
-            stat = new Stat(0f);
-            stats[type] = stat;
-        }
+        if (lookup.TryGetValue(type, out Stat stat)) return stat;   // O(1)
+
+        stat = new Stat(type, 0f);
+        stats.Add(stat);
+        lookup[type] = stat;
         return stat;
     }
 }

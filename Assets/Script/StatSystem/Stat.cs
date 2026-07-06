@@ -3,22 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Một chỉ số đơn lẻ: BaseValue + danh sách modifier.
+/// Một chỉ số đơn lẻ: StatType + BaseValue + danh sách modifier.
+/// type + baseValue được serialize để chỉnh trong Inspector; modifiers là runtime-only.
 /// Value chỉ tính lại khi có thay đổi (dirty flag), KHÔNG tính lại mỗi frame.
 /// Công thức: FinalValue = (Base + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
 /// </summary>
 [Serializable]
 public class Stat
 {
-    private float baseValue;
+    [SerializeField] private StatType type;
+    [SerializeField] private float baseValue;
+
     private float cachedValue;
     private bool isDirty = true;
-    private readonly List<StatModifier> modifiers = new List<StatModifier>();
+    private List<StatModifier> modifiers;   // runtime-only: StatModifier không Unity-serializable
+
+    /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
+    public StatType Type => type;
 
     /// <summary>Bắn ra khi BaseValue hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
 
-    public Stat(float baseValue = 0f) => this.baseValue = baseValue;
+    public Stat() { }   // Unity deserialization
+
+    public Stat(StatType type, float baseValue = 0f)
+    {
+        this.type = type;
+        this.baseValue = baseValue;
+    }
+
+    private List<StatModifier> Modifiers => modifiers ??= new List<StatModifier>();
 
     public float BaseValue
     {
@@ -47,14 +61,14 @@ public class Stat
 
     public void AddModifier(StatModifier modifier)
     {
-        modifiers.Add(modifier);
-        modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
+        Modifiers.Add(modifier);
+        Modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
         SetDirty();
     }
 
     public bool RemoveModifier(StatModifier modifier)
     {
-        if (!modifiers.Remove(modifier)) return false;
+        if (modifiers == null || !modifiers.Remove(modifier)) return false;
         SetDirty();
         return true;
     }
@@ -62,6 +76,7 @@ public class Stat
     /// <summary>Gỡ mọi modifier đến từ một nguồn (tháo trang bị, hết buff...).</summary>
     public bool RemoveModifiersFromSource(object source)
     {
+        if (modifiers == null) return false;
         bool removed = false;
         for (int i = modifiers.Count - 1; i >= 0; i--)
         {
@@ -84,8 +99,9 @@ public class Stat
     private float CalculateFinalValue()
     {
         float finalValue = baseValue;
-        float percentAddSum = 0f;
+        if (modifiers == null) return finalValue;
 
+        float percentAddSum = 0f;
         for (int i = 0; i < modifiers.Count; i++)
         {
             StatModifier mod = modifiers[i];
