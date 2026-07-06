@@ -1,6 +1,6 @@
 ## Technical Debt Register
-Last updated: 2026-05-31
-Total items: 20 | Estimated total effort: 16S + 2M + 2XL
+Last updated: 2026-07-02
+Total items: 32 | Estimated total effort: 22S + 7M + 3XL
 
 | ID | Category | Description | Files | Effort | Impact | Priority | Added | Sprint |
 |----|----------|-------------|-------|--------|--------|----------|-------|--------|
@@ -10,17 +10,29 @@ Total items: 20 | Estimated total effort: 16S + 2M + 2XL
 | TD-009 | Code Quality | `AnimationPlayerController.OnEnable()` line 21 registers `StartAnimation` twice; `EndAnimation` never fires — all combat states permanently stuck | `Assets/Script/Character/Player/Animation/AnimationPlayerController.cs:21` | S | Critical | 1 | 2026-05-31 | Sprint 1 |
 | TD-011 | Code Quality | `EntityStatsSO.ModifiersAmor` property getter calls itself → StackOverflowException | `EntityStatsSO.cs` | S | Critical | 1 | 2026-05-31 | Sprint 1 |
 | TD-012 | Code Quality | `EntityMoveState` dereferences `Target.transform.position` (line 30) before null check (line 34) — NullReferenceException when target lost | `Assets/Script/Character/Entity/States/EntityMoveState.cs:30` | S | Critical | 1 | 2026-05-31 | Sprint 1 |
+| TD-021 | Code Quality | Player damage endpoint `NegativeReciver.TakeDamage()` throws NotImplementedException — enemy hits produce exceptions, no player damage/death possible (CLAUDE Bug #6) | `Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs:8` | S | Critical | 1 | 2026-07-02 | Sprint next |
+| TD-022 | Dependency | Room JSON loaded via `File.ReadAllText(Application.dataPath + filePath)` — Editor-only; `Assets/Data/Json/` absent from Player builds (CLAUDE Bug #15) | `RoomGeneraterController.cs:57`, `LevelManager.cs` | M | Critical | 1 | 2026-07-02 | Backlog |
 | TD-005 | Code Quality | `Physics2D.OverlapCircle` (allocating) in hot paths — runs every frame in `EntityWeaponMelee` and `EntityFindTarget` | `EntityWeaponMelee.cs:33`, `EntityFindTarget.cs:21` | S | Medium | 2 | 2026-05-31 | Backlog |
 | TD-006 | Code Quality | `Instantiate()` in gameplay paths without pooling — `SlashAbility`, `Shooting`, `EntityWeaponHolder` | `SlashAbility.cs`, `Shooting.cs`, `EntityWeaponHolder.cs` | M | Medium | 2 | 2026-05-31 | Backlog |
 | TD-007 | Code Quality | `GetComponent<>()` called in method bodies (not Awake/Start) — hot path allocation | `SlashAbility.cs:33`, `Shooting.cs:30`, `WeaponsController.cs:30,37,48,53` | S | Medium | 2 | 2026-05-31 | Backlog |
 | TD-013 | Code Quality | `Shooting.Update()` reads `Input.GetMouseButton(0)` directly — bypasses state machine | `Assets/Script/Weapons/RangeWeapon/Shooting.cs` | S | High | 2 | 2026-05-31 | Sprint 1 |
 | TD-018 | Architecture | `TalentManager.cs` hardcodes Str/Dex/Int/Cha stats in `Awake()` — not SO-driven, violates data-driven convention | `Assets/Script/Character/Player/CoreComponent/TalentManager.cs` | S | Medium | 2 | 2026-05-31 | Backlog |
+| TD-025 | Architecture | `RoomType` enum never read at runtime — start/end rooms forced by list position `room[0]`/`room[last]`; reordering `Maze_Storage.asset` silently breaks selection (CLAUDE Bug #16) | `RoomGeneraterController.cs:43-44` | S | High | 2 | 2026-07-02 | Backlog |
+| TD-030 | Architecture | Enemy data model split: `EnemySO` not consumed by `Entity` (which uses `EntityData`); `EnemySO` lacks a self-prefab reference — blocks the data-driven spawner (`EncounterSO`) | `EnemySO.cs`, `Entity.cs` | M | High | 2 | 2026-07-02 | Backlog |
+| TD-023 | Architecture | `LevelManager` singleton (`public static Instance`) violates no-new-singletons rule; consumed by `RoomGeneraterController.Setting()` (CLAUDE Bug #12) | `LevelManager.cs` | M | Medium | 2 | 2026-07-02 | Backlog |
+| TD-024 | Code Quality | Dead door methods: `DoorController.OpenDoor()`/`CheckCanBeOpened()` and `RoomCell.UpdateStatusDoor()` are no-ops (door instances never DISABLE); real gating is `OpenDoors()`/`CloseDoor()` (CLAUDE Bug #17) | `DoorController.cs:29`, `RoomCell.cs:45` | S | Medium | 2 | 2026-07-02 | Backlog |
+| TD-026 | Code Quality | `MazeController.Awake()` missing `return` after `Destroy(gameObject)` — duplicate overwrites `Instance` and re-runs generator (CLAUDE Bug #14) | `MazeController.cs:17-21` | S | Medium | 2 | 2026-07-02 | Backlog |
+| TD-029 | Code Quality | `FollowPlayer` camera: `GameObject.Find("PlayerTest(Clone)")` + `Invoke(0.01f)` timing hack — forbidden pattern; breaks on prefab rename | `Assets/Script/Utility/FollowPlayer.cs:24` | S | Medium | 2 | 2026-07-02 | Backlog |
 | TD-003 | Architecture | 0 ADRs exist — all architectural decisions are implicit in code, not documented or traceable | `docs/architecture/` | XL | High | 3 | 2026-05-31 | Ongoing |
 | TD-014 | Test Debt | 0 test files (EditMode or PlayMode) — no regression safety net for any system | All | XL | High | 3 | 2026-05-31 | Ongoing |
 | TD-016 | Documentation | `AnimationName.cs` is empty — string constants missing, magic strings used throughout | `Assets/Script/Character/Player/Animation/AnimationName.cs` | S | Medium | 3 | 2026-05-31 | Backlog |
 | TD-017 | Documentation | `UIManager.cs` is an empty stub — HUD unimplemented | `Assets/Script/Manager/UI/UIManager.cs` | M | Medium | 3 | 2026-05-31 | Backlog |
+| TD-028 | Code Quality | Duplicated room-loading logic: `LevelManager.LoadRoom()` and `RoomGeneraterController.LoadRoom()` are parallel implementations, both marked `//Refactor late` | `LevelManager.cs:187-229`, `RoomGeneraterController.cs:53-125` | M | Medium | 3 | 2026-07-02 | Backlog |
+| TD-031 | Architecture | `ObjectPooling` is slash-VFX-specific with fake singleton (`instance => this`); no generic pool — blocks fixing TD-006 (unpooled Instantiate) and pooled enemy spawning | `Assets/Script/Pooling/ObjectPooling.cs` | M | Medium | 3 | 2026-07-02 | Backlog |
 | TD-019 | Architecture | `EntityData.rangeCheckChase` field missing — chase range hardcoded as `10f` in `EntityMoveState` | `EntityMoveState.cs`, `EntityData.cs` | S | Low | 4 | 2026-05-31 | Backlog |
 | TD-002 | Architecture | `PlayerCombat.cs` is 129 lines of commented-out legacy code — dead file never referenced | `Assets/Script/Weapons/MeleeWeapon/PlayerCombat.cs` | S | Low | 4 | 2026-05-31 | Backlog |
 | TD-020 | Architecture | Legacy files not removed: `Map/Legacy/Door.cs`, `Map/Legacy/Room.cs` — superseded, still in project | `Assets/Script/Map/Legacy/` | S | Low | 4 | 2026-05-31 | Backlog |
+| TD-027 | Code Quality | `BaseGrid.GetNext()` has no bounds check — negative/wrapping index → latent IndexOutOfRangeException (masked: edge cells never carve outward passages) | `BaseGrid.cs:34-41` | S | Low | 4 | 2026-07-02 | Backlog |
+| TD-032 | Code Quality | `RoomGeneraterController.Setting()` appends to the `Maze_Load_Room` SO asset without clearing first; relies solely on `OnDisable` cleanup — room list grows if a play session is interrupted | `RoomGeneraterController.cs:24,41` | S | Low | 4 | 2026-07-02 | Backlog |
 | TD-015 | Documentation | See TD-003 — no ADR files | `docs/architecture/` | XL | High | 3 | 2026-05-31 | Ongoing |
 | TD-010 | Code Quality | Intentional typos preserved for serialization compatibility: `attackDamege`, `currrentSA`, `deplayTime`, `CaculateIndex`, `uppgradeData`, `Resgister` | Multiple | S | Low | 5 | 2026-05-31 | Accepted |
