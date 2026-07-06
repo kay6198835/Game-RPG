@@ -23,6 +23,8 @@ public class Stat
 
     /// <summary>Bắn ra khi BaseValue hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
+    /// <summary>Buộc tính lại Value ở lần đọc kế tiếp (dùng sau khi sửa baseValue trong Inspector).</summary>
+    public void MarkDirty() => SetDirty();
 
     public Stat() { }   // Unity deserialization
 
@@ -93,6 +95,11 @@ public class Stat
     private void SetDirty()
     {
         isDirty = true;
+        if (isDirty)
+        {
+            cachedValue = CalculateFinalValue();
+            isDirty = false;
+        }
         OnChanged?.Invoke();
     }
 

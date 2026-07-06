@@ -6,10 +6,10 @@ using UnityEngine;
 public class StatsSO : ScriptableObject
 {
     [SerializeField, Min(1)] private int level = 1;
-    [SerializeField] private List<Stat> stats = new();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
+    [SerializeField] private List<Stat> stats = new List<Stat>();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
     [SerializeField] DerivedStatFormula[] statFormulas;
 
-    private readonly Dictionary<StatType, float> lookup = new(); // index runtime, KHÔNG serialize -> Get O(1)
+    private readonly Dictionary<StatType, float> lookup = new Dictionary<StatType, float>(); // index runtime, KHÔNG serialize -> Get O(1)
     private bool initialized;
 
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
@@ -29,23 +29,33 @@ public class StatsSO : ScriptableObject
 
     private void OnValidate()
     {
-        // level = Mathf.Max(1, level);
-        // RecalculateDerived();
+        for (int i = 0; i < stats.Count; i++)
+            stats[i]?.MarkDirty();
         RecalculateDerived();
-        Test();
     }
 
     public void Test()
     {
         foreach (var item in stats)
         {
-            Debug.Log($"[StatsSO] Level changed, {item.Type} = {item.Value}");
+            Debug.Log($"[StatsSO] Level changed, {item.Type} = {lookup[item.Type]}");
         }
     }
 
     public void Reset()
     {
-        
+        stats.Clear();
+        lookup.Clear();
+        foreach (StatType t in Enum.GetValues(typeof(StatType)))
+        {
+            Stat s = new(t, 0f);
+            stats.Add(s);
+            Debug.Log($"[StatsSO] Reset {t} = {s.Value}");
+            lookup[t] = s.Value;
+        }
+        initialized = true;
+        RecalculateDerived();
+        //Test();
     }
 
     private void OnEnable() => initialized = false;   // rebuild index khi SO nạp lại (vào/ra Play Mode)
@@ -53,10 +63,10 @@ public class StatsSO : ScriptableObject
     // ------------------------- API chính -------------------------
 
     /// <summary>Đọc giá trị cuối cùng của một chỉ số. O(1).</summary>
-    public float Get(StatType type)
+    public Stat Get(StatType type)
     {
         EnsureInitialized();
-        return lookup.TryGetValue(type, out float value) ? value : 0f;
+        return stats.Find(s => s.Type == type);
     }
 
     /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số.</summary>
@@ -146,23 +156,21 @@ public class StatsSO : ScriptableObject
             if (Mathf.Approximately(target.BaseValue, newBase)) continue;
 
             target.BaseValue = newBase;
-            OnStatChanged?.Invoke(formula.targetStat);
+            lookup[target.Type] = newBase;
+            Debug.Log($"[StatsSO] RecalculateDerived: {target.Type} = {newBase}/ {lookup[target.Type]}");
+            OnStatChanged?.Invoke(target.Type);
         }
     }
 
     private Stat GetOrCreate(StatType type)
     {
-        if (lookup.TryGetValue(type, out float value))
+        Stat stat = Get(type);
+        if (stat == null)
         {
-            // Tạo một Stat mới với giá trị đã có
-            Stat stat = new Stat(type, value);
+            stat = new Stat(type, 0f);
             stats.Add(stat);
-            return stat;
+            lookup[type] = stat.Value;
         }
-
-        Stat newStat = new Stat(type, 0f);
-        stats.Add(newStat);
-        lookup[type] = newStat.Value;
-        return newStat;
+        return stat;
     }
 }
