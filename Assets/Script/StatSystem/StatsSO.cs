@@ -15,6 +15,16 @@ public class StatsSO : ScriptableObject
     private readonly Dictionary<StatType, Stat> stats = new();   // [2][6] khởi tạo sẵn
     private bool initialized;
 
+    // Tách 2 loại stat thuần từ enum, build một lần khi type được nạp.
+    private static readonly List<StatType> PrimaryTypes = new();
+    private static readonly List<StatType> DerivedTypes = new();
+
+    static StatsSO()
+    {
+        foreach (StatType t in Enum.GetValues(typeof(StatType)))
+            (t.IsPrimary() ? PrimaryTypes : DerivedTypes).Add(t);
+    }
+
     public event Action<StatType> OnStatChanged;
 
     public int Level
@@ -33,8 +43,8 @@ public class StatsSO : ScriptableObject
         initialized = true;
 
         // full enum -> không thiếu key (tùy chọn, đúng ý "full biến theo enum")
-        foreach (var t in StatTypes.Primary) stats[t] = new Stat(0f);
-        foreach (var t in StatTypes.Derived) stats[t] = new Stat(0f);
+        foreach (var t in PrimaryTypes) stats[t] = new Stat(0f);
+        foreach (var t in DerivedTypes) stats[t] = new Stat(0f);
 
         // [7] nạp base author cho primary
         if (primaryBase != null)
