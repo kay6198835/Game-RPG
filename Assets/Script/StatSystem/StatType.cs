@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 /// <summary>
 /// Toàn bộ loại chỉ số trong game.
 /// Primary (0–99): player cộng điểm trực tiếp.
@@ -30,4 +33,26 @@ public enum StatType
 public static class StatTypeExtensions
 {
     public static bool IsPrimary(this StatType type) => (int)type < 100;
+}
+
+/// <summary>
+/// Danh sách StatType tách theo nhóm, suy ra trực tiếp từ enum để không lệch khi thêm chỉ số mới.
+/// </summary>
+public static class StatTypes
+{
+    public static readonly StatType[] Primary;
+    public static readonly StatType[] Derived;
+
+    static StatTypes()
+    {
+        var primary = new List<StatType>();
+        var derived = new List<StatType>();
+        foreach (StatType t in Enum.GetValues(typeof(StatType)))
+        {
+            if (t.IsPrimary()) primary.Add(t);
+            else derived.Add(t);
+        }
+        Primary = primary.ToArray();
+        Derived = derived.ToArray();
+    }
 }
