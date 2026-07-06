@@ -38,7 +38,8 @@
       "Bash(python -m json.tool .claude/settings.local.json)",
       "Bash(git check-ignore *)",
       "Bash(rtk ls *)",
-      "Bash(rtk read *)"
+      "Bash(rtk read *)",
+      "Bash(git rev-list *)"
     ]
   }
 }
