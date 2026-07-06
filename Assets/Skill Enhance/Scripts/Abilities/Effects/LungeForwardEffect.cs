@@ -13,15 +13,15 @@ public class LungeForwardEffect : AbilityEffectDefinition
 
     public override void Apply(AbilityContext context)
     {
-        if (context?.Caster?.Motor == null) return;
+        // if (context?.Caster?.Motor == null) return;
 
-        float distance = BaseDistance + BonusDistanceAtMaxHold * context.HoldRatio;
-        float duration = Mathf.Lerp(BaseDuration, MinDurationAtMaxHold, context.HoldRatio);
+        // float distance = BaseDistance + BonusDistanceAtMaxHold * context.HoldRatio;
+        // float duration = Mathf.Lerp(BaseDuration, MinDurationAtMaxHold, context.HoldRatio);
 
-        context.Caster.Motor.Lunge(context.Forward, distance, duration);
+        // context.Caster.Motor.Lunge(context.Forward, distance, duration);
 
-        Debug.Log(
-            $"[{context.AbilityDefinition.DisplayName}] LungeForwardEffect => " +
-            $"HoldRatio={context.HoldRatio:F2}, Distance={distance:F2}, Duration={duration:F2}");
+        // Debug.Log(
+        //     $"[{context.AbilityDefinition.DisplayName}] LungeForwardEffect => " +
+        //     $"HoldRatio={context.HoldRatio:F2}, Distance={distance:F2}, Duration={duration:F2}");
     }
 }

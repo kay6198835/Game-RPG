@@ -16,7 +16,7 @@ public class Stat
 
     private float cachedValue;
     private bool isDirty = true;
-    private List<StatModifier> modifiers;   // runtime-only: StatModifier không Unity-serializable
+    public List<StatModifier> modifiers;   // runtime-only: StatModifier không Unity-serializable
 
     /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
     public StatType Type => type;

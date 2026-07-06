@@ -3,6 +3,7 @@
 /// Primary (0–99): player cộng điểm trực tiếp.
 /// Derived (100+): tính từ primary qua DerivedStatFormula, không cộng điểm trực tiếp.
 /// </summary>
+[System.Serializable]
 public enum StatType
 {
     // ----- Primary (chỉ số gốc) -----

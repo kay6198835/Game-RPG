@@ -2,6 +2,7 @@
 /// Thứ tự áp dụng: Flat → PercentAdd (cộng dồn rồi nhân 1 lần) → PercentMult (nhân riêng từng cái).
 /// Giá trị enum cũng là Order mặc định.
 /// </summary>
+[System.Serializable]
 public enum ModifierType
 {
     Flat = 100,  // +20 Damage
@@ -13,6 +14,7 @@ public enum ModifierType
 /// Một bonus đơn lẻ gắn vào Stat. Bất biến (immutable) — tạo mới thay vì sửa.
 /// Source là object tạo ra modifier (item, buff, passive...) để gỡ hàng loạt theo nguồn.
 /// </summary>
+[System.Serializable]
 public sealed class StatModifier
 {
     public readonly float Value;

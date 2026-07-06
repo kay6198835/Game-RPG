@@ -16,36 +16,36 @@ public class DamageInFrontEffect : AbilityEffectDefinition
     {
         if (context?.Caster == null) return;
 
-        float attack = context.Caster.Stats.GetStatValue(StatType.Attack);
-        float scaledBonus = BonusDamageAtMaxHold * context.HoldRatio;
-        float finalDamage = BaseDamage + scaledBonus + attack;
+        // float attack = context.Caster.Stats.GetStatValue(StatType.Attack);
+        // float scaledBonus = BonusDamageAtMaxHold * context.HoldRatio;
+        // float finalDamage = BaseDamage + scaledBonus + attack;
 
-        Collider[] hits = Physics.OverlapSphere(context.Origin, Radius, TargetMask);
+        // Collider[] hits = Physics.OverlapSphere(context.Origin, Radius, TargetMask);
 
-        for (int i = 0; i < hits.Length; i++)
-        {
-            var hit = hits[i];
-            Vector3 dir = (hit.transform.position - context.Origin).normalized;
-            float angle = Vector3.Angle(context.Forward, dir);
+        // for (int i = 0; i < hits.Length; i++)
+        // {
+        //     var hit = hits[i];
+        //     Vector3 dir = (hit.transform.position - context.Origin).normalized;
+        //     float angle = Vector3.Angle(context.Forward, dir);
 
-            if (angle > Angle * 0.5f)
-                continue;
+        //     if (angle > Angle * 0.5f)
+        //         continue;
 
-            var damageable = hit.GetComponent<Damageable>();
-            if (damageable != null)
-            {
-                damageable.ReceiveDamage(finalDamage);
-            }
-            else
-            {
-                var health = hit.GetComponent<Health>();
-                if (health != null)
-                    health.TakeDamage(finalDamage);
-            }
-        }
+            // var damageable = hit.GetComponent<Damageable>();
+            // if (damageable != null)
+            // {
+            //     damageable.ReceiveDamage(finalDamage);
+            // }
+            // else
+            // {
+            //     var health = hit.GetComponent<Health>();
+            //     if (health != null)
+            //         health.TakeDamage(finalDamage);
+            // }
+        // }
 
-        Debug.Log(
-            $"[{context.AbilityDefinition.DisplayName}] DamageInFrontEffect => " +
-            $"HoldRatio={context.HoldRatio:F2}, Damage={finalDamage:F2}");
+        // Debug.Log(
+        //     $"[{context.AbilityDefinition.DisplayName}] DamageInFrontEffect => " +
+        //     $"HoldRatio={context.HoldRatio:F2}, Damage={finalDamage:F2}");
     }
 }

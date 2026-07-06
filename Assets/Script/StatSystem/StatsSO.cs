@@ -7,9 +7,9 @@ public class StatsSO : ScriptableObject
 {
     [SerializeField, Min(1)] private int level = 1;
     [SerializeField] private List<Stat> stats = new();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
-    [SerializeField] private DerivedStatFormula[] statFormulas;
+    [SerializeField] DerivedStatFormula[] statFormulas;
 
-    private readonly Dictionary<StatType, Stat> lookup = new(); // index runtime, KHÔNG serialize -> Get O(1)
+    private readonly Dictionary<StatType, float> lookup = new(); // index runtime, KHÔNG serialize -> Get O(1)
     private bool initialized;
 
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
@@ -27,6 +27,27 @@ public class StatsSO : ScriptableObject
         }
     }
 
+    private void OnValidate()
+    {
+        // level = Mathf.Max(1, level);
+        // RecalculateDerived();
+        RecalculateDerived();
+        Test();
+    }
+
+    public void Test()
+    {
+        foreach (var item in stats)
+        {
+            Debug.Log($"[StatsSO] Level changed, {item.Type} = {item.Value}");
+        }
+    }
+
+    public void Reset()
+    {
+        
+    }
+
     private void OnEnable() => initialized = false;   // rebuild index khi SO nạp lại (vào/ra Play Mode)
 
     // ------------------------- API chính -------------------------
@@ -35,7 +56,7 @@ public class StatsSO : ScriptableObject
     public float Get(StatType type)
     {
         EnsureInitialized();
-        return lookup.TryGetValue(type, out Stat stat) ? stat.Value : 0f;
+        return lookup.TryGetValue(type, out float value) ? value : 0f;
     }
 
     /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số.</summary>
@@ -92,7 +113,7 @@ public class StatsSO : ScriptableObject
                 stats.RemoveAt(i);
                 continue;
             }
-            lookup[s.Type] = s;
+            lookup[s.Type] = s.Value;
         }
 
         // Bù các StatType còn thiếu trong enum, không thiếu chỉ số nào.
@@ -101,7 +122,7 @@ public class StatsSO : ScriptableObject
             {
                 Stat s = new Stat(t, 0f);
                 stats.Add(s);
-                lookup[t] = s;
+                lookup[t] = s.Value;
             }
 
         RecalculateDerived();
@@ -131,11 +152,17 @@ public class StatsSO : ScriptableObject
 
     private Stat GetOrCreate(StatType type)
     {
-        if (lookup.TryGetValue(type, out Stat stat)) return stat;   // O(1)
+        if (lookup.TryGetValue(type, out float value))
+        {
+            // Tạo một Stat mới với giá trị đã có
+            Stat stat = new Stat(type, value);
+            stats.Add(stat);
+            return stat;
+        }
 
-        stat = new Stat(type, 0f);
-        stats.Add(stat);
-        lookup[type] = stat;
-        return stat;
+        Stat newStat = new Stat(type, 0f);
+        stats.Add(newStat);
+        lookup[type] = newStat.Value;
+        return newStat;
     }
 }

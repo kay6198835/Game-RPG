@@ -32,19 +32,19 @@ public class SpiritOrbProjectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        var health = other.GetComponent<Health>()
-                     ?? other.GetComponentInParent<Health>();
+        // var health = other.GetComponent<Health>()
+        //              ?? other.GetComponentInParent<Health>();
 
-        if (health == null || health.IsDead)
-            return;
+        // if (health == null || health.IsDead)
+        //     return;
 
-        // tránh gán nhiều DoT lên cùng một mục tiêu
-        if (health.GetComponent<SpiritDoTBehaviour>() != null)
-            return;
+        // // tránh gán nhiều DoT lên cùng một mục tiêu
+        // if (health.GetComponent<SpiritDoTBehaviour>() != null)
+        //     return;
 
-        var dot = health.gameObject.AddComponent<SpiritDoTBehaviour>();
-        dot.Initialize(_damagePerTick, _duration, _summonPrefab);
+        // var dot = health.gameObject.AddComponent<SpiritDoTBehaviour>();
+        // dot.Initialize(_damagePerTick, _duration, _summonPrefab);
 
-        Destroy(gameObject);
+        // Destroy(gameObject);
     }
 }

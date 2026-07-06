@@ -5,7 +5,8 @@ public class NotDeadCondition : AbilityConditionDefinition
 {
     public override bool IsMet(AbilityContext context)
     {
-        if (context?.Caster?.Health == null) return false;
-        return !context.Caster.Health.IsDead;
+        // if (context?.Caster?.Health == null) return false;
+        // return !context.Caster.Health.IsDead;
+        return true;
     }
 }

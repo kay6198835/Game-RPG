@@ -36,11 +36,11 @@ public class AbilityInstance
 
     public bool CanStart()
     {
-        if (CooldownRemaining > 0f) return false;
-        if (Owner == null) return false;
-        if (Owner.Health == null || Owner.Health.IsDead) return false;
-        if (Owner.Stats == null) return false;
-        if (Owner.Stats.CurrentMana < Definition.ManaCost) return false;
+        // if (CooldownRemaining > 0f) return false;
+        // if (Owner == null) return false;
+        // if (Owner.Health == null || Owner.Health.IsDead) return false;
+        // if (Owner.Stats == null) return false;
+        // if (Owner.Stats.CurrentMana < Definition.ManaCost) return false;
         return true;
     }
 
@@ -135,10 +135,10 @@ public class AbilityInstance
 
     private bool TryPayCost()
     {
-        if (Owner.Stats.CurrentMana < Definition.ManaCost)
-            return false;
+        // if (Owner.Stats.CurrentMana < Definition.ManaCost)
+        //     return false;
 
-        Owner.Stats.SpendMana(Definition.ManaCost);
+        // Owner.Stats.SpendMana(Definition.ManaCost);
         return true;
     }
 
