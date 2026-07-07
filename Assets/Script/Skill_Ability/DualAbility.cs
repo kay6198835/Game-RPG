@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 [CreateAssetMenu(menuName = "Ability SO/Activate Skill/Dual Ability")]
 public class DualAbility : ActivateSkill

@@ -18,7 +18,7 @@ public class AnimationPlayerController : MonoBehaviour
         AnimationEventManager.Resgister(AnimationEventId.MoveAnimation, Move);
         AnimationEventManager.Resgister(AnimationEventId.AttactAnimation, Attack);
         AnimationEventManager.Resgister(AnimationEventId.DoSkillAnimation, DoSkill);
-        AnimationEventManager.Resgister(AnimationEventId.StartAnimation, EndAnimation);
+        AnimationEventManager.Resgister(AnimationEventId.EndAnimation, EndAnimation);
     }
     private void OnDisable()
     {
@@ -26,7 +26,7 @@ public class AnimationPlayerController : MonoBehaviour
         AnimationEventManager.UnResgister(AnimationEventId.MoveAnimation, Move);
         AnimationEventManager.UnResgister(AnimationEventId.AttactAnimation, Attack);
         AnimationEventManager.UnResgister(AnimationEventId.DoSkillAnimation, DoSkill);
-        AnimationEventManager.UnResgister(AnimationEventId.StartAnimation, StartAnimation);
+        AnimationEventManager.UnResgister(AnimationEventId.EndAnimation, EndAnimation);
     }
     private void StartAnimation(object obj)
     {
