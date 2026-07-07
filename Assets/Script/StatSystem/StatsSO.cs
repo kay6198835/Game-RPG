@@ -9,7 +9,7 @@ public class StatsSO : ScriptableObject
     [SerializeField] private List<Stat> stats = new List<Stat>();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
     [SerializeField] DerivedStatFormula[] statFormulas;
 
-    private readonly Dictionary<StatType, float> lookup = new Dictionary<StatType, float>(); // index runtime, KHÔNG serialize -> Get O(1)
+    private readonly Dictionary<StatType, Stat> lookup = new Dictionary<StatType, Stat>(); // index runtime, KHÔNG serialize -> Get O(1)
     private bool initialized;
 
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
@@ -51,7 +51,7 @@ public class StatsSO : ScriptableObject
             Stat s = new(t, 0f);
             stats.Add(s);
             Debug.Log($"[StatsSO] Reset {t} = {s.Value}");
-            lookup[t] = s.Value;
+            lookup[t] = s;
         }
         initialized = true;
         RecalculateDerived();
@@ -66,7 +66,7 @@ public class StatsSO : ScriptableObject
     public Stat Get(StatType type)
     {
         EnsureInitialized();
-        return stats.Find(s => s.Type == type);
+        return lookup[type] == null ? null : lookup[type];
     }
 
     /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số.</summary>
@@ -123,7 +123,7 @@ public class StatsSO : ScriptableObject
                 stats.RemoveAt(i);
                 continue;
             }
-            lookup[s.Type] = s.Value;
+            lookup[s.Type] = s;
         }
 
         // Bù các StatType còn thiếu trong enum, không thiếu chỉ số nào.
@@ -132,7 +132,7 @@ public class StatsSO : ScriptableObject
             {
                 Stat s = new Stat(t, 0f);
                 stats.Add(s);
-                lookup[t] = s.Value;
+                lookup[t] = s;
             }
 
         RecalculateDerived();
@@ -144,6 +144,11 @@ public class StatsSO : ScriptableObject
         if (type.IsPrimary()) RecalculateDerived();
     }
 
+    private float GetFun(StatType type)
+    {
+        return Get(type).Value;
+    }
+
     private void RecalculateDerived()
     {
         if (statFormulas == null) return;
@@ -152,12 +157,12 @@ public class StatsSO : ScriptableObject
             if (formula == null) continue;
 
             Stat target = GetOrCreate(formula.targetStat);
-            float newBase = formula.Evaluate(Get, level);
+            float newBase = formula.Evaluate(GetFun, level);
             if (Mathf.Approximately(target.BaseValue, newBase)) continue;
 
             target.BaseValue = newBase;
-            lookup[target.Type] = newBase;
-            Debug.Log($"[StatsSO] RecalculateDerived: {target.Type} = {newBase}/ {lookup[target.Type]}");
+            lookup[target.Type] = target;
+            Debug.Log($"[StatsSO] RecalculateDerived: {target.Type} = {newBase}/ {lookup[target.Type].Value}");
             OnStatChanged?.Invoke(target.Type);
         }
     }
@@ -169,7 +174,7 @@ public class StatsSO : ScriptableObject
         {
             stat = new Stat(type, 0f);
             stats.Add(stat);
-            lookup[type] = stat.Value;
+            lookup[type] = stat;
         }
         return stat;
     }

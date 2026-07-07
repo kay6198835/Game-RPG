@@ -30,7 +30,7 @@ public class DerivedStatFormula
     [Header("Đóng góp từ primary stats")]
     public StatContribution[] contributions;
 
-    public float Evaluate(Func<StatType, Stat> getStat, int level)
+    public float Evaluate(Func<StatType, float> getStat, int level)
     {
         float value = baseConstant + level * perLevel;
 
@@ -38,10 +38,10 @@ public class DerivedStatFormula
         {
             for (int i = 0; i < contributions.Length; i++)
             {
-                Stat source = getStat(contributions[i].sourceStat);
+                float sourceValue = getStat(contributions[i].sourceStat);
                 Debug.Log(contributions[i].sourceStat);
-                Debug.Log($"[DerivedStatFormula] Evaluate: {source.Value} * {contributions[i].coefficient} = {source.Value * contributions[i].coefficient}");
-                value += source.Value * contributions[i].coefficient;
+                Debug.Log($"[DerivedStatFormula] Evaluate: {sourceValue} * {contributions[i].coefficient} = {sourceValue * contributions[i].coefficient}");
+                value += sourceValue * contributions[i].coefficient;
             }
         }
         return value;

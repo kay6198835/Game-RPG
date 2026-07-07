@@ -16,11 +16,11 @@ public static class GameConstants
 
         public static class Parameter
         {
-             public static readonly string DIRECTION = "Direction";
+            public static readonly string DIRECTION = "Direction";
         }
     }
     #endregion
-    
+
     #region Direction
     public static class Direction
     {
@@ -141,4 +141,25 @@ public static class GameConstants
         public static string SPAWN = "Tile_Spawn";
     }
     #endregion
+
+    public static readonly Dictionary<StatType, string> StatsTypeNames = new Dictionary<StatType, string>
+    {
+        { StatType.INT, "INT" },
+        { StatType.STR, "STR" },
+        { StatType.DEX, "DEX" },
+        { StatType.VIT, "VIT" },
+        { StatType.LUK, "LUK" },
+        { StatType.MaxHP, "MaxHP" },
+        { StatType.MaxMana, "MaxMana" },
+        { StatType.PhysicalDamage, "PhysicalDamage" },
+        { StatType.MagicDamage, "MagicDamage" },
+        { StatType.Defense, "Defense" },
+        { StatType.AttackSpeed, "AttackSpeed" },
+        { StatType.CritChance, "CritChance" },
+        { StatType.CritDamage, "CritDamage" },
+        { StatType.MoveSpeed, "MoveSpeed" },
+        { StatType.HPRegen, "HPRegen" },
+        { StatType.ManaRegen, "ManaRegen" },
+        { StatType.Evasion, "Evasion" },
+    };
 }
