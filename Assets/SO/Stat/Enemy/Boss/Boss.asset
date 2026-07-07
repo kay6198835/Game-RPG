@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ddbf4281c7bbc0409c19795f09a2ec5, type: 3}
+  m_Name: Boss
+  m_EditorClassIdentifier: 
+  level: 30
+  stats:
+  - type: 0
+    baseValue: 25
+    modifiers: []
+  - type: 1
+    baseValue: 14
+    modifiers: []
+  - type: 2
+    baseValue: 18
+    modifiers: []
+  - type: 3
+    baseValue: 30
+    modifiers: []
+  - type: 4
+    baseValue: 10
+    modifiers: []
+  - type: 100
+    baseValue: 4450
+    modifiers: []
+  - type: 101
+    baseValue: 634
+    modifiers: []
+  - type: 102
+    baseValue: 202
+    modifiers: []
+  - type: 103
+    baseValue: 147
+    modifiers: []
+  - type: 104
+    baseValue: 112.5
+    modifiers: []
+  - type: 105
+    baseValue: 0.796
+    modifiers: []
+  - type: 106
+    baseValue: 8.7
+    modifiers: []
+  - type: 107
+    baseValue: 165
+    modifiers: []
+  - type: 108
+    baseValue: 2.21
+    modifiers: []
+  - type: 109
+    baseValue: 20
+    modifiers: []
+  - type: 110
+    baseValue: 7.7599998
+    modifiers: []
+  - type: 111
+    baseValue: 1.9
+    modifiers: []
+  statFormulas:
+  - targetStat: 100
+    baseConstant: 500
+    perLevel: 45
+    contributions:
+    - sourceStat: 0
+      coefficient: 8
+    - sourceStat: 3
+      coefficient: 80
+  - targetStat: 101
+    baseConstant: 100
+    perLevel: 5
+    contributions:
+    - sourceStat: 2
+      coefficient: 18
+    - sourceStat: 3
+      coefficient: 2
+  - targetStat: 102
+    baseConstant: 10
+    perLevel: 2.6
+    contributions:
+    - sourceStat: 0
+      coefficient: 4
+    - sourceStat: 1
+      coefficient: 1
+  - targetStat: 103
+    baseConstant: 10
+    perLevel: 2
+    contributions:
+    - sourceStat: 2
+      coefficient: 4
+    - sourceStat: 4
+      coefficient: 0.5
+  - targetStat: 104
+    baseConstant: 10
+    perLevel: 1
+    contributions:
+    - sourceStat: 0
+      coefficient: 0.5
+    - sourceStat: 3
+      coefficient: 2
+  - targetStat: 105
+    baseConstant: 0.6
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.014
+  - targetStat: 106
+    baseConstant: 5
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.05
+    - sourceStat: 4
+      coefficient: 0.3
+  - targetStat: 107
+    baseConstant: 160
+    perLevel: 0
+    contributions:
+    - sourceStat: 4
+      coefficient: 0.5
+  - targetStat: 108
+    baseConstant: 2
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.015
+  - targetStat: 109
+    baseConstant: 2
+    perLevel: 0.3
+    contributions:
+    - sourceStat: 3
+      coefficient: 0.3
+  - targetStat: 110
+    baseConstant: 2
+    perLevel: 0.12
+    contributions:
+    - sourceStat: 2
+      coefficient: 0.12
+  - targetStat: 111
+    baseConstant: 0
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.1
+    - sourceStat: 4
+      coefficient: 0.05
