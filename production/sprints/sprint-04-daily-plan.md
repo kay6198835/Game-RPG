@@ -33,10 +33,10 @@
 
 | ID | Task | Est (d) | Priority | Status |
 |----|------|---------|----------|--------|
-| S4-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` + all runtime scripts | 0.25 | Must | ⬜ Not started |
-| S4-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ⬜ Not started |
+| S4-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` + all runtime scripts | 0.25 | Must | ✅ Done |
+| S4-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ✅ Done |
 | S4-03 | `Core.GetCoreComponent<T>()` LINQ → foreach + lazy cache | 0.25 | Must | ⬜ Not started |
-| S4-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (add TakeDamage) | 0.25 | Must | ⬜ Not started |
+| S4-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (add TakeDamage) | 0.25 | Must | ✅ Done |
 | S4-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⬜ Not started |
 | S4-06 | Stats system — `TalentManager` prototype → SO-driven | 1.0 | Should | ⬜ Not started |
 | S4-07 | Decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ⬜ Not started |
@@ -122,3 +122,4 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 - **2026-07-05 (Sun)**: Sprint-04 opened. Branch `sprint-04` created from `sprint-03`. All items carry from Sprint 3 (0% velocity, 8th consecutive sprint with same P1 backlog). Sprint-03 formally closed. 22:00 scheduled wrapup confirmed: bug-triage-2026-07-05.md, retro-sprint-03-2026-07-05.md, sprint-03.md close — all committed @ 2fb9211. No new CS changes since 20:08 close. Sprint-04 opens Mon 2026-07-07.
 - **2026-07-06 (Sun)**: Pre-sprint day. **Zero sprint task progress** — all S4-01→S4-08 remain Not Started. ⚠️ RISK DETECTED: uncommitted changes found in `Assets/Skill Enhance/` (off-plan folder): `IAbilityOwner.cs` (3 interface members commented out), `SpiritDoTBehaviour.cs` (entire DoT implementation commented out). Also untracked `StatsSO.cs.meta`. None of these belong to S4 Must-Have tasks. Pattern warning: off-plan work occurring before sprint Day 1 — exact same pattern as 8 prior sprints. Sprint Day 1 (Mon 07/07) must focus exclusively on S4-01→S4-04.
+- **2026-07-07 (Mon)**: **S4-01, S4-02, S4-04 landed** — first P1 progress in 8 sprints. S4-01: removed `using UnityEditor.*` from 7 runtime scripts (`WeaponMeleeStats`, `StatsCharacter`, `EntityData`, `EnemySO`, `DualAbility`, `AnimationEventManager`, `AbilityHolder`); `StatsCharacter.animator` retyped `AnimatorController` → `RuntimeAnimatorController` (build-safe base). `grep "using UnityEditor" Assets/Script/` now returns 0 runtime hits. S4-02: `AnimationPlayerController` line 21 `StartAnimation` → `EndAnimation` registration + `OnDisable` mirror. S4-04: `WeaponMelee.Attack()` foreach now calls `INegativeReceiver.TakeDamage()` (mirrors `EntityWeaponMelee`). **S4-03 (Core LINQ → foreach) still open** — see reminder below. Play Mode smoke check pending in Editor (no Unity CLI in this environment).
