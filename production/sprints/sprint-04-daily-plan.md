@@ -7,11 +7,11 @@
 >   - **Mon–Fri 10:00** → `/daily-standup` — summarizes yesterday from git + this tracker, updates statuses, lists today's tasks with estimates.
 >   - **Sat 22:00** → `/weekly-wrapup` — end-of-week close: code-review of the week's `.cs`, playtest log, bug-triage, light retro; finalizes verdict and records carry-over + velocity.
 >   - **Sun 22:00** → `/weekly-kickoff` — closes last sprint, auto-creates upcoming week's sprint plan.
-> **Last updated**: 2026-07-05 (Sun) — sprint-04 opened (automated kickoff)
+> **Last updated**: 2026-07-07 (Mon) — Day 1 standup
 
 ---
 
-## Status Verdict: 🟡 IN PROGRESS — Sprint opens 2026-07-07
+## Status Verdict: 🔴 AT RISK — Day 1 opened with zero Must-Have progress; off-plan work (StatSystem) continued overnight
 
 ---
 
@@ -21,11 +21,11 @@
 |--------|-------|
 | Total work estimated | 2.5 days (Must + Should) |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 0 |
+| Days elapsed | 1 (Day 1 morning) |
 | Days remaining | 5 |
-| Work committed/done | 0 |
+| Work committed/done | 0 (S4-01→S4-04 all still Not Started) |
 | Work remaining | 2.5 days |
-| Velocity | — |
+| Velocity | 0% so far — off-plan commits only (StatSystem/Abilities) |
 
 ---
 
@@ -110,7 +110,7 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Off-plan work displacing Must-Haves (pattern from 8 prior sprints) | 🔴 Watch | S4-01→S4-04 are hardcoded first; no other work may start until all 4 done |
+| Off-plan work displacing Must-Haves (pattern from 8 prior sprints) | 🔴 CONFIRMED — commits `6cd30f1`, `c181bd2`, `c16ee77`, `dac227d` (2026-07-06 evening, all StatSystem/Abilities) landed with zero S4-01→S4-04 progress; would be the 9th consecutive sprint with this pattern if Day 1 doesn't correct course | S4-01→S4-04 are hardcoded first; no other work may start until all 4 done |
 | BUG-AH-1 scope wider than `AbilityHolder.cs` alone | 🟡 Confirmed | Grep found 7+ files; S4-01 acceptance criteria requires 0 runtime hits — fix all on first pass |
 | Developer absence / zero-commit days | 🔴 Watch | Must-Have block ≈ 1d; even 3h of focused work Mon closes it |
 | S4-03 lazy-cache breaks call sites | Low | Grep all `GetCoreComponent<T>()` call sites before and after; verify no Console warnings |
@@ -122,3 +122,4 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 - **2026-07-05 (Sun)**: Sprint-04 opened. Branch `sprint-04` created from `sprint-03`. All items carry from Sprint 3 (0% velocity, 8th consecutive sprint with same P1 backlog). Sprint-03 formally closed. 22:00 scheduled wrapup confirmed: bug-triage-2026-07-05.md, retro-sprint-03-2026-07-05.md, sprint-03.md close — all committed @ 2fb9211. No new CS changes since 20:08 close. Sprint-04 opens Mon 2026-07-07.
 - **2026-07-06 (Sun)**: Pre-sprint day. **Zero sprint task progress** — all S4-01→S4-08 remain Not Started. ⚠️ RISK DETECTED: uncommitted changes found in `Assets/Skill Enhance/` (off-plan folder): `IAbilityOwner.cs` (3 interface members commented out), `SpiritDoTBehaviour.cs` (entire DoT implementation commented out). Also untracked `StatsSO.cs.meta`. None of these belong to S4 Must-Have tasks. Pattern warning: off-plan work occurring before sprint Day 1 — exact same pattern as 8 prior sprints. Sprint Day 1 (Mon 07/07) must focus exclusively on S4-01→S4-04.
+- **2026-07-07 (Mon, Day 1) — 02:00 standup**: The pre-sprint uncommitted work from 07-06 was committed anyway, off-plan: `c181bd2` (StatType/Stat serialization), `6cd30f1` "coding" (StatsSO + new `Assets/.../Abilities/` files: `Conditions/`, `Core/AbilityInstance.cs`, `Effects/`, `Runtime/SpiritDoTBehaviour.cs`, `SpiritOrbProjectile.cs` — a system not referenced anywhere in `CLAUDE.md`), `c16ee77` (ADR-0001 for the StatSystem dual data structure), `dac227d` "fix base calculate stats" (StatsSO/Stat/DerivedStatFormula). **Zero commits touch S4-01→S4-04.** Verified directly against acceptance criteria: `grep -r "using UnityEditor" Assets/Script/` still returns 7 runtime hits (S4-01 open); `AnimationPlayerController.cs` line 21 still registers `StartAnimation` twice instead of `EndAnimation` (S4-02 open); `Core.cs` line 24 still uses `coreComponents.OfType<T>().FirstOrDefault()` (S4-03 open); `WeaponMelee.cs` `Attack()` foreach body (line 30-32) is still empty (S4-04 open). This is now day 1 of the 9th sprint carrying the exact same pattern flagged in the sprint's own risk register. Separately, a WIP uncommitted change to `Assets/Script/Utility/GameConstants.cs` exists on branch `feature/stats-system` (stashed during this standup, not evaluated) — also off S4-plan.
