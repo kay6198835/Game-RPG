@@ -7,11 +7,11 @@
 >   - **Mon–Fri 10:00** → `/daily-standup` — summarizes yesterday from git + this tracker, updates statuses, lists today's tasks with estimates.
 >   - **Sat 22:00** → `/weekly-wrapup` — end-of-week close: code-review of the week's `.cs`, playtest log, bug-triage, light retro; finalizes verdict and records carry-over + velocity.
 >   - **Sun 22:00** → `/weekly-kickoff` — closes last sprint, auto-creates upcoming week's sprint plan.
-> **Last updated**: 2026-07-08 (Tue) — Day 2 standup (post-merge)
+> **Last updated**: 2026-07-08 (Tue) — Day 2 pivot to enemy-spawn design track
 
 ---
 
-## Status Verdict: 🟢 ON TRACK — `origin/feature/enhance-stats-system` merged into `sprint-04` at `204be85` (11:19, same day). All four P1 Must-Haves (S4-01→S4-04) verified directly on `sprint-04` HEAD. First time in 9 sprints the P1 backlog is both complete AND landed on the sprint branch.
+## Status Verdict: 🟢 ON TRACK — P1 backlog closed (S4-01→S4-04 merged at `204be85`, verified on `sprint-04` HEAD). **Day 2 pivot**: remaining days (Wed–Fri) go to **DESIGN ONLY** of the new data-driven room-based enemy-spawn system (GDD + roadmap, no code; system scoped across 2–3 sprints). Non-Must-Have S4-05/S4-06 pended → Sprint 5. Design track ≈ 2.25d fits the ~3 days remaining.
 
 ---
 
@@ -38,10 +38,14 @@
 | S4-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified lines 17-29 register/unregister `StartAnimation` + `EndAnimation` distinctly |
 | S4-03 | `Core.GetCoreComponent<T>()` LINQ → foreach + lazy cache | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified `foreach` + `Dictionary<Type,CoreComponent> _cache` in `Core.cs` |
 | S4-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (add TakeDamage) | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified `INegativeReceiver.TakeDamage()` call present |
-| S4-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⬜ Not started — confirmed still open: `Invoke(nameof(ChangeIsTakeDamage), 0.2f)` at line 264, no matching `CancelInvoke` in `OnDisable` (note: file actually lives at `Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs`, not `Input/` as CLAUDE.md states) |
-| S4-06 | Stats system — `TalentManager` prototype → SO-driven | 1.0 | Should | ⬜ Not started — confirmed still hardcoded: `TalentManagger.Awake()` (class name itself has a typo) sets `strength/dexterity/intelligence/charima/skillPoint` as literals, no SO |
-| S4-07 | Decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ⬜ Not started |
-| S4-08 | EditMode test for `Core.GetCoreComponent<T>()` | 0.5 | Nice | ⬜ Not started |
+| S4-D1 | Author GDD `design/gdd/enemy-spawn-system.md` (8 sections) from owner spec — 4 SOs + `GetHybridEnemySet` | 1.0 | Design | ✅ Done (2026-07-08) — GDD authored, all 8 sections; Approach B locked (EnemyManager singleton); supersedes map-system.md EncounterSO plan |
+| S4-D2 | Resolve 6 open design questions inside the GDD | 0.5 | Design | ⬜ Not started — depends S4-D1 |
+| S4-D3 | Decompose into epic + per-sprint stories + dependency map (`/map-systems` → `/create-epics`) | 0.5 | Design | ⬜ Not started — depends S4-D1 |
+| S4-D4 | `/design-review` the GDD → APPROVED before hand-off | 0.25 | Design | ⬜ Not started — depends S4-D2 |
+| S4-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⏸️ PENDED → Sprint 5 — not on enemy-spawn critical path (`Invoke(nameof(ChangeIsTakeDamage), 0.2f)` at line 264, no matching `CancelInvoke`; actual path `Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs`) |
+| S4-06 | Stats system — `TalentManager` prototype → SO-driven | 1.0 | Should | ⏸️ PENDED → Sprint 5 — not on enemy-spawn critical path (`TalentManagger.Awake()` still hardcodes stats, no SO) |
+| S4-07 | Decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ⬜ Deferred |
+| S4-08 | EditMode test for `Core.GetCoreComponent<T>()` | 0.5 | Nice | ⬜ Deferred |
 
 Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked · ✂️ Cut
 
@@ -80,23 +84,22 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 ---
 
-### Wed 09/07 — PLAN
-**Goal: Complete S4-06 + begin S4-07 if capacity allows**
+### Wed 09/07 — PLAN (revised — design pivot)
+**Goal: Author the enemy-spawn GDD (S4-D1)**
 
 | # | Task | Est | Priority |
 |---|------|-----|----------|
-| 1 | **S4-06 finish** — Wire `TalentManager` to SO; remove hardcoded `Awake` assignments; add `[Range]` validators on SO fields | 0.5d | Should |
-| 2 | **S4-07 start** — Decouple `Weapon.Interact()` / `WeaponHolder.Equip()` (time-box 0.5d; carry if over) | 0.5d | Nice |
+| 1 | **S4-D1** — Run `/design-system` for `enemy-spawn-system`. Fill all 8 sections from owner spec: 4 SOs (`EnemyData`/`EnemyDatabase`/`MapEnemyDatabase`/`RoomData`) + `GetHybridEnemySet` two-phase algorithm. | 1.0d | 🔴 Design |
 
 ---
 
-### Thu 10/07 — PLAN
-**Goal: S4-07 finish OR S4-08 EditMode test + first playtest session**
+### Thu 10/07 — PLAN (revised — design pivot)
+**Goal: Resolve open design questions (S4-D2) + decompose roadmap (S4-D3)**
 
 | # | Task | Est | Priority |
 |---|------|-----|----------|
-| 1 | **S4-07 finish** OR **S4-08** EditMode test for `Core.GetCoreComponent<T>()` | 0.5–1.0d | Nice |
-| 2 | **First playtest session** — if S4-04 landed Mon: run combat loop, log findings under `production/qa/playtests/` | — | Advisory |
+| 1 | **S4-D2** — Lock the 6 open design questions in the GDD (id/collision handling, stat-system boundary, subset validation, prefab readiness, seeded RNG, budget/overflow formulas) | 0.5d | 🔴 Design |
+| 2 | **S4-D3** — `/map-systems` (update `systems-index.md`) → `/create-epics enemy-spawn`; map stories to S5 (data+algorithm) / S6 (runtime+room-clear), note enemy-death dependency | 0.5d | 🔴 Design |
 
 ---
 
@@ -105,9 +108,9 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | # | Task | Est |
 |---|------|-----|
-| 1 | Final smoke-check: full demo loop (equip → melee hit deals damage → ability run + exit → player takes damage) | — |
-| 2 | `/weekly-wrapup` — code review `.cs` changes, playtest log if session happened, bug triage, retro | — |
-| 3 | Record carry-over + velocity in `sprint-04.md` Sprint Close section | — |
+| 1 | **S4-D4** — `/design-review design/gdd/enemy-spawn-system.md` → must reach APPROVED (or CONCERNS + follow-ups) before Sprint 5 hand-off | 0.25d |
+| 2 | `/weekly-wrapup` — review the week's `.cs` + new GDD, bug triage, light retro | — |
+| 3 | Record carry-over + velocity in `sprint-04.md` Sprint Close section (S4-05/S4-06 → Sprint 5; enemy-spawn design done) | — |
 
 ---
 
@@ -121,6 +124,7 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 | Developer absence / zero-commit days | 🟢 Lower — active commit history 07-07→07-08 including the merge | Continue monitoring |
 | S4-03 lazy-cache breaks call sites | ✅ Resolved and re-verified on `sprint-04` — `Core.cs` foreach + `Dictionary<Type,CoreComponent>` cache, public signature unchanged | Closed pending Play Mode confirmation (no Unity CLI available in this environment — flag for manual smoke check) |
 | S4-05 scope confirmed | 🟡 NEW — audit of `PlayerInputHandle.cs` (actual path: `Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs`, not `Input/` as documented in CLAUDE.md) found exactly 1 `Invoke` call (line 264, `ChangeIsTakeDamage`) with no `CancelInvoke` pairing in `OnDisable` | Small, well-scoped fix — should close in the 0.25d estimate; also flag CLAUDE.md path drift for correction |
+| **2 enemy-spawn decisions still OPEN — decide this sprint** | 🟡 LIVE (opened 2026-07-08 at `/design-review`) — GDD Open Questions #1 & #2: (1) **`EnemyManager` singleton ADR** — gates the PlayMode lifecycle test harness (AC-L1…L6 can't be authored until architecture is ratified); (2) **runtime shuffle-seed source** (per-room-from-run-seed vs unseeded). Both blocking downstream. | **DAILY NUDGE**: raise both at each standup until closed. #1 → run `/architecture-decision`. #2 → owner pick; recommend per-room-from-run-seed. Neither blocks the algorithm's EditMode tests, only runtime/integration. |
 
 ---
 
@@ -133,4 +137,5 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 - **2026-07-08 (Tue, Day 2) — 02:00 standup**: Two things happened in parallel on 07-07, on two different branches. (1) On `sprint-04` itself: Kay committed `60fcfc9` "fix bug" (11:23) — StatSystem work only (`StatsSO` lookup changed from `Dictionary<StatType,float>` to `Dictionary<StatType,Stat>`, `DerivedStatFormula.Evaluate` signature change, new `GameConstants.StatsTypeNames` map). Off-plan, zero S4-01→S4-04 progress on this branch. (2) On the separate, unmerged branch `origin/feature/enhance-stats-system` (diverged from `sprint-04` at exactly `60fcfc9`, so it is 8 commits strictly *ahead*, not diverged in the conflicting sense): Claude landed `87acd8f` "land P1 combat fixes S4-01, S4-02, S4-04" and `3987933` "S4-03 — Core.GetCoreComponent LINQ to foreach + lazy cache". **Verified directly**: feature branch has 0 runtime `using UnityEditor` hits, `Core.cs` uses `foreach` (no `OfType`/LINQ), `WeaponMelee.Attack()` now resolves `INegativeReceiver` and calls `TakeDamage()`. All 4 Must-Haves are objectively complete — for the first time in 9 sprints — but not on `sprint-04`. The same feature branch also carries substantial off-plan additions: `StatModifierTester` editor tool, `design/gdd/stat-system.md`, leveled stat-system Excel (perLevel + rank tiers Lv1-20), and enemy/boss stats data-drive wiring. `git merge-tree` confirms a clean fast-forward, zero conflicts, merging feature→sprint-04. **Action**: flagged merge as top priority for today; tracker plan revised accordingly.
 - **2026-07-07 (Mon)**: **S4-01, S4-02, S4-04 landed** — first P1 progress in 8 sprints. S4-01: removed `using UnityEditor.*` from 7 runtime scripts (`WeaponMeleeStats`, `StatsCharacter`, `EntityData`, `EnemySO`, `DualAbility`, `AnimationEventManager`, `AbilityHolder`); `StatsCharacter.animator` retyped `AnimatorController` → `RuntimeAnimatorController` (build-safe base). `grep "using UnityEditor" Assets/Script/` now returns 0 runtime hits. S4-02: `AnimationPlayerController` line 21 `StartAnimation` → `EndAnimation` registration + `OnDisable` mirror. S4-04: `WeaponMelee.Attack()` foreach now calls `INegativeReceiver.TakeDamage()` (mirrors `EntityWeaponMelee`). Play Mode smoke check pending in Editor (no Unity CLI in this environment).
 - **2026-07-07 (Mon, cont.)**: **S4-03 landed — all four Must-Have P1 items now complete.** `Core.GetCoreComponent<T>()` rewritten: removed `using System.Linq`, replaced `OfType<T>().FirstOrDefault()` with a `foreach` + `is T` pattern match, added a `Dictionary<Type,CoreComponent>` lazy cache so the loop runs once per component type (subsequent calls are O(1), zero-alloc). Method signature unchanged — all 3 call sites (`WeaponMelee.Equid`, `AbilityHolder.Start`, `PlayerState.Enter`) compile unchanged. `grep "OfType|System.Linq" Core.cs` → 0 hits. Definition of Done for the Must-Have block met; combat is testable for the first time in 8 sprints (pending Editor Play Mode smoke + Profiler GC check).
+- **2026-07-08 (Tue, Day 2) — pivot decision**: With the P1 backlog closed, owner directed the remaining sprint days to **design-only** work on a new **data-driven room-based enemy-spawn system** (4 SOs: `EnemyData`/`EnemyDatabase`/`MapEnemyDatabase`/`RoomData` + `GetHybridEnemySet` two-phase algorithm + `EnemyManager` singleton). Codebase audit confirmed the system is build-from-scratch (no existing spawn code; `Tile_Spawn` is a dead constant; `EnemySO` has no id/weight) and its room-clear half is hard-blocked on the unimplemented enemy-death chain (Bugs #7/#8, no `ON_ENEMY_DEATH`, `ON_CLEAR_ENEMY` never emitted). Decision: Sprint 4 produces the GDD + multi-sprint roadmap (S4-D1→S4-D4, ≈2.25d); implementation split across Sprint 5 (data+algorithm, +death chain in parallel) and Sprint 6 (runtime+room-clear). Non-Must-Have S4-05/S4-06 pended → Sprint 5 (not on the enemy-spawn critical path). Sprint files updated accordingly.
 - **2026-07-08 (Tue, Day 2) — 11:19 update (post-standup)**: **Merge landed.** `204be85` merges `origin/feature/enhance-stats-system` into `sprint-04` (created ~30 min after the 10:49 standup commit `830af8d`). Not a pure fast-forward — a real merge commit, since `sprint-04-daily-plan.md` itself had diverged by 2 lines between branches. Re-verified all 4 acceptance criteria directly on `sprint-04` HEAD: (1) `grep -rn "using UnityEditor" Assets/Script/` → 0 hits; (2) `AnimationPlayerController.cs` lines 17-29 → `StartAnimation`/`EndAnimation` registered and unregistered distinctly; (3) `Core.cs` → `foreach` loop + `Dictionary<Type,CoreComponent> _cache`, zero `OfType`/LINQ; (4) `WeaponMelee.cs` lines 31-34 → resolves `INegativeReceiver` via `GetComponentInChildren` and calls `TakeDamage()`. **First time in 9 sprints the full P1 block is both done and on the sprint branch.** The merge also pulled in off-plan content riding along: `StatModifierTester` editor tool, 6 new `Stat` SO assets (`PlayerStats`, `Assasin`, `Boss`, `FastSwarmStats`, `RangedCaster`, `TankStats`), `design/gdd/stat-system.md`, balance Excel/design doc, and an `Assets/Scenes/Main/SetLevel.unity` scene rewrite (972-line diff — not evaluated, out of standup scope). Play Mode re-verification (equip → LMB attack → enemy Health decreases; ability exits cleanly) still pending — no Unity CLI in this environment, needs manual confirmation in-Editor. Checked S4-05/S4-06 readiness for today's remaining work: `PlayerInputHandle.cs` (actual location `Assets/Script/Character/Player/CoreComponent/`, not `Input/` per CLAUDE.md) has exactly one un-paired `Invoke` call (line 264); `TalentManagger.cs` (class name has a typo) still hardcodes stat values in `Awake()`, no SO wiring yet. Both confirmed Not Started, ready to pick up.

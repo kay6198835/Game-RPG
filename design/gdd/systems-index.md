@@ -35,6 +35,7 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 17 | Object Pooling | Foundation | Foundation | Alpha | Not Started | — |
 | 18 | Level Editor Tool | Tools | Tools | Alpha | Designed | *(implemented — editor-only)* |
 | 19 | Stat System | Foundation | Foundation | MVP | Designed | design/gdd/stat-system.md |
+| 20 | Enemy Spawn & Per-Room Management | Gameplay/Map | Feature | MVP | Approved | design/gdd/enemy-spawn-system.md |
 
 ---
 
@@ -58,6 +59,7 @@ Layer 3 — Feature
   Weapon System                  ← Character + Melee Combat
   Skill & Ability System         ← Character + Weapon System + Animation System
   Room Progression               ← Dungeon Generation + Enemy AI + Event Bus
+  Enemy Spawn & Per-Room Mgmt    ← Room Progression + Enemy AI + Event Bus + Stat System
   Death & Restart                ← Character + Event Bus
 
 Layer 4 — Presentation
@@ -112,9 +114,9 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 
 ## GDD Progress
 
-- **Total systems**: 18
-- **Designed / In Progress**: 11 (Event Bus, Input, Damage & Health, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**)
-- **With standalone GDD files**: 5 (character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**)
+- **Total systems**: 19
+- **Designed / In Progress**: 12 (Event Bus, Input, Damage & Health, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**, **Enemy Spawn**)
+- **With standalone GDD files**: 6 (character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**, **enemy-spawn-system.md**)
 - **Not Started**: 4 MVP systems still need standalone GDDs (Animation, Death & Restart, HUD, Per-Run Upgrades)
 - **Alpha/Tools (lower priority)**: 2 remaining
 
