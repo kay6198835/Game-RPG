@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class Core : MonoBehaviour
@@ -13,6 +12,7 @@ public class Core : MonoBehaviour
     // [SerializeField] public PlayerInputHandler InputHandler { get; private set; }
 
     [SerializeField] private List<CoreComponent> coreComponents = new List<CoreComponent>();
+    private readonly Dictionary<System.Type, CoreComponent> _cache = new Dictionary<System.Type, CoreComponent>();
 
     public void AddCoreComponent(CoreComponent coreComponent)
     {
@@ -21,9 +21,22 @@ public class Core : MonoBehaviour
 
     public void GetCoreComponent<T>(out T coreComponent) where T : CoreComponent
     {
-        var comp = coreComponents.OfType<T>().FirstOrDefault();
-        if (comp != null) coreComponent = comp;
-        else coreComponent = null;
+        var type = typeof(T);
+        if (_cache.TryGetValue(type, out var cached))
+        {
+            coreComponent = (T)cached;
+            return;
+        }
+        coreComponent = null;
+        foreach (var comp in coreComponents)
+        {
+            if (comp is T match)
+            {
+                coreComponent = match;
+                _cache[type] = match;
+                return;
+            }
+        }
     }
     private void Awake()
     {

@@ -103,7 +103,7 @@ Status. This is the reason the dual structure exists — any issue or warning as
 
 | GDD System | Requirement | How This ADR Addresses It |
 |------------|-------------|--------------------------|
-| stat-system.md (not yet authored) | Runtime stat lookup + author-time editing | Records the storage decision; will be linked when the GDD is written |
+| design/gdd/stat-system.md | Runtime stat lookup + author-time editing | Records the storage decision behind `StatsSO`'s List + Dictionary pair |
 
 ## Performance Implications
 - CPU: Get() is O(1) instead of O(n).

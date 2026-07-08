@@ -34,6 +34,7 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 16 | Minimap | UI | Presentation | Vertical Slice | Designed | *(in CLAUDE.md — implemented)* |
 | 17 | Object Pooling | Foundation | Foundation | Alpha | Not Started | — |
 | 18 | Level Editor Tool | Tools | Tools | Alpha | Designed | *(implemented — editor-only)* |
+| 19 | Stat System | Foundation | Foundation | MVP | Designed | design/gdd/stat-system.md |
 
 ---
 
@@ -113,7 +114,7 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 
 - **Total systems**: 18
 - **Designed / In Progress**: 11 (Event Bus, Input, Damage & Health, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**)
-- **With standalone GDD files**: 4 (character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**)
+- **With standalone GDD files**: 5 (character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**)
 - **Not Started**: 4 MVP systems still need standalone GDDs (Animation, Death & Restart, HUD, Per-Run Upgrades)
 - **Alpha/Tools (lower priority)**: 2 remaining
 

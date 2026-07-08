@@ -120,7 +120,7 @@
         LevelEditor.cs                          # Stub — Tilemap/Camera refs, Update() empty
         LevelManager.cs                         # Singleton ⚠️; SaveLevel() / ImportRoomJsonFiles() (editor); GetDungeonRoomSO() / GetRandomRooms() (runtime); GetTileSOs() / GetTilemaps() for RoomGridController
 
-      StatSystem/                               # NEW 2026-06-30 → 07-01 — RPG stat framework, chưa được gameplay tiêu thụ
+      StatSystem/                               # NEW 2026-06-30 → 07-01 — RPG stat framework, chưa được gameplay tiêu thụ (GDD: design/gdd/stat-system.md; số liệu: ToolExcel/stat_system_formula_reference.xlsx)
         StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived MaxHP/MaxMana/PhysicalDamage/MagicDamage/Defense... (100+)
         Stat.cs, StatModifier.cs                # Base value + modifier stack
         DerivedStatFormula.cs                   # Formula mapping primary → derived
@@ -192,7 +192,7 @@
     ScriptableObjects/
     Scenes/       StartScene, Level 1, DungeonStart, RandomMaze, Test AI, SampleScene
 
-  ToolExcel/      stat_system.xlsx, stat_system_v1.xlsx — stat formula emulator: player / 5 creep types / boss (repo root, outside Assets/)
+  ToolExcel/      stat_system.xlsx, stat_system_v1.xlsx, stat_system_formula_reference.xlsx — stat formula emulators: player / 5 creep types / boss (repo root, outside Assets/). `_formula_reference` = source of truth for per-entity base/perLevel/coefficients; described generally in design/gdd/stat-system.md
   ```
 
   ---
