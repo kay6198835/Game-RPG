@@ -10,145 +10,143 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8ddbf4281c7bbc0409c19795f09a2ec5, type: 3}
-  m_Name: Boss
+  m_Name: RangedCasterStats
   m_EditorClassIdentifier: 
-  level: 30
+  level: 1
   stats:
   - type: 0
-    baseValue: 25
+    baseValue: 3
     modifiers: []
   - type: 1
-    baseValue: 14
+    baseValue: 5
     modifiers: []
   - type: 2
-    baseValue: 18
+    baseValue: 14
     modifiers: []
   - type: 3
-    baseValue: 30
+    baseValue: 5
     modifiers: []
   - type: 4
-    baseValue: 10
+    baseValue: 4
     modifiers: []
   - type: 100
-    baseValue: 4450
+    baseValue: 65
     modifiers: []
   - type: 101
-    baseValue: 634
+    baseValue: 242.5
     modifiers: []
   - type: 102
-    baseValue: 202
+    baseValue: 6
     modifiers: []
   - type: 103
-    baseValue: 147
+    baseValue: 58.1
     modifiers: []
   - type: 104
-    baseValue: 112.5
+    baseValue: 4.5
     modifiers: []
   - type: 105
-    baseValue: 0.796
+    baseValue: 0.56
     modifiers: []
   - type: 106
-    baseValue: 8.7
+    baseValue: 3.95
     modifiers: []
   - type: 107
-    baseValue: 165
+    baseValue: 150
     modifiers: []
   - type: 108
-    baseValue: 2.21
+    baseValue: 2.56
     modifiers: []
   - type: 109
-    baseValue: 20
+    baseValue: 0.6
     modifiers: []
   - type: 110
-    baseValue: 7.7599998
+    baseValue: 3
     modifiers: []
   - type: 111
-    baseValue: 1.9
+    baseValue: 0.95
     modifiers: []
   statFormulas:
   - targetStat: 100
-    baseConstant: 500
-    perLevel: 45
+    baseConstant: 20
+    perLevel: 3.5
     contributions:
     - sourceStat: 0
+      coefficient: 0.5
+    - sourceStat: 3
       coefficient: 8
-    - sourceStat: 3
-      coefficient: 80
   - targetStat: 101
-    baseConstant: 100
-    perLevel: 5
+    baseConstant: 40
+    perLevel: 4
     contributions:
     - sourceStat: 2
-      coefficient: 18
+      coefficient: 14
     - sourceStat: 3
-      coefficient: 2
+      coefficient: 0.5
   - targetStat: 102
-    baseConstant: 10
-    perLevel: 2.6
+    baseConstant: 0
+    perLevel: 0.5
     contributions:
     - sourceStat: 0
-      coefficient: 4
-    - sourceStat: 1
       coefficient: 1
+    - sourceStat: 1
+      coefficient: 0.5
   - targetStat: 103
-    baseConstant: 10
-    perLevel: 2
+    baseConstant: 5
+    perLevel: 1.5
     contributions:
     - sourceStat: 2
-      coefficient: 4
+      coefficient: 3.6
     - sourceStat: 4
-      coefficient: 0.5
+      coefficient: 0.3
   - targetStat: 104
-    baseConstant: 10
-    perLevel: 1
+    baseConstant: 0
+    perLevel: 0.2
     contributions:
     - sourceStat: 0
-      coefficient: 0.5
+      coefficient: 0.1
     - sourceStat: 3
-      coefficient: 2
+      coefficient: 0.8
   - targetStat: 105
-    baseConstant: 0.6
+    baseConstant: 0.5
     perLevel: 0
     contributions:
     - sourceStat: 1
-      coefficient: 0.014
+      coefficient: 0.012
   - targetStat: 106
-    baseConstant: 5
+    baseConstant: 3
     perLevel: 0
     contributions:
     - sourceStat: 1
-      coefficient: 0.05
+      coefficient: 0.03
     - sourceStat: 4
-      coefficient: 0.3
+      coefficient: 0.2
   - targetStat: 107
-    baseConstant: 160
+    baseConstant: 150
     perLevel: 0
-    contributions:
-    - sourceStat: 4
-      coefficient: 0.5
+    contributions: []
   - targetStat: 108
-    baseConstant: 2
+    baseConstant: 2.5
     perLevel: 0
     contributions:
     - sourceStat: 1
-      coefficient: 0.015
+      coefficient: 0.012
   - targetStat: 109
-    baseConstant: 2
-    perLevel: 0.3
+    baseConstant: 0.3
+    perLevel: 0.05
     contributions:
     - sourceStat: 3
-      coefficient: 0.3
+      coefficient: 0.05
   - targetStat: 110
-    baseConstant: 2
-    perLevel: 0.12
+    baseConstant: 1.5
+    perLevel: 0.1
     contributions:
     - sourceStat: 2
-      coefficient: 0.12
+      coefficient: 0.1
   - targetStat: 111
     baseConstant: 0
     perLevel: 0
     contributions:
     - sourceStat: 1
-      coefficient: 0.1
+      coefficient: 0.15
     - sourceStat: 4
       coefficient: 0.05

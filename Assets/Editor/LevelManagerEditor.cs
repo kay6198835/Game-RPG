@@ -28,6 +28,10 @@ public class LevelManagerEditor : Editor
         {
             levelManager.ImportRoomJsonFiles();
         }
+        if (GUILayout.Button("Spawn Enemy"))
+        {
+            levelManager.SpawnRoomEnemies();
+        }
     }
 }
 #endif

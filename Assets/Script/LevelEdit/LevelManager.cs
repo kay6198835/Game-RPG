@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] private RoomModel roomModel;
     public static LevelManager Instance;
 
     private static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>
@@ -33,6 +34,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int amount;
     [SerializeField] private List<RoomFile> listRooms;
     [SerializeField] private List<TileSO> _listTiles;
+    [SerializeField, Range(0f, 10f)] private float spawnRadius = 10f;
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -183,6 +185,45 @@ public class LevelManager : MonoBehaviour
         return shuffled.GetRange(0, count);
     }
 
+
+    /// <summary>
+    /// Gọi RoomModel.GetSpawnSet() để lấy danh sách quái + số lượng cho phòng.
+    /// Trả list rỗng nếu roomModel null.
+    /// </summary>
+    private List<EnemySpawnEntry> GetRoomSpawnSet()
+    {
+        if (roomModel == null)
+        {
+            Debug.LogWarning("GetRoomSpawnSet: roomModel is null");
+            return new List<EnemySpawnEntry>();
+        }
+        return roomModel.GetSpawnSet();
+    }
+
+    /// <summary>
+    /// Spawn quái cho phòng: Instantiate prefab từ EnemySpawnEntry tại vị trí ngẫu nhiên
+    /// quanh object (transform), bán kính ≤ spawnRadius. Gọi SAU LoadRoom (SetPosition đã xong).
+    /// </summary>
+    public void SpawnRoomEnemies()
+    {
+        List<EnemySpawnEntry> set = GetRoomSpawnSet();
+        if (set.Count == 0)
+        {
+            Debug.LogWarning("SpawnRoomEnemies: nothing to spawn");
+            return;
+        }
+
+        foreach (var entry in set)
+        {
+            if (entry.enemy == null || entry.enemy.prefab == null) continue;
+            for (int i = 0; i < entry.count; i++)
+            {
+                Vector2 offset = Random.insideUnitCircle * spawnRadius;
+                Vector3 pos = transform.position + new Vector3(offset.x, offset.y, 0f);
+                Instantiate(entry.enemy.prefab, pos, Quaternion.identity, transform.parent);
+            }
+        }
+    }
 
     public void LoadRoom(int index, Vector3 positionLoadMap)
     {

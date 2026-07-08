@@ -15,97 +15,95 @@ MonoBehaviour:
   level: 1
   stats:
   - type: 0
-    baseValue: 10
+    baseValue: 8
     modifiers: []
   - type: 1
-    baseValue: 10
+    baseValue: 6
     modifiers: []
   - type: 2
-    baseValue: 10
+    baseValue: 2
     modifiers: []
   - type: 3
-    baseValue: 10
+    baseValue: 8
     modifiers: []
   - type: 4
-    baseValue: 10
+    baseValue: 2
     modifiers: []
   - type: 100
-    baseValue: 198
+    baseValue: 152
     modifiers: []
   - type: 101
-    baseValue: 143
+    baseValue: 21
     modifiers: []
   - type: 102
-    baseValue: 31.2
+    baseValue: 26.8
     modifiers: []
   - type: 103
-    baseValue: 29.2
+    baseValue: 1.8000001
     modifiers: []
   - type: 104
-    baseValue: 20.6
+    baseValue: 10.8
     modifiers: []
   - type: 105
-    baseValue: 0.95
+    baseValue: 0.89
     modifiers: []
   - type: 106
-    baseValue: 9
+    baseValue: 3.5800002
     modifiers: []
   - type: 107
-    baseValue: 158
+    baseValue: 150
     modifiers: []
   - type: 108
-    baseValue: 3.2
+    baseValue: 2.79
     modifiers: []
   - type: 109
-    baseValue: 2.1000001
+    baseValue: 0.75
     modifiers: []
   - type: 110
-    baseValue: 1.88
+    baseValue: 0.29
     modifiers: []
   - type: 111
-    baseValue: 3.5
+    baseValue: 1
     modifiers: []
   statFormulas:
   - targetStat: 100
-    baseConstant: 50
-    perLevel: 8
+    baseConstant: 30
+    perLevel: 6
     contributions:
     - sourceStat: 0
-      coefficient: 2
+      coefficient: 1.5
     - sourceStat: 3
-      coefficient: 12
+      coefficient: 13
   - targetStat: 101
-    baseConstant: 30
-    perLevel: 3
+    baseConstant: 10
+    perLevel: 1
     contributions:
     - sourceStat: 2
-      coefficient: 10
-    - sourceStat: 3
-      coefficient: 1
+      coefficient: 5
   - targetStat: 102
-    baseConstant: 0
-    perLevel: 1.2
+    baseConstant: 2
+    perLevel: 1
     contributions:
     - sourceStat: 0
-      coefficient: 2.2
+      coefficient: 2.6
     - sourceStat: 1
-      coefficient: 0.8
+      coefficient: 0.5
   - targetStat: 103
     baseConstant: 0
-    perLevel: 1.2
+    perLevel: 0.2
     contributions:
     - sourceStat: 2
-      coefficient: 2.5
+      coefficient: 0.7
     - sourceStat: 4
-      coefficient: 0.3
+      coefficient: 0.1
   - targetStat: 104
     baseConstant: 0
-    perLevel: 0.6
+    perLevel: 0.4
     contributions:
     - sourceStat: 0
-      coefficient: 0.5
+      coefficient: 0.3
     - sourceStat: 3
-      coefficient: 1.5
+      coefficient: 1
   - targetStat: 105
     baseConstant: 0.8
     perLevel: 0
@@ -113,42 +111,40 @@ MonoBehaviour:
     - sourceStat: 1
       coefficient: 0.015
   - targetStat: 106
-    baseConstant: 5
-    perLevel: 0
-    contributions:
-    - sourceStat: 1
-      coefficient: 0.05
-    - sourceStat: 4
-      coefficient: 0.35
-  - targetStat: 107
-    baseConstant: 150
-    perLevel: 0
-    contributions:
-    - sourceStat: 4
-      coefficient: 0.8
-  - targetStat: 108
     baseConstant: 3
     perLevel: 0
     contributions:
     - sourceStat: 1
-      coefficient: 0.02
+      coefficient: 0.03
+    - sourceStat: 4
+      coefficient: 0.2
+  - targetStat: 107
+    baseConstant: 150
+    perLevel: 0
+    contributions: []
+  - targetStat: 108
+    baseConstant: 2.7
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.015
   - targetStat: 109
-    baseConstant: 1
-    perLevel: 0.1
+    baseConstant: 0.3
+    perLevel: 0.05
     contributions:
     - sourceStat: 3
-      coefficient: 0.1
+      coefficient: 0.05
   - targetStat: 110
-    baseConstant: 1
-    perLevel: 0.08
+    baseConstant: 0.2
+    perLevel: 0.03
     contributions:
     - sourceStat: 2
-      coefficient: 0.08
+      coefficient: 0.03
   - targetStat: 111
     baseConstant: 0
     perLevel: 0
     contributions:
     - sourceStat: 1
-      coefficient: 0.25
+      coefficient: 0.15
     - sourceStat: 4
-      coefficient: 0.1
+      coefficient: 0.05

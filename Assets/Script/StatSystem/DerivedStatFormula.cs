@@ -39,8 +39,6 @@ public class DerivedStatFormula
             for (int i = 0; i < contributions.Length; i++)
             {
                 float sourceValue = getStat(contributions[i].sourceStat);
-                Debug.Log(contributions[i].sourceStat);
-                Debug.Log($"[DerivedStatFormula] Evaluate: {sourceValue} * {contributions[i].coefficient} = {sourceValue * contributions[i].coefficient}");
                 value += sourceValue * contributions[i].coefficient;
             }
         }
