@@ -7,11 +7,11 @@
 >   - **Mon–Fri 10:00** → `/daily-standup` — summarizes yesterday from git + this tracker, updates statuses, lists today's tasks with estimates.
 >   - **Sat 22:00** → `/weekly-wrapup` — end-of-week close: code-review of the week's `.cs`, playtest log, bug-triage, light retro; finalizes verdict and records carry-over + velocity.
 >   - **Sun 22:00** → `/weekly-kickoff` — closes last sprint, auto-creates upcoming week's sprint plan.
-> **Last updated**: 2026-07-08 (Tue) — Day 2 standup
+> **Last updated**: 2026-07-08 (Tue) — Day 2 standup (post-merge)
 
 ---
 
-## Status Verdict: 🟡 AT RISK (conditional) — S4-01→S4-04 are actually DONE, but stranded on an unmerged branch (`origin/feature/enhance-stats-system`), not on `sprint-04`. Zero P1 progress landed on `sprint-04` itself.
+## Status Verdict: 🟢 ON TRACK — `origin/feature/enhance-stats-system` merged into `sprint-04` at `204be85` (11:19, same day). All four P1 Must-Haves (S4-01→S4-04) verified directly on `sprint-04` HEAD. First time in 9 sprints the P1 backlog is both complete AND landed on the sprint branch.
 
 ---
 
@@ -21,12 +21,12 @@
 |--------|-------|
 | Total work estimated | 2.5 days (Must + Should) |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 2 (Day 2 morning) |
+| Days elapsed | 2 (Day 2 late morning) |
 | Days remaining | 4 |
-| Work committed/done on `sprint-04` | 0 (S4-01→S4-04 still Not Started **on this branch**) |
-| Work done but unmerged | 1.0d — S4-01, S4-02, S4-03, S4-04 all verified complete on `origin/feature/enhance-stats-system` (commits `87acd8f`, `3987933`) |
-| Work remaining | 1.5 days (Should + merge overhead) once merged |
-| Velocity | 0% landed on sprint branch; 100% of Must-Have done in absolute terms, blocked on merge |
+| Work committed/done on `sprint-04` | 1.0d — S4-01, S4-02, S4-03, S4-04 merged in at `204be85` and verified directly on `sprint-04` HEAD |
+| Work done but unmerged | 0 — merge complete |
+| Work remaining | 1.5 days (S4-05 Should, S4-06 Should, Nice-to-haves) |
+| Velocity | 40% of sprint estimate landed on sprint branch as of Day 2 midday; 100% of Must-Have block complete |
 
 ---
 
@@ -34,12 +34,12 @@
 
 | ID | Task | Est (d) | Priority | Status |
 |----|------|---------|----------|--------|
-| S4-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` + all runtime scripts | 0.25 | Must | 🟡 Done on `feature/enhance-stats-system`, unmerged into `sprint-04` |
-| S4-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | 🟡 Done on `feature/enhance-stats-system`, unmerged |
-| S4-03 | `Core.GetCoreComponent<T>()` LINQ → foreach + lazy cache | 0.25 | Must | 🟡 Done on `feature/enhance-stats-system`, unmerged |
-| S4-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (add TakeDamage) | 0.25 | Must | 🟡 Done on `feature/enhance-stats-system`, unmerged |
-| S4-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⬜ Not started |
-| S4-06 | Stats system — `TalentManager` prototype → SO-driven | 1.0 | Should | ⬜ Not started |
+| S4-01 | Fix BUG-AH-1 — remove `UnityEditor` imports from `AbilityHolder.cs` + all runtime scripts | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified `grep "using UnityEditor" Assets/Script/` = 0 hits |
+| S4-02 | Fix Bug #9 — `AnimationPlayerController` double-registration | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified lines 17-29 register/unregister `StartAnimation` + `EndAnimation` distinctly |
+| S4-03 | `Core.GetCoreComponent<T>()` LINQ → foreach + lazy cache | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified `foreach` + `Dictionary<Type,CoreComponent> _cache` in `Core.cs` |
+| S4-04 | Fix Bug #4 — `WeaponMelee.Attack()` empty foreach (add TakeDamage) | 0.25 | Must | ✅ Done — merged to `sprint-04`, verified `INegativeReceiver.TakeDamage()` call present |
+| S4-05 | Fix BUG-PIH-1 — `CancelInvoke` pairing in `PlayerInputHandle` | 0.25 | Should | ⬜ Not started — confirmed still open: `Invoke(nameof(ChangeIsTakeDamage), 0.2f)` at line 264, no matching `CancelInvoke` in `OnDisable` (note: file actually lives at `Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs`, not `Input/` as CLAUDE.md states) |
+| S4-06 | Stats system — `TalentManager` prototype → SO-driven | 1.0 | Should | ⬜ Not started — confirmed still hardcoded: `TalentManagger.Awake()` (class name itself has a typo) sets `strength/dexterity/intelligence/charima/skillPoint` as literals, no SO |
 | S4-07 | Decouple `Weapon` ↔ `WeaponHolder`/`AbilityHolder` | 1.0 | Nice | ⬜ Not started |
 | S4-08 | EditMode test for `Core.GetCoreComponent<T>()` | 0.5 | Nice | ⬜ Not started |
 
@@ -115,11 +115,12 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| P1 fixes stranded on unmerged branch | 🟡 NEW (Day 2) — S4-01→S4-04 all complete on `origin/feature/enhance-stats-system`, zero of it on `sprint-04`. Confirmed clean fast-forward, no conflicts. If this merge doesn't happen today, `sprint-04` enters Day 3 still showing 0% on its own branch despite the work existing. | Merge `feature/enhance-stats-system` → `sprint-04` as Priority 0 today; re-verify acceptance criteria in Play Mode post-merge before starting S4-05/S4-06 |
-| Off-plan work displacing Must-Haves (pattern from 8 prior sprints) | 🟡 PARTIALLY BROKEN — Must-Haves *are* done (just not merged); but Kay's own `sprint-04` commit (`60fcfc9`, Mon) was still off-plan StatSystem work, and the feature branch itself carries substantial off-plan additions (GDD, balance Excel, StatModifierTester, enemy/boss stats data) riding along with the P1 fixes | Merge is still required (P1 fixes are entangled with the off-plan content on that branch) — accept the bundle, but hold new off-plan work until S4-05/S4-06 land |
-| BUG-AH-1 scope wider than `AbilityHolder.cs` alone | ✅ Resolved on feature branch — 0 runtime `using UnityEditor` hits confirmed | Re-verify after merge to `sprint-04` |
-| Developer absence / zero-commit days | 🟢 Lower — 2 commits landed 07-07 (`60fcfc9` sprint-04, plus feature-branch activity) | Continue monitoring |
-| S4-03 lazy-cache breaks call sites | ✅ Resolved on feature branch — `Core.cs` foreach + `Dictionary<Type,CoreComponent>` cache, public signature unchanged | Re-verify no Console warnings after merge + in Play Mode |
+| P1 fixes stranded on unmerged branch | ✅ RESOLVED (Day 2, 11:19) — merge commit `204be85` lands `feature/enhance-stats-system` onto `sprint-04`. All 4 Must-Haves verified directly on `sprint-04` HEAD. | Closed. |
+| Off-plan work displacing Must-Haves (pattern from 9 prior sprints) | 🟡 STILL LIVE — the merge itself carries substantial off-plan content (StatModifierTester editor tool, 6 enemy/boss `Stat` SO assets, GDD, balance Excel) riding in alongside the P1 fixes; net effect is P1 debt is closed, but off-plan volume keeps growing | Hold new off-plan work until S4-05/S4-06 land; do not let StatSystem expansion continue unbounded |
+| BUG-AH-1 scope wider than `AbilityHolder.cs` alone | ✅ Resolved and re-verified on `sprint-04` post-merge — 0 runtime `using UnityEditor` hits | Closed. |
+| Developer absence / zero-commit days | 🟢 Lower — active commit history 07-07→07-08 including the merge | Continue monitoring |
+| S4-03 lazy-cache breaks call sites | ✅ Resolved and re-verified on `sprint-04` — `Core.cs` foreach + `Dictionary<Type,CoreComponent>` cache, public signature unchanged | Closed pending Play Mode confirmation (no Unity CLI available in this environment — flag for manual smoke check) |
+| S4-05 scope confirmed | 🟡 NEW — audit of `PlayerInputHandle.cs` (actual path: `Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs`, not `Input/` as documented in CLAUDE.md) found exactly 1 `Invoke` call (line 264, `ChangeIsTakeDamage`) with no `CancelInvoke` pairing in `OnDisable` | Small, well-scoped fix — should close in the 0.25d estimate; also flag CLAUDE.md path drift for correction |
 
 ---
 
@@ -132,3 +133,4 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 - **2026-07-08 (Tue, Day 2) — 02:00 standup**: Two things happened in parallel on 07-07, on two different branches. (1) On `sprint-04` itself: Kay committed `60fcfc9` "fix bug" (11:23) — StatSystem work only (`StatsSO` lookup changed from `Dictionary<StatType,float>` to `Dictionary<StatType,Stat>`, `DerivedStatFormula.Evaluate` signature change, new `GameConstants.StatsTypeNames` map). Off-plan, zero S4-01→S4-04 progress on this branch. (2) On the separate, unmerged branch `origin/feature/enhance-stats-system` (diverged from `sprint-04` at exactly `60fcfc9`, so it is 8 commits strictly *ahead*, not diverged in the conflicting sense): Claude landed `87acd8f` "land P1 combat fixes S4-01, S4-02, S4-04" and `3987933` "S4-03 — Core.GetCoreComponent LINQ to foreach + lazy cache". **Verified directly**: feature branch has 0 runtime `using UnityEditor` hits, `Core.cs` uses `foreach` (no `OfType`/LINQ), `WeaponMelee.Attack()` now resolves `INegativeReceiver` and calls `TakeDamage()`. All 4 Must-Haves are objectively complete — for the first time in 9 sprints — but not on `sprint-04`. The same feature branch also carries substantial off-plan additions: `StatModifierTester` editor tool, `design/gdd/stat-system.md`, leveled stat-system Excel (perLevel + rank tiers Lv1-20), and enemy/boss stats data-drive wiring. `git merge-tree` confirms a clean fast-forward, zero conflicts, merging feature→sprint-04. **Action**: flagged merge as top priority for today; tracker plan revised accordingly.
 - **2026-07-07 (Mon)**: **S4-01, S4-02, S4-04 landed** — first P1 progress in 8 sprints. S4-01: removed `using UnityEditor.*` from 7 runtime scripts (`WeaponMeleeStats`, `StatsCharacter`, `EntityData`, `EnemySO`, `DualAbility`, `AnimationEventManager`, `AbilityHolder`); `StatsCharacter.animator` retyped `AnimatorController` → `RuntimeAnimatorController` (build-safe base). `grep "using UnityEditor" Assets/Script/` now returns 0 runtime hits. S4-02: `AnimationPlayerController` line 21 `StartAnimation` → `EndAnimation` registration + `OnDisable` mirror. S4-04: `WeaponMelee.Attack()` foreach now calls `INegativeReceiver.TakeDamage()` (mirrors `EntityWeaponMelee`). Play Mode smoke check pending in Editor (no Unity CLI in this environment).
 - **2026-07-07 (Mon, cont.)**: **S4-03 landed — all four Must-Have P1 items now complete.** `Core.GetCoreComponent<T>()` rewritten: removed `using System.Linq`, replaced `OfType<T>().FirstOrDefault()` with a `foreach` + `is T` pattern match, added a `Dictionary<Type,CoreComponent>` lazy cache so the loop runs once per component type (subsequent calls are O(1), zero-alloc). Method signature unchanged — all 3 call sites (`WeaponMelee.Equid`, `AbilityHolder.Start`, `PlayerState.Enter`) compile unchanged. `grep "OfType|System.Linq" Core.cs` → 0 hits. Definition of Done for the Must-Have block met; combat is testable for the first time in 8 sprints (pending Editor Play Mode smoke + Profiler GC check).
+- **2026-07-08 (Tue, Day 2) — 11:19 update (post-standup)**: **Merge landed.** `204be85` merges `origin/feature/enhance-stats-system` into `sprint-04` (created ~30 min after the 10:49 standup commit `830af8d`). Not a pure fast-forward — a real merge commit, since `sprint-04-daily-plan.md` itself had diverged by 2 lines between branches. Re-verified all 4 acceptance criteria directly on `sprint-04` HEAD: (1) `grep -rn "using UnityEditor" Assets/Script/` → 0 hits; (2) `AnimationPlayerController.cs` lines 17-29 → `StartAnimation`/`EndAnimation` registered and unregistered distinctly; (3) `Core.cs` → `foreach` loop + `Dictionary<Type,CoreComponent> _cache`, zero `OfType`/LINQ; (4) `WeaponMelee.cs` lines 31-34 → resolves `INegativeReceiver` via `GetComponentInChildren` and calls `TakeDamage()`. **First time in 9 sprints the full P1 block is both done and on the sprint branch.** The merge also pulled in off-plan content riding along: `StatModifierTester` editor tool, 6 new `Stat` SO assets (`PlayerStats`, `Assasin`, `Boss`, `FastSwarmStats`, `RangedCaster`, `TankStats`), `design/gdd/stat-system.md`, balance Excel/design doc, and an `Assets/Scenes/Main/SetLevel.unity` scene rewrite (972-line diff — not evaluated, out of standup scope). Play Mode re-verification (equip → LMB attack → enemy Health decreases; ability exits cleanly) still pending — no Unity CLI in this environment, needs manual confirmation in-Editor. Checked S4-05/S4-06 readiness for today's remaining work: `PlayerInputHandle.cs` (actual location `Assets/Script/Character/Player/CoreComponent/`, not `Input/` per CLAUDE.md) has exactly one un-paired `Invoke` call (line 264); `TalentManagger.cs` (class name has a typo) still hardcodes stat values in `Awake()`, no SO wiring yet. Both confirmed Not Started, ready to pick up.
