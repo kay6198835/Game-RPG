@@ -17,7 +17,14 @@ public class EntityTakeDamageState : EntityDisadvantageState
         base.LogicUpdate();
         if (isAnimationFinished)
         {
-            stateMachine.ChangeState(entity.MoveState);
+            if (entity.Data.StatsSO.Health <= 0)
+            {
+                stateMachine.ChangeState(entity.DeathState);
+            }
+            else
+            {
+                stateMachine.ChangeState(entity.MoveState);
+            }
         }
     }
     public override void Exit()

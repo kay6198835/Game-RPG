@@ -13,6 +13,7 @@ public abstract class BaseGrid<T> : MonoBehaviour, IGrid<T>
 
     public int Columns { get; private set; }
     public int Rows { get; private set; }
+    public T Current { get => _current; }
 
     public void AddCell(Cell cell)
     {

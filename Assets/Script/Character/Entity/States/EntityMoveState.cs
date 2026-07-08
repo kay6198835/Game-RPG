@@ -27,15 +27,11 @@ public class EntityMoveState : EntityBasicState
     {
         directionMoveVector = entity.Input.DirectionLookVector.normalized;
         speed = entityData.MovementVelocities;
-        if(Vector2.Distance(entity.transform.position,entity.Input.Target.transform.position)<=10f)
-        entityCore.EntityMovement.MoveForwardTarget(
-        directionMoveVector * speed
-        );
         if (entity.Input.Target == null)
         {
+            entityCore.EntityMovement.MoveForwardTarget(directionMoveVector * speed);
             if (entityCore.FindTarget.FindWall(directionMoveVector, speed))
             {
-                Debug.Log("Turn");
                 entity.Input.TurnLeftOrRight();
             }
             if (moveTime <= Time.time)
@@ -43,7 +39,10 @@ public class EntityMoveState : EntityBasicState
                 entity.StateMachine.ChangeState(entity.IdleState);
             }
         }
-
+        else if (Vector2.Distance(entity.transform.position, entity.Input.Target.transform.position) <= entityData.RangeCheckChase)
+        {
+            entityCore.EntityMovement.MoveForwardTarget(directionMoveVector * speed);
+        }
 
         base.LogicUpdate();
     }

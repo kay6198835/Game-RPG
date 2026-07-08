@@ -44,15 +44,25 @@ public class EntityStatsSO : ScriptableObject
     }
     public float ModifiersAmor
     {
-        get => ModifiersAmor;
+        get => modifiersAmor;
         set
         {
-            if (ModifiersAmor != value)
+            if (modifiersAmor != value)
             {
-                ModifiersAmor = value;
-                UpdateStats(ref amor, baseAmor, ModifiersAmor);
+                modifiersAmor = value;
+                UpdateStats(ref amor, baseAmor, modifiersAmor);
             }
         }
+    }
+
+    public void ResetStats()
+    {
+        modifiersHealth = 0f;
+        modifiersVelocities = 0f;
+        modifiersAmor = 0f;
+        UpdateStats(ref health, baseHealth, modifiersHealth);
+        UpdateStats(ref velocities, baseVelocities, modifiersVelocities);
+        UpdateStats(ref amor, baseAmor, modifiersAmor);
     }
 
     private void UpdateStats(ref float amountStat,float baseStat , float modifiersStat)
