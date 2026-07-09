@@ -2,7 +2,7 @@
 status: reverse-documented
 source: Assets/Script/Map/
 date: 2026-05-19
-updated: 2026-07-02
+updated: 2026-07-09
 verified-by: Kiet
 ---
 
@@ -222,20 +222,33 @@ Remove these methods to stop misleading readers.
    (LevelManagerEditor.cs:23-26) — in a real run, doors never open and the player is stuck
    in the first room.
 
-**Agreed spawn architecture (2026-07-02) [PLANNED]:**
-- **Spawn points**: `Tile_Spawn` marker tiles authored in room tilemaps, serialized into room
-  JSON by the existing save path (`GameConstants.TileName.SPAWN` constant exists, currently
-  unused and absent from all 13 room JSONs).
-- **Encounter data**: `EncounterSO` keyed by `RoomType` — enemy pool entries
-  (prefab + `EntityData` + weight); single wave for the demo, wave list in the schema for later.
-- **`RoomEnemySpawner`**: listens `ON_LOAD_MAP`; spawns at markers; locks doors (`CloseDoor()`);
-  tracks alive count via new `ON_ENEMY_DEATH`; emits existing `ON_CLEAR_ENEMY` when the count
-  reaches zero (immediately for enemy-less rooms).
-- **`RoomCell.IsCleared` decision (2026-07-02)**: will mean "enemies defeated", set on
-  `ON_CLEAR_ENEMY`. The current set-on-leave behavior (`ClearRoom` on door transition) is
-  temporary and will move when the spawner lands.
+**Spawn architecture — [SUPERSEDED 2026-07-08 → see `design/gdd/enemy-spawn-system.md`]:**
 
-**Required EventID additions (still needed):**
+> The earlier `EncounterSO` + `RoomEnemySpawner` sketch (2026-07-02) is **superseded** by the
+> approved **Enemy Spawn & Per-Room Management** GDD (`design/gdd/enemy-spawn-system.md`), which
+> owns spawn selection and the room combat lifecycle. Authoritative model there:
+> - **Spawn points**: `Tile_Spawn` marker tiles authored in room tilemaps
+>   (`GameConstants.TileName.SPAWN`); still absent from all 13 room JSONs and no parser branch yet.
+> - **Enemy data**: four SOs — `EnemyData` (spawn metadata: id/name/prefab/weight),
+>   `EnemyDatabase` (project-wide store + `GetHybridEnemySet` selection engine),
+>   `MapEnemyDatabase`, and `RoomData` (per-room `weightBudget` dial). **Replaces `EncounterSO`.**
+> - **`EnemyManager`** (not `RoomEnemySpawner`): listens `ON_LOAD_MAP`; asks `EnemyDatabase` for a
+>   weight-budgeted set; spawns at markers; locks doors (`CloseDoor()`); tracks alive count via new
+>   `ON_ENEMY_DEATH`; emits existing `ON_CLEAR_ENEMY` + new `ON_ROOM_CLEAR` at zero alive.
+> - **`RoomCell.IsCleared`**: means "enemies defeated", set on clear. The current set-on-leave
+>   behaviour (`ClearRoom` on door transition) is temporary and moves when `EnemyManager` lands.
+>
+> **As-built today (2026-07-09, prototype):** only the data model + selection exists —
+> `RoomModel`/`MapModel`/`EnemyModal` (`Assets/Script/Database-SO/Modal/`) with
+> `RoomModel.GetSpawnSet()`; spawning is a manual Editor button (`LevelManager.SpawnRoomEnemies()`),
+> not the `EnemyManager` lifecycle. `EnemyManager`, `EnemyDatabase`, the events, and marker parsing
+> are still PLANNED. See the "Current Implementation Status" section in `enemy-spawn-system.md`.
+>
+> Map-side contract this system still owns: `RoomCell.CloseDoor()` / `OpenDoors()` / `IsCleared`,
+> the `RoomType → RoomData` routing (**blocked on Bug #16** — `RoomFile.roomType` not read at
+> runtime), and the `Tile_Spawn` parser branch in `RoomGeneraterController`.
+
+**Required EventID additions (still needed — owned by enemy-spawn-system.md):**
 - `ON_ENEMY_DEATH` (payload: none or Vector2 position) — per-enemy granular event
 - `ON_ROOM_CLEAR` (payload: none) — fires when all enemies dead → triggers upgrade screen
 
@@ -317,7 +330,8 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 |--------|------|-----------|
 | **Event Manager** | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY` **[IMPLEMENTED]**, `ON_ENEMY_DEATH` **[GAP]**, `ON_ROOM_CLEAR` **[GAP]** | Map → EventManager |
 | **Character system** | `DoorController` tags player via "Player" tag; `fastMovement` is the player transform for teleport | Map → Character |
-| **Enemy AI** | `EntityDeathState` must emit `ON_ENEMY_DEATH`; planned `RoomEnemySpawner` tracks the count and emits `ON_CLEAR_ENEMY` when all enemies in the room are dead | Enemy → Map |
+| **Enemy AI** | `EntityDeathState` must emit `ON_ENEMY_DEATH`; `EnemyManager` (see `enemy-spawn-system.md`) tracks the count and emits `ON_CLEAR_ENEMY` when all enemies in the room are dead | Enemy → Map |
+| **Enemy Spawn & Per-Room Mgmt** | Owns spawn selection + room combat lifecycle; calls `RoomCell.CloseDoor()`/`OpenDoors()`, sets `IsCleared`, and consumes the `RoomType → RoomData` routing (needs Bug #16) + `Tile_Spawn` parser | Spawn ↔ Map |
 | **Skill/Ability + Weapons** | No direct dependency | — |
 | **LevelManager** | `RoomGeneraterController.Setting()` calls `LevelManager.GetDungeonRoomSO()`, `GetTileSOs()`, `GetTilemaps()`; `LevelManager` must exist in the scene (singleton — Bug #12) | Map → LevelEdit |
 | **Per-Run Upgrades** | Upgrade card selection triggered by `ON_ROOM_CLEAR` | Map → Progression |
@@ -368,11 +382,11 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 - [ ] Doors cannot be traversed before room is cleared — lock-on-entry not implemented
 - [ ] `MazeController` duplicate-instance guard (`return` after `Destroy`, Bug #14)
 
-### Room-Clear Locking **[PARTIAL — spawn architecture agreed 2026-07-02]**
+### Room-Clear Locking **[PARTIAL — spawn owned by `enemy-spawn-system.md` (2026-07-08)]**
 - [x] `ON_CLEAR_ENEMY` event defined; `DeleteDoorTileMap()` + `OpenDoors()` implemented
-- [ ] Doors lock when player enters an uncleared room — `RoomEnemySpawner` calls `CloseDoor()`
-- [ ] `RoomEnemySpawner` spawns from `Tile_Spawn` markers + `EncounterSO` per `RoomType`
-- [ ] Enemy death emits `ON_ENEMY_DEATH`; spawner emits `ON_CLEAR_ENEMY` at zero alive
+- [ ] Doors lock when player enters an uncleared room — `EnemyManager` calls `CloseDoor()`
+- [ ] `EnemyManager` spawns from `Tile_Spawn` markers + `EnemyDatabase.GetHybridEnemySet` per `RoomData`
+- [ ] Enemy death emits `ON_ENEMY_DEATH`; `EnemyManager` emits `ON_CLEAR_ENEMY` at zero alive
 - [ ] `ON_ROOM_CLEAR` fires when all enemies dead → upgrade screen
 - [x] Re-entering a cleared room does not re-lock doors (`IsCleared` branch calls `OpenDoors()`)
 - [ ] `IsCleared` set on `ON_CLEAR_ENEMY` (= enemies defeated) instead of on room-leave

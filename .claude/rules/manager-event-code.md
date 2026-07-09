@@ -12,7 +12,7 @@ globs: ["Assets/Script/Manager/**/*.cs", "Assets/Script/GameConstants.cs"]
 - New events: add to `EventID` enum only — never add `static Action` fields to individual classes
 
 ## No New Singletons
-- `MazeController` is the only permitted singleton
+- `MazeController` and `EnemyManager` (ratified exception — ADR-0002) are the only permitted singletons
 - Managers that need cross-scene access use ScriptableObject events or `DontDestroyOnLoad` with a scene manager pattern — not `Instance` singletons
 - `UIManager` must be wired via Inspector reference, not found at runtime
 

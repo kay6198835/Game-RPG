@@ -20,15 +20,25 @@ on clear emits `ON_CLEAR_ENEMY` + `ON_ROOM_CLEAR` to open doors and trigger the
 upgrade screen. The player never touches this system directly; they feel it as the
 per-run pacing and variety of each room.
 
+> **Prototype status (2026-07-09).** A partial prototype exists (`Assets/Script/Database-SO/Modal/`
+> — `RoomModel`/`MapModel`/`EnemyModal`, plus `LevelManager.SpawnRoomEnemies()` on an Editor
+> button). It implements the data model + weight-budget selection only, and **diverges from this
+> epic's planned model** (different class names, direct refs instead of `id`s, `UnityEngine.Random`
+> instead of an injected seed, random Phase-2 instead of `argmin`, no `EnemyManager` lifecycle).
+> The GDD's "Current Implementation Status" and "Prototype Deviations" sections track every gap.
+> Stories must decide per cluster: harden the prototype up to the design, or amend the design.
+
 ## Governing ADRs
 
 | ADR | Decision Summary | Engine Risk |
 |-----|-----------------|-------------|
-| _None_ | No ADR governs this epic. **ADR-0001 (StatSystem)** is a boundary contract only: `EnemyData` is spawn metadata and must not become a fourth stat store; combat stats stay on the prefab's `EntityData`/`StatsSO`. | LOW |
+| **ADR-0002** (Proposed) | `EnemyManager` granted a scoped singleton exception (joins `MazeController`), with mandated duplicate-guard + event-driven state. Governs REQ-SPAWN-LIFECYCLE; unblocks the PlayMode harness (AC-L1…L6). | LOW |
+| ADR-0001 (StatSystem) | Boundary contract only: `EnemyData` is spawn metadata and must not become a fourth stat store; combat stats stay on the prefab's `EntityData`/`StatsSO`. | LOW |
 
-> ⚠️ **Untraced.** No ADR covers the spawn algorithm, data model, lifecycle, or
-> placement. The epic is created with placeholders; stories for these clusters are
-> **Blocked** until ADRs exist. The most acute gap is **Open Question #1** below.
+> ⚠️ **Partially traced.** ADR-0002 now covers the lifecycle/singleton decision.
+> Still **untraced**: the spawn algorithm (REQ-SPAWN-ALGO), SO data model
+> (REQ-SPAWN-DATA), and placement (REQ-SPAWN-PLACEMENT) — stories for those clusters
+> remain **Blocked** until ADRs exist.
 
 ## GDD Requirements
 
@@ -47,7 +57,7 @@ clusters below are derived from the GDD's acceptance-criteria groups
 
 | Dependency | Blocks | Source |
 |------------|--------|--------|
-| **Open Q#1** — `EnemyManager` violates "no new singletons"; needs an ADR to ratify the exception | PlayMode lifecycle test harness (AC-L1…L6) | GDD Open Questions #1 |
+| ~~**Open Q#1**~~ ✅ RESOLVED — `EnemyManager` singleton exception ratified by **ADR-0002** (Proposed) | ~~PlayMode lifecycle test harness (AC-L1…L6)~~ unblocked | GDD Open Questions #1 / ADR-0002 |
 | **map-system Bug #16** — `RoomFile.roomType` not read at runtime | RoomType → `RoomData` routing | GDD Dependencies / CLAUDE.md Bug #16 |
 | **Enemy AI Bugs #7/#8** — `EntityDeathState` wrong base class; empty `Health<=0` transition | real death chain emitting `ON_ENEMY_DEATH` (AC-L2b) | GDD Dependencies / CLAUDE.md Bugs #7/#8 |
 | **`Tile_Spawn` markers** absent from all 13 room JSONs; parser branch does not exist | AC-P3 (marker placement); until fixed every room uses centre-fallback | GDD Dependencies |
@@ -69,5 +79,6 @@ This epic is complete when:
 ## Next Step
 
 Run `/create-stories enemy-spawn` to break this epic into implementable stories.
-Address **Open Question #1** (run `/architecture-decision` for the `EnemyManager`
-singleton exception) before authoring the PlayMode lifecycle stories.
+Open Question #1 is now resolved (**ADR-0002**), so the PlayMode lifecycle stories
+are unblocked. Still write ADRs for the spawn algorithm + SO data model before
+implementing REQ-SPAWN-ALGO / REQ-SPAWN-DATA.
