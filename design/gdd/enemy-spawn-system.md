@@ -2,7 +2,7 @@
 status: revised
 source: owner spec (2026-07-08) + codebase audit (Assets/Script/Enemy, Map/Room, Manager)
 date: 2026-07-08
-revised: 2026-07-08 (post /design-review — 4 specialist passes; owner decisions logged)
+revised: 2026-07-09 (Open Q#2 seed source resolved; Q#4 mechanism updated to RoomFile.roomData; prior: 2026-07-08 post /design-review — 4 specialist passes; owner decisions logged)
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
 ---
@@ -127,9 +127,12 @@ deterministic and unit-testable (a test passes `new System.Random(fixedSeed)`). 
 overload `GetHybridEnemySet(idEnemy, weightBudget, randomRatio, overflowPercent)` constructs the
 runtime RNG and forwards to the seedable core.
 
-> ⚠️ **Runtime seed source — OPEN, decide in Sprint 4** (see Open Questions #2). The overload's RNG
-> is either derived per-room from a single global run seed (reproducible runs) or a fresh unseeded
-> `System.Random()`. Tests are unaffected either way — they always call the explicit-`rng` core.
+> ✅ **Runtime seed source — RESOLVED 2026-07-09** (see Open Questions #2). Per-room-from-run-seed,
+> anchored by the room's own identity: `RoomFile` gains a `roomData` field (direct `RoomData`
+> reference, author-assigned per room entry — see "Room → RoomData Resolution" below). The runtime
+> overload derives `rng` by combining the dungeon run's global seed with that `RoomFile`'s identity
+> (e.g. its list index or `roomName`), so the same run reproduces the same per-room enemy sets, but
+> different runs vary. Tests are unaffected — they always call the explicit-`rng` core.
 
 Runs **once** per room (no trial loops). Resolves `idEnemy` → candidate `EnemyData` via `GetByID`
 (dropping unknown/null/zero ids), then two phases. Repetition of the same enemy type is allowed in
@@ -174,27 +177,35 @@ candidate decreases `remaining` by at least 1, so the loop always reaches `remai
 
 A room that is **already cleared** on `ON_LOAD_MAP` skips `Populating` entirely (doors stay open).
 
-### Room → `RoomData` Resolution (Open Q#3 — RESOLVED 2026-07-08)
+### Room → `RoomData` Resolution (Open Q#3/#4 — RESOLVED 2026-07-08, mechanism updated 2026-07-09)
 
-A `RoomCell` obtains its `RoomData` through a **`RoomType` → `RoomData` lookup table** (a serialized
-map on the spawn config, keyed by the `RoomType` enum). Rationale: it lets a designer set spawn
-behaviour once per room *type* instead of wiring every room instance.
+**Primary mechanism (2026-07-09): direct per-room reference.** `RoomFile` (the entry type in
+`DungeonRoomSO.room`, alongside its existing `roomName`/`filePath`/`roomType` fields — see
+`Assets/SO/Dungeon/DungeonRoomSO.cs`) gains a new field:
 
-- **Combat-bearing types** (`CombatRoom`, `NormalRoom`, and `BossRoom` — see boss note in Open
-  Questions): map to a `RoomData` with a real `weightBudget`.
-- **Non-combat types** (`StartRoom`, `TreasureRoom`, `ShopRoom`, `RestRoom`, `PuzzleRoom`,
-  `SecretRoom`, `ExitRoom`): map to a **zero-budget `RoomData`** (or no entry → treated as
-  `weightBudget = 0`) so they spawn nothing and are `Cleared` on load. **`StartRoom` must be
+```csharp
+public RoomData roomData;
+```
+
+Authored once per room-file entry, at the same time `roomType` is set. `EnemyManager`/`RoomCell`
+read `RoomFile.roomData` directly — no `RoomType` enum lookup at runtime required. This also
+anchors the per-room shuffle seed (see "Runtime seed source" above): the seed derives from the
+run's global seed combined with the owning `RoomFile`'s identity, not from an unrelated global
+counter.
+
+- **Combat-bearing rooms**: `roomData` points to a `RoomData` asset with a real `weightBudget`.
+- **Non-combat / start rooms**: `roomData` left unassigned (`null`) → treated as **zero budget**
+  (safe default — an unconfigured room is empty, not randomly lethal). **`StartRoom` must be
   zero-budget** — the player must never be ambushed on spawn.
-- A type absent from the table defaults to **zero budget** (safe: an unconfigured room is empty, not
-  randomly lethal).
 
-> **Hard dependency — map-system Bug #16.** This resolution reads `RoomFile.roomType` at runtime,
-> which the loader **does not do today** (start/boss rooms are forced purely by list position;
-> `RoomType` is never read — map-system.md Bug #16). **Bug #16 must be fixed before this table can
-> drive spawning.** Until then the spawn system can only be exercised via an explicit test
-> `RoomData`, not via real `RoomType` routing. This is now a blocking cross-system dependency, not
-> an implementation detail — tracked in Dependencies.
+**Fallback (kept as a safety net, not the primary path): `RoomType` → `RoomData` lookup table.**
+If a `RoomFile.roomData` is ever left unset for a combat-bearing room type, the previously-designed
+`RoomType`-keyed table (unchanged from the 2026-07-08 resolution) may still supply a default. This
+fallback is what previously **hard-depended on map-system Bug #16** (`RoomFile.roomType` not read at
+runtime). Since the primary path now resolves `RoomData` via a direct author-time reference on
+`RoomFile` itself, **Bug #16 no longer blocks enemy-spawn** — it remains a real bug (start/end room
+still selected by list position elsewhere in map-system) but is no longer a hard dependency for this
+system. Downgraded from BLOCKING to informational in Dependencies below.
 
 ### Interactions with Other Systems
 
@@ -307,7 +318,7 @@ candidates: Bat(w3), Rat(w2), Golem(w9).
 |--------|------|-----------|--------|
 | **Event Bus** (`EventManager`) | `ON_LOAD_MAP` ✅, `ON_ENEMY_DEATH` **[new]**, `ON_CLEAR_ENEMY` ✅, `ON_ROOM_CLEAR` **[new]** | Spawn ↔ EventManager | 2 new `EventID` values needed |
 | **Enemy AI** (`character-system.md`) | Death chain must emit `ON_ENEMY_DEATH`; spawns framework-wired enemy prefabs | Enemy → Spawn | **Blocked:** Bug #7 (`EntityDeathState` wrong base), Bug #8 (empty `Health<=0` transition); only `EnemyPrefab.prefab` wired (Bat/Crab broken) |
-| **Room Progression** (`map-system.md`) | `RoomCell.CloseDoor()` / `OpenDoors()` for lock/unlock; `IsCleared` set on clear; **RoomType → `RoomData` table** (see Room→RoomData Resolution) | Spawn → Map | `CloseDoor`/`OpenDoors` ✅; alive-count + lock-on-entry to be added. **BLOCKING: needs map-system Bug #16 fixed** — `RoomFile.roomType` is not read at runtime, so the RoomType table cannot route until it is |
+| **Room Progression** (`map-system.md`) | `RoomCell.CloseDoor()` / `OpenDoors()` for lock/unlock; `IsCleared` set on clear; `RoomFile.roomData` direct reference (primary) + `RoomType` → `RoomData` table (fallback) — see Room→RoomData Resolution | Spawn → Map | `CloseDoor`/`OpenDoors` ✅; alive-count + lock-on-entry to be added. **New field `RoomFile.roomData` needed** in `Assets/SO/Dungeon/DungeonRoomSO.cs` (author task, not blocked on any bug). map-system Bug #16 (`RoomFile.roomType` not read at runtime) downgraded from BLOCKING to informational — only the fallback table path needed it |
 | **Dungeon / Room load** | `RoomGeneraterController` must **parse `Tile_Spawn` markers** (new branch mirroring its `Tile_Door` handling) and **expose each marker's world position** to `EnemyManager`; markers must be **authored into all 13 room JSONs** | Map → Spawn | `TileName.SPAWN` constant ✅; **parser branch does not exist yet** (only `Tile_Door` handled); **markers absent from all 13 JSONs** → LD retrofit pass required (owner: level-design; est. separate task). Until done, every room uses the centre-fallback |
 | **Stat System** (`stat-system.md`) | Enemy combat stats stay on prefab `EntityData`/`StatsSO`; spawn system does not touch them | none (contract only) | No schema impact |
 | **Object Pooling** | Reuse for enemy instances instead of raw `Instantiate` | Spawn → Pooling | Soft — Pooling is Alpha/not-started; `Instantiate` acceptable until then |
@@ -440,9 +451,9 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 | # | Question | Status | Notes |
 |---|----------|--------|-------|
 | 1 | **`EnemyManager` singleton violates "no new singletons"** (only `MazeController` permitted). Owner chose singleton (2026-07-08). | ⬜ OPEN — **decide this sprint** | **Needs an ADR** to ratify the exception, or wrap as an Inspector-wired scene component. Run `/architecture-decision`. **Gates the PlayMode lifecycle test harness (AC-L1…L6)** — tests can't be authored against an undecided architecture. |
-| 2 | **Runtime shuffle seed source** — per-room from a global run seed, or fresh unseeded `System.Random()`? | ⬜ OPEN — **decide this sprint** | Tests are unaffected (always inject a seed). Recommend per-room-from-run-seed for reproducible runs + future daily-run support. Owner pended 2026-07-08; flagged in the sprint tracker for a daily nudge. |
+| 2 | **Runtime shuffle seed source** — per-room from a global run seed, or fresh unseeded `System.Random()`? | ✅ RESOLVED (2026-07-09) | Per-room-from-run-seed. Anchored by the new `RoomFile.roomData` field (see Q#4) — seed derives from the run's global seed + the owning `RoomFile`'s identity. See "Runtime seed source" callout under `GetHybridEnemySet`. |
 | 3 | Default values for `randomRatio` / `overflowPercent` (global vs per-`RoomData`)? | ⬜ OPEN | Suggest global defaults (`randomRatio 0.5`, `overflowPercent 0.1`) overridable per room; confirm during balance pass. |
-| 4 | How is a `RoomCell` mapped to its `RoomData`? | ✅ RESOLVED (2026-07-08) | **RoomType → RoomData table**; non-combat + start rooms → zero budget. See "Room → RoomData Resolution". Hard-depends on map-system Bug #16 fix. |
+| 4 | How is a `RoomCell` mapped to its `RoomData`? | ✅ RESOLVED (2026-07-08, mechanism updated 2026-07-09) | **Primary: `RoomFile.roomData` direct reference** (new field, author-assigned per room entry — no runtime `RoomType` read needed). **Fallback: `RoomType` → `RoomData` table**, non-combat + start rooms → zero budget. See "Room → RoomData Resolution". No longer hard-depends on map-system Bug #16 — only the fallback path does. |
 | 5 | Should `weight` be authored, or derived from the enemy's stat/rank tier? | ⬜ OPEN | Authored for now (`≥ 1` enforced). See Future Enhancements → weight↔stat cross-check. |
 | 6 | Multi-wave rooms (second wave partway through)? | ⬜ POST-DEMO | Out of demo scope; schema allows a later `List<wave>` extension. |
 | 7 | Boss room: dedicated `RoomData` (one boss id + high budget) vs bypass the algorithm? | ⬜ POST-DEMO | Bosses are out of demo scope per `game-concept.md`. Likely a dedicated zero-random `RoomData`; do not special-case the algorithm before the base loop is playtested. |

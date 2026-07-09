@@ -1,0 +1,35 @@
+# Architecture Registry
+# Locked architectural stances derived from Accepted/Proposed ADRs.
+# Populated by /architecture-decision. Do not hand-edit stances without
+# updating the source ADR — this file must stay a derived view, not a
+# second source of truth.
+
+state_ownership:
+  - state: enemy_room_alive_count
+    owner: EnemyManager
+    adr: ADR-0002
+    interface: "EnemyManager.Instance (read-only aliveCount during Fighting state)"
+    note: >
+      Reset explicitly by the ON_LOAD_MAP handler each room transition —
+      Awake() fires once per dungeon run, not once per room (see ADR-0002
+      Decision correction).
+
+interfaces: []
+
+forbidden_patterns: []
+
+api_decisions:
+  - decision: enemymanager_singleton_exception
+    adr: ADR-0002
+    detail: >
+      EnemyManager uses the static-Instance singleton pattern (same shape as
+      MazeController) as an explicit, time-boxed exception to the
+      project-wide "no new singletons beyond MazeController" rule
+      (technical-preferences.md, .claude/rules/engine-code.md,
+      .claude/rules/manager-event-code.md).
+    scope: EnemyManager only — not a general license for new singletons.
+    review_trigger:
+      - "Sprint 6 code-review gate when EnemyManager is implemented"
+      - "If a third singleton-shaped need arises (see TD-023, TD-031 — existing unratified violations of the same rule)"
+      - "When TD-023 or TD-031 are scheduled for tech-debt repayment"
+    status: accepted_exception
