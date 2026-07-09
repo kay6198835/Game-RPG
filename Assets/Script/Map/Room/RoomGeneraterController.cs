@@ -19,6 +19,8 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
+
+    [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     public void OnDisable()
     {
         _dungeonRoomSO.room.Clear();
@@ -112,11 +114,18 @@ public class RoomGeneraterController : MonoBehaviour
                     IndexLevelDataDoor.Add(i);
                 }
             }
-
+            if (tilemap == GameConstants.TileName.SPAWN && !nextRoomCell.IsCleared)
+            {
+                spawnPositions.Add(Data.poses[i]);
+            }
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
         nextRoomCell.SetDoorPoints(this.DoorPoints);
-        if (!nextRoomCell.IsCleared) { SwapTileMap(GameConstants.TileName.ROOM); }
+        if (!nextRoomCell.IsCleared)
+        {
+            SwapTileMap(GameConstants.TileName.ROOM);
+            nextRoomCell.GetSpawnPosition(spawnPositions);
+        }
         else
         {
             // on colider door
@@ -158,6 +167,7 @@ public class RoomGeneraterController : MonoBehaviour
         this.IndexLevelDataDoor.Clear();
         this.DoorPoints.Clear();
         this.Data.Clear();
+        this.spawnPositions.Clear();
     }
 
     public void DeleteDoorTileMap(RoomCell _current)

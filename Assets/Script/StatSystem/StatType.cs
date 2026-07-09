@@ -6,13 +6,14 @@
 [System.Serializable]
 public enum StatType
 {
+    [Header("Primary Stats")]
     // ----- Primary (chỉ số gốc) -----
     STR = 0,   // Sức mạnh
     DEX = 1,   // Nhanh nhẹn
     INT = 2,   // Trí tuệ
     VIT = 3,   // Thể chất
     LUK = 4,   // May mắn
-
+    [Header("Derived Stats")]
     // ----- Derived (chỉ số dẫn xuất) -----
     MaxHP = 100,
     MaxMana = 101,

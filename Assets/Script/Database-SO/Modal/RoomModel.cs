@@ -1,3 +1,4 @@
+// ---------------- RoomModel.cs ----------------
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,75 +10,101 @@ public class RoomModel : EntityModel
     [SerializeField, Range(0f, 1f)] private float randomRatio = 0.33f;
     [SerializeField, Range(0f, 1f)] private float overflowPercent = 0.1f;
 
+    // scratch — reuse giữa các call. Index đi song song enemiesOfRoom
+    // (ổn định vì list clean + không trùng).
+    private EnemySpawnEntry[] _entries;
+    private int[] _fitBuf;   // buffer chứa index nhóm fit mỗi vòng pick
+
     /// <summary>
     /// Kết quả gửi spawn system: mỗi loại quái + số lượng.
-    /// Chạy hybrid select trên enemiesOfRoom, gom trùng theo loại ra count.
+    /// Tổng Σ(count × weight) ≤ (1 + overflowPercent) × weightBudget.
     /// </summary>
     public List<EnemySpawnEntry> GetSpawnSet()
     {
-        List<EnemyModal> chosen = GetHybridEnemySet();
+        int n = enemiesOfRoom.Count;
+        if (n == 0) return null;
 
-        Dictionary<EnemyModal, EnemySpawnEntry> map = new Dictionary<EnemyModal, EnemySpawnEntry>();
-        foreach (var e in chosen)
+        // cấp/mở rộng scratch nếu số loại đổi
+        if (_entries == null || _entries.Length != n)
         {
-            if (map.TryGetValue(e, out var entry))
-                entry.count++;
-            else
-                map[e] = new EnemySpawnEntry(e);
+            _entries = new EnemySpawnEntry[n];
+            _fitBuf  = new int[n];
         }
-        return new List<EnemySpawnEntry>(map.Values);
-    }
+        System.Array.Clear(_entries, 0, n);   // reset dedup mỗi call
 
-    private List<EnemyModal> GetHybridEnemySet()
-    {
-        // ứng viên hợp lệ: bỏ null + weight > 0 (chống Pha 2 loop vô hạn)
-        List<EnemyModal> candidates = new List<EnemyModal>();
-        foreach (var e in enemiesOfRoom)
-            if (e != null && e.weight > 0) candidates.Add(e);
-
-        if (candidates.Count == 0)
-            return new List<EnemyModal>();
-
-        List<EnemyModal> result = new List<EnemyModal>();
+        var outList = new List<EnemySpawnEntry>();
         int randomBudget = Mathf.RoundToInt(weightBudget * randomRatio);
-        int maxOverflow = Mathf.RoundToInt(weightBudget * overflowPercent);
-        int remaining = weightBudget;
+        int maxOverflow  = Mathf.RoundToInt(weightBudget * overflowPercent);
+        int remaining    = weightBudget;
 
         // ----- PHA 1: RANDOM — pick tự do trong nhóm fit, cho trùng loại -----
-        List<EnemyModal> fit = new List<EnemyModal>();
         int usedRandom = 0;
         while (true)
         {
-            fit.Clear();
-            foreach (var e in candidates)
-                if (usedRandom + e.weight <= randomBudget && e.weight <= remaining)
-                    fit.Add(e);
-            if (fit.Count == 0) break;
+            int threshold = randomBudget - usedRandom;
+            int fitCount = 0;
+            for (int i = 0; i < n; i++)
+                if (enemiesOfRoom[i].weight <= threshold)
+                    _fitBuf[fitCount++] = i;
+            if (fitCount == 0) break;
 
-            EnemyModal pick = fit[Random.Range(0, fit.Count)];
-            result.Add(pick);
-            usedRandom += pick.weight;
-            remaining -= pick.weight;
+            int idx = _fitBuf[Random.Range(0, fitCount)];
+            Emit(idx, outList);
+            usedRandom += enemiesOfRoom[idx].weight;
+            remaining  -= enemiesOfRoom[idx].weight;
         }
 
         // ----- PHA 2: LẤP ĐẦY — random trong nhóm khớp, overflow nhẹ -----
         while (remaining > 0)
         {
-            fit.Clear();
-            foreach (var e in candidates)
-                if (e.weight - remaining <= maxOverflow)
-                    fit.Add(e);
-            if (fit.Count == 0) break;
+            int threshold = remaining + maxOverflow;
+            int fitCount = 0;
+            for (int i = 0; i < n; i++)
+                if (enemiesOfRoom[i].weight <= threshold)
+                    _fitBuf[fitCount++] = i;
+            if (fitCount == 0) break;
 
-            EnemyModal pick = fit[Random.Range(0, fit.Count)];
-            result.Add(pick);
-            remaining -= pick.weight;
+            int idx = _fitBuf[Random.Range(0, fitCount)];
+            Emit(idx, outList);
+            remaining -= enemiesOfRoom[idx].weight;
         }
 
-        return result;
+        return outList;
     }
-}
-[System.Serializable]
+
+    // convert ngay tại bước pick: chưa có thì tạo + add, có rồi thì tăng count
+    private void Emit(int idx, List<EnemySpawnEntry> outList)
+    {
+        var entry = _entries[idx];
+        if (entry == null)
+        {
+            entry = new EnemySpawnEntry(enemiesOfRoom[idx]); // count = 1
+            _entries[idx] = entry;
+            outList.Add(entry);
+        }
+        else
+        {
+            entry.count++;
+        }
+    }
+
+#if UNITY_EDITOR
+    // Lưới an toàn author-time: "clean" giờ là hợp đồng ngoài code.
+    // Cảnh báo ngay khi designer nhập sai trong Inspector.
+    protected override void OnValidate()
+    {
+        base.OnValidate();   // giữ gen id ở base
+        for (int i = 0; i < enemiesOfRoom.Count; i++)
+        {
+            var e = enemiesOfRoom[i];
+            if (e == null)
+                Debug.LogWarning($"[RoomModel] '{name}': enemiesOfRoom[{i}] null.", this);
+            else if (e.weight <= 0)
+                Debug.LogWarning($"[RoomModel] '{name}': '{e.name}' weight <= 0 → Pha 2 loop vô hạn.", this);
+        }
+    }
+#endif
+}[System.Serializable]
 public class EnemySpawnEntry
 {
     public EnemyModal enemy;   // ref SO — id/weight/prefab lấy từ đây

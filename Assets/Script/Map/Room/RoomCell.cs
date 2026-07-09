@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -133,6 +134,25 @@ public class RoomCell : BaseCell
         this.IndexLevelDataDoor.AddRange(indexLevelDataDoor);
         this.IsCleared = true;
         CloseDoor();
+    }
+
+    public void GetSpawnPosition(List<Vector2Int> spawnPositions)
+    {
+        List<EnemySpawnEntry> set = GetRoomSpawnSet();
+        if (set.Count == 0)
+        {
+            Debug.LogWarning("SpawnRoomEnemies: nothing to spawn");
+            return;
+        }
+
+        foreach (var entry in set)
+        {
+            if (entry.enemy == null || entry.enemy.prefab == null) continue;
+            for (int i = 0; i < entry.count; i++)
+            {
+                Instantiate(entry.enemy.prefab, spawnPositions[Random.Range(0, spawnPositions.Count)]);
+            }
+        }
     }
 
 }
