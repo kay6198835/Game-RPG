@@ -69,9 +69,20 @@ Edit `sprint-*-daily-plan.md`:
 - Present them in priority order with per-task **estimate (days)** and a one-line
   "why now".
 - Carry over anything unfinished from yesterday, re-sequenced.
-- Give exactly **one** focus recommendation and surface any active risk to watch.
+- Give exactly **one** focus recommendation.
+- **Recurring nudges are not optional and are not the same slot as Watch.**
+  Scan the Risks table for any risk tagged "DAILY NUDGE" / "raise every
+  standup" / "raise at each standup until closed" (or equivalent standing
+  wording) that is still open. Print **every** one of them, every day, until
+  its status flips to resolved/closed in the tracker — a newer risk never
+  bumps an old nudge off the list, it only adds to it.
+- `⚠️ Watch` is separate: the single newest/hottest risk that doesn't already
+  have a standing nudge line. If the hottest risk *is* a standing nudge,
+  don't repeat it under Watch — just leave Watch for the next-most-relevant
+  new risk, or omit Watch entirely.
 
-### 5. Output (chat) — keep it under ~25 lines
+### 5. Output (chat) — keep it under ~25 lines (nudges add lines as needed —
+they are the one part of the template that must never be compressed away)
 ```
 📋 Standup — <weekday> <date>
 
@@ -86,7 +97,13 @@ Edit `sprint-*-daily-plan.md`:
   1. <task> (<est>d) — <why now>
   2. …
   💡 Focus: <one recommendation>
-  ⚠️ Watch: <one live risk, if any>
+
+🔁 Standing decisions (nudge until closed)
+  - <decision #1 still open> — <who/what unblocks it>
+  - <decision #2 still open> — …
+  (omit this whole block only if zero DAILY-NUDGE risks remain open)
+
+  ⚠️ Watch: <one new/live risk not already covered above, if any>
 
 ❓ <one confirmation question, only if something is ambiguous>
 ```
