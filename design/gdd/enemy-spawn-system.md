@@ -2,12 +2,11 @@
 status: revised
 source: owner spec (2026-07-08) + codebase audit (Assets/Script/Enemy, Map/Room, Manager)
 date: 2026-07-08
-<<<<<<< HEAD
-revised: 2026-07-09 (Open Q#2 seed source resolved; Q#4 mechanism updated to RoomFile.roomData; prior: 2026-07-08 post /design-review — 4 specialist passes; owner decisions logged)
-=======
+revised: 2026-07-09 (Open Q#2 seed source resolved; Q#4 mechanism updated to RoomFile.roomData; 
+prior: 2026-07-08 post /design-review — 4 specialist passes; owner decisions logged)
 revised: 2026-07-08 (post /design-review — 4 specialist passes; owner decisions logged)
 revised: 2026-07-09 (reverse-synced to prototype code — Assets/Script/Database-SO/Modal + LevelManager.SpawnRoomEnemies)
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
+
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
 ---
@@ -523,13 +522,10 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 
 | # | Question | Status | Notes |
 |---|----------|--------|-------|
-<<<<<<< HEAD
 | 1 | **`EnemyManager` singleton violates "no new singletons"** (only `MazeController` permitted). Owner chose singleton (2026-07-08). | ⬜ OPEN — **decide this sprint** | **Needs an ADR** to ratify the exception, or wrap as an Inspector-wired scene component. Run `/architecture-decision`. **Gates the PlayMode lifecycle test harness (AC-L1…L6)** — tests can't be authored against an undecided architecture. |
 | 2 | **Runtime shuffle seed source** — per-room from a global run seed, or fresh unseeded `System.Random()`? | ✅ RESOLVED (2026-07-09) | Per-room-from-run-seed. Anchored by the new `RoomFile.roomData` field (see Q#4) — seed derives from the run's global seed + the owning `RoomFile`'s identity. See "Runtime seed source" callout under `GetHybridEnemySet`. |
-=======
 | 1 | **`EnemyManager` singleton violates "no new singletons"** (only `MazeController` permitted). Owner chose singleton (2026-07-08). | ✅ RESOLVED (2026-07-09) | Ratified by **ADR-0002** (`docs/architecture/adr-0002-enemymanager-singleton-exception.md`, Status: Proposed) — scoped singleton exception with mandated duplicate-guard + event-driven state. Unblocks the PlayMode lifecycle test harness (AC-L1…L6). Follow-up: update the "only `MazeController`" wording in the four rule files to include `EnemyManager`. |
 | 2 | **Runtime shuffle seed source** — per-room from a global run seed, or fresh unseeded `System.Random()`? | ⬜ OPEN — **decide this sprint** | Tests are unaffected (always inject a seed). Recommend per-room-from-run-seed for reproducible runs + future daily-run support. Owner pended 2026-07-08; flagged in the sprint tracker for a daily nudge. |
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
 | 3 | Default values for `randomRatio` / `overflowPercent` (global vs per-`RoomData`)? | ⬜ OPEN | Suggest global defaults (`randomRatio 0.5`, `overflowPercent 0.1`) overridable per room; confirm during balance pass. |
 | 4 | How is a `RoomCell` mapped to its `RoomData`? | ✅ RESOLVED (2026-07-08, mechanism updated 2026-07-09) | **Primary: `RoomFile.roomData` direct reference** (new field, author-assigned per room entry — no runtime `RoomType` read needed). **Fallback: `RoomType` → `RoomData` table**, non-combat + start rooms → zero budget. See "Room → RoomData Resolution". No longer hard-depends on map-system Bug #16 — only the fallback path does. |
 | 5 | Should `weight` be authored, or derived from the enemy's stat/rank tier? | ⬜ OPEN | Authored for now (`≥ 1` enforced). See Future Enhancements → weight↔stat cross-check. |

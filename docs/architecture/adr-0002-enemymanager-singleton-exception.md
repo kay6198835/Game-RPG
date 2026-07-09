@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 # ADR-0002: EnemyManager as a Time-Boxed Singleton Exception
-=======
 # ADR-0002: EnemyManager is a permitted singleton exception
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
 
 ## Status
 Proposed
@@ -14,42 +11,35 @@ Proposed
 
 | Field | Value |
 |-------|-------|
-<<<<<<< HEAD
 | Engine | Unity 2022.3.62f1 LTS |
 | Domain | Core / Architecture |
 | Knowledge Risk | LOW (pinned version is within training data) |
 | References Consulted | docs/engine-reference/unity/VERSION.md |
 | Post-Cutoff APIs Used | None — static-Instance is a plain C# pattern, not an engine API |
 | Verification Required | Confirm at implementation time (Sprint 6) that `EnemyManager`'s Awake() duplicate-instance guard includes `return` after `Destroy(gameObject)` — `MazeController`'s Awake() (`Assets/Script/Map/Maze/MazeController.cs:17-21`) omits it (TD-026 / Bug #14) and must not be copied verbatim. |
-=======
 | **Engine** | Unity 2022.3.62f1 LTS |
 | **Domain** | Core / Architecture |
 | **Knowledge Risk** | LOW (pinned version is within training data) |
 | **References Consulted** | docs/engine-reference/unity/VERSION.md |
 | **Post-Cutoff APIs Used** | None |
 | **Verification Required** | None — this is a code-organization/governance decision, not an engine-API decision |
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
 
 ## ADR Dependencies
 
 | Field | Value |
 |-------|-------|
-<<<<<<< HEAD
 | Depends On | None |
 | Enables | The PlayMode lifecycle test harness (AC-L1…L6) in `design/gdd/enemy-spawn-system.md`, which is explicitly gated on this decision |
 | Blocks | None currently — no story/epic files exist yet (`production/stories/`, `production/epics/` not created; S4-D3 epic breakdown hasn't run) |
 | Ordering Note | `EnemyManager`'s own build is scoped for Sprint 6 and is separately blocked on Bugs #7/#8 (enemy death chain), map-system Bug #16 (RoomType not read at runtime), and absent `Tile_Spawn` markers in all 13 room JSONs. This ADR resolves only the singleton-vs-alternative architecture question — it does not unblock those other prerequisites. |
-=======
 | **Depends On** | None |
 | **Enables** | Enemy Spawn PlayMode lifecycle test harness (AC-L1…L6) can be authored against a decided architecture |
 | **Blocks** | Epic `enemy-spawn` — REQ-SPAWN-LIFECYCLE stories were blocked pending this ADR |
 | **Ordering Note** | Must be Accepted before the PlayMode lifecycle stories are implemented |
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
 
 ## Context
 
 ### Problem Statement
-<<<<<<< HEAD
 `EnemyManager` is the sole runtime driver of the enemy-spawn system's per-room
 combat lifecycle (`Idle → Populating → Fighting → Cleared`): it listens for
 `ON_LOAD_MAP`, resolves `RoomData`, asks `EnemyDatabase` for a weight-budgeted
@@ -221,7 +211,6 @@ the fate that already befell TD-023 and TD-031.
 - **Rejection Reason**: Solves less of the actual access problem than it
   appears to while costing more time than a plain singleton; owner
   prioritized speed over a partial decoupling gain.
-=======
 The Enemy Spawn & Per-Room Management GDD (`design/gdd/enemy-spawn-system.md`)
 introduces `EnemyManager` — the runtime driver that listens for room-load,
 resolves a `RoomData`, asks `EnemyDatabase` for a weight-budgeted enemy set,
@@ -335,12 +324,10 @@ Implementation constraints that bound the exception:
 - **Cons**: Violates single-responsibility — `MazeController` owns maze generation,
   not per-room combat; couples two unrelated concerns; makes both harder to test.
 - **Rejection Reason**: Worse separation of concerns than a scoped second singleton.
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
 
 ## Consequences
 
 ### Positive
-<<<<<<< HEAD
 - Matches an existing, working precedent (`MazeController`) — no new mental
   model for contributors to learn.
 - Fastest path to closing GDD Open Question #1 and unblocking AC-L1…L6 test
@@ -393,7 +380,6 @@ Implementation constraints that bound the exception:
   records this as a named, bounded exception scoped to `EnemyManager`, not a
   general license; Review Trigger #2 above defines the exact point where
   per-ADR exceptions stop being granted.
-=======
 - The lifecycle test harness (AC-L1…L6) is unblocked — architecture is now decided.
 - Room-combat state has one unambiguous owner during a run.
 - The exception is explicit and traceable; reviewers hitting `EnemyManager.Instance`
@@ -415,13 +401,11 @@ Implementation constraints that bound the exception:
 - **Test leakage** from static state. *Mitigation*: tests null/dispose `Instance`
   in `TearDown`; the pure `GetHybridEnemySet` (no singleton) carries the bulk of
   the logic tests.
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
 
 ## GDD Requirements Addressed
 
 | GDD System | Requirement | How This ADR Addresses It |
 |------------|-------------|--------------------------|
-<<<<<<< HEAD
 | design/gdd/enemy-spawn-system.md | Open Question #1 — "`EnemyManager` singleton violates 'no new singletons'"; gates AC-L1…L6 PlayMode test authoring | Ratifies the singleton pattern so Open Question #1 can close and the PlayMode lifecycle harness can be authored against a defined architecture |
 | design/gdd/enemy-spawn-system.md | States/Transitions table already assumes "`EnemyManager` (singleton — see Open Questions)" | Confirms the singleton the GDD's own state machine already assumed is the ratified architecture, not a placeholder |
 
@@ -499,7 +483,6 @@ greenfield decision ahead of its Sprint 6 build. When it is implemented:
   decision extends to a second instance.
 - .claude/rules/engine-code.md, .claude/rules/manager-event-code.md — rules
   this ADR formally excepts `EnemyManager` from.
-=======
 | design/gdd/enemy-spawn-system.md | Open Question #1 — `EnemyManager` singleton violates "no new singletons"; needs an ADR to ratify the exception or wrap as Inspector component | Ratifies the exception explicitly, scoped to `EnemyManager`, with duplicate-guard + event-driven constraints |
 | design/gdd/enemy-spawn-system.md | REQ-SPAWN-LIFECYCLE (AC-L1…L6) — room lifecycle test harness | Decides the architecture the PlayMode harness is written against, unblocking those tests |
 
@@ -535,4 +518,3 @@ scene lookup, and wire the manager in each gameplay scene.
   carves a named exception in.
 - `design/gdd/enemy-spawn-system.md` — Open Question #1, Open Question #2 (runtime
   seed source, still open — separate decision).
->>>>>>> origin/claude/enemy-spawn-manager-review-7aq2wa
