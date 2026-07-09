@@ -168,6 +168,48 @@ public class LevelManager : MonoBehaviour
             genmap[layerIdx].SetTile(data.poses[i], _listTiles.Find(t => t.name == data.tiles[i]).tile);
         }
     }
+
+
+    public void UpdateRoom()
+    {
+        if (dungeonRoomSO == null || index < 0 || index >= dungeonRoomSO.room.Count)
+        {
+            Debug.LogWarning($"UpdateRoom: invalid index {index}");
+            return;
+        }
+
+        LevelData levelData = new LevelData();
+        for (int tmIndex = 0; tmIndex < tilemap.Count; tmIndex++)
+        {
+            Tilemap tm = tilemap[tmIndex];
+            BoundsInt bounds = tm.cellBounds;
+
+            for (int x = bounds.min.x; x < bounds.max.x; x++)
+            {
+                for (int y = bounds.min.y; y < bounds.max.y; y++)
+                {
+                    TileBase temp = tm.GetTile(new Vector3Int(x, y, 0));
+
+                    TileSO tempTile = _listTiles.Find(t => t.tile == temp);
+                    if (tempTile != null)
+                    {
+                        levelData.tiles.Add(tempTile.id);
+                        levelData.poses.Add(new Vector3Int(x, y, 0));
+                        levelData.layerIndices.Add(tmIndex);
+                    }else
+                    {
+                        Debug.LogWarning($"UpdateRoom: tile at ({x}, {y}) in layer {tmIndex} not found in _listTiles");
+                    }
+                }
+            }
+        }
+
+        string filePath = dungeonRoomSO.room[index].filePath;
+        string json = JsonUtility.ToJson(levelData, true);
+        File.WriteAllText(Application.dataPath + filePath, json);
+
+        Debug.Log($"Updated: {dungeonRoomSO.room[index].roomName}");
+    }
     #endregion
 
     #region public Funtion

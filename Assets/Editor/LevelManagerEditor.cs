@@ -20,6 +20,10 @@ public class LevelManagerEditor : Editor
         {
             levelManager.LoadLevel();
         }
+        if (GUILayout.Button("Edit Level"))
+        {
+            levelManager.UpdateRoom();
+        }
         if (GUILayout.Button("Clear Enemy"))
         {
             EventManager.Emit(EventID.ON_CLEAR_ENEMY);

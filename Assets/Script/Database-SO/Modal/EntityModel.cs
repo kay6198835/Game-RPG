@@ -8,7 +8,7 @@ public class EntityModel : ScriptableObject
     public string nameEnity;
 
 #if UNITY_EDITOR
-    private void OnValidate()
+    protected virtual void OnValidate()
     {
         if (id == 0)
         {

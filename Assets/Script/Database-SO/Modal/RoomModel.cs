@@ -7,6 +7,10 @@ public class RoomModel : EntityModel
 {
     [SerializeField] private List<EnemyModal> enemiesOfRoom = new List<EnemyModal>();
     [SerializeField, Range(0, 500)] private int weightBudget;
+
+    // Room-selection weight for MapModel.GetRandomRoom (NOT the enemy budget above).
+    [SerializeField, Range(1, 100)] private int selectionWeight = 1;
+    public int SelectionWeight => selectionWeight;
     [SerializeField, Range(0f, 1f)] private float randomRatio = 0.33f;
     [SerializeField, Range(0f, 1f)] private float overflowPercent = 0.1f;
 

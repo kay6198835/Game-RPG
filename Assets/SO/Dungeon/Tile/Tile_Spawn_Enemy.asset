@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e9ef864c8b682c4985605e42d83c120, type: 3}
-  m_Name: EnemyStorage
+  m_Script: {fileID: 11500000, guid: be6a847028012bf418e8aa6de686e60f, type: 3}
+  m_Name: Tile_Spawn_Enemy
   m_EditorClassIdentifier: 
-  allEnemies: []
+  tile: {fileID: 11400000, guid: 0c1185f8bcc30674291e51d24a4e5f5f, type: 2}
+  id: Tile_Spawn_Enemy

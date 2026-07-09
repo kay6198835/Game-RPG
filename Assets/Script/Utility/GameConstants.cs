@@ -138,7 +138,7 @@ public static class GameConstants
         public static string ROOM = "Tile_Room";
         public static string DOOR = "Tile_Door";
         public static string FLOOR = "Tile_Floor";
-        public static string SPAWN = "Tile_Spawn";
+        public static string SPAWN = "Tile_Spawn_Enemy";
     }
     #endregion
 

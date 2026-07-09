@@ -1,3 +1,5 @@
+using UnityEngine;
+
 /// <summary>
 /// Toàn bộ loại chỉ số trong game.
 /// Primary (0–99): player cộng điểm trực tiếp.

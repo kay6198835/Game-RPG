@@ -8,7 +8,7 @@ public class RoomGeneraterController : MonoBehaviour
 {
     [SerializeField] public FastMovement _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
-    [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
+    // [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
     [SerializeField] private float _tileSetDelay = 10f;
@@ -30,7 +30,8 @@ public class RoomGeneraterController : MonoBehaviour
         _startIndex = startIndex;
         _endIndex = endIndex;
 
-        _fullDungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
+        // need refactor to get _fullDungeonRoomSO, _listTiles, _genmap from other class, not from LevelManager
+        DungeonRoomSO _fullDungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
         _listTiles = LevelManager.Instance.GetTileSOs();
         _genmap = LevelManager.Instance.GetTilemaps();
 
@@ -116,7 +117,7 @@ public class RoomGeneraterController : MonoBehaviour
             }
             if (tilemap == GameConstants.TileName.SPAWN && !nextRoomCell.IsCleared)
             {
-                spawnPositions.Add(Data.poses[i]);
+                spawnPositions.Add(Data.poses[i].ConvertTo<Vector2Int>());
             }
             _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
         }
@@ -124,7 +125,7 @@ public class RoomGeneraterController : MonoBehaviour
         if (!nextRoomCell.IsCleared)
         {
             SwapTileMap(GameConstants.TileName.ROOM);
-            nextRoomCell.GetSpawnPosition(spawnPositions);
+            EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
         }
         else
         {
@@ -181,6 +182,7 @@ public class RoomGeneraterController : MonoBehaviour
         }
         _current.OpenDoors();
     }
+
     [System.Serializable]
     private class SwapLevelData
     {

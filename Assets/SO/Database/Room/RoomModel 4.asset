@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 123b66f152e89f14a96592999f7d8937, type: 3}
+  m_Name: RoomModel 4
+  m_EditorClassIdentifier: 
+  id: 1624893416
+  nameEnity: Room 1
+  enemiesOfRoom:
+  - {fileID: 11400000, guid: f48922b5324b03143b2a5825f95c129d, type: 2}
+  - {fileID: 11400000, guid: cf563bc9c76938d41bc76a8f2af1f0ec, type: 2}
+  - {fileID: 11400000, guid: 009766f9188a5d9428e64935274a6e85, type: 2}
+  weightBudget: 50
+  randomRatio: 0.33
+  overflowPercent: 0.1
