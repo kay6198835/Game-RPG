@@ -12,7 +12,7 @@ globs: ["Assets/Script/Character/Player/Core/**/*.cs", "Assets/Script/Character/
 
 ## Dependency Rules
 - Core.cs and EntityCore.cs are the ONLY permitted component hubs — no new singleton hubs
-- MazeController is the ONLY permitted global singleton — all other systems use GetComponent or Inspector refs
+- `MazeController` and `EnemyManager` (ratified exception — ADR-0002) are the only permitted global singletons — all other systems use GetComponent or Inspector refs
 - Components discover siblings via `Core.GetCoreComponent<T>()` pattern, never direct field references
 
 ## Interface-First

@@ -1,6 +1,6 @@
 # Project State
 
-cập nhật 2026-07-02
+cập nhật 2026-07-09
 
 Snapshot of actual code state, synced by /doc-sync. Source of truth for "what is
 really implemented" — CLAUDE.md carries the same facts in long form.
@@ -50,6 +50,9 @@ producer is the editor debug button in `LevelManagerEditor` — no gameplay emit
 - `Handler/EventHandler/` — empty folder
 - `GameConstants.TileName.SPAWN` ("Tile_Spawn") — defined, never referenced, absent from all room JSONs
 - `NewEnemy` / `NewEnemyState` / `NewEnemyStateMachine` — empty/stub
+- `EnemyManager` (`Assets/Script/Enemy/`) — scaffold stub 2026-07-09: only `public static Instance` declared, no lifecycle
+- `EnemySpawner` (`Assets/Script/Enemy/`) — scaffold stub 2026-07-09: subscribes `ON_LOAD_MAP`→`OnDoneLoadRoomGrid`, `Spawn()` empty. ⚠️ `OnDoneLoadRoomGrid` undefined + `Vector3` ambiguity (System.Numerics+UnityEngine) → likely compile error
+- `RoomCell.GetSpawnPosition()` — added 2026-07-09 but calls undefined `GetRoomSpawnSet()` → likely compile error (`RoomCell.CloseDoor()` added, works)
 - StatSystem — implemented but not wired into Player/Entity
 
 ## Demo fix priority
@@ -61,6 +64,7 @@ producer is the editor debug button in `LevelManagerEditor` — no gameplay emit
 5. Enemy spawn system — GDD approved (`enemy-spawn-system.md`) + ADR-0002 (EnemyManager
    singleton). Prototype built: `RoomModel`/`MapModel`/`EnemyModal` (`Database-SO/Modal/`) +
    `RoomModel.GetSpawnSet()`, driven by `LevelManager.SpawnRoomEnemies()` Editor button.
-   PLANNED: `EnemyManager` lifecycle + `Tile_Spawn` markers + `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`.
-   (Superseded the earlier `EncounterSO`/`RoomEnemySpawner` sketch.)
+   `EnemyManager`/`EnemySpawner` now SCAFFOLD STUBS (2026-07-09, `Assets/Script/Enemy/`) — no lifecycle
+   yet + suspected compile errors (see Stubs). PLANNED: `EnemyManager` lifecycle + `Tile_Spawn` markers
+   + `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`. (Superseded the earlier `EncounterSO`/`RoomEnemySpawner` sketch.)
 6. Build-safe JSON loading — Bug #15 (required before first standalone build)

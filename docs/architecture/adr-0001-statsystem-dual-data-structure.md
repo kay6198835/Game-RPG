@@ -10,7 +10,7 @@ Proposed
 
 | Field | Value |
 |-------|-------|
-| Engine | Unity 2022.3.62f1 LTS |
+| Engine | Unity 2022.3.62f3 LTS |
 | Domain | Core / Serialization |
 | Knowledge Risk | LOW (pinned version is within training data) |
 | References Consulted | docs/engine-reference/unity/VERSION.md |

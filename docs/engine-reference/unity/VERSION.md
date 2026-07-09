@@ -2,8 +2,8 @@
 
 | Field | Value |
 |-------|-------|
-| **Engine Version** | Unity 2022.3.62f1 LTS |
-| **Project Pinned** | 2026-05-19 |
+| **Engine Version** | Unity 2022.3.62f3 LTS |
+| **Project Pinned** | 2026-05-19 (bumped f1→f3 per ProjectSettings/ProjectVersion.txt, verified 2026-07-09) |
 | **LLM Knowledge Cutoff** | May 2025 |
 | **Risk Level** | LOW — version is within LLM training data |
 | **Last Docs Verified** | 2026-05-19 |

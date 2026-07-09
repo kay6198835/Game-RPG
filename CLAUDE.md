@@ -20,7 +20,7 @@
 
   - **Unity:** 2022.3.62f3 LTS
   - **Key packages:** Input System 1.14.0, TextMeshPro 3.0.7, 2D Feature Pack, Visual Scripting 1.9.4
-  - **Open project:** Unity Hub → Open → `d:/Fork/Roughlike/Game-RPG`
+  - **Open project:** Unity Hub → Open → `d:/Fork/Game-RPG`
   - **Main dev scene:** `Assets/Scenes/Main/Test/RandomMaze.unity`
   - **Play/test:** Enter Play Mode in the Unity Editor — no separate build step for development
   - **Compile check:** Any `.cs` edit triggers auto-recompile; errors appear in the Console window
@@ -87,9 +87,13 @@
             EntityUseWeaponState.cs, EntityDisadvantageState.cs
         StatsCharacter.cs                       # SO base: blockDMG, maxMana, maxHealth, AnimatorController
 
-      Enemy/
+      Enemy/                                    # Canonical Assets/Script/Enemy/ — all 6 files
         EnemySO.cs                              # Data-only SO: speed, FOV, damage, projectile, drops
-        NewEnemy.cs                             # Extends Entity — ready to wire up
+        NewEnemy.cs                             # Extends Entity — body empty, needs prefab wiring
+        NewEnemyState.cs                        # ⚠️ extends MonoBehaviour instead of EntityState — stub
+        NewEnemyStateMachine.cs                 # Stub
+        EnemyManager.cs                         # ⚠️ SCAFFOLD STUB (2026-07-09) — only `public static EnemyManager Instance` declared; NO lifecycle/ON_LOAD_MAP/aliveCount/events yet (ADR-0002 singleton exception; imports both System.Numerics + UnityEngine → Vector3 ambiguity risk)
+        EnemySpawner.cs                         # ⚠️ SCAFFOLD STUB (2026-07-09) — OnEnable/OnDisable subscribe ON_LOAD_MAP→OnDoneLoadRoomGrid; Spawn() empty. ⚠️ OnDoneLoadRoomGrid undefined + Vector3 ambiguity (System.Numerics+UnityEngine) → likely compile error, Manual Review
 
       Interface/
         IInteractable.cs, IEffectable.cs
@@ -170,11 +174,13 @@
         Utility.cs                              # Static helpers: PickUniqueIndex, ToCardinalDirection, SealUnusedDoors, GetDoorWorldPosition
         DirectionTarget.cs                      # Direction targeting helper
 
-      Enemy/
-        EnemySO.cs                              # Data-only SO: speed, FOV, damage, projectile, drops
-        NewEnemy.cs                             # Extends Entity — body empty, needs prefab wiring
-        NewEnemyState.cs                        # ⚠️ extends MonoBehaviour instead of EntityState — stub
-        NewEnemyStateMachine.cs                 # Stub
+      Enemy/                                    # (canonical listing above under Script/Enemy/ — EnemySO, NewEnemy*, EnemyManager, EnemySpawner)
+
+      Database-SO/Modal/                        # Enemy-spawn data-model prototype (2026-07-09); note `Modal` typo = "Model"; all extend EntityModel
+        EntityModel.cs                          # Base SO: id (int, private, ID getter — OnValidate GUID-gens when 0), nameEnity
+        EnemyModal.cs                           # planned EnemyData: prefab, weight (⚠️ no [Range] clamp)
+        MapModel.cs                             # planned MapEnemyDatabase: mapName, idRooms (List<int>), totalWeight
+        RoomModel.cs                            # planned RoomData + selection engine: enemiesOfRoom (direct refs), weightBudget[0,500], randomRatio 0.33, overflowPercent 0.1; GetSpawnSet()→GetHybridEnemySet() (Phase1 random + Phase2 random-fill, ⚠️ UnityEngine.Random not injected seed)
 
       Character/Player/
         Animation/
@@ -397,7 +403,7 @@
   12. ~~**Combo attack**~~ ✅ Done (2026-06-22) — multi-stage `AttackState` list trên `WeaponMeleeStats`; `WeaponMelee.SetAnimation()` cycle qua các state, `DurationNextAttack()` tính delay; damage vẫn bị chặn bởi Bug #4.
   13. **Fix start-room teleport** ⚠️ (Bug #13) — bật lại dòng teleport trong `RoomGridController.OnDoneLoadRoomGrid()` (line 56) hoặc gọi `RoomGeneraterController.OnDoneLoadRoomGrid()`; phòng start không có cửa vào nên cần tính `StartDoorPosition` riêng.
   14. **Build-safe room JSON loading** ⚠️ (Bug #15) — thay `File.ReadAllText(Application.dataPath...)` bằng `TextAsset` refs trong `DungeonRoomSO` hoặc StreamingAssets.
-  15. **Enemy spawn system** ⚠️ — GDD `design/gdd/enemy-spawn-system.md` (approved) + ADR-0002 (EnemyManager singleton). **Prototype đã có** (`Assets/Script/Database-SO/Modal/`): `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` + `RoomModel.GetSpawnSet()` (hybrid weight-budget), driver là nút Editor `LevelManager.SpawnRoomEnemies()`. Prototype **lệch** so với GDD/ADR (xem "Prototype Deviations" D1–D8 trong GDD): `UnityEngine.Random` thay vì inject seed, Phase-2 random thay vì `argmin`, ref trực tiếp thay vì id-based, `weight` chưa clamp, chưa có `EnemyManager` lifecycle. **PLANNED:** `EnemyManager` (listen `ON_LOAD_MAP`, track alive count, emit `ON_ENEMY_DEATH` mới + `ON_CLEAR_ENEMY`), `Tile_Spawn` marker parsing, `ON_ROOM_CLEAR`. Phụ thuộc Bug #7/#8 (enemy chưa chết được). (Thay cho sketch `EncounterSO`/`RoomEnemySpawner` cũ.)
+  15. **Enemy spawn system** ⚠️ — GDD `design/gdd/enemy-spawn-system.md` (approved) + ADR-0002 (EnemyManager singleton). **Prototype đã có** (`Assets/Script/Database-SO/Modal/`): `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` + `RoomModel.GetSpawnSet()` (hybrid weight-budget), driver là nút Editor `LevelManager.SpawnRoomEnemies()`. Prototype **lệch** so với GDD/ADR (xem "Prototype Deviations" D1–D8 trong GDD): `UnityEngine.Random` thay vì inject seed, Phase-2 random thay vì `argmin`, ref trực tiếp thay vì id-based, `weight` chưa clamp, chưa có `EnemyManager` lifecycle. **SCAFFOLD STUBS (2026-07-09):** `Assets/Script/Enemy/EnemyManager.cs` (chỉ khai báo `public static Instance`, chưa có body) + `EnemySpawner.cs` (subscribe `ON_LOAD_MAP`→`OnDoneLoadRoomGrid`, `Spawn()` rỗng — ⚠️ `OnDoneLoadRoomGrid` chưa định nghĩa + `Vector3` ambiguity → nghi compile error). `RoomCell.CloseDoor()`/`GetSpawnPosition()` đã thêm (⚠️ `GetSpawnPosition` gọi `GetRoomSpawnSet()` chưa định nghĩa). **PLANNED (chưa code):** `EnemyManager` lifecycle (track alive count, reset per-room theo ADR-0002, emit `ON_ENEMY_DEATH` mới + `ON_CLEAR_ENEMY`), `Tile_Spawn` marker parsing, `ON_ROOM_CLEAR`. Phụ thuộc Bug #7/#8 (enemy chưa chết được). (Thay cho sketch `EncounterSO`/`RoomEnemySpawner` cũ.)
 
   ---
 

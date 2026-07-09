@@ -6,7 +6,7 @@ globs: ["Assets/Script/Map/**/*.cs"]
 # Map / Dungeon Code Standards
 
 ## Singleton Discipline
-- `MazeController` is the ONLY permitted singleton in map code
+- `MazeController` is the ONLY permitted singleton in map code (`EnemyManager` is also permitted project-wide per ADR-0002, but is not a map-code class)
 - `RoomMapController`, `CellMapController`, `MainMapController` must use Inspector refs or `GetComponent`
 - Never add a new singleton — use event system or component wiring
 

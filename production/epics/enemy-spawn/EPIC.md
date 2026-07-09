@@ -24,9 +24,14 @@ per-run pacing and variety of each room.
 > — `RoomModel`/`MapModel`/`EnemyModal`, plus `LevelManager.SpawnRoomEnemies()` on an Editor
 > button). It implements the data model + weight-budget selection only, and **diverges from this
 > epic's planned model** (different class names, direct refs instead of `id`s, `UnityEngine.Random`
-> instead of an injected seed, random Phase-2 instead of `argmin`, no `EnemyManager` lifecycle).
-> The GDD's "Current Implementation Status" and "Prototype Deviations" sections track every gap.
-> Stories must decide per cluster: harden the prototype up to the design, or amend the design.
+> instead of an injected seed, random Phase-2 instead of `argmin`).
+> As of 2026-07-09 `Assets/Script/Enemy/EnemyManager.cs` and `EnemySpawner.cs` exist as **scaffold
+> stubs only** — `EnemyManager` declares just `static Instance`; `EnemySpawner` subscribes
+> `ON_LOAD_MAP` with an empty `Spawn()`. Neither implements the room-combat lifecycle, and both are
+> suspected non-compiling (undefined `OnDoneLoadRoomGrid`; `System.Numerics`+`UnityEngine` `Vector3`
+> ambiguity). `RoomCell.CloseDoor()` (door-lock contract) now exists. The GDD's "Current
+> Implementation Status" and "Prototype Deviations" sections track every gap. Stories must decide
+> per cluster: harden the prototype up to the design, or amend the design.
 
 ## Governing ADRs
 

@@ -56,8 +56,16 @@ which calls private `RoomModel.GetHybridEnemySet()`:
 **Implemented driver** — `LevelManager.SpawnRoomEnemies()` (public), triggered by the Editor
 button **"Spawn Enemy"** (`LevelManagerEditor`). Reads a single `[SerializeField] RoomModel roomModel`,
 calls `GetSpawnSet()`, and `Instantiate`s each `entry.enemy.prefab` at a random position.
-⚠️ There is **no `EnemyManager`, no room-combat lifecycle, no door lock, no alive-count, and no
-events** yet — spawning is a manual editor action, not the `ON_LOAD_MAP`-driven runtime flow.
+⚠️ Spawning is still a manual editor action, not the `ON_LOAD_MAP`-driven runtime flow. As of
+2026-07-09 two **scaffold stubs** exist in `Assets/Script/Enemy/` but carry **no working logic**:
+`EnemyManager.cs` declares only `public static EnemyManager Instance { get; private set; }` (no
+`Awake`, no lifecycle, no alive-count, no events), and `EnemySpawner.cs` subscribes
+`ON_LOAD_MAP`→`OnDoneLoadRoomGrid` with an empty `Spawn()`. Both are suspected non-compiling
+(`EnemySpawner.OnDoneLoadRoomGrid` is undefined; both files import `System.Numerics` **and**
+`UnityEngine`, making `Vector3` ambiguous). `RoomCell` has gained `CloseDoor()` (the door-lock
+contract ADR-0002 expects) and a `GetSpawnPosition()` that calls an undefined `GetRoomSpawnSet()`.
+So the room-combat lifecycle, door lock, alive-count and events remain **unimplemented** —
+the stubs are scaffolding only.
 `LevelManager` is itself a singleton (map-system Bug #12).
 
 **Still PLANNED (designed below, not in code):** `EnemyManager` runtime driver + state machine

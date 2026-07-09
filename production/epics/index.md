@@ -1,7 +1,7 @@
 # Epics Index
 
 Last Updated: 2026-07-09
-Engine: Unity 2022.3.62f1 LTS
+Engine: Unity 2022.3.62f3 LTS
 
 | Epic | Layer | System | GDD | Stories | Status |
 |------|-------|--------|-----|---------|--------|

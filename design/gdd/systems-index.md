@@ -78,7 +78,7 @@ Layer 5 — Tools (standalone)
 
 | System | Risk | Why |
 |--------|------|-----|
-| **Event Bus** | HIGH | 12 of 18 systems route through it — misdesign cascades everywhere |
+| **Event Bus** | HIGH | 12 of 20 systems route through it — misdesign cascades everywhere |
 | **Character / Player Controller** | HIGH | Blocks Combat, Weapons, Skills, HUD, Death |
 | **Damage & Health** | HIGH | Required by Combat, Enemy AI, HUD, Death — shared contract |
 | **Room Progression** | MEDIUM | Connects dungeon generation to gameplay loop and upgrades |
@@ -94,9 +94,10 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 | 1 | Event Bus | MVP | Designed ✅ | Everything |
 | 2 | Input System | MVP | Designed ✅ | Character, Skills |
 | 3 | Damage & Health | MVP | Designed ✅ | Combat, Enemy AI, HUD |
-| 4 | Animation System | MVP | Not Started | Character, Combat |
+| 4 | Animation System | MVP | Designed ✅ | Character, Combat |
 | 5 | Character / Player Controller | MVP | Designed ✅ | Combat, Weapons, Skills, HUD |
 | 6 | Enemy AI | MVP | Designed ✅ | Room Progression, Melee Combat |
+| — | Enemy Spawn & Per-Room Mgmt | MVP | Approved ✅ | Per-Run Upgrades |
 | 7 | Dungeon Generation | MVP | In Progress ✅ | Room Progression, Minimap |
 | 8 | Melee Combat | MVP | Designed ✅ | — |
 | 9 | Weapon System | MVP | Designed ✅ | Skill & Ability |
@@ -114,10 +115,10 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 
 ## GDD Progress
 
-- **Total systems**: 19
-- **Designed / In Progress**: 12 (Event Bus, Input, Damage & Health, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**, **Enemy Spawn**)
-- **With standalone GDD files**: 6 (character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**, **enemy-spawn-system.md**)
-- **Not Started**: 4 MVP systems still need standalone GDDs (Animation, Death & Restart, HUD, Per-Run Upgrades)
+- **Total systems**: 20
+- **Designed / In Progress**: 13 (Event Bus, Input, Damage & Health, **Animation**, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**, **Enemy Spawn**)
+- **With standalone GDD files**: 7 (animation-system.md, character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**, **enemy-spawn-system.md**)
+- **Not Started**: 3 MVP systems still need standalone GDDs (Death & Restart, HUD, Per-Run Upgrades)
 - **Alpha/Tools (lower priority)**: 2 remaining
 
 ---
