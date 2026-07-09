@@ -20,6 +20,14 @@ on clear emits `ON_CLEAR_ENEMY` + `ON_ROOM_CLEAR` to open doors and trigger the
 upgrade screen. The player never touches this system directly; they feel it as the
 per-run pacing and variety of each room.
 
+> **Prototype status (2026-07-09).** A partial prototype exists (`Assets/Script/Database-SO/Modal/`
+> — `RoomModel`/`MapModel`/`EnemyModal`, plus `LevelManager.SpawnRoomEnemies()` on an Editor
+> button). It implements the data model + weight-budget selection only, and **diverges from this
+> epic's planned model** (different class names, direct refs instead of `id`s, `UnityEngine.Random`
+> instead of an injected seed, random Phase-2 instead of `argmin`, no `EnemyManager` lifecycle).
+> The GDD's "Current Implementation Status" and "Prototype Deviations" sections track every gap.
+> Stories must decide per cluster: harden the prototype up to the design, or amend the design.
+
 ## Governing ADRs
 
 | ADR | Decision Summary | Engine Risk |

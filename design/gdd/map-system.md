@@ -238,6 +238,12 @@ Remove these methods to stop misleading readers.
 > - **`RoomCell.IsCleared`**: means "enemies defeated", set on clear. The current set-on-leave
 >   behaviour (`ClearRoom` on door transition) is temporary and moves when `EnemyManager` lands.
 >
+> **As-built today (2026-07-09, prototype):** only the data model + selection exists —
+> `RoomModel`/`MapModel`/`EnemyModal` (`Assets/Script/Database-SO/Modal/`) with
+> `RoomModel.GetSpawnSet()`; spawning is a manual Editor button (`LevelManager.SpawnRoomEnemies()`),
+> not the `EnemyManager` lifecycle. `EnemyManager`, `EnemyDatabase`, the events, and marker parsing
+> are still PLANNED. See the "Current Implementation Status" section in `enemy-spawn-system.md`.
+>
 > Map-side contract this system still owns: `RoomCell.CloseDoor()` / `OpenDoors()` / `IsCleared`,
 > the `RoomType → RoomData` routing (**blocked on Bug #16** — `RoomFile.roomType` not read at
 > runtime), and the `Tile_Spawn` parser branch in `RoomGeneraterController`.

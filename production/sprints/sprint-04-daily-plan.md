@@ -97,8 +97,8 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 | # | Task | Est | Priority |
 |---|------|-----|----------|
 | 1 | **S4-D3** — `/create-epics enemy-spawn` (systems-index half already done); map stories to S5 (data+algorithm) / S6 (runtime+room-clear), note enemy-death dependency | 0.5d | 🔴 Design |
-| 2 | **Reconcile prototype vs GDD** — either (a) move `Assets/Script/Database-SO/**` under `prototypes/enemy-spawn/` with the required README (Hypothesis/Result/Decision) per `prototype-code.md`, or (b) if it's being treated as an early Sprint-5 start, say so explicitly and align `RoomModel.GetHybridEnemySet()` with the GDD's tie-break + seed-param formula | — | Owner decision |
-| 3 | Fix stale header: `design/gdd/enemy-spawn-system.md` line 12 `**Status**: In Design` → `Approved` (matches `systems-index.md`) | — | Housekeeping |
+| 2 | **Reconcile prototype vs GDD** — 🟡 partially done (2026-07-09): owner chose **doc-follows-code**, so the GDD now reverse-documents the prototype ("Current Implementation Status") and logs every gap ("Prototype Deviations" D1–D8, `TD-031`). **Still open (owner decision):** (a) move `Assets/Script/Database-SO/**` under `prototypes/enemy-spawn/` with a README per `prototype-code.md`, **or** (b) treat it as an early Sprint-5 start and harden `RoomModel` toward the GDD's injected-seed + `argmin` formula | — | Owner decision |
+| 3 | ✅ Done (2026-07-09) — stale header `**Status**: In Design` → `Approved`; `EncounterSO`/`RoomEnemySpawner` refs synced across CLAUDE.md / project_state / tech-debt / map-system | — | Housekeeping |
 
 ---
 

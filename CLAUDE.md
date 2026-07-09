@@ -371,7 +371,7 @@
 
   - **No comments** unless the WHY is non-obvious (hidden constraint, workaround, surprising invariant).
   - **ScriptableObject-first**: game data (abilities, enemies, weapons, items) lives in SO assets, not hardcoded values.
-  - **No new singletons** — `MazeController` is the only permitted singleton; use `GetComponent` or Inspector refs everywhere else.
+  - **No new singletons** — `MazeController` and `EnemyManager` (ratified exception, ADR-0002) are the only permitted singletons; use `GetComponent` or Inspector refs everywhere else.
   - **State machine for all characters**: new behaviour = new `PlayerState` / `EntityState` subclass, never inline `if/else` in `Update`.
   - **Weapon skills**: subclass `ActivateSkill` and override `Do()` (one-shot) or `Cast()`+`Do()` (hold-release).
   - **Layer masks** must be set in Inspector; never hardcode layer indices.
@@ -397,7 +397,7 @@
   12. ~~**Combo attack**~~ ✅ Done (2026-06-22) — multi-stage `AttackState` list trên `WeaponMeleeStats`; `WeaponMelee.SetAnimation()` cycle qua các state, `DurationNextAttack()` tính delay; damage vẫn bị chặn bởi Bug #4.
   13. **Fix start-room teleport** ⚠️ (Bug #13) — bật lại dòng teleport trong `RoomGridController.OnDoneLoadRoomGrid()` (line 56) hoặc gọi `RoomGeneraterController.OnDoneLoadRoomGrid()`; phòng start không có cửa vào nên cần tính `StartDoorPosition` riêng.
   14. **Build-safe room JSON loading** ⚠️ (Bug #15) — thay `File.ReadAllText(Application.dataPath...)` bằng `TextAsset` refs trong `DungeonRoomSO` hoặc StreamingAssets.
-  15. **Enemy spawn system** ⚠️ — hướng đã chốt (2026-07-02): `Tile_Spawn` marker tiles trong room JSON (constant có sẵn trong `GameConstants.TileName.SPAWN`, chưa dùng) + `EncounterSO` theo `RoomType` + `RoomEnemySpawner` (listen `ON_LOAD_MAP`, track alive count, emit `ON_ENEMY_DEATH` mới + `ON_CLEAR_ENEMY` có sẵn). Phụ thuộc Bug #7/#8 (enemy chưa chết được). Hiện `ON_CLEAR_ENEMY` chỉ được phát từ nút debug trong `LevelManagerEditor`.
+  15. **Enemy spawn system** ⚠️ — GDD `design/gdd/enemy-spawn-system.md` (approved) + ADR-0002 (EnemyManager singleton). **Prototype đã có** (`Assets/Script/Database-SO/Modal/`): `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` + `RoomModel.GetSpawnSet()` (hybrid weight-budget), driver là nút Editor `LevelManager.SpawnRoomEnemies()`. Prototype **lệch** so với GDD/ADR (xem "Prototype Deviations" D1–D8 trong GDD): `UnityEngine.Random` thay vì inject seed, Phase-2 random thay vì `argmin`, ref trực tiếp thay vì id-based, `weight` chưa clamp, chưa có `EnemyManager` lifecycle. **PLANNED:** `EnemyManager` (listen `ON_LOAD_MAP`, track alive count, emit `ON_ENEMY_DEATH` mới + `ON_CLEAR_ENEMY`), `Tile_Spawn` marker parsing, `ON_ROOM_CLEAR`. Phụ thuộc Bug #7/#8 (enemy chưa chết được). (Thay cho sketch `EncounterSO`/`RoomEnemySpawner` cũ.)
 
   ---
 

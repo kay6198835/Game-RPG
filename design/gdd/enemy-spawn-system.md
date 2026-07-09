@@ -3,20 +3,65 @@ status: revised
 source: owner spec (2026-07-08) + codebase audit (Assets/Script/Enemy, Map/Room, Manager)
 date: 2026-07-08
 revised: 2026-07-08 (post /design-review — 4 specialist passes; owner decisions logged)
+revised: 2026-07-09 (reverse-synced to prototype code — Assets/Script/Database-SO/Modal + LevelManager.SpawnRoomEnemies)
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
 ---
 
 # Enemy Spawn & Per-Room Management System
 
-**Status**: In Design
+**Status**: Approved (design) · Prototype partial (see Current Implementation Status)
 **Implements Pillar**: Room-clear progression · "each run is a fresh challenge" (run-to-run variety)
 
 > **Architecture decision (2026-07-08):** This GDD adopts the data-driven **weight-budget** model
-> (4 ScriptableObjects + `GetHybridEnemySet` + `EnemyManager`) and **supersedes** the earlier
-> `EncounterSO` + `RoomEnemySpawner` plan sketched in `map-system.md`. Run
-> `/propagate-design-change` on `map-system.md` after this GDD is approved so its Dependencies /
-> Room-Clear sections point here.
+> (ScriptableObjects + `GetHybridEnemySet`/`GetSpawnSet` selection + a runtime driver) and
+> **supersedes** the earlier `EncounterSO` + `RoomEnemySpawner` plan sketched in `map-system.md`.
+> Propagated into `map-system.md` on 2026-07-09.
+
+---
+
+## Current Implementation Status (2026-07-09) — authoritative for "what is built"
+
+> This section reverse-documents the **prototype actually in the repo** (commit `a420d5e`,
+> `Assets/Script/Database-SO/Modal/*` + `LevelManager.SpawnRoomEnemies`). Where the Detailed
+> Design below differs, **this section describes what exists today**; the rest of the GDD
+> describes the **PLANNED** hardened target that the code has not reached yet. The prototype
+> commit itself notes "need polish code and flow" — several planned invariants are not enforced
+> (flagged as ⚠️ deviations here and re-listed as open issues at the end of the doc).
+
+**Implemented ScriptableObjects** (`Assets/Script/Database-SO/Modal/`, note the `Modal` typo for
+"Model"; all extend `EntityModel`):
+
+| Class (code) | Planned name in this GDD | Fields (code) | Notes |
+|--------------|--------------------------|---------------|-------|
+| `EntityModel` (base) | — | `id` (int, private, `ID` getter), `nameEnity` (string) | `OnValidate` sets `id = Math.Abs(Guid.NewGuid().GetHashCode())` when `id == 0`. ⚠️ No reroll-if-zero loop and no public `EnsureId()` test hook. |
+| `EnemyModal` | `EnemyData` | `prefab` (GameObject), `weight` (int) | ⚠️ `weight` has **no `[Range(1,99)]`/clamp** — the `≥ 1` invariant is not enforced at author time. |
+| `MapModel` | `MapEnemyDatabase` | `mapName` (string), `idRooms` (List\<int\>), `totalWeight` (int) | ⚠️ Holds `idRooms`, **not** an `idEnemy` set. Diverges from the planned map→enemy-set role. |
+| `RoomModel` | `RoomData` **+** the selection engine | `enemiesOfRoom` (List\<`EnemyModal`\>, **direct refs**), `weightBudget` (`[Range(0,500)]`), `randomRatio` (`[Range(0,1)]`, default `0.33`), `overflowPercent` (`[Range(0,1)]`, default `0.1`) | ⚠️ Holds **direct `EnemyModal` references**, not `id`s. The selection method lives here, **not** on a central `EnemyDatabase` (which does not exist). |
+
+**Implemented selection** — `RoomModel.GetSpawnSet()` → `List<EnemySpawnEntry>` (`{enemy, count}`),
+which calls private `RoomModel.GetHybridEnemySet()`:
+- Candidates = `enemiesOfRoom` filtered to `e != null && e.weight > 0` (runtime guard only).
+- **Phase 1 (random):** repeatedly picks a random eligible candidate (`UnityEngine.Random`) whose
+  weight fits both `randomBudget` and `remaining`.
+- **Phase 2 (fill):** while `remaining > 0`, picks a **random** candidate among those with
+  `weight − remaining ≤ maxOverflow`. ⚠️ This is a **random** fill, **not** the planned
+  deterministic `argmin |weight − remaining|` optimal fill.
+- ⚠️ RNG is `UnityEngine.Random` (static), **not** an injected `System.Random` — so the
+  determinism/tie-break acceptance criteria (AC-A3, AC-A4) **cannot be met** by this code as-is.
+
+**Implemented driver** — `LevelManager.SpawnRoomEnemies()` (public), triggered by the Editor
+button **"Spawn Enemy"** (`LevelManagerEditor`). Reads a single `[SerializeField] RoomModel roomModel`,
+calls `GetSpawnSet()`, and `Instantiate`s each `entry.enemy.prefab` at a random position.
+⚠️ There is **no `EnemyManager`, no room-combat lifecycle, no door lock, no alive-count, and no
+events** yet — spawning is a manual editor action, not the `ON_LOAD_MAP`-driven runtime flow.
+`LevelManager` is itself a singleton (map-system Bug #12).
+
+**Still PLANNED (designed below, not in code):** `EnemyManager` runtime driver + state machine
+(see ADR-0002 for the ratified singleton decision), `EnemyDatabase` central store + `GetByID`,
+id-based (not ref-based) map/room data, injected-RNG deterministic selection, `argmin` optimal
+fill, `weight ≥ 1` enforcement, `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR` events, `Tile_Spawn` marker
+parsing, entry-safety/jitter placement, and RoomType→RoomData routing.
 
 ---
 
@@ -67,6 +112,12 @@ fast and legible.
 ## Detailed Design
 
 ### Core Data Model
+
+> **[PLANNED target.]** The table below is the *designed* model. For the classes that actually
+> exist today (`EntityModel`/`EnemyModal`/`MapModel`/`RoomModel`) and how they differ, see
+> **Current Implementation Status (2026-07-09)** above. Notably the code has **no `EnemyDatabase`**
+> (selection lives on `RoomModel`), uses **direct refs** instead of `id`s, and `MapModel` carries
+> `idRooms`/`totalWeight` rather than `idEnemy`.
 
 | SO | Role | Fields | Contains logic? |
 |----|------|--------|-----------------|
@@ -122,6 +173,12 @@ fast and legible.
 
 ### `EnemyDatabase.GetHybridEnemySet(List<int> idEnemy, int weightBudget, float randomRatio, float overflowPercent, System.Random rng)`
 
+> **[PLANNED signature.]** The as-built method is `RoomModel.GetHybridEnemySet()` (parameterless,
+> reads its own fields) exposed via `RoomModel.GetSpawnSet()`. It uses `UnityEngine.Random` (not an
+> injected `System.Random`) and a **random** Phase-2 fill (not `argmin`). The design below is the
+> hardened target; adopting it requires the injected-RNG + `argmin` rework noted in Current
+> Implementation Status.
+
 The RNG is an **injected parameter**, not constructed internally — this is what makes the method
 deterministic and unit-testable (a test passes `new System.Random(fixedSeed)`). A thin runtime
 overload `GetHybridEnemySet(idEnemy, weightBudget, randomRatio, overflowPercent)` constructs the
@@ -161,9 +218,14 @@ candidate decreases `remaining` by at least 1, so the loop always reaches `remai
 "no eligible candidate" in finite steps. This guarantee is **void** if `weight ≤ 0` is ever allowed
 — hence the hard clamp, not a soft convention.
 
-### States and Transitions (per-room combat lifecycle)
+### States and Transitions (per-room combat lifecycle) — **[PLANNED — not in code yet]**
 
-`EnemyManager` (singleton — see Open Questions) drives the room state:
+> The lifecycle below is **not implemented**. Today spawning is a manual Editor action
+> (`LevelManager.SpawnRoomEnemies()` via the "Spawn Enemy" button) with no state machine, door
+> lock, alive-count, or events. `EnemyManager` is the ratified runtime driver (ADR-0002) but has
+> not been written.
+
+`EnemyManager` (singleton — ratified in ADR-0002) drives the room state:
 
 | State | Enter condition | On enter | Exit condition |
 |-------|-----------------|----------|----------------|
@@ -353,6 +415,13 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 
 ## Acceptance Criteria
 
+> **[PLANNED target — not all met by the 2026-07-09 prototype.]** These ACs define "done" for the
+> hardened system. The current prototype (`RoomModel`/`LevelManager`) **cannot pass** the
+> determinism/tie-break ACs (AC-A3, AC-A4 — no injected RNG, random fill), the `weight ≥ 1`
+> enforcement AC (AC-A6 — no clamp), the data-validation ACs (AC-D1…D3 — no `EnemyDatabase`
+> lookup / no subset strip), or the room-lifecycle ACs (AC-L1…L6, AC-P1…P3 — no `EnemyManager`).
+> They remain the acceptance bar for the planned implementation.
+
 > **Test isolation (applies to all ACs below):** every test constructs its own disposable
 > `ScriptableObject.CreateInstance<…>()` for `EnemyDatabase` / `EnemyData` / `RoomData` /
 > `MapEnemyDatabase` — **never** the shipped project assets — mirroring the project `PlayerData`
@@ -468,3 +537,22 @@ carries them:
   high-tier enemy is cheap or vice-versa — closes the "weight diverges from real threat" hazard.
 - **Object pooling.** Replace `Instantiate` with the `Pooling/` system once it exists (currently
   Alpha / Not Started) — soft dependency, `Instantiate` acceptable for the demo.
+
+---
+
+## Prototype Deviations from the Planned Design (open — owner review)
+
+The 2026-07-09 reverse-sync documented the prototype as-built. These are the points where the
+prototype **diverges from the planned/reviewed design**; each is a decision for the owner —
+either harden the code up to the design, or amend the design to accept the prototype's approach.
+
+| # | Deviation | As-built | Planned | Risk if left as-is |
+|---|-----------|----------|---------|--------------------|
+| D1 | RNG source | `UnityEngine.Random` (static) | Injected `System.Random` | Selection is non-deterministic → AC-A3/AC-A4 untestable; no reproducible runs (Open Q#2) |
+| D2 | Phase-2 fill | Random pick among eligible | Deterministic `argmin \|weight−remaining\|` + tie-break | Budget not used "optimally"; behaviour not reproducible |
+| D3 | Enemy reference model | `RoomModel.enemiesOfRoom` = direct `EnemyModal` refs | `id`-based via `EnemyDatabase.GetByID` | Heavier map/room assets; no central store; no dup/zero-id validation (AC-D1…D3) |
+| D4 | `weight ≥ 1` enforcement | Runtime `> 0` guard only | `[Range(1,99)]` + `OnValidate` clamp | A `0`/negative weight authored on `EnemyModal` still possible in the Inspector |
+| D5 | `MapModel` role | `mapName` + `idRooms` + `totalWeight` | `mapName` + `idEnemy` (map's enemy set) | Map data does not scope a room's enemy pool as designed |
+| D6 | `id` generation | `Math.Abs(Guid.GetHashCode())`, no reroll, no public `EnsureId()` | reroll-until-nonzero + public test hook | `id == 0` edge and in-memory-SO test path unhandled |
+| D7 | Runtime driver | `LevelManager.SpawnRoomEnemies()` Editor button, random positions | `EnemyManager` event-driven lifecycle (ADR-0002) | No door lock / alive-count / room-clear / events; not a real run flow |
+| D8 | Class naming / location | `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` in `Database-SO/Modal/` (typo "Modal") | `EnemyData`/`EnemyDatabase`/`MapEnemyDatabase`/`RoomData` | Naming drift between doc and code; prototype sits in production `Script/` tree, not `prototypes/` |

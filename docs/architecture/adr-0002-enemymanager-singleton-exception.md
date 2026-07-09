@@ -184,10 +184,13 @@ Implementation constraints that bound the exception:
 - **Network**: N/A (single-player demo).
 
 ## Migration Plan
-No existing code to migrate — `EnemyManager` is not yet implemented. If a future
-ADR supersedes this to adopt Alternative 2, migration is: remove `static Instance`,
-add `[SerializeField]` references / a cached scene lookup, and wire the manager in
-each gameplay scene.
+`EnemyManager` is not yet implemented. The current prototype (2026-07-09) drives
+spawning through `LevelManager.SpawnRoomEnemies()` off an Editor button — a manual
+stand-in with no lifecycle. Building `EnemyManager` replaces that editor-only path
+with the event-driven runtime flow; the prototype's selection (`RoomModel.GetSpawnSet`)
+can be reused behind it. If a future ADR supersedes this to adopt Alternative 2,
+migration is: remove `static Instance`, add `[SerializeField]` references / a cached
+scene lookup, and wire the manager in each gameplay scene.
 
 ## Validation Criteria
 - Only `MazeController` and `EnemyManager` contain a `public static … Instance`

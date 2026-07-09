@@ -58,6 +58,9 @@ producer is the editor debug button in `LevelManagerEditor` — no gameplay emit
 2. Enemy death chain — Bugs #5, #7, #8 (prerequisite for any room-clear loop)
 3. `WeaponMelee.Attack()` damage — Bug #4
 4. Start-room teleport — Bug #13
-5. Enemy spawn system — agreed direction: `Tile_Spawn` markers + `EncounterSO` per
-   `RoomType` + `RoomEnemySpawner` (listens ON_LOAD_MAP, emits ON_ENEMY_DEATH/ON_CLEAR_ENEMY)
+5. Enemy spawn system — GDD approved (`enemy-spawn-system.md`) + ADR-0002 (EnemyManager
+   singleton). Prototype built: `RoomModel`/`MapModel`/`EnemyModal` (`Database-SO/Modal/`) +
+   `RoomModel.GetSpawnSet()`, driven by `LevelManager.SpawnRoomEnemies()` Editor button.
+   PLANNED: `EnemyManager` lifecycle + `Tile_Spawn` markers + `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`.
+   (Superseded the earlier `EncounterSO`/`RoomEnemySpawner` sketch.)
 6. Build-safe JSON loading — Bug #15 (required before first standalone build)
