@@ -154,6 +154,34 @@ Non-Must-Have Should-Haves that don't serve this system (**S4-05**, **S4-06**) a
 
 ---
 
+## Sprint Status: ✅ COMPLETE (closed by automated Sunday 22:00 kickoff run, 2026-07-13)
+
+Formally closed at Sunday kickoff. Branch `sprint-05` created from `sprint-04` HEAD (`26a85cd` on `origin/feature/spawn-enemy`, one commit — `cb099ee` "random padding position" — ahead of the `sprint-04` branch tip `6aa3cc1`; that commit was NOT carried into `sprint-05` per the kickoff rule requiring the new branch to fork from the `sprint-04` branch specifically, not from whatever branch happened to be checked out. Flagged below as a carry item.
+
+Final Definition of Done checklist (unchanged since Saturday wrap-up — no further sprint-04-scoped work landed 07-11→07-13):
+- [x] S4-D1 → S4-D4 completed
+- [x] S4-01 → S4-04 all completed and verified
+- [x] `grep -r "using UnityEditor" Assets/Script/` → 0 hits
+- [ ] Play Mode smoke — still not confirmed (no Unity CLI in this environment); carries to Sprint 5 as a manual-verification action item
+- [x] No LINQ in `Core.GetCoreComponent<T>()`
+- [x] Working tree clean at sprint close — confirmed via kickoff run (WIP on `EnemySpawner.cs` + scene stashed, not committed to any sprint-04/05 branch)
+- [x] Carry-over decision recorded for Sprint 5 (below, supersedes Saturday's list where re-triaged)
+- [x] Retrospective — see `production/retros/retro-sprint-04-2026-07-10.md`
+
+### Final Carry-Over → Sprint 5
+
+- **NEW** — `cb099ee` "random padding position" (`Assets/Script/Enemy/EnemySpawner.cs`, `Assets/Scenes/Main/Test/LoadRandomMap.unity`) — landed on `origin/feature/spawn-enemy` after the Saturday wrap-up, not present on the `sprint-04` branch tip, not carried into `sprint-05` by the kickoff branch-from-`sprint-04` rule. Owner should cherry-pick or re-apply onto `sprint-05` manually.
+- **NEW** — uncommitted WIP found at kickoff time on `EnemySpawner.cs` + `LoadRandomMap.unity` (2-file diff, 4 lines) — stashed as `wip-before-sprint-kickoff-2026-07-13` rather than discarded; recover with `git stash pop` (or `apply`) on the appropriate branch once the owner decides where it belongs (`sprint-05` vs staying on `feature/spawn-enemy`).
+- S4-05 — Fix BUG-PIH-1 (`CancelInvoke` pairing, `PlayerInputHandle.cs:264`) — 4th carry (S2→S3→S4→S5)
+- S4-06 — `TalentManager` prototype → SO-driven — 3rd carry (S3→S4→S5)
+- ADR: Skill Enhance vs `ActivateSkill` pipeline decision — 3rd carry (S3→S4→S5), still not started
+- Bug #6 (player death chain), Bugs #5/#7/#8 (enemy death chain), room-clear condition — 5th carry, design-unblocked since S4
+- BUG-ES-1 (NRE risk in `RoomModel.GetSpawnSet()`), BUG-ES-2 (duplicate `EnemySpawner`/`LevelManager` spawn drivers), BUG-ES-3 (`EventID` missing `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`) — carried, unresolved
+- ADR-0002 (`EnemyManager` singleton) — `Status: Proposed`, still not flipped to `Accepted`; needs owner sign-off before Sprint 6 hardens the singleton further
+- Owner decision still open: fold `Assets/Script/Database-SO/**` enemy-spawn prototype formally into Sprint 5 scope, or relocate under `prototypes/` per the isolation rule
+
+---
+
 ## Sprint Close — Weekly Wrap-up (2026-07-10, automated Saturday 22:00 run)
 
 > Ran on sprint Day 4 (Thu, per this sprint's own day-plan) — one day ahead of the sprint's designated Friday wrap day. Friday 07-11 work is not reflected below; treat this as the scheduled close for the tracked week, not a claim that Sprint 4 is fully finished.
