@@ -151,3 +151,47 @@ Non-Must-Have Should-Haves that don't serve this system (**S4-05**, **S4-06**) a
 - **Stats system** (if S4-06 lands): Sprint 5 connects SO stats to damage/speed formulas; first real playtest session.
 - **If S4-07 (Weapon decoupling) not done**: pull forward to Sprint 5 Must Have.
 - **First playtest session**: once S4-04 (melee damage) and S4-02 (ability exit) both confirmed in Play Mode.
+
+---
+
+## Sprint Close — Weekly Wrap-up (2026-07-10, automated Saturday 22:00 run)
+
+> Ran on sprint Day 4 (Thu, per this sprint's own day-plan) — one day ahead of the sprint's designated Friday wrap day. Friday 07-11 work is not reflected below; treat this as the scheduled close for the tracked week, not a claim that Sprint 4 is fully finished.
+
+**Verdict: CONCERNS**
+
+Reasoning: the sprint's own Definition of Done is mostly met — all 4 Must-Have P1s closed and verified (first 100% completion in 9 sprints), all 4 design-track tasks done, GDD approved, both ADRs written. That's a PASS on the sprint's stated goal. The CONCERNS flag is for what happened alongside it: the explicit "design only, no code" Day-2 pivot was broken same night and stayed broken for 3+ more days, a live NullReferenceException risk (BUG-ES-1) shipped in the resulting code, a second undocumented spawn driver appeared that bypasses the just-ratified ADR-0002 architecture, and the playtest that's been "next sprint" for two retros running still didn't happen despite its blocker being cleared Day 1.
+
+### Definition of Done — Checklist Result
+
+- [x] S4-D1 → S4-D4 completed — GDD approved, 6 design questions resolved, epic + ADR-0002 created
+- [x] S4-01 → S4-04 all completed and pass acceptance criteria — verified by direct code read, not just commit message
+- [x] `grep -r "using UnityEditor" Assets/Script/` returns 0 hits in runtime scripts — confirmed
+- [ ] Play Mode smoke test — **not confirmed this wrap-up** (no Unity CLI available in this environment); flagged pending in daily log since 07-07, still open
+- [x] No LINQ in `Core.GetCoreComponent<T>()` — confirmed, `Dictionary` cache + `foreach`
+- [ ] Working tree clean before end-of-sprint commit — N/A, sprint not yet formally closed (Friday remains)
+- [x] Carry-over decision recorded for Sprint 5 — see below
+- [x] Retrospective note — velocity was 100% on Must-Haves (not <50%), but retro still written given the off-plan pattern; see `production/retros/retro-sprint-04-2026-07-10.md`
+
+### Velocity
+
+- **Must-Have (P1) completion**: 100% (4/4) — best result tracked to date, reversing 8 consecutive sprints at 0-14%
+- **Should-Have completion**: 0% (0/2) — deliberately pended by the Day-2 pivot, not slippage
+- **Design-track completion**: 100% (4/4)
+- **Off-plan volume**: high — ~9 commits of unplanned enemy-spawn prototype code across 07-08 (20:14) through 07-10, after an explicit same-day "no code" decision
+
+### Carry-Over to Sprint 5
+
+- S4-05 — Fix BUG-PIH-1 (`CancelInvoke` pairing in `PlayerInputHandle.cs:264`) — 3rd carry (S2→S3→S4→S5)
+- S4-06 — `TalentManager` prototype → SO-driven — 2nd carry (S3→S4→S5)
+- ADR: Skill Enhance vs `ActivateSkill` pipeline decision — 2nd carry (S3→S4→S5), still not started
+- Bug #6 (player death chain), Bugs #5/#7/#8 (enemy death chain), room-clear condition — 4th carry (S1→S2→S3→S4→S5), now design-unblocked
+- New from this triage: BUG-ES-1 (NRE risk in `RoomModel.GetSpawnSet()`), BUG-ES-2 (duplicate `EnemySpawner`/`LevelManager` spawn drivers), BUG-ES-3 (`EventID` missing `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`) — all new, small, high-value fixes that unblock Sprint 6's `EnemyManager` work
+- Explicit owner decision needed: formalize enemy-spawn prototype code into Sprint 5 scope (aligned to the GDD's locked algorithm) or relocate under `prototypes/` per the isolation rule — currently in neither state
+
+### Reference Files
+
+- Code review (this week's 27 changed `.cs` files): findings surfaced in `production/retros/retro-sprint-04-2026-07-10.md` context and `production/qa/bug-triage-2026-07-10.md`; verdict CHANGES REQUIRED (blocking: BUG-ES-1 null risk, ADR-0002 architecture drift, missing `EventID` values)
+- Bug triage: `production/qa/bug-triage-2026-07-10.md`
+- Retrospective: `production/retros/retro-sprint-04-2026-07-10.md`
+- Playtest: skipped — no session logged since `production/qa/playtests/playtest-2026-06-12-weekly-wrapup.md`; run `/playtest-report` manually if a session happens before Sprint 5 kickoff
