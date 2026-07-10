@@ -7,6 +7,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private List<Vector2Int> spawnPosition;
     [SerializeField] private MapModel mapModel;
     [SerializeField] private RoomModel roomModel;
+    [SerializeField] private float paddingPosition;
+    [SerializeField] private float maxPadding;
+    [SerializeField] private Vector2 positionRandom;
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);
@@ -54,7 +57,12 @@ public class EnemySpawner : MonoBehaviour
             if (entry.enemy == null || entry.enemy.prefab == null) continue;
             for (int i = 0; i < entry.count; i++)
             {
-                Instantiate(entry.enemy.prefab, spawnPosition[Random.Range(0, spawnPosition.Count)].ConvertTo<Vector2>(),
+                positionRandom = spawnPosition[Random.Range(0, spawnPosition.Count)].ConvertTo<Vector2>();
+                paddingPosition = Random.Range(-maxPadding, maxPadding);
+                positionRandom.y += paddingPosition;
+                paddingPosition = Random.Range(-maxPadding, maxPadding);
+                positionRandom.x += paddingPosition;
+                Instantiate(entry.enemy.prefab, positionRandom,
                 Quaternion.identity, transform);
             }
         }
