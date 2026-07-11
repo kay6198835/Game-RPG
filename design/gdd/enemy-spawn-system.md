@@ -2,10 +2,13 @@
 status: revised
 source: owner spec (2026-07-08) + codebase audit (Assets/Script/Enemy, Map/Room, Manager)
 date: 2026-07-08
-revised: 2026-07-09 (Open Q#2 seed source resolved; Q#4 mechanism updated to RoomFile.roomData; 
+revised: 2026-07-09 (Open Q#2 seed source resolved; Q#4 mechanism updated to RoomFile.roomData;
 prior: 2026-07-08 post /design-review — 4 specialist passes; owner decisions logged)
 revised: 2026-07-08 (post /design-review — 4 specialist passes; owner decisions logged)
 revised: 2026-07-09 (reverse-synced to prototype code — Assets/Script/Database-SO/Modal + LevelManager.SpawnRoomEnemies)
+revised: 2026-07-13 (second reverse-sync — code diverged further from the 2026-07-08 target rather
+than converging on it; this revision makes the actual classes the primary reference and folds the
+old target + a new candidate-pool proposal into Future Architecture Direction, evaluated together)
 
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
@@ -13,88 +16,153 @@ supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (En
 
 # Enemy Spawn & Per-Room Management System
 
-**Status**: Approved (design) · Prototype partial (see Current Implementation Status)
+**Status**: Approved (design) · Prototype partial — **code has diverged from the 2026-07-08 target,
+not converged on it** (see Doc-sync note + Current Implementation)
 **Implements Pillar**: Room-clear progression · "each run is a fresh challenge" (run-to-run variety)
 
-> **Architecture decision (2026-07-08):** This GDD adopts the data-driven **weight-budget** model
-> (ScriptableObjects + `GetHybridEnemySet`/`GetSpawnSet` selection + a runtime driver) and
-> **supersedes** the earlier `EncounterSO` + `RoomEnemySpawner` plan sketched in `map-system.md`.
-> Propagated into `map-system.md` on 2026-07-09.
+> **Architecture decision (2026-07-08):** This GDD originally adopted a data-driven **weight-budget**
+> model (idealized `EnemyData`/`EnemyDatabase`/`RoomData`/`MapEnemyDatabase` SOs + `GetHybridEnemySet`)
+> and superseded the earlier `EncounterSO` + `RoomEnemySpawner` plan sketched in `map-system.md`. That
+> supersession still holds. What changed 2026-07-13: the idealized class names were **never
+> implemented** — the classes actually built (`EntityModel`/`EnemyModal`/`MapModel`/`RoomModel`) took a
+> different shape and kept evolving independently after the 2026-07-09 sync. This revision makes the
+> **real code the primary reference**, per project convention (docs follow code, not the reverse).
+
+> **Doc-sync note (2026-07-13):** Second reverse-sync of this GDD (first: 2026-07-09). Between the two
+> syncs the prototype moved **further from**, not closer to, the 2026-07-08 target:
+> `RoomModel.GetSpawnSet()` was rewritten for zero-alloc (scratch buffers) but kept `UnityEngine.Random`
+> and dropped the `argmin` idea entirely in favor of uniform-random-pick-from-fit-group in both phases;
+> `MapModel` gained a `fullRoomList` + `GetRandomRoom()` bag-draw of whole `RoomModel` presets, replacing
+> its earlier `idRooms`/`totalWeight` fields and superseding the `RoomFile.roomData` per-room mapping
+> this GDD previously marked **RESOLVED** (that field was never added to `RoomFile` — see
+> Room→RoomModel Resolution below); and the `Tile_Spawn_Enemy` marker parser this GDD previously listed
+> as **not built** now exists in `RoomGeneraterController.LoadRoom()`. None of this was captured until
+> this pass — see `production/epics/enemy-spawn/EPIC.md` and `docs/tech-debt-register.md` TD-031 for
+> the parallel updates made alongside this one.
 
 ---
 
-## Current Implementation Status (2026-07-09) — authoritative for "what is built"
+## Current Implementation (2026-07-13) — authoritative for "what is built"
 
-> This section reverse-documents the **prototype actually in the repo** (commit `a420d5e`,
-> `Assets/Script/Database-SO/Modal/*` + `LevelManager.SpawnRoomEnemies`). Where the Detailed
-> Design below differs, **this section describes what exists today**; the rest of the GDD
-> describes the **PLANNED** hardened target that the code has not reached yet. The prototype
-> commit itself notes "need polish code and flow" — several planned invariants are not enforced
-> (flagged as ⚠️ deviations here and re-listed as open issues at the end of the doc).
+> This section documents the **actual system running in the repo today**, using the project's real
+> class names. It is the primary description of this system. The 2026-07-08 idealized target
+> (`EnemyData`/`EnemyDatabase`/`RoomData`/`MapEnemyDatabase`, injected-RNG `argmin` selection,
+> `RoomFile.roomData` mapping) was never built and is kept only as historical context inside
+> **Future Architecture Direction**, alongside a newer candidate-pool proposal evaluated on the same
+> footing.
 
-**Implemented ScriptableObjects** (`Assets/Script/Database-SO/Modal/`, note the `Modal` typo for
-"Model"; all extend `EntityModel`):
+**ScriptableObjects** (`Assets/Script/Database-SO/Modal/`, note the `Modal` typo for "Model"; all
+extend `EntityModel`):
 
-| Class (code) | Planned name in this GDD | Fields (code) | Notes |
-|--------------|--------------------------|---------------|-------|
-| `EntityModel` (base) | — | `id` (int, private, `ID` getter), `nameEnity` (string) | `OnValidate` sets `id = Math.Abs(Guid.NewGuid().GetHashCode())` when `id == 0`. ⚠️ No reroll-if-zero loop and no public `EnsureId()` test hook. |
-| `EnemyModal` | `EnemyData` | `prefab` (GameObject), `weight` (int) | ⚠️ `weight` has **no `[Range(1,99)]`/clamp** — the `≥ 1` invariant is not enforced at author time. |
-| `MapModel` | `MapEnemyDatabase` | `mapName` (string), `idRooms` (List\<int\>), `totalWeight` (int) | ⚠️ Holds `idRooms`, **not** an `idEnemy` set. Diverges from the planned map→enemy-set role. |
-| `RoomModel` | `RoomData` **+** the selection engine | `enemiesOfRoom` (List\<`EnemyModal`\>, **direct refs**), `weightBudget` (`[Range(0,500)]`), `randomRatio` (`[Range(0,1)]`, default `0.33`), `overflowPercent` (`[Range(0,1)]`, default `0.1`) | ⚠️ Holds **direct `EnemyModal` references**, not `id`s. The selection method lives here, **not** on a central `EnemyDatabase` (which does not exist). |
+| Class (code) | Role | Fields | Notes |
+|--------------|------|--------|-------|
+| `EntityModel` (base) | Id + display name for any spawn-database asset | `id` (int, private, `ID` getter), `nameEnity` (string) | `OnValidate` sets `id = Math.Abs(Guid.NewGuid().GetHashCode())` when `id == 0`. ⚠️ No reroll-if-zero loop, no public `EnsureId()` test hook — unchanged since 2026-07-09. |
+| `EnemyModal` | One concrete enemy type | `prefab` (GameObject), `weight` (int) | ⚠️ `weight` still has **no `[Range(1,99)]`/clamp** — a `0` or negative weight is still authorable in the Inspector and would make `RoomModel.GetSpawnSet()`'s fit-loop spin forever on that candidate. Unchanged since 2026-07-09. |
+| `MapModel` | A pool of interchangeable room-difficulty presets | `fullRoomList` (List\<`RoomModel`\>, direct refs) + runtime-only `_pool` | **Changed since 2026-07-09** — no longer holds `idRooms`/`totalWeight`. `GetRandomRoom()` draws one `RoomModel` from `_pool` without replacement, refilling `_pool` from `fullRoomList` whenever it empties (a shuffle-bag). This makes `MapModel` a **room-profile draw pool**, not an enemy-id set scoped to a map — a different role than either the original design or the 2026-07-09 snapshot described. |
+| `RoomModel` | One room's enemy-selection config **+** the selection engine | `enemiesOfRoom` (List\<`EnemyModal`\>, direct refs), `weightBudget` (`[Range(0,500)]`), `selectionWeight` (`[Range(1,100)]`, **new**), `randomRatio` (`[Range(0,1)]`, default `0.33`), `overflowPercent` (`[Range(0,1)]`, default `0.1`) | ⚠️ `selectionWeight` is declared "for `MapModel.GetRandomRoom`" (per its own code comment) but `GetRandomRoom()` actually does a uniform `Random.Range(0, _pool.Count)` — **the field is read nowhere**, dead weight in the Inspector. Selection logic still lives here, not on a central database (none exists). |
 
-**Implemented selection** — `RoomModel.GetSpawnSet()` → `List<EnemySpawnEntry>` (`{enemy, count}`),
-which calls private `RoomModel.GetHybridEnemySet()`:
-- Candidates = `enemiesOfRoom` filtered to `e != null && e.weight > 0` (runtime guard only).
-- **Phase 1 (random):** repeatedly picks a random eligible candidate (`UnityEngine.Random`) whose
-  weight fits both `randomBudget` and `remaining`.
-- **Phase 2 (fill):** while `remaining > 0`, picks a **random** candidate among those with
-  `weight − remaining ≤ maxOverflow`. ⚠️ This is a **random** fill, **not** the planned
-  deterministic `argmin |weight − remaining|` optimal fill.
-- ⚠️ RNG is `UnityEngine.Random` (static), **not** an injected `System.Random` — so the
-  determinism/tie-break acceptance criteria (AC-A3, AC-A4) **cannot be met** by this code as-is.
+**Selection algorithm — `RoomModel.GetSpawnSet()`** → `List<EnemySpawnEntry>` (`{enemy, count}`).
+Rewritten since 2026-07-09 for zero per-call allocation (reusable `_entries`/`_fitBuf` scratch arrays,
+resized only when the enemy-type count changes):
+- **Phase 1 (random, bounded by `randomBudget = weightBudget × randomRatio`):** loop — build the set
+  of candidate indices whose `weight` fits the *remaining random sub-budget*; if none fit, stop; else
+  `Random.Range` pick one uniformly, add it (repeats of the same enemy allowed), shrink both the
+  random sub-budget and the overall `remaining`.
+- **Phase 2 (fill, bounded by `remaining + overflowCap` where `overflowCap = weightBudget × overflowPercent`):**
+  same loop shape against the wider threshold, continues until `remaining <= 0` or nothing fits.
+- Both phases pick **uniformly at random** among whatever currently fits — there is no shuffle-once
+  pass and no `argmin`/optimal-fill step. This is a real behavior change from the 2026-07-09 snapshot
+  (which described Phase 1 as a single shuffled walk) — worth noting because it means the *current*
+  code already resembles a repeated "gather eligible → pick one → shrink budget → repeat" loop, which
+  is structurally close in spirit to the candidate-pool idea evaluated in Future Architecture Direction.
+- RNG is still `UnityEngine.Random` (static), not an injected `System.Random` — determinism is still
+  unreachable as-is (unchanged finding from 2026-07-09).
+- `GetSpawnSet()` returns **`null`** (not an empty list) when `enemiesOfRoom.Count == 0` — this is
+  **BUG-ES-1**, still unguarded by either caller (see Runtime drivers below).
 
-**Implemented driver** — `LevelManager.SpawnRoomEnemies()` (public), triggered by the Editor
-button **"Spawn Enemy"** (`LevelManagerEditor`). Reads a single `[SerializeField] RoomModel roomModel`,
-calls `GetSpawnSet()`, and `Instantiate`s each `entry.enemy.prefab` at a random position.
-⚠️ Spawning is still a manual editor action, not the `ON_LOAD_MAP`-driven runtime flow. As of
-2026-07-09 two **scaffold stubs** exist in `Assets/Script/Enemy/` but carry **no working logic**:
-`EnemyManager.cs` declares only `public static EnemyManager Instance { get; private set; }` (no
-`Awake`, no lifecycle, no alive-count, no events), and `EnemySpawner.cs` subscribes
-`ON_LOAD_MAP`→`OnDoneLoadRoomGrid` with an empty `Spawn()`. Both are suspected non-compiling
-(`EnemySpawner.OnDoneLoadRoomGrid` is undefined; both files import `System.Numerics` **and**
-`UnityEngine`, making `Vector3` ambiguous). `RoomCell` has gained `CloseDoor()` (the door-lock
-contract ADR-0002 expects) and a `GetSpawnPosition()` that calls an undefined `GetRoomSpawnSet()`.
-So the room-combat lifecycle, door lock, alive-count and events remain **unimplemented** —
-the stubs are scaffolding only.
-`LevelManager` is itself a singleton (map-system Bug #12).
+**Runtime drivers — two parallel, both still live:**
+1. **`EnemySpawner.cs`** (`Assets/Script/Enemy/`) — **no longer an empty stub.** `OnEnable`/`OnDisable`
+   subscribe/unsubscribe `EventID.ON_GET_SPAWN_POSITIONS` → `OnDoneLoadRoomGrid(object obj)`. That
+   handler casts `obj` to `List<Vector2Int>` (the marker positions — see Tile_Spawn_Enemy below), draws
+   `roomModel = mapModel.GetRandomRoom()` from the bag, then calls `SpawnRoomEnemies()`, which
+   `Instantiate`s each `EnemySpawnEntry.enemy.prefab` at a random position drawn from the marker list.
+   `GetRoomSpawnSet()` null-checks `roomModel` but **not** the return of `roomModel.GetSpawnSet()`
+   (BUG-ES-1 live here). An unused public `Spawn()` method (empty body) is still present — dead code.
+2. **`LevelManager.SpawnRoomEnemies()`** — the original Editor-button driver, unchanged in spirit:
+   its own `GetRoomSpawnSet()` has the same BUG-ES-1 gap, and it spawns at
+   `transform.position + Random.insideUnitCircle * spawnRadius` instead of marker positions. Both
+   drivers read a `[SerializeField] RoomModel roomModel` field independently — **BUG-ES-2** (duplicate
+   spawn driver, neither routes through `EnemyManager`) is unchanged.
 
-**Still PLANNED (designed below, not in code):** `EnemyManager` runtime driver + state machine
-(see ADR-0002 for the ratified singleton decision), `EnemyDatabase` central store + `GetByID`,
-id-based (not ref-based) map/room data, injected-RNG deterministic selection, `argmin` optimal
-fill, `weight ≥ 1` enforcement, `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR` events, `Tile_Spawn` marker
-parsing, entry-safety/jitter placement, and RoomType→RoomData routing.
+**`EnemyManager.cs`** — unchanged since 2026-07-09, still exactly:
+```csharp
+public class EnemyManager : MonoBehaviour
+{
+    public static EnemyManager Instance { get; private set; }
+}
+```
+No `Awake`, no lifecycle, no alive-count, no event subscriptions. The unused `using System.Numerics;`
+(BUG-EM-2) is also still present, though still harmless today since no `Vector3` is referenced in the
+file yet.
+
+**`Tile_Spawn_Enemy` marker parsing — now implemented (was "not built" as of 2026-07-09).**
+`GameConstants.TileName.SPAWN = "Tile_Spawn_Enemy"`. `RoomGeneraterController.LoadRoom()` has a branch
+(alongside its existing door-tile branch) that, for an uncleared room, appends every
+`Tile_Spawn_Enemy` tile's position to a `spawnPositions` list, then emits
+`EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions)` — this is what `EnemySpawner`
+subscribes to. **Only 1 of the 13 room JSONs (`NormalRoom_0.json`) currently authors a
+`Tile_Spawn_Enemy` tile**; the other 12 emit an empty `spawnPositions` list. There is **no fallback**
+for that case — `EnemySpawner.SpawnRoomEnemies()` indexes `spawnPosition[Random.Range(0, spawnPosition.Count)]`
+directly, which throws on an empty list. This is a **new, unrecorded edge case** (not the same as
+BUG-ES-1, though it fails the same way): loading any of the 12 marker-less rooms while an
+`EnemyModal` pool is configured for it would throw at spawn time.
+
+**`RoomCell.cs`** has `CloseDoor()`/`OpenDoors()` (the door-lock contract ADR-0002 expects) and
+`ClearRoom()`. It does **not** have a `GetSpawnPosition()` method — the 2026-07-09 snapshot's claim
+that one exists (calling an undefined `GetRoomSpawnSet()`) does not match current code; spawn
+positions flow directly from `RoomGeneraterController` to `EnemySpawner` via the event payload,
+bypassing `RoomCell` entirely. `RoomCell` has no alive-count field of any kind.
+
+**`DungeonRoomSO.RoomFile`** (`Assets/SO/Dungeon/DungeonRoomSO.cs`) still has only `roomName`,
+`filePath`, `roomType` — **no `roomData` field was ever added.** The 2026-07-09 revision of this GDD
+marked the `RoomFile.roomData` direct-reference mechanism "RESOLVED"; that was aspirational, not a
+report of shipped code, and is corrected below in Room→RoomModel Resolution.
+
+**`EventID` enum** (`EventManager.cs`): `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`,
+`ON_CLEAR_ENEMY`, `ON_GET_SPAWN_POSITIONS`, `ON_TEST`. Still **no** `ON_ENEMY_DEATH`, `ON_ROOM_CLEAR`,
+or `ON_PLAYER_DEATH` (BUG-ES-3, unchanged).
+
+**Still not built at all:** any room-combat lifecycle (lock-on-entry, alive-count, clear detection),
+`EnemyManager`'s actual body, entry-safety/jitter/round-robin placement, and any mechanism that ties a
+specific physical room to a specific enemy difficulty profile (the bag-draw in `MapModel` is
+per-spawn-event random, not per-room-identity).
 
 ---
 
 ## Overview
 
-The enemy-spawn system decides **which enemies appear in each room and instantiates them**, then
-manages the room's combat lifecycle: lock the doors on entry, track how many enemies are alive,
-and unlock the doors when the room is cleared.
+The enemy-spawn system decides **which enemies appear in each room and instantiates them**. The
+room-combat lifecycle this Overview originally promised (lock doors on entry, track alive count,
+unlock on clear) is still the intended end state, but is **entirely unbuilt today** — see Current
+Implementation above.
 
-It is a **data layer** plus a **runtime driver**:
+What exists is a **data layer** plus two ad-hoc runtime drivers:
 
-- **Data (definition only, no logic):** `EnemyData` (one enemy type: id, name, prefab, weight),
-  `MapEnemyDatabase` (the id set belonging to one map), and `RoomData` (per-room allowed id subset
-  + a single `weightBudget` difficulty dial).
-- **Lookup + logic:** `EnemyDatabase` — the single project-wide store of every `EnemyData`, with a
-  fast id lookup and the `GetHybridEnemySet` selection algorithm.
-- **Runtime driver:** `EnemyManager` — listens for room-load, asks `EnemyDatabase` for a
-  weight-budgeted enemy set, and spawns it at the room's spawn markers.
+- **Data (definition only, no logic):** `EnemyModal` (one enemy type: id, name, prefab, weight)
+  and `RoomModel` (a room-difficulty preset: an enemy pool + a `weightBudget` dial + selection
+  logic — see below).
+- **Selection logic:** lives directly on `RoomModel.GetSpawnSet()` — there is no separate
+  project-wide database/lookup class.
+- **Room→preset assignment:** `MapModel` — a shuffle-bag of `RoomModel` presets, drawn at random
+  each time a room emits its spawn-position event (not tied to which physical room it is).
+- **Runtime drivers (two, duplicated):** `EnemySpawner` (event-driven, off `ON_GET_SPAWN_POSITIONS`)
+  and `LevelManager.SpawnRoomEnemies()` (Editor-button-driven). Neither is `EnemyManager` — that
+  class exists but has no body yet.
 
-The player never touches this system directly; they **feel it** as the pacing and variety of each
-room — a different, budget-appropriate mix of enemies every run, and the tension of doors sealing
-until the room is clear.
+The player never touches this system directly; they are meant to **feel it** as the pacing and
+variety of each room — a different, budget-appropriate mix of enemies every run, and eventually the
+tension of doors sealing until the room is clear. Today only the "different mix of enemies"
+half is reachable in Play Mode; the door-seal/clear half needs `EnemyManager` built first.
 
 ---
 
@@ -110,13 +178,16 @@ The designer's fantasy matters too: tuning a room's difficulty is a **single num
 (`weightBudget`), not a hand-placed enemy list — so balancing the dungeon's difficulty curve is
 fast and legible.
 
-> **Known limitation (owner-accepted 2026-07-08):** the current Phase-2 fill is a greedy
-> `argmin` and structurally favours *fewer, heavier* enemies; a true "cheap swarm" is the rarer
-> outcome. The full swarm-vs-heavy variety promised above is therefore **aspirational** for the
-> demo. A composition-diversity pass (a comparison phase that decides *what kind* of cluster to
-> build — e.g. "10 creeps vs 1 elite, which is the more interesting encounter here?") is a
-> **Should-Have** enhancement, deferred (see Future Enhancements). Do not over-invest in variety
-> tuning until that phase lands.
+> **Known limitation, updated 2026-07-13:** the 2026-07-08 note here warned that a planned greedy
+> `argmin` Phase-2 fill would favour *fewer, heavier* enemies. That specific algorithm was never
+> built — `RoomModel.GetSpawnSet()`'s actual Phase 2 picks **uniformly at random** among whatever
+> currently fits, which is a different (likely less biased, but **not verified**) distribution. No
+> variety data has been collected either way. The full swarm-vs-heavy variety this Player Fantasy
+> promises remains **unverified**, not confirmed working. A composition-diversity pass (a comparison
+> phase that decides *what kind* of cluster to build — e.g. "10 creeps vs 1 elite, which is the more
+> interesting encounter here?") is still a **Should-Have** enhancement — see Future Architecture
+> Direction, which also evaluates a `Spawn Chance`-based candidate-pool alternative that targets this
+> same goal directly. Do not over-invest in variety tuning until one direction is chosen.
 
 ---
 
@@ -124,113 +195,64 @@ fast and legible.
 
 ### Core Data Model
 
-> **[PLANNED target.]** The table below is the *designed* model. For the classes that actually
-> exist today (`EntityModel`/`EnemyModal`/`MapModel`/`RoomModel`) and how they differ, see
-> **Current Implementation Status (2026-07-09)** above. Notably the code has **no `EnemyDatabase`**
-> (selection lives on `RoomModel`), uses **direct refs** instead of `id`s, and `MapModel` carries
-> `idRooms`/`totalWeight` rather than `idEnemy`.
+See **Current Implementation** above for the authoritative field-by-field table. Summary:
+`EntityModel` (base: id + name) → `EnemyModal` (one enemy type: prefab + weight) and `RoomModel`
+(one difficulty preset: enemy pool + `weightBudget`/`randomRatio`/`overflowPercent` + the selection
+method itself) → `MapModel` (a shuffle-bag of `RoomModel` presets). There is **no** central
+project-wide enemy database and **no** id-based lookup anywhere in the runtime path — every
+reference (`RoomModel.enemiesOfRoom`, `MapModel.fullRoomList`) is a direct Unity object reference.
+Whether to introduce one is evaluated in **Future Architecture Direction**, not assumed here.
 
-| SO | Role | Fields | Contains logic? |
-|----|------|--------|-----------------|
-| `EnemyData` | One concrete enemy type | `id` (int), `enemyName` (string), `prefab` (GameObject), `weight` (int) | No |
-| `EnemyDatabase` | Single project-wide store + selection engine | `allEnemies` (List\<EnemyData\>) | **Yes** — `GetByID`, `GetHybridEnemySet` |
-| `MapEnemyDatabase` | The enemy set of one map | `mapName` (string), `idEnemy` (List\<int\>) | No |
-| `RoomData` | One room's spawn config | `sourceMap` (MapEnemyDatabase), `idEnemy` (List\<int\> ⊆ sourceMap), `weightBudget` (int) | No |
+**Design invariants that hold today:**
+- `EnemyModal` is **spawn metadata only**. Combat stats (HP, damage, defense…) live on the enemy
+  prefab's existing `EntityData` / `StatsSO` (per `stat-system.md`). `EnemyModal` must **not**
+  become a fourth stat store. `weight` is a spawn-budget cost, unrelated to the stat formula —
+  though by convention it should track the enemy's power tier (creep < elite < champion).
 
-**Design invariants:**
-- `EnemyData` is **spawn metadata only**. Combat stats (HP, damage, defense…) live on the prefab's
-  existing `EntityData` / `StatsSO` (per `stat-system.md`). `EnemyData` must **not** become a
-  fourth stat store. `weight` is a spawn-budget cost, unrelated to the stat formula — though by
-  convention it should track the enemy's power tier (creep < elite < champion).
-- Definition SOs reference enemies by **`id` (int)**, never by direct object reference, so map/room
-  data stays lightweight and decoupled.
-- `EnemyDatabase` is the **only** object that holds real `EnemyData` references and the **only**
-  place selection logic lives.
-- **`weight` must be `≥ 1`, enforced — not merely documented.** `EnemyData.weight` uses
-  `[Range(1, 99)]` and is clamped in `OnValidate` (`if (weight < 1) weight = 1`). A `weight` of
-  `0` or negative would make the Phase-2 loop non-terminating (see Edge Cases → *weight ≤ 0*), so
-  this is a hard invariant, not a soft convention. The default value of a newly created
-  `EnemyData` asset must therefore be `1`, never the C# `int` default of `0`.
+**Design invariants that do NOT hold today (still just documentation intent):**
+- ~~`weight` must be `≥ 1`, enforced~~ — `EnemyModal.weight` has no `[Range]`/clamp. `RoomModel`'s
+  `OnValidate` only logs a warning for `weight <= 0`, it does not clamp or block the value. A
+  `0`-or-negative `weight` asset can ship today and would hang `GetSpawnSet()`'s fit-loop.
+- ~~ids are the only cross-reference mechanism~~ — every reference in the actual data model is a
+  direct object reference; there is no id-based indirection anywhere yet.
 
-### `EnemyData.id` Generation
+### `RoomModel.GetSpawnSet()` — the actual selection method
 
-- `id` is generated by a public, test-callable method `EnsureId()` (invoked from `OnValidate()`),
-  via a **reroll loop** so `0` is never committed as a real id:
-  `while (id == 0) id = System.Guid.NewGuid().GetHashCode();`. Because `0` is the "unset" sentinel,
-  a hash that legitimately lands on `0` must be rerolled, otherwise it would be indistinguishable
-  from unset and silently regenerate later.
-- Once non-zero, `id` is **never overwritten** — stable for the asset's life, so map/room
-  references never break when the asset is edited.
-- **Pre-first-validate hazard:** an `EnemyData` asset created head­lessly (import script, copied
-  `.asset`) and referenced by `RoomData.idEnemy` **before its first `OnValidate` fires** would
-  carry `id == 0` into version control, then reroll to a real hash later and orphan that reference.
-  Authoring rule: never reference an `EnemyData` in a `RoomData`/`MapEnemyDatabase` until its `id`
-  reads non-zero in the Inspector. `EnemyDatabase`'s duplicate/zero-id validation (below) logs any
-  `id == 0` still present in `allEnemies`.
-- `EnsureId()` is public so EditMode tests can force id assignment on an in-memory
-  `ScriptableObject.CreateInstance<EnemyData>()` (Unity does not reliably fire `OnValidate` on
-  purely in-memory SOs).
-- `EnemyDatabase` validates its `allEnemies` list for **duplicate ids** and **zero ids** (see Edge
-  Cases) so a hash collision or an un-validated asset can never silently corrupt lookups.
+This is the real, currently-running algorithm (see Current Implementation for the code-level walk).
+Restated as design intent:
 
-### `EnemyDatabase.GetByID(int id)`
+Runs **once** per call (no trial loops, no re-rolling on a bad outcome). Operates directly on
+`enemiesOfRoom` (no id resolution step — the list already holds live references). Two phases,
+repetition of the same enemy type allowed in both. Returns a `List<EnemySpawnEntry>` (`{enemy,
+count}` pairs, not a flat list — this is a real difference from the 2026-07-08 target's
+`List<EnemyData>` shape and is more memory-efficient for repeated picks of the same type).
 
-- Backed by a lazily-built, cached `Dictionary<int, EnemyData>`. O(1) lookup. Returns `null` for an
-  unknown id (caller logs + skips).
-- **Cache invalidation is explicit, not count-based.** `EnemyDatabase` holds an `int _version`
-  incremented in `OnValidate()`/`OnEnable()`; the dictionary is rebuilt whenever the cached version
-  differs from `_version`. A naive count-diff would miss a same-count swap (asset A replaced by
-  asset B) and serve a stale mapping — the version counter closes that hole.
-
-### `EnemyDatabase.GetHybridEnemySet(List<int> idEnemy, int weightBudget, float randomRatio, float overflowPercent, System.Random rng)`
-
-> **[PLANNED signature.]** The as-built method is `RoomModel.GetHybridEnemySet()` (parameterless,
-> reads its own fields) exposed via `RoomModel.GetSpawnSet()`. It uses `UnityEngine.Random` (not an
-> injected `System.Random`) and a **random** Phase-2 fill (not `argmin`). The design below is the
-> hardened target; adopting it requires the injected-RNG + `argmin` rework noted in Current
-> Implementation Status.
-
-The RNG is an **injected parameter**, not constructed internally — this is what makes the method
-deterministic and unit-testable (a test passes `new System.Random(fixedSeed)`). A thin runtime
-overload `GetHybridEnemySet(idEnemy, weightBudget, randomRatio, overflowPercent)` constructs the
-runtime RNG and forwards to the seedable core.
-
-> ✅ **Runtime seed source — RESOLVED 2026-07-09** (see Open Questions #2). Per-room-from-run-seed,
-> anchored by the room's own identity: `RoomFile` gains a `roomData` field (direct `RoomData`
-> reference, author-assigned per room entry — see "Room → RoomData Resolution" below). The runtime
-> overload derives `rng` by combining the dungeon run's global seed with that `RoomFile`'s identity
-> (e.g. its list index or `roomName`), so the same run reproduces the same per-room enemy sets, but
-> different runs vary. Tests are unaffected — they always call the explicit-`rng` core.
-
-Runs **once** per room (no trial loops). Resolves `idEnemy` → candidate `EnemyData` via `GetByID`
-(dropping unknown/null/zero ids), then two phases. Repetition of the same enemy type is allowed in
-Phase 2. Returns the chosen `List<EnemyData>`.
-
-**Phase 1 — RANDOM (variety):**
+**Phase 1 — RANDOM (variety), bounded by a sub-budget:**
 1. `randomBudget = weightBudget × randomRatio`.
-2. Shuffle the candidate list with the **injected `rng`** (Fisher–Yates) — same `rng` → same order.
-3. Walk the shuffled list **once**; add a candidate if its `weight` fits the remaining random
-   sub-budget. Each candidate is considered at most once here.
-4. Purpose: guarantee variety between runs.
+2. Loop: gather every candidate whose `weight` fits the *remaining* random sub-budget; if the set
+   is empty, stop Phase 1. Otherwise pick one **uniformly at random** (`UnityEngine.Random.Range`,
+   not seedable), add it, shrink both the sub-budget tracker and the overall `remaining`.
+3. No shuffle-once pass exists — the fit-set is rebuilt and re-rolled every iteration instead
+   (functionally similar outcome, different implementation shape from the original design).
 
-**Phase 2 — OPTIMAL FILL with overflow (use the budget well):**
-1. `remaining = weightBudget − (weight already spent in Phase 1)`.
+**Phase 2 — FILL, bounded by budget-plus-overflow:**
+1. `remaining` continues from wherever Phase 1 left it (may already be `≤ 0`, in which case Phase 2
+   naturally does nothing since the fit-set will always be empty).
 2. `overflowCap = weightBudget × overflowPercent`.
-3. **Pre-loop guard:** if `remaining ≤ 0`, skip Phase 2 entirely (the budget is already spent;
-   overflow is for leftover budget, not for topping up an exact spend).
-4. Each iteration, over **all** candidates (repetition allowed): consider those eligible, i.e.
-   `weight ≤ remaining + overflowCap`; pick the one minimizing `|weight − remaining|`.
-   **Tie-break:** on equal `|weight − remaining|`, pick the candidate **earliest in `idEnemy`
-   order** (deterministic, independent of shuffle) — this is what preserves the determinism AC.
-5. If no candidate is eligible → **stop**. Otherwise add it; `remaining −= weight`.
-6. If `remaining ≤ 0` → **stop**.
-7. Overflow lets total spend exceed `weightBudget` by at most `overflowCap`, so leftover budget is
-   not wasted when no enemy fits exactly.
+3. Loop: gather every candidate whose `weight` fits `remaining + overflowCap`; if empty, stop.
+   Otherwise pick one **uniformly at random**, add it, shrink `remaining`.
+4. There is **no `argmin`/optimal-fill step and no deterministic tie-break** — both phases use the
+   same "gather eligible, pick uniformly, shrink budget, repeat" shape. This is a real behavioral
+   change from what this GDD described as of 2026-07-09 (which still assumed a planned `argmin`
+   Phase 2 that had not yet been built); it has now not been built in a different direction instead.
 
-**Termination guarantee:** because `weight ≥ 1` is enforced (Design invariants), every added
-candidate decreases `remaining` by at least 1, so the loop always reaches `remaining ≤ 0` or
-"no eligible candidate" in finite steps. This guarantee is **void** if `weight ≤ 0` is ever allowed
-— hence the hard clamp, not a soft convention.
+**Termination:** relies on every added candidate strictly reducing `remaining` (or the sub-budget
+tracker) by at least its `weight`. This is **not guarded** — a `weight <= 0` candidate would make a
+phase's loop non-terminating, since nothing enforces `weight ≥ 1` at any layer (see Edge Cases).
+
+**Determinism:** none. `UnityEngine.Random` is a static, un-seedable-from-outside source in this
+codebase's usage — there is no way to reproduce a given room's roll, and no EditMode test can drive
+this method deterministically today.
 
 ### States and Transitions (per-room combat lifecycle) — **[PLANNED — not in code yet]**
 
@@ -239,61 +261,64 @@ candidate decreases `remaining` by at least 1, so the loop always reaches `remai
 > lock, alive-count, or events. `EnemyManager` is the ratified runtime driver (ADR-0002) but has
 > not been written.
 
-`EnemyManager` (singleton — ratified in ADR-0002) drives the room state:
+`EnemyManager` (singleton — ratified in ADR-0002) would drive the room state:
 
 | State | Enter condition | On enter | Exit condition |
 |-------|-----------------|----------|----------------|
 | `Idle` | boot / between rooms | nothing | `ON_LOAD_MAP` received |
-| `Populating` | `ON_LOAD_MAP` for an uncleared room | resolve `RoomData` for the room → `GetHybridEnemySet` → instantiate at spawn markers → `RoomCell.CloseDoor()` (lock) → set `aliveCount` | spawn complete |
+| `Populating` | `ON_LOAD_MAP` for an uncleared room | resolve a `RoomModel` for the room → `GetSpawnSet()` → instantiate at spawn markers → `RoomCell.CloseDoor()` (lock) → set `aliveCount` | spawn complete |
 | `Fighting` | spawn complete, `aliveCount > 0` | listen for `ON_ENEMY_DEATH`, decrement `aliveCount` | `aliveCount == 0` |
 | `Cleared` | `aliveCount == 0` (or room spawns 0 enemies) | `EventManager.Emit(ON_CLEAR_ENEMY)` (existing subscriber opens doors) + `Emit(ON_ROOM_CLEAR)`; mark `RoomCell.IsCleared = true` | room re-entered while cleared → stay `Cleared` (no re-lock, no re-spawn) |
 
-A room that is **already cleared** on `ON_LOAD_MAP` skips `Populating` entirely (doors stay open).
+A room that is **already cleared** on `ON_LOAD_MAP` would skip `Populating` entirely (doors stay
+open). None of this table is implemented — `EnemyManager` has no `Awake`, no state, no subscriptions.
 
-### Room → `RoomData` Resolution (Open Q#3/#4 — RESOLVED 2026-07-08, mechanism updated 2026-07-09)
+### Room → `RoomModel` Resolution (Open Q#4 — **REOPENED 2026-07-13**, was marked resolved in error)
 
-**Primary mechanism (2026-07-09): direct per-room reference.** `RoomFile` (the entry type in
-`DungeonRoomSO.room`, alongside its existing `roomName`/`filePath`/`roomType` fields — see
-`Assets/SO/Dungeon/DungeonRoomSO.cs`) gains a new field:
+> The 2026-07-09 revision of this section described a `RoomFile.roomData` direct-reference field as
+> "RESOLVED" and implemented. **That field does not exist in `DungeonRoomSO.cs` today** — it was a
+> design decision that was never carried into code. What actually shipped is a different mechanism,
+> described below. Open Question #4 is reopened because the two are not equivalent and the actual
+> one has a real gameplay consequence worth an explicit owner decision.
 
-```csharp
-public RoomData roomData;
-```
+**What actually resolves a room's enemy set today: `MapModel.GetRandomRoom()`, a shuffle-bag.**
+`MapModel.fullRoomList` holds every `RoomModel` preset available to a map. `GetRandomRoom()` draws
+one at random from a runtime `_pool` (no replacement), refilling `_pool` from `fullRoomList`
+whenever it runs dry. `EnemySpawner.OnDoneLoadRoomGrid()` calls this **every time any room emits**
+`ON_GET_SPAWN_POSITIONS`, and assigns the result to `roomModel` for that spawn.
 
-Authored once per room-file entry, at the same time `roomType` is set. `EnemyManager`/`RoomCell`
-read `RoomFile.roomData` directly — no `RoomType` enum lookup at runtime required. This also
-anchors the per-room shuffle seed (see "Runtime seed source" above): the seed derives from the
-run's global seed combined with the owning `RoomFile`'s identity, not from an unrelated global
-counter.
+**Consequence — this decouples the enemy-difficulty profile from the room's identity entirely.**
+Under the (unbuilt) `RoomFile.roomData` design, a specific physical room (e.g. `NormalRoom_3`)
+would always resolve to the same `RoomModel` preset (or a fixed fallback by `RoomType`), so a level
+designer could hand-tune "this room is easy, that one is hard." Under the shuffle-bag that actually
+runs, **which preset a room gets is unrelated to which room it is** — the same physical room could
+draw a trivial preset one run and a punishing one the next, and there is no way today to guarantee,
+say, the start room always gets a zero-budget preset (see Edge Cases). This is a materially
+different design than what this GDD previously described as decided.
 
-- **Combat-bearing rooms**: `roomData` points to a `RoomData` asset with a real `weightBudget`.
-- **Non-combat / start rooms**: `roomData` left unassigned (`null`) → treated as **zero budget**
-  (safe default — an unconfigured room is empty, not randomly lethal). **`StartRoom` must be
-  zero-budget** — the player must never be ambushed on spawn.
-
-**Fallback (kept as a safety net, not the primary path): `RoomType` → `RoomData` lookup table.**
-If a `RoomFile.roomData` is ever left unset for a combat-bearing room type, the previously-designed
-`RoomType`-keyed table (unchanged from the 2026-07-08 resolution) may still supply a default. This
-fallback is what previously **hard-depended on map-system Bug #16** (`RoomFile.roomType` not read at
-runtime). Since the primary path now resolves `RoomData` via a direct author-time reference on
-`RoomFile` itself, **Bug #16 no longer blocks enemy-spawn** — it remains a real bug (start/end room
-still selected by list position elsewhere in map-system) but is no longer a hard dependency for this
-system. Downgraded from BLOCKING to informational in Dependencies below.
+**Not evaluated yet:** whether the shuffle-bag is an intentional simplification worth keeping (it is
+arguably simpler and still delivers "different mix each run") or a regression from the per-room
+authoring control the original design wanted. This is folded into the open decision in Future
+Architecture Direction rather than resolved here — see Open Question #4b.
 
 ### Interactions with Other Systems
 
 | Direction | System | Interface |
 |-----------|--------|-----------|
-| in | Event Bus | `EnemyManager` subscribes `ON_LOAD_MAP` (spawn trigger) and `ON_ENEMY_DEATH` (count) |
-| out | Event Bus | emits `ON_CLEAR_ENEMY` (existing — opens doors) and `ON_ROOM_CLEAR` (new — triggers upgrade screen) |
-| out | Room Progression | calls `RoomCell.CloseDoor()` on entry, sets `RoomCell.IsCleared` on clear |
-| in | Enemy AI | enemy death chain must emit `ON_ENEMY_DEATH` (requires Bugs #7/#8 fixed); spawns framework-wired enemy prefabs |
-| in | Dungeon / Room load | reads `Tile_Spawn` marker positions parsed from room JSON |
-| out | Per-Run Upgrades | `ON_ROOM_CLEAR` opens the upgrade-card screen |
+| in | Event Bus | `EnemySpawner`/`LevelManager` subscribe or are triggered by `ON_GET_SPAWN_POSITIONS` (built) — `EnemyManager` subscribing `ON_LOAD_MAP`/`ON_ENEMY_DEATH` is still **planned**, not built |
+| out | Event Bus | emits `ON_CLEAR_ENEMY` (existing enum value, not yet emitted by any spawn-system code) and `ON_ROOM_CLEAR` (**planned**, not in `EventID` yet) |
+| out | Room Progression | `RoomCell.CloseDoor()`/`IsCleared` exist and are callable, but nothing in the spawn path calls them yet |
+| in | Enemy AI | enemy death chain must emit `ON_ENEMY_DEATH` (requires Bugs #7/#8 fixed, and the event doesn't exist yet either); spawns framework-wired enemy prefabs |
+| in | Dungeon / Room load | `RoomGeneraterController` parses `Tile_Spawn_Enemy` markers and emits `ON_GET_SPAWN_POSITIONS` with their positions — **built**, 1/13 rooms authored |
+| out | Per-Run Upgrades | `ON_ROOM_CLEAR` would open the upgrade-card screen — consumer and event both unbuilt |
 
 ---
 
 ## Formulas
+
+> Rewritten 2026-07-13 to match `RoomModel.GetSpawnSet()` as actually implemented. The `argmin`
+> optimal-fill formula previously here described a Phase 2 that was never built; the real Phase 2
+> is a uniform-random pick, formalized below.
 
 ### Random sub-budget
 
@@ -303,85 +328,99 @@ system. Downgraded from BLOCKING to informational in Dependencies below.
 
 `overflowCap = weightBudget × overflowPercent`
 
-### Phase-2 pick (each iteration)
+### Phase 1 pick (each iteration)
 
-`pick = argmin over eligible candidates of |weight − remaining|`,
-where a candidate is **eligible** iff `weight ≤ remaining + overflowCap`.
-**Tie-break:** on equal `|weight − remaining|`, choose the candidate earliest in `idEnemy` order.
+`fitSet = { c ∈ enemiesOfRoom | c.weight ≤ randomBudget − usedRandom }`
+`pick = uniform_random(fitSet)` — every eligible candidate has equal chance, not weighted by cost.
+Stop when `fitSet` is empty. `usedRandom ← usedRandom + pick.weight`; `remaining ← remaining − pick.weight`.
 
+### Phase 2 pick (each iteration)
+
+`fitSet = { c ∈ enemiesOfRoom | c.weight ≤ remaining + overflowCap }`
+`pick = uniform_random(fitSet)` — **no `argmin`, no tie-break rule** (removed 2026-07-13; the actual
+code never had one). Stop when `fitSet` is empty or `remaining ≤ 0`.
 `remaining ← remaining − pick.weight` after each selection.
-Phase 2 does not run at all when `remaining ≤ 0` on entry (pre-loop guard).
 
 **Variables:**
 
 | Variable | Type | Range | Description |
 |----------|------|-------|-------------|
-| `weightBudget` | int | 1 – ~50 | Total spawn budget for the room (the difficulty dial) |
-| `randomRatio` | float | 0.0 – 1.0 | Fraction of budget spent in the random phase |
-| `overflowPercent` | float | 0.0 – 0.5 (**safe ≤ 0.3**) | Max fraction of budget total spend may exceed `weightBudget`. Canonical range: hard-cap 0.5, recommended tuning ≤ 0.3 |
+| `weightBudget` | int | 0 – 500 (`RoomModel.weightBudget` `[Range]`) | Total spawn budget for the room (the difficulty dial) |
+| `randomRatio` | float | 0.0 – 1.0 (`RoomModel.randomRatio` `[Range]`, default 0.33) | Fraction of budget spent in the random phase |
+| `overflowPercent` | float | 0.0 – 1.0 (`RoomModel.overflowPercent` `[Range]`, default 0.1) | Max fraction of budget total spend may exceed `weightBudget`. No separate "safe" recommendation is enforced in code — `[Range(0,1)]` is the only guard |
 | `randomBudget` | float | 0 – `weightBudget` | Budget available to Phase 1 |
-| `overflowCap` | float | 0 – `weightBudget×0.5` | Absolute overshoot allowed in Phase 2 |
+| `overflowCap` | float | 0 – `weightBudget` | Absolute overshoot allowed in Phase 2 |
 | `remaining` | int | ≤ `weightBudget` (may go slightly negative within `overflowCap`) | Budget left to spend |
-| `weight` (per `EnemyData`) | int | **1 – 99 (authored globally, `≥ 1` enforced)** | Spawn cost of one enemy type. Authored once on the `EnemyData` asset, **not** relative to any single room's budget |
+| `weight` (per `EnemyModal`) | int | **unbounded — no `[Range]`, no clamp** | Spawn cost of one enemy type. `RoomModel.OnValidate` only warns on `weight <= 0`, does not block it |
 
-**Output Range:** a list of 0 – `weightBudget` enemies (fewer when weights are large). Total spend
-∈ `[0, weightBudget + overflowCap]`.
+**Output Range:** a list of `EnemySpawnEntry` (`{enemy, count}`), 0 – `weightBudget` total enemy
+instances (fewer when weights are large). Total spend ∈ `[0, weightBudget + overflowCap]` **when
+`weight ≥ 1` holds** — unverified today since nothing enforces that invariant.
 
-**Worked example:** `weightBudget = 20`, `randomRatio = 0.5`, `overflowPercent = 0.1`;
+**Worked example** (illustrative — actual outcome varies run to run since both phases are uniform
+random, not deterministic): `weightBudget = 20`, `randomRatio = 0.5`, `overflowPercent = 0.1`;
 candidates: Bat(w3), Rat(w2), Golem(w9).
-- `randomBudget = 10`. Shuffle → say [Golem, Rat, Bat]. Add Golem(9→remaining1=1), Rat(2>1 skip),
-  Bat(3>1 skip). Phase 1 spent = 9.
-- Phase 2: `remaining = 20 − 9 = 11`, `overflowCap = 2`. Pick argmin|w−11|: Golem(|9−11|=2) → add,
-  remaining=2. Next argmin|w−2|: Rat(0) → add, remaining=0 → **stop**.
-- Result: {Golem, Golem, Rat}, total weight 20.
+- `randomBudget = 10`. Fit set = {Bat, Rat, Golem} (all ≤ 10). Suppose Golem is drawn:
+  `usedRandom = 9`, `remaining = 11`. Next fit set = {Rat} (Bat's 3 > 1 remaining sub-budget, Golem's
+  9 > 1) — draw Rat: `usedRandom = 11`, `remaining = 9`. Fit set now empty (Bat's 3 > −1 remaining
+  sub-budget) → Phase 1 stops.
+- Phase 2: `remaining = 9`, `overflowCap = 2` → threshold 11. Fit set = {Bat, Rat, Golem} (all ≤ 11).
+  Suppose Bat is drawn: `remaining = 6`. Fit set still all three → suppose Rat: `remaining = 4`. →
+  suppose Bat again: `remaining = 1`. Fit set = {Bat? no, 3 > 1+2=3, borderline-eligible} — depends
+  on the exact draw; loop continues until the fit set empties.
+- Result varies by run: composition is no longer reproducible from these inputs alone the way the
+  old `argmin` design would have been.
 
 ---
 
 ## Edge Cases
 
-- **If `idEnemy` is empty or no candidate resolves:** return an empty set; the room spawns 0 enemies
-  and immediately enters `Cleared` → emit `ON_CLEAR_ENEMY` + `ON_ROOM_CLEAR` at once (doors open,
-  no lock). Prevents the player being trapped in an enemy-less room.
-- **If `weightBudget ≤ 0`:** spawn nothing; treat as a cleared room.
-- **If any candidate `weight ≤ 0` (must never happen — `weight ≥ 1` is enforced):** this would make
-  Phase 2 non-terminating (a `0`-weight candidate is always eligible and never reduces `remaining`;
-  a negative weight makes `remaining` grow). It is prevented at the source by the `[Range(1, 99)]` +
-  `OnValidate` clamp on `EnemyData.weight`. As defence-in-depth, `GetHybridEnemySet` skips any
-  candidate whose resolved `weight < 1` and logs an Editor error rather than trusting the invariant.
-- **If every candidate's `weight > weightBudget + overflowCap`:** Phase 2 selects none; return
-  whatever Phase 1 produced (possibly empty). Log a balance warning in Editor.
-- **If `randomRatio = 0`:** skip Phase 1 entirely; whole budget goes to optimal fill.
-- **If `randomRatio = 1`:** Phase 1 may consume the whole budget; Phase 2 still runs on the leftover
-  under `overflowCap`.
-- **If two `EnemyData` share an `id` (hash collision or hand-edit):** `EnemyDatabase` detects the
-  duplicate while building its dictionary and logs an Editor error naming both assets; the first
-  entry wins the lookup so behavior is deterministic, not silent corruption.
-- **If `RoomData.idEnemy` contains an id not in `sourceMap.idEnemy`:** `OnValidate` strips it and
-  logs a warning — a room may only use enemies from its map.
-- **If `RoomData.idEnemy` contains an id not in `EnemyDatabase`:** `GetByID` returns null; the id is
-  dropped from candidates with a warning.
-- **If an `EnemyData.prefab` is null or not framework-wired (no `Entity`/`EntityCore`):** skip that
-  instance, log an error, and **do not** add it to `aliveCount` (so the room can still be cleared).
-- **If chosen enemies outnumber spawn markers:** distribute round-robin so marker loads differ by at
-  most one (`floor(N/M)` or `ceil(N/M)` enemies per marker). Co-located enemies get a **bounded
-  jitter**: offset radius ≤ `SPAWN_JITTER_RADIUS` (default 0.5 units) **and** the jittered point must
-  resolve to a walkable floor tile — if it lands on a wall/out-of-bounds tile, retry inward toward
-  the marker; never place an enemy off the walkable set. Round-robin clumping is an
-  *encounter-balance* concern, not just cosmetics (3 enemies on one marker reads as an alpha-strike):
-  authoring guidance for marker count is in Tuning Knobs.
-- **Entry-safety (no ambush on the seal):** no enemy may spawn within `SPAWN_MIN_ENTRY_DISTANCE`
-  (default 3 units) of the door the player entered through. A `Tile_Spawn` marker inside that radius
-  is skipped for this spawn (its share redistributes round-robin to the remaining markers). Authoring
-  should also keep markers ≥ 3 tiles from any door.
-- **If a room has no `Tile_Spawn` markers:** fall back to the room-centre position and log a warning.
-  Note this is currently the **de-facto default for all 13 rooms** (markers not yet authored — see
-  Dependencies), so the centre-fallback path must itself be entry-safe and jitter-bounded, not
-  treated as a rare edge. The fallback runs **before** any round-robin/jitter math, guaranteeing a
-  non-empty marker list so the distribution step can never divide by zero.
-- **If `ON_ENEMY_DEATH` fires for an enemy the manager did not spawn (e.g. re-entry):** ignore when
-  the room is `Cleared`/`Idle`; only decrement while `Fighting`.
-- **Determinism for tests:** the shuffle RNG is seedable; a fixed seed makes `GetHybridEnemySet`
-  fully deterministic for EditMode tests.
+> Legend: **[ACTUAL]** — this is what the current code really does, verified by reading it.
+> **[PLANNED]** — this is the target behavior, not yet built; treat as a requirement for whoever
+> implements it.
+
+- **If `enemiesOfRoom` is empty: [ACTUAL, BUG-ES-1]** `RoomModel.GetSpawnSet()` returns **`null`**,
+  not an empty list. Neither `EnemySpawner.GetRoomSpawnSet()` nor `LevelManager.GetRoomSpawnSet()`
+  guards against this — both pass the result straight to a `.Count` read, which throws a
+  `NullReferenceException`. **[PLANNED fix]:** return an empty `List<EnemySpawnEntry>` instead of
+  `null`, and treat a resulting empty spawn as "room immediately cleared" once `EnemyManager` exists.
+- **If `weightBudget ≤ 0`: [ACTUAL]** both phases' fit-sets are naturally empty from the first
+  iteration (nothing fits a non-positive budget), so `GetSpawnSet()` already degrades safely to
+  "spawn nothing" without special-case code. No explicit early-return exists, but the loop shape
+  happens to produce the right outcome.
+- **If any candidate's `weight ≤ 0`: [ACTUAL — unguarded, real hang risk]** `RoomModel.OnValidate`
+  only **logs a warning** ("Pha 2 loop vô hạn") — it does not clamp or strip the value. A `0` or
+  negative `weight` asset compiles, ships, and is authorable in the Inspector today. If one is ever
+  referenced in `enemiesOfRoom`, that candidate is eligible in every iteration of whichever phase it
+  qualifies for and never reduces `remaining`/the sub-budget — the fit-loop **never terminates**.
+  **[PLANNED fix]:** enforce `weight ≥ 1` with `[Range(1,99)]` + an `OnValidate` clamp on
+  `EnemyModal`, not just a warning on the containing `RoomModel`.
+- **If every candidate's `weight` exceeds both phases' thresholds: [ACTUAL]** both fit-sets end up
+  empty immediately; `GetSpawnSet()` returns whatever was collected so far (possibly an empty,
+  non-null list if Phase 1 also collected nothing). No balance warning is logged for this case.
+- **If `randomRatio = 0` or `= 1`: [ACTUAL]** both are legal `[Range(0,1)]` values and the loop
+  shapes handle them the same way as any other ratio — no special-casing needed or present.
+- **Duplicate/zero `id` across `EnemyModal` assets: [PLANNED, not applicable today]** there is no
+  central database performing id-based lookups, so there is nothing to validate against yet. Every
+  reference is a direct object reference; a "duplicate" `EnemyModal` is just two separate assets, not
+  a lookup collision.
+- **If an `EnemyModal.prefab` is null: [ACTUAL]** both `SpawnRoomEnemies()` implementations skip the
+  entry (`if (entry.enemy == null || entry.enemy.prefab == null) continue;`) — this one guard **is**
+  present and correct in both drivers today.
+- **Placement (round-robin balance, entry-safety, jitter): [PLANNED — none of this exists]**
+  `EnemySpawner.SpawnRoomEnemies()` picks a **uniformly random** position from the marker list for
+  every enemy instance independently — no balancing, no distance-from-door check, no jitter. Multiple
+  enemies can and will stack on the same marker; nothing prevents a spawn next to the entry door.
+- **If a room has no `Tile_Spawn_Enemy` markers: [ACTUAL, new unrecorded bug]** there is **no
+  fallback**. `EnemySpawner.SpawnRoomEnemies()` indexes directly into the (possibly empty)
+  `spawnPosition` list and throws. This affects 12 of the 13 room JSONs today (only
+  `NormalRoom_0.json` has a marker authored). **[PLANNED fix]:** fall back to room-centre and log a
+  warning, as originally specified, before any placement math runs.
+- **If `ON_ENEMY_DEATH` fires for an untracked enemy: [PLANNED, not applicable today]** the event
+  doesn't exist yet and nothing tracks `aliveCount`.
+- **Determinism for tests: [PLANNED, not reachable today]** `UnityEngine.Random` cannot be seeded
+  from outside `RoomModel.GetSpawnSet()`'s call site, so no EditMode test can currently drive this
+  method deterministically — see Future Architecture Direction for the injected-RNG option.
 
 ---
 
@@ -389,13 +428,13 @@ candidates: Bat(w3), Rat(w2), Golem(w9).
 
 | System | Role | Direction | Status |
 |--------|------|-----------|--------|
-| **Event Bus** (`EventManager`) | `ON_LOAD_MAP` ✅, `ON_ENEMY_DEATH` **[new]**, `ON_CLEAR_ENEMY` ✅, `ON_ROOM_CLEAR` **[new]** | Spawn ↔ EventManager | 2 new `EventID` values needed |
+| **Event Bus** (`EventManager`) | `ON_GET_SPAWN_POSITIONS` ✅ (built, drives current spawn), `ON_LOAD_MAP` ✅ (exists, not yet consumed by spawn code), `ON_ENEMY_DEATH` **[new, not added]**, `ON_CLEAR_ENEMY` ✅ (exists, not yet emitted by spawn code), `ON_ROOM_CLEAR` **[new, not added]** | Spawn ↔ EventManager | 2 new `EventID` values still needed |
 | **Enemy AI** (`character-system.md`) | Death chain must emit `ON_ENEMY_DEATH`; spawns framework-wired enemy prefabs | Enemy → Spawn | **Blocked:** Bug #7 (`EntityDeathState` wrong base), Bug #8 (empty `Health<=0` transition); only `EnemyPrefab.prefab` wired (Bat/Crab broken) |
-| **Room Progression** (`map-system.md`) | `RoomCell.CloseDoor()` / `OpenDoors()` for lock/unlock; `IsCleared` set on clear; `RoomFile.roomData` direct reference (primary) + `RoomType` → `RoomData` table (fallback) — see Room→RoomData Resolution | Spawn → Map | `CloseDoor`/`OpenDoors` ✅; alive-count + lock-on-entry to be added. **New field `RoomFile.roomData` needed** in `Assets/SO/Dungeon/DungeonRoomSO.cs` (author task, not blocked on any bug). map-system Bug #16 (`RoomFile.roomType` not read at runtime) downgraded from BLOCKING to informational — only the fallback table path needed it |
-| **Dungeon / Room load** | `RoomGeneraterController` must **parse `Tile_Spawn` markers** (new branch mirroring its `Tile_Door` handling) and **expose each marker's world position** to `EnemyManager`; markers must be **authored into all 13 room JSONs** | Map → Spawn | `TileName.SPAWN` constant ✅; **parser branch does not exist yet** (only `Tile_Door` handled); **markers absent from all 13 JSONs** → LD retrofit pass required (owner: level-design; est. separate task). Until done, every room uses the centre-fallback |
+| **Room Progression** (`map-system.md`) | `RoomCell.CloseDoor()` / `OpenDoors()` for lock/unlock; `IsCleared` set on clear; room→preset mapping — see Room→RoomModel Resolution | Spawn → Map | `CloseDoor`/`OpenDoors` ✅ exist but nothing in the spawn path calls them yet. **No per-room mapping exists** — `MapModel.GetRandomRoom()`'s shuffle-bag is unrelated to room identity (see Room→RoomModel Resolution); `RoomFile.roomData` was never added to `DungeonRoomSO.cs`. map-system Bug #16 (`RoomFile.roomType` not read at runtime) is a live blocker again if a per-room mapping is chosen |
+| **Dungeon / Room load** | `RoomGeneraterController` **parses `Tile_Spawn_Enemy` markers** and exposes their positions via `ON_GET_SPAWN_POSITIONS` | Map → Spawn | ✅ **Built** (2026-07-13 finding — previously recorded as not-built). `TileName.SPAWN = "Tile_Spawn_Enemy"`. **1 of 13 room JSONs authored** (`NormalRoom_0.json`); the other 12 emit an empty list, and there is no centre-fallback yet (see Edge Cases) |
 | **Stat System** (`stat-system.md`) | Enemy combat stats stay on prefab `EntityData`/`StatsSO`; spawn system does not touch them | none (contract only) | No schema impact |
 | **Object Pooling** | Reuse for enemy instances instead of raw `Instantiate` | Spawn → Pooling | Soft — Pooling is Alpha/not-started; `Instantiate` acceptable until then |
-| **Per-Run Upgrades** | `ON_ROOM_CLEAR` opens the upgrade-card screen | Spawn → Progression | Consumer not yet built |
+| **Per-Run Upgrades** | `ON_ROOM_CLEAR` opens the upgrade-card screen | Spawn → Progression | Consumer and event both unbuilt |
 
 ---
 
@@ -403,22 +442,24 @@ candidates: Bat(w3), Rat(w2), Golem(w9).
 
 | Knob | Where | Safe range | Effect / failure at extremes |
 |------|-------|-----------|------------------------------|
-| `weightBudget` | `RoomData` per room | 1 – ~50 | Room difficulty. Too high → overwhelming; too low → trivial/empty |
-| `randomRatio` | `RoomData` (or global default) | 0.0 – 1.0 | Variety vs. control. 1.0 → maximal variety, less budget precision; 0.0 → deterministic optimal fill, less variety |
-| `overflowPercent` | `RoomData` (or global default) | 0.0 – ~0.3 | Budget-fill tightness. 0 → may under-spend budget; high → rooms overshoot intended difficulty |
-| `weight` | `EnemyData` per enemy | 1 – `weightBudget` | Enemy "cost". Should track power tier (creep < elite < champion). Mis-set → cheap enemies dominate or vanish |
-| `idEnemy` | `RoomData` / `MapEnemyDatabase` | subset | Which enemies can appear. Empty → no spawns |
-| spawn-marker count | room JSON (`Tile_Spawn`) | **3 – 6 per combat room** | Spread of enemies. Authoring rule: ≥ 3 markers in a combat room, each ≥ 3 tiles from any door, on walkable floor, ideally near natural cover/chokepoints. 0 markers → centre-fallback warning (a legal but poor experience) |
-| `SPAWN_MIN_ENTRY_DISTANCE` | `GameConstants` | 2 – 4 units (default 3) | No-spawn radius around the entry door. Too low → ambush on the seal; too high → few valid markers in small rooms |
-| `SPAWN_JITTER_RADIUS` | `GameConstants` | 0.25 – 0.75 (default 0.5) | Offset when a marker hosts >1 enemy. Must stay small enough to keep enemies on floor tiles |
+| `weightBudget` | `RoomModel` per preset | 0 – 500 (`[Range]`) | Room difficulty. Too high → overwhelming; too low → trivial/empty |
+| `randomRatio` | `RoomModel` per preset | 0.0 – 1.0 (`[Range]`, default 0.33) | Variety vs. control. 1.0 → Phase 1 may consume the whole budget; 0.0 → all budget goes to Phase 2's fill loop |
+| `overflowPercent` | `RoomModel` per preset | 0.0 – 1.0 (`[Range]`, default 0.1) | Budget-fill tightness. 0 → may under-spend budget; high → rooms overshoot intended difficulty. No "safe ≤0.3" ceiling is enforced in code |
+| `selectionWeight` | `RoomModel` per preset | 1 – 100 (`[Range]`) | ⚠️ **Currently dead** — declared for room-picking but `MapModel.GetRandomRoom()` doesn't read it (uniform pick instead). Either wire it in or remove it; see Future Architecture Direction |
+| `weight` | `EnemyModal` per enemy | **unbounded — no `[Range]`, author discipline only** | Enemy "cost". Should track power tier (creep < elite < champion). A `0`/negative value can hang the fit-loop (see Edge Cases) |
+| `enemiesOfRoom` | `RoomModel` per preset | direct-ref list | Which enemies can appear in that preset. Empty → `GetSpawnSet()` returns `null` (BUG-ES-1) |
+| `fullRoomList` | `MapModel` | direct-ref list | The pool `GetRandomRoom()` draws from. Empty → `GetRandomRoom()` returns `null`, uncaught downstream |
+| spawn-marker count | room JSON (`Tile_Spawn_Enemy`) | **not yet authored (1/13 rooms)** | Spread of enemies. No round-robin/jitter/entry-safety logic exists yet to make marker count matter — see Edge Cases |
+| `SPAWN_MIN_ENTRY_DISTANCE` | **[PLANNED]** not in `GameConstants` yet | 2 – 4 units (proposed default 3) | No-spawn radius around the entry door. Not implemented — no entry-safety check exists today |
+| `SPAWN_JITTER_RADIUS` | **[PLANNED]** not in `GameConstants` yet | 0.25 – 0.75 (proposed default 0.5) | Offset when a marker hosts >1 enemy. Not implemented — spawns can stack exactly on top of each other today |
 
 ---
 
 ## Visual/Audio Requirements
 
 Modest — this is a spawn/management layer, not a combat feel system.
-- **Spawn telegraph (recommended):** a brief VFX/poof + SFX at each `Tile_Spawn` when an enemy
-  materializes, so enemies don't pop in silently. Pull from the `Pooling/` VFX system.
+- **Spawn telegraph (recommended):** a brief VFX/poof + SFX at each `Tile_Spawn_Enemy` marker when an
+  enemy materializes, so enemies don't pop in silently. Pull from the `Pooling/` VFX system.
 - **Door-lock feedback:** the door-seal on room entry should have an audible/visual cue — but that
   is owned by the Map/door system, not here; this system only calls `CloseDoor()`.
 - **Room-clear cue:** a satisfying "clear" sting on `ON_ROOM_CLEAR` — owned by the upgrade/HUD layer.
@@ -437,18 +478,20 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 
 ## Acceptance Criteria
 
-> **[PLANNED target — not all met by the 2026-07-09 prototype.]** These ACs define "done" for the
-> hardened system. The current prototype (`RoomModel`/`LevelManager`) **cannot pass** the
-> determinism/tie-break ACs (AC-A3, AC-A4 — no injected RNG, random fill), the `weight ≥ 1`
-> enforcement AC (AC-A6 — no clamp), the data-validation ACs (AC-D1…D3 — no `EnemyDatabase`
-> lookup / no subset strip), or the room-lifecycle ACs (AC-L1…L6, AC-P1…P3 — no `EnemyManager`).
-> They remain the acceptance bar for the planned implementation.
+> **[PLANNED target — still not met by the 2026-07-13 code, same as 2026-07-09.]** These ACs define
+> "done" for a hardened system. **Caveat added 2026-07-13:** several ACs below (A3, A4, D1–D3)
+> assume the specific injected-RNG, id-based-database shape from the 2026-07-08 target. That shape
+> was never built and the code has since moved a different direction. Whether to still build toward
+> that shape, harden the current direct-ref/uniform-random code instead, or adopt the candidate-pool
+> proposal is an **open decision** — see Future Architecture Direction. Treat AC-A3/A4/D1–D3 as
+> **conditional on that decision**, not as settled requirements; AC-A1, A5–A7, L1–L6, P1–P3 are
+> direction-agnostic (some form of budget bound, variety, termination guard, and lifecycle is needed
+> regardless of which selection algorithm is chosen) and remain the acceptance bar as-is.
 
 > **Test isolation (applies to all ACs below):** every test constructs its own disposable
-> `ScriptableObject.CreateInstance<…>()` for `EnemyDatabase` / `EnemyData` / `RoomData` /
-> `MapEnemyDatabase` — **never** the shipped project assets — mirroring the project `PlayerData`
-> isolation rule. Algorithm tests inject `new System.Random(fixedSeed)` into the seedable
-> `GetHybridEnemySet` overload.
+> `ScriptableObject.CreateInstance<…>()` for the relevant SOs (whichever set Future Architecture
+> Direction settles on) — **never** the shipped project assets — mirroring the project `PlayerData`
+> isolation rule. Algorithm tests that assume an injected-RNG design inject `new System.Random(fixedSeed)`.
 
 ### Algorithm — Logic (EditMode, BLOCKING)
 
@@ -489,8 +532,10 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 ### Room Lifecycle — Integration (PlayMode, BLOCKING)
 
 > Prerequisites for authoring these tests: (1) Open Question #1 resolved (EnemyManager
-> singleton-vs-Inspector ADR — you cannot build the harness against an undecided architecture);
-> (2) at least one `Tile_Spawn`-populated fixture room JSON (0/13 today).
+> singleton-vs-Inspector ADR — you cannot build the harness against an undecided architecture, though
+> `EnemyManager` itself still needs to be built before these ACs are testable at all); (2) at least
+> one `Tile_Spawn_Enemy`-populated fixture room JSON — **satisfied as of 2026-07-13**
+> (`NormalRoom_0.json`, 1/13).
 
 - **AC-L1 (spawn + lock on entry):** GIVEN an uncleared room, WHEN `ON_LOAD_MAP` fires, THEN enemies
   spawn at markers and all doors are locked (`CloseDoor()` called). *Not* blocked by Bugs #7/#8.
@@ -520,45 +565,155 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
   position.
 - **AC-P2 (entry-safety):** GIVEN a marker within `SPAWN_MIN_ENTRY_DISTANCE` of the entry door, WHEN
   spawning, THEN no enemy is placed there; all spawned enemies are ≥ the min distance from the entry.
-- **AC-P3 (parser):** GIVEN a room JSON containing `Tile_Spawn` tiles, WHEN the room loads, THEN
-  `RoomGeneraterController` exposes their world positions and `EnemyManager` spawns at them (not the
-  centre-fallback). Requires the new parser branch.
+- **AC-P3 (parser):** GIVEN a room JSON containing `Tile_Spawn_Enemy` tiles, WHEN the room loads,
+  THEN `RoomGeneraterController` exposes their world positions and the spawn driver spawns at them
+  (not the centre-fallback). **Status update 2026-07-13: the parser itself is built** — `AC-P3`'s
+  remaining gap is authoring markers into the other 12 room JSONs and adding the missing
+  centre-fallback (see Edge Cases), not the parser code.
 
 ---
 
 ## Open Questions
 
+> Table cleaned up 2026-07-13 — the previous revision had duplicate rows for #1/#2 with conflicting
+> statuses (a merge artifact); resolved below to one row per question, and #4 reopened.
+
 | # | Question | Status | Notes |
 |---|----------|--------|-------|
-| 1 | **`EnemyManager` singleton violates "no new singletons"** (only `MazeController` permitted). Owner chose singleton (2026-07-08). | ⬜ OPEN — **decide this sprint** | **Needs an ADR** to ratify the exception, or wrap as an Inspector-wired scene component. Run `/architecture-decision`. **Gates the PlayMode lifecycle test harness (AC-L1…L6)** — tests can't be authored against an undecided architecture. |
-| 2 | **Runtime shuffle seed source** — per-room from a global run seed, or fresh unseeded `System.Random()`? | ✅ RESOLVED (2026-07-09) | Per-room-from-run-seed. Anchored by the new `RoomFile.roomData` field (see Q#4) — seed derives from the run's global seed + the owning `RoomFile`'s identity. See "Runtime seed source" callout under `GetHybridEnemySet`. |
-| 1 | **`EnemyManager` singleton violates "no new singletons"** (only `MazeController` permitted). Owner chose singleton (2026-07-08). | ✅ RESOLVED (2026-07-09) | Ratified by **ADR-0002** (`docs/architecture/adr-0002-enemymanager-singleton-exception.md`, Status: Proposed) — scoped singleton exception with mandated duplicate-guard + event-driven state. Unblocks the PlayMode lifecycle test harness (AC-L1…L6). Follow-up: update the "only `MazeController`" wording in the four rule files to include `EnemyManager`. |
-| 2 | **Runtime shuffle seed source** — per-room from a global run seed, or fresh unseeded `System.Random()`? | ⬜ OPEN — **decide this sprint** | Tests are unaffected (always inject a seed). Recommend per-room-from-run-seed for reproducible runs + future daily-run support. Owner pended 2026-07-08; flagged in the sprint tracker for a daily nudge. |
-| 3 | Default values for `randomRatio` / `overflowPercent` (global vs per-`RoomData`)? | ⬜ OPEN | Suggest global defaults (`randomRatio 0.5`, `overflowPercent 0.1`) overridable per room; confirm during balance pass. |
-| 4 | How is a `RoomCell` mapped to its `RoomData`? | ✅ RESOLVED (2026-07-08, mechanism updated 2026-07-09) | **Primary: `RoomFile.roomData` direct reference** (new field, author-assigned per room entry — no runtime `RoomType` read needed). **Fallback: `RoomType` → `RoomData` table**, non-combat + start rooms → zero budget. See "Room → RoomData Resolution". No longer hard-depends on map-system Bug #16 — only the fallback path does. |
-| 5 | Should `weight` be authored, or derived from the enemy's stat/rank tier? | ⬜ OPEN | Authored for now (`≥ 1` enforced). See Future Enhancements → weight↔stat cross-check. |
-| 6 | Multi-wave rooms (second wave partway through)? | ⬜ POST-DEMO | Out of demo scope; schema allows a later `List<wave>` extension. |
-| 7 | Boss room: dedicated `RoomData` (one boss id + high budget) vs bypass the algorithm? | ⬜ POST-DEMO | Bosses are out of demo scope per `game-concept.md`. Likely a dedicated zero-random `RoomData`; do not special-case the algorithm before the base loop is playtested. |
+| 1 | `EnemyManager` singleton violates "no new singletons" (only `MazeController` permitted). | ✅ RESOLVED (2026-07-09) | Ratified by **ADR-0002** — scoped singleton exception with mandated duplicate-guard + event-driven state. Unblocks the PlayMode lifecycle test harness (AC-L1…L6) once `EnemyManager` is actually built (still a stub as of 2026-07-13). |
+| 2 | Runtime shuffle seed source — per-room from a global run seed, or fresh unseeded RNG? | ⬜ **REOPENED 2026-07-13** | Previously marked resolved via the `RoomFile.roomData` field, which was never implemented (see Q#4). With no per-room identity anchor, "per-room-from-run-seed" has nothing to derive from today. Moot unless/until Q#4 lands on a per-room mapping — otherwise this collapses to "seed from the run + a spawn-event counter," which is a materially weaker reproducibility guarantee. |
+| 3 | Default values for `randomRatio` / `overflowPercent` (global vs per-`RoomModel`)? | ⬜ OPEN | Current code defaults live directly on each `RoomModel` asset (`0.33`/`0.1`) — no global default mechanism exists. Confirm during a balance pass. |
+| 4 | How does a physical room resolve to a `RoomModel` preset? | ⬜ **REOPENED 2026-07-13** — was marked resolved in error | The `RoomFile.roomData` direct-reference design was never implemented. What runs today is `MapModel.GetRandomRoom()`, a shuffle-bag **decoupled from room identity** — see Room→RoomModel Resolution. Needs an explicit owner decision: keep the shuffle-bag (simpler, less authoring control), or build the per-room mapping this GDD previously assumed was done. Folded into Future Architecture Direction. |
+| 5 | Should `weight`/cost be authored, or derived from the enemy's stat/rank tier? | ⬜ OPEN | Authored for now, and **still unenforced** (`weight ≥ 1` is not clamped anywhere). See Future Architecture Direction → weight↔stat cross-check. |
+| 6 | Multi-wave rooms (second wave partway through)? | ⬜ POST-DEMO | Out of demo scope; schema allows a later extension. |
+| 7 | Boss room: dedicated `RoomModel` (one boss + high budget) vs bypass the algorithm? | ⬜ POST-DEMO | Bosses are out of demo scope per `game-concept.md`. Likely a dedicated zero-random `RoomModel`; do not special-case the algorithm before the base loop is playtested. |
+| 8 | **[NEW 2026-07-13]** Which selection-algorithm direction do we commit to: harden the current uniform-random `RoomModel.GetSpawnSet()`, revive the 2026-07-08 injected-RNG/`argmin`/id-database target, or adopt the newly proposed Room Budget + Candidate Pool + Spawn Chance design? | ⬜ OPEN — **needs an owner decision** | See Future Architecture Direction for the evaluated comparison. This blocks AC-A3/A4/D1–D3 from being locked in, and blocks deciding whether `EnemyModal` gains a `spawnChance`/`tier` field. |
+| 9 | **[NEW 2026-07-13]** Should `EnemyManager`/`EnemySpawner` own placement fallback (centre-of-room when no markers exist), or is authoring markers into all 13 rooms a hard prerequisite before Sprint 6 work starts? | ⬜ OPEN | 12/13 rooms currently have no fallback and would throw on load if spawn were wired further. Low-cost either way; recommend building the fallback regardless of the marker-authoring timeline, since it's also the demo's safety net if a future room ships without markers. |
 
 ---
 
-## Future Enhancements (Should-Have / Post-Demo)
+## Future Architecture Direction — evaluated 2026-07-13
 
-Deferred by owner decision (2026-07-08) — **do not implement for the demo**; recorded so the roadmap
-carries them:
+> Renamed from "Future Enhancements." Folds together the 2026-07-08 idealized target (never built),
+> the current code's own trajectory (uniform-random, direct-ref, zero-alloc), and a new **Room
+> Budget + Candidate Pool + Spawn Chance** proposal from the owner (2026-07-13, high-level sketch,
+> not a final spec). All three are evaluated on the same footing — none is assumed to be the answer.
+> Open Question #8 tracks the decision this section informs but does not make.
 
-- **Composition-diversity phase (Should-Have).** The current greedy Phase-2 fill biases toward
-  fewer-heavier sets. A future comparison phase would decide *what kind* of cluster to build (e.g.
-  weigh "10 creeps vs 1 elite — which is the more interesting fight for this room?") and bias Phase 2
-  accordingly, delivering the full swarm-vs-heavy variety the Player Fantasy promises. Until then,
-  keep variety-tuning investment low.
-- **Run-depth difficulty escalation (Post-Demo balance).** `weightBudget` is static per `RoomData`;
-  the demo accepts that difficulty appears in random order (an early room may be harder than a late
-  one). Scaling effective budget by run depth / rooms-cleared is a balance task for after the demo —
-  it needs a maze-depth signal the map system does not currently expose.
-- **`weight` ↔ stat cross-check (Open Q#5).** An editor validation comparing authored `weight`
-  ordering against a derived power score from the prefab's `StatsSO`/rank tier, warning when a
-  high-tier enemy is cheap or vice-versa — closes the "weight diverges from real threat" hazard.
+### Option A — Harden the current code (uniform-random, direct-ref)
+
+Keep `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` as-is; add the missing guards (`weight ≥ 1`
+clamp, null-safe `GetSpawnSet()`, centre-fallback for markerless rooms) without changing the
+selection algorithm's shape.
+- **Pros:** smallest change from what's shipping today; the zero-alloc scratch-buffer work in
+  `GetSpawnSet()` is preserved; fastest path to closing BUG-ES-1/ES-2/ES-3.
+  the direct-ref model.
+- **Cons:** stays non-deterministic (`UnityEngine.Random`, unseedable) — EditMode algorithm tests
+  stay out of reach; `MapModel`'s shuffle-bag stays decoupled from room identity unless Q#4 is
+  separately resolved; no `Spawn Chance`/tier concept, so composition control stays coarse
+  (budget + weight only).
+
+### Option B — Revive the 2026-07-08 target (injected RNG, id-database, `argmin`)
+
+Build the originally-designed `EnemyDatabase`/id-based lookup, inject `System.Random`, restore a
+deterministic Phase-2 fill.
+- **Pros:** the Acceptance Criteria section (AC-A3, AC-A4, AC-D1–D3) already exist for this shape;
+  fully deterministic and testable; id-based refs decouple map/room assets from direct SO references
+  (lighter, more refactor-safe).
+- **Cons:** the most implementation work of the three options (new database class, id plumbing,
+  migrating every existing `RoomModel`/`MapModel` asset off direct refs); the `argmin` fill was
+  already flagged in the 2026-07-08 review as biasing toward *fewer, heavier* enemies — reviving it
+  without also building the deferred composition-diversity pass reintroduces that known limitation.
+
+### Option C — Room Budget + Candidate Pool + Spawn Chance (owner proposal, 2026-07-13)
+
+The owner's sketch: each `RoomModel`-equivalent holds a `Room Type`, `Room Budget`, an `Enemy Pool`,
+a `Budget Tolerance` (e.g. total cost within 90–110% of budget), and spawn points. Each
+`EnemyModal`-equivalent gains `Cost` (≈ today's `weight`), `Spawn Chance`, and an `Enemy Tier`. Per
+enemy spawned: build a fresh **Candidate Pool** by rolling `Spawn Chance` independently for every
+enemy in the pool whose `Cost` still fits the remaining budget; pick from that pool (random/weighted/
+other); if the pool comes up empty, fall back to *all* enemies that still fit, so a spawn attempt is
+never blocked by bad luck alone. Repeat until the tolerance band is hit or nothing fits.
+
+**Architecture evaluation** (requested 2026-07-13 — analysis only, no implementation):
+
+- **Strengths.**
+  - The per-pick fallback (empty Candidate Pool → take everything that still fits) directly fixes a
+    real gap in the *current* code: today's fit-loop can legitimately empty out and silently under-
+    spend the budget with candidates still technically available (see Formulas worked example) — this
+    proposal's fallback guarantees forward progress except at the true boundary condition (nothing
+    fits at all), which is a genuine improvement over both Option A and Option B as sketched.
+  - `Spawn Chance` gives designers a **second knob** (chance to be considered) independent of `Cost`
+    (budget weight) — today's `weight` conflates "how much of the budget this costs" with implicitly
+    "how likely it is to appear" (anything that fits is equally likely). Separating them lets a
+    designer make a cheap enemy *rare* or an expensive one *common*, which neither Option A nor B
+    can express without adding a field very close to this one.
+  - `Enemy Tier` as an explicit field (vs. today's convention-only "weight should track power tier")
+    turns an implicit authoring convention into checkable data — closes part of Open Q#5.
+  - Conceptually the closest of the three to what `RoomModel.GetSpawnSet()` **already does** (per
+    Current Implementation's note that the current loop shape already resembles a candidate-pool
+    pattern) — this is evolution, not a rewrite, which lowers implementation risk relative to Option B.
+
+- **Weaknesses / open risks.**
+  - **Termination is not obviously guaranteed.** Rolling `Spawn Chance` independently per candidate
+    every pick means a pick round can legitimately produce an empty Candidate Pool even when eligible
+    (cost-fitting) enemies exist — the proposal's own fallback step exists specifically to cover this,
+    but the *fallback path itself* needs the same `cost ≥ 1`-style termination guarantee this GDD
+    already had to add as a hard invariant for the current algorithm (see Formulas/Edge Cases) — that
+    invariant isn't stated in the proposal and must be carried over, not re-derived from scratch.
+  - **Budget Tolerance as a band (90–110%), not a hard cap, is a design change from today's
+    `overflowCap`-style "may exceed by at most X%" — worth confirming it's intentional.** A band
+    implies the algorithm might need to keep sampling *after* it would already stop under today's
+    "stop at first `remaining ≤ 0`" rule, to reach the lower bound of the tolerance window; the
+    proposal's step 8 loop condition ("until budget threshold OR no eligible enemy") doesn't fully
+    specify what happens if the loop naturally stops below 90% with eligible-but-unlucky enemies
+    remaining — is that an acceptable outcome, or does it need a forced top-up? This needs a Formulas
+    section of its own before implementation, mirroring the rigor already in this GDD's existing
+    Formulas section.
+  - **Rebuilding the Candidate Pool from scratch every single enemy spawn is more `Spawn Chance` rolls
+    than either current option** (current code does ~1 random draw per accepted candidate; this does
+    up to `|EnemyPool|` chance-rolls per accepted candidate). For the pool sizes this project has today
+    (single-digit enemy types per room), this is not a real performance concern — but it's worth
+    stating explicitly per this project's Zero-Alloc Hot Path rule (`.claude/rules/engine-code.md`):
+    the rolling step must not allocate per-candidate (a `foreach` + `Random.value` comparison against
+    a pre-sized reusable buffer, mirroring `RoomModel.GetSpawnSet()`'s existing `_fitBuf` pattern, is
+    the same shape already proven to work in this codebase — this is an implementation detail to
+    carry forward, not a reason to avoid the design).
+  - **`Room Type` (Normal/Elite/Boss/Treasure/Event) isn't consumed by any rule in the proposal's own
+    flow** — it's declared as a field but the spawn algorithm section never branches on it. Either the
+    algorithm needs a Room-Type-conditioned rule (e.g. Boss rooms skip the pool entirely, per this
+    GDD's existing Open Q#7), or the field is aspirational for a later pass — should be explicit either
+    way, not implied.
+  - **No placement/marker guidance** — the proposal is entirely about *which* enemies, not *where*
+    they spawn. This GDD's existing entry-safety/jitter/round-robin Edge Cases (still unbuilt in any
+    option) would still be needed on top of whichever selection algorithm is chosen.
+
+- **Balance implications.** The `Spawn Chance` + `Cost` split is the strongest lever of the three
+  options for the Player Fantasy's stated goal ("sometimes a swarm of cheap enemies, sometimes a
+  couple of heavy ones") — a designer can directly dial "Golem is powerful but rare" via low
+  `Spawn Chance` + high `Cost`, independent of how often it *fits* the budget. Options A and B only
+  have `Cost`/`weight` to work with, so composition variety is a side-effect of budget arithmetic
+  rather than a directly-authored knob. This is the proposal's single biggest gameplay-facing
+  advantage and the main reason it's worth prototyping over Option A/B as-is.
+
+- **Recommendation (informational, not a decision):** Option C is the strongest direction of the
+  three for the stated Player Fantasy, on the condition that (1) its termination/fallback guarantee
+  is formalized with the same rigor as this GDD's existing invariants before implementation, (2)
+  `Budget Tolerance` gets a precise Formulas-section treatment (not just "90–110%" prose), and (3) it
+  reuses the zero-alloc scratch-buffer pattern already proven in `RoomModel.GetSpawnSet()` rather than
+  reintroducing per-pick allocation. It is closer to the current code's actual trajectory than Option
+  B is, which lowers migration cost. This does not resolve Open Q#8 — it needs explicit owner sign-off
+  and, if chosen, a follow-up GDD revision with a full Formulas/Edge-Cases/Acceptance-Criteria pass
+  specific to the candidate-pool shape (this section is an evaluation, not that spec).
+
+### Other deferred items (unchanged in spirit from 2026-07-08)
+
+- **Run-depth difficulty escalation (Post-Demo balance).** `weightBudget`/`Room Budget` is static per
+  preset regardless of which option is chosen; scaling it by run depth needs a maze-depth signal the
+  map system does not currently expose.
+- **`weight`/`Cost` ↔ stat cross-check (Open Q#5).** An editor validation comparing authored cost
+  ordering against a derived power score from the prefab's `StatsSO`/rank tier — closes the "cost
+  diverges from real threat" hazard regardless of which option is chosen.
 - **Object pooling.** Replace `Instantiate` with the `Pooling/` system once it exists (currently
   Alpha / Not Started) — soft dependency, `Instantiate` acceptable for the demo.
 
@@ -566,17 +721,23 @@ carries them:
 
 ## Prototype Deviations from the Planned Design (open — owner review)
 
-The 2026-07-09 reverse-sync documented the prototype as-built. These are the points where the
-prototype **diverges from the planned/reviewed design**; each is a decision for the owner —
-either harden the code up to the design, or amend the design to accept the prototype's approach.
+> Updated 2026-07-13. The 2026-07-09 reverse-sync compared the prototype against the 2026-07-08
+> target; since then the prototype moved **further from** that target rather than toward it, and new
+> deviations appeared. Rows D1–D8 are the original findings (re-verified); D9–D12 are new. "Planned"
+> below still means the 2026-07-08 idealized target — see Future Architecture Direction for whether
+> that target is even the right one to converge on.
 
-| # | Deviation | As-built | Planned | Risk if left as-is |
+| # | Deviation | As-built (2026-07-13) | Planned (2026-07-08 target) | Risk if left as-is |
 |---|-----------|----------|---------|--------------------|
-| D1 | RNG source | `UnityEngine.Random` (static) | Injected `System.Random` | Selection is non-deterministic → AC-A3/AC-A4 untestable; no reproducible runs (Open Q#2) |
-| D2 | Phase-2 fill | Random pick among eligible | Deterministic `argmin \|weight−remaining\|` + tie-break | Budget not used "optimally"; behaviour not reproducible |
-| D3 | Enemy reference model | `RoomModel.enemiesOfRoom` = direct `EnemyModal` refs | `id`-based via `EnemyDatabase.GetByID` | Heavier map/room assets; no central store; no dup/zero-id validation (AC-D1…D3) |
-| D4 | `weight ≥ 1` enforcement | Runtime `> 0` guard only | `[Range(1,99)]` + `OnValidate` clamp | A `0`/negative weight authored on `EnemyModal` still possible in the Inspector |
-| D5 | `MapModel` role | `mapName` + `idRooms` + `totalWeight` | `mapName` + `idEnemy` (map's enemy set) | Map data does not scope a room's enemy pool as designed |
-| D6 | `id` generation | `Math.Abs(Guid.GetHashCode())`, no reroll, no public `EnsureId()` | reroll-until-nonzero + public test hook | `id == 0` edge and in-memory-SO test path unhandled |
-| D7 | Runtime driver | `LevelManager.SpawnRoomEnemies()` Editor button, random positions | `EnemyManager` event-driven lifecycle (ADR-0002) | No door lock / alive-count / room-clear / events; not a real run flow |
-| D8 | Class naming / location | `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` in `Database-SO/Modal/` (typo "Modal") | `EnemyData`/`EnemyDatabase`/`MapEnemyDatabase`/`RoomData` | Naming drift between doc and code; prototype sits in production `Script/` tree, not `prototypes/` |
+| D1 | RNG source | `UnityEngine.Random` (static) — unchanged | Injected `System.Random` | Selection is non-deterministic → AC-A3/AC-A4 untestable; no reproducible runs |
+| D2 | Phase-2 fill | Uniform random pick among eligible, rewritten for zero-alloc 2026-07-09→13 | Deterministic `argmin \|weight−remaining\|` + tie-break | Budget usage not "optimal"; behaviour not reproducible. Also no longer matches even the *prior* prototype snapshot — the implementation itself changed, not just its relation to the target |
+| D3 | Enemy reference model | `RoomModel.enemiesOfRoom` = direct `EnemyModal` refs — unchanged | `id`-based via `EnemyDatabase.GetByID` | Heavier map/room assets; no central store; no dup/zero-id validation |
+| D4 | `weight ≥ 1` enforcement | `RoomModel.OnValidate` logs a warning only, no clamp — unchanged | `[Range(1,99)]` + `OnValidate` clamp | A `0`/negative weight authored on `EnemyModal` still hangs the fit-loop |
+| D5 | `MapModel` role | **Changed again** — now `fullRoomList` (List\<RoomModel\>) + `GetRandomRoom()` shuffle-bag; the 2026-07-09 snapshot's `idRooms`/`totalWeight` fields are **gone** | `mapName` + `idEnemy` (map's enemy set) | Map data doesn't scope a room's enemy pool by identity at all now — it's a random draw, further from the target than before |
+| D6 | `id` generation | `Math.Abs(Guid.GetHashCode())`, no reroll, no public `EnsureId()` — unchanged | reroll-until-nonzero + public test hook | `id == 0` edge and in-memory-SO test path unhandled |
+| D7 | Runtime driver | **Two** drivers now: `EnemySpawner` (event-driven, built out since 2026-07-09) **and** `LevelManager.SpawnRoomEnemies()` (Editor button, unchanged) | `EnemyManager` event-driven lifecycle (ADR-0002) | `EnemyManager` itself still has zero lifecycle; two parallel non-canonical drivers instead of one, neither routes through it (BUG-ES-2) |
+| D8 | Class naming / location | `EntityModel`/`EnemyModal`/`MapModel`/`RoomModel` in `Database-SO/Modal/` (typo "Modal") — unchanged | `EnemyData`/`EnemyDatabase`/`MapEnemyDatabase`/`RoomData` | This GDD now treats the actual names as primary (see header) — this row is kept for historical traceability, not as an open action item |
+| D9 | **[NEW]** Room→preset mapping | `MapModel.GetRandomRoom()` bag-draw, decoupled from room identity | `RoomFile.roomData` direct reference (this GDD marked it RESOLVED 2026-07-09; it was never implemented) | A designer cannot guarantee a specific room's difficulty; start room isn't guaranteed zero-budget (see Edge Cases) |
+| D10 | **[NEW]** `selectionWeight` field | Declared on `RoomModel` `[Range(1,100)]`, documented in its own code comment as feeding `MapModel.GetRandomRoom` | N/A — not part of any prior design | Dead Inspector field; a designer tuning it observes no effect, which reads as a bug even though it's "just" unused |
+| D11 | **[NEW]** Tile_Spawn_Enemy parser | **Built** — `RoomGeneraterController.LoadRoom()` parses the marker, `EnemySpawner` consumes it | Same — this GDD previously (incorrectly) recorded this as not built | None — this row flips from a gap to a resolved item; kept to correct the record |
+| D12 | **[NEW]** Markerless-room fallback | **Missing** — `EnemySpawner.SpawnRoomEnemies()` throws on an empty marker list (12/13 rooms today) | Fall back to room-centre, log a warning | Loading almost any room with a configured `EnemyModal` pool throws at spawn time; this is the most player-visible risk in this table if spawning is wired further before it's fixed |

@@ -20,18 +20,38 @@ on clear emits `ON_CLEAR_ENEMY` + `ON_ROOM_CLEAR` to open doors and trigger the
 upgrade screen. The player never touches this system directly; they feel it as the
 per-run pacing and variety of each room.
 
-> **Prototype status (2026-07-09).** A partial prototype exists (`Assets/Script/Database-SO/Modal/`
-> — `RoomModel`/`MapModel`/`EnemyModal`, plus `LevelManager.SpawnRoomEnemies()` on an Editor
-> button). It implements the data model + weight-budget selection only, and **diverges from this
-> epic's planned model** (different class names, direct refs instead of `id`s, `UnityEngine.Random`
-> instead of an injected seed, random Phase-2 instead of `argmin`).
-> As of 2026-07-09 `Assets/Script/Enemy/EnemyManager.cs` and `EnemySpawner.cs` exist as **scaffold
-> stubs only** — `EnemyManager` declares just `static Instance`; `EnemySpawner` subscribes
-> `ON_LOAD_MAP` with an empty `Spawn()`. Neither implements the room-combat lifecycle, and both are
-> suspected non-compiling (undefined `OnDoneLoadRoomGrid`; `System.Numerics`+`UnityEngine` `Vector3`
-> ambiguity). `RoomCell.CloseDoor()` (door-lock contract) now exists. The GDD's "Current
-> Implementation Status" and "Prototype Deviations" sections track every gap. Stories must decide
-> per cluster: harden the prototype up to the design, or amend the design.
+> **Prototype status (updated 2026-07-13, was last checked 2026-07-09).** A partial prototype exists
+> (`Assets/Script/Database-SO/Modal/` — `RoomModel`/`MapModel`/`EnemyModal`, plus two parallel
+> runtime drivers). It implements the data model + weight-budget selection, and **diverges from this
+> epic's originally-planned model** (different class names, direct refs instead of `id`s,
+> `UnityEngine.Random` instead of an injected seed, uniform-random Phase 2 instead of `argmin`) —
+> and has kept diverging further since 2026-07-09, not converging.
+>
+> **Corrections to the 2026-07-09 snapshot above (re-verified 2026-07-13):**
+> - `EnemySpawner.cs` is **no longer an empty stub** — it subscribes `EventID.ON_GET_SPAWN_POSITIONS`
+>   (not `ON_LOAD_MAP` as previously assumed) and has a working `OnDoneLoadRoomGrid`/`SpawnRoomEnemies`
+>   implementation. It compiles (confirmed by bug-triage-2026-07-10 — the suspected `.ConvertTo<T>()`
+>   compile error was a false alarm; `Unity.VisualScripting` ships that extension method).
+> - `RoomGeneraterController.LoadRoom()` now **parses `Tile_Spawn_Enemy` markers** and emits
+>   `ON_GET_SPAWN_POSITIONS` with their positions — this is what `EnemySpawner` consumes. 1 of 13 room
+>   JSONs (`NormalRoom_0.json`) has a marker authored; the other 12 have no fallback and would throw.
+> - `RoomCell` does **not** have a `GetSpawnPosition()` method (the 2026-07-09 note claiming one exists
+>   calling an undefined `GetRoomSpawnSet()` does not match current code) — spawn positions flow
+>   directly from `RoomGeneraterController` to `EnemySpawner` via the event payload instead.
+> - `EnemyManager.cs` is **unchanged** — still exactly `public static EnemyManager Instance { get; private set; }`,
+>   no `Awake`, no lifecycle. Still has the harmless-for-now unused `System.Numerics` import.
+> - `MapModel` no longer holds `idRooms`/`totalWeight` — it now holds `fullRoomList` (List\<RoomModel\>)
+>   and draws a random preset per spawn event via `GetRandomRoom()` (shuffle-bag, no-replacement pool).
+>   This means room→enemy-preset assignment is **decoupled from room identity** — the `RoomFile.roomData`
+>   direct-reference mechanism the GDD once marked "RESOLVED" was **never implemented**.
+> - **BUG-ES-1 confirmed live in both runtime drivers** (`EnemySpawner` and `LevelManager`) — neither
+>   guards `RoomModel.GetSpawnSet()`'s `null` return on an empty enemy pool.
+>
+> Full detail in `design/gdd/enemy-spawn-system.md` → "Current Implementation" and "Prototype
+> Deviations" (both revised 2026-07-13). Stories must decide per cluster: harden the prototype up to
+> a design, or pick a different target design — see the GDD's "Future Architecture Direction" for an
+> evaluated comparison of three options (harden current code / revive the original id-database target
+> / adopt a newly proposed Room Budget + Candidate Pool + Spawn Chance model), none yet decided.
 
 ## Governing ADRs
 
@@ -62,10 +82,10 @@ clusters below are derived from the GDD's acceptance-criteria groups
 
 | Dependency | Blocks | Source |
 |------------|--------|--------|
-| ~~**Open Q#1**~~ ✅ RESOLVED — `EnemyManager` singleton exception ratified by **ADR-0002** (Proposed) | ~~PlayMode lifecycle test harness (AC-L1…L6)~~ unblocked | GDD Open Questions #1 / ADR-0002 |
-| **map-system Bug #16** — `RoomFile.roomType` not read at runtime | RoomType → `RoomData` routing | GDD Dependencies / CLAUDE.md Bug #16 |
+| ~~**Open Q#1**~~ ✅ RESOLVED — `EnemyManager` singleton exception ratified by **ADR-0002** (Proposed) | ~~PlayMode lifecycle test harness (AC-L1…L6)~~ unblocked (the manager itself still needs to be built) | GDD Open Questions #1 / ADR-0002 |
+| **Q#4 REOPENED 2026-07-13** — no per-room→preset mapping exists; `MapModel.GetRandomRoom()` shuffle-bag is decoupled from room identity, and `RoomFile.roomData` was never added to `DungeonRoomSO.cs` | RoomType/room-identity-aware routing (AC-P placement work assumes markers are meaningful per-room) | GDD "Room → RoomModel Resolution" (revised 2026-07-13) |
 | **Enemy AI Bugs #7/#8** — `EntityDeathState` wrong base class; empty `Health<=0` transition | real death chain emitting `ON_ENEMY_DEATH` (AC-L2b) | GDD Dependencies / CLAUDE.md Bugs #7/#8 |
-| **`Tile_Spawn` markers** absent from all 13 room JSONs; parser branch does not exist | AC-P3 (marker placement); until fixed every room uses centre-fallback | GDD Dependencies |
+| **`Tile_Spawn_Enemy` markers** — parser **is built** (`RoomGeneraterController.LoadRoom()`, confirmed 2026-07-13); only 1 of 13 room JSONs authored, and there is **no centre-fallback** for the other 12 (new gap — `EnemySpawner` throws on an empty marker list) | AC-P3 (parser done); marker authoring + fallback still needed | GDD Dependencies (revised 2026-07-13) |
 | **Event Bus** — `ON_ENEMY_DEATH` + `ON_ROOM_CLEAR` not yet in `EventID` | lifecycle events | GDD Dependencies |
 
 ## Definition of Done

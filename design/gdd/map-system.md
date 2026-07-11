@@ -225,28 +225,38 @@ Remove these methods to stop misleading readers.
 **Spawn architecture — [SUPERSEDED 2026-07-08 → see `design/gdd/enemy-spawn-system.md`]:**
 
 > The earlier `EncounterSO` + `RoomEnemySpawner` sketch (2026-07-02) is **superseded** by the
-> approved **Enemy Spawn & Per-Room Management** GDD (`design/gdd/enemy-spawn-system.md`), which
-> owns spawn selection and the room combat lifecycle. Authoritative model there:
-> - **Spawn points**: `Tile_Spawn` marker tiles authored in room tilemaps
->   (`GameConstants.TileName.SPAWN`); still absent from all 13 room JSONs and no parser branch yet.
-> - **Enemy data**: four SOs — `EnemyData` (spawn metadata: id/name/prefab/weight),
->   `EnemyDatabase` (project-wide store + `GetHybridEnemySet` selection engine),
->   `MapEnemyDatabase`, and `RoomData` (per-room `weightBudget` dial). **Replaces `EncounterSO`.**
-> - **`EnemyManager`** (not `RoomEnemySpawner`): listens `ON_LOAD_MAP`; asks `EnemyDatabase` for a
->   weight-budgeted set; spawns at markers; locks doors (`CloseDoor()`); tracks alive count via new
->   `ON_ENEMY_DEATH`; emits existing `ON_CLEAR_ENEMY` + new `ON_ROOM_CLEAR` at zero alive.
+> **Enemy Spawn & Per-Room Management** GDD (`design/gdd/enemy-spawn-system.md`), which owns spawn
+> selection and the (still unbuilt) room combat lifecycle. That GDD was rewritten 2026-07-13 to make
+> the **actual code** the primary reference instead of an idealized target that was never built —
+> this callout is updated to match.
+>
+> **As-built today (2026-07-13), using the project's real class names:**
+> - **Data**: `EntityModel` (base id/name) → `EnemyModal` (one enemy: prefab + weight) and
+>   `RoomModel` (one difficulty preset: enemy pool + `weightBudget`/`randomRatio`/`overflowPercent` +
+>   the selection method itself, `GetSpawnSet()`) → `MapModel` (a shuffle-bag of `RoomModel` presets,
+>   drawn at random per spawn event via `GetRandomRoom()`). There is **no** central enemy database
+>   and **no** id-based lookup — every reference is direct.
+> - **Spawn points**: `Tile_Spawn_Enemy` marker tiles — the parser **is built**
+>   (`RoomGeneraterController.LoadRoom()`, emits `EventID.ON_GET_SPAWN_POSITIONS`); only 1 of 13 room
+>   JSONs (`NormalRoom_0.json`) has a marker authored, and there is no centre-fallback for the rest
+>   (new gap — the spawn driver throws on an empty marker list).
+> - **Runtime drivers**: two parallel ones — `EnemySpawner` (event-driven off
+>   `ON_GET_SPAWN_POSITIONS`) and `LevelManager.SpawnRoomEnemies()` (Editor button) — **neither is
+>   `EnemyManager`**, which still has zero body (`public static EnemyManager Instance { get; private set; }`
+>   and nothing else).
+> - **Room→preset assignment**: `MapModel.GetRandomRoom()`'s shuffle-bag, **decoupled from room
+>   identity** — a specific physical room does not reliably get a specific difficulty. The
+>   `RoomFile.roomData` direct-reference design this doc previously described as the target was
+>   **never implemented**; `DungeonRoomSO.RoomFile` still only has `roomName`/`filePath`/`roomType`.
 > - **`RoomCell.IsCleared`**: means "enemies defeated", set on clear. The current set-on-leave
 >   behaviour (`ClearRoom` on door transition) is temporary and moves when `EnemyManager` lands.
+>   `RoomCell` has `CloseDoor()`/`OpenDoors()` but nothing in the spawn path calls them yet.
 >
-> **As-built today (2026-07-09, prototype):** only the data model + selection exists —
-> `RoomModel`/`MapModel`/`EnemyModal` (`Assets/Script/Database-SO/Modal/`) with
-> `RoomModel.GetSpawnSet()`; spawning is a manual Editor button (`LevelManager.SpawnRoomEnemies()`),
-> not the `EnemyManager` lifecycle. `EnemyManager`, `EnemyDatabase`, the events, and marker parsing
-> are still PLANNED. See the "Current Implementation Status" section in `enemy-spawn-system.md`.
->
-> Map-side contract this system still owns: `RoomCell.CloseDoor()` / `OpenDoors()` / `IsCleared`,
-> the `RoomType → RoomData` routing (**blocked on Bug #16** — `RoomFile.roomType` not read at
-> runtime), and the `Tile_Spawn` parser branch in `RoomGeneraterController`.
+> Map-side contract this system still owns: `RoomCell.CloseDoor()` / `OpenDoors()` / `IsCleared`
+> (built, unused), and whether to build a `RoomType`/room-identity → `RoomModel` routing mechanism
+> at all — **blocked on Bug #16** (`RoomFile.roomType` not read at runtime) if that direction is
+> chosen; see `enemy-spawn-system.md` → "Room → RoomModel Resolution" and "Future Architecture
+> Direction" for the reopened decision.
 
 **Required EventID additions (still needed — owned by enemy-spawn-system.md):**
 - `ON_ENEMY_DEATH` (payload: none or Vector2 position) — per-enemy granular event

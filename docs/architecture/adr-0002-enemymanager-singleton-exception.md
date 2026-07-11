@@ -231,8 +231,8 @@ more decoupled solution, on the explicit condition that it is revisited later.
   singletons could proliferate silently, as they already have twice.
 - The rule's "only `MazeController`" wording in four files must be updated to read
   "`MazeController` and `EnemyManager`" or the exception will keep being re-flagged.
-  (`.claude/rules/manager-event-code.md` already updated; `engine-code.md` and
-  `map-code.md` still read "only `MazeController`" in places — Manual Review.)
+  (**Update 2026-07-13: done.** `.claude/rules/manager-event-code.md`, `engine-code.md`, and
+  `map-code.md` all now name `EnemyManager` as the ratified second exception, citing this ADR.)
 
 ### Risks
 - **Risk**: `EnemyManager` repeats `MazeController`'s exact `Awake()` bug (missing
@@ -294,9 +294,9 @@ reused behind it. When implemented:
    story acceptance criterion / code-review item.
 2. The `ON_LOAD_MAP` handler **must** explicitly reset per-room state at the top, before
    resolving the new room's `RoomData`. Mandatory Sprint 6 acceptance criterion.
-3. Update `.claude/rules/engine-code.md` and `.claude/rules/map-code.md` to name
-   `EnemyManager` as a second permitted singleton citing ADR-0002 (as
-   `manager-event-code.md` already does).
+3. ✅ Done (confirmed 2026-07-13) — `.claude/rules/engine-code.md` and `.claude/rules/map-code.md`
+   both name `EnemyManager` as a second permitted singleton citing ADR-0002, matching
+   `manager-event-code.md`.
 4. `docs/tech-debt-register.md` TD-023 and TD-031 rows may be annotated to
    cross-reference ADR-0002 as the precedent that formalizes (without excusing) the same
    pattern — follow-up, not part of authoring this ADR.
