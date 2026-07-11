@@ -74,7 +74,9 @@
       "Bash(echo \"launched PID=$!\")",
       "Bash(powershell -NoProfile -Command '$p=[Environment]::GetEnvironmentVariable\\('\\\\''PATH'\\\\'','\\\\''User'\\\\''\\); Write-Output \\('\\\\''BEFORE contains .local\\\\bin: '\\\\'' + \\($p -like '\\\\''*\\\\.local\\\\bin*'\\\\''\\)\\); if \\($p -notlike '\\\\''*\\\\.local\\\\bin*'\\\\''\\) { $new = $p.TrimEnd\\('\\\\'';'\\\\''\\) + '\\\\'';'\\\\'' + $env:USERPROFILE + '\\\\''\\\\.local\\\\bin'\\\\''; [Environment]::SetEnvironmentVariable\\('\\\\''PATH'\\\\'', $new, '\\\\''User'\\\\''\\); Write-Output '\\\\''ADDED %USERPROFILE%\\\\.local\\\\bin to User PATH'\\\\'' } else { Write-Output '\\\\''ALREADY present - no change'\\\\'' }; Write-Output \\('\\\\''AFTER User PATH tail: '\\\\'' + \\([Environment]::GetEnvironmentVariable\\('\\\\''PATH'\\\\'','\\\\''User'\\\\''\\).Split\\('\\\\'';'\\\\''\\) | Select-Object -Last 3\\)\\)')",
       "Bash(echo \"=== git status NOW ===\"; git status --porcelain; echo \"=== diff vs pre_install snapshot ===\"; git status --porcelain > /tmp/post_install.txt; diff /tmp/pre_install.txt /tmp/post_install.txt && echo \"IDENTICAL ✅ — no project pollution\" || echo \"DIFFERENT ⚠️\")",
-      "Bash(rtk telemetry *)"
+      "Bash(rtk telemetry *)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)"
     ]
   }
 }
