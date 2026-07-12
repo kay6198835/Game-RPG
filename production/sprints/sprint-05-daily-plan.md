@@ -14,7 +14,8 @@
 
 ---
 
-## Status Verdict: ⬜ NOT STARTED — renewed plan, sprint window 07/14→07/18.
+## Status Verdict: ✂️ CLOSED, 0% Must-Have — window 07/14→07/18 never executed. Only S5-D1 (padding
+fields) landed. Full carry-over to Sprint 6; see `sprint-05.md` Sprint Close (2026-07-12).
 
 ---
 

@@ -1,5 +1,29 @@
 # Sprint 5 — 2026-07-14 to 2026-07-18
 
+## Sprint Close — 2026-07-12
+
+**Status: CLOSED — 0% Must-Have completion.** The 07/14→07/18 execution window never ran; this
+close-out fires at the next automated kickoff with the sprint still at "Days elapsed: 0" per the
+daily-plan tracker. Only the pre-existing carried WIP (S5-D1 padding fields, `cb099ee`) landed —
+confirmed via `git diff b2abf72..sprint-05 -- Assets/` (9 insertions / 1 deletion, `EnemySpawner.cs`
+only). No other file under `Assets/Script/` changed. Tracks A (design-lock), B (death loop), and C
+(spawn stabilization) are untouched:
+
+- Track A: GDD Option C spec / ADR-0003 / `EnemyModal`+`RoomModel` refactor — **not started**
+- Track B: `EventID` additions / player death / enemy death chain (BUG-05/06/07/08) — **not started**
+- Track C: `GetSpawnSet()` null-guard (BUG-ES-1), markerless fallback, driver dedupe (BUG-ES-2) — **not started**
+- S5-D1 (WIP reapply): **partially done** — padding fields (`paddingPosition`/`maxPadding`/`positionRandom`) are in `EnemySpawner.cs`, but the underlying `spawnPosition[Random.Range(0, spawnPosition.Count)]` read at line 60 is still unguarded against an empty list (BUG-ES-4, IndexOutOfRange risk) — carries forward as-is
+- S5-D2/D3/D4, S5-N1/N2: **not started**
+
+**Final carry-over → Sprint 6**: all of Track A (S5-A1–A4), all of Track B (S5-B1–B5), all of Track C
+(S5-C1–C3, including BUG-ES-4), and S5-D2/D3/D4 unchanged. S5-N1/N2 remain Nice-to-Have stretch.
+No velocity signal — 0 days executed, nothing to measure against the 3.85d Must-Have estimate.
+
+**QA plan**: `production/qa/qa-plan-sprint-05.md` was never created — gate still open, re-flagged for
+Sprint 6 before Track B work starts.
+
+---
+
 > **Renewed 2026-07-11** — this replaces the original kickoff draft (opened Sunday, before this
 > week's enemy-spawn doc-sync). The kickoff draft assumed the spawn data+algorithm was still
 > to-be-built and made `EnemyManager` lifecycle a Must-Have with no blocking design decision. The
