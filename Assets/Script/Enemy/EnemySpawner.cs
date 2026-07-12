@@ -8,7 +8,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private MapModel mapModel;
     [SerializeField] private RoomModel roomModel;
     [SerializeField] private float paddingPosition;
-    [SerializeField] private float maxPadding = 5f;
+    [SerializeField] private float maxPadding;
     [SerializeField] private Vector2 positionRandom;
     public void OnEnable()
     {
