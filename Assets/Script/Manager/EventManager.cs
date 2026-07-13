@@ -44,5 +44,8 @@ public enum EventID
     ON_CLEAR_ENEMY,
     ON_GET_SPAWN_POSITIONS,
     ON_TEST,
+    ON_ENEMY_DEATH, 
+    ON_ROOM_CLEAR, 
+    ON_PLAYER_DEATH
 }
 

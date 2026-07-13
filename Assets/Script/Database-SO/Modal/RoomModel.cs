@@ -1,4 +1,3 @@
-// ---------------- RoomModel.cs ----------------
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,12 +5,10 @@ using UnityEngine;
 public class RoomModel : EntityModel
 {
     [SerializeField] private List<EnemyModal> enemiesOfRoom = new List<EnemyModal>();
+    [SerializeField] private List<EnemyModal> candidateEnemies = new List<EnemyModal>();
     [SerializeField, Range(0, 500)] private int weightBudget;
 
     // Room-selection weight for MapModel.GetRandomRoom (NOT the enemy budget above).
-    [SerializeField, Range(1, 100)] private int selectionWeight = 1;
-    public int SelectionWeight => selectionWeight;
-    [SerializeField, Range(0f, 1f)] private float randomRatio = 0.33f;
     [SerializeField, Range(0f, 1f)] private float overflowPercent = 0.1f;
 
     // scratch — reuse giữa các call. Index đi song song enemiesOfRoom
@@ -32,48 +29,57 @@ public class RoomModel : EntityModel
         if (_entries == null || _entries.Length != n)
         {
             _entries = new EnemySpawnEntry[n];
-            _fitBuf  = new int[n];
+            _fitBuf = new int[n];
         }
         System.Array.Clear(_entries, 0, n);   // reset dedup mỗi call
 
         var outList = new List<EnemySpawnEntry>();
-        int randomBudget = Mathf.RoundToInt(weightBudget * randomRatio);
-        int maxOverflow  = Mathf.RoundToInt(weightBudget * overflowPercent);
-        int remaining    = weightBudget;
+        var ranDomChosen = new EnemyModal();
+        var weightBudget = this.weightBudget;
 
         // ----- PHA 1: RANDOM — pick tự do trong nhóm fit, cho trùng loại -----
         int usedRandom = 0;
-        while (true)
+        while (weightBudget > this.weightBudget * 0.1f)
         {
-            int threshold = randomBudget - usedRandom;
-            int fitCount = 0;
+
+            SetListCandidate(1, weightBudget);
+            ranDomChosen = candidateEnemies[Random.Range(0, candidateEnemies.Count)];
             for (int i = 0; i < n; i++)
-                if (enemiesOfRoom[i].weight <= threshold)
-                    _fitBuf[fitCount++] = i;
-            if (fitCount == 0) break;
+            {
+                if (enemiesOfRoom[i] == ranDomChosen)
+                {
+                    int idx = i;
+                    weightBudget -= enemiesOfRoom[i].weight;
+                    Emit(idx, outList);
+                    break;
+                }
+            }
+            candidateEnemies.Clear();
 
-            int idx = _fitBuf[Random.Range(0, fitCount)];
-            Emit(idx, outList);
-            usedRandom += enemiesOfRoom[idx].weight;
-            remaining  -= enemiesOfRoom[idx].weight;
-        }
-
-        // ----- PHA 2: LẤP ĐẦY — random trong nhóm khớp, overflow nhẹ -----
-        while (remaining > 0)
-        {
-            int threshold = remaining + maxOverflow;
-            int fitCount = 0;
-            for (int i = 0; i < n; i++)
-                if (enemiesOfRoom[i].weight <= threshold)
-                    _fitBuf[fitCount++] = i;
-            if (fitCount == 0) break;
-
-            int idx = _fitBuf[Random.Range(0, fitCount)];
-            Emit(idx, outList);
-            remaining -= enemiesOfRoom[idx].weight;
         }
 
         return outList;
+    }
+
+    private void SetListCandidate(int retry, int weightBudget)
+    {
+        if (retry > 4)
+        {
+            candidateEnemies.AddRange(enemiesOfRoom);
+            return;
+        }
+        foreach (var enemy in enemiesOfRoom)
+        {
+            if (Random.Range(0f, 100f) <= (int)enemy.rarityTier &&
+            enemy.weight <= weightBudget)
+            {
+                candidateEnemies.AddRange(enemy);
+            }
+        }
+        if (candidateEnemies.Count == 0)
+        {
+            SetListCandidate(++retry, weightBudget);
+        }
     }
 
     // convert ngay tại bước pick: chưa có thì tạo + add, có rồi thì tăng count
@@ -108,7 +114,8 @@ public class RoomModel : EntityModel
         }
     }
 #endif
-}[System.Serializable]
+}
+[Serializable]
 public class EnemySpawnEntry
 {
     public EnemyModal enemy;   // ref SO — id/weight/prefab lấy từ đây
@@ -119,4 +126,19 @@ public class EnemySpawnEntry
         this.enemy = enemy;
         this.count = 1;
     }
+}
+[Serializable]
+public class EnemyModal
+{
+    public GameObject prefab;
+    public int weight;
+    public RarityTier rarityTier;
+}
+[Serializable]
+public enum RarityTier
+{
+    Common = 50,
+    Rare = 30,
+    Epic = 15,
+    Legendary = 5
 }
