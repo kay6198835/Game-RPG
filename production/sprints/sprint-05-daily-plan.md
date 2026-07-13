@@ -135,6 +135,53 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 - **2026-07-11 (Sat 22:00) — automated interim wrap-up**: Ran `/weekly-wrapup` one day after the plan renewal, still 0 days into the 07-14→07-18 execution window. Code review found the carried WIP (`EnemySpawner.cs` padding fields, S5-D1) staged but uncommitted, and surfaced 3 new bugs on the same file: BUG-ES-4 (P1 — unguarded `spawnPosition` read, same shape as BUG-ES-1), BUG-ES-6 (P2 — padding has no room-bounds clamp), BUG-ES-5 (P3 — scratch values needlessly `[SerializeField]`). Full findings: `production/qa/bug-triage-2026-07-11.md`. Retro (light, interim): `production/retros/retro-interim-2026-07-11.md`. No playtest this window (none logged since 2026-06-12).
 - **2026-07-13 (Mon) — reopened, not rolled to Sprint 6**: The 07/14→07/18 window closed at 0% Must-Have — only S5-D1 (padding fields) landed. Because nothing else executed, this stays Sprint 5 with the window extended to 07/13→07/17 rather than incrementing to a new sprint number. S5-D1 marked done; BUG-ES-4 (unguarded `spawnPosition[Random.Range(...)]` read at `EnemySpawner.cs:60`, confirmed still present) added as S5-C4. All other Must-Have/Should-Have/Nice-to-Have tasks unchanged. QA plan for this scope still doesn't exist — 2nd cycle unresolved, flagged again.
 - **2026-07-13 (Mon 10:00) — day 1 standup**: `git log --since="yesterday"` shows only the reopen commit (`bc8d99e`, tracker/plan edits) — no `Assets/` changes since the reopen. Day 1 of the extended window begins now; 0 of 4 Must-Have days burned yet. No status changes to today's task table. Today's plan unchanged from the Mon 07/13 breakdown: S5-B1 → S5-A1 → S5-A2 → S5-B2.
+- **2026-07-13 (Mon, post-standup chat) — Option C spec locked with owner, not yet written to GDD**: Owner worked through the Option C ("Room Budget + Candidate Pool + Spawn Chance") open questions interactively and locked a concrete design, superseding the `SpawnChance` float sketch in `design/gdd/enemy-spawn-system.md:628-636`. This session could not write to `design/gdd/` (standup hard rule: only `production/**/*.md`), so the locked decisions are captured here for the session that runs S5-A1/S5-A2/S5-A3.
+
+  **Data model (replaces the `SpawnChance` float idea):**
+  ```csharp
+  public enum RarityTier { Common = 50, Rare = 30, Epic = 15, Legendary = 5 }  // % roll chance, NOT a weighted-pick pool
+
+  public class EnemyModal : EntityModel
+  {
+      public GameObject prefab;
+      public int weight;          // owner confirmed: weight IS cost, keep the field name — DROP the weight→cost rename planned in S5-A3
+      public RarityTier rarityTier;
+  }
+
+  public class RoomModel : EntityModel
+  {
+      [SerializeField] private List<EnemyModal> enemiesOfRoom = new List<EnemyModal>();
+      // no wrapper class — per-room variety comes from authoring separate EnemyModal asset
+      // variants (e.g. Bat_Common.asset vs Bat_Rare.asset, same prefab, different weight/tier)
+      // and choosing which variants go in which room's list
+  }
+  ```
+  `weight`/cost and `rarityTier` are fully independent — owner explicitly rejected any inverse-correlation enforcement (no `OnValidate` cross-check needed).
+
+  **8-step Candidate-Pool flow (resolves Open Q#8's Option C evaluation + the step-6/step-8 gaps flagged in the GDD's own weaknesses list):**
+  ```
+  1. Per enemy to spawn — start a pick round, retryCount = 0
+  2. eligibleSet = filter enemiesOfRoom where weight ≤ remaining budget (empty → stop, step 8)
+  3. For each entry in eligibleSet — roll r = Random.value; PASS if r ≤ tier chance
+     (Common 0.50 / Rare 0.30 / Epic 0.15 / Legendary 0.05)
+  4. PASS entries → Candidate Pool
+  5. Candidate Pool empty → retryCount++
+       retryCount ≤ 4 → back to step 3 (re-roll the same eligibleSet)
+       retryCount > 4 → Candidate Pool = eligibleSet (fallback, ignore chance — guarantees
+       termination; this bounded-retry fallback is the piece the GDD flagged as unformalized)
+  6. Pick 1 from Candidate Pool — uniform random (owner confirmed, no weighted/argmin pick)
+  7. remaining -= picked.weight; add to spawn result; reset retryCount = 0
+  8. Repeat 1→7 until remaining ∈ ToleranceBand [B×0.9, B×1.1] or eligibleSet is empty
+  ```
+
+  **Plan deltas this creates:**
+  - S5-A1 (GDD spec): write this flow into Detailed Design + Formulas (band math + worked example)
+    + Edge Cases (empty eligibleSet, weight ≤ 0 hang risk carried over from Option A, retry-cap
+    exhaustion) + Acceptance Criteria (budget bound, retry-cap termination, band-tolerance) +
+    resolve Open Q#8 as Option C, chosen.
+  - S5-A3 (data refactor): scope changes from "rename weight→cost + clamp" to "add `RarityTier`
+    enum + `rarityTier` field to `EnemyModal`, no rename." Re-estimate if needed at next standup.
+  - S5-A2 (ADR-0003): ratifies this exact flow, not the original float-`SpawnChance` sketch.
 
 ### Interim Wrap-Up — 2026-07-11 (Sat 22:00)
 
