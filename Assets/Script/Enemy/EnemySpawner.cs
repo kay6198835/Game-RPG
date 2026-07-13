@@ -39,10 +39,6 @@ public class EnemySpawner : MonoBehaviour
         return roomModel.GetSpawnSet();
     }
 
-    /// <summary>
-    /// Spawn quái cho phòng: Instantiate prefab từ EnemySpawnEntry tại vị trí ngẫu nhiên
-    /// quanh object (transform), bán kính ≤ spawnRadius. Gọi SAU LoadRoom (SetPosition đã xong).
-    /// </summary>
     public void SpawnRoomEnemies()
     {
         List<EnemySpawnEntry> set = GetRoomSpawnSet();

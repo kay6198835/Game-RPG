@@ -7,19 +7,9 @@ public class RoomModel : EntityModel
     [SerializeField] private List<EnemyModal> enemiesOfRoom = new List<EnemyModal>();
     [SerializeField] private List<EnemyModal> candidateEnemies = new List<EnemyModal>();
     [SerializeField, Range(0, 500)] private int weightBudget;
-
-    // Room-selection weight for MapModel.GetRandomRoom (NOT the enemy budget above).
     [SerializeField, Range(0f, 1f)] private float overflowPercent = 0.1f;
-
-    // scratch — reuse giữa các call. Index đi song song enemiesOfRoom
-    // (ổn định vì list clean + không trùng).
     private EnemySpawnEntry[] _entries;
-    private int[] _fitBuf;   // buffer chứa index nhóm fit mỗi vòng pick
 
-    /// <summary>
-    /// Kết quả gửi spawn system: mỗi loại quái + số lượng.
-    /// Tổng Σ(count × weight) ≤ (1 + overflowPercent) × weightBudget.
-    /// </summary>
     public List<EnemySpawnEntry> GetSpawnSet()
     {
         int n = enemiesOfRoom.Count;
@@ -29,7 +19,6 @@ public class RoomModel : EntityModel
         if (_entries == null || _entries.Length != n)
         {
             _entries = new EnemySpawnEntry[n];
-            _fitBuf = new int[n];
         }
         System.Array.Clear(_entries, 0, n);   // reset dedup mỗi call
 
@@ -82,7 +71,6 @@ public class RoomModel : EntityModel
         }
     }
 
-    // convert ngay tại bước pick: chưa có thì tạo + add, có rồi thì tăng count
     private void Emit(int idx, List<EnemySpawnEntry> outList)
     {
         var entry = _entries[idx];
@@ -118,9 +106,9 @@ public class RoomModel : EntityModel
 [Serializable]
 public class EnemySpawnEntry
 {
-    public EnemyModal enemy;   // ref SO — id/weight/prefab lấy từ đây
-    public int count;          // số con cùng loại spawn
-
+    public EnemyModal enemy;
+    public int count;
+    
     public EnemySpawnEntry(EnemyModal enemy)
     {
         this.enemy = enemy;
