@@ -9,6 +9,10 @@ revised: 2026-07-09 (reverse-synced to prototype code — Assets/Script/Database
 revised: 2026-07-13 (second reverse-sync — code diverged further from the 2026-07-08 target rather
 than converging on it; this revision makes the actual classes the primary reference and folds the
 old target + a new candidate-pool proposal into Future Architecture Direction, evaluated together)
+revised: 2026-07-13 (Option C locked — owner session resolved Open Q#8: Room Budget + Candidate Pool
++ `RarityTier` enum chosen over the original `Spawn Chance` float sketch; added the 8-step selection
+flow, Formulas, Edge Cases, and Acceptance Criteria for Option C under Future Architecture Direction;
+S5-A3's planned `weight`→`cost` rename is dropped)
 
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
@@ -587,7 +591,7 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 | 5 | Should `weight`/cost be authored, or derived from the enemy's stat/rank tier? | ⬜ OPEN | Authored for now, and **still unenforced** (`weight ≥ 1` is not clamped anywhere). See Future Architecture Direction → weight↔stat cross-check. |
 | 6 | Multi-wave rooms (second wave partway through)? | ⬜ POST-DEMO | Out of demo scope; schema allows a later extension. |
 | 7 | Boss room: dedicated `RoomModel` (one boss + high budget) vs bypass the algorithm? | ⬜ POST-DEMO | Bosses are out of demo scope per `game-concept.md`. Likely a dedicated zero-random `RoomModel`; do not special-case the algorithm before the base loop is playtested. |
-| 8 | **[NEW 2026-07-13]** Which selection-algorithm direction do we commit to: harden the current uniform-random `RoomModel.GetSpawnSet()`, revive the 2026-07-08 injected-RNG/`argmin`/id-database target, or adopt the newly proposed Room Budget + Candidate Pool + Spawn Chance design? | ⬜ OPEN — **needs an owner decision** | See Future Architecture Direction for the evaluated comparison. This blocks AC-A3/A4/D1–D3 from being locked in, and blocks deciding whether `EnemyModal` gains a `spawnChance`/`tier` field. |
+| 8 | Which selection-algorithm direction do we commit to: harden the current uniform-random `RoomModel.GetSpawnSet()`, revive the 2026-07-08 injected-RNG/`argmin`/id-database target, or adopt the Room Budget + Candidate Pool design? | ✅ **RESOLVED 2026-07-13** | **Option C chosen** — Room Budget + Candidate Pool + `RarityTier` (not the original `Spawn Chance` float sketch). Full spec: Future Architecture Direction → "Option C — Formal Specification (CHOSEN 2026-07-13)". `EnemyModal` gains `rarityTier` (enum: Common/Rare/Epic/Legendary); `weight` field name is kept, not renamed to `cost`. |
 | 9 | **[NEW 2026-07-13]** Should `EnemyManager`/`EnemySpawner` own placement fallback (centre-of-room when no markers exist), or is authoring markers into all 13 rooms a hard prerequisite before Sprint 6 work starts? | ⬜ OPEN | 12/13 rooms currently have no fallback and would throw on load if spawn were wired further. Low-cost either way; recommend building the fallback regardless of the marker-authoring timeline, since it's also the demo's safety net if a future room ships without markers. |
 
 ---
@@ -702,9 +706,172 @@ never blocked by bad luck alone. Repeat until the tolerance band is hit or nothi
   `Budget Tolerance` gets a precise Formulas-section treatment (not just "90–110%" prose), and (3) it
   reuses the zero-alloc scratch-buffer pattern already proven in `RoomModel.GetSpawnSet()` rather than
   reintroducing per-pick allocation. It is closer to the current code's actual trajectory than Option
-  B is, which lowers migration cost. This does not resolve Open Q#8 — it needs explicit owner sign-off
-  and, if chosen, a follow-up GDD revision with a full Formulas/Edge-Cases/Acceptance-Criteria pass
-  specific to the candidate-pool shape (this section is an evaluation, not that spec).
+  B is, which lowers migration cost.
+
+### Option C — Formal Specification (CHOSEN 2026-07-13)
+
+> **Decision**: Open Question #8 is resolved — **Option C is the selection-algorithm direction**.
+> This section is the follow-up spec the Recommendation above called for: it satisfies condition (1)
+> (termination/fallback guarantee, via a bounded retry cap) and (2) (`Budget Tolerance` as precise
+> Formulas, not prose). It supersedes the `Spawn Chance` float field from the original owner sketch
+> (Overview above) with a `RarityTier` enum, decided in the same 2026-07-13 owner session. This is
+> the design target for the Sprint 5 Track A data refactor (S5-A3) and the Sprint 6 `GetSpawnSet()`
+> rewrite — it is not yet implemented (see Current Implementation, which still describes Option A's
+> shipped shape).
+>
+> **Implementation note — S5-A3 scope change:** the sprint plan's S5-A3 task originally specified a
+> `weight`→`cost` rename (`[FormerlySerializedAs("weight")]`). That rename is **dropped** — the owner
+> confirmed `weight` stays as the field name (it already means "cost"; no rename needed). S5-A3 is now
+> "add the `RarityTier` enum + `rarityTier` field to `EnemyModal`," nothing else.
+
+#### Data Model
+
+```csharp
+public enum RarityTier
+{
+    Common    = 50,  // roll chance, percent
+    Rare      = 30,
+    Epic      = 15,
+    Legendary = 5
+}
+
+public class EnemyModal : EntityModel
+{
+    public GameObject prefab;
+    public int weight;          // = Cost. Stays `weight` — not renamed (see Implementation note above)
+    public RarityTier rarityTier;
+}
+
+public class RoomModel : EntityModel
+{
+    [SerializeField] private List<EnemyModal> enemiesOfRoom = new List<EnemyModal>();
+    // No per-room override wrapper. Per-room variety is authored by pointing a room's
+    // enemiesOfRoom at different EnemyModal asset variants of the same enemy — e.g.
+    // Bat_Common.asset vs Bat_Rare.asset (same prefab, different weight/rarityTier) —
+    // not by a dynamic per-room tier override on one shared asset.
+}
+```
+
+`weight` (Cost) and `rarityTier` are fully independent by design. There is no code-enforced
+correlation between them (no `OnValidate` cross-check flagging "high weight + high roll chance", for
+example) — this is intentional, per owner decision: it lets a designer make an expensive enemy common
+or a cheap enemy rare, which is the entire point of separating budget cost from appearance chance (see
+Strengths, second bullet, above).
+
+#### Candidate-Pool Selection Flow
+
+Runs once per accepted pick — called repeatedly by the room-fill loop, the same per-candidate loop
+shape `RoomModel.GetSpawnSet()` already uses today (see Current Implementation). Eight steps:
+
+1. **Start pick round.** `retryCount = 0`.
+2. **Build eligible set.** `eligibleSet = { e ∈ enemiesOfRoom | e.weight ≤ remaining }`. If empty,
+   stop the fill loop entirely (see step 8's exit condition).
+3. **Roll each eligible candidate independently.** For every `e ∈ eligibleSet`: `r = Random.value`;
+   `e` passes if `r ≤ chance(e.rarityTier)`, where `chance(Common)=0.50`, `chance(Rare)=0.30`,
+   `chance(Epic)=0.15`, `chance(Legendary)=0.05`.
+4. **Collect passers.** `CandidatePool = { e ∈ eligibleSet | e passed step 3 }`.
+5. **Empty-pool retry.** If `CandidatePool` is empty: `retryCount += 1`. If `retryCount ≤ 4`, return to
+   step 3 and re-roll the same `eligibleSet`. If `retryCount > 4`, set `CandidatePool = eligibleSet`
+   (fallback — every eligible candidate is accepted regardless of its roll, guaranteeing the pick
+   round cannot stall indefinitely).
+6. **Pick.** Choose one entry from `CandidatePool` uniformly at random — equal probability per entry,
+   no weighting by tier or cost at this step (tier already did its job in step 3).
+7. **Apply.** `remaining -= picked.weight`; append `picked` to the room's spawn result;
+   `retryCount = 0`.
+8. **Loop or stop.** Repeat steps 1–7 while `remaining` is outside the tolerance band (see Formulas)
+   **and** `eligibleSet` (step 2) is non-empty. Stop when either condition fails.
+
+#### Formulas
+
+**Budget Tolerance band**
+
+`ToleranceBand = [ B × 0.9, B × 1.1 ]`, where `B` = `RoomModel`'s Room Budget (the same role
+`weightBudget` plays in Option A today).
+
+**Important consequence of step 2's eligibility rule:** because a candidate must satisfy
+`weight ≤ remaining` (not `remaining + an overflow cap`, unlike Option A's Phase 2), `totalSpend`
+(`= B − remaining`) can **never exceed `B`** — the upper half of `ToleranceBand` (100–110%) is
+therefore unreachable by construction, and is kept here only for band symmetry with the owner's
+original "90–110%" phrasing. The **only practically meaningful bound is the 90% floor**, and even
+that is a target, not a guarantee: per the Edge Cases below, the loop legitimately stops below 90% if
+`eligibleSet` empties out first. This resolves the ambiguity the evaluation above flagged ("worth
+confirming it's intentional") — confirmed: **under-spend is an accepted outcome, overspend is
+structurally impossible.**
+
+**Variables**
+
+| Variable | Type | Range | Description |
+|----------|------|-------|-------------|
+| `B` (Room Budget) | int | mirrors today's `weightBudget` `[Range(0,500)]` | Total spend target for the room |
+| `remaining` | int | starts at `B`, decreases each pick, never negative | Budget left to spend this fill loop |
+| `totalSpend` | int | `B − remaining`, range `[0, B]` | Running total spent so far |
+| `retryCount` | int | 0–4 (hard cap per pick round) | Consecutive empty-`CandidatePool` rolls |
+| `chance(tier)` | float | `{0.50, 0.30, 0.15, 0.05}` | Fixed per-tier roll chance, not author-adjustable per instance |
+| `weight` (per `EnemyModal`) | int | must be `≥ 1` (same invariant as Option A) | Cost consumed from `remaining` per pick |
+
+**Termination guarantee.** Every accepted pick (step 7) strictly reduces `remaining` by at least 1
+(given `weight ≥ 1`), so the outer loop (step 8) terminates in at most `B` iterations. Each pick round
+(steps 3–5) terminates in at most 5 roll attempts (`retryCount` capped at 4, plus the forced
+fallback) — never unbounded. This is the piece the evaluation above flagged as "not obviously
+guaranteed" in the original owner sketch; the retry cap is what closes that gap.
+
+**Worked example.** `B = 20`; candidates: Bat (`weight=3`, `Common`), Rat (`weight=2`, `Rare`), Golem
+(`weight=9`, `Legendary`).
+- Round 1: `remaining=20`, `eligibleSet={Bat,Rat,Golem}`. Roll: Bat `r=0.3≤0.50` PASS, Rat
+  `r=0.6>0.30` FAIL, Golem `r=0.4>0.05` FAIL. `CandidatePool={Bat}` → pick Bat. `remaining=17`.
+- Round 2: `eligibleSet={Bat,Rat,Golem}` again. All three FAIL on the roll, and again on 4 re-rolls
+  (`retryCount` reaches 4). 5th attempt: fallback, `CandidatePool={Bat,Rat,Golem}` → pick Golem
+  uniformly. `remaining=8`.
+- Round 3: `eligibleSet={Bat,Rat}` (Golem's 9 no longer fits 8). Rat passes. `remaining=6`.
+  `totalSpend=14` (70% of `B`) — below the 90% floor, but `eligibleSet` still has Bat → continue.
+- Round 4: Bat passes. `remaining=3`. `totalSpend=17` (85%) — still below 90%. `eligibleSet={Bat}`
+  (`3≤3`).
+- Round 5: Bat passes. `remaining=0`. `totalSpend=20` (100%, inside `[18,22]`) → stop.
+
+#### Edge Cases
+
+- **If `eligibleSet` is empty at step 2 (no candidate fits `remaining`):** the fill loop stops
+  immediately, even if `totalSpend` is below the 90% floor. Accepted outcome — a room can end up
+  under-spent if its `enemiesOfRoom` pool has no cheap-enough candidate left; no forced top-up.
+- **If any `EnemyModal.weight ≤ 0`:** same hang risk documented for Option A (see that Edge Cases
+  entry) — `remaining` never drops below a non-positive-weight candidate, so it never leaves
+  `eligibleSet`. The fix is shared, not re-derived per option: enforce `weight ≥ 1` via
+  `[Range(1,99)]` + `OnValidate` clamp on `EnemyModal`.
+- **If `retryCount` exceeds 4 (fallback triggers):** `CandidatePool` becomes the full `eligibleSet`,
+  and the step-6 pick is uniform across it — a `Legendary` (5% chance) candidate has exactly the same
+  odds as a `Common` (50% chance) one in a fallback round. Intentional: the fallback exists purely to
+  guarantee forward progress, not to preserve tier weighting under bad luck.
+- **If two entries in `enemiesOfRoom` share the same prefab with different `weight`/`rarityTier`**
+  (the intended per-room authoring pattern, e.g. `Bat_Common.asset` and `Bat_Rare.asset`): both are
+  independent entries, no dedup — both can be picked in the same room fill.
+- **If `chance(tier)` were ever authored outside the fixed enum values** (not possible today —
+  `RarityTier`'s four values are fixed): `chance = 1.0` needs no special handling (step 4/5 already
+  handle a fully-populated `CandidatePool`); `chance = 0.0` means that candidate only ever enters
+  `CandidatePool` via the retry-exhaustion fallback, never a genuine roll pass — a natural consequence
+  of the model, not a case requiring extra code.
+
+#### Acceptance Criteria (EditMode, BLOCKING)
+
+- **AC-C1 (spend never exceeds budget):** GIVEN any `enemiesOfRoom` and Room Budget `B`, WHEN the fill
+  loop runs to completion, THEN `totalSpend ≤ B` always (never exceeds — see Formulas' overspend
+  note).
+- **AC-C2 (bounded pick-round retries):** GIVEN a fixture where every candidate's roll is forced to
+  FAIL (test hook or mocked `Random.value`), WHEN a pick round runs, THEN it completes in exactly 5
+  roll attempts (4 re-rolls + 1 forced fallback) and returns a non-empty `CandidatePool` equal to
+  `eligibleSet`.
+- **AC-C3 (bounded outer-loop iterations):** GIVEN `weight ≥ 1` holds for all candidates, WHEN the
+  fill loop runs, THEN it completes in at most `B` iterations (no hang).
+- **AC-C4 (weight ≤ 0 guard):** GIVEN an `EnemyModal` with `weight = 0` injected via test hook, WHEN
+  `OnValidate` runs, THEN it clamps to 1; AND the fill loop completes in bounded time even if a
+  pre-clamp `weight < 1` candidate reaches `eligibleSet`.
+- **AC-C5 (tier independence):** GIVEN candidates with high `weight` + high-chance `rarityTier` (or
+  the inverse), WHEN any validation runs (`OnValidate`, asset import, etc.), THEN no warning or error
+  is raised — `weight` and `rarityTier` are never cross-checked.
+- **AC-C6 (tier distribution, statistical, non-fallback rounds only):** GIVEN a fixture pool of one
+  candidate per tier all fitting `remaining`, WHEN 1000 pick rounds are run and only rounds that did
+  **not** hit the retry-fallback are counted, THEN `Common` is selected into `CandidatePool` markedly
+  more often than `Legendary` (directional check, not an exact ratio assertion — avoids flaking on
+  RNG variance).
 
 ### Other deferred items (unchanged in spirit from 2026-07-08)
 
