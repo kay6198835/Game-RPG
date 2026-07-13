@@ -13,6 +13,10 @@ revised: 2026-07-13 (Option C locked — owner session resolved Open Q#8: Room B
 + `RarityTier` enum chosen over the original `Spawn Chance` float sketch; added the 8-step selection
 flow, Formulas, Edge Cases, and Acceptance Criteria for Option C under Future Architecture Direction;
 S5-A3's planned `weight`→`cost` rename is dropped)
+revised: 2026-07-13 (same session, continued — resolved the remaining S5-A1 open-Qs: Q#4 room→preset
+mapping keeps the `MapModel.GetRandomRoom()` shuffle-bag, no per-room identity mapping built; Q#2 RNG
+source stays `UnityEngine.Random`, unseeded; `RoomType` clarified as design-time classification only,
+not consumed by the Candidate-Pool flow. All 5 of S5-A1's open-questions are now resolved)
 
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
@@ -277,7 +281,7 @@ this method deterministically today.
 A room that is **already cleared** on `ON_LOAD_MAP` would skip `Populating` entirely (doors stay
 open). None of this table is implemented — `EnemyManager` has no `Awake`, no state, no subscriptions.
 
-### Room → `RoomModel` Resolution (Open Q#4 — **REOPENED 2026-07-13**, was marked resolved in error)
+### Room → `RoomModel` Resolution (Open Q#4 — **RESOLVED 2026-07-13**)
 
 > The 2026-07-09 revision of this section described a `RoomFile.roomData` direct-reference field as
 > "RESOLVED" and implemented. **That field does not exist in `DungeonRoomSO.cs` today** — it was a
@@ -300,10 +304,18 @@ draw a trivial preset one run and a punishing one the next, and there is no way 
 say, the start room always gets a zero-budget preset (see Edge Cases). This is a materially
 different design than what this GDD previously described as decided.
 
-**Not evaluated yet:** whether the shuffle-bag is an intentional simplification worth keeping (it is
-arguably simpler and still delivers "different mix each run") or a regression from the per-room
-authoring control the original design wanted. This is folded into the open decision in Future
-Architecture Direction rather than resolved here — see Open Question #4b.
+**Decision (2026-07-13):** the shuffle-bag is kept as an intentional simplification, not a regression
+to fix — it still delivers "different mix each run" (the core Player Fantasy goal) without per-room
+authoring overhead. No `RoomFile.roomData` mapping will be built. This also resolves Open Question #2
+(RNG source stays `UnityEngine.Random`, unseeded — there is no per-room identity to seed from anyway).
+
+**`RoomType`'s actual role, clarified:** `RoomType` (Normal/Elite/Boss/…) is **design-time
+classification metadata only** — it helps a designer decide how to author a `RoomModel` (e.g., an
+Elite-tagged preset gets a higher Room Budget), but no runtime code branches on it. It does not
+participate in the shuffle-bag draw and is not consumed anywhere in the Option C Candidate-Pool flow
+(see Formal Specification above). If a future pass wants Boss rooms to bypass the algorithm entirely
+(Open Q#7, post-demo), that would be new logic gated on `RoomType` explicitly — not implied by its
+current presence as a field.
 
 ### Interactions with Other Systems
 
@@ -585,9 +597,9 @@ would subscribe to `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` — do not build it here.
 | # | Question | Status | Notes |
 |---|----------|--------|-------|
 | 1 | `EnemyManager` singleton violates "no new singletons" (only `MazeController` permitted). | ✅ RESOLVED (2026-07-09) | Ratified by **ADR-0002** — scoped singleton exception with mandated duplicate-guard + event-driven state. Unblocks the PlayMode lifecycle test harness (AC-L1…L6) once `EnemyManager` is actually built (still a stub as of 2026-07-13). |
-| 2 | Runtime shuffle seed source — per-room from a global run seed, or fresh unseeded RNG? | ⬜ **REOPENED 2026-07-13** | Previously marked resolved via the `RoomFile.roomData` field, which was never implemented (see Q#4). With no per-room identity anchor, "per-room-from-run-seed" has nothing to derive from today. Moot unless/until Q#4 lands on a per-room mapping — otherwise this collapses to "seed from the run + a spawn-event counter," which is a materially weaker reproducibility guarantee. |
+| 2 | Runtime shuffle seed source — per-room from a global run seed, or fresh unseeded RNG? | ✅ **RESOLVED 2026-07-13** | **Keep `UnityEngine.Random` as-is, unseeded.** Owner decision, same session as Q#8/Q#4: no injected-seed/`System.Random` migration for Option C. Consequence carried forward from Option A: still non-deterministic, `AC-A3`-style determinism tests stay out of reach for the selection algorithm (Option C's own `AC-C1–C6` above do not assume determinism, by design). Moot point about deriving from Q#4 is now moot for a different reason — Q#4 resolved to "no per-room identity anchor exists," so there's nothing to seed from either way. |
 | 3 | Default values for `randomRatio` / `overflowPercent` (global vs per-`RoomModel`)? | ⬜ OPEN | Current code defaults live directly on each `RoomModel` asset (`0.33`/`0.1`) — no global default mechanism exists. Confirm during a balance pass. |
-| 4 | How does a physical room resolve to a `RoomModel` preset? | ⬜ **REOPENED 2026-07-13** — was marked resolved in error | The `RoomFile.roomData` direct-reference design was never implemented. What runs today is `MapModel.GetRandomRoom()`, a shuffle-bag **decoupled from room identity** — see Room→RoomModel Resolution. Needs an explicit owner decision: keep the shuffle-bag (simpler, less authoring control), or build the per-room mapping this GDD previously assumed was done. Folded into Future Architecture Direction. |
+| 4 | How does a physical room resolve to a `RoomModel` preset? | ✅ **RESOLVED 2026-07-13** | **Keep the shuffle-bag — `MapModel.GetRandomRoom()` stays, no per-room identity mapping is built.** Owner decision: on the relevant spawn-trigger event (`ON_GET_SPAWN_POSITIONS` / done-load-map), the spawn driver draws one `RoomModel` at random from `MapModel.fullRoomList` — same mechanism Option C's Candidate-Pool flow runs against. The `RoomFile.roomData` direct-reference idea is dropped, not deferred. Consequence stands as documented in Room→RoomModel Resolution: a specific physical room is **not** guaranteed the same difficulty preset run to run; `roomType` does not participate in this resolution (see the RoomType clarification below). |
 | 5 | Should `weight`/cost be authored, or derived from the enemy's stat/rank tier? | ⬜ OPEN | Authored for now, and **still unenforced** (`weight ≥ 1` is not clamped anywhere). See Future Architecture Direction → weight↔stat cross-check. |
 | 6 | Multi-wave rooms (second wave partway through)? | ⬜ POST-DEMO | Out of demo scope; schema allows a later extension. |
 | 7 | Boss room: dedicated `RoomModel` (one boss + high budget) vs bypass the algorithm? | ⬜ POST-DEMO | Bosses are out of demo scope per `game-concept.md`. Likely a dedicated zero-random `RoomModel`; do not special-case the algorithm before the base loop is playtested. |
