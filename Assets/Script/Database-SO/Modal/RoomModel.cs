@@ -62,7 +62,7 @@ public class RoomModel : EntityModel
             if (Random.Range(0f, 100f) <= (int)enemy.rarityTier &&
             enemy.weight <= weightBudget)
             {
-                candidateEnemies.AddRange(enemy);
+                candidateEnemies.Add(enemy);
             }
         }
         if (candidateEnemies.Count == 0)
@@ -85,25 +85,9 @@ public class RoomModel : EntityModel
             entry.count++;
         }
     }
-
-#if UNITY_EDITOR
-    // Lưới an toàn author-time: "clean" giờ là hợp đồng ngoài code.
-    // Cảnh báo ngay khi designer nhập sai trong Inspector.
-    protected override void OnValidate()
-    {
-        base.OnValidate();   // giữ gen id ở base
-        for (int i = 0; i < enemiesOfRoom.Count; i++)
-        {
-            var e = enemiesOfRoom[i];
-            if (e == null)
-                Debug.LogWarning($"[RoomModel] '{name}': enemiesOfRoom[{i}] null.", this);
-            else if (e.weight <= 0)
-                Debug.LogWarning($"[RoomModel] '{name}': '{e.name}' weight <= 0 → Pha 2 loop vô hạn.", this);
-        }
-    }
-#endif
 }
-[Serializable]
+
+[System.Serializable]
 public class EnemySpawnEntry
 {
     public EnemyModal enemy;
@@ -115,14 +99,14 @@ public class EnemySpawnEntry
         this.count = 1;
     }
 }
-[Serializable]
+[System.Serializable]
 public class EnemyModal
 {
     public GameObject prefab;
     public int weight;
     public RarityTier rarityTier;
 }
-[Serializable]
+[System.Serializable]
 public enum RarityTier
 {
     Common = 50,
