@@ -1,26 +1,26 @@
-# Sprint 5 — 2026-07-14 to 2026-07-18
+# Sprint 5 — 2026-07-13 to 2026-07-17
 
-## Sprint Close — 2026-07-12
+## Reopened — 2026-07-13
 
-**Status: CLOSED — 0% Must-Have completion.** The 07/14→07/18 execution window never ran; this
-close-out fires at the next automated kickoff with the sprint still at "Days elapsed: 0" per the
-daily-plan tracker. Only the pre-existing carried WIP (S5-D1 padding fields, `cb099ee`) landed —
-confirmed via `git diff b2abf72..sprint-05 -- Assets/` (9 insertions / 1 deletion, `EnemySpawner.cs`
-only). No other file under `Assets/Script/` changed. Tracks A (design-lock), B (death loop), and C
-(spawn stabilization) are untouched:
+**Status: REOPENED, still Sprint 5 (not incremented).** The original 07/14→07/18 window never
+executed — daily-plan tracker was still at "Days elapsed: 0" when this fired. Because zero Must-Have
+work actually landed, this stays Sprint 5 with an extended window rather than rolling to Sprint 6.
+Only the pre-existing carried WIP (S5-D1 padding fields, `cb099ee`) landed — confirmed via
+`git diff b2abf72..sprint-05 -- Assets/` (9 insertions / 1 deletion, `EnemySpawner.cs` only). No
+other file under `Assets/Script/` changed. Tracks A (design-lock), B (death loop), and C (spawn
+stabilization) are untouched:
 
 - Track A: GDD Option C spec / ADR-0003 / `EnemyModal`+`RoomModel` refactor — **not started**
 - Track B: `EventID` additions / player death / enemy death chain (BUG-05/06/07/08) — **not started**
 - Track C: `GetSpawnSet()` null-guard (BUG-ES-1), markerless fallback, driver dedupe (BUG-ES-2) — **not started**
-- S5-D1 (WIP reapply): **partially done** — padding fields (`paddingPosition`/`maxPadding`/`positionRandom`) are in `EnemySpawner.cs`, but the underlying `spawnPosition[Random.Range(0, spawnPosition.Count)]` read at line 60 is still unguarded against an empty list (BUG-ES-4, IndexOutOfRange risk) — carries forward as-is
+- S5-D1 (WIP reapply): **done** — padding fields (`paddingPosition`/`maxPadding`/`positionRandom`)
+  landed in `EnemySpawner.cs`. Surfaced a follow-on issue while landing: the underlying
+  `spawnPosition[Random.Range(0, spawnPosition.Count)]` read at line 60 is still unguarded against an
+  empty list (**new: BUG-ES-4**, IndexOutOfRange risk) — tracked as **S5-C4** below.
 - S5-D2/D3/D4, S5-N1/N2: **not started**
 
-**Final carry-over → Sprint 6**: all of Track A (S5-A1–A4), all of Track B (S5-B1–B5), all of Track C
-(S5-C1–C3, including BUG-ES-4), and S5-D2/D3/D4 unchanged. S5-N1/N2 remain Nice-to-Have stretch.
-No velocity signal — 0 days executed, nothing to measure against the 3.85d Must-Have estimate.
-
-**QA plan**: `production/qa/qa-plan-sprint-05.md` was never created — gate still open, re-flagged for
-Sprint 6 before Track B work starts.
+**QA plan**: `production/qa/qa-plan-sprint-05.md` still doesn't exist — gate remains open, must run
+before Track B work starts.
 
 ---
 
@@ -55,8 +55,8 @@ Two pillars:
 - Buffer (20%): 1 day
 - Available: 4 days
 
-Must-Have load ≈ 3.85d (Track A ≈ 1.75d + Track B ≈ 1.6d + Track C small ≈ 1.0d, with overlap) —
-fits 4 days; Should/Nice are stretch.
+Must-Have load ≈ 3.95d (Track A ≈ 1.75d + Track B ≈ 1.6d + Track C ≈ 1.1d incl. BUG-ES-4, with
+overlap) — tight fit against 4 days; Should/Nice are stretch.
 
 ---
 
@@ -64,10 +64,11 @@ fits 4 days; Should/Nice are stretch.
 
 | Item | Type | Priority | Origin |
 |------|------|----------|--------|
-| `cb099ee` "random padding position" (not on `sprint-05` branch) + stash `wip-before-sprint-kickoff-2026-07-13` | Carry | P1 | S4 post-wrapup |
-| BUG-06 — player death chain (`NegativeReciver.TakeDamage()` throws) | Bug (S1) | P1 | sweep→S5 (5th carry) |
-| BUG-05/07/08 — enemy death chain (`EntityMoveState` NRE, `EntityDeathState` base class, `EntityBasicState` empty death block) | Bug (S1) | P1 | sweep→S5 (5th carry) |
+| ~~`cb099ee` "random padding position" + stash~~ | Carry | P1 | S4 post-wrapup — **done** (S5-D1) |
+| BUG-06 — player death chain (`NegativeReciver.TakeDamage()` throws) | Bug (S1) | P1 | sweep→S5 (6th carry) |
+| BUG-05/07/08 — enemy death chain (`EntityMoveState` NRE, `EntityDeathState` base class, `EntityBasicState` empty death block) | Bug (S1) | P1 | sweep→S5 (6th carry) |
 | BUG-ES-1/2/3 — spawn null-return NRE / duplicate drivers / missing `EventID` values | Bug | P1/P2 | S4 |
+| **BUG-ES-4 (new)** — unguarded `spawnPosition[Random.Range(...)]` read, `EnemySpawner.cs:60` | Bug | P1 | Found 2026-07-11 triage, confirmed still present 2026-07-13 |
 | S4-05 — `CancelInvoke` pairing; S4-06 — `TalentManager` SO | Bug/Task | P2 | S2/S3→S5 |
 | ADR-0002 (`EnemyManager` singleton) Proposed→Accepted | Decision | P2 | S4 |
 
@@ -107,12 +108,16 @@ fits 4 days; Should/Nice are stretch.
 | S5-C1 | `RoomModel.GetSpawnSet()` return an empty list, not `null`, on an empty pool; guard both driver call sites | BUG-ES-1 | gameplay-programmer | 0.25 | None | Empty enemy pool → no NullReferenceException in either driver |
 | S5-C2 | Markerless-room fallback — empty `spawnPositions` list → room-centre position + warning (12/13 rooms today) | new | gameplay-programmer | 0.25 | None | All 13 rooms load without throwing at spawn time |
 | S5-C3 | Pick the canonical spawn driver (`EnemySpawner` event-driven vs `LevelManager.SpawnRoomEnemies()` Editor button); delete the losing path | BUG-ES-2 | lead-programmer | 0.5 | S5-C1 | Exactly one spawn driver remains in `Assets/Script/`; the duplicate is deleted, not left dead |
+| S5-C4 | Guard `EnemySpawner.SpawnRoomEnemies()` line 60 — `spawnPosition[Random.Range(0, spawnPosition.Count)]` — against an empty `spawnPosition` list (`spawnPosition.Count == 0` → skip entry + warn) | BUG-ES-4 | gameplay-programmer | 0.1 | S5-C1 | Empty spawn-position list → no `IndexOutOfRangeException`; warning logged instead |
 
 ### Should Have
 
+~~S5-D1 — Reapply carried WIP~~ ✅ **Done** — padding fields (`paddingPosition`/`maxPadding`/
+`positionRandom`) landed in `EnemySpawner.cs` (`cb099ee` + `b91ab6e`). Surfaced BUG-ES-4 (now S5-C4
+above) while landing.
+
 | ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
 |----|------|-------------|-----------|--------------|---------------------|
-| S5-D1 | Reapply carried WIP — cherry-pick `cb099ee` + reapply stash `wip-before-sprint-kickoff-2026-07-13` onto `sprint-05`, reconciled against S5-C1/C3 changes to the same files | gameplay-programmer | 0.25 | S5-C1, S5-C3 | `EnemySpawner.cs` + scene reflect the carried padding fix without reintroducing BUG-ES-1; stash dropped |
 | S5-D2 | Flip ADR-0002 `Proposed → Accepted` (review against the current stub state + this sprint's decisions) | producer | 0.1 | None | ADR-0002 Status reads Accepted; sign-off note recorded |
 | S5-D3 | S4-05 — `PlayerInputHandle.cs:264` `Invoke(nameof(ChangeIsTakeDamage))` paired with `CancelInvoke` in `OnDisable` | gameplay-programmer | 0.25 | None | Every `Invoke`/`InvokeRepeating` has a matching `CancelInvoke` in `OnDisable` |
 | S5-D4 | Quick cleanup batch — BUG-AH-2 (dead `using UnityEngine.UIElements;`), BUG-EM-2 (dead `using System.Numerics;`), BUG-WM-2 (dup `lastClickTime` assign), BUG-LM-1 (dead `index == null` check on non-nullable int) | gameplay-programmer | 0.25 | None | All 4 grep-confirmed clean; no behavior change |
@@ -139,11 +144,11 @@ fits 4 days; Should/Nice are stretch.
 
 ## Sequencing (daily)
 
-- **Mon 07/14**: S5-B1 (events) → S5-A1/A2 (Option C spec + ADR-0003) → S5-B2 (player death)
-- **Tue 07/15**: S5-A3/A4 (data refactor + asset migration) → S5-B3 (`EntityMoveState` guard)
-- **Wed 07/16**: S5-B4/B5 (enemy death chain) → S5-C1/C2 (spawn null-guard + markerless fallback)
-- **Thu 07/17**: S5-C3 (dedupe driver) → S5-D1 (WIP reapply) → S5-D2 (ADR-0002 accept)
-- **Fri 07/18**: full-loop smoke-check + `/weekly-wrapup`. S5-D3/D4/N1 if time.
+- **Mon 07/13**: S5-B1 (events) → S5-A1/A2 (Option C spec + ADR-0003) → S5-B2 (player death)
+- **Tue 07/14**: S5-A3/A4 (data refactor + asset migration) → S5-B3 (`EntityMoveState` guard)
+- **Wed 07/15**: S5-B4/B5 (enemy death chain) → S5-C1/C2/C4 (spawn null-guards + markerless fallback)
+- **Thu 07/16**: S5-C3 (dedupe driver) → S5-D2 (ADR-0002 accept) → S5-D3/D4 if time
+- **Fri 07/17**: full-loop smoke-check + `/weekly-wrapup`. S5-N1 if time.
 
 ---
 
@@ -151,10 +156,10 @@ fits 4 days; Should/Nice are stretch.
 
 - [ ] Track A: Option C spec in the GDD, ADR-0003 written, `EnemyModal`/`RoomModel` refactored + all assets migrated with values intact
 - [ ] Track B: Play Mode — player takes damage → dies → `ON_PLAYER_DEATH`; enemy takes damage → dies → `EntityDeathState` reached → `ON_ENEMY_DEATH` fires once
-- [ ] Track C: empty-pool room and markerless room both load without throwing; exactly one canonical spawn driver remains
+- [ ] Track C: empty-pool room, markerless room, and empty spawn-position list all load without throwing; exactly one canonical spawn driver remains
 - [ ] `EventID` contains `ON_ENEMY_DEATH`, `ON_ROOM_CLEAR`, `ON_PLAYER_DEATH`
-- [ ] Carried WIP (`cb099ee` + stash) reconciled; working tree clean before end-of-sprint commit
-- [ ] Carry-over decision recorded for Sprint 6
+- [x] Carried WIP (`cb099ee` + stash) reconciled — done (S5-D1)
+- [ ] Carry-over decision recorded for Sprint 6 if anything slips
 - [ ] `/qa-plan sprint` run before Track B lands (see QA Plan gate)
 
 ---
@@ -172,8 +177,9 @@ Production → Polish gate requires a QA sign-off, which requires this plan.
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
+| **Scope fails to execute a 2nd time** (window already slipped once without a single Must-Have landing) | Medium | High | No plan change fixes an execution gap by itself — if this window also closes near 0%, the next kickoff should investigate why before re-carrying a 3rd time |
 | Track A data refactor breaks existing SO assets / serialization (the `weight`→`cost` rename especially) | Medium | High | Migrate assets in the same task; a field rename drops the old serialized value unless handled — use `[FormerlySerializedAs("weight")]` on `cost` so the 6 assets keep their numbers; verify each asset opens clean before moving on |
-| Scope too heavy (design + refactor + death chain in 4d) | Medium | Medium | Algorithm rewrite + `EnemyManager` explicitly deferred to S6; S5-N1/N2 are stretch only, not committed |
+| Scope too heavy (design + refactor + death chain + BUG-ES-4 in 4d) | Medium | Medium | Algorithm rewrite + `EnemyManager` explicitly deferred to S6; S5-N1/N2 are stretch only, not committed |
 | Off-plan work recurs (pattern flagged 9 sprints pre-S4) | Medium | High | S5-A + S5-B are the critical path; hold new spawn-feature work until they land |
 | No QA plan (lean mode) | Confirmed | Medium | Run `/qa-plan sprint` before Track B — flagged, not silently skipped |
 | No Unity CLI in this environment | Known constraint | Low | All Play Mode smoke checks are manual in-Editor by the owner |

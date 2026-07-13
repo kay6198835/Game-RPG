@@ -3,10 +3,10 @@
 
 sprint: 5
 goal: "Adopt Option C spawn design (Room Budget + Candidate Pool + Spawn Chance: full GDD spec + ADR-0003 + data-model refactor) and land the combat death loop (player death + enemy death chain + spawn-bug stabilization). Algorithm rewrite + EnemyManager runtime deferred to Sprint 6."
-start: "2026-07-14"
-end: "2026-07-18"
+start: "2026-07-13"
+end: "2026-07-17"
 generated: "2026-07-11"
-updated: "2026-07-11"
+updated: "2026-07-13"
 
 stories:
   # Track A — Adopt Option C (design + data foundation)
@@ -120,16 +120,25 @@ stories:
     estimate_days: 0.5
     blocker: ""
     completed: ""
+  - id: "S5-C4"
+    name: "Guard EnemySpawner.cs:60 empty spawnPosition read (BUG-ES-4)"
+    file: "production/sprints/sprint-05.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: "gameplay-programmer"
+    estimate_days: 0.1
+    blocker: ""
+    completed: ""
   # Should Have
   - id: "S5-D1"
     name: "Reapply carried WIP (cb099ee + stash) onto sprint-05"
     file: "production/sprints/sprint-05.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: "gameplay-programmer"
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-07-11"
   - id: "S5-D2"
     name: "ADR-0002 Proposed -> Accepted"
     file: "production/sprints/sprint-05.md"
