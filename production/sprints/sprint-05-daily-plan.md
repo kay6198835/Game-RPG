@@ -36,7 +36,7 @@ all Must-Have tracks remain untouched.
 
 | ID | Task | Est (d) | Track/Pri | Status |
 |----|------|---------|-----------|--------|
-| S5-A1 | Option C full spec into GDD + resolve 5 open-Qs | 0.5 | A / Must | ⬜ Not started |
+| S5-A1 | Option C full spec into GDD + resolve 5 open-Qs | 0.5 | A / Must | ✅ Done |
 | S5-A2 | ADR-0003 ratify Option C | 0.25 | A / Must | ⬜ Not started |
 | S5-A3 | `EnemyModal` refactor (`weight`→`cost` clamp, +`spawnChance`/`tier`) + migrate 6 assets | 0.5 | A / Must | ⬜ Not started |
 | S5-A4 | `RoomModel` refactor (+`roomType`/`budgetTolerance`, −dead fields) + migrate assets | 0.5 | A / Must | ⬜ Not started |
@@ -182,6 +182,13 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
   - S5-A3 (data refactor): scope changes from "rename weight→cost + clamp" to "add `RarityTier`
     enum + `rarityTier` field to `EnemyModal`, no rename." Re-estimate if needed at next standup.
   - S5-A2 (ADR-0003): ratifies this exact flow, not the original float-`SpawnChance` sketch.
+- **2026-07-13 (Mon, continued) — S5-A1 done**: All 5 open-Qs resolved (band under-spend, pick
+  algorithm = uniform random, Cost/Tier independence, room→preset = kept `MapModel.GetRandomRoom()`
+  shuffle-bag / no per-room mapping built (Q#4), RNG = `UnityEngine.Random` unseeded (Q#2), `RoomType`
+  = design-time classification only, not consumed by the flow). Written to
+  `design/gdd/enemy-spawn-system.md` via `/design-system` retrofit — commits `0d7a5b7`, `4fc04c5`.
+  S5-A1 marked ✅ Done. Next up per Mon sequencing: S5-A2 (ADR-0003 ratifying Option C), or S5-B1
+  (`EventID` additions, 0.1d, no dependency, fastest win).
 
 ### Interim Wrap-Up — 2026-07-11 (Sat 22:00)
 
