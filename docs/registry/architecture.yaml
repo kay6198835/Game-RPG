@@ -14,7 +14,31 @@ state_ownership:
       Awake() fires once per dungeon run, not once per room (see ADR-0002
       Decision correction).
 
-interfaces: []
+interfaces:
+  - contract: room_enemy_selection
+    adr: ADR-0003
+    signature: "RoomModel.GetSpawnSet() -> List<EnemySpawnEntry> { enemy, count }"
+    detail: >
+      Budget-bounded Candidate-Pool fill loop. Guarantees: totalSpend <= B
+      (Room Budget) always — overspend is structurally impossible because a
+      candidate must satisfy weight <= remaining (no overflow cap); the loop
+      terminates in at most B iterations; each pick round terminates in at
+      most 5 roll attempts (retryCount capped at 4 + 1 forced fallback).
+      Pure method on the RoomModel SO — deliberately NOT on the EnemyManager
+      singleton (ADR-0002) so it stays unit-testable. Signature unchanged from
+      the shipped Option A implementation; only the internal algorithm changes.
+  - contract: enemymodal_spawn_metadata
+    adr: ADR-0003
+    signature: "EnemyModal { GameObject prefab; int weight; RarityTier rarityTier; }"
+    detail: >
+      weight (= Cost) MUST be >= 1, enforced by [Range(1,99)] + OnValidate clamp
+      on EnemyModal (leaf-level, not only a RoomModel warning) — a weight <= 0
+      candidate would hang the eligible-set fill loop. RarityTier is a fixed
+      four-value enum whose integer value IS the roll-chance percent:
+      Common=50, Rare=30, Epic=15, Legendary=5; a chance() mapper divides by 100.
+      weight and rarityTier are fully independent by design — never cross-checked
+      (intentional: lets a cheap enemy be rare or an expensive enemy be common).
+      EnemyModal is spawn metadata only, not a stat store (ADR-0001 boundary).
 
 forbidden_patterns: []
 
@@ -33,3 +57,20 @@ api_decisions:
       - "If a third singleton-shaped need arises (see TD-023, TD-031 — existing unratified violations of the same rule)"
       - "When TD-023 or TD-031 are scheduled for tech-debt repayment"
     status: accepted_exception
+  - decision: enemy_spawn_selection_algorithm
+    adr: ADR-0003
+    detail: >
+      The enemy-spawn selection algorithm is Option C — Room Budget +
+      Candidate Pool + RarityTier. Per accepted pick: build the eligible set
+      (weight <= remaining), roll each candidate's RarityTier chance
+      independently, pick uniformly from the passers; on an empty pool retry
+      up to 4 times then fall back to the full eligible set; repeat until the
+      budget tolerance band is met or nothing fits. RNG stays UnityEngine.Random
+      (unseeded, per GDD Open Q#2) — algorithm ACs (AC-C1..C6) do not assume
+      determinism. Reuses the existing GetSpawnSet() zero-alloc scratch buffers.
+    supersedes: >
+      The shipped Option A two-phase uniform-random behavior and the never-built
+      2026-07-08 Option B target (injected System.Random + EnemyDatabase id-lookup
+      + argmin fill). Resolves GDD Open Question #8.
+    scope: RoomModel.GetSpawnSet() selection logic — implementation target for S5-A3 (RarityTier field) + Sprint 6 (algorithm rewrite).
+    status: proposed
