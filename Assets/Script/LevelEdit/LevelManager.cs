@@ -257,12 +257,12 @@ public class LevelManager : MonoBehaviour
 
         foreach (var entry in set)
         {
-            if (entry.enemy == null || entry.enemy.prefab == null) continue;
+            if (entry.enemy == null || entry.enemy.Prefab == null) continue;
             for (int i = 0; i < entry.count; i++)
             {
                 Vector2 offset = Random.insideUnitCircle * spawnRadius;
                 Vector3 pos = transform.position + new Vector3(offset.x, offset.y, 0f);
-                Instantiate(entry.enemy.prefab, pos, Quaternion.identity, transform.parent);
+                Instantiate(entry.enemy.Prefab, pos, Quaternion.identity, transform.parent);
             }
         }
     }

@@ -92,7 +92,7 @@ public class EnemySpawnEntry
 {
     public EnemyModal enemy;
     public int count;
-    
+
     public EnemySpawnEntry(EnemyModal enemy)
     {
         this.enemy = enemy;
@@ -102,7 +102,7 @@ public class EnemySpawnEntry
 [System.Serializable]
 public class EnemyModal
 {
-    public GameObject prefab;
+    public GameObject Prefab;
     public int weight;
     public RarityTier rarityTier;
 }

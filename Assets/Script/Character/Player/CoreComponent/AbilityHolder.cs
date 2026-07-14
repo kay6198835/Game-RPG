@@ -30,8 +30,9 @@ public class AbilityHolder : CoreComponent
         //stateIndex = 1;
         //stateLength = Enum.GetNames(typeof(SkillState)).Length;
     }
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         canUseAbility = false;
         core.GetCoreComponent(out playerInputHandler);
     }

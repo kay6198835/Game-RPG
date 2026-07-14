@@ -50,7 +50,7 @@ public class EnemySpawner : MonoBehaviour
 
         foreach (var entry in set)
         {
-            if (entry.enemy == null || entry.enemy.prefab == null) continue;
+            if (entry.enemy == null || entry.enemy.Prefab == null) continue;
             for (int i = 0; i < entry.count; i++)
             {
                 positionRandom = spawnPosition[Random.Range(0, spawnPosition.Count)].ConvertTo<Vector2>();
@@ -58,7 +58,7 @@ public class EnemySpawner : MonoBehaviour
                 positionRandom.y += paddingPosition;
                 paddingPosition = Random.Range(-maxPadding, maxPadding);
                 positionRandom.x += paddingPosition;
-                Instantiate(entry.enemy.prefab, positionRandom,
+                Instantiate(entry.enemy.Prefab, positionRandom,
                 Quaternion.identity, transform);
             }
         }
