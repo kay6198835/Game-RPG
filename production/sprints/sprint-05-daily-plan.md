@@ -14,8 +14,9 @@
 
 ---
 
-## Status Verdict: ⬜ NOT STARTED (reopened) — window 07/13→07/17. Only carried WIP (S5-D1) is done;
-all Must-Have tracks remain untouched.
+## Status Verdict: 🟡 IN PROGRESS — window 07/13→07/17. Day 1 (Mon 07/13) landed S5-A1/S5-A2/S5-B1
+(0.85d Must-Have). Track A data-refactor scope (S5-A3/A4) got overtaken by an unplanned direct
+implementation of the Candidate-Pool algorithm — still uncommitted, see 2026-07-14 log entry.
 
 ---
 
@@ -25,10 +26,10 @@ all Must-Have tracks remain untouched.
 |--------|-------|
 | Total work estimated | Must-Have ≈ 3.95d (Track A ~1.75 + B ~1.6 + C ~1.1 incl. BUG-ES-4, overlapping) + Should ~0.6d + Nice ~1.75d |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 0 |
-| Days remaining | 5 |
-| Work committed/done | 0 Must-Have (S5-D1 carried WIP is done, not counted against Must-Have capacity) |
-| Velocity | N/A — first real execution attempt for this scope |
+| Days elapsed | 1 |
+| Days remaining | 4 |
+| Work committed/done | 0.85d Must-Have (S5-A1 0.5 + S5-A2 0.25 + S5-B1 0.1 of ~3.95d) — S5-B2 (0.5d, planned Mon) slipped to today |
+| Velocity | 0.85d / 1 day burned — on pace if today's carry-over + plan lands |
 
 ---
 
@@ -37,10 +38,10 @@ all Must-Have tracks remain untouched.
 | ID | Task | Est (d) | Track/Pri | Status |
 |----|------|---------|-----------|--------|
 | S5-A1 | Option C full spec into GDD + resolve 5 open-Qs | 0.5 | A / Must | ✅ Done |
-| S5-A2 | ADR-0003 ratify Option C | 0.25 | A / Must | ⬜ Not started |
-| S5-A3 | `EnemyModal` refactor (`weight`→`cost` clamp, +`spawnChance`/`tier`) + migrate 6 assets | 0.5 | A / Must | ⬜ Not started |
-| S5-A4 | `RoomModel` refactor (+`roomType`/`budgetTolerance`, −dead fields) + migrate assets | 0.5 | A / Must | ⬜ Not started |
-| S5-B1 | Add `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`/`ON_PLAYER_DEATH` to `EventID` | 0.1 | B / Must | ⬜ Not started |
+| S5-A2 | ADR-0003 ratify Option C | 0.25 | A / Must | ✅ Done |
+| S5-A3 | `EnemyModal` refactor (`weight`→`cost` clamp, +`spawnChance`/`tier`) + migrate 6 assets | 0.5 | A / Must | 🟡 In progress (uncommitted — scope changed, see log) |
+| S5-A4 | `RoomModel` refactor (+`roomType`/`budgetTolerance`, −dead fields) + migrate assets | 0.5 | A / Must | 🟡 In progress (uncommitted — `GetSpawnSet()` Candidate-Pool rewrite landed ahead of schedule, folds in S5-N1 scope) |
+| S5-B1 | Add `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`/`ON_PLAYER_DEATH` to `EventID` | 0.1 | B / Must | ✅ Done |
 | S5-B2 | `NegativeReciver.TakeDamage()` + `ON_PLAYER_DEATH` (BUG-06) | 0.5 | B / Must | ⬜ Not started |
 | S5-B3 | `EntityMoveState` null-guard (BUG-05) | 0.25 | B / Must | ⬜ Not started |
 | S5-B4 | `EntityDeathState : EntityState` (BUG-07) | 0.5 | B / Must | ⬜ Not started |
@@ -125,6 +126,9 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 | Off-plan work recurs | 🟡 WATCH | Track A + B are critical path; hold new spawn-feature work until they land |
 | No QA plan (lean) | 🔴 OPEN | Run `/qa-plan sprint` before Track B |
 | No Unity CLI | 🟢 KNOWN | Play Mode smoke = manual in-Editor |
+| `EnemyModal` deleted as an SO, folded into `RoomModel.cs` as a plain serializable class (2026-07-14 finding) | 🔴 NEW — WATCH | Confirm with owner whether losing shared-asset reuse across rooms is intentional; reconcile against ADR-0003 before authoring room enemy lists |
+| Uncommitted `GetSpawnSet()` Candidate-Pool rewrite has 2 logic gaps (fallback ignores budget filter; stop condition doesn't check eligibleSet-empty) | 🟡 WATCH | Fix before commit — see 2026-07-14 log entry for detail |
+| Off-plan work recurring 2nd day running (architecture review Mon AM, Candidate-Pool rewrite Mon PM — neither was the Mon task list) | 🟡 WATCH | Valuable output, but re-sequencing every day makes velocity hard to trust — check in at Wed standup whether this stabilizes |
 
 ---
 
@@ -189,6 +193,59 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
   `design/gdd/enemy-spawn-system.md` via `/design-system` retrofit — commits `0d7a5b7`, `4fc04c5`.
   S5-A1 marked ✅ Done. Next up per Mon sequencing: S5-A2 (ADR-0003 ratifying Option C), or S5-B1
   (`EventID` additions, 0.1d, no dependency, fastest win).
+- **2026-07-13 (Mon, rest of day) — S5-A2 + S5-B1 landed, plus an off-plan architecture pivot**:
+  `git log` for Mon shows, in order: `0c1a7b4` ADR-0003 ratifying Option C (S5-A2 ✅), `c355d08`
+  full `/architecture-review` (not on the Mon list — bonus/off-plan, CONCERNS verdict, flags Event
+  Bus + `INegativeReceiver` as HIGH-priority Foundation gaps; ran at 08:59 UTC, **before** the
+  commits below), then `2151ec1`/`8f19ae6`/`39ddc21` ("update logic spawn enemy" / "polish code" ×2)
+  at 16:38+ local. `EventID.ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`/`ON_PLAYER_DEATH` added in `2151ec1`
+  (S5-B1 ✅). S5-B2 (`NegativeReciver.TakeDamage()`) did **not** land — still `throw new
+  NotImplementedException()`, confirmed via grep. Instead, the owner jumped straight to implementing
+  the actual Candidate-Pool `GetSpawnSet()` algorithm in `RoomModel.cs` (this is S5-N1 stretch
+  scope, and it folds in what S5-A3/S5-A4 were meant to do incrementally) — done directly rather
+  than through the planned refactor-then-implement sequence.
+  **Unplanned architecture change, not yet reviewed**: `EnemyModal.cs` (an `EntityModel`-derived
+  ScriptableObject) was deleted outright in `2151ec1`; its fields (`prefab`→`Prefab`, `weight`) plus
+  the new `rarityTier` were folded into a plain `[System.Serializable] class EnemyModal` declared
+  inline in `RoomModel.cs`. This is a bigger change than "add a field" — `EnemyModal` is no longer an
+  asset type, so it can't be authored as a shared, drag-drop-reusable SO across rooms the way the
+  Mon-locked data model assumed. No `.asset` files reference it yet (S5-A3's "migrate 6 assets" step
+  never ran), so nothing is broken today, but this deviates from the data model locked in the Mon log
+  entry and from ADR-0003 as ratified — needs an owner decision before more rooms are authored around
+  it. Flagging, not blocking.
+  **Uncommitted working-tree state at standup time** (`git diff --stat`, 5 files, 8+/8−): the
+  `GetSpawnSet()` rewrite above, `entry.enemy.prefab`→`.Prefab` casing fixups in `EnemySpawner.cs` /
+  `LevelManager.cs`, a dead `_tileSetDelay` field removed from `RoomGeneraterController.cs`, and an
+  `AbilityHolder.Start()` fix (`private`→`protected override` + `base.Start()` call — was silently
+  skipping `CoreComponent.Start()`). None of this is committed. Two logic notes on the uncommitted
+  `GetSpawnSet()` for whoever picks this back up: (1) `SetListCandidate`'s retry>4 fallback does
+  `candidateEnemies.AddRange(enemiesOfRoom)` — the *whole* room list, not just entries that still fit
+  `weightBudget` — so the guaranteed-termination fallback can push the spend over budget by an
+  unbounded amount instead of the design's "eligibleSet, budget-respecting" fallback; (2) the outer
+  loop's stop condition (`weightBudget > this.weightBudget * 0.1f`) only encodes the lower-tolerance
+  bound from the design's step 8, not "eligibleSet is empty" — currently masked by (1) always
+  returning a non-empty candidate pool, so it doesn't hang, but the band/overshoot math should be
+  double-checked against the GDD's worked example before this ships.
+  **Branch note**: standup did not `git checkout sprint-05` — the actual working branch
+  (`origin/feature/spawn-enemy`) is 3 commits ahead of `sprint-05` (`2151ec1`/`8f19ae6`/`39ddc21`)
+  plus the uncommitted diff above; checking out the older `sprint-05` tip would have collided with
+  those uncommitted changes. Recommend committing the WIP first, then merging/rebasing this feature
+  branch onto `sprint-05` so the tracker and the code branch stay in sync.
+- **2026-07-14 (Tue 02:00) — day 2 standup**: Day 1 closed at 0.85d Must-Have (S5-A1/A2/B1 done),
+  below the ~1.35d planned for Mon (S5-B2 slipped), but with unplanned extra progress on S5-A3/A4/N1
+  merged into one uncommitted `GetSpawnSet()` rewrite. Today's plan, re-sequenced around that reality
+  instead of the original Tue table:
+  1. **Commit + harden the uncommitted `GetSpawnSet()` WIP** — fix the retry-fallback budget filter
+     and the eligibleSet-empty stop condition noted above — 0.3d (🔴 Must, no new scope, closes out
+     what's already 90% done)
+  2. **Resolve the `EnemyModal` SO-vs-plain-class question with the owner** and note the decision
+     against ADR-0003 — 0.15d (🔴 Must, blocks safely authoring room enemy lists)
+  3. **S5-B2** — `NegativeReciver.TakeDamage()` + emit `ON_PLAYER_DEATH` (BUG-06) — 0.5d (🔴 Must,
+     carried from Mon, `EventID` values now exist so this is unblocked)
+  4. **S5-B3** — `EntityMoveState` null-guard to top of `LogicUpdate()` (BUG-05) — 0.25d (🔴 Must,
+     no dependency)
+  Total ≈ 1.2d planned for today. S5-A3/S5-A4 as originally scoped (separate incremental refactors)
+  are superseded by item 1 above — table status reflects "in progress" rather than "not started."
 
 ### Interim Wrap-Up — 2026-07-11 (Sat 22:00)
 
