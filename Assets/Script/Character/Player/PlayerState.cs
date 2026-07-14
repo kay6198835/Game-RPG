@@ -72,15 +72,3 @@ public class PlayerState : IState
         this.Status = statusAnimation;
     }
 }
-
-public enum StatusAnimation
-{
-    None,
-    Start,
-    Animaing,
-    StartRangeTrigger,
-    OnActivate,
-    OffActivate,
-    EndRangeTrigger,
-    End
-}

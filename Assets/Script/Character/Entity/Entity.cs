@@ -64,7 +64,7 @@ public class Entity : BaseEntity
         gameObject.name = data.name;
     }
 
-    protected void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
+    protected void AnimationTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.StartRangeTrigger);
 
-    protected void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
+    protected void AnimtionFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
 }

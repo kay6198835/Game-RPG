@@ -16,7 +16,7 @@ public class EntityUseWeaponState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (isAnimationFinished)
+        if (Status == StatusAnimation.EndRangeTrigger)
         {
             entity.StateMachine.ChangeState(entity.IdleState);
             //Debug.Log("Attack");

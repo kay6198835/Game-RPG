@@ -17,10 +17,10 @@ public class EntityAttackState : EntityUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (isAnimationTrigger)
+        if (Status == StatusAnimation.StartRangeTrigger)
         {
             entity.Core.WeaponHolder.Weapon.Attack();
-            isAnimationTrigger = false;
+            Status = StatusAnimation.OnActivate;
         }
     }
 }
