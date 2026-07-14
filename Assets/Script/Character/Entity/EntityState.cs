@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityState
+public class EntityState : IState
 {
     protected EntityStateMachine stateMachine;
     protected Entity entity;

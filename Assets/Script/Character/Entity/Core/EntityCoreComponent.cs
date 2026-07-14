@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
-public class EntityCoreComponent : MonoBehaviour
+public class EntityCoreComponent : CoreComponentBase
 {
     protected EntityCore entityCore;
 
@@ -12,5 +9,6 @@ public class EntityCoreComponent : MonoBehaviour
     protected virtual void Awake()
     {
         entityCore = transform.parent.GetComponent<EntityCore>();
+        if (entityCore != null) entityCore.AddCoreComponent(this);
     }
 }

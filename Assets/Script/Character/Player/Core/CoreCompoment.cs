@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CoreComponent : MonoBehaviour
+public class CoreComponent : CoreComponentBase
 {
     [SerializeField] protected Core core;
 

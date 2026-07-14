@@ -1,6 +1,6 @@
 using UnityEngine;
 [System.Serializable]
-public class PlayerState
+public class PlayerState : IState
 {
     //protected Core core;
 
