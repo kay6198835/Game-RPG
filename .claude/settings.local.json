@@ -76,7 +76,9 @@
       "Bash(echo \"=== git status NOW ===\"; git status --porcelain; echo \"=== diff vs pre_install snapshot ===\"; git status --porcelain > /tmp/post_install.txt; diff /tmp/pre_install.txt /tmp/post_install.txt && echo \"IDENTICAL ✅ — no project pollution\" || echo \"DIFFERENT ⚠️\")",
       "Bash(rtk telemetry *)",
       "Bash(gh --version)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(git cherry-pick *)",
+      "Bash(git stash *)"
     ]
   }
 }
