@@ -19,7 +19,7 @@ public class ObjectPooling : MonoBehaviour
     #region Holder
     [SerializeField] private Transform holderSlash;
     #endregion
-    private void Spawn(Vector3 positon, Quaternion rotation)
+    private void Spawn(Vector2 positon, Quaternion rotation)
     {
 
         bool isReSpawn=false;

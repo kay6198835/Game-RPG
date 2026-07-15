@@ -10,6 +10,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float paddingPosition;
     [SerializeField] private float maxPadding;
     [SerializeField] private Vector2 positionRandom;
+    [SerializeField] private ObjectPoolManager objectPoolManager = new objectPoolManager();
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);
@@ -20,7 +21,7 @@ public class EnemySpawner : MonoBehaviour
     }
     public void Spawn()
     {
-        
+
     }
 
     public void OnDoneLoadRoomGrid(object obj = null)
@@ -58,8 +59,7 @@ public class EnemySpawner : MonoBehaviour
                 positionRandom.y += paddingPosition;
                 paddingPosition = Random.Range(-maxPadding, maxPadding);
                 positionRandom.x += paddingPosition;
-                Instantiate(entry.enemy.Prefab, positionRandom,
-                Quaternion.identity, transform);
+                objectPoolManager.Spawn(positionRandom, entry.enemy.Prefab);
             }
         }
     }

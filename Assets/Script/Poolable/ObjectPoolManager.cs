@@ -3,18 +3,9 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class ObjectPoolManager : MonoBehaviour
+public class ObjectPoolManager
 {
-    public static ObjectPoolManager Instance { get; private set; }
     public Dictionary<GameObject, Pool> pools { get; set; } = new Dictionary<GameObject, Pool>();
-    public void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else { Destroy(gameObject);}
-    }
     public Pool Get(GameObject prefab)
     {
         if (!pools.TryGetValue(prefab, out Pool pool))
@@ -35,6 +26,7 @@ public class ObjectPoolManager : MonoBehaviour
     {
         if (pools.TryGetValue(prefab, out Pool pool)) return;
         GameObject poolObj = new GameObject($"{prefab.name} Pool");
+        poolObj.transform.parent = this.transform;
         pool = poolObj.AddComponent<Pool>();
         pool.Register(prefab);
         pools.Add(prefab, pool);
