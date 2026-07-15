@@ -8,7 +8,7 @@ public class EntityFindTarget : EntityCoreComponent
     [SerializeField] private float range;
     [SerializeField] private LayerMask player, obstracles;
     //[SerializeField] private bool isFindTarget;
-
+    [SerializeField] private Collider2D collider;
     public Transform Target { get => target;}
 
     protected override void Awake()
@@ -18,7 +18,7 @@ public class EntityFindTarget : EntityCoreComponent
     public Transform FindTargetMethod(float range)
     {
         this.range = range;
-        Collider2D collider = Physics2D.OverlapCircle(
+        collider = Physics2D.OverlapCircle(
             this.transform.position,
             range,
             player);
