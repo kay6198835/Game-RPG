@@ -7,16 +7,20 @@
 >   - **Mon–Fri 10:00** → `/daily-standup`
 >   - **Sat 22:00** → `/weekly-wrapup`
 >   - **Sun 22:00** → `/weekly-kickoff`
-> **Last updated**: 2026-07-13 (Mon, reopened) — original 07/14→07/18 window never executed (0 days
-> elapsed, only S5-D1 padding fields landed). Stays Sprint 5 rather than rolling to Sprint 6 since
-> zero Must-Have work landed; window extended to 07/13→07/17. Adds S5-C4 (BUG-ES-4, found while
-> landing S5-D1). S5-D1 marked done and dropped from the active task list.
+> **Last updated**: 2026-07-15 (Wed, day 3 standup) — day 2 (Tue) landed zero of the 4 planned
+> Must-Have items; 3rd consecutive day of off-plan work (Player/Entity `Base/` framework unification
+> + `StatusAnimation` enum). All 5 death/spawn bugs code-verified still present. See 2026-07-15 log
+> entry for full detail.
 
 ---
 
-## Status Verdict: 🟡 IN PROGRESS — window 07/13→07/17. Day 1 (Mon 07/13) landed S5-A1/S5-A2/S5-B1
-(0.85d Must-Have). Track A data-refactor scope (S5-A3/A4) got overtaken by an unplanned direct
-implementation of the Candidate-Pool algorithm — still uncommitted, see 2026-07-14 log entry.
+## Status Verdict: 🔴 CONCERNS — window 07/13→07/17, day 3 of 4 (Wed 07/15) starting at 0.85d
+Must-Have burned (unchanged since Mon). Day 2 (Tue 07/14) landed **zero** of Tue's planned items
+(S5-B2, S5-B3, GetSpawnSet hardening, EnemyModal SO decision) — instead a 3rd consecutive day of
+off-plan work landed: a Player/Entity shared-framework refactor (`Assets/Script/Character/Base/`)
+and a `StatusAnimation` enum adoption for `EntityState`, both via Claude agent sessions on
+`origin/feature/spawn-enemy`/`claude/unity-architecture-refactor-1641vr` — neither branch has been
+merged back into `sprint-05`. See 2026-07-15 log entry for full detail and code-verified bug status.
 
 ---
 
@@ -26,10 +30,10 @@ implementation of the Candidate-Pool algorithm — still uncommitted, see 2026-0
 |--------|-------|
 | Total work estimated | Must-Have ≈ 3.95d (Track A ~1.75 + B ~1.6 + C ~1.1 incl. BUG-ES-4, overlapping) + Should ~0.6d + Nice ~1.75d |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 1 |
-| Days remaining | 4 |
-| Work committed/done | 0.85d Must-Have (S5-A1 0.5 + S5-A2 0.25 + S5-B1 0.1 of ~3.95d) — S5-B2 (0.5d, planned Mon) slipped to today |
-| Velocity | 0.85d / 1 day burned — on pace if today's carry-over + plan lands |
+| Days elapsed | 2 |
+| Days remaining | 2 (Thu 07/16, Fri 07/17 — Fri is wrap-up day) |
+| Work committed/done | 0.85d Must-Have (S5-A1 0.5 + S5-A2 0.25 + S5-B1 0.1 of ~3.95d) — unchanged since Mon; Tue added 0d tracked Must-Have |
+| Velocity | 0.85d / 2 days burned — badly off pace; ~3.1d of Must-Have work remains against 2 days of capacity |
 
 ---
 
@@ -39,8 +43,8 @@ implementation of the Candidate-Pool algorithm — still uncommitted, see 2026-0
 |----|------|---------|-----------|--------|
 | S5-A1 | Option C full spec into GDD + resolve 5 open-Qs | 0.5 | A / Must | ✅ Done |
 | S5-A2 | ADR-0003 ratify Option C | 0.25 | A / Must | ✅ Done |
-| S5-A3 | `EnemyModal` refactor (`weight`→`cost` clamp, +`spawnChance`/`tier`) + migrate 6 assets | 0.5 | A / Must | 🟡 In progress (uncommitted — scope changed, see log) |
-| S5-A4 | `RoomModel` refactor (+`roomType`/`budgetTolerance`, −dead fields) + migrate assets | 0.5 | A / Must | 🟡 In progress (uncommitted — `GetSpawnSet()` Candidate-Pool rewrite landed ahead of schedule, folds in S5-N1 scope) |
+| S5-A3 | `EnemyModal` refactor (`weight`→`cost` clamp, +`spawnChance`/`tier`) + migrate 6 assets | 0.5 | A / Must | 🟡 In progress — Candidate-Pool `GetSpawnSet()` now **committed** (`RoomModel.cs`, verified 2026-07-15) with `rarityTier` field added, but `EnemyModal` is a plain `[System.Serializable]` class again, not an SO asset — owner decision from Mon log still unresolved, no assets migrated |
+| S5-A4 | `RoomModel` refactor (+`roomType`/`budgetTolerance`, −dead fields) + migrate assets | 0.5 | A / Must | 🟡 In progress — `GetSpawnSet()` Candidate-Pool loop committed but **2 known logic gaps still unfixed** (verified 2026-07-15): (1) retry>4 fallback `AddRange(enemiesOfRoom)` ignores `weightBudget` filter — can overshoot budget unbounded; (2) loop stop condition only checks lower-tolerance bound, not eligibleSet-empty. `roomType`/`budgetTolerance` fields not present |
 | S5-B1 | Add `ON_ENEMY_DEATH`/`ON_ROOM_CLEAR`/`ON_PLAYER_DEATH` to `EventID` | 0.1 | B / Must | ✅ Done |
 | S5-B2 | `NegativeReciver.TakeDamage()` + `ON_PLAYER_DEATH` (BUG-06) | 0.5 | B / Must | ⬜ Not started |
 | S5-B3 | `EntityMoveState` null-guard (BUG-05) | 0.25 | B / Must | ⬜ Not started |
@@ -126,9 +130,10 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 | Off-plan work recurs | 🟡 WATCH | Track A + B are critical path; hold new spawn-feature work until they land |
 | No QA plan (lean) | 🔴 OPEN | Run `/qa-plan sprint` before Track B |
 | No Unity CLI | 🟢 KNOWN | Play Mode smoke = manual in-Editor |
-| `EnemyModal` deleted as an SO, folded into `RoomModel.cs` as a plain serializable class (2026-07-14 finding) | 🔴 NEW — WATCH | Confirm with owner whether losing shared-asset reuse across rooms is intentional; reconcile against ADR-0003 before authoring room enemy lists |
-| Uncommitted `GetSpawnSet()` Candidate-Pool rewrite has 2 logic gaps (fallback ignores budget filter; stop condition doesn't check eligibleSet-empty) | 🟡 WATCH | Fix before commit — see 2026-07-14 log entry for detail |
-| Off-plan work recurring 2nd day running (architecture review Mon AM, Candidate-Pool rewrite Mon PM — neither was the Mon task list) | 🟡 WATCH | Valuable output, but re-sequencing every day makes velocity hard to trust — check in at Wed standup whether this stabilizes |
+| `EnemyModal` deleted as an SO, folded into `RoomModel.cs` as a plain serializable class (2026-07-14 finding) | 🔴 OPEN — still unresolved 2026-07-15 | Confirm with owner whether losing shared-asset reuse across rooms is intentional; reconcile against ADR-0003 before authoring room enemy lists |
+| `GetSpawnSet()` Candidate-Pool rewrite now committed but still has 2 logic gaps (fallback ignores budget filter; stop condition doesn't check eligibleSet-empty) | 🔴 OPEN — confirmed still present in code 2026-07-15, not fixed Tue as planned | Fix before this is treated as done — see 2026-07-14 log entry for detail; re-verify against the GDD's worked example |
+| Off-plan work recurring — now 3 days running (architecture review + Candidate-Pool rewrite Mon; Player/Entity `Base/` framework unification + `StatusAnimation` enum adoption Tue — neither was on the Mon or Tue task list) | 🔴 ESCALATED from WATCH | Did not stabilize by Wed standup as flagged. Zero Track B (death loop) or Track C (spawn stabilization) Must-Have items have moved in 2 full days. Recommend owner explicitly re-plan Wed/Thu around only S5-B2→B5 and S5-C1→C4 — the sprint goal's death-loop pillar is now the at-risk item, not the design-lock pillar |
+| **NEW** — sprint work is scattered across 3 branches (`sprint-05`, `origin/feature/spawn-enemy`, `claude/unity-architecture-refactor-1641vr`) with crossing merges (`46ebd25`, `974cf8b`, `ec250ea`); `sprint-05` itself is several commits behind the actual working branch | 🔴 NEW — OPEN | Reconcile before Friday wrap-up: merge/rebase `origin/feature/spawn-enemy` onto `sprint-05` (or vice versa) so the tracker branch and the code branch are the same lineage; otherwise the Fri smoke-check and `/weekly-wrapup` code review will look at the wrong branch |
 
 ---
 
@@ -246,6 +251,70 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
      no dependency)
   Total ≈ 1.2d planned for today. S5-A3/S5-A4 as originally scoped (separate incremental refactors)
   are superseded by item 1 above — table status reflects "in progress" rather than "not started."
+- **2026-07-15 (Wed 02:00) — day 3 standup**: Checked out `sprint-05`, fast-forwarded to
+  `origin/sprint-05` (974cf8b). None of Tue's 4 planned items landed. `git log --since=2026-07-14`
+  on the actual working branch (`origin/feature/spawn-enemy`, not `sprint-05` — see branch-scatter
+  risk below) shows Tue's real commits: `aa8720f` "unify Player and Entity onto a shared framework"
+  (03:08, Claude session) — new `Assets/Script/Character/Base/` with `IState`/`StateMachine<TState>`/
+  `CoreBase`/`CoreComponentBase`/`DirectionResolver`, 18 files touched; `4a73d16` "adopt
+  StatusAnimation enum in EntityState" (08:01, Claude session) — mirrors Player's animation-status
+  pattern onto Entity, 8 files; `a8089c5` "coding" (10:18, owner) — wiring/meta files for the above
+  plus stray casing fixups; `aa247e6` "remove file trash" (11:42, owner) — deleted the old
+  `Assets/Backup/` tree and dead `Assets/Script/Enemy/NewEnemy*.cs` stub files. None of this is on
+  the Sprint 5 task list — it's a bigger architectural move (framework unification) than anything
+  scoped for this sprint, executed via Claude Code agent sessions outside the tracked plan.
+
+  **Code-verified bug status** (read `origin/feature/spawn-enemy` tip `4a73d16` directly, no edits
+  made — read-only per standup hard rule):
+  - S5-B2 (BUG-06): `NegativeReciver.TakeDamage()` still `throw new System.NotImplementedException()`
+    — confirmed NOT fixed.
+  - S5-B3 (BUG-05): `EntityMoveState.LogicUpdate()` still dereferences
+    `entity.Input.Target.transform.position` before the `if (entity.Input.Target == null)` guard
+    below it — confirmed NOT fixed.
+  - S5-B4 (BUG-07): `EntityDeathState` still `: MonoBehaviour`, empty `Start`/`Update` stubs —
+    confirmed NOT fixed.
+  - S5-B5 (BUG-08): `EntityBasicState`'s `Health <= 0` block is still empty (`{ }`, no transition) —
+    confirmed NOT fixed.
+  - S5-C1 (BUG-ES-1): `RoomModel.GetSpawnSet()` still `return null` when `enemiesOfRoom.Count == 0`.
+    `EnemySpawner.GetRoomSpawnSet()` only null-guards `roomModel` itself, NOT the `GetSpawnSet()`
+    return value — an empty-pool room will still NRE at `SpawnRoomEnemies()`'s `set.Count` check.
+    Confirmed NOT fixed.
+  - S5-C4 (BUG-ES-4): `EnemySpawner.SpawnRoomEnemies()` — `spawnPosition[Random.Range(0,
+    spawnPosition.Count)]` — still unguarded against an empty `spawnPosition` list. Confirmed NOT
+    fixed.
+  - S5-D2: ADR-0002 (`docs/architecture/adr-0002-enemymanager-singleton-exception.md`) — `Status:
+    Proposed`, unchanged. Confirmed NOT fixed.
+  - No QA plan file exists anywhere in `production/qa/` — gate still open, 3rd cycle unresolved.
+
+  **Net effect**: the sprint goal's 2nd pillar (combat death loop) has had zero code movement across
+  2 full days (Tue + the Mon afternoon that also went off-plan). All 5 death/spawn bugs carried from
+  Sprint 4 are still exactly as they were at sprint start. The only forward motion this window is
+  Track A's design-lock (done Mon) plus an unplanned framework refactor that, while plausibly good
+  engineering, does not close any Sprint 5 acceptance criterion.
+
+  **Today's plan (Wed 07/15)** — re-affirming the original Wed table since nothing from Tue
+  substitutes for it; treat as the sprint's last full day before Thu's dedupe-driver work and Fri's
+  wrap-up:
+  1. **S5-B2** — `NegativeReciver.TakeDamage()`: decrement HP, emit `ON_PLAYER_DEATH` at 0 (BUG-06) —
+     0.5d, 🔴 Must, carried 2 days, `EventID` values already exist so fully unblocked
+  2. **S5-B3** — `EntityMoveState` null-guard moved to top of `LogicUpdate()` (BUG-05) — 0.25d, 🔴
+     Must, no dependency, smallest remaining Must-Have
+  3. **S5-B4** — `EntityDeathState : EntityState` rewrite + wire into `EntityStateMachine` (BUG-07) —
+     0.5d, 🔴 Must, depends on S5-B3 landing first per original sequencing
+  4. **S5-C1** — `RoomModel.GetSpawnSet()` return `[]` not `null` on empty pool; guard both driver
+     call sites (BUG-ES-1) — 0.25d, 🔴 Must, small, no dependency
+  5. **S5-C4** — guard `EnemySpawner.cs` empty `spawnPosition` read (BUG-ES-4) — 0.1d, 🔴 Must, small,
+     no dependency, pairs naturally with S5-C1 in the same file area
+  6. If time: **S5-B5** — `EntityBasicState` death transition + `ON_ENEMY_DEATH` (BUG-08), 0.25d, 🔴
+     Must, depends on S5-B4
+  Total ≈ 1.6d against 1 remaining full day (Thu is the last non-wrapup day) — **not achievable in
+  full**; recommend dropping S5-B5 to Thu and treating items 1–5 as today's ceiling. Realistic today:
+  items 1–2 (0.75d) at minimum, items 3–5 stretch.
+  **Blockers**: none technical — every remaining Must-Have item is unblocked. The real blocker is
+  process: 2 of 4 sprint days spent on unplanned work. No further design/architecture work should be
+  picked up before S5-B2→B5 and S5-C1→C4 land.
+  **Risks carried forward**: branch scatter (new, see Risks table); QA plan still missing (3rd
+  cycle); `EnemyModal` SO-vs-plain-class decision still unresolved.
 
 ### Interim Wrap-Up — 2026-07-11 (Sat 22:00)
 
