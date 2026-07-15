@@ -144,7 +144,7 @@ public class StatsSO : ScriptableObject
         if (type.IsPrimary()) RecalculateDerived();
     }
 
-    private float GetFun(StatType type)
+    public float GetStatValue(StatType type)
     {
         return Get(type).Value;
     }
@@ -157,7 +157,7 @@ public class StatsSO : ScriptableObject
             if (formula == null) continue;
 
             Stat target = GetOrCreate(formula.targetStat);
-            float newBase = formula.Evaluate(GetFun, level);
+            float newBase = formula.Evaluate(GetStatValue, level);
             if (Mathf.Approximately(target.BaseValue, newBase)) continue;
 
             target.BaseValue = newBase;
