@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+public class Entity : BaseEntity
 {
     [SerializeField] protected EntityInput input;
     [SerializeField] protected EntityCore core;
@@ -39,10 +39,7 @@ public class Entity : MonoBehaviour
     {
         stateMachine.Initialize(idleState);
     }
-    private void Update()
-    {
-        stateMachine.CurrentState.LogicUpdate();
-    }
+    protected override IState CurrentState => stateMachine.CurrentState;
     private void LoadEntity()
     {
         stateMachine = new EntityStateMachine();
@@ -67,7 +64,7 @@ public class Entity : MonoBehaviour
         gameObject.name = data.name;
     }
 
-    protected void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
+    protected void AnimationTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.StartRangeTrigger);
 
-    protected void AnimtionFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
+    protected void AnimtionFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
 }

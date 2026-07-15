@@ -15,7 +15,7 @@ public class EntityTakeDamageState : EntityDisadvantageState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (isAnimationFinished)
+        if (Status == StatusAnimation.EndRangeTrigger)
         {
             stateMachine.ChangeState(entity.MoveState);
         }

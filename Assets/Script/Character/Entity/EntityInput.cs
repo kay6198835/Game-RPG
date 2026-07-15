@@ -82,46 +82,7 @@ public class EntityInput : MonoBehaviour
     }
     private void AngleCalculate(Vector2 directionVector,ref float angle, ref int direction)
     {
-        angle = Mathf.Atan2(directionVector.x, directionVector.y) * Mathf.Rad2Deg;
-        angle += 180;
-        DirectionCaculate(angle,ref direction);
-    }
-    private void DirectionCaculate(float angle,ref int direction)
-    {
-        if ((angle > 22 && angle <= 67))
-        {
-            direction = 0;
-        }
-        else if (angle > 67 && angle <= 112)
-        {
-            direction = 1;
-        }
-        else if (angle > 112 && angle <= 157)
-        {
-            direction = 2;
-
-        }
-        else if (angle > 157 && angle <= 202)
-        {
-            direction = 3;
-        }
-        else if (angle > 202 && angle <= 247)
-        {
-            direction = 4;
-        }
-        else if (angle > 247 && angle <= 292)
-        {
-            direction = 5;
-        }
-        else if (angle > 292 && angle <= 337)
-        {
-            direction = 6;
-        }
-        else if (angle > 337 || angle < 22)
-        {
-            direction = 7;
-        }
-        //entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, direction);
+        DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
     private void DirectionMehod()
     {

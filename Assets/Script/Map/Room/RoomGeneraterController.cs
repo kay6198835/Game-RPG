@@ -11,7 +11,6 @@ public class RoomGeneraterController : MonoBehaviour
     // [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
-    [SerializeField] private float _tileSetDelay = 10f;
     [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
     [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();

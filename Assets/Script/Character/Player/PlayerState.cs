@@ -1,6 +1,6 @@
 using UnityEngine;
 [System.Serializable]
-public class PlayerState
+public class PlayerState : IState
 {
     //protected Core core;
 
@@ -71,16 +71,4 @@ public class PlayerState
     {
         this.Status = statusAnimation;
     }
-}
-
-public enum StatusAnimation
-{
-    None,
-    Start,
-    Animaing,
-    StartRangeTrigger,
-    OnActivate,
-    OffActivate,
-    EndRangeTrigger,
-    End
 }

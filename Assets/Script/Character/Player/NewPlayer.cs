@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Player : MonoBehaviour
+public class Player : BaseEntity
 {
     #region State Variables
 
@@ -60,16 +60,7 @@ public class Player : MonoBehaviour
         stateMachine.Initialize(idleState);
     }
 
-    public void Update()
-    {
-        //core.LogicUpdate();
-        stateMachine.CurrentState.LogicUpdate();
-    }
-
-    public void FixedUpdate()
-    {
-        stateMachine.CurrentState.PhysicsUpdate();
-    }
+    protected override IState CurrentState => stateMachine.CurrentState;
     #endregion
 
     #region Other Functions

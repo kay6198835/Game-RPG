@@ -2,23 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityState
+public class EntityState : IState
 {
     protected EntityStateMachine stateMachine;
     protected Entity entity;
     protected EntityCore entityCore;
     protected EntityData entityData;
-    protected bool isAnimationTrigger;
-    protected bool isAnimationFinished;
-    protected bool isExitingState;
+    public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
     protected float startTime;
     protected string animBoolName;
-    //protected StateStyle stateStyle;
-    //public enum StateStyle
-    //{
-    //    Freeze,
-    //    Motion
-    //}
+
     public EntityState(Entity etity, EntityStateMachine stateMachine, EntityData entityData , string animBoolName)
     {
         this.entity = etity;
@@ -33,14 +26,13 @@ public class EntityState
         DoChecks();
         entity.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        isAnimationTrigger = false;
-        isAnimationFinished = false;
-        isExitingState = false;
+        this.Status = StatusAnimation.Start;
     }
 
     public virtual void Exit()
     {
         entity.Anim.SetBool(animBoolName, false);
+        this.Status = StatusAnimation.End;
     }
 
     public virtual void LogicUpdate()
@@ -57,7 +49,9 @@ public class EntityState
     {
 
     }
-    public virtual void AnimationTrigger() => isAnimationTrigger = true;
 
-    public virtual void AnimationFinishTrigger() => isAnimationFinished = true;
+    public virtual void SetAnimationStatus(StatusAnimation statusAnimation)
+    {
+        this.Status = statusAnimation;
+    }
 }
