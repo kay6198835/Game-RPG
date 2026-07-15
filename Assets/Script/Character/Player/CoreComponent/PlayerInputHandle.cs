@@ -266,6 +266,10 @@ public class PlayerInputHandler : CoreComponent
         directionExternalityVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
         AngleCalculateExternality(directionExternalityVector);
     }
+    private void ResetTakeDamage()
+    {
+        isTakeDamage = false;
+    }
     private void ChangeIsTakeDamage()
     {
         this.isTakeDamage = !this.isTakeDamage;

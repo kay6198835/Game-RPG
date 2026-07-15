@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NegativeReciver : CoreComponent, INegativeReceiver
@@ -9,7 +7,7 @@ public class NegativeReciver : CoreComponent, INegativeReceiver
     {
         if (currentHealth <= 0) return;
         currentHealth -= amoutDamage;
-        core.GetCoreComponent(out PlayerInputHandle input);
+        core.GetCoreComponent(out PlayerInputHandler input);
         input.OnTakeDamage(attackPosition);
         if (currentHealth <= 0)
             EventManager.Emit(EventID.ON_PLAYER_DEATH);
