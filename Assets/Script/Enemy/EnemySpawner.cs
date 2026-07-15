@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-
+[RequireComponent(typeof(ObjectPoolManager))]
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private List<Vector2Int> spawnPosition;
@@ -10,7 +10,11 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float paddingPosition;
     [SerializeField] private float maxPadding;
     [SerializeField] private Vector2 positionRandom;
-    [SerializeField] private ObjectPoolManager objectPoolManager = new objectPoolManager();
+    [SerializeField] private ObjectPoolManager objectPoolManager;
+    void Awake()
+    {
+        objectPoolManager = GetComponent<ObjectPoolManager>();
+    }
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);

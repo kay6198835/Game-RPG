@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class ObjectPoolManager
+public class ObjectPoolManager : MonoBehaviour
 {
     public Dictionary<GameObject, Pool> pools { get; set; } = new Dictionary<GameObject, Pool>();
     public Pool Get(GameObject prefab)
@@ -15,7 +15,7 @@ public class ObjectPoolManager
         return pools[prefab];
     }
 
-    public void Spawn(Vector2 position,GameObject prefab)
+    public void Spawn(Vector2 position, GameObject prefab)
     {
         var pool = Get(prefab);
         if (pool == null) return;

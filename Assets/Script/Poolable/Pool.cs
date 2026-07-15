@@ -1,17 +1,19 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 public class Pool : MonoBehaviour
 {
     [SerializeField] private GameObject prefab;
-    private readonly Queue<PoolMember> inactiveObjects = new Queue<PoolMember>();
+    [SerializeField] private Queue<PoolMember> inactiveObjects = new Queue<PoolMember>();
     public void Spawn(Vector2 position)
     {
         if (inactiveObjects.Count == 0)
         {
             GameObject obj = Instantiate(prefab, position, Quaternion.identity, transform);
-            PoolMember member = obj.GetComponent<PoolMember>();
+            if (!obj.TryGetComponent<PoolMember>(out PoolMember member))
+            {
+                member = obj.AddComponent<PoolMember>();
+            }
+            member = obj.GetComponent<PoolMember>();
             member.Initialize(this);
         }
         else

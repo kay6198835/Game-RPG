@@ -15,9 +15,15 @@ MonoBehaviour:
   id: 1624893416
   nameEnity: Room 1
   enemiesOfRoom:
-  - {fileID: 11400000, guid: f48922b5324b03143b2a5825f95c129d, type: 2}
-  - {fileID: 11400000, guid: cf563bc9c76938d41bc76a8f2af1f0ec, type: 2}
-  - {fileID: 11400000, guid: 009766f9188a5d9428e64935274a6e85, type: 2}
-  weightBudget: 50
-  randomRatio: 0.33
+  - Prefab: {fileID: 4622398793781926454, guid: 15eb8510052c3c346b09773b09ff13a4, type: 3}
+    weight: 6
+    rarityTier: 50
+  - Prefab: {fileID: 3095663857171944601, guid: 61c349cd7ed62ce42a5c16c50a54c7a7, type: 3}
+    weight: 5
+    rarityTier: 50
+  - Prefab: {fileID: 3098364745766944255, guid: 0e45c5814fdea0543aae8ae6e6fe0f5a, type: 3}
+    weight: 3
+    rarityTier: 30
+  candidateEnemies: []
+  weightBudget: 70
   overflowPercent: 0.1

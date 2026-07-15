@@ -31,7 +31,7 @@ public class RoomModel : EntityModel
         while (weightBudget > this.weightBudget * 0.1f)
         {
 
-            SetListCandidate(1, weightBudget);
+            SetListCandidate(1,ref weightBudget);
             ranDomChosen = candidateEnemies[Random.Range(0, candidateEnemies.Count)];
             for (int i = 0; i < n; i++)
             {
@@ -50,7 +50,7 @@ public class RoomModel : EntityModel
         return outList;
     }
 
-    private void SetListCandidate(int retry, int weightBudget)
+    private void SetListCandidate(int retry, ref int weightBudget)
     {
         if (retry > 4)
         {
@@ -67,7 +67,7 @@ public class RoomModel : EntityModel
         }
         if (candidateEnemies.Count == 0)
         {
-            SetListCandidate(++retry, weightBudget);
+            SetListCandidate(++retry, ref weightBudget);
         }
     }
 
