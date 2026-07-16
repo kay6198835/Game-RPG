@@ -57,7 +57,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     }
     public void ClearRoom(object obj = null)
     {
-        roomGeneraterController.ClearRoom(ref _current);
+        roomGeneraterController.ClearRoom(_current);
         this.OnLoadMap((Vector2)obj);
     }
 

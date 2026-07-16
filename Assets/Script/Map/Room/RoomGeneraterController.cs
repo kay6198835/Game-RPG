@@ -71,11 +71,12 @@ public class RoomGeneraterController : MonoBehaviour
         foreach (Tilemap gm in _genmap) gm.ClearAllTiles();
 
         bool hasLayerData = Data.layerIndices != null && Data.layerIndices.Count == Data.poses.Count;
-
+        Vector3Int origanalTileMapPosition = new Vector3Int();
+        Vector3Int worldPose = new Vector3Int();
         for (int i = 0; i < Data.poses.Count; i++)
         {
-            Vector3Int origanalTileMapPosition = Data.poses[i];
-            Data.poses[i] = nextRoomCell.IsCleared ? Data.poses[i]
+            origanalTileMapPosition = Data.poses[i];
+            worldPose = nextRoomCell.IsCleared ? Data.poses[i]
             : Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
@@ -104,20 +105,17 @@ public class RoomGeneraterController : MonoBehaviour
                 {
                     DoorPoints.Add(new DoorPoint
                     {
-                        position = Data.poses[i],
+                        position = origanalTileMapPosition,
                         direction = tilemapDirection
                     });
-                    // CurentDoorLevelData.tiles.Add(tilemap);
-                    // CurentDoorLevelData.poses.Add(Data.poses[i]);
-                    // CurentDoorLevelData.layerIndices.Add(Data.layerIndices[i]);
                     IndexLevelDataDoor.Add(i);
                 }
             }
             if (tilemap == GameConstants.TileName.SPAWN && !nextRoomCell.IsCleared)
             {
-                spawnPositions.Add(Data.poses[i].ConvertTo<Vector2Int>());
+                spawnPositions.Add(worldPose.ConvertTo<Vector2Int>());
             }
-            _genmap[layerIdx].SetTile(Data.poses[i], _listTiles.Find(t => t.name == tilemap).tile);
+            _genmap[layerIdx].SetTile(worldPose, _listTiles.Find(t => t.name == tilemap).tile);
         }
         nextRoomCell.SetDoorPoints(this.DoorPoints);
         if (!nextRoomCell.IsCleared)
@@ -153,13 +151,13 @@ public class RoomGeneraterController : MonoBehaviour
         }
     }
 
-    public void ClearRoom(ref RoomCell _current)
+    public void ClearRoom(RoomCell _current)
     {
         _current.ClearRoom(Data, IndexLevelDataDoor, DoorPoints);
         for (int i = 0; i < Data.tiles.Count; i++)
         {
             var layerIndices = Data.layerIndices[i];
-            var pos = Data.poses[i];
+            var pos = Data.poses[i] + _current.tranform.postion;
             _genmap[layerIndices].SetTile(pos, null);
         }
         this._swapLevelData.Clear();
