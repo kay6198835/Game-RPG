@@ -120,7 +120,7 @@ public class RoomGeneraterController : MonoBehaviour
         nextRoomCell.SetDoorPoints(this.DoorPoints);
         if (!nextRoomCell.IsCleared)
         {
-            SwapTileMap(GameConstants.TileName.ROOM);
+            SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
         }
         else
@@ -129,14 +129,15 @@ public class RoomGeneraterController : MonoBehaviour
             nextRoomCell.OpenDoors();
         }
     }
-    private void SwapTileMap(string tileMapName)
+    private void SwapTileMap(string tileMapName, RoomCell roomCell)
     {
         Vector3Int convertVector3Int = new Vector3Int();
         var entries = new List<KeyValuePair<int, int>>(_swapLevelData.indexToLayer);
 
         for (int i = 0; i < _swapLevelData.directions.Count; i++)
         {
-            convertVector3Int.Set((int)_swapLevelData.directions[i].x, (int)_swapLevelData.directions[i].y, 0);
+            convertVector3Int.Set((int)_swapLevelData.directions[i].x + (int)roomCell.transform.position.x,
+             (int)_swapLevelData.directions[i].y + (int)roomCell.transform.position.y, 0);
             int tileIndex = entries[i].Key;
             int layerIndex = entries[i].Value;
             Vector3Int originalPos = Data.poses[tileIndex];
@@ -157,7 +158,7 @@ public class RoomGeneraterController : MonoBehaviour
         for (int i = 0; i < Data.tiles.Count; i++)
         {
             var layerIndices = Data.layerIndices[i];
-            var pos = Data.poses[i] + _current.tranform.postion;
+            var pos = Data.poses[i] + _current.transform.position.ConvertTo<Vector3Int>();
             _genmap[layerIndices].SetTile(pos, null);
         }
         this._swapLevelData.Clear();
