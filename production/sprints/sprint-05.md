@@ -1,5 +1,8 @@
 # Sprint 5 — 2026-07-13 to 2026-07-17
 
+**Status: COMPLETE** (closed 2026-07-20, delayed wrap-up). Superseded by Sprint 6, branch `sprint-06`
+opened 2026-07-20 kickoff.
+
 ## Closed — 2026-07-20 (delayed wrap-up)
 
 **Verdict: CONCERNS (bordering FAIL vs sprint goal).** Final burn: 1.35d / 3.95d Must-Have (34%).
