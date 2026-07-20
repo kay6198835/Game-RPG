@@ -1,5 +1,16 @@
 # Sprint 5 — 2026-07-13 to 2026-07-17
 
+**Status: COMPLETE** (closed 2026-07-20, delayed wrap-up). Superseded by Sprint 6, branch `sprint-06`
+opened 2026-07-20 kickoff.
+
+## Closed — 2026-07-20 (delayed wrap-up)
+
+**Verdict: CONCERNS (bordering FAIL vs sprint goal).** Final burn: 1.35d / 3.95d Must-Have (34%).
+Combat death loop (Track B) and spawn stabilization (Track C) — the sprint's actual goal — carry
+into Sprint 6 largely untouched after 4 consecutive days of off-plan architecture/pooling work. Full
+detail: `production/retros/retro-sprint-05-2026-07-20.md`, `production/qa/bug-triage-2026-07-20.md`,
+close-out log in `sprint-05-daily-plan.md`.
+
 ## Reopened — 2026-07-13
 
 **Status: REOPENED, still Sprint 5 (not incremented).** The original 07/14→07/18 window never
