@@ -369,6 +369,51 @@ first so at least some of the death/spawn pillar closes before Friday wrap-up.**
   framework work instead of the tracked Must-Have list. Recommend the Friday `/weekly-wrapup`
   retro explicitly address why off-plan work has now recurred 4 days running.
 
+### Sprint Close-Out — 2026-07-20 (delayed Sat 22:00 wrap-up)
+
+> Fri 07/17's planned wrap-up did not run on schedule; this is the catch-up run, executed 2026-07-20.
+> Full detail: `production/retros/retro-sprint-05-2026-07-20.md`, `production/qa/bug-triage-2026-07-20.md`.
+
+**Final Verdict: 🔴 CONCERNS (bordering FAIL vs sprint goal)**
+
+**Final Burn**: 1.35d / 3.95d Must-Have committed (34%). S5-A1/A2/B1/B2 done; S5-B3/B4/B5, S5-C1/C2/
+C3/C4, S5-D2/D3/D4 (partial), S5-N1/N2 not started. Root cause unchanged from every daily checkpoint:
+4 consecutive days of off-plan architecture/tooling work (Mon pivot, Tue/Wed `Base/` framework
+unification, Thu pooling system) displaced the tracked Track B/C death-loop and spawn-stabilization
+tasks.
+
+**Velocity**: 1.35d Must-Have / 7 elapsed days (extended window) — for comparison, Sprint 4 closed at
+100% Must-Have completion (`retro-sprint-04-2026-07-10.md`).
+
+**New risks surfaced by this wrap-up's code review** (3 parallel agents: lead-programmer,
+ai-programmer, unity-specialist, reviewing `7ca465f..HEAD`, 39 files):
+- Possible build break — `PoolMember.cs:9` `[SerializeField]` on an auto-property (CS0592 pattern),
+  unverified against an actual Unity compile — **verify first**, Sprint 6 priority 0
+- New S1 hang risk — `RoomModel.GetSpawnSet()` infinite loop if any `EnemyModal.weight == 0`
+- BUG-06 marked Done is only a partial fix — `NegativeReciver` doesn't write through to
+  `PlayerData.currentHealth`, breaking the `Reborn()` reset contract
+- `EnemyModal` regressed from a reusable SO asset to a plain per-room class — undoes part of the
+  ADR-0003 data model; ADR-0003 itself still reads `Status: Proposed` despite S5-A2 marked Done
+
+**Carry-Over to Sprint 6** (full detail + priority in the bug-triage report):
+- BUG-05/07/08 (entity death chain) — 7th carry cycle, make this Sprint 6's literal first task
+- BUG-ES-1/ES-4 (spawn null/index guards) — 2nd-3rd carry
+- NEW-1 (`GetSpawnSet` weight==0 hang) — new, high priority
+- Possible `PoolMember.cs` build break — new, verify immediately
+- BUG-06 partial-fix (dual HP source of truth) — re-open, don't treat as closed
+- `EnemyModal` SO-vs-plain-class decision — needs explicit owner call
+- ADR-0002 Proposed→Accepted — 3rd carry, 0.1d task
+- S4-05/S4-06, Skill Enhance ADR — 4th/3rd carry, needs keep-or-cut decision
+- First playtest — 6th retro with zero movement, tied to death-chain landing
+- `origin/feature/spawn-enemy` 2 commits ahead of `sprint-05` (`dce9be1`/`d653654`, 07-16,
+  `RoomGeneraterController.cs`/`RoomGridController.cs`) — merge before Sunday kickoff
+
+**Playtest**: skipped this cycle — no playtest log filed since `playtest-2026-06-12-weekly-wrapup.md`.
+Run `/playtest-report` manually if an ad-hoc session happens; otherwise tie the first real session to
+Sprint 6's death-chain work landing.
+
+---
+
 ### Interim Wrap-Up — 2026-07-11 (Sat 22:00)
 
 - **Verdict**: 🟡 CONCERNS — not a sprint-execution verdict (0 days elapsed), but flagging: (1) carried WIP still uncommitted going into the sprint week, (2) that WIP hides a new P1 (BUG-ES-4) not yet scoped into any task, (3) QA plan for Sprint 5 still doesn't exist (blocking gate before Track B).
