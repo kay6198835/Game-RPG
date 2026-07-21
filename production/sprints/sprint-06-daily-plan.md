@@ -12,11 +12,16 @@
 
 ---
 
-## Status Verdict: 🟢 NOT STARTED — sprint opens 2026-07-21
+## Status Verdict: 🟡 DAY 1 — sprint opened, Monday work not yet started, off-plan commit already logged
 
 Sprint 5 closed CONCERNS/bordering-FAIL at 34% Must-Have (1.35d/3.95d) after 4 consecutive days of
 off-plan work. Sprint 6 is deliberately scoped narrower (2.20d Must-Have vs 4d capacity) to make
 landing the carried death-chain and spawn-stabilization bugs achievable even with some slippage.
+As of the 2026-07-21 02:00 standup, zero Must-Have tasks (S6-00→S6-09) have landed — verified by
+reading the actual code (`PoolMember.cs`, `EntityMoveState.cs`, `EntityDeathState.cs`,
+`EntityBasicState.cs`, `NegativeReciver.cs`, `RoomModel.cs`, `EnemySpawner.cs`), not just the
+tracker table. One commit landed overnight (`d247e09 update data tilemap`) that is **not** on the
+Sprint 6 task list — see Daily Log and Risks below.
 
 ---
 
@@ -120,7 +125,7 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Off-plan work recurs a 5th time | 🔴 WATCH | Scope deliberately narrow this sprint (2.2d vs 4d capacity) — flag immediately if unplanned architecture work appears in `git log` at any standup |
+| Off-plan work recurs a 5th time | 🔴 CONFIRMED (2026-07-21) | `d247e09 "update data tilemap"` (all 13 room JSONs + `LoadRandomMap.unity`, not on the S6 task list) landed the same evening as kickoff. Not blocking Must-Have work yet — watch tomorrow's standup for whether it continues instead of S6-00→S6-03 |
 | `PoolMember.cs` build break unverified | 🔴 WATCH | First task Monday, verify before anything else |
 | `EnemyModal` decision blocks ADR-0003 flip and further spawn-system work | 🟡 WATCH | S6-09 scheduled Wed, before Thu's ADR cleanup |
 | No QA plan — 3rd consecutive cycle | 🔴 OPEN | Flagged in `sprint-06.md`; recommend running `/qa-plan sprint` before S6-03 starts |
@@ -141,3 +146,35 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
   not adding scope. QA plan gate still open (3rd consecutive cycle) — flagged, not silently dropped.
   No user was present for this run; scoping calls (task breakdown, estimates, day sequencing) made
   autonomously per the kickoff routine's standing authorization — review at Monday's standup.
+
+- **2026-07-21 (Mon 02:00) — daily standup, autonomous scheduled run**: Checked out `sprint-06`
+  (was on `origin/feature/enemy-control`). `git log` since kickoff shows exactly one commit —
+  `d247e09 "update data tilemap"` (21:57 07-20) — touching all 13 `Assets/Data/Json/Room/*.json`
+  files (+65,931/-8,705 lines total) plus `LoadRandomMap.unity` and removing `Level Manager.prefab`.
+  This is **not** on the Sprint 6 task list (S6-00→S6-09, S6-D1→S6-D6) — flagged as the 5th
+  recurrence of the "off-plan work" risk called out in this sprint's own risk register. Checked
+  whether the tilemap update happened to add the missing `Tile_Spawn_Enemy` markers (Known Bug #16 /
+  GDD item 15 — only 1/13 rooms has the marker) — it did not; still 1/13 after the commit, so this
+  looks like a tile-art re-export, not spawn-marker authoring.
+  Verified all Monday Must-Have targets against current code (not just the tracker table) — all
+  still open exactly as described in `sprint-06.md`:
+  - S6-01 (`PoolMember.cs:9`, CS0592 risk): `[SerializeField] public bool isInPool { get; private set; }`
+    unchanged, still unverified against a real Editor compile.
+  - S6-03 (BUG-05): `EntityMoveState.LogicUpdate()` line 30 still dereferences
+    `entity.Input.Target.transform.position` before the null check at line 34.
+  - S6-02 (NEW-1): `RoomModel.GetSpawnSet()` still has no `weight == 0` guard — an `EnemyModal` with
+    `weight == 0` selected inside the Phase-1 loop leaves `weightBudget` unchanged, so the
+    `while (weightBudget > this.weightBudget * 0.1f)` loop can spin indefinitely.
+  - S6-06 (BUG-ES-1): `GetSpawnSet()` line 16 still `return null;` on an empty pool, not an empty list.
+  - S6-07 (BUG-ES-4): `EnemySpawner.cs` line 61 (`spawnPosition[Random.Range(...)]`) still has no
+    empty-list guard.
+  - S6-08 (BUG-06 partial): `NegativeReciver.cs` still mutates its own local `currentHealth` field,
+    not `PlayerData.currentHealth` — `Reborn()` write-through still broken.
+  - S6-00 (branch parity): could not confirm via `git log sprint-06 | grep dce9be1|d653654` — neither
+    hash appears literally (likely rebased/squashed into `sprint-05` history before the `sprint-06`
+    branch point). Content-level check not run this session — **still needs a manual confirm that
+    `RoomGeneraterController.cs`/`RoomGridController.cs` carry the `feature/spawn-enemy` changes**,
+    task not marked done.
+  No status cells in the Task Estimates table changed — everything is still accurately ⬜ Not started.
+  This is expected for a 02:00 Monday run (the work day hasn't started yet); recorded here so today's
+  actual progress has a clean baseline to diff against at tomorrow's standup.
