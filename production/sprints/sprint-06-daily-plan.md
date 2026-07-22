@@ -12,16 +12,20 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 1 — sprint opened, Monday work not yet started, off-plan commit already logged
+## Status Verdict: 🔴 DAY 2 — zero Must-Have landed on `sprint-06`, off-plan work escalating (6th recurrence)
 
 Sprint 5 closed CONCERNS/bordering-FAIL at 34% Must-Have (1.35d/3.95d) after 4 consecutive days of
 off-plan work. Sprint 6 is deliberately scoped narrower (2.20d Must-Have vs 4d capacity) to make
 landing the carried death-chain and spawn-stabilization bugs achievable even with some slippage.
-As of the 2026-07-21 02:00 standup, zero Must-Have tasks (S6-00→S6-09) have landed — verified by
-reading the actual code (`PoolMember.cs`, `EntityMoveState.cs`, `EntityDeathState.cs`,
-`EntityBasicState.cs`, `NegativeReciver.cs`, `RoomModel.cs`, `EnemySpawner.cs`), not just the
-tracker table. One commit landed overnight (`d247e09 update data tilemap`) that is **not** on the
-Sprint 6 task list — see Daily Log and Risks below.
+As of the 2026-07-22 02:00 standup, **`sprint-06` branch has not moved since the 2026-07-21 10:17
+standup commit** (`git log sprint-06` tip is still `e1e3d64`) — zero Must-Have tasks (S6-00→S6-09)
+have landed. Verified by reading the actual code on `sprint-06` (`PoolMember.cs`,
+`EntityMoveState.cs`, `EntityDeathState.cs`, `EntityBasicState.cs`, `NegativeReciver.cs`,
+`RoomModel.cs`, `EnemySpawner.cs`), not just the tracker table — all still open exactly as described.
+Meanwhile `origin/feature/enemy-control` (a separate branch, not merged to `sprint-06`) picked up a
+full new **A\* pathfinding subsystem** (`Assets/Script/Pathfinding/**`, 9 new files, ~380 lines) plus
+edits to `EnemyManager.cs`, `EnemySpawner.cs`, `RoomGeneraterController.cs`, `RoomGridController.cs`,
+`GameConstants.cs` — none of this is on the Sprint 6 task list. See Daily Log and Risks below.
 
 ---
 
@@ -31,10 +35,10 @@ Sprint 6 task list — see Daily Log and Risks below.
 |--------|-------|
 | Total work estimated | Must-Have ≈ 2.20d + Should ≈ 1.20d + Nice ≈ stretch |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 0 |
-| Days remaining | 4 |
-| Work committed/done | 0d |
-| Velocity | N/A — sprint has not started |
+| Days elapsed | 1 (Mon complete, 0d landed on `sprint-06`) |
+| Days remaining | 3 |
+| Work committed/done | 0d on `sprint-06` (unrelated A* pathfinding work in progress on `origin/feature/enemy-control`) |
+| Velocity | 0% — Must-Have list untouched after 1 full sprint day |
 
 ---
 
@@ -77,14 +81,23 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 | 3 | **S6-02** — fix NEW-1 hang risk (`weight == 0`) | 0.25d | 🔴 Must |
 | 4 | **S6-03** — `EntityMoveState` null-guard (BUG-05) | 0.25d | 🔴 Must |
 
-### Tue 07/22 — PLAN
-**Goal: Finish the enemy death chain.**
+### Tue 07/22 — PLAN (revised at 02:00 standup — Monday's slate carries in, unstarted)
 
-| # | Task | Est | Priority |
-|---|------|-----|----------|
-| 1 | **S6-04** — `EntityDeathState : EntityState` rewrite + wire (BUG-07) | 0.5d | 🔴 Must |
-| 2 | **S6-05** — `EntityBasicState` death transition + `ON_ENEMY_DEATH` (BUG-08) | 0.25d | 🔴 Must |
-| 3 | **Smoke** — Play Mode: melee enemy to 0 HP → `EntityDeathState` reached, event fires once | — | Advisory |
+**Goal, revised**: Monday's S6-00→S6-03 did not start (0% velocity, see Status Verdict above). Original
+Tuesday goal (death chain) pushed behind the carried Monday slate rather than silently reordered.
+
+| # | Task | Est | Priority | Note |
+|---|------|-----|----------|------|
+| 1 | **S6-01** — verify `PoolMember.cs` compiles, fix if broken | 0.1d | 🔴 Must | Carried from Mon — 2nd day unverified, do first |
+| 2 | **S6-00** — verify branch parity | 0.1d | 🔴 Must | Carried from Mon |
+| 3 | **S6-02** — fix NEW-1 hang risk (`weight == 0`) | 0.25d | 🔴 Must | Carried from Mon |
+| 4 | **S6-03** — `EntityMoveState` null-guard (BUG-05) | 0.25d | 🔴 Must | Carried from Mon |
+| 5 | **S6-04** — `EntityDeathState : EntityState` rewrite + wire (BUG-07) | 0.5d | 🔴 Must | Original Tue goal — only if 1-4 close early |
+| 6 | **S6-05** — `EntityBasicState` death transition + `ON_ENEMY_DEATH` (BUG-08) | 0.25d | 🔴 Must | Original Tue goal — only if 1-4 close early |
+| 7 | **Smoke** — Play Mode: melee enemy to 0 HP → `EntityDeathState` reached, event fires once | — | Advisory | Only reachable after S6-04/S6-05 |
+
+**Owner decision needed**: the A* pathfinding work on `origin/feature/enemy-control` (6th off-plan
+recurrence) is not on this list — see Risks. Continuing it today means another 0% Must-Have day.
 
 ### Wed 07/23 — PLAN
 **Goal: Spawn stabilization + BUG-06 write-through fix.**
@@ -125,9 +138,9 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Off-plan work recurs a 5th time | 🔴 CONFIRMED (2026-07-21) | `d247e09 "update data tilemap"` (all 13 room JSONs + `LoadRandomMap.unity`, not on the S6 task list) landed the same evening as kickoff. Not blocking Must-Have work yet — watch tomorrow's standup for whether it continues instead of S6-00→S6-03 |
-| `PoolMember.cs` build break unverified | 🔴 WATCH | First task Monday, verify before anything else |
-| `EnemyModal` decision blocks ADR-0003 flip and further spawn-system work | 🟡 WATCH | S6-09 scheduled Wed, before Thu's ADR cleanup |
+| Off-plan work recurs a 6th time | 🔴 CONFIRMED ESCALATING (2026-07-22) | Continued past the tilemap commit: `6468d7e "add full algorithm A*"` + `a7ba4c4 "add miss"` (2026-07-21 16:22–16:47) on `origin/feature/enemy-control` add a brand-new `Assets/Script/Pathfinding/**` subsystem (9 files) plus edits to `EnemyManager.cs`/`EnemySpawner.cs`/`RoomGeneraterController.cs`/`RoomGridController.cs`/`GameConstants.cs`. As of this standup there are still **uncommitted** edits on that branch fixing self-inflicted compile breaks from the `GameConstants.Direction` restructure (`spawnPosition.Count = 0` → `== 0`, `roomModel = null` → `== null` — both were assignment-as-comparison typos that would not compile). None of this is on the `sprint-06` task list, and it is not merged into `sprint-06`. Full Must-Have list (S6-00→S6-09) is still zero-progress as a direct result — 2 of 4 sprint days now gone with no Must-Have landed. Flagging as the top blocker for owner attention. |
+| `PoolMember.cs` build break unverified | 🔴 WATCH — 2nd consecutive miss | Still `[SerializeField] public bool isInPool { get; private set; }` unchanged on `sprint-06`; was the mandated first task Monday, still not verified against a real Editor compile as of Tue 02:00 |
+| `EnemyModal` decision blocks ADR-0003 flip and further spawn-system work | 🟡 WATCH | S6-09 was scheduled Wed; at current velocity (0% after day 1) the whole Wed slate is at risk of slipping |
 | No QA plan — 3rd consecutive cycle | 🔴 OPEN | Flagged in `sprint-06.md`; recommend running `/qa-plan sprint` before S6-03 starts |
 | No Unity CLI | 🟢 KNOWN | Play Mode smoke = manual in-Editor |
 
@@ -178,3 +191,39 @@ Status legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
   No status cells in the Task Estimates table changed — everything is still accurately ⬜ Not started.
   This is expected for a 02:00 Monday run (the work day hasn't started yet); recorded here so today's
   actual progress has a clean baseline to diff against at tomorrow's standup.
+
+- **2026-07-22 (Tue 02:00) — daily standup, autonomous scheduled run**: Could not `git checkout
+  sprint-06` directly — the local working tree (on `origin/feature/enemy-control`) has uncommitted
+  changes to `EnemySpawner.cs`, `LevelManager.cs`, `Cell.cs`, `Utility.cs`, and new
+  `Assets/Script/Pathfinding/**` files that checkout would have overwritten. Per the hard constraint
+  against touching `.cs` files, did not stash or discard that work; used a disposable
+  `git worktree add D:/sprint06wt sprint-06` instead so the review/update happened without touching
+  the developer's in-progress files. Worktree removed at the end of this run.
+  `git log sprint-06` shows the branch tip is still `e1e3d64` (yesterday's standup commit) — **no
+  commits landed on `sprint-06` since Monday's 10:17 standup**. Re-verified every Must-Have target
+  directly against `sprint-06` code:
+  - S6-00 (branch parity): still unconfirmed — `dce9be1`/`d653654` don't appear as literal hashes in
+    `sprint-06` history (expected, likely rebased); content-level check of
+    `RoomGeneraterController.cs`/`RoomGridController.cs` still not run.
+  - S6-01 (`PoolMember.cs:9` CS0592 risk): unchanged, still unverified. **2nd consecutive day** this
+    mandated "verify first" task hasn't been done.
+  - S6-02 (NEW-1, weight==0 hang): `RoomModel.GetSpawnSet()` unchanged.
+  - S6-03 (BUG-05): `EntityMoveState.cs` — the null check exists at line 21 (`Enter()`) and line 34,
+    but the actual dereference `entity.Input.Target.transform.position` at line 30 still runs before
+    either guard fires in `LogicUpdate()`. Still broken as described.
+  - S6-04 (BUG-07): `EntityDeathState` still `: MonoBehaviour`, not wired.
+  - S6-05 (BUG-08): `EntityBasicState`'s `Health <= 0` block still empty.
+  - S6-06 (BUG-ES-1): `RoomModel.GetSpawnSet()` line 16 still `return null;` on `n == 0`.
+  - S6-07 (BUG-ES-4): `EnemySpawner.cs` line 75 (`spawnPosition[Random.Range(...)]`) still unguarded
+    on `sprint-06`. (Note: the *uncommitted* work on `origin/feature/enemy-control` changes the method
+    signature to `SpawnRoomEnemies(in List<Vector2Int> spawnPosition)` and fixes two unrelated compile
+    typos in the same file, but the indexing itself is still not guarded — and none of it is on
+    `sprint-06` regardless.)
+  - S6-08 (BUG-06 partial): `NegativeReciver.cs` still mutates its own local `currentHealth`, not
+    `PlayerData.currentHealth`.
+  All Task Estimates statuses remain accurately ⬜ Not started — nothing to flip to 🟡/✅.
+  **Escalating the off-plan-work risk** (see Risks table) — this is the 6th recurrence of the pattern
+  called out across Sprints 5 and 6, and it is now the direct explanation for 0% Must-Have velocity
+  after a full sprint day. Recommend the owner explicitly decide: fold the A* pathfinding work into
+  Sprint 7 scope with its own tasks/estimates, or pause it and redirect today to S6-00→S6-03 as
+  originally planned. Not resolved autonomously — this is a scope call for the owner.
