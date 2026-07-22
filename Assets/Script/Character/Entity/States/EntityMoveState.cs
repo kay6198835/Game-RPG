@@ -22,26 +22,13 @@ public class EntityMoveState : EntityBasicState
         {
             entity.Input.SetDirectionRadom();
         }
+        entityCore.EntityMovement.SendResquestPath();
     }
     public override void LogicUpdate()
     {
         directionMoveVector = entity.Input.DirectionLookVector.normalized;
         speed = entityData.MovementVelocities;
-        if (Vector2.Distance(entity.transform.position, entity.Input.Target.transform.position) <= 10f)
-            // call move
-            if (entity.Input.Target == null)
-            {
-                if (entityCore.FindTarget.FindWall(directionMoveVector, speed))
-                {
-                    Debug.Log("Turn");
-                    entity.Input.TurnLeftOrRight();
-                }
-                if (moveTime <= Time.time)
-                {
-                    entity.StateMachine.ChangeState(entity.IdleState);
-                }
-            }
-
+        entityCore.EntityMovement.MoveToTarget();
 
         base.LogicUpdate();
     }
@@ -52,6 +39,6 @@ public class EntityMoveState : EntityBasicState
     public override void Exit()
     {
         base.Exit();
-        //move
+        entityCore.EntityMovement.StopMove();
     }
 }

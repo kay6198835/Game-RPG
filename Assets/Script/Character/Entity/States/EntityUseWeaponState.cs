@@ -10,7 +10,7 @@ public class EntityUseWeaponState : EntityState
     public override void Enter()
     {
         base.Enter();
-        //move
+        entityCore.EntityMovement.StopMove();
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
     }
     public override void LogicUpdate()

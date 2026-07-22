@@ -16,7 +16,7 @@ public class EntityIdleState : EntityBasicState
         base.Enter();
         idleDurationTime = entityData.IdleDurationTime;
         idleTime = startTime + idleDurationTime;
-        // move
+        entityCore.EntityMovement.StopMove();
     }
     public override void LogicUpdate()
     {
