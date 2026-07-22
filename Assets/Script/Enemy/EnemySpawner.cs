@@ -18,10 +18,12 @@ public class EnemySpawner : MonoBehaviour
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);
+        EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
     }
     public void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);
+        EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
     }
     public void Spawn()
     {
@@ -56,6 +58,7 @@ public class EnemySpawner : MonoBehaviour
 
     public void SpawnRoomEnemies(in List<Vector2Int> spawnPosition)
     {
+        int enemyCount = 0;
         List<EnemySpawnEntry> set = GetRoomSpawnSet();
         if (set.Count == 0 || set == null)
         {
@@ -78,7 +81,22 @@ public class EnemySpawner : MonoBehaviour
                 paddingPosition = Random.Range(-maxPadding, maxPadding);
                 positionRandom.x += paddingPosition;
                 objectPoolManager.Spawn(positionRandom, entry.enemy.Prefab);
+                enemyCount++;
             }
         }
+        EventManager.Emit(EventID.ON_DONE_SPAWN_ENEMY, enemyCount);
     }
+
+    // it for behavior spawn extra enemy like ability enemy, trap, skill boss. Use RequestSpawnEnemy
+    public void SpawnExtraEnemy(object obj = null)
+    {
+        RequestSpawnEnemy spawnEnemy = (RequestSpawnEnemy)obj;
+        objectPoolManager.Spawn(spawnEnemy.positionSpawn, spawnEnemy.prefab);
+    }
+}
+
+public class RequestSpawnEnemy
+{
+    public Vector2 positionSpawn;
+    public GameObject prefab;
 }

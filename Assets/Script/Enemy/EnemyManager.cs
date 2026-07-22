@@ -19,11 +19,9 @@ public class EnemyManager : MonoBehaviour
             _pathRequests = GetComponent<PathRequestManager>();
     }
 
-    // Cổng cho grid (nghe ON_LOAD_MAP ở đâu đó → gọi vào đây)
     public void SetPathfindingGrid(PathfindingGrid grid)
         => _pathRequests.SetGrid(grid);
 
-    // Cổng cho enemy xin đường — đây là "global access" mà b muốn
     public void RequestPath(PathRequest request)
         => _pathRequests.Request(request);
 }

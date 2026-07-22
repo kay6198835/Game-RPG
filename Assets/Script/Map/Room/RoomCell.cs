@@ -19,6 +19,7 @@ public class RoomCell : BaseCell
     [SerializeField] public LevelData Data { get; private set; } = new LevelData();
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
     [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
+    [SerializeField] public int EnemyCount { get; private set; } = 0;
     protected override void Setting()
     {
         ListDirectionDoors = new List<Vector2>();
@@ -37,6 +38,38 @@ public class RoomCell : BaseCell
                 _listDoors.Add(door);
                 ListDirectionDoors.Add(GameConstants.Direction.NameToDirection[name]);
             }
+        }
+    }
+
+    public void OnEnable()
+    {
+        EventManager.Resgister(EventID.ON_DONE_SPAWN_ENEMY, OnDoneSpawnEnemy);
+        EventManager.Resgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
+        EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, OnSpawnExtraEnemy);
+    }
+    public void OnDisable()
+    {
+        EventManager.UnResgister(EventID.ON_DONE_SPAWN_ENEMY, OnDoneSpawnEnemy);
+        EventManager.UnResgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
+        EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, OnSpawnExtraEnemy);
+    }
+
+    public void OnDoneSpawnEnemy(object obj = null)
+    {
+        EnemyCount = (int)obj;
+    }
+
+    public void OnSpawnExtraEnemy(object obj = null)
+    {
+        EnemyCount++;
+    }
+
+    public void OnEnemyDeath(object obj = null)
+    {
+        EnemyCount--;
+        if (EnemyCount == 0)
+        {
+            EventManager.UnResgister(EventID.ON_CLEAR_ENEMY);
         }
     }
 
