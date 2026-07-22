@@ -1,6 +1,6 @@
 public interface ICore
 {
-    public void AddCoreComponent(CoreComponentBase coreComponent);
-    public void GetCoreComponent<T>(out T coreComponent) where T : CoreComponentBase;
+    public void AddCoreComponent(ICoreComponent<ICore> coreComponent);
+    public void GetCoreComponent<T>(out T coreComponent) where T : ICoreComponent<ICore>;
 
 }

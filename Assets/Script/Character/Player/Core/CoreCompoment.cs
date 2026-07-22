@@ -1,14 +1,11 @@
 using UnityEngine;
 
-public class CoreComponent : CoreComponentBase
+public class CoreComponent : CoreComponentBase<T> where T : Core
 {
-    [SerializeField] protected Core core;
-
-    public Core Core { get => core; }
 
     protected virtual void Awake()
     {
-        core = transform.parent.GetComponent<Core>();
+        core = transform.parent.GetComponent<T>();
         if (core != null) core.AddCoreComponent(this);
     }
 }

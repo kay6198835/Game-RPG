@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class CoreBase<T> : MonoBehaviour, ICore
+public abstract class CoreBase : MonoBehaviour, ICore
 {
     [SerializeField] private List<ICoreComponentBase> coreComponents = new List<ICoreComponentBase>();
     private readonly Dictionary<System.Type, ICoreComponentBase> _cache = new Dictionary<System.Type, ICoreComponentBase>();
