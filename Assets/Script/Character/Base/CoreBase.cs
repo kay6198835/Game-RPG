@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class CoreBase : MonoBehaviour
+public abstract class CoreBase<T> : MonoBehaviour, ICore
 {
-    [SerializeField] private List<CoreComponentBase> coreComponents = new List<CoreComponentBase>();
-    private readonly Dictionary<System.Type, CoreComponentBase> _cache = new Dictionary<System.Type, CoreComponentBase>();
+    [SerializeField] private List<ICoreComponentBase> coreComponents = new List<ICoreComponentBase>();
+    private readonly Dictionary<System.Type, ICoreComponentBase> _cache = new Dictionary<System.Type, ICoreComponentBase>();
 
-    public void AddCoreComponent(CoreComponentBase coreComponent)
+    public void AddCoreComponent(ICoreComponentBase coreComponent)
     {
         if (!coreComponents.Contains(coreComponent)) coreComponents.Add(coreComponent);
     }
 
-    public void GetCoreComponent<T>(out T coreComponent) where T : CoreComponentBase
+    public void GetCoreComponent<T>(out T coreComponent) where T : ICoreComponentBase
     {
         var type = typeof(T);
         if (_cache.TryGetValue(type, out var cached))

@@ -9,10 +9,6 @@ public class CoreComponent : CoreComponentBase
     protected virtual void Awake()
     {
         core = transform.parent.GetComponent<Core>();
-        core.AddCoreComponent(this);
-    }
-    protected virtual void Start()
-    {
-
+        if (core != null) core.AddCoreComponent(this);
     }
 }
