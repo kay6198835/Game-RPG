@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 [RequireComponent(typeof(ObjectPoolManager))]
 public class EnemySpawner : MonoBehaviour
@@ -17,12 +16,12 @@ public class EnemySpawner : MonoBehaviour
     }
     public void OnEnable()
     {
-        EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);
+        EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
     }
     public void OnDisable()
     {
-        EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnDoneLoadRoomGrid);
+        EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
     }
     public void Spawn()
@@ -30,18 +29,18 @@ public class EnemySpawner : MonoBehaviour
 
     }
 
-    public void OnDoneLoadRoomGrid(object obj = null)
+    public void OnGetSpawnPositions(object obj = null)
     {
         spawnPosition = (List<Vector2Int>)obj;
         if (spawnPosition == null || spawnPosition.Count == 0)
         {
-            Debug.LogWarning("OnDoneLoadRoomGrid: spawnPosition is empty");
+            Debug.LogWarning("OnGetSpawnPositions: spawnPosition is empty");
             return;
         }
         roomModel = mapModel.GetRandomRoom();
         if (roomModel == null)
         {
-            Debug.LogWarning("OnDoneLoadRoomGrid: roomModel is empty");
+            Debug.LogWarning("OnGetSpawnPositions: roomModel is empty");
             return;
         }
         SpawnRoomEnemies(in spawnPosition);
@@ -75,7 +74,7 @@ public class EnemySpawner : MonoBehaviour
             if (entry.enemy == null || entry.enemy.Prefab == null) continue;
             for (int i = 0; i < entry.count; i++)
             {
-                positionRandom = spawnPosition[Random.Range(0, spawnPosition.Count)].ConvertTo<Vector2>();
+                positionRandom = Vector2Int.RoundToInt(spawnPosition[Random.Range(0, spawnPosition.Count)]);
                 paddingPosition = Random.Range(-maxPadding, maxPadding);
                 positionRandom.y += paddingPosition;
                 paddingPosition = Random.Range(-maxPadding, maxPadding);
@@ -84,6 +83,7 @@ public class EnemySpawner : MonoBehaviour
                 enemyCount++;
             }
         }
+        Debug.Log($"[{nameof(EnemySpawner)}] Spawned {enemyCount} enemies in room {roomModel.name}.");
         EventManager.Emit(EventID.ON_DONE_SPAWN_ENEMY, enemyCount);
     }
 

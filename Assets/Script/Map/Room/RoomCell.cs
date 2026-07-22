@@ -41,34 +41,22 @@ public class RoomCell : BaseCell
         }
     }
 
-    public void OnEnable()
+    public void OnDoneSpawnEnemy(int enemyCount)
     {
-        EventManager.Resgister(EventID.ON_DONE_SPAWN_ENEMY, OnDoneSpawnEnemy);
-        EventManager.Resgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
-        EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, OnSpawnExtraEnemy);
-    }
-    public void OnDisable()
-    {
-        EventManager.UnResgister(EventID.ON_DONE_SPAWN_ENEMY, OnDoneSpawnEnemy);
-        EventManager.UnResgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
-        EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, OnSpawnExtraEnemy);
+        EnemyCount = enemyCount;
     }
 
-    public void OnDoneSpawnEnemy(object obj = null)
-    {
-        EnemyCount = (int)obj;
-    }
-
-    public void OnSpawnExtraEnemy(object obj = null)
+    public void OnSpawnExtraEnemy()
     {
         EnemyCount++;
     }
 
-    public void OnEnemyDeath(object obj = null)
+    public void OnEnemyDeath()
     {
         EnemyCount--;
         if (EnemyCount == 0)
         {
+            Debug.Log($"[{nameof(RoomCell)}] Room {name} cleared.");
             EventManager.Emit(EventID.ON_CLEAR_ENEMY);
         }
     }
@@ -133,7 +121,7 @@ public class RoomCell : BaseCell
         {
             var door = GetDoor(dp.direction);
             if (door != null)
-                door.transform.position = dp.position;
+                door.transform.position = this.transform.position + (Vector3)dp.position;
         }
     }
 

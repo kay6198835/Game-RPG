@@ -1,9 +1,10 @@
 
+using Unity.VisualScripting;
 using System.Collections.Generic;
 using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+
 
 public class RoomGeneraterController : MonoBehaviour
 {
@@ -52,7 +53,7 @@ public class RoomGeneraterController : MonoBehaviour
     public void OnDoneLoadRoomGrid(RoomCell _current)
     {
         this.LoadRoom(_startIndex, _current);
-        this._fastMovement.transform.SetPositionAndRotation(_current.StartDoorPosition, Quaternion.identity);
+        this._fastMovement.transform.SetPositionAndRotation(_current.StartDoorPosition + (Vector2)_current.transform.position, Quaternion.identity);
     }
 
     public void LoadRoom(int index, RoomCell nextRoomCell)
@@ -80,7 +81,7 @@ public class RoomGeneraterController : MonoBehaviour
         for (int i = 0; i < Data.poses.Count; i++)
         {
             origanalTileMapPosition = Data.poses[i];
-            worldPose = nextRoomCell.IsCleared ? Data.poses[i]
+            worldPose = nextRoomCell.IsCleared ? Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position)
             : Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
@@ -137,20 +138,17 @@ public class RoomGeneraterController : MonoBehaviour
 
     private void SwapTileMap(string tileMapName, RoomCell roomCell)
     {
-        Vector3Int convertVector3Int = new Vector3Int();
         var entries = new List<KeyValuePair<int, int>>(_swapLevelData.indexToLayer);
 
         for (int i = 0; i < _swapLevelData.directions.Count; i++)
         {
-            convertVector3Int.Set((int)_swapLevelData.directions[i].x + (int)roomCell.transform.position.x,
-             (int)_swapLevelData.directions[i].y + (int)roomCell.transform.position.y, 0);
             int tileIndex = entries[i].Key;
             int layerIndex = entries[i].Value;
             Vector3Int originalPos = Data.poses[tileIndex];
 
             Data.tiles[tileIndex] = tileMapName;
-            Data.poses[tileIndex] += convertVector3Int;
-            _genmap[layerIndex].SetTile(Data.poses[tileIndex], _listTiles.Find(t => t.name == tileMapName).tile);
+            Data.poses[tileIndex] += Vector3Int.RoundToInt(_swapLevelData.directions[i]);
+            _genmap[layerIndex].SetTile(Data.poses[tileIndex]+ Vector3Int.RoundToInt(roomCell.transform.position), _listTiles.Find(t => t.name == tileMapName).tile);
 
             Data.tiles.Add(tileMapName);
             Data.layerIndices.Add(layerIndex);
@@ -164,7 +162,7 @@ public class RoomGeneraterController : MonoBehaviour
         for (int i = 0; i < Data.tiles.Count; i++)
         {
             var layerIndices = Data.layerIndices[i];
-            var pos = Data.poses[i] + _current.transform.position.ConvertTo<Vector3Int>();
+            var pos = Data.poses[i] + Vector3Int.RoundToInt(_current.transform.position);
             _genmap[layerIndices].SetTile(pos, null);
         }
         this._swapLevelData.Clear();
@@ -178,7 +176,7 @@ public class RoomGeneraterController : MonoBehaviour
     {
         for (int i = 0; i < IndexLevelDataDoor.Count; i++)
         {
-            _genmap[Data.layerIndices[IndexLevelDataDoor[i]]].SetTile(Data.poses[IndexLevelDataDoor[i]], null);
+            _genmap[Data.layerIndices[IndexLevelDataDoor[i]]].SetTile(Data.poses[IndexLevelDataDoor[i]] + Vector3Int.RoundToInt(_current.transform.position), null);
             Data.layerIndices[IndexLevelDataDoor[i]] = 0;
             Data.poses[IndexLevelDataDoor[i]] = Vector3Int.zero;
             Data.tiles[IndexLevelDataDoor[i]] = null;
