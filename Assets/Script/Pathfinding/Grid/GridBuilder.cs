@@ -4,7 +4,7 @@ public class GridBuilder
     private Node[,] nodesGrid;
     private int cols, rows;
     // Build base on tile map of room
-    public Node[,] BuildGrid(LevelData data, ref int cols, ref int rows)
+    public Node[,] BuildGrid(LevelData data, ref int cols, ref int rows, ref Vector3 originPosition)
     {
         Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
         Vector2Int max = new Vector2Int(int.MinValue, int.MinValue);
@@ -41,11 +41,12 @@ public class GridBuilder
         }
         this.cols = cols;
         this.rows = cols;
+        originPosition = (Vector3)min;
         SetNodeNeighbors();
         return nodesGrid;
     }
 
-    
+
 
     private void SetNodeNeighbors()
     {

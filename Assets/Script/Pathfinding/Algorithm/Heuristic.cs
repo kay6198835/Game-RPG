@@ -11,7 +11,7 @@ public static class Heuristic
     private const float TIE_BREAK_FACTOR = 1.001f;
 
     // Octile — CHUẨN cho lưới 8 hướng (cho đi chéo).
-    public static int Octile(Node a, Node b)
+    public static int Octile(SearchNode a, SearchNode b)
     {
         int dx = Mathf.Abs(a.GridPosition.x - b.GridPosition.x);
         int dy = Mathf.Abs(a.GridPosition.y - b.GridPosition.y);
@@ -26,7 +26,7 @@ public static class Heuristic
     }
 
     // Manhattan — chỉ dùng nếu chuyển sang lưới 4 hướng (KHÔNG cho đi chéo).
-    public static int Manhattan(Node a, Node b)
+    public static int Manhattan(SearchNode a, SearchNode b)
     {
         int dx = Mathf.Abs(a.GridPosition.x - b.GridPosition.x);
         int dy = Mathf.Abs(a.GridPosition.y - b.GridPosition.y);

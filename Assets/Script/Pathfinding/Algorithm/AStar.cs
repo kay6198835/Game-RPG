@@ -3,10 +3,10 @@ using UnityEngine;
 
 public static class AStar
 {
-    public static Path FindPath(PathfindingGrid grid, Vector3 startWorld, Vector3 targetWorld)
+    public static Path FindPath(PathfindingGrid grid, Vector2 startWorld, Vector2 targetWorld)
     {
-        Node startNode  = grid.GetNodeFromWorld(startWorld);
-        Node targetNode = grid.GetNodeFromWorld(targetWorld);
+        SearchNode startNode  = grid.GetNodeFromWorld(startWorld);
+        SearchNode targetNode = grid.GetNodeFromWorld(targetWorld);
 
         if (startNode == null || targetNode == null
             || !startNode.Walkable || !targetNode.Walkable)
@@ -15,7 +15,7 @@ public static class AStar
         grid.ClearSearchState();   // reset G/H/Parent/HeapIndex toàn lưới
 
         PriorityQueue openSet   = new PriorityQueue(grid.MaxSize);
-        HashSet<Node> closedSet = new HashSet<Node>();
+        HashSet<SearchNode> closedSet = new HashSet<SearchNode>();
 
         startNode.GCost = 0;
         startNode.HCost = Heuristic.Octile(startNode, targetNode);
@@ -23,13 +23,13 @@ public static class AStar
 
         while (openSet.Count > 0)
         {
-            Node current = openSet.Dequeue();
+            SearchNode current = openSet.Dequeue();
             closedSet.Add(current);
 
             if (current == targetNode)
                 return Retrace(startNode, targetNode);
 
-            foreach (Node neighbour in grid.GetNeighbours(current))
+            foreach (SearchNode neighbour in grid.GetNeighbours(current))
             {
                 if (!neighbour.Walkable || closedSet.Contains(neighbour))
                     continue;
@@ -55,10 +55,10 @@ public static class AStar
         return Path.Failure;   // không tới được target
     }
 
-    private static Path Retrace(Node start, Node target)
+    private static Path Retrace(SearchNode start, SearchNode target)
     {
-        List<Vector3> waypoints = new List<Vector3>();
-        Node current = target;
+        List<Vector2> waypoints = new List<Vector2>();
+        SearchNode current = target;
 
         while (current != start)
         {

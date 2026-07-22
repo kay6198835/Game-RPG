@@ -17,8 +17,8 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
-
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
+    [SerializeField] PathfindingGrid pathfindingGrid = new PathfindingGrid();
     public void OnDisable()
     {
         _dungeonRoomSO.room.Clear();
@@ -43,6 +43,8 @@ public class RoomGeneraterController : MonoBehaviour
         }
         _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
         _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
+
+        EnemyManager.Instance.SetPathfindingGrid(pathfindingGrid);
     }
 
     public void OnDoneLoadRoomGrid(RoomCell _current)
@@ -122,6 +124,7 @@ public class RoomGeneraterController : MonoBehaviour
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
+            pathfindingGrid.BuildGrid(Data);
         }
         else
         {
@@ -129,6 +132,7 @@ public class RoomGeneraterController : MonoBehaviour
             nextRoomCell.OpenDoors();
         }
     }
+
     private void SwapTileMap(string tileMapName, RoomCell roomCell)
     {
         Vector3Int convertVector3Int = new Vector3Int();

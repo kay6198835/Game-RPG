@@ -1,18 +1,18 @@
 public class PriorityQueue
 {
-    private readonly Node[] items;
+    private readonly SearchNode[] items;
     private int count;
 
     public int Count => count;
 
     public PriorityQueue(int maxSize)
     {
-        items = new Node[maxSize];
+        items = new SearchNode[maxSize];
     }
 
     public void Clear() => count = 0;
 
-    public void Enqueue(Node node)
+    public void Enqueue(SearchNode node)
     {
         node.HeapIndex = count;
         items[count] = node;
@@ -20,9 +20,9 @@ public class PriorityQueue
         count++;
     }
 
-    public Node Dequeue()
+    public SearchNode Dequeue()
     {
-        Node first = items[0];
+        SearchNode first = items[0];
         count--;
         items[0] = items[count];
         items[0].HeapIndex = 0;
@@ -31,12 +31,12 @@ public class PriorityQueue
     }
 
     // Gọi khi G của node giảm → ưu tiên tăng → đẩy lên
-    public void UpdatePriority(Node node) => SortUp(node);
+    public void UpdatePriority(SearchNode node) => SortUp(node);
 
-    public bool Contains(Node node)
+    public bool Contains(SearchNode node)
         => node.HeapIndex < count && items[node.HeapIndex] == node;
 
-    private void SortUp(Node node)
+    private void SortUp(SearchNode node)
     {
         int parentIndex = (node.HeapIndex - 1) / 2;
         while (node.HeapIndex > 0 && Compare(node, items[parentIndex]) > 0)
@@ -46,7 +46,7 @@ public class PriorityQueue
         }
     }
 
-    private void SortDown(Node node)
+    private void SortDown(SearchNode node)
     {
         while (true)
         {
@@ -65,7 +65,7 @@ public class PriorityQueue
         }
     }
 
-    private void Swap(Node a, Node b)
+    private void Swap(SearchNode a, SearchNode b)
     {
         items[a.HeapIndex] = b;
         items[b.HeapIndex] = a;
@@ -73,7 +73,7 @@ public class PriorityQueue
     }
 
     // >0 nghĩa là a ưu tiên cao hơn b: F nhỏ hơn thắng, hoà F thì H nhỏ hơn thắng
-    private int Compare(Node a, Node b)
+    private int Compare(SearchNode a, SearchNode b)
     {
         int c = a.FCost.CompareTo(b.FCost);
         if (c == 0) c = a.HCost.CompareTo(b.HCost);
