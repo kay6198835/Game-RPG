@@ -26,6 +26,17 @@ public static class GameConstants
     {
         public static class Vector
         {
+            Vector2[] ALL =
+            {
+                TOP,
+                RIGHT,
+                LEFT,
+                BOTTOM,
+                TOP_RIGHT,
+                RIGHT_DOWN,
+                DOWN_LEFT,
+                LEFT_TOP,
+            };
             public static readonly Vector2 TOP = Vector2.up;
             public static readonly Vector2 RIGHT = Vector2.right;
             public static readonly Vector2 LEFT = Vector2.left;
