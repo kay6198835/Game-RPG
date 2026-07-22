@@ -58,7 +58,7 @@ public class GridBuilder
         {
             for (int row = 0; row < rows; row++)
             {
-                foreach (Vector2 dir in GameConstants.Direction.Vector)
+                foreach (Vector2 dir in GameConstants.Direction.Vector.ALL)
                 {
                     int nx = col + (int)dir.x;
                     int ny = row + (int)dir.y;

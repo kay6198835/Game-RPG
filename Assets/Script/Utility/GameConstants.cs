@@ -26,7 +26,7 @@ public static class GameConstants
     {
         public static class Vector
         {
-            Vector2[] ALL =
+            public static readonly Vector2[] ALL =
             {
                 TOP,
                 RIGHT,

@@ -44,6 +44,6 @@ public class EntityMovement : EntityCoreComponent
     {
         if (target == null) return;
         PathRequest request = new PathRequest(transform.position, target.transform.position, GetPath);
-        EnemyManager.Instance.RequestPath();
+        EnemyManager.Instance.RequestPath(request);
     }
 }

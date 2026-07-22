@@ -27,22 +27,20 @@ public class EntityMoveState : EntityBasicState
     {
         directionMoveVector = entity.Input.DirectionLookVector.normalized;
         speed = entityData.MovementVelocities;
-        if(Vector2.Distance(entity.transform.position,entity.Input.Target.transform.position)<=10f)
-        entityCore.EntityMovement.MoveForwardTarget(
-        directionMoveVector * speed
-        );
-        if (entity.Input.Target == null)
-        {
-            if (entityCore.FindTarget.FindWall(directionMoveVector, speed))
+        if (Vector2.Distance(entity.transform.position, entity.Input.Target.transform.position) <= 10f)
+            // call move
+            if (entity.Input.Target == null)
             {
-                Debug.Log("Turn");
-                entity.Input.TurnLeftOrRight();
+                if (entityCore.FindTarget.FindWall(directionMoveVector, speed))
+                {
+                    Debug.Log("Turn");
+                    entity.Input.TurnLeftOrRight();
+                }
+                if (moveTime <= Time.time)
+                {
+                    entity.StateMachine.ChangeState(entity.IdleState);
+                }
             }
-            if (moveTime <= Time.time)
-            {
-                entity.StateMachine.ChangeState(entity.IdleState);
-            }
-        }
 
 
         base.LogicUpdate();
@@ -54,6 +52,6 @@ public class EntityMoveState : EntityBasicState
     public override void Exit()
     {
         base.Exit();
-        entityCore.EntityMovement.MoveForwardTarget(Vector2.zero);
+        //move
     }
 }
