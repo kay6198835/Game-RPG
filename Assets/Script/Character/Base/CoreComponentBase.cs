@@ -1,18 +1,23 @@
 using UnityEngine;
 
-public abstract class CoreComponentBase<T> : MonoBehaviour, ICoreComponent<T>
+public abstract class CoreComponentBase<T> : MonoBehaviour, ICoreComponent<T> where T : CoreBase
 {
-    [SerializeField] public T core;
+    [SerializeField] public T Core {get; private set; }
 
     protected virtual void Awake()
     {
         Setup();
     }
 
-    protected virtual void Setup<T>()
+    protected virtual void Start()
     {
-        core = transform.parent.GetComponent<T>();
-        if (core != null) core.AddCoreComponent(this);
+        
+    }
+
+    public virtual void Setup()
+    {
+        Core = transform.parent.GetComponent<T>();
+        if (Core != null) Core.AddCoreComponent(this);
     }
 
 }

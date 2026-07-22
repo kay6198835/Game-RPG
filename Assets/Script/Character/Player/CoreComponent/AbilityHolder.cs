@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class AbilityHolder : CoreComponent
+public class AbilityHolder : CoreComponent<Core>
 {
     [SerializeField] private ActivateSkill ability;
     [SerializeField] private float cooldownTime;
@@ -34,7 +34,7 @@ public class AbilityHolder : CoreComponent
     {
         base.Start();
         canUseAbility = false;
-        core.GetCoreComponent(out playerInputHandler);
+        Core.GetCoreComponent(out playerInputHandler);
     }
     public void SetCanUseAbility(bool canUseAbility)
     {
@@ -43,7 +43,7 @@ public class AbilityHolder : CoreComponent
             return;
         }
         this.canUseAbility = canUseAbility;
-        core.Player.Anim.SetBool("DoAB", !this.canUseAbility);
+        Core.Player.Anim.SetBool("DoAB", !this.canUseAbility);
     }
     public void SetAblityWeapon(ActivateSkill ability)
     {
@@ -55,8 +55,8 @@ public class AbilityHolder : CoreComponent
     }
     public void EnterAbility()
     {
-        core.Player.Anim.runtimeAnimatorController = ability.Animator;
-        ability.Enter(core.Player);
+        Core.Player.Anim.runtimeAnimatorController = ability.Animator;
+        ability.Enter(Core.Player);
         currentState = SkillState.Start;
     }
     public void ExitAbility()

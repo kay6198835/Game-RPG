@@ -26,10 +26,11 @@ public class EntityBasicState : EntityState
                 stateMachine.ChangeState(entity.TakeDamageState);
             }
         }
-        if (entity.Input.IsAttack && entity.Core.WeaponHolder.Weapon.CheckCanAttack(entity, startTime))
-        {
-            entity.StateMachine.ChangeState(entity.AttackState);
-        }
+        // if (entity.Input.IsAttack && entity.Core.WeaponHolder.Weapon.CheckCanAttack(entity, startTime))
+        // {
+        //     entity.StateMachine.ChangeState(entity.AttackState);
+        // }
+        // fix
     }
 
 }

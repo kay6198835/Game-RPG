@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityFindTarget : EntityCoreComponent
+public class EntityFindTarget : EntityCoreComponent<EntityCore>
 {
     [SerializeField] private Transform target;
     [SerializeField] private float range;

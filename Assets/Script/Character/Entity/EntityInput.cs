@@ -67,18 +67,19 @@ public class EntityInput : MonoBehaviour
     }
     private void GetTargetInRange()
     {
-        if (target == null)
-        {
-            target = entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
-        }
-        if (entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
-        {
-            isAttack = true;
-        }
-        else
-        {
-            isAttack = false;
-        }
+        // if (target == null)
+        // {
+        //     target = entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+        // }
+        // if (entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
+        // {
+        //     isAttack = true;
+        // }
+        // else
+        // {
+        //     isAttack = false;
+        // }
+        // fix
     }
     private void AngleCalculate(Vector2 directionVector,ref float angle, ref int direction)
     {

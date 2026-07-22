@@ -1,8 +1,10 @@
+
 using System.Collections.Generic;
 using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+
 public class RoomGeneraterController : MonoBehaviour
 {
     [SerializeField] public FastMovement _fastMovement;
@@ -18,7 +20,7 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] private int _endIndex;
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
-    [SerializeField] PathfindingGrid pathfindingGrid = new PathfindingGrid();
+    [SerializeField] PathfindingGrid pathfindingGrid;
     public void OnDisable()
     {
         _dungeonRoomSO.room.Clear();
@@ -43,7 +45,7 @@ public class RoomGeneraterController : MonoBehaviour
         }
         _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
         _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
-
+        pathfindingGrid = new PathfindingGrid();
         EnemyManager.Instance.SetPathfindingGrid(pathfindingGrid);
     }
 
@@ -115,7 +117,7 @@ public class RoomGeneraterController : MonoBehaviour
             }
             if (tilemap == GameConstants.TileName.SPAWN && !nextRoomCell.IsCleared)
             {
-                spawnPositions.Add(worldPose.ConvertTo<Vector2Int>());
+                spawnPositions.Add((Vector2Int)worldPose);
             }
             _genmap[layerIdx].SetTile(worldPose, _listTiles.Find(t => t.name == tilemap).tile);
         }

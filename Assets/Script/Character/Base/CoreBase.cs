@@ -3,15 +3,15 @@ using UnityEngine;
 
 public abstract class CoreBase : MonoBehaviour, ICore
 {
-    [SerializeField] private List<ICoreComponentBase> coreComponents = new List<ICoreComponentBase>();
-    private readonly Dictionary<System.Type, ICoreComponentBase> _cache = new Dictionary<System.Type, ICoreComponentBase>();
+    [SerializeField] private List<ICoreComponent<ICore>> coreComponents = new List<ICoreComponent<ICore>>();
+    private readonly Dictionary<System.Type, ICoreComponent<ICore>> _cache = new Dictionary<System.Type, ICoreComponent<ICore>>();
 
-    public void AddCoreComponent(ICoreComponentBase coreComponent)
+    public virtual void AddCoreComponent(ICoreComponent<ICore> coreComponent)
     {
         if (!coreComponents.Contains(coreComponent)) coreComponents.Add(coreComponent);
     }
 
-    public void GetCoreComponent<T>(out T coreComponent) where T : ICoreComponentBase
+    public virtual void GetCoreComponent<T>(out T coreComponent) where T : ICoreComponent<ICore>
     {
         var type = typeof(T);
         if (_cache.TryGetValue(type, out var cached))
@@ -19,7 +19,7 @@ public abstract class CoreBase : MonoBehaviour, ICore
             coreComponent = (T)cached;
             return;
         }
-        coreComponent = null;
+        coreComponent = (T)cached;
         foreach (var comp in coreComponents)
         {
             if (comp is T match)

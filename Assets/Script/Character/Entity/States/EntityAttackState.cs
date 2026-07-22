@@ -19,7 +19,8 @@ public class EntityAttackState : EntityUseWeaponState
         base.LogicUpdate();
         if (Status == StatusAnimation.StartRangeTrigger)
         {
-            entity.Core.WeaponHolder.Weapon.Attack();
+            //entity.Core.WeaponHolder.Weapon.Attack();
+            // fix
             Status = StatusAnimation.OnActivate;
         }
     }

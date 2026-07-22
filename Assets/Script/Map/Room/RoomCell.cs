@@ -69,7 +69,7 @@ public class RoomCell : BaseCell
         EnemyCount--;
         if (EnemyCount == 0)
         {
-            EventManager.UnResgister(EventID.ON_CLEAR_ENEMY);
+            EventManager.Emit(EventID.ON_CLEAR_ENEMY);
         }
     }
 

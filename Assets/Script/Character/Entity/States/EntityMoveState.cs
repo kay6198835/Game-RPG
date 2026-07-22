@@ -22,13 +22,15 @@ public class EntityMoveState : EntityBasicState
         {
             entity.Input.SetDirectionRadom();
         }
-        entityCore.EntityMovement.SendResquestPath();
+        //entityCore.EntityMovement.SendResquestPath();
+        // fix
     }
     public override void LogicUpdate()
     {
         directionMoveVector = entity.Input.DirectionLookVector.normalized;
         speed = entityData.MovementVelocities;
-        entityCore.EntityMovement.MoveToTarget();
+        //entityCore.EntityMovement.MoveToTarget();
+        // fix
 
         base.LogicUpdate();
     }
@@ -39,6 +41,7 @@ public class EntityMoveState : EntityBasicState
     public override void Exit()
     {
         base.Exit();
-        entityCore.EntityMovement.StopMove();
+        //entityCore.EntityMovement.StopMove();
+        // fix
     }
 }

@@ -687,6 +687,7 @@ GameObject:
   - component: {fileID: 1279881537}
   - component: {fileID: 1279881536}
   - component: {fileID: 1279881538}
+  - component: {fileID: 1279881539}
   m_Layer: 0
   m_Name: SpawnEnemy
   m_TagString: Untagged
@@ -740,6 +741,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e974b723e57e3f24ea3794e5ecac1c99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1279881539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1279881535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e228ebb09e9985b48b1c345baf9bb615, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pathRequests: {fileID: 0}
 --- !u!1 &1455180274
 GameObject:
   m_ObjectHideFlags: 0

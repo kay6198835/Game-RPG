@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : CoreComponent
+public class PlayerInputHandler : CoreComponent<Core>
 {
     #region Attribute
     public float starTime;
@@ -93,8 +93,8 @@ public class PlayerInputHandler : CoreComponent
     protected override void Start()
     {
         base.Start();
-        core.GetCoreComponent(out weaponHolder);
-        core.GetCoreComponent(out abilityHolder);
+        Core.GetCoreComponent(out weaponHolder);
+        Core.GetCoreComponent(out abilityHolder);
 
     }
     #region OnMethod
@@ -195,12 +195,12 @@ public class PlayerInputHandler : CoreComponent
 
         if (context.started && !BufferIsAttack)
         {
-            if (StatusAnimation.StartRangeTrigger <= core.Player.stateMachine.CurrentState.Status
-            && core.Player.stateMachine.CurrentState.Status <= StatusAnimation.EndRangeTrigger)
+            if (StatusAnimation.StartRangeTrigger <= Core.Player.stateMachine.CurrentState.Status
+            && Core.Player.stateMachine.CurrentState.Status <= StatusAnimation.EndRangeTrigger)
             {
                 SetBufferAttack(true);
             }
-            else if (weaponHolder.Weapon.CheckCanAttack(core.Player))
+            else if (weaponHolder.Weapon.CheckCanAttack(Core.Player))
             {
                 isAttack = true;
             }

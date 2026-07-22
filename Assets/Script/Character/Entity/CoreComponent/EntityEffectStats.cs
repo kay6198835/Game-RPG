@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityEffectStats : EntityCoreComponent,IEffectable
+public class EntityEffectStats : EntityCoreComponent<EntityCore>, IEffectable
 {
     //[SerializeField] private List<EffectSkillSO> effects;
     [SerializeField] private EffectSkillSO effect;
@@ -17,7 +17,7 @@ public class EntityEffectStats : EntityCoreComponent,IEffectable
     {
         Debug.Log("Apply");
         this.effect = effect;
-        this.effect.OnEffect(entityCore.Entity.Data.StatsSO);
+        this.effect.OnEffect(Core.Entity.Data.StatsSO);
     }
 
     public void HandleEffect()

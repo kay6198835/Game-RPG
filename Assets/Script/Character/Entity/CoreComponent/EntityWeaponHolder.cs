@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityWeaponHolder : EntityCoreComponent
+public class EntityWeaponHolder : EntityCoreComponent<EntityCore>
 {
     [SerializeField] private EntityWeapon weapon;
     [SerializeField] private GameObject weaponGO;
@@ -12,7 +12,7 @@ public class EntityWeaponHolder : EntityCoreComponent
     protected override void Awake()
     {
         base.Awake();
-        weaponGO = Instantiate(entityCore.Entity.Data.WeaponSO.Weapon,this.transform.position,Quaternion.identity,this.transform);
+        weaponGO = Instantiate(Core.Entity.Data.WeaponSO.Weapon,this.transform.position,Quaternion.identity,this.transform);
         weapon = weaponGO.GetComponent<EntityWeapon>();
     }
 }

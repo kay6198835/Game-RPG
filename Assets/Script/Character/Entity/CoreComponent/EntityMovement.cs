@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-public class EntityMovement : EntityCoreComponent
+public class EntityMovement : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] private Transform target;
@@ -26,7 +26,7 @@ public class EntityMovement : EntityCoreComponent
             indexWaypoints++;
             SetPointToForward(Waypoints[indexWaypoints]);
         }
-        transform.DOMove(pointB.position, speed);
+        if (targetPosition != Vector2.zero) transform.DOMove(targetPosition, speed);
     }
 
     private void SetPointToForward(Vector2 targetPosition)
@@ -53,6 +53,6 @@ public class EntityMovement : EntityCoreComponent
     {
         Waypoints.Clear();
         indexWaypoints = 0;
-        targetPosition = null;
+        targetPosition = Vector2.zero;
     }
 }

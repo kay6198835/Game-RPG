@@ -1,12 +1,12 @@
 using UnityEngine;
-
+[RequireComponent(typeof(PathRequestManager))]
 public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance { get; private set; }
 
-    [SerializeField] private PathRequestManager _pathRequests;   // wire Inspector, cùng GameObject
+    [SerializeField] private PathRequestManager _pathRequests;
 
-    private void Awake()
+    public void Awake()
     {
         if (Instance != null && Instance != this)
         {

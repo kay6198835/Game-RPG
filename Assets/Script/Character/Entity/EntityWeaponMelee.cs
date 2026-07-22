@@ -43,14 +43,15 @@ public class EntityWeaponMelee : EntityWeapon
     }
     public override ActivateSkill SetAbility()
     {
-        if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Ability)
-        {
-            currentAbilitySO = statsMelee.AbilityWeapon;
-        }
-        else if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Special)
-        {
-            currentAbilitySO = statsMelee.SkillWeapon;
-        }
+        // if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Ability)
+        // {
+        //     currentAbilitySO = statsMelee.AbilityWeapon;
+        // }
+        // else if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Special)
+        // {
+        //     currentAbilitySO = statsMelee.SkillWeapon;
+        // }
+        // fix
         return currentAbilitySO;
     }
     public override bool CheckCanAttack(Entity entity,float lastClickTime)

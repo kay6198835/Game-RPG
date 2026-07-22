@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : CoreComponent 
+public class PlayerMovement : CoreComponent<Core>
 {
     [SerializeField] protected Rigidbody2D rb;
     protected override void Awake()

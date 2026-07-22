@@ -1,4 +1,4 @@
-public interface ICoreComponent<T>
+public interface ICoreComponent<out T> where T : ICore
 {
-    protected virtual void Setup<T>();
+    public abstract void Setup();
 }

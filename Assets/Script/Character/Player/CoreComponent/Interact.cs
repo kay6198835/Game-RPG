@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Interact : CoreComponent
+public class Interact : CoreComponent<Core>
 {
     [SerializeField] protected float intertionPointRadius = 0.5f;
     [SerializeField] protected LayerMask interactableMask;
@@ -30,7 +30,7 @@ public class Interact : CoreComponent
     protected override void Start()
     {
         base.Start();
-        core.GetCoreComponent(out playerInputHandler);
+        Core.GetCoreComponent(out playerInputHandler);
     }
     public virtual bool FindInteraction()
     {
