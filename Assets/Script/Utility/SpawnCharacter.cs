@@ -21,15 +21,15 @@ public class SpawnCharacterTest : MonoBehaviour
     {
         if (isEnemy)
         {
-            Instantiate(enemy,transform.position+Vector3.one*distance,Quaternion.identity);
+            Instantiate(enemy,transform.position+(Vector3)(Vector2.one*distance),Quaternion.identity);
         }
         if (isWeapon)
         {
-            Instantiate(weapon, transform.position + Vector3.one*2 * distance, Quaternion.identity);
+            Instantiate(weapon, transform.position + (Vector3)(Vector2.one*2 * distance), Quaternion.identity);
         }
         if (isPlayer)
         {
-            Instantiate(player, transform.position + Vector3.one*3 * distance, Quaternion.identity);
+            Instantiate(player, transform.position + (Vector3)(Vector2.one*3 * distance), Quaternion.identity);
         }
     }
 }

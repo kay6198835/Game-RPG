@@ -10,7 +10,7 @@ public class RoomCell : BaseCell
 
     [SerializeField] private DoorController doorPrefab;
     [SerializeField] private List<DoorController> _listDoors = new List<DoorController>();
-    [SerializeField] public Vector3 StartDoorPosition { get; private set; }
+    [SerializeField] public Vector2 StartDoorPosition { get; private set; }
     [SerializeField] public List<Vector2> ListDirectionDoors { get; private set; }
 
     // parameter levelData is used to set the room as cleared and open doors,
@@ -52,7 +52,7 @@ public class RoomCell : BaseCell
         if (nextDoor == null) return;
 
         nextDoor.OpenDoor();
-        StartDoorPosition = nextDoor.transform.position - (Vector3)direction * PADDING_DOOR_TELE_SCALE;
+        StartDoorPosition = (Vector2)nextDoor.transform.position - direction * PADDING_DOOR_TELE_SCALE;
     }
 
     public DoorController GetDoor(Vector2 direction)
@@ -83,7 +83,7 @@ public class RoomCell : BaseCell
             var sum = Vector2.zero;
             foreach (var p in kvp.Value)
             {
-                sum += new Vector2(p.position.x, p.position.y);
+                sum += p.position;
             }
 
             result.Add(new DoorPoint
@@ -92,7 +92,7 @@ public class RoomCell : BaseCell
                 // +0.5 on Y in world space (Vector3.up * 0.5). An additional 0.5 offset along the door's
                 // direction pushes the door collider flush against the room wall edge, matching the
                 // tilemap boundary exactly.
-                position = (new Vector3(sum.x, sum.y, 0) / kvp.Value.Count) + ((Vector3)kvp.Key + Vector3.one) * 0.5f,
+                position = (sum / kvp.Value.Count) + (kvp.Key + Vector2.one) * 0.5f,
                 direction = kvp.Key
             });
         }
@@ -138,6 +138,6 @@ public class RoomCell : BaseCell
 [System.Serializable]
 public struct DoorPoint
 {
-    public Vector3 position;
+    public Vector2 position;
     public Vector2 direction;
 }

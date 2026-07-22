@@ -6,13 +6,13 @@ public class SlashAbility : ActivateSkill
 {
     [Header("Stats")]
     [SerializeField] private GameObject slashPrefab;
-    private Vector3 shoot;
+    private Vector2 shoot;
     [SerializeField] private float speedSlash;
     private Quaternion rotation;
     private Vector2 positon;
     #region
     public GameObject SlashPrefab { get => slashPrefab;}
-    public Vector3 Shoot { get => shoot; }
+    public Vector2 Shoot { get => shoot; }
     public float SpeedSlash { get => speedSlash; }
 
     public PlayerInputHandler playerInputHandler;

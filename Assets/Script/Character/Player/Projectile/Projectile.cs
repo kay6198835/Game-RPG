@@ -29,7 +29,7 @@ public class Projectile : MonoBehaviour
     {
         this.speed = speed;
     }
-    public virtual  void SetVelocity(Vector3 velocity)
+    public virtual  void SetVelocity(Vector2 velocity)
     {
         rigidbodyProjectile.velocity = velocity * speed;
     }

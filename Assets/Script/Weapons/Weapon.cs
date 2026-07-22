@@ -71,7 +71,7 @@ public abstract class Weapon : InteractiveObjects
     }
     public virtual void UnEquid()
     {
-        transform.position = transform.parent.position + Vector3.one * 1f;
+        transform.position = transform.parent.position + new Vector3(1f, 1f, 0f);
         transform.SetParent(null);
         collider.enabled = true;
         weaponHolder.Equid_UnEquid(this);

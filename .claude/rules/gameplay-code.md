@@ -29,3 +29,11 @@ globs: ["Assets/Script/Character/**/*.cs", "Assets/Script/Weapons/**/*.cs", "Ass
 - `GameObject.Find()`, `FindObjectOfType()`, `SendMessage()` — use Inspector refs or EventManager
 - `public` fields on MonoBehaviours — use `[SerializeField] private` + properties
 - Coroutines that can leak (no `StopCoroutine` pairing) — prefer state machine transitions
+
+## Vector2 / Vector3 Convention
+- Gameplay math (directions, offsets, velocities, distances) uses `Vector2`/`Vector2Int` — this is a 2D game
+- `Vector3` is allowed ONLY at the Unity API boundary: `transform.position` assignment, `localScale`, Tilemap calls, camera follow (z offset), `Quaternion.AngleAxis` rotation axis
+- Fields, properties, and method parameters that are logically 2D must be typed `Vector2`, even when fed from `transform.position` (implicit truncation is the intended semantic)
+- Never use `Vector3.one` as a 2D offset — it silently writes z; use `Vector2.one` and cast at the assignment site
+- `Vector3Int` is reserved for Tilemap cell coordinates (`LevelData.poses`, `GetTile`/`SetTile`)
+- Use `transform.Position2D()` (VectorExtensions) instead of `(Vector2)transform.position` in new code; `v.WithZ(z)` for the rare camera/layering case

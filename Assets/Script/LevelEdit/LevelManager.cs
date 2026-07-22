@@ -296,7 +296,7 @@ public class LevelManager : MonoBehaviour
             if (tilemap == GameConstants.TileName.DOOR)
             {
                 // get direction
-                Utility.ToCardinalDirection((Vector3)data.poses[i]);
+                Utility.ToCardinalDirection(data.poses[i]);
                 // check include
 
                 // true swap tile

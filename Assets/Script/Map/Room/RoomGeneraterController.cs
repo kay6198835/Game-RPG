@@ -90,7 +90,7 @@ public class RoomGeneraterController : MonoBehaviour
             {
                 // get direction
                 Vector2 tilemapDirection = Utility.ToCardinalDirection
-                    ((Vector3)origanalTileMapPosition);
+                    (origanalTileMapPosition);
 
                 // check include
                 bool isIncludeDirection = nextRoomCell.ListDirectionDoors.Contains(tilemapDirection);
@@ -107,7 +107,7 @@ public class RoomGeneraterController : MonoBehaviour
                 {
                     DoorPoints.Add(new DoorPoint
                     {
-                        position = origanalTileMapPosition,
+                        position = new Vector2(origanalTileMapPosition.x, origanalTileMapPosition.y),
                         direction = tilemapDirection
                     });
                     IndexLevelDataDoor.Add(i);

@@ -15,9 +15,9 @@ public static class Utility
         return CheckDirection(dir);
     }
 
-    public static Vector2 ToCardinalDirection(Vector3 dir)
+    public static Vector2 ToCardinalDirection(Vector3Int dir)
     {
-        return CheckDirection(dir);
+        return CheckDirection(new Vector2(dir.x, dir.y));
     }
 
     public static Vector2 ToCardinalDirection(Vector2 dir)

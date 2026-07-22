@@ -44,7 +44,7 @@ public class ObjectPooling : MonoBehaviour
     {
 
     }
-    public void SpawnSlash(Vector3 positon, Quaternion rotation)
+    public void SpawnSlash(Vector2 positon, Quaternion rotation)
     {
         SetSpawn(slashSpawn);
         Spawn(positon, rotation);

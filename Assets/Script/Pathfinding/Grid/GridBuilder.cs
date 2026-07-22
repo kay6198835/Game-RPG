@@ -7,11 +7,11 @@ public class GridBuilder
     private Node[,] nodesGrid;
     private int cols, rows;
     // Build base on tile map of room
-    public Node[,] BuildGrid(LevelData data, ref int cols, ref int rows, ref Vector3 originPosition)
+    public Node[,] BuildGrid(LevelData data, ref int cols, ref int rows, ref Vector2 originPosition)
     {
         Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
         Vector2Int max = new Vector2Int(int.MinValue, int.MinValue);
-        Dictionary<Vector2Int, string> walkableAt = new();
+        Dictionary<Vector2Int, bool> walkableAt = new();
 
         for (int i = 0; i < data.poses.Count; i++)
         {
@@ -38,13 +38,14 @@ public class GridBuilder
             for (int y = 0; y < rows; y++)
             {
                 Vector2Int rawPos = new Vector2Int(min.x + x, min.y + y);
-                bool walkable = walkableAt.TryGetValue(rawPos, out string tile) && tile == GameConstants.TileName.FLOOR;
+                bool walkable = walkableAt.TryGetValue(rawPos, out bool isFloor) && isFloor;
                 nodesGrid[x, y] = new Node(new Vector2Int(x, y), walkable);
             }
         }
         this.cols = cols;
-        this.rows = cols;
-        originPosition = (Vector3)min;
+        this.rows = rows;
+        this.nodesGrid = nodesGrid;
+        originPosition = min;
         SetNodeNeighbors();
         return nodesGrid;
     }
