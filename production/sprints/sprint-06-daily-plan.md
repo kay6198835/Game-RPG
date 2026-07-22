@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🔴 DAY 2 — zero Must-Have landed on `sprint-06`, off-plan work escalating (6th recurrence)
+## Status Verdict: 🔴 DAY 3 — zero Must-Have landed on `sprint-06`, off-plan work escalating (7th recurrence)
 
 Sprint 5 closed CONCERNS/bordering-FAIL at 34% Must-Have (1.35d/3.95d) after 4 consecutive days of
 off-plan work. Sprint 6 is deliberately scoped narrower (2.20d Must-Have vs 4d capacity) to make
@@ -99,15 +99,28 @@ Tuesday goal (death chain) pushed behind the carried Monday slate rather than si
 **Owner decision needed**: the A* pathfinding work on `origin/feature/enemy-control` (6th off-plan
 recurrence) is not on this list — see Risks. Continuing it today means another 0% Must-Have day.
 
-### Wed 07/23 — PLAN
-**Goal: Spawn stabilization + BUG-06 write-through fix.**
+### Wed 07/23 — PLAN (revised at 02:00 standup — full Must-Have backlog carried, none started Mon/Tue)
 
-| # | Task | Est | Priority |
-|---|------|-----|----------|
-| 1 | **S6-06** — `GetSpawnSet()` empty list not null (BUG-ES-1) | 0.25d | 🔴 Must |
-| 2 | **S6-07** — guard `EnemySpawner.cs` empty `spawnPosition` read (BUG-ES-4) | 0.1d | 🔴 Must |
-| 3 | **S6-08** — `NegativeReciver` write-through to `PlayerData.currentHealth` (BUG-06 partial fix) | 0.25d | 🔴 Must |
-| 4 | **S6-09** — `EnemyModal` SO-vs-plain-class decision | 0.15d | 🔴 Must |
+**Goal, revised**: original Wed goal (spawn stabilization) kept, but sequenced behind the still-open
+Mon/Tue carry since velocity is 0% after 2 full sprint days. Order below is by dependency/risk, not by
+original day — apply `/estimate` logic (small, low-risk fixes first to bank quick wins; S6-04 last
+among Musts as the largest single item).
+
+| # | Task | Est | Priority | Note |
+|---|------|-----|----------|------|
+| 1 | **S6-01** — verify `PoolMember.cs` compiles (CS0592 risk) | 0.1d | 🔴 Must | Carried 3rd day — do first, blocks nothing but unverified risk compounds |
+| 2 | **S6-00** — verify branch parity | 0.1d | 🔴 Must | Carried 3rd day |
+| 3 | **S6-07** — guard `EnemySpawner.cs` empty `spawnPosition` read (BUG-ES-4) | 0.1d | 🔴 Must | Small, isolated, no dependency |
+| 4 | **S6-06** — `GetSpawnSet()` empty list not null (BUG-ES-1) | 0.25d | 🔴 Must | Pairs naturally with S6-07 (same call chain) |
+| 5 | **S6-02** — fix NEW-1 hang risk, `weight == 0` guard in `RoomModel.GetSpawnSet()` Phase-1 loop | 0.25d | 🔴 Must | Same file as S6-06 — do together |
+| 6 | **S6-03** — `EntityMoveState` null-guard to top of `LogicUpdate()` (BUG-05) | 0.25d | 🔴 Must | Carried 3rd day — isolated one-file fix |
+| 7 | **S6-08** — `NegativeReciver` write-through to `PlayerData.currentHealth` (BUG-06 partial) | 0.25d | 🔴 Must | Isolated one-file fix |
+| 8 | **S6-09** — `EnemyModal` SO-vs-plain-class decision | 0.15d | 🔴 Must | Decision only, no code — do anytime, unblocks S6-D2 |
+| 9 | **S6-04** — `EntityDeathState : EntityState` rewrite + wire (BUG-07) | 0.5d | 🔴 Must | Largest item — only if 1-8 close early |
+| 10 | **S6-05** — `EntityBasicState` death transition + `ON_ENEMY_DEATH` (BUG-08) | 0.25d | 🔴 Must | Depends on S6-04 landing first |
+
+Total Must-Have remaining if none of the above land today: 2.20d unchanged — still fits within 1
+remaining sprint day only if today closes most of items 1-8.
 
 ### Thu 07/24 — PLAN
 **Goal: Should-Have carry cleanup — ADR flips, driver dedupe, small fixes.**
@@ -138,7 +151,7 @@ recurrence) is not on this list — see Risks. Continuing it today means another
 
 | Risk | Status | Mitigation |
 |------|--------|------------|
-| Off-plan work recurs a 6th time | 🔴 CONFIRMED ESCALATING (2026-07-22) | Continued past the tilemap commit: `6468d7e "add full algorithm A*"` + `a7ba4c4 "add miss"` (2026-07-21 16:22–16:47) on `origin/feature/enemy-control` add a brand-new `Assets/Script/Pathfinding/**` subsystem (9 files) plus edits to `EnemyManager.cs`/`EnemySpawner.cs`/`RoomGeneraterController.cs`/`RoomGridController.cs`/`GameConstants.cs`. As of this standup there are still **uncommitted** edits on that branch fixing self-inflicted compile breaks from the `GameConstants.Direction` restructure (`spawnPosition.Count = 0` → `== 0`, `roomModel = null` → `== null` — both were assignment-as-comparison typos that would not compile). None of this is on the `sprint-06` task list, and it is not merged into `sprint-06`. Full Must-Have list (S6-00→S6-09) is still zero-progress as a direct result — 2 of 4 sprint days now gone with no Must-Have landed. Flagging as the top blocker for owner attention. |
+| Off-plan work recurs a 7th time | 🔴 CONFIRMED ESCALATING (2026-07-23) | Branch renamed `origin/feature/enemy-control` → `origin/feature/spawn-enemy` (same lineage, branched from `sprint-06` tip `fcb89bd`). All 6 commits made 2026-07-22 (`599191f` 10:39 → `33df425` 22:45) continue the same off-plan track: pathfinding polish (`change from use node to searchNode`, `update miss`, `fix compiler`, `add all direction`, `refactor: standardize Vector2 usage, fix z-pollution and pathfinding compile errors`, `update enityMovement`, `polish last commit`) plus a **new** Core/CoreComponent architecture change (`771f169 "big update core and corecomponet, add interface"` — adds `ICore`/`ICoreComponent` interfaces, restructures `CoreBase.cs`/`CoreComponentBase.cs`, adds `EntityAttack.cs`) and `9461bb1 "coding"` / `33df425 "fix complier bug"`. None of this is on the `sprint-06` task list; still not merged into `sprint-06`. Re-verified every Must-Have target directly against current `sprint-06` code this standup (not the uncommitted feature-branch WIP) — all 8 unchanged: `PoolMember.cs:9` isInPool still unverified (S6-01); `EntityMoveState.cs:30` still dereferences `entity.Input.Target.transform.position` before the `== null` check at line 34 (S6-03); `EntityDeathState` still `: MonoBehaviour` (S6-04); `EntityBasicState.cs` `Health <= 0` block still empty (S6-05); `RoomModel.GetSpawnSet()` still no `weight == 0` guard in the Phase-1 `while` loop (S6-02) and still `return null` on empty pool (S6-06); `EnemySpawner.cs` `spawnPosition[Random.Range(...)]` still unguarded (S6-07); `NegativeReciver.cs` still mutates its own local `currentHealth`, not `PlayerData.currentHealth` (S6-08). 3 of 4 sprint days now gone with zero Must-Have landed. Top blocker for owner attention — recommend explicit scope decision before Thursday. |
 | `PoolMember.cs` build break unverified | 🔴 WATCH — 2nd consecutive miss | Still `[SerializeField] public bool isInPool { get; private set; }` unchanged on `sprint-06`; was the mandated first task Monday, still not verified against a real Editor compile as of Tue 02:00 |
 | `EnemyModal` decision blocks ADR-0003 flip and further spawn-system work | 🟡 WATCH | S6-09 was scheduled Wed; at current velocity (0% after day 1) the whole Wed slate is at risk of slipping |
 | No QA plan — 3rd consecutive cycle | 🔴 OPEN | Flagged in `sprint-06.md`; recommend running `/qa-plan sprint` before S6-03 starts |
@@ -227,3 +240,28 @@ recurrence) is not on this list — see Risks. Continuing it today means another
   after a full sprint day. Recommend the owner explicitly decide: fold the A* pathfinding work into
   Sprint 7 scope with its own tasks/estimates, or pause it and redirect today to S6-00→S6-03 as
   originally planned. Not resolved autonomously — this is a scope call for the owner.
+
+- **2026-07-23 (Wed 02:00) — daily standup, autonomous scheduled run**: Working tree (still on
+  `origin/feature/spawn-enemy`, renamed from `origin/feature/enemy-control`) had 6 uncommitted `.cs`
+  edits (`Interact.cs`, `EnemySpawner.cs`, `RoomCell.cs`, `RoomGeneraterController.cs`,
+  `RoomGridController.cs`, `ObjectPoolManager.cs`). Per the hard constraint against touching `.cs`
+  files, ran `git stash push -u` (reversible, not discarded) to move onto `sprint-06` cleanly, did the
+  tracker update, then `git checkout` back to `feature/spawn-enemy` and `git stash pop` to restore the
+  developer's WIP exactly as found — a plain stash round-trip was sufficient this time, no worktree
+  needed.
+  `git log sprint-06` tip is still `fcb89bd` (Tuesday's standup commit) — **no commits landed on
+  `sprint-06` since Monday**. Meanwhile `origin/feature/spawn-enemy` picked up 6 more commits
+  yesterday (2026-07-22 10:39 to 22:45): pathfinding continuation (`599191f`, `bc99d81`, `a2f06bf`,
+  `5ecba49`, `0223d02`, `ea5658d`, `d3b0e74`) plus a new Core/CoreComponent architecture pass
+  (`771f169 "big update core and corecomponet, add interface"` — `ICore`/`ICoreComponent` interfaces
+  added under `Assets/Script/Character/Base/Interface/`, `CoreBase.cs`/`CoreComponentBase.cs`
+  restructured, new `EntityAttack.cs`), then `9461bb1 "coding"` and `33df425 "fix complier bug"`. None
+  of this touches the Sprint 6 Must-Have list. Re-verified S6-01 through S6-08 directly against
+  `sprint-06` source (see Risks table above for line-level detail) — all still open exactly as
+  Tuesday. Task Estimates table unchanged — still accurately all Not started, 3 of 4 sprint days
+  elapsed, 0% Must-Have velocity.
+  **Today's plan (autonomous, carried forward)**: since S6-00 through S6-05 (the Mon/Tue slate) never
+  started either, today's list is the full Must-Have backlog in dependency order rather than only the
+  original Wed items — see revised task list below with estimates. Whether to formally fold the
+  pathfinding/Core-refactor branch into Sprint 7 scope is still not resolved autonomously — flagging
+  again for the owner, 7th consecutive standup raising this.
