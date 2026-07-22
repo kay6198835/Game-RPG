@@ -5,6 +5,10 @@ using UnityEngine;
 public class EntityMovement : EntityCoreComponent
 {
     [SerializeField] protected Rigidbody2D rb;
+    [SerializeField] private Transform target;
+    [SerializeField] protected List<Vector2> Waypoints;
+    [SerializeField] protected Vector2 targetPosition;
+    [SerializeField] protected int indexWaypoints;
 
     protected override void Awake()
     {
@@ -12,10 +16,34 @@ public class EntityMovement : EntityCoreComponent
         rb = GetComponentInParent<Rigidbody2D>();
     }
 
-    public void MoveForwardTarget(Vector2 velocity)
+    public void MoveToTarget()
     {
-        rb.velocity = velocity;
+        float distance = Vector2.Distance(transform.position, targetPosition);
+
+        if (distance <= 0.3f)
+        {
+            indexWaypoints++;
+            SetPointToForward(Waypoints[indexWaypoints]);
+        }
     }
 
-    
+    private void SetPointToForward(Vector2 targetPosition)
+    {
+        this.targetPosition = targetPosition;
+    }
+
+    private void GetPath(Path path)
+    {
+        Waypoints.Clear();
+        Waypoints.AddRange(path.Waypoints);
+        indexWaypoints = 0;
+        SetPointToForward(Waypoints[indexWaypoints]);
+    }
+
+    public void SendResquestPath()
+    {
+        if (target == null) return;
+        PathRequest request = new PathRequest(transform.position, target.transform.position, GetPath);
+        EnemyManager.Instance.RequestPath();
+    }
 }
