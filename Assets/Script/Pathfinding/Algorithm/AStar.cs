@@ -9,7 +9,7 @@ public static class AStar
         SearchNode targetNode = grid.GetNodeFromWorld(targetWorld);
 
         if (startNode == null || targetNode == null
-            || !startNode.Walkable || !targetNode.Walkable)
+            || !startNode.Node.Walkable || !targetNode.Node.Walkable)
             return Path.Failure;
 
         grid.ClearSearchState();   // reset G/H/Parent/HeapIndex toàn lưới
@@ -31,11 +31,11 @@ public static class AStar
 
             foreach (SearchNode neighbour in grid.GetNeighbours(current))
             {
-                if (!neighbour.Walkable || closedSet.Contains(neighbour))
+                if (!neighbour.Node.Walkable || closedSet.Contains(neighbour))
                     continue;
 
-                bool diagonal = neighbour.GridPosition.x != current.GridPosition.x
-                             && neighbour.GridPosition.y != current.GridPosition.y;
+                bool diagonal = neighbour.TileMapPosition.x != current.TileMapPosition.x
+                             && neighbour.TileMapPosition.y != current.TileMapPosition.y;
                 int stepCost = diagonal ? Heuristic.DIAGONAL : Heuristic.STRAIGHT;
                 int newG = current.GCost + stepCost;
 
@@ -62,10 +62,10 @@ public static class AStar
 
         while (current != start)
         {
-            waypoints.Add(current.WorldPosition);
+            waypoints.Add(current.Node.WorldPosition);
             current = current.Parent;
         }
-        waypoints.Add(start.WorldPosition);
+        waypoints.Add(start.Node.WorldPosition);
         waypoints.Reverse();   // đang là target→start, đảo lại thành start→target
 
         return new Path(waypoints, true);

@@ -12,11 +12,11 @@ public class PriorityQueue
 
     public void Clear() => count = 0;
 
-    public void Enqueue(SearchNode node)
+    public void Enqueue(SearchNode searchNode)
     {
-        node.HeapIndex = count;
-        items[count] = node;
-        SortUp(node);
+        searchNode.HeapIndex = count;
+        items[count] = searchNode;
+        SortUp(searchNode);
         count++;
     }
 
@@ -30,36 +30,36 @@ public class PriorityQueue
         return first;
     }
 
-    // Gọi khi G của node giảm → ưu tiên tăng → đẩy lên
-    public void UpdatePriority(SearchNode node) => SortUp(node);
+    // Gọi khi G của searchNode giảm → ưu tiên tăng → đẩy lên
+    public void UpdatePriority(SearchNode searchNode) => SortUp(searchNode);
 
-    public bool Contains(SearchNode node)
-        => node.HeapIndex < count && items[node.HeapIndex] == node;
+    public bool Contains(SearchNode searchNode)
+        => searchNode.HeapIndex < count && items[searchNode.HeapIndex] == searchNode;
 
-    private void SortUp(SearchNode node)
+    private void SortUp(SearchNode searchNode)
     {
-        int parentIndex = (node.HeapIndex - 1) / 2;
-        while (node.HeapIndex > 0 && Compare(node, items[parentIndex]) > 0)
+        int parentIndex = (searchNode.HeapIndex - 1) / 2;
+        while (searchNode.HeapIndex > 0 && Compare(searchNode, items[parentIndex]) > 0)
         {
-            Swap(node, items[parentIndex]);
-            parentIndex = (node.HeapIndex - 1) / 2;
+            Swap(searchNode, items[parentIndex]);
+            parentIndex = (searchNode.HeapIndex - 1) / 2;
         }
     }
 
-    private void SortDown(SearchNode node)
+    private void SortDown(SearchNode searchNode)
     {
         while (true)
         {
-            int left  = node.HeapIndex * 2 + 1;
-            int right = node.HeapIndex * 2 + 2;
+            int left  = searchNode.HeapIndex * 2 + 1;
+            int right = searchNode.HeapIndex * 2 + 2;
             if (left >= count) return;
 
             int swapIndex = left;
             if (right < count && Compare(items[right], items[left]) > 0)
                 swapIndex = right;
 
-            if (Compare(items[swapIndex], node) > 0)
-                Swap(node, items[swapIndex]);
+            if (Compare(items[swapIndex], searchNode) > 0)
+                Swap(searchNode, items[swapIndex]);
             else
                 return;
         }

@@ -13,8 +13,8 @@ public static class Heuristic
     // Octile — CHUẨN cho lưới 8 hướng (cho đi chéo).
     public static int Octile(SearchNode a, SearchNode b)
     {
-        int dx = Mathf.Abs(a.GridPosition.x - b.GridPosition.x);
-        int dy = Mathf.Abs(a.GridPosition.y - b.GridPosition.y);
+        int dx = Mathf.Abs(a.TileMapPosition.x - b.TileMapPosition.x);
+        int dy = Mathf.Abs(a.TileMapPosition.y - b.TileMapPosition.y);
 
         int min = Mathf.Min(dx, dy);
         int max = Mathf.Max(dx, dy);
@@ -28,8 +28,8 @@ public static class Heuristic
     // Manhattan — chỉ dùng nếu chuyển sang lưới 4 hướng (KHÔNG cho đi chéo).
     public static int Manhattan(SearchNode a, SearchNode b)
     {
-        int dx = Mathf.Abs(a.GridPosition.x - b.GridPosition.x);
-        int dy = Mathf.Abs(a.GridPosition.y - b.GridPosition.y);
+        int dx = Mathf.Abs(a.TileMapPosition.x - b.TileMapPosition.x);
+        int dy = Mathf.Abs(a.TileMapPosition.y - b.TileMapPosition.y);
 
         int h = STRAIGHT * (dx + dy);
 
