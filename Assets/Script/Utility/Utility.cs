@@ -30,9 +30,9 @@ public static class Utility
         bool dominantAxisIsHorizontal = Mathf.Abs(dir.x) >= Mathf.Abs(dir.y);
 
         if (dominantAxisIsHorizontal)
-            return dir.x >= 0 ? GameConstants.Direction.RIGHT : GameConstants.Direction.LEFT;
+            return dir.x >= 0 ? GameConstants.Direction.Vector.RIGHT : GameConstants.Direction.Vector.LEFT;
 
-        return dir.y >= 0 ? GameConstants.Direction.TOP : GameConstants.Direction.BOTTOM;
+        return dir.y >= 0 ? GameConstants.Direction.Vector.TOP : GameConstants.Direction.Vector.BOTTOM;
     }
 
 
@@ -81,7 +81,7 @@ public static class Utility
 
     /// <summary>
     /// Xác định hướng của một Tile_Door dựa trên khoảng cách từ nó đến 4 cạnh biên của wall.
-    /// Cạnh nào gần nhất → door đó thuộc cạnh đó → trả về hướng tương ứng theo GameConstants.Direction.
+    /// Cạnh nào gần nhất → door đó thuộc cạnh đó → trả về hướng tương ứng theo GameConstants.Direction.Vector.
     ///
     /// Ví dụ với room bounds x=[-15,14], y=[-15,14]:
     ///   pos(-15, 2) → distLeft=0  → LEFT
@@ -98,10 +98,10 @@ public static class Utility
         // Cạnh có khoảng cách nhỏ nhất là cạnh mà door thuộc về.
         int minDist = Mathf.Min(distLeft, Mathf.Min(distRight, Mathf.Min(distDown, distUp)));
 
-        if (minDist == distLeft) return GameConstants.Direction.LEFT;
-        if (minDist == distRight) return GameConstants.Direction.RIGHT;
-        if (minDist == distDown) return GameConstants.Direction.BOTTOM;
-        return GameConstants.Direction.TOP;
+        if (minDist == distLeft) return GameConstants.Direction.Vector.LEFT;
+        if (minDist == distRight) return GameConstants.Direction.Vector.RIGHT;
+        if (minDist == distDown) return GameConstants.Direction.Vector.BOTTOM;
+        return GameConstants.Direction.Vector.TOP;
     }
 
     /// <summary>

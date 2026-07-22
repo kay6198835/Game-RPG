@@ -111,7 +111,7 @@ public class LevelManager : MonoBehaviour
                 continue;
             }
 
-            string roomName = Path.GetFileNameWithoutExtension(file);
+            string roomName = System.IO.Path.GetFileNameWithoutExtension(file);
             RoomType roomType = InferRoomTypeFromName(roomName);
 
             dungeonRoomSO.room.Add(new RoomFile

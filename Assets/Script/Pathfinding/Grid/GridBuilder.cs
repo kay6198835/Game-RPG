@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using UnityEngine;
+
 [System.Serializable]
 public class GridBuilder
 {
@@ -56,8 +59,8 @@ public class GridBuilder
             {
                 foreach (Vector2 dir in GameConstants.Direction.Vector)
                 {
-                    int nx = col + dir.x;
-                    int ny = row + dir.y;
+                    int nx = col + (int)dir.x;
+                    int ny = row + (int)dir.y;
 
                     if (!IsInside(nx, ny))
                         continue;
@@ -65,8 +68,8 @@ public class GridBuilder
                     // Corner Cutting
                     if (dir.x != 0 && dir.y != 0)
                     {
-                        Node horizontal = nodesGrid[col + dir.x, row];
-                        Node vertical = nodesGrid[col, row + dir.y];
+                        Node horizontal = nodesGrid[col + (int)dir.x, row];
+                        Node vertical = nodesGrid[col, row + (int)dir.y];
 
                         if (!horizontal.Walkable && !vertical.Walkable)
                             continue;

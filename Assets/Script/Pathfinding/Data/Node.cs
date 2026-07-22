@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using UnityEngine;
+
 [System.Serializable]
 public class Node
 {
@@ -11,7 +14,7 @@ public class Node
         TileMapPosition = tileMapPosition;
         Walkable = walkable;
     }
-    public void AddNeighbors(Node neighborNode)
+    public void AddNeighbor(Node neighborNode)
     {
         neighbors.Add(neighborNode);
     }
@@ -23,7 +26,7 @@ public class Node
 
     public void SetPostionWold(Vector2 gridOrigin)
     {
-        WorldPosition = gridOrigin + TileMapPosition.ConvertTo<Vector2>();
+        WorldPosition = gridOrigin + (Vector2)TileMapPosition;
     }
 
     public void SetGridPosition(Vector2Int worldPosition)

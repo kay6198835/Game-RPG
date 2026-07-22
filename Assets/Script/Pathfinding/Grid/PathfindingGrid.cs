@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 [System.Serializable]
 public class PathfindingGrid
 {
@@ -17,9 +19,9 @@ public class PathfindingGrid
         nodesGrid = build.BuildGrid(data, ref cols, ref rows, ref originPosition);
     }
 
-    public List<Node> GetNeighbours(Node node)
-    {
-        node.Neighbors;
+    public IReadOnlyList<Node> GetNeighbours(Node node)
+    {   
+        return node.Neighbors;
     }
 
     public SearchNode GetNodeFromWorld(Vector3 positionWorld)

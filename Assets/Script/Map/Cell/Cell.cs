@@ -27,10 +27,10 @@ public class Cell
 
     public STATUS_DOOR GetStatusDoor(Vector2 direction)
     {
-        if (direction == GameConstants.Direction.TOP) return Doors[GameConstants.Direction.Name.TOP];
-        if (direction == GameConstants.Direction.BOTTOM) return Doors[GameConstants.Direction.Name.BOTTOM];
-        if (direction == GameConstants.Direction.LEFT) return Doors[GameConstants.Direction.Name.LEFT];
-        if (direction == GameConstants.Direction.RIGHT) return Doors[GameConstants.Direction.Name.RIGHT];
+        if (direction == GameConstants.Direction.Vector.TOP) return Doors[GameConstants.Direction.Name.TOP];
+        if (direction == GameConstants.Direction.Vector.BOTTOM) return Doors[GameConstants.Direction.Name.BOTTOM];
+        if (direction == GameConstants.Direction.Vector.LEFT) return Doors[GameConstants.Direction.Name.LEFT];
+        if (direction == GameConstants.Direction.Vector.RIGHT) return Doors[GameConstants.Direction.Name.RIGHT];
         return STATUS_DOOR.DISABLE;
     }
 }

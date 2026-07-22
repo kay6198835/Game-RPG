@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Numerics;
 using Unity.VisualScripting;
 using UnityEngine;
 [RequireComponent(typeof(ObjectPoolManager))]
@@ -32,13 +31,13 @@ public class EnemySpawner : MonoBehaviour
     public void OnDoneLoadRoomGrid(object obj = null)
     {
         spawnPosition = (List<Vector2Int>)obj;
-        if (spawnPosition == null || spawnPosition.Count = 0)
+        if (spawnPosition == null || spawnPosition.Count == 0)
         {
             Debug.LogWarning("OnDoneLoadRoomGrid: spawnPosition is empty");
             return;
         }
         roomModel = mapModel.GetRandomRoom();
-        if (roomModel = null)
+        if (roomModel == null)
         {
             Debug.LogWarning("OnDoneLoadRoomGrid: roomModel is empty");
             return;
@@ -55,7 +54,7 @@ public class EnemySpawner : MonoBehaviour
         return roomModel.GetSpawnSet();
     }
 
-    public void SpawnRoomEnemies(Vector2Int spawnPosition)
+    public void SpawnRoomEnemies(in List<Vector2Int> spawnPosition)
     {
         List<EnemySpawnEntry> set = GetRoomSpawnSet();
         if (set.Count == 0 || set == null)
@@ -63,7 +62,7 @@ public class EnemySpawner : MonoBehaviour
             Debug.LogWarning("SpawnRoomEnemies: nothing to spawn");
             return;
         }
-        if (spawnPosition == null || spawnPosition.Count = 0)
+        if (spawnPosition == null || spawnPosition.Count == 0)
         {
             Debug.LogWarning("SpawnRoomEnemies: spawnPosition is empty");
             return;

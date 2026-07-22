@@ -78,7 +78,11 @@
       "Bash(gh --version)",
       "Bash(gh auth *)",
       "Bash(git cherry-pick *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(grep -E \"^sprint-[0-9]+\\\\.md$\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(git worktree *)",
+      "Bash(cd \"D:/sprint06wt\" && rtk git push origin sprint-06 2>&1)"
     ]
   }
 }
