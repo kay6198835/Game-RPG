@@ -18,19 +18,17 @@ public class EntityMoveState : EntityBasicState
         base.Enter();
         moveDurationTime = entityData.MoveDurationTime;
         moveTime = startTime + moveDurationTime;
-        if (entity.Input.Target == null)
+        if (entityInput.Target == null)
         {
-            entity.Input.SetDirectionRadom();
+            entityInput.SetDirectionRadom();
         }
-        //entityCore.EntityMovement.SendResquestPath();
-        // fix
+        entityMovement.SendResquestPath();
     }
     public override void LogicUpdate()
     {
         directionMoveVector = entity.Input.DirectionLookVector.normalized;
         speed = entityData.MovementVelocities;
-        //entityCore.EntityMovement.MoveToTarget();
-        // fix
+        entityMovement.MoveToTarget();
 
         base.LogicUpdate();
     }
@@ -41,7 +39,6 @@ public class EntityMoveState : EntityBasicState
     public override void Exit()
     {
         base.Exit();
-        //entityCore.EntityMovement.StopMove();
-        // fix
+        entityMovement.StopMove();
     }
 }

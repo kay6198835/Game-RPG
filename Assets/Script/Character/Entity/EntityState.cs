@@ -6,7 +6,6 @@ public class EntityState : IState
 {
     protected EntityStateMachine stateMachine;
     protected Entity entity;
-    protected EntityCore entityCore;
     protected EntityData entityData;
     public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
     protected float startTime;
@@ -18,7 +17,6 @@ public class EntityState : IState
         this.stateMachine = stateMachine;
         this.animBoolName = animBoolName;
         this.entityData = entityData;
-        entityCore = entity.Core;
     }
 
     public virtual void Enter()

@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class EntityUseWeaponState : EntityState
 {
+    protected EntityMovement entityMovement;
+    protected EntityWeaponHolder weaponHolder;
     public EntityUseWeaponState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
     public override void Enter()
     {
         base.Enter();
-        //entityCore.EntityMovement.StopMove();
-        // fix
+        entity.Core.GetCoreComponent(out entityMovement);
+        entity.Core.GetCoreComponent(out weaponHolder);
+        entityMovement.StopMove();
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
     }
     public override void LogicUpdate()
@@ -22,5 +25,11 @@ public class EntityUseWeaponState : EntityState
             entity.StateMachine.ChangeState(entity.IdleState);
             //Debug.Log("Attack");
         }
+    }
+    public override void Exit()
+    {
+        base.Exit();
+        entityMovement = null;
+        weaponHolder = null;
     }
 }
