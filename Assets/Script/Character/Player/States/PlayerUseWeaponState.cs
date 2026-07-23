@@ -5,7 +5,8 @@ using UnityEngine;
 public class PlayerUseWeaponState : PlayerState
 {
     protected PlayerMovement playerMovement;
-    protected PlayerInputHandle inputHandler;
+    protected PlayerInputHandler inputHandler;
+    protected WeaponHolder weaponHolder;
     public PlayerUseWeaponState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -14,6 +15,7 @@ public class PlayerUseWeaponState : PlayerState
         base.Enter();
         player.Core.GetCoreComponent(out playerMovement);
         player.Core.GetCoreComponent(out inputHandler);
+        player.Core.GetCoreComponent(out weaponHolder);
         playerMovement.SetVeclocity(Vector2.zero);
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionMouse);
     }
@@ -22,6 +24,7 @@ public class PlayerUseWeaponState : PlayerState
         base.Exit();
         playerMovement = null;
         inputHandler = null;
+        weaponHolder = null;
     }
     public override void LogicUpdate()
     {

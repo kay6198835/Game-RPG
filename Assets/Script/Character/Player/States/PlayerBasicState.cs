@@ -8,7 +8,7 @@ public class PlayerBasicState : PlayerState
     protected Interactor interactor;
     protected AbilityHolder abilityHolder;
     protected PlayerMovement playerMovement;
-    protected PlayerInputHandle inputHandler;
+    protected PlayerInputHandler inputHandler;
     public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
