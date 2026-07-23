@@ -11,7 +11,7 @@ public class PlayerIntertorState : PlayerUseWeaponState
     {
         base.Enter();
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION,
-         inputHandler.DirectionExternality);
+        inputHandler.DirectionExternality);
     }
 
     public override void Exit()

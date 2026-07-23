@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerTakeDamageState : PlayerDisadvantageState
 {
-    // PlayerMovement playerMovement;
+    PlayerMovement playerMovement;
     public PlayerTakeDamageState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -24,6 +24,6 @@ public class PlayerTakeDamageState : PlayerDisadvantageState
     public override void Exit()
     {
         base.Exit();
-        // playerMovement = null;
+        playerMovement = null;
     }
 }

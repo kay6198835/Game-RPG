@@ -8,10 +8,6 @@ public class PlayerState : IState
     protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
     public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
-
-    // protected bool isAnimationTrigger;
-    // protected bool isAnimationAction;
-    // protected bool isExitingState;
     protected float startTime;
     protected string animBoolName;
     //protected StateStyle stateStyle;
@@ -20,11 +16,6 @@ public class PlayerState : IState
         Freeze,
         Motion
     }
-    protected PlayerInputHandler inputHandler;
-    protected WeaponHolder weaponHolder;
-    protected Interactor interactor;
-    protected AbilityHolder abilityHolder;
-    protected PlayerMovement playerMovement;
     public PlayerState(Player player, string animBoolName)
     {
         this.player = player;
@@ -37,11 +28,6 @@ public class PlayerState : IState
     public virtual void Enter()
     {
         DoChecks();
-        player.Core.GetCoreComponent(out inputHandler);
-        player.Core.GetCoreComponent(out weaponHolder);
-        player.Core.GetCoreComponent(out interactor);
-        player.Core.GetCoreComponent(out abilityHolder);
-        player.Core.GetCoreComponent(out playerMovement);
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
         this.Status = StatusAnimation.Start;

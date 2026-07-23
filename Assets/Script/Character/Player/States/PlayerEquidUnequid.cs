@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerEquidUnequid : PlayerUseWeaponState
 {
+    protected WeaponHolder weaponHolder;
     public PlayerEquidUnequid(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -12,6 +13,7 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
         base.Enter();
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION,
          inputHandler.DirectionExternality);
+        player.Core.GetCoreComponent(out weaponHolder);
     }
 
     public override void Exit()
@@ -22,7 +24,7 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (StatusAnimation.OnActivate <= Status &&  Status <= StatusAnimation.OffActivate)
+        if (StatusAnimation.OnActivate <= Status && Status <= StatusAnimation.OffActivate)
         {
             Debug.Log("Call PlayerEquidUnequid Trigger");
             weaponHolder.Intertion();

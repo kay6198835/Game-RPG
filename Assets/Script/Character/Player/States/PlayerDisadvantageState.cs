@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerDisadvantageState : PlayerState
 {
+    protected PlayerInputHandle inputHandler;
     public PlayerDisadvantageState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
