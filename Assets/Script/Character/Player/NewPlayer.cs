@@ -53,7 +53,7 @@ public class Player : BaseEntity
         takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
     }
 
-    public void Start()
+    public override void Start()
     {
         anim = GetComponent<Animator>();
         rigidbodyPlayer = GetComponent<Rigidbody2D>();

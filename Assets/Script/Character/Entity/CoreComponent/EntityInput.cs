@@ -51,11 +51,11 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     #endregion
 
     private EntityFindTarget entityFind;
-    private void Awake()
+    protected override void Awake()
     {
         entity = GetComponentInParent<Entity>();
     }
-    private void Start()
+    protected override void Start()
     {
         Core.GetCoreComponent(out entityFind);
     }
