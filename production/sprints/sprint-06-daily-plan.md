@@ -330,3 +330,49 @@ remaining sprint day only if today closes most of items 1-8.
 
   Remaining Must-Have estimate: 2.10d (2.20d − 0.10d for S6-00) against ~1.4 sprint days left
   (Thu + Fri) before Friday's wrap-up gate — tight but not yet infeasible if today closes items 1-6.
+
+- **2026-07-23 (midday run, ~14:38) — daily standup, autonomous scheduled run**: `git log` since the
+  02:52 follow-up (`7d33bf7`) shows 9 more commits landed 09:43→14:38: `5da1f66 "check fix get start
+  position"`, `b38ae61 "update flow set corecomponent"`, `11ce1fb "fix issue"`, `1d13870 "change flow"`,
+  `bda5b00 "update state, corecomponent of entity"`, `73faae3 "fix compiler"`, `d8de9b7 "polish code"`,
+  `e009043 "done spawn flow, life cycle room"`, `fe750ba` (merge `origin/feature/spawn-enemy` into
+  `origin/feature/enemy-control`). Re-verified against current `sprint-06` source:
+  - **Watch item resolved**: the `// fix` commented-out markers flagged at the 02:45 standup are gone —
+    `EntityAttackState.cs` now calls `weaponHolder.Weapon.Attack()` (was commented out) and
+    `EntityUseWeaponState.cs` now resolves `entityMovement`/`weaponHolder` via
+    `Core.GetCoreComponent()` and calls `entityMovement.StopMove()` in `Enter()` (was commented out).
+    Enemy attack-state wiring looks intact again post-Core-refactor — still not confirmed in-Editor,
+    but the source-level regression is gone.
+  - S6-03 (BUG-05) **re-shaped, still open**: `EntityMoveState` no longer dereferences
+    `Target.transform.position` directly — movement now goes through a new pathfinding layer
+    (`EntityMovement.SendResquestPath()` / `MoveToTarget()`, `EnemyManager.RequestPath()`,
+    `Path`/`PathRequest`). `SendResquestPath()` does guard `target == null`, so no bad request is sent —
+    but `MoveToTarget()` (`EntityMovement.cs:20`) still indexes `Waypoints[indexWaypoints]` whenever
+    `distance <= 0.3f`, with no guard for `Waypoints` being empty (which it is if `target` was ever
+    null and no path came back) — same class of bug, different call site
+    (`IndexOutOfRangeException` on an empty list instead of a `NullReferenceException` on `.position`).
+    Recommend re-scoping S6-03 to this new location rather than closing it against the old file/line.
+  - S6-01 (`PoolMember.cs:9`): unchanged, still unverified against a real Editor compile — **5th
+    consecutive day**.
+  - S6-02 (NEW-1, `RoomModel.cs:31` `while (weightBudget > this.weightBudget * 0.1f)`): unchanged, no
+    zero-weight guard.
+  - S6-04 (BUG-07): `EntityDeathState.cs` still `: MonoBehaviour`, unchanged.
+  - S6-05 (BUG-08): `EntityBasicState.cs:27-30` — the `Health <= 0` block is still an empty `if`, no
+    transition to a death state.
+  - S6-06 (BUG-ES-1): `RoomModel.cs:16` still `if (n == 0) return null;`.
+  - S6-07 (BUG-ES-4): `EnemySpawner.cs:77` `spawnPosition[Random.Range(0, spawnPosition.Count)]` still
+    unguarded.
+  - S6-08 (BUG-06 partial): `NegativeReciver.cs` unchanged — still a local `public int currentHealth`
+    field, `TakeDamage()` decrements it and emits `ON_PLAYER_DEATH` at zero, but never writes to
+    `PlayerData.currentHealth`.
+  - `RoomGridController.cs` (`OnLoadMap`/door-transition method) reordered: `LoadRoom()` now runs
+    *before* `GetStartDoorPosition()`/`_fastMovement` repositioning (previously position was read
+    before the room finished loading) — looks like a legitimate sequencing fix for the room-transition
+    flow (relates to checklist item 8 / Bug #13 area), not yet mapped to a specific S6 ID.
+  Task Estimates table: no additional items flip to ✅ this run — S6-01 through S6-09 remain ⬜ Not
+  started (S6-00 stays ✅ from the 02:45 run). 4 of 5 sprint days elapsed counting today, 1/9 Must-Have
+  items closed. The gap between "lots of commits landing" and "Must-Have list moving" continues — today's
+  9 commits are Core-refactor/pathfinding/room-flow work, still not S6-numbered bug fixes.
+  **Remaining today**: re-run S6-07/S6-06/S6-02 (same call chain, ~0.6d combined) and S6-01/S6-08
+  (isolated, ~0.35d) if any sprint time is left today; otherwise these + S6-03 (re-scoped) + S6-04/S6-05
+  are Thursday's full carry-over load (~2.10d against 2 sprint days left, Thu+Fri).
