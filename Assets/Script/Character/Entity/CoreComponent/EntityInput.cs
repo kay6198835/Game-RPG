@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class EntityInput : MonoBehaviour
+public class EntityInput : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Entity entity;
     [SerializeField] protected Transform target;
     [Header("State")]
-    [SerializeField] protected bool isTakeDamage=false;
+    [SerializeField] protected bool isTakeDamage = false;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
     [Header("Direction Look")]
@@ -39,19 +39,25 @@ public class EntityInput : MonoBehaviour
     public bool IsSkill { get => isSkill; }
     public Transform Target { get => target; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
-    public Entity Entity { get => entity;}
+    public Entity Entity { get => entity; }
     //public float AngleSin { get => angleSin;}
-    public float DirectionLookAngle { get => directionLookAngle;}
-    public int DirectionLook { get => directionLook;}
-    public Vector2 DirectionIsAttakedVector { get => directionIsAttakedVector;}
-    public int DirectionIsAttaked { get => directionIsAttaked;}
+    public float DirectionLookAngle { get => directionLookAngle; }
+    public int DirectionLook { get => directionLook; }
+    public Vector2 DirectionIsAttakedVector { get => directionIsAttakedVector; }
+    public int DirectionIsAttaked { get => directionIsAttaked; }
     public float DirectionIsAttakedAngle { get => directionIsAttakedAngle; }
-    public SkillState State { get => state;}
-    public SkillType Skill { get => skill;}
+    public SkillState State { get => state; }
+    public SkillType Skill { get => skill; }
     #endregion
+
+    private entityFind entityFind;
     private void Awake()
     {
         entity = GetComponentInParent<Entity>();
+    }
+    private void Start()
+    {
+        Core.GetCoreComponent(out entityFind);
     }
     private void Update()
     {
@@ -63,25 +69,25 @@ public class EntityInput : MonoBehaviour
         ChangeIsTakeDamage();
         Invoke(nameof(ChangeIsTakeDamage), 0.1f);
         directionIsAttakedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
-        AngleCalculate(directionIsAttakedVector,ref directionIsAttakedAngle , ref directionIsAttaked);
+        AngleCalculate(directionIsAttakedVector, ref directionIsAttakedAngle, ref directionIsAttaked);
     }
     private void GetTargetInRange()
     {
-        // if (target == null)
-        // {
-        //     target = entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
-        // }
-        // if (entity.Core.FindTarget.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
-        // {
-        //     isAttack = true;
-        // }
-        // else
-        // {
-        //     isAttack = false;
-        // }
+        if (target == null)
+        {
+            target = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+        }
+        if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
+        {
+            isAttack = true;
+        }
+        else
+        {
+            isAttack = false;
+        }
         // fix
     }
-    private void AngleCalculate(Vector2 directionVector,ref float angle, ref int direction)
+    private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
         DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
@@ -91,7 +97,7 @@ public class EntityInput : MonoBehaviour
         {
             directionLookVector = (target.position - transform.position).normalized;
         }
-        AngleCalculate(directionLookVector,ref directionLookAngle ,ref directionLook);
+        AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }
     public void SetDirectionRadom()
     {
@@ -100,7 +106,7 @@ public class EntityInput : MonoBehaviour
         float radian = directionLookAngle * Mathf.Deg2Rad;
         float x = Mathf.Cos(radian);
         float y = Mathf.Sin(radian);
-        directionLookVector = new Vector2(x, y).normalized*100f - (Vector2)transform.position;
+        directionLookVector = new Vector2(x, y).normalized * 100f - (Vector2)transform.position;
     }
     public void TurnLeftOrRight()
     {

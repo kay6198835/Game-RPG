@@ -14,10 +14,10 @@ public abstract class CoreComponentBase<T> : MonoBehaviour, ICoreComponent<T> wh
         
     }
 
-    public virtual void Setup()
-    {
-        Core = transform.parent.GetComponent<T>();
-        if (Core != null) Core.AddCoreComponent(this);
-    }
+    // public virtual void Setup()
+    // {
+    //     Core = transform.parent.GetComponent<T>();
+    //     if (Core != null) Core.AddCoreComponent(this);
+    // }
 
 }

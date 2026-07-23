@@ -7,5 +7,6 @@ public class Core : CoreBase
     private void Awake()
     {
         Player = GetComponentInParent<Player>();
+        
     }
 }

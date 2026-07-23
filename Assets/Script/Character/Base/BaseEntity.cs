@@ -3,7 +3,10 @@ using UnityEngine;
 public abstract class BaseEntity : MonoBehaviour
 {
     protected abstract IState CurrentState { get; }
-
+    protected virtual void Start()
+    {
+        
+    }
     protected virtual void Update()
     {
         IState state = CurrentState;

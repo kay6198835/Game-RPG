@@ -6,11 +6,14 @@ public abstract class CoreBase : MonoBehaviour, ICore
     [SerializeField] private List<ICoreComponent<ICore>> coreComponents = new List<ICoreComponent<ICore>>();
     private readonly Dictionary<System.Type, ICoreComponent<ICore>> _cache = new Dictionary<System.Type, ICoreComponent<ICore>>();
 
-    public virtual void AddCoreComponent(ICoreComponent<ICore> coreComponent)
+    protected virtual void Awake()
+    {
+        Setup();
+    }
+    protected virtual void AddCoreComponent(ICoreComponent<ICore> coreComponent)
     {
         if (!coreComponents.Contains(coreComponent)) coreComponents.Add(coreComponent);
     }
-
     public virtual void GetCoreComponent<T>(out T coreComponent) where T : ICoreComponent<ICore>
     {
         var type = typeof(T);
@@ -29,5 +32,10 @@ public abstract class CoreBase : MonoBehaviour, ICore
                 return;
             }
         }
+    }
+    protected virtual void Setup()
+    {
+        foreach (var comp in GetComponentsInChildren<ICoreComponent<ICore>>(true))
+            AddCoreComponent(comp);
     }
 }
