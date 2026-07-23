@@ -6,7 +6,7 @@ using UnityEngine;
 public class PoolMember : MonoBehaviour
 {
     [SerializeField] private Pool pool;
-    [SerializeField] public bool isInPool { get; private set; } = false;
+    public bool isInPool { get; private set; } = false;
     public void Initialize(Pool pool)
     {
         this.pool = pool;

@@ -64,17 +64,17 @@ but it is still not an S6-numbered task itself. See Daily Log and Risks below.
 | ID | Task | Est (d) | Priority | Status |
 |----|------|---------|----------|--------|
 | S6-00 | Verify branch parity (`origin/feature/spawn-enemy` commits present) | 0.1 | Must | ✅ Done — `fe62f47` merge unified `sprint-06`/`feature/spawn-enemy` |
-| S6-01 | Verify `PoolMember.cs` compiles (CS0592 risk) | 0.1 | Must | ⬜ Not started |
-| S6-02 | Fix NEW-1 — `GetSpawnSet()` weight==0 hang risk | 0.25 | Must | ⬜ Not started |
-| S6-03 | Fix BUG-05 — `EntityMoveState` null-guard to top | 0.25 | Must | ⬜ Not started |
-| S6-04 | Fix BUG-07 — `EntityDeathState : EntityState` rewrite + wire | 0.5 | Must | ⬜ Not started |
-| S6-05 | Fix BUG-08 — `EntityBasicState` death transition + `ON_ENEMY_DEATH` | 0.25 | Must | ⬜ Not started |
-| S6-06 | Fix BUG-ES-1 — `GetSpawnSet()` empty list not null | 0.25 | Must | ⬜ Not started |
-| S6-07 | Fix BUG-ES-4 — guard `EnemySpawner.cs` empty `spawnPosition` read | 0.1 | Must | ⬜ Not started |
+| S6-01 | Verify `PoolMember.cs` compiles (CS0592 risk) | 0.1 | Must | ✅ Done — owner fix: dropped `[SerializeField]` from the auto-property in [PoolMember.cs:9](Assets/Script/Poolable/PoolMember.cs#L9) (attribute doesn't apply to a property, only a backing field — the CS0592 risk source). `isInPool` no longer shows in the Inspector, matches its usage (runtime-only flag, set via `SwitchIsInPool()`) |
+| S6-02 | Fix NEW-1 — `GetSpawnSet()` weight==0 hang risk | 0.25 | Must | ✅ Done — owner decision: `EnemyModal.weight` clamped `[Range(1, 100)]` ([RoomModel.cs:106](Assets/Script/Database-SO/Modal/RoomModel.cs#L106)); zero-weight can no longer be authored, closes the hang at the source instead of a loop guard |
+| S6-03 | Fix BUG-05 — `EntityMoveState` null-guard to top | 0.25 | Must | ✅ Closed — owner decision: [EntityMovement.cs:11](Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs#L11) `indexWaypoints` now explicit `= 0`, no separate `Waypoints.Count` guard added. Residual edge case not eliminated by this change alone — see Daily Log note |
+| S6-04 | Fix BUG-07 — `EntityDeathState : EntityState` rewrite + wire | 0.5 | Must | ✅ Done — [EntityDeathState.cs](Assets/Script/Character/Entity/States/EntityDeathState.cs) now extends `EntityBasicState`, wired into [Entity.cs](Assets/Script/Character/Entity/Entity.cs) (`deathState` field/getter/`LoadState()`); emits `ON_ENEMY_DEATH` on anim finish. S6-05 (actually transitioning into it from `Health<=0`) still separate/open |
+| S6-05 | Fix BUG-08 — `EntityBasicState` death transition + `ON_ENEMY_DEATH` | 0.25 | Must | ⬜ Not started — unblocked now that `entity.DeathState` exists; just needs `stateMachine.ChangeState(entity.DeathState)` in the empty `Health<=0` block ([EntityBasicState.cs:27](Assets/Script/Character/Entity/States/EntityBasicState.cs#L27)) |
+| S6-06 | Fix BUG-ES-1 — `GetSpawnSet()` empty list not null | 0.25 | Must | ✅ Closed — owner decision: keep `return null;` as-is, accepted as intended behavior, not a bug |
+| S6-07 | Fix BUG-ES-4 — guard `EnemySpawner.cs` empty `spawnPosition` read | 0.1 | Must | ✅ Closed — correction: guard already exists at [EnemySpawner.cs:67-71](Assets/Script/Enemy/EnemySpawner.cs#L67) before the indexing at line 77; earlier standup mis-flagged this, no code change needed |
 | S6-08 | Fix BUG-06 partial — write-through to `PlayerData.currentHealth` | 0.25 | Must | ⬜ Not started |
-| S6-09 | Decision — `EnemyModal` SO-vs-plain-class | 0.15 | Must | ⬜ Not started |
+| S6-09 | Decision — `EnemyModal` SO-vs-plain-class | 0.15 | Must | ✅ Done — owner kept plain class (rejected SO migration); recorded as ADR-0003 Amendment |
 | S6-D1 | ADR-0002 Proposed→Accepted | 0.1 | Should | ⬜ Not started |
-| S6-D2 | ADR-0003 Proposed→Accepted (post S6-09) | 0.1 | Should | ⬜ Not started |
+| S6-D2 | ADR-0003 Proposed→Accepted (post S6-09) | 0.1 | Should | ✅ Done — [adr-0003-enemy-spawn-selection-candidate-pool.md](docs/architecture/adr-0003-enemy-spawn-selection-candidate-pool.md) flipped Accepted 2026-07-23, Data Model/Formulas/Migration Plan/Validation Criteria amended to match shipped plain-class code; registry (`docs/registry/architecture.yaml`) and GDD (`design/gdd/enemy-spawn-system.md` "Current Implementation" note) updated to match. **Caveat**: accepted against the data shape only — the eight-step Candidate-Pool algorithm itself is still unimplemented (`GetSpawnSet()` still runs Option A) |
 | S6-D3 | Dedupe spawn driver (BUG-ES-2) | 0.5 | Should | ⬜ Not started |
 | S6-D4 | `CancelInvoke` pairing | 0.25 | Should | ⬜ Not started |
 | S6-D5 | Cleanup batch (AH-2/EM-2/WM-2/LM-1) | 0.25 | Should | ⬜ Not started |
@@ -161,6 +161,68 @@ remaining sprint day only if today closes most of items 1-8.
 | 3 | Record carry-over + velocity in `sprint-06.md` if anything slips | — |
 | 4 | Confirm `/qa-plan sprint` was run this cycle (blocking for next gate); flag again if not — 4th consecutive miss would be worth investigating as a process issue | — |
 | 5 | If Must-Haves done early: **S6-N1** (playtest) or **S6-N2** (`EnemyManager` lifecycle start) | — |
+
+---
+
+## S6-09 Decision Brief — `EnemyModal` SO vs plain class (RESOLVED 2026-07-23 — see below)
+
+> **Resolved same day**: owner decision was **keep the plain class**. ADR-0003 flipped Accepted with
+> its Data Model amended to match (S6-D2, done). This brief is kept as the historical context/analysis
+> that led to the decision — see the Amendment section of
+> [adr-0003-enemy-spawn-selection-candidate-pool.md](docs/architecture/adr-0003-enemy-spawn-selection-candidate-pool.md)
+> for the recorded outcome and its consequences.
+
+**Context**: [ADR-0003](docs/architecture/adr-0003-enemy-spawn-selection-candidate-pool.md) (was Status:
+Proposed, 2026-07-13; now Accepted, 2026-07-23) specified `EnemyModal` as a ScriptableObject: `public
+class EnemyModal : EntityModel` — its own asset file, inheriting `EntityModel`'s GUID-based `ID`
+(`OnValidate` auto-gens one when `0`), individually authorable/reusable, per its Migration Plan and Data
+Model sections. The ADR's own example assumed separate assets per variant: *"Bat_Common.asset vs
+Bat_Rare.asset — same prefab, different weight/rarityTier"*.
+
+**What actually shipped** (current `sprint-06` code, [RoomModel.cs:102-108](Assets/Script/Database-SO/Modal/RoomModel.cs#L102)):
+```csharp
+[System.Serializable]
+public class EnemyModal
+{
+    public GameObject Prefab;
+    [Range(1, 100)] public int weight;
+    public RarityTier rarityTier;
+}
+```
+A plain `[System.Serializable]` class **nested inside `RoomModel.cs`** — not a `ScriptableObject`, does
+not extend `EntityModel`, has no asset file, no GUID `ID`, cannot be referenced from more than one
+`RoomModel` (each room's `enemiesOfRoom` list holds its own inline copies — no sharing).
+
+**Root cause (why it diverged)**: this collapsed during the Sprint 5→6 Core/CoreComponent refactor
+pass (`771f169 "big update core and corecomponet, add interface"`, 2026-07-22) — the dev's fastest path
+to get `GetSpawnSet()` compiling again after the refactor was an inline struct-like class rather than
+wiring a separate SO asset type. Nobody made an explicit call to abandon the ADR-0003 data model; it
+just happened as refactor collateral. This is the same "off-plan work reshapes planned architecture
+without a recorded decision" pattern flagged in the Risks table across Sprints 5-6 — S6-09 exists
+precisely to make the divergence an explicit, recorded choice instead of a silent drift.
+
+**Why it matters — consequences of each direction**:
+
+| | Keep plain class (current) | Convert to SO extending `EntityModel` (per ADR-0003) |
+|---|---|---|
+| Matches `.claude/rules/scriptableobject-data.md` ("all gameplay config in SO assets, no magic numbers in MonoBehaviour") | ❌ violates it — `weight`/`rarityTier` live in a plain class, not an SO asset | ✅ complies |
+| Reuse across rooms (author "Bat_Common" once, point 3 rooms at it) | ❌ impossible — every `RoomModel` re-enters its own copy, duplication + drift risk if one room's copy is tuned and others aren't | ✅ native — that's the whole point of ADR-0003's per-variant-asset pattern |
+| `EntityModel.ID` (GUID auto-gen) usable for save/lookup/analytics | ❌ n/a, no ID exists | ✅ inherited for free |
+| Migration cost | none — already shipped | real: create actual `.asset` files per enemy/tier variant, re-author every `RoomModel`'s `enemiesOfRoom` to reference assets instead of inline values, re-run `[Range(1,100)]`/`OnValidate` clamp logic in the new asset class instead of the nested class |
+| ADR-0003 status | must be revised (Data Model section rewritten to match plain-class reality) before it can flip Proposed→Accepted (S6-D2 blocked either way until this is settled) | ships as originally reviewed, flips Accepted as-is |
+
+**Direction (recommendation, not a unilateral decision)**: convert to the SO form. The project's own
+standing rule is ScriptableObject-first for exactly this kind of authored gameplay data, and ADR-0003
+was already reviewed and Proposed against that shape — reverting the ADR to match the shortcut is
+retrofitting the decision record around an implementation accident rather than an intentional call.
+The migration is bounded (one new SO class + re-pointing existing `RoomModel` asset fields) and there
+appear to be few `RoomModel` assets authored so far (`Assets/SO/Database/Room/RoomModel.asset`,
+`RoomModel 1.asset` — 2 seen in this sprint's diffs), so the re-authoring cost is still small. If
+schedule pressure wins instead, the correct action is **not** silence — it's editing ADR-0003's Data
+Model section to match the plain-class shape and recording that as the accepted change, so the next
+person reading the ADR isn't misled by a spec the code no longer follows.
+
+**Blocks**: S6-D2 (ADR-0003 Proposed→Accepted) cannot proceed cleanly until this is decided either way.
 
 ---
 
@@ -376,3 +438,91 @@ remaining sprint day only if today closes most of items 1-8.
   **Remaining today**: re-run S6-07/S6-06/S6-02 (same call chain, ~0.6d combined) and S6-01/S6-08
   (isolated, ~0.35d) if any sprint time is left today; otherwise these + S6-03 (re-scoped) + S6-04/S6-05
   are Thursday's full carry-over load (~2.10d against 2 sprint days left, Thu+Fri).
+
+- **2026-07-23 (owner decisions + fixes landed, same session)**: Owner reviewed the midday standup
+  digest and resolved 4 items directly:
+  - **S6-02 closed** — instead of a `weightBudget == 0` loop guard, owner chose to fix the root cause:
+    `EnemyModal.weight` ([RoomModel.cs:106](Assets/Script/Database-SO/Modal/RoomModel.cs#L106)) now
+    carries `[Range(1, 100)]` (was unclamped, CLAUDE.md's "no `[Range]` clamp" note is now stale). A
+    zero-weight enemy can no longer be authored in the Inspector, so `SetListCandidate`'s
+    `weightBudget -= enemiesOfRoom[i].weight` can never subtract 0 — the Phase-1 `while` loop in
+    `GetSpawnSet()` can no longer spin indefinitely on this path.
+  - **S6-04 closed** — [EntityDeathState.cs](Assets/Script/Character/Entity/States/EntityDeathState.cs)
+    rewritten from `: MonoBehaviour` (empty `Start`/`Update` stub) to `: EntityBasicState`, matching the
+    other Entity state classes' constructor pattern. `Enter()` stops movement; `LogicUpdate()` emits
+    `EventID.ON_ENEMY_DEATH` once the death animation reports `StatusAnimation.EndRangeTrigger` (does
+    **not** call `base.LogicUpdate()` — deliberately skips `EntityBasicState`'s attack/take-damage
+    transition checks since death should be terminal). Wired into
+    [Entity.cs](Assets/Script/Character/Entity/Entity.cs): added `deathState` field + `DeathState`
+    getter + `new EntityDeathState(...)` in `LoadState()`, animBoolName `"Death"`. **Not yet reachable**
+    — nothing calls `stateMachine.ChangeState(entity.DeathState)` yet; that's S6-05 (`EntityBasicState`'s
+    empty `Health <= 0` block), still open and now unblocked.
+  - **S6-06 closed, no code change** — owner decision: `GetSpawnSet()` returning `null` on an empty
+    enemy pool is accepted as intended, not a bug. Note for whoever eventually touches
+    `EnemySpawner.GetRoomSpawnSet()`: it already treats `roomModel == null` as an error case returning
+    `new List<>()`, but `SpawnRoomEnemies()` line 62 (`if (set.Count == 0 || set == null)`) evaluates
+    `set.Count` before the null check — if `GetSpawnSet()` ever returns actual `null` (empty pool, per
+    this decision) that line throws `NullReferenceException` before the `null` check short-circuits.
+    Not fixed this session (out of scope of what was asked) — flagging since the S6-06 decision makes
+    this reachable in practice, not just theoretical.
+  - **S6-07 closed, correction** — re-read [EnemySpawner.cs](Assets/Script/Enemy/EnemySpawner.cs) in
+    full: lines 67-71 already guard `spawnPosition == null || spawnPosition.Count == 0` before the
+    indexing loop at lines 72-85 that contains line 77. The earlier standup (02:45 and midday) flagged
+    line 77 in isolation without reading the guard above it — false positive, no code change needed.
+  Task Estimates: S6-00, S6-02, S6-04 (partial — see note), S6-06, S6-07 now ✅ — **5 of 9** Must-Have
+  items closed. Remaining open: S6-01 (unverified, 5th day), S6-03 (re-scoped `Waypoints` index risk),
+  S6-05 (death transition, now unblocked by S6-04), S6-08 (`PlayerData` write-through), S6-09 (decision).
+
+- **2026-07-23 (2nd round of owner decisions, same session)**:
+  - **S6-01 closed** — `[SerializeField]` dropped from `isInPool { get; private set; }` in
+    [PoolMember.cs:9](Assets/Script/Poolable/PoolMember.cs#L9). The attribute was invalid on an
+    auto-property (only fields can be serialized directly), which was the CS0592 risk; the property was
+    never meant to be Inspector-editable anyway (`SwitchIsInPool()` is the only writer, called from
+    `Pool.cs:41`). No behavior change, just removes the compile-risk attribute.
+  - **S6-03 closed** — owner decision: [EntityMovement.cs:11](Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs#L11)
+    `[SerializeField] protected int indexWaypoints = 0;` (explicit default, was implicit). **Flagging
+    for the record**: this alone does not remove the `Waypoints[indexWaypoints]` out-of-range risk at
+    [EntityMovement.cs:27](Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs#L27) — if
+    `target` is null when `MoveToTarget()` starts running, `Waypoints` stays empty and `targetPosition`
+    stays `Vector2.zero`; the guard at line 24 (`distance <= 0.3f`) only skips the indexing while the
+    entity is farther than 0.3 units from world origin `(0,0)`. Any room/entity placed within 0.3 units
+    of the literal world origin would still hit `Waypoints[0]` on an empty list. Accepted as closed
+    per owner call (probability of a room straddling world origin is currently near-zero given the
+    maze/room-grid layout), not because the underlying index risk is structurally gone — worth a
+    one-line follow-up (`if (Waypoints.Count == 0) return;`) if room placement near origin ever changes.
+  Task Estimates: **7 of 9** Must-Have items now ✅ (S6-00, S6-01, S6-02, S6-03, S6-04, S6-06, S6-07).
+  Remaining: S6-05 (death transition wiring, unblocked), S6-08 (`PlayerData` write-through), S6-09
+  (EnemyModal SO-vs-plain-class decision — see below, not resolved this session, needs owner input).
+
+- **2026-07-23 (S6-09 decision + S6-D2 doc sync, same session)**: Owner asked for full context on the
+  `EnemyModal` SO-vs-plain-class question (root cause: it drifted, unrecorded, during the Sprint 5→6
+  Core refactor `771f169`, away from ADR-0003's originally-speced SO-extending-`EntityModel` shape).
+  Decision brief written (see "S6-09 Decision Brief" above) comparing reuse/ID/migration-cost trade-offs
+  either way. **Owner decision**: keep the shipped plain-class shape — do not migrate to SO. S6-D2
+  ("ADR-0003 Proposed→Accepted") executed against that decision, updating every document that stated or
+  implied the SO shape rather than leaving them stale:
+  - [docs/architecture/adr-0003-enemy-spawn-selection-candidate-pool.md](docs/architecture/adr-0003-enemy-spawn-selection-candidate-pool.md) —
+    Status flipped Proposed→Accepted; Data Model, Formulas table, Key Interfaces, Risks mitigation,
+    Migration Plan, and AC-C4 amended in place to describe the actual plain-class/`[Range(1,100)]`/
+    no-`OnValidate` shape instead of the original SO/`[Range(1,99)]`/`OnValidate` spec; new **Amendment
+    (2026-07-23)** section records the trigger, decision, and explicitly what is/isn't covered (the
+    Candidate-Pool eight-step algorithm itself is still **not implemented** — `GetSpawnSet()` still runs
+    Option A — accepting the data shape is a separate question from accepting the algorithm rewrite as
+    done).
+  - [docs/registry/architecture.yaml](docs/registry/architecture.yaml) — `enemymodal_spawn_metadata`
+    contract signature/detail updated to the plain-class shape; `enemy_spawn_selection_algorithm`
+    decision `status: proposed` → `status: accepted` with a `status_note` carrying the same scope caveat
+    (data shape accepted, algorithm rewrite still open).
+  - [design/gdd/enemy-spawn-system.md](design/gdd/enemy-spawn-system.md) — "Option C — Formal
+    Specification" Data Model section marked `[SUPERSEDED 2026-07-23]` with a pointer to the new
+    "Current Implementation (as of 2026-07-23)" subsection showing the actual shipped `EnemyModal`
+    shape and the three concrete differences (no SO, no cross-room reuse, Inspector-only clamp).
+    Original spec code block kept for historical record, not deleted.
+  Not touched this pass: the many older "weight has no `[Range]` clamp" gap-notes elsewhere in the GDD
+  (lines ~68, 221, 370, 465) predate S6-02's fix and are now doubly stale (both the SO question and the
+  unclamped-weight question have moved) — out of scope for this specific S6-09/S6-D2 request, flagging
+  for a future `/consistency-check` or doc pass rather than silently leaving vs. silently rewriting
+  unrelated history.
+  Task Estimates: S6-09 now ✅ (decision recorded), S6-D2 now ✅ (ADR Accepted + docs synced). **8 of 9**
+  Must-Have items closed — only **S6-08** (`NegativeReciver` write-through to `PlayerData.currentHealth`)
+  remains open on the Must-Have list, plus S6-05 was already unblocked (S6-04) but not yet itself wired.

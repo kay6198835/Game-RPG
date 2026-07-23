@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class EntityDeathState : MonoBehaviour
+public class EntityDeathState : EntityBasicState
 {
-    // Start is called before the first frame update
-    void Start()
+    public EntityDeathState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
-        
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void Enter()
     {
-        
+        base.Enter();
+        entityMovement.StopMove();
+    }
+
+    public override void LogicUpdate()
+    {
+        if (Status == StatusAnimation.EndRangeTrigger)
+        {
+            EventManager.Emit(EventID.ON_ENEMY_DEATH);
+        }
     }
 }

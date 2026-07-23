@@ -738,6 +738,16 @@ never blocked by bad luck alone. Repeat until the tolerance band is hit or nothi
 
 #### Data Model
 
+> **[SUPERSEDED 2026-07-23 — S6-09/S6-D2 decision, see ADR-0003 "Amendment"]** The SO-extending-`EntityModel`
+> shape below was the 2026-07-13 design target. It was never built that way: the Sprint 5→6
+> Core/CoreComponent refactor (`771f169`, 2026-07-22) shipped `EnemyModal` as a plain
+> `[System.Serializable]` class nested inside `RoomModel.cs` instead — no `EntityModel` inheritance, no
+> separate asset, no GUID `ID`, no cross-room reuse. On 2026-07-23 the owner reviewed this drift
+> (S6-09) and **accepted the plain-class shape as final** rather than migrating to the SO form — ADR-0003
+> was updated to Accepted against the shipped shape. The code block immediately below is kept for
+> historical context (what was originally speced); see **Current Implementation (as of 2026-07-23)**
+> right after it for the accepted actual shape.
+
 ```csharp
 public enum RarityTier
 {
@@ -769,6 +779,31 @@ correlation between them (no `OnValidate` cross-check flagging "high weight + hi
 example) — this is intentional, per owner decision: it lets a designer make an expensive enemy common
 or a cheap enemy rare, which is the entire point of separating budget cost from appearance chance (see
 Strengths, second bullet, above).
+
+#### Current Implementation (as of 2026-07-23 — accepted shape, ADR-0003 Accepted against this)
+
+```csharp
+// Assets/Script/Database-SO/Modal/RoomModel.cs — EnemyModal nested inside RoomModel.cs, not its own asset
+[System.Serializable]
+public class EnemyModal
+{
+    public GameObject Prefab;
+    [Range(1, 100)] public int weight;
+    public RarityTier rarityTier;
+}
+```
+Differences from the superseded design above, accepted as final 2026-07-23:
+- **Plain `[System.Serializable]` class, not a `ScriptableObject`** — no separate `.asset` file, no
+  `EntityModel` inheritance, no GUID `ID`.
+- **No cross-room reuse** — each `RoomModel.enemiesOfRoom` entry is authored inline; there is no
+  `Bat_Common.asset`/`Bat_Rare.asset` sharing pattern. If the same enemy config is wanted in two rooms,
+  it is re-entered in both.
+- **`[Range(1, 100)]` inline on the field, no `OnValidate` clamp** — this is enforced at Inspector-slider
+  level only; a value assigned via code (not the Inspector) is not clamped. The `[Range(1,99)]` +
+  `OnValidate` combination described in the original spec was not built.
+- The Candidate-Pool Selection Flow (below) and its termination/fallback guarantees are unaffected —
+  the algorithm only needs a list of `{weight, rarityTier}` values and does not depend on `EnemyModal`
+  being an SO.
 
 #### Candidate-Pool Selection Flow
 

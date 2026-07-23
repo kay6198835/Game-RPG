@@ -29,16 +29,22 @@ interfaces:
       the shipped Option A implementation; only the internal algorithm changes.
   - contract: enemymodal_spawn_metadata
     adr: ADR-0003
-    signature: "EnemyModal { GameObject prefab; int weight; RarityTier rarityTier; }"
+    signature: "EnemyModal { GameObject Prefab; int weight; RarityTier rarityTier; } — plain [System.Serializable] class nested in RoomModel.cs, NOT a ScriptableObject, does not extend EntityModel"
     detail: >
-      weight (= Cost) MUST be >= 1, enforced by [Range(1,99)] + OnValidate clamp
-      on EnemyModal (leaf-level, not only a RoomModel warning) — a weight <= 0
-      candidate would hang the eligible-set fill loop. RarityTier is a fixed
-      four-value enum whose integer value IS the roll-chance percent:
-      Common=50, Rare=30, Epic=15, Legendary=5; a chance() mapper divides by 100.
-      weight and rarityTier are fully independent by design — never cross-checked
-      (intentional: lets a cheap enemy be rare or an expensive enemy be common).
-      EnemyModal is spawn metadata only, not a stat store (ADR-0001 boundary).
+      AMENDED 2026-07-23 (sprint-06 S6-09): originally speced as an
+      EntityModel-extending ScriptableObject with its own asset per variant;
+      shipped instead as a plain class with no asset file, no GUID ID, no
+      cross-room reuse — owner accepted this shape as final rather than
+      migrating to SO. weight (= Cost) MUST be >= 1, enforced by
+      [Range(1, 100)] on the field (Inspector-slider only, no OnValidate
+      clamp) — a weight <= 0 candidate would hang the eligible-set fill loop.
+      RarityTier is a fixed four-value enum whose integer value IS the
+      roll-chance percent: Common=50, Rare=30, Epic=15, Legendary=5; a
+      chance() mapper divides by 100. weight and rarityTier are fully
+      independent by design — never cross-checked (intentional: lets a cheap
+      enemy be rare or an expensive enemy be common). EnemyModal is spawn
+      metadata only, not a stat store (ADR-0001 boundary) — still holds under
+      the plain-class shape.
 
 forbidden_patterns: []
 
@@ -72,5 +78,10 @@ api_decisions:
       The shipped Option A two-phase uniform-random behavior and the never-built
       2026-07-08 Option B target (injected System.Random + EnemyDatabase id-lookup
       + argmin fill). Resolves GDD Open Question #8.
-    scope: RoomModel.GetSpawnSet() selection logic — implementation target for S5-A3 (RarityTier field) + Sprint 6 (algorithm rewrite).
-    status: proposed
+    scope: RoomModel.GetSpawnSet() selection logic — implementation target for S5-A3 (RarityTier field, done) + Sprint 6 (algorithm rewrite, still open — GetSpawnSet() still runs Option A as of 2026-07-23).
+    status: accepted
+    status_note: >
+      Accepted 2026-07-23 against the shipped EnemyModal plain-class data shape
+      (see ADR-0003 Amendment) — NOT against full implementation of the
+      eight-step Candidate-Pool algorithm, which remains unbuilt. Data-model
+      question (S6-09) and algorithm-rewrite question are tracked separately.

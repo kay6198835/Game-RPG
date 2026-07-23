@@ -8,7 +8,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] private Transform target;
     [SerializeField] protected List<Vector2> Waypoints;
     [SerializeField] protected Vector2 targetPosition;
-    [SerializeField] protected int indexWaypoints;
+    [SerializeField] protected int indexWaypoints = 0;
     [SerializeField] protected float speed;
 
     protected override void Awake()

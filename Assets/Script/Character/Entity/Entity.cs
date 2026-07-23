@@ -17,7 +17,7 @@ public class Entity : BaseEntity
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
-    //[SerializeField] private Ene takeDamageState;
+    [SerializeField] private EntityDeathState deathState;
     public EntityInput Input { get => input;}
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }
@@ -28,6 +28,7 @@ public class Entity : BaseEntity
     public EntityMoveState MoveState { get => moveState; }
     public EntityAttackState AttackState { get => attackState; }
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
+    public EntityDeathState DeathState { get => deathState; }
     public EntityData Data { get => data;}
 
     private void Awake()
@@ -56,6 +57,7 @@ public class Entity : BaseEntity
         moveState = new EntityMoveState(this, stateMachine, data, "Move");
         attackState = new EntityAttackState(this, stateMachine, data, "Attack");
         takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
+        deathState = new EntityDeathState(this, stateMachine, data, "Death");
     }
 
     public void SetDataEntity(EntityData data)

@@ -103,7 +103,7 @@ public class EnemySpawnEntry
 public class EnemyModal
 {
     public GameObject Prefab;
-    public int weight;
+    [Range(1, 100)] public int weight;
     public RarityTier rarityTier;
 }
 [System.Serializable]

@@ -1,7 +1,7 @@
 # ADR-0003: Enemy Spawn Selection Algorithm — Room Budget + Candidate Pool + RarityTier (Option C)
 
 ## Status
-Proposed
+Accepted (2026-07-23 — see Amendment section below; Data Model amended to match shipped code, algorithm/selection-flow unchanged from original)
 
 ## Date
 2026-07-13
@@ -57,8 +57,11 @@ Adopt **Option C — Room Budget + Candidate Pool + `RarityTier`** as the enemy-
 
 ### Data Model
 
-`EnemyModal` gains a `RarityTier` enum field. `weight` (Cost) and `rarityTier` are **fully independent by design** — there is no code-enforced correlation between them (no `OnValidate` cross-check flagging "high weight + high roll chance"). This independence is the entire point: it lets a designer make an expensive enemy common or a cheap enemy rare.
+**[AMENDED 2026-07-23 — see Amendment section below]** The SO-extending-`EntityModel` shape originally specified here was not built. `EnemyModal` shipped as a plain `[System.Serializable]` class nested inside `RoomModel.cs` during the Sprint 5→6 Core/CoreComponent refactor. The owner reviewed this drift (sprint-06 task S6-09) on 2026-07-23 and accepted the plain-class shape as final rather than migrating to SO — this section is amended to match the shipped code. The selection algorithm (Candidate-Pool Selection Flow below) is unaffected: it only needs a list of `{weight, rarityTier}` values, independent of whether `EnemyModal` is an SO or a plain class.
 
+`EnemyModal` carries a `RarityTier` enum field. `weight` (Cost) and `rarityTier` are **fully independent by design** — there is no code-enforced correlation between them (no `OnValidate` cross-check flagging "high weight + high roll chance"). This independence is the entire point: it lets a designer make an expensive enemy common or a cheap enemy rare.
+
+**Actual shipped shape** ([RoomModel.cs](../../Assets/Script/Database-SO/Modal/RoomModel.cs)):
 ```csharp
 public enum RarityTier
 {
@@ -68,24 +71,25 @@ public enum RarityTier
     Legendary = 5
 }
 
-public class EnemyModal : EntityModel
+[System.Serializable]
+public class EnemyModal   // plain class, nested in RoomModel.cs — NOT a ScriptableObject, does not
+                          // extend EntityModel, no separate asset file, no GUID ID, no cross-room reuse
 {
-    public GameObject prefab;
-    public int weight;          // = Cost. Kept as `weight` — the planned rename to `cost` is dropped.
+    public GameObject Prefab;
+    [Range(1, 100)] public int weight;   // Inspector-slider clamp only, no OnValidate hard clamp
     public RarityTier rarityTier;
 }
 
 public class RoomModel : EntityModel
 {
     [SerializeField] private List<EnemyModal> enemiesOfRoom = new List<EnemyModal>();
-    // No per-room tier override. Per-room variety is authored by pointing a room's
-    // enemiesOfRoom at different EnemyModal asset variants of the same enemy
-    // (e.g. Bat_Common.asset vs Bat_Rare.asset — same prefab, different weight/rarityTier),
-    // not a dynamic override on one shared asset.
+    // Each room authors its own EnemyModal entries inline. There is no
+    // Bat_Common.asset/Bat_Rare.asset sharing pattern — if the same enemy config is wanted in two
+    // rooms, it is re-entered in both. This is the accepted trade-off of the plain-class shape.
 }
 ```
 
-`weight` MUST be `≥ 1`, enforced via `[Range(1,99)]` + an `OnValidate` clamp on `EnemyModal` (defence-in-depth against the non-terminating fit-loop a `weight ≤ 0` candidate would otherwise cause — the same shared invariant Option A also required).
+`weight` MUST be `≥ 1` — enforced via `[Range(1, 100)]` on the field (Inspector-slider level only; a value assigned via code rather than the Inspector is not clamped). The originally-specified `[Range(1,99)]` + `OnValidate` combination was not built; the Inspector-slider `[Range]` alone is sufficient to prevent the non-terminating fit-loop risk as long as all `EnemyModal` values are authored through the Inspector, which is the only authoring path that exists today (no runtime/code construction of `EnemyModal` instances occurs in the current spawn flow).
 
 ### Candidate-Pool Selection Flow
 
@@ -113,7 +117,7 @@ Runs once per accepted pick; called repeatedly by the room-fill loop (the same p
 | `totalSpend` | int | `B − remaining`, range `[0, B]` | Running total spent so far |
 | `retryCount` | int | 0–4 (hard cap per pick round) | Consecutive empty-`CandidatePool` rolls |
 | `chance(tier)` | float | `{0.50, 0.30, 0.15, 0.05}` | Fixed per-tier roll chance, not author-adjustable per instance |
-| `weight` (per `EnemyModal`) | int | must be `≥ 1` (enforced `[Range(1,99)]` + `OnValidate` clamp) | Cost consumed from `remaining` per pick |
+| `weight` (per `EnemyModal`) | int | must be `≥ 1` (enforced `[Range(1, 100)]` on the field, Inspector-slider only — no `OnValidate` clamp, see Amendment) | Cost consumed from `remaining` per pick |
 
 **Termination guarantee.** Every accepted pick (step 7) reduces `remaining` by at least 1 (given `weight ≥ 1`), so the outer loop (step 8) terminates in at most `B` iterations. Each pick round (steps 3–5) terminates in at most 5 roll attempts (4 re-rolls + 1 forced fallback) — never unbounded. The retry cap is precisely what closes the "termination not obviously guaranteed" gap in the original owner sketch.
 
@@ -147,7 +151,7 @@ Runs once per accepted pick; called repeatedly by the room-fill loop (the same p
 ### Key Interfaces
 
 - `RarityTier` enum (`Common=50, Rare=30, Epic=15, Legendary=5`) — the integer value **is** the roll-chance percent; a `chance(RarityTier)` mapper divides by 100 to produce the `[0,1]` threshold used in step 3.
-- `EnemyModal.weight : int` with `[Range(1,99)]` + `OnValidate` clamp — the `≥ 1` invariant is enforced here, at the leaf asset, not only warned about on the containing `RoomModel`.
+- `EnemyModal.weight : int` with `[Range(1, 100)]` on the field (Inspector-slider only, no `OnValidate` clamp — see Amendment) — the `≥ 1` invariant is enforced at the leaf class, not only warned about on the containing `RoomModel`.
 - `EnemyModal.rarityTier : RarityTier` — new field added in S5-A3.
 - `RoomModel.GetSpawnSet() → List<EnemySpawnEntry>` — signature and return shape unchanged from today; only the internal algorithm changes. The pick-round chance roll and eligible-set build reuse the existing reusable scratch buffers (no per-pick allocation).
 - No change to `MapModel.GetRandomRoom()` (the room→preset shuffle-bag, Open Q#4 resolved separately) — Option C runs against whatever `RoomModel` that draw returns.
@@ -189,7 +193,7 @@ Runs once per accepted pick; called repeatedly by the room-fill loop (the same p
 
 ### Risks
 - **Risk**: A `weight ≤ 0` `EnemyModal` asset makes the eligible-set fill-loop non-terminating (the candidate never leaves `eligibleSet`).
-  **Mitigation**: `[Range(1,99)]` + `OnValidate` clamp on `EnemyModal.weight` (leaf-level enforcement, not just a `RoomModel` warning); AC-C4 tests the clamp and bounded completion even if a pre-clamp `weight < 1` reaches `eligibleSet`.
+  **Mitigation**: `[Range(1, 100)]` on `EnemyModal.weight` (leaf-level, Inspector-slider enforcement — no `OnValidate` clamp was built, see Amendment); this holds as long as all `EnemyModal` values are authored through the Inspector, the only construction path in the current spawn flow.
 - **Risk (minor, engine-specialist note)**: encoding roll-chance percent *in the enum's integer value* (`Common=50`…) couples the enum to its probability and requires the `chance()` mapper to divide by 100; a future editor of the enum could change a value's meaning silently.
   **Mitigation**: keep the `chance()` mapping in one place and cover the tier→chance mapping with AC-C6's directional distribution check; treat the enum values as the single source of the percent.
 - **Risk**: per-pick chance rolls + eligible-set rebuild allocate on the hot path.
@@ -216,23 +220,57 @@ Runs once per accepted pick; called repeatedly by the room-fill loop (the same p
 ## Migration Plan
 Option C replaces the internals of `RoomModel.GetSpawnSet()`; the method signature and `List<EnemySpawnEntry>` return shape are unchanged, so the `EnemySpawner`/`LevelManager`/future-`EnemyManager` call sites need no change to consume it.
 
-1. **S5-A3 (data field):** add the `RarityTier` enum and `EnemyModal.rarityTier` field; add `[Range(1,99)]` + `OnValidate` clamp to `EnemyModal.weight`. (The previously-planned `weight`→`cost` rename is **dropped** — no `[FormerlySerializedAs]` needed.) Author `rarityTier` on existing `EnemyModal` assets.
-2. **Sprint 6 (algorithm rewrite):** replace `GetSpawnSet()`'s two-phase uniform-random body with the eight-step Candidate-Pool flow, reusing the existing scratch buffers for the per-pick chance roll and eligible-set build. Return an empty list (not `null`) when `enemiesOfRoom` is empty (fixes BUG-ES-1 in passing).
-3. **Tests:** author AC-C1…C6 (EditMode) constructing disposable `ScriptableObject.CreateInstance<…>()` fixtures — never the shipped project assets, per the test-isolation rule.
-4. Existing `RoomModel.weightBudget` (`[Range(0,500)]`) plays the `B` (Room Budget) role unchanged — no asset migration for the budget dial.
+1. **S5-A3 (data field):** ✅ done — `RarityTier` enum and `EnemyModal.rarityTier` field added; `EnemyModal.weight` carries `[Range(1, 100)]` (not the originally-planned `[Range(1,99)]` + `OnValidate` — see Amendment). The `weight`→`cost` rename was dropped as planned.
+2. **Sprint 6 (algorithm rewrite):** ⬜ not done as originally scoped — `RoomModel.GetSpawnSet()` still runs the two-phase uniform-random shape (Option A), not the eight-step Candidate-Pool flow. `enemiesOfRoom.Count == 0` still returns `null` (BUG-ES-1), which the caller (`EnemySpawner.GetRoomSpawnSet()`) treats as an accepted, decided-final behavior (S6-06, 2026-07-23) rather than a bug — see GDD "Current Implementation" note. The Candidate-Pool eight-step rewrite itself remains a backlog item, independent of the S6-09 data-model decision.
+3. **Tests:** ⬜ not done — no AC-C1…C6 EditMode tests exist yet.
+4. Existing `RoomModel.weightBudget` (`[Range(0,500)]`) plays the `B` (Room Budget) role unchanged — no asset migration for the budget dial. Confirmed unchanged as of 2026-07-23.
 
 ## Validation Criteria
 The GDD's Option C acceptance criteria are the validation bar (EditMode, BLOCKING):
 - **AC-C1** — `totalSpend ≤ B` always (never exceeds budget).
 - **AC-C2** — a pick round where every roll is forced to FAIL completes in exactly 5 attempts (4 re-rolls + 1 forced fallback) and returns a non-empty `CandidatePool == eligibleSet`.
 - **AC-C3** — with `weight ≥ 1` for all candidates, the fill loop completes in at most `B` iterations (no hang).
-- **AC-C4** — a `weight = 0` `EnemyModal` injected via test hook clamps to 1 on `OnValidate`; the fill loop completes in bounded time even if a pre-clamp `weight < 1` candidate reaches `eligibleSet`.
+- **AC-C4 (amended)** — `EnemyModal.weight` cannot be authored below 1 via the Inspector (`[Range(1, 100)]`); no `OnValidate` clamp exists to test against a code-constructed `weight = 0` instance, since `EnemyModal` is a plain class authored only through the Inspector in the current flow (see Amendment). The bounded-completion guarantee (≤ `B` outer iterations) still holds given `weight ≥ 1` for all Inspector-authored candidates.
 - **AC-C5** — high-`weight` + high-chance-tier (or the inverse) raises no validation warning/error — `weight` and `rarityTier` are never cross-checked.
 - **AC-C6** — over 1000 pick rounds counting only non-fallback rounds, `Common` is selected into `CandidatePool` markedly more often than `Legendary` (directional check, not an exact-ratio assertion — avoids RNG-variance flaking).
 
+## Amendment (2026-07-23 — Status flipped Proposed → Accepted)
+
+**Trigger**: sprint-06 task **S6-09** (`production/sprints/sprint-06-daily-plan.md`) — the Sprint 5→6
+Core/CoreComponent refactor (`771f169 "big update core and corecomponet, add interface"`, 2026-07-22)
+shipped `EnemyModal` as a plain `[System.Serializable]` class nested in `RoomModel.cs`, not the
+SO-extending-`EntityModel` shape this ADR originally specified. This was refactor collateral, not an
+explicit architectural call — nobody had decided to abandon the SO design, it just happened. S6-09
+existed to force an explicit decision instead of leaving the drift unrecorded.
+
+**Decision (owner, 2026-07-23)**: accept the plain-class shape as final. Do **not** migrate `EnemyModal`
+to a `ScriptableObject`/`EntityModel` subclass. This ADR's Status flips to **Accepted** against the
+shipped code, not the original spec — the Data Model, Formulas, Migration Plan, and Validation Criteria
+sections above are amended in place to describe the plain-class reality (see inline `[AMENDED]`/
+`(amended)` markers).
+
+**What is explicitly NOT accepted by this amendment**: the Candidate-Pool eight-step selection algorithm
+itself (the core subject of this ADR) is **still not implemented** — `RoomModel.GetSpawnSet()` still
+runs the original Option A two-phase uniform-random shape as of 2026-07-23. Accepting the plain-class
+data shape does not imply the algorithm rewrite is done or deprioritized; that remains open, tracked
+separately from S6-09.
+
+**Consequences of accepting plain-class (superseding the original Consequences section for this one
+axis)**:
+- **Lost**: cross-room reuse of a single `EnemyModal` definition (no `Bat_Common.asset` shared by 3
+  rooms — each room re-enters its own copy); `EntityModel.ID` (GUID) for `EnemyModal` instances; strict
+  code-level clamp on `weight` via `OnValidate` (Inspector `[Range]` is enforced only in the Inspector).
+- **Kept**: the Candidate-Pool algorithm's termination/fallback guarantees (algorithm-level, independent
+  of the data shape); the `weight`/`rarityTier` independence design goal; the zero-alloc scratch-buffer
+  reuse pattern (once the algorithm rewrite happens).
+- **Follow-up if reuse is needed later**: if design later wants shared enemy definitions across rooms
+  (e.g. a bestiary of reusable `EnemyModal` variants), that would require re-opening this decision as a
+  new ADR rather than silently re-introducing the SO shape — the plain-class shape and any future SO
+  shape are not binary-compatible (existing `RoomModel` assets would need re-authoring either direction).
+
 ## Related Decisions
 - **ADR-0002** (EnemyManager singleton exception) — sibling. Governs the singleton that drives the room lifecycle and *calls* `GetSpawnSet()`; explicitly keeps the selection algorithm off the singleton so it stays unit-testable. This ADR governs what the method returns.
-- **ADR-0001** (StatSystem dual data structure) — boundary contract: `EnemyModal` is spawn metadata, not a fourth stat store.
-- **design/gdd/enemy-spawn-system.md** — Open Question #8 (resolved by this ADR); "Option C — Formal Specification (CHOSEN 2026-07-13)"; Open Q#2 (RNG source, resolved: stays `UnityEngine.Random`); Open Q#4 (room→preset shuffle-bag, resolved separately); Open Q#5 (weight↔tier, partially addressed by `RarityTier`).
+- **ADR-0001** (StatSystem dual data structure) — boundary contract: `EnemyModal` is spawn metadata, not a fourth stat store. Still holds under the plain-class shape — `weight`/`rarityTier` remain the only fields, no combat stat was added.
+- **design/gdd/enemy-spawn-system.md** — Open Question #8 (resolved by this ADR); "Option C — Formal Specification (CHOSEN 2026-07-13)" and its "Current Implementation (as of 2026-07-23)" follow-up note (added alongside this Amendment); Open Q#2 (RNG source, resolved: stays `UnityEngine.Random`); Open Q#4 (room→preset shuffle-bag, resolved separately); Open Q#5 (weight↔tier, partially addressed by `RarityTier`).
 - **design/gdd/map-system.md** — the earlier `EncounterSO` + `RoomEnemySpawner` spawn plan this system superseded (2026-07-02).
-- **.claude/rules/engine-code.md** (Zero-Alloc Hot Paths), **.claude/rules/scriptableobject-data.md**, **.claude/rules/gameplay-code.md** — the standards this decision honors.
+- **.claude/rules/engine-code.md** (Zero-Alloc Hot Paths), **.claude/rules/scriptableobject-data.md** (this ADR's Amendment is a documented, intentional exception to "all gameplay config in SO assets" — not a silent violation), **.claude/rules/gameplay-code.md** — the standards this decision honors (or explicitly, recordedly, deviates from).
