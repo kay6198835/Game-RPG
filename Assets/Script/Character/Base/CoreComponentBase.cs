@@ -6,7 +6,7 @@ public abstract class CoreComponentBase<T> : MonoBehaviour, ICoreComponent<T> wh
 
     protected virtual void Awake()
     {
-        Setup();
+        
     }
 
     protected virtual void Start()

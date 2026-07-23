@@ -50,7 +50,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public SkillType Skill { get => skill; }
     #endregion
 
-    private entityFind entityFind;
+    private EntityFindTarget entityFind;
     private void Awake()
     {
         entity = GetComponentInParent<Entity>();

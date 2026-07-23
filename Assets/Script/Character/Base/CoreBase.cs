@@ -10,7 +10,7 @@ public abstract class CoreBase : MonoBehaviour, ICore
     {
         Setup();
     }
-    protected virtual void AddCoreComponent(ICoreComponent<ICore> coreComponent)
+    public virtual void AddCoreComponent(ICoreComponent<ICore> coreComponent)
     {
         if (!coreComponents.Contains(coreComponent)) coreComponents.Add(coreComponent);
     }
@@ -33,7 +33,7 @@ public abstract class CoreBase : MonoBehaviour, ICore
             }
         }
     }
-    protected virtual void Setup()
+    public virtual void Setup()
     {
         foreach (var comp in GetComponentsInChildren<ICoreComponent<ICore>>(true))
             AddCoreComponent(comp);
