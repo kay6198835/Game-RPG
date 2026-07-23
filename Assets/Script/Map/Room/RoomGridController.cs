@@ -63,11 +63,12 @@ public class RoomGridController : BaseGrid<RoomCell>
         _next = GetNext(directionToNextMap);
         int index = CaculateIndex(_next.GetGridPosition());
         //Check why can't get right GetStartDoorPosition when go to room the first time
-        _next.GetStartDoorPosition(-directionToNextMap);
-        _current.UpdateStatusDoor(directionToNextMap);
 
+        
         _current = _next;
+        _current.UpdateStatusDoor(directionToNextMap);
         this.roomGeneraterController.LoadRoom(index, _current);
+        _current.GetStartDoorPosition(-directionToNextMap);
         roomGeneraterController._fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
         _next = null;
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
