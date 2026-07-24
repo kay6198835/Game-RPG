@@ -29,7 +29,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
             indexWaypoints++;
             SetPointToForward(Waypoints[indexWaypoints]);
         }
-        if (targetPosition != Vector2.zero) transform.DOMove(targetPosition, speed);
+        if (targetPosition == Vector2.zero) return;
+
+        rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
     }
 
     private void SetPointToForward(Vector2 targetPosition)
@@ -47,13 +49,14 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void SendResquestPath()
     {
-        if (entityInput.Target != null)
+        if (entityInput.isFindTarget)
         {
             this.target = entityInput.Target.position;
         }
         else
         {
             this.target = GetRandomNodePositionWorld();
+            SetTarget(target);
         }
         PathRequest request = new PathRequest(transform.position, target, GetPath);
         EnemyManager.Instance.RequestPath(request);

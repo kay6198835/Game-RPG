@@ -6,8 +6,9 @@ using UnityEngine;
 public class EntityInput : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Vector2 spawnPoint;
-    [SerializeField] protected Entity entity;
-    [SerializeField] protected Transform target;
+    // [SerializeField] protected Entity entity;
+    [SerializeField] protected Vector2 target;
+    [SerializeField] protected bool isFindTarget;
     [Header("State")]
     [SerializeField] protected bool isTakeDamage = false;
     [SerializeField] protected bool isAttack;
@@ -38,7 +39,8 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public Transform Target { get => target; }
+    public bool IsFindTarget { get => isFindTarget; }
+    public Vector2 Target { get => target; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     public Entity Entity { get => entity; }
     //public float AngleSin { get => angleSin;}
@@ -75,17 +77,22 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void GetTargetInRange()
     {
-        if (target == null)
+
+        // need refactor
+        if (isFindTarget)
         {
-            target = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
-        }
-        if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
-        {
-            isAttack = true;
-        }
-        else
-        {
-            isAttack = false;
+            if (target == null)
+            {
+                target = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+            }
+            if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
+            {
+                isAttack = true;
+            }
+            else
+            {
+                isAttack = false;
+            }
         }
     }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
@@ -99,6 +106,10 @@ public class EntityInput : EntityCoreComponent<EntityCore>
             directionLookVector = (target.position - transform.position).normalized;
         }
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
+    }
+    public void SetTarget(Vector2 targetPosition)
+    {
+        this.target = targetPosition;
     }
     public void SetDirectionRadom()
     {
