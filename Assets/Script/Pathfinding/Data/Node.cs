@@ -20,6 +20,7 @@ public class Node
         TileMapPosition = tileMapPosition;
         Walkable = walkable;
     }
+    public Node(){}
     public void AddNeighbor(Node neighborNode)
     {
         neighbors.Add(neighborNode);

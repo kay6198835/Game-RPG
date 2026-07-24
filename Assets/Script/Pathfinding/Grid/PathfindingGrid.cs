@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 [System.Serializable]
@@ -32,7 +33,7 @@ public class PathfindingGrid
         Vector2 gridPosition = positionWorld - originPosition; ;
         int x = Mathf.RoundToInt(gridPosition.x);
         int y = Mathf.RoundToInt(gridPosition.y);
-        if (x < 0 || x >= cols || y < 0 || y >= rows) return null;
+        if (x < 0 || x >= cols || y < 0 || y >= rows) return -Vector2Int.one;
         return new Vector2Int(x, y);
     }
 
@@ -40,19 +41,16 @@ public class PathfindingGrid
     {
         if (nodesGrid == null) return null;
         Vector2Int gridPosition = GetGridPosition(positionWorld);
+        if (gridPosition == -Vector2Int.one) return null;
         return nodesGrid[gridPosition.x, gridPosition.y];
     }
 
     public SearchNode GetNodeFromWorld(Vector2 positionWorld)
     {
         if (searchGrid == null) return null;
-        Vector2 gridPosition = GetGridPosition(positionWorld);
+        Vector2Int gridPosition = GetGridPosition(positionWorld);
+        if (gridPosition == -Vector2Int.one) return null;
         return searchGrid[gridPosition.x, gridPosition.y];
-    }
-
-    public Vector2 GetNodeWorldPosition()
-    {
-        
     }
 
     public IReadOnlyList<SearchNode> GetNeighbours(SearchNode searchNode)

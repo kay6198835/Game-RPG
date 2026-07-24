@@ -23,7 +23,8 @@ public class EntityWeaponMelee : EntityWeapon
         {
             statsMelee = null;
         }
-        Core.GetCoreComponent(out input);
+         //Core.GetCoreComponent(out input);
+         // fix or remove it
     }
     private void Start()
     {

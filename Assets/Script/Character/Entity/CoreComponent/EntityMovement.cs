@@ -2,16 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Unity.VisualScripting;
 public class EntityMovement : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Rigidbody2D rb;
-    [SerializeField] private Transform target;
+    [SerializeField] private Vector2 target;
     [SerializeField] protected List<Vector2> Waypoints;
     [SerializeField] protected Vector2 targetPosition;
     [SerializeField] protected int indexWaypoints = 0;
     [SerializeField] protected float speed;
-    [SerialozeField] protected EntityInput entityInput;
-    [SerialozeField] protected int maxRadiusSpawnPoint;
+    [SerializeField] protected EntityInput entityInput;
+    [SerializeField] protected int maxRadiusSpawnPoint;
 
     protected override void Awake()
     {
@@ -48,27 +49,28 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         if (entityInput.Target != null)
         {
-            this.target = entityInput.Target;
+            this.target = entityInput.Target.position;
         }
         else
         {
             this.target = GetRandomNodePositionWorld();
         }
-        PathRequest request = new PathRequest(transform.position, target.transform.position, GetPath);
+        PathRequest request = new PathRequest(transform.position, target, GetPath);
         EnemyManager.Instance.RequestPath(request);
     }
-    
+
     public Vector2 GetRandomNodePositionWorld()
     {
         Vector2 SpawnPoint = entityInput.SpawnPoint;
         Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(0, maxRadiusSpawnPoint), Random.Range(0, maxRadiusSpawnPoint));
         Node validNode = new Node();
-        var allDirection = (Vector2[])Direction.Vector.ALL.Clone();
+        var allDirection = (Vector2[])GameConstants.Direction.Vector.ALL.Clone();
         Utility.RandomShuffle(allDirection);
         foreach (var direction in allDirection)
         {
-            randomAddRangePosition *= direction;
-            validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)randomPosition);
+            validNode = EnemyManager.Instance.GetNodeByPositionWorld(
+                ((Vector2)randomAddRangePosition * direction) + SpawnPoint
+            );
             if (validNode != null) break;
         }
         return validNode.WorldPosition;
