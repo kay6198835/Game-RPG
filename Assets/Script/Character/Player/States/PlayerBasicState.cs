@@ -7,7 +7,6 @@ public class PlayerBasicState : PlayerState
     protected WeaponHolder weaponHolder;
     protected Interactor interactor;
     protected AbilityHolder abilityHolder;
-    protected PlayerMovement playerMovement;
     protected PlayerInputHandler inputHandler;
     public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
@@ -18,7 +17,6 @@ public class PlayerBasicState : PlayerState
         player.Core.GetCoreComponent(out weaponHolder);
         player.Core.GetCoreComponent(out interactor);
         player.Core.GetCoreComponent(out abilityHolder);
-        player.Core.GetCoreComponent(out playerMovement);
         player.Core.GetCoreComponent(out inputHandler);
     }
     public override void LogicUpdate()
@@ -65,6 +63,5 @@ public class PlayerBasicState : PlayerState
         weaponHolder = null;
         interactor = null;
         abilityHolder = null;
-        playerMovement = null;
     }
 }
