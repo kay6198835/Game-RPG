@@ -85,7 +85,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>
         {
             isAttack = false;
         }
-        // fix
     }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
