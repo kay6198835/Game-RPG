@@ -50,9 +50,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void SendResquestPath()
     {
-        if (entityInput.IsFindTarget)
+        if (entityInput.TargetTransform.position)
         {
-            this.target = entityInput.Target;
+            this.target = entityInput.TargetTransform.position;
         }
         else
         {

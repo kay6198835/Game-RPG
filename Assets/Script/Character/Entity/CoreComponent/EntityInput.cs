@@ -8,7 +8,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     [SerializeField] protected Vector2 spawnPoint;
     // [SerializeField] protected Entity entity;
     [SerializeField] protected Vector2 target;
-    [SerializeField] protected bool isFindTarget;
+    [SerializeField] protected Transform targetTransform;
     [Header("State")]
     [SerializeField] protected bool isTakeDamage = false;
     [SerializeField] protected bool isAttack;
@@ -41,6 +41,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public bool IsSkill { get => isSkill; }
     public bool IsFindTarget { get => isFindTarget; }
     public Vector2 Target { get => target; }
+    public Transform TargetTransform { get => targetTransform; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle; }
@@ -74,21 +75,18 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     {
 
         // fix need refactor
-        // if (isFindTarget)
-        // {
-        //     if (target == null)
-        //     {
-        //         target = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
-        //     }
-        //     if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
-        //     {
-        //         isAttack = true;
-        //     }
-        //     else
-        //     {
-        //         isAttack = false;
-        //     }
-        // }
+        if (targetTransform == null)
+        {
+            targetTransform = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+        }
+        if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
+        {
+            isAttack = true;
+        }
+        else
+        {
+            isAttack = false;
+        }
     }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
@@ -96,9 +94,13 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void DirectionMehod()
     {
-        if (target != null)
+        if (targetTransform != null)
         {
-            directionLookVector = (target - (Vector2)transform.position).normalized;
+            directionLookVector = (targetTransform - (Vector2)transform.position).normalized;
+        }
+        else
+        {
+            directionLookVector = (targetTransform - target).normalized;
         }
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }
