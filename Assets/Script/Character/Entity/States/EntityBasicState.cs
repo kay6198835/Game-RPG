@@ -26,7 +26,7 @@ public class EntityBasicState : EntityState
         {
             if (entity.Data.StatsSO.Health <= 0)
             {
-
+                stateMachine.ChangeState(entity.DeathState);
             }
             else
             {

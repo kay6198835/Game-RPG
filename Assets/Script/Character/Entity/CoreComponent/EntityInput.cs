@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class EntityInput : EntityCoreComponent<EntityCore>
 {
+    [SerializeField] protected Vector2 spawnPoint;
     [SerializeField] protected Entity entity;
     [SerializeField] protected Transform target;
     [Header("State")]
@@ -46,6 +47,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public Vector2 DirectionIsAttakedVector { get => directionIsAttakedVector; }
     public int DirectionIsAttaked { get => directionIsAttaked; }
     public float DirectionIsAttakedAngle { get => directionIsAttakedAngle; }
+    public Vector2 SpawnPoint { get => spawnPoint; }
     public SkillState State { get => state; }
     public SkillType Skill { get => skill; }
     #endregion

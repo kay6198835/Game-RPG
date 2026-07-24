@@ -13,11 +13,6 @@ public class PathfindingGrid
 
     public int MaxSize => cols * rows;
 
-    public Node GetNode(int x, int y)
-    {
-        return nodesGrid[x, y];
-    }
-
     public void BuildGrid(LevelData data)
     {
         if (build == null) build = new GridBuilder();
@@ -32,14 +27,32 @@ public class PathfindingGrid
         }
     }
 
-    public SearchNode GetNodeFromWorld(Vector2 positionWorld)
+    private Vector2Int GetGridPosition(Vector2 positionWorld)
     {
-        if (searchGrid == null) return null;
-        Vector2 gridPosition = positionWorld - originPosition;
+        Vector2 gridPosition = positionWorld - originPosition; ;
         int x = Mathf.RoundToInt(gridPosition.x);
         int y = Mathf.RoundToInt(gridPosition.y);
         if (x < 0 || x >= cols || y < 0 || y >= rows) return null;
-        return searchGrid[x, y];
+        return new Vector2Int(x, y);
+    }
+
+    public Node GetNode(Vector2 positionWorld)
+    {
+        if (nodesGrid == null) return null;
+        Vector2Int gridPosition = GetGridPosition(positionWorld);
+        return nodesGrid[gridPosition.x, gridPosition.y];
+    }
+
+    public SearchNode GetNodeFromWorld(Vector2 positionWorld)
+    {
+        if (searchGrid == null) return null;
+        Vector2 gridPosition = GetGridPosition(positionWorld);
+        return searchGrid[gridPosition.x, gridPosition.y];
+    }
+
+    public Vector2 GetNodeWorldPosition()
+    {
+        
     }
 
     public IReadOnlyList<SearchNode> GetNeighbours(SearchNode searchNode)

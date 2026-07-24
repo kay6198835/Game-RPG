@@ -9,6 +9,12 @@ public class Node
     [SerializeField] public bool Walkable { get; private set; } = false;
     public IReadOnlyList<Node> Neighbors => neighbors;
     [SerializeField] private List<Node> neighbors = new List<Node>();
+    public Node(Vector2Int tileMapPosition, bool walkable, Vector2 worldPosition)
+    {
+        TileMapPosition = tileMapPosition;
+        Walkable = walkable;
+        WorldPosition = worldPosition;
+    }
     public Node(Vector2Int tileMapPosition, bool walkable)
     {
         TileMapPosition = tileMapPosition;
@@ -24,10 +30,10 @@ public class Node
         this.Walkable = walkable;
     }
 
-    public void SetPostionWold(Vector2 gridOrigin)
-    {
-        WorldPosition = gridOrigin + (Vector2)TileMapPosition;
-    }
+    // public void SetPostionWold(Vector2 gridOrigin)
+    // {
+    //     WorldPosition = gridOrigin + (Vector2)TileMapPosition;
+    // }
 
     public void SetGridPosition(Vector2Int worldPosition)
     {

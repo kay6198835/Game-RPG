@@ -18,10 +18,6 @@ public class EntityMoveState : EntityBasicState
         base.Enter();
         moveDurationTime = entityData.MoveDurationTime;
         moveTime = startTime + moveDurationTime;
-        if (entityInput.Target == null)
-        {
-            entityInput.SetDirectionRadom();
-        }
         entityMovement.SendResquestPath();
     }
     public override void LogicUpdate()
@@ -29,12 +25,12 @@ public class EntityMoveState : EntityBasicState
         directionMoveVector = entity.Input.DirectionLookVector.normalized;
         speed = entityData.MovementVelocities;
         entityMovement.MoveToTarget();
-
         base.LogicUpdate();
     }
     public override void DoChecks()
     {
         base.DoChecks();
+        
     }
     public override void Exit()
     {
