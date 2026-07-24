@@ -31,7 +31,8 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
         if (targetPosition == Vector2.zero) return;
 
-        rb.MovePosition(rb.position + direction * speed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + (targetPosition - (Vector2)transform.position ) 
+        * speed * Time.fixedDeltaTime);
     }
 
     private void SetPointToForward(Vector2 targetPosition)
@@ -49,14 +50,14 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void SendResquestPath()
     {
-        if (entityInput.isFindTarget)
+        if (entityInput.IsFindTarget)
         {
-            this.target = entityInput.Target.position;
+            this.target = entityInput.Target;
         }
         else
         {
             this.target = GetRandomNodePositionWorld();
-            SetTarget(target);
+            entityInput.SetTarget(target);
         }
         PathRequest request = new PathRequest(transform.position, target, GetPath);
         EnemyManager.Instance.RequestPath(request);

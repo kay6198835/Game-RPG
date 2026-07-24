@@ -21,8 +21,7 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        directionMoveVector = entity.Input.DirectionLookVector.normalized;
-        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, directionMoveVector);
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
         base.LogicUpdate();
     }
     public override void DoChecks()
@@ -30,7 +29,7 @@ public class EntityMoveState : EntityBasicState
         base.DoChecks();
 
     }
-    public override void FixUpdate()
+    public override void PhysicsUpdate()
     {
         entityMovement.MoveToTarget();
     }
