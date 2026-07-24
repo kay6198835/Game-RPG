@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 [System.Serializable]
@@ -12,11 +13,6 @@ public class PathfindingGrid
     private readonly List<SearchNode> neighbourBuffer = new List<SearchNode>(8);
 
     public int MaxSize => cols * rows;
-
-    public Node GetNode(int x, int y)
-    {
-        return nodesGrid[x, y];
-    }
 
     public void BuildGrid(LevelData data)
     {
@@ -32,14 +28,29 @@ public class PathfindingGrid
         }
     }
 
+    private Vector2Int GetGridPosition(Vector2 positionWorld)
+    {
+        Vector2 gridPosition = positionWorld - originPosition; ;
+        int x = Mathf.RoundToInt(gridPosition.x);
+        int y = Mathf.RoundToInt(gridPosition.y);
+        if (x < 0 || x >= cols || y < 0 || y >= rows) return -Vector2Int.one;
+        return new Vector2Int(x, y);
+    }
+
+    public Node GetNode(Vector2 positionWorld)
+    {
+        if (nodesGrid == null) return null;
+        Vector2Int gridPosition = GetGridPosition(positionWorld);
+        if (gridPosition == -Vector2Int.one) return null;
+        return nodesGrid[gridPosition.x, gridPosition.y];
+    }
+
     public SearchNode GetNodeFromWorld(Vector2 positionWorld)
     {
         if (searchGrid == null) return null;
-        Vector2 gridPosition = positionWorld - originPosition;
-        int x = Mathf.RoundToInt(gridPosition.x);
-        int y = Mathf.RoundToInt(gridPosition.y);
-        if (x < 0 || x >= cols || y < 0 || y >= rows) return null;
-        return searchGrid[x, y];
+        Vector2Int gridPosition = GetGridPosition(positionWorld);
+        if (gridPosition == -Vector2Int.one) return null;
+        return searchGrid[gridPosition.x, gridPosition.y];
     }
 
     public IReadOnlyList<SearchNode> GetNeighbours(SearchNode searchNode)

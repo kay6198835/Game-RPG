@@ -5,6 +5,7 @@ public class EnemyManager : MonoBehaviour
     public static EnemyManager Instance { get; private set; }
 
     [SerializeField] private PathRequestManager _pathRequests;
+    [SerializeField] private PathfindingGrid grid;
 
     public void Awake()
     {
@@ -20,8 +21,20 @@ public class EnemyManager : MonoBehaviour
     }
 
     public void SetPathfindingGrid(PathfindingGrid grid)
-        => _pathRequests.SetGrid(grid);
+    {
+        this.grid = grid;
+        _pathRequests.SetGrid(grid);
+    }
 
     public void RequestPath(PathRequest request)
-        => _pathRequests.Request(request);
+    {
+        _pathRequests.Request(request);
+    }
+
+    public Node GetNodeByPositionWorld(Vector2 worldPosition)
+    {
+        return grid.GetNode(worldPosition);
+    }
+
+    
 }

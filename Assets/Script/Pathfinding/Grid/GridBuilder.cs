@@ -39,7 +39,8 @@ public class GridBuilder
             {
                 Vector2Int rawPos = new Vector2Int(min.x + x, min.y + y);
                 bool walkable = walkableAt.TryGetValue(rawPos, out bool isFloor) && isFloor;
-                nodesGrid[x, y] = new Node(new Vector2Int(x, y), walkable);
+                Vector2Int gridPosition = new Vector2Int(x, y);
+                nodesGrid[x, y] = new Node(gridPosition, walkable, originPosition + (Vector2)gridPosition);
             }
         }
         this.cols = cols;

@@ -204,4 +204,17 @@ public static class Utility
 
         return indices.GetRange(0, pickCount);
     }
+
+    public static void RandomShuffle<T>(this IList<T> list)
+    {
+        int n = list.Count;
+        for (int i = n - 1; i > 0; i--)
+        {
+            // Unity's Random.Range is inclusive for min, exclusive for max
+            int r = Random.Range(0, i + 1); 
+            
+            // Swap elements using a tuple
+            (list[r], list[i]) = (list[i], list[r]);
+        }
+    }
 }
