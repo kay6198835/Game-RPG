@@ -260,11 +260,11 @@ public class PlayerInputHandler : CoreComponent<Core>
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
-        isTakeDamage = true;
         CancelInvoke(nameof(ResetTakeDamage));
         Invoke(nameof(ResetTakeDamage), 0.1f);
         directionExternalityVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
         AngleCalculateExternality(directionExternalityVector);
+        isTakeDamage = true;
     }
     private void ResetTakeDamage()
     {
