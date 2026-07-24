@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 4 — branches merged (off-plan-work risk resolved), zero Sprint-6 Must-Have items still landed
+## Status Verdict: 🟢 DAY 4 (Thu 02:00) — 8 of 10 Must-Have items closed, only S6-05 + S6-08 remain
 
 Sprint 5 closed CONCERNS/bordering-FAIL at 34% Must-Have (1.35d/3.95d) after 4 consecutive days of
 off-plan work. Sprint 6 is deliberately scoped narrower (2.20d Must-Have vs 4d capacity) to make
@@ -52,10 +52,10 @@ but it is still not an S6-numbered task itself. See Daily Log and Risks below.
 |--------|-------|
 | Total work estimated | Must-Have ≈ 2.20d + Should ≈ 1.20d + Nice ≈ stretch |
 | Capacity (sprint) | 4 days (5 − 20% buffer) |
-| Days elapsed | 1 (Mon complete, 0d landed on `sprint-06`) |
-| Days remaining | 3 |
-| Work committed/done | 0d on `sprint-06` (unrelated A* pathfinding work in progress on `origin/feature/enemy-control`) |
-| Velocity | 0% — Must-Have list untouched after 1 full sprint day |
+| Days elapsed | 4 (Mon–Wed complete + Thu 02:00 checkpoint) |
+| Days remaining | 1 (Fri wrap-up) |
+| Work committed/done | ≈1.95d of 2.20d Must-Have landed on `sprint-06` (S6-00,01,02,03,04,06,07,09 closed same-day 2026-07-23 in a marathon owner session; S6-05/S6-08 ≈0.25d+0.25d=0.5d remain) |
+| Velocity | 0% through Wed, then ~89% of Must-Have closed in a single Wed evening session — see Daily Log |
 
 ---
 
@@ -139,17 +139,34 @@ among Musts as the largest single item).
 Total Must-Have remaining if none of the above land today: 2.20d unchanged — still fits within 1
 remaining sprint day only if today closes most of items 1-8.
 
-### Thu 07/24 — PLAN
-**Goal: Should-Have carry cleanup — ADR flips, driver dedupe, small fixes.**
+### Thu 07/24 — PLAN (revised at 02:00 standup — only 2 Must-Have items remain)
 
-| # | Task | Est | Priority |
-|---|------|-----|----------|
-| 1 | **S6-D1** — ADR-0002 Proposed→Accepted | 0.1d | 🟡 Should |
-| 2 | **S6-D2** — ADR-0003 Proposed→Accepted (post S6-09) | 0.1d | 🟡 Should |
-| 3 | **S6-D3** — dedupe spawn driver (BUG-ES-2) | 0.5d | 🟡 Should |
-| 4 | **S6-D4** — `CancelInvoke` pairing | 0.25d | 🟡 Should |
-| 5 | **S6-D5** — cleanup batch | 0.25d | 🟡 Should |
-| 6 | **S6-D6** — S4-05/S4-06 keep-or-cut decision | 0.1d | 🟡 Should |
+**Goal, revised**: Wed evening's marathon owner session closed 8 of 10 Must-Have items in one sitting
+(S6-00,01,02,03,04,06,07,09 — see Daily Log 2026-07-23 entries). Only **S6-05** and **S6-08** are still
+open, both small isolated one-file edits (~0.5d combined). Close those first, then move into the
+Should-Have backlog (originally the whole of today's plan) if time allows.
+
+| # | Task | Est | Priority | Note |
+|---|------|-----|----------|------|
+| 1 | **S6-05** — `EntityBasicState.cs:27-30` empty `Health <= 0` block → `stateMachine.ChangeState(entity.DeathState)` | 0.25d | 🔴 Must | Unblocked since S6-04 landed (`entity.DeathState` getter confirmed present, [Entity.cs:31](Assets/Script/Character/Entity/Entity.cs#L31)) — literally a one-line fix |
+| 2 | **S6-08** — `NegativeReciver.cs:5` local `public int currentHealth` → write-through to `PlayerData.currentHealth` | 0.25d | 🔴 Must | `TakeDamage()` logic already correct (decrement + `ON_PLAYER_DEATH` emit at zero, [NegativeReciver.cs](Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs)) — just needs the field swapped to the SO-backed source of truth so `Reborn()` resets the same value that damage mutates |
+| 3 | **S6-D1** — ADR-0002 Proposed→Accepted | 0.1d | 🟡 Should | Still Proposed as of this standup — confirmed by reading the ADR file directly |
+| 4 | **S6-D2** — ADR-0003 Proposed→Accepted (post S6-09) | 0.1d | 🟡 Should | ✅ Already done Wed (see Daily Log) — kept here for reference, not re-work |
+| 5 | **S6-D3** — dedupe spawn driver (BUG-ES-2) | 0.5d | 🟡 Should | |
+| 6 | **S6-D4** — `CancelInvoke` pairing | 0.25d | 🟡 Should | |
+| 7 | **S6-D5** — cleanup batch | 0.25d | 🟡 Should | |
+| 8 | **S6-D6** — S4-05/S4-06 keep-or-cut decision | 0.1d | 🟡 Should | |
+| 9 | **Smoke** — Play Mode: enemy to 0 HP → dies once (`ON_ENEMY_DEATH` fires exactly once, not repeatedly since `EntityDeathState` skips `base.LogicUpdate()`); player to 0 HP → `ON_PLAYER_DEATH` fires, `PlayerData.currentHealth` reads 0 | — | Advisory | First point where the full death chain (both sides) is closeable end-to-end this sprint |
+
+**New off-plan watch item found this standup**: `origin/feature/player-lifecycle-enhance` (not merged
+into `sprint-06`) has one commit, `b33fe72 "add player lifecycle"` (2026-07-23 16:38), adding
+`PlayerDeathState.cs` (extends `PlayerDisadvantageState`; emits `ON_PLAYER_DEATH` on anim start,
+new `ON_REALOAD_GAME` event on anim end) plus the two new `EventID` entries. This overlaps directly
+with S6-08/checklist-item-6 (player death → reload flow) but is scoped further (adds the reload-game
+event, i.e. moving toward CLAUDE.md checklist item 6's "new `GameManager` subscribes … reload
+`StartScene`"). Not counted as sprint-06 progress since it isn't merged — flagging so it isn't
+duplicated: if S6-08's write-through lands on `sprint-06` today, reconcile with this branch before
+merging either way, since both touch the player-death path.
 
 ### Fri 07/25 — WRAPUP DAY
 **Goal: Full-loop smoke-check + `/weekly-wrapup`.**
@@ -231,10 +248,12 @@ person reading the ADR isn't misled by a spec the code no longer follows.
 | Risk | Status | Mitigation |
 |------|--------|------------|
 | Off-plan work not merged into `sprint-06` | 🟢 RESOLVED (2026-07-23 02:45, `fe62f47`) | `origin/feature/spawn-enemy` merged into `sprint-06` (both refs now point at the same commit) — the A* pathfinding subsystem and Core/CoreComponent (`ICore`/`ICoreComponent`) refactor are now part of `sprint-06` history. This closes the risk raised 7 standups running. It does not close any S6-numbered Must-Have — see Status Verdict for the re-verified per-item state. New follow-on watch item: the Core refactor left `EntityMoveState`/`EntityBasicState` with commented-out `// fix` movement/attack calls — confirm in-Editor that enemies still move/attack before treating this merge as a net-positive for gameplay, not just for git hygiene. |
-| Sprint 6 Must-Have bug list unaddressed, 3 of 5 sprint days elapsed | 🔴 OPEN | S6-01 through S6-08 (7 of 8 remaining after S6-00) still open, re-verified against current code this standup (see Status Verdict). 2.20d of estimated work vs ~1.4 sprint days left before Friday wrap-up. Recommend the owner triage today: bank the small isolated fixes first (S6-07, S6-06, S6-02 — same call chain; S6-01, S6-08 — one file each) before attempting S6-04 (largest item, 0.5d). |
-| `PoolMember.cs` build break unverified | 🔴 WATCH — 2nd consecutive miss | Still `[SerializeField] public bool isInPool { get; private set; }` unchanged on `sprint-06`; was the mandated first task Monday, still not verified against a real Editor compile as of Tue 02:00 |
-| `EnemyModal` decision blocks ADR-0003 flip and further spawn-system work | 🟡 WATCH | S6-09 was scheduled Wed; at current velocity (0% after day 1) the whole Wed slate is at risk of slipping |
-| No QA plan — 3rd consecutive cycle | 🔴 OPEN | Flagged in `sprint-06.md`; recommend running `/qa-plan sprint` before S6-03 starts |
+| Sprint 6 Must-Have bug list unaddressed, 3 of 5 sprint days elapsed | 🟢 RESOLVED (2026-07-23 evening) | Marathon owner session closed S6-00,01,02,03,04,06,07,09 same-day. Only S6-05 + S6-08 remain (~0.5d), both isolated one-file edits — see Thu plan. |
+| `PoolMember.cs` build break unverified | 🟢 RESOLVED (2026-07-23) | `[SerializeField]` dropped from the auto-property (S6-01 closed) |
+| `EnemyModal` decision blocks ADR-0003 flip and further spawn-system work | 🟢 RESOLVED (2026-07-23) | S6-09 decided (keep plain class); S6-D2 executed same day, ADR-0003 flipped Accepted with docs synced |
+| No QA plan — 4th consecutive cycle | 🔴 OPEN | `production/qa/qa-plan-sprint-06.md` still does not exist as of Thu 02:00 standup; recommend running `/qa-plan sprint` before Friday's wrap-up gate |
+| ADR-0002 (`EnemyManager` singleton) still Proposed | 🟡 OPEN | S6-D1 (Should-Have) not started; confirmed via direct file read Thu 02:00 |
+| New unmerged branch `origin/feature/player-lifecycle-enhance` overlaps S6-08 | 🟡 WATCH (new, 2026-07-24) | `b33fe72` adds `PlayerDeathState.cs` + `ON_REALOAD_GAME` — reconcile with S6-08's write-through fix before merging either into `sprint-06` |
 | No Unity CLI | 🟢 KNOWN | Play Mode smoke = manual in-Editor |
 
 ---
@@ -526,3 +545,31 @@ person reading the ADR isn't misled by a spec the code no longer follows.
   Task Estimates: S6-09 now ✅ (decision recorded), S6-D2 now ✅ (ADR Accepted + docs synced). **8 of 9**
   Must-Have items closed — only **S6-08** (`NegativeReciver` write-through to `PlayerData.currentHealth`)
   remains open on the Must-Have list, plus S6-05 was already unblocked (S6-04) but not yet itself wired.
+
+- **2026-07-24 (Thu 02:00) — daily standup, autonomous scheduled run**: Working tree clean except
+  `.claude/settings.local.json` (not a `.cs`/asset file, left untouched). Currently on `sprint-06`
+  already — no checkout needed. `git log` since the last standup commit (`d3b29d9`, 2026-07-23 16:10)
+  shows no new commits on `sprint-06` itself; one commit landed on an unmerged remote branch,
+  `origin/feature/player-lifecycle-enhance` (`b33fe72`, 16:38) — see new watch item in today's plan
+  above.
+  Re-verified the two items the Wed-evening log claims are still open, directly against current
+  `sprint-06` source (not just trusting the log's own count, since it said "8 of 9" in one place and
+  named both S6-05 and S6-08 as open in the next sentence):
+  - **S6-05 confirmed still open** — [EntityBasicState.cs:27-30](Assets/Script/Character/Entity/States/EntityBasicState.cs#L27):
+    the `Health <= 0` branch is still an empty block. Confirmed `entity.DeathState` getter exists and
+    is wired ([Entity.cs:31](Assets/Script/Character/Entity/Entity.cs#L31), from S6-04) — this is
+    genuinely a one-line unblock, not rediscovering scope.
+  - **S6-08 confirmed still open** — [NegativeReciver.cs:5](Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs#L5):
+    `public int currentHealth` is still a local field on the component, decremented directly by
+    `TakeDamage()`; `PlayerData.currentHealth` is never touched. `Reborn()`'s single-source-of-truth
+    contract is still not honored by the damage path.
+  - **S6-D1 confirmed still open** — read `docs/architecture/adr-0002-enemymanager-singleton-exception.md`
+    directly: `## Status` still reads `Proposed`, not flipped to Accepted.
+  - QA plan gate: `production/qa/qa-plan-sprint-06.md` still does not exist — **4th consecutive sprint
+    cycle** without one. Flagging again per standing instruction, not silently dropping.
+  Sprint arithmetic corrected in Burn Summary above: this is Thu (day 4 of 5), not day 1 as the stale
+  header said before this run — the tracker header/Burn Summary had not been updated since Monday's
+  0%-velocity baseline despite Wednesday's marathon session closing 8 of 10 Must-Have items same-day.
+  Net position: very strong recovery from a 0%-velocity Mon–Wed into a near-complete Must-Have list by
+  Wed night; today's real task is the last ~0.5d of Must-Have plus whatever Should-Have fits before
+  Friday's wrap-up gate.
