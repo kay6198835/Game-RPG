@@ -11,6 +11,7 @@ public class EntityWeaponMelee : EntityWeapon
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
+    private EntityInput input;
     protected override void Awake()
     {
         base.Awake();
@@ -22,6 +23,7 @@ public class EntityWeaponMelee : EntityWeapon
         {
             statsMelee = null;
         }
+        Core.GetCoreComponent(out input);
     }
     private void Start()
     {
@@ -43,20 +45,19 @@ public class EntityWeaponMelee : EntityWeapon
     }
     public override ActivateSkill SetAbility()
     {
-        // if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Ability)
-        // {
-        //     currentAbilitySO = statsMelee.AbilityWeapon;
-        // }
-        // else if (holder.EntityCore.Entity.Input.Skill == EntityInput.SkillType.Special)
-        // {
-        //     currentAbilitySO = statsMelee.SkillWeapon;
-        // }
-        // fix
+        if (input.Skill == EntityInput.SkillType.Ability)
+        {
+            currentAbilitySO = statsMelee.AbilityWeapon;
+        }
+        else if (input.Skill == EntityInput.SkillType.Special)
+        {
+            currentAbilitySO = statsMelee.SkillWeapon;
+        }
         return currentAbilitySO;
     }
-    public override bool CheckCanAttack(Entity entity,float lastClickTime)
+    public override bool CheckCanAttack(Entity entity, float lastClickTime)
     {
-        if (base.CheckCanAttack(entity,lastClickTime))
+        if (base.CheckCanAttack(entity, lastClickTime))
         {
             if (currentStateIndex == statsMelee.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
             {
