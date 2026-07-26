@@ -573,3 +573,54 @@ person reading the ADR isn't misled by a spec the code no longer follows.
   Net position: very strong recovery from a 0%-velocity Mon–Wed into a near-complete Must-Have list by
   Wed night; today's real task is the last ~0.5d of Must-Have plus whatever Should-Have fits before
   Friday's wrap-up gate.
+
+---
+
+## SPRINT CLOSE-OUT — 2026-07-26 (Saturday 22:00 wrap-up, autonomous scheduled run)
+
+**Verdict: CONCERNS**
+
+Sprint 6's own Must-Have bug-fix scope (S6-01 through S6-09) mostly landed — 8-9 of 9 items closed
+per the Thu 2026-07-24 log, including the genuinely important win of closing the 7-cycle-carried
+enemy death chain (Bug #5/#7/#8, confirmed by this cycle's code review). **But Thursday night into
+Friday, commits continued past the "near-complete" Thu checkpoint into unplanned scope** — `e37398e
+"update move state and Pathfinding algorithm"`, `771f169`-style Core/CoreComponent rework
+culminating in `9c75d3d "need fix class bassEntity, add ICharacter for base core component"` (commit
+message itself admits the work shipped unfinished) — the same off-plan-architecture pattern named as
+a confirmed, recurring risk in the Sprint 5 retro, for a 3rd consecutive sprint.
+
+This week's wrap-up code review (6 parallel specialist agents covering the full 75-file diff since
+last wrap-up `226f645`) found **6 independent compile-blocking C# errors** (CS0592, CS0103, CS0029,
+CS0102, plus two invalid-operator errors) introduced by this late-week work, on top of a
+`Core.GetCoreComponent<T>()` component-hub pattern that is functionally dead even past the syntax
+errors (`Awake()` hides instead of overrides `CoreBase.Awake()`; `Setup()` override commented out).
+Full detail: `production/qa/bug-triage-2026-07-26.md`. Full analysis:
+`production/retros/retro-sprint-06-2026-07-26.md`.
+
+### Velocity
+- Must-Have: ~8-9 of 9 tasks closed by task count (~90%), but net sprint outcome is **not** a clean
+  win — the branch likely does not currently compile. Task-count velocity and code-health outcome
+  diverged sharply this cycle; do not read "90%" as "healthy."
+- Should-Have (S6-D1 through S6-D6): not confirmed done this cycle — carry forward, re-verify at
+  Sprint 7 kickoff (ADR-0002 Status was still `Proposed` as of Thu 07-24's check).
+- Nice-to-Have: S6-N1 (playtest) not run — 7th consecutive cycle at 0 sessions. S6-N2 (EnemyManager
+  lifecycle) did not happen as scoped; instead `EnemyManager.cs` became a `PathRequestManager`/
+  `PathfindingGrid` service locator — a scope drift, not the planned aliveCount/room-clear lifecycle.
+
+### Carry-Over to Sprint 7
+1. **Verify/fix the 6 suspected compile errors** (`bug-triage-2026-07-26.md` BUG-024 through BUG-029)
+   — first task, before anything else starts.
+2. Do not resume Base/CoreBase or Pathfinding feature work until the hub refactor compiles AND
+   `Core.GetCoreComponent<T>()` is confirmed working in Play Mode for both Player and Entity.
+3. BUG-ES-1 (`EnemySpawner.cs:62` null-check order) — still not fixed, 4th carry.
+4. BUG-06 write-through (`NegativeReciver` → `PlayerData.currentHealth`) — still not fixed, failed a
+   2nd time in a different way this cycle.
+5. ADR-0002 Proposed→Accepted — still open, 4th carry (0.1d task).
+6. S4-05/S4-06 keep-or-cut decision — still open, 5th carry — needs a forced decision, not another
+   silent carry.
+7. First playtest — now genuinely closer than ever (death chain landed) but blocked on compile status.
+8. QA plan (`production/qa/qa-plan-sprint-07.md`) — 5th consecutive cycle with none created.
+9. **Hold the off-plan-work root-cause conversation** Sprint 5's retro asked for and that has not
+   visibly happened across 2 sprint cycles — this is the most important unresolved carry-over item.
+
+Next sprint (Sprint 7) plan is NOT created here per wrap-up scope — see Sunday `/weekly-kickoff`.

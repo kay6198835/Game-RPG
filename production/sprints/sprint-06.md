@@ -1,6 +1,13 @@
 # Sprint 6 — 2026-07-21 to 2026-07-25
 
-**Status: OPEN.** Branch `sprint-06`, created from `sprint-05` tip (`cc543ba`) at 2026-07-20 22:00
+**Status: CLOSED — verdict CONCERNS** (2026-07-26 Saturday wrap-up, autonomous). Death-chain Must-Have
+scope (S6-01..S6-09) landed, but late-week off-plan work (Pathfinding module + Base/CoreBase hub
+refactor) introduced 6 compile-blocking errors found by this cycle's code review. Full detail:
+`production/qa/bug-triage-2026-07-26.md`, `production/retros/retro-sprint-06-2026-07-26.md`, and the
+close-out section at the bottom of `sprint-06-daily-plan.md`. Carry-over list recorded there — Sprint 7
+plan created separately at Sunday `/weekly-kickoff`.
+
+Branch `sprint-06`, created from `sprint-05` tip (`cc543ba`) at 2026-07-20 22:00
 kickoff. `gh` CLI unavailable in this environment — draft PR (`--base sprint-05 --head sprint-06`,
 title `Sprint 6`) was **not** auto-created; run manually if desired.
 
