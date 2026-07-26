@@ -6,8 +6,9 @@ using UnityEngine;
 public class EntityInput : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Vector2 spawnPoint;
-    [SerializeField] protected Entity entity;
-    [SerializeField] protected Transform target;
+    // [SerializeField] protected Entity entity;
+    [SerializeField] protected Vector2 target;
+    [SerializeField] protected Transform targetTransform;
     [Header("State")]
     [SerializeField] protected bool isTakeDamage = false;
     [SerializeField] protected bool isAttack;
@@ -38,9 +39,10 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public Transform Target { get => target; }
+    public bool IsFindTarget { get => isFindTarget; }
+    public Vector2 Target { get => target; }
+    public Transform TargetTransform { get => targetTransform; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
-    public Entity Entity { get => entity; }
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle; }
     public int DirectionLook { get => directionLook; }
@@ -53,10 +55,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     #endregion
 
     private EntityFindTarget entityFind;
-    protected override void Awake()
-    {
-        entity = GetComponentInParent<Entity>();
-    }
     protected override void Start()
     {
         Core.GetCoreComponent(out entityFind);
@@ -75,9 +73,11 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void GetTargetInRange()
     {
-        if (target == null)
+
+        // fix need refactor
+        if (targetTransform == null)
         {
-            target = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+            targetTransform = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
         }
         if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
         {
@@ -94,11 +94,19 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void DirectionMehod()
     {
-        if (target != null)
+        if (targetTransform != null)
         {
-            directionLookVector = (target.position - transform.position).normalized;
+            directionLookVector = (targetTransform - (Vector2)transform.position).normalized;
+        }
+        else
+        {
+            directionLookVector = (targetTransform - target).normalized;
         }
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
+    }
+    public void SetTarget(Vector2 targetPosition)
+    {
+        this.target = targetPosition;
     }
     public void SetDirectionRadom()
     {

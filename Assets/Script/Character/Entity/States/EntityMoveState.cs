@@ -7,7 +7,6 @@ public class EntityMoveState : EntityBasicState
     protected float moveTime;
     protected float moveDurationTime;
     protected Vector2 directionMoveVector;
-    protected float speed;
 
     public EntityMoveState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
@@ -22,15 +21,17 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        directionMoveVector = entity.Input.DirectionLookVector.normalized;
-        speed = entityData.MovementVelocities;
-        entityMovement.MoveToTarget();
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
         base.LogicUpdate();
     }
     public override void DoChecks()
     {
         base.DoChecks();
-        
+
+    }
+    public override void PhysicsUpdate()
+    {
+        entityMovement.MoveToTarget();
     }
     public override void Exit()
     {
