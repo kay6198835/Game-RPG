@@ -83,7 +83,12 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(git worktree *)",
       "Bash(cd \"D:/sprint06wt\" && rtk git push origin sprint-06 2>&1)",
-      "Bash(grep -v \"^\\\\./\\\\.\")"
+      "Bash(grep -v \"^\\\\./\\\\.\")",
+      "Bash(awk -F: '{s+=$2} END {print s}')",
+      "Bash(git ls-tree *)",
+      "Bash(git ls-remote *)",
+      "Bash(rtk gh *)",
+      "Bash(cd \"D:/Fork/Game-RPG\" && echo \"===CoreComponentBase.cs===\" && cat -A /dev/null; sed -n '1,40p' \"Assets/Script/Character/Base/CoreComponentBase.cs\" && echo \"===CoreBase.cs===\" && sed -n '1,40p' \"Assets/Script/Character/Base/CoreBase.cs\")"
     ]
   }
 }

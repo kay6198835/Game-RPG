@@ -127,7 +127,7 @@ public class RoomGeneraterController : MonoBehaviour
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
-            pathfindingGrid.BuildGrid(Data);
+            pathfindingGrid.BuildGrid(Data,nextRoomCell.transform.position);
         }
         else
         {

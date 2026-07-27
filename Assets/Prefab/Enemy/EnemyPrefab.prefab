@@ -35,7 +35,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1647516858303904719}
-  - {fileID: 7575223189149469177}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &128966628671268025
@@ -245,6 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b236c97168ad494e991b9f1a7e0dff8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  core: {fileID: 0}
   effect: {fileID: 0}
   test: 0
 --- !u!1 &4464370259628664231
@@ -291,6 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdd4ad0c3d77bdd4a8bfa7f40600f264, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  core: {fileID: 0}
   target: {fileID: 0}
   range: 0
   player:
@@ -299,6 +300,7 @@ MonoBehaviour:
   obstracles:
     serializedVersion: 2
     m_Bits: 1024
+  collider: {fileID: 0}
 --- !u!1 &6425847005951648876
 GameObject:
   m_ObjectHideFlags: 0
@@ -343,7 +345,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5601b68ffd965cd439b85114144d8ba6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  core: {fileID: 0}
   rb: {fileID: 0}
+  target: {x: 0, y: 0}
+  Waypoints: []
+  targetPosition: {x: 0, y: 0}
+  indexWaypoints: 0
+  speed: 1.5
+  entityInput: {fileID: 0}
+  maxRadiusSpawnPoint: 0
 --- !u!1 &7211229155540618973
 GameObject:
   m_ObjectHideFlags: 0
@@ -388,6 +398,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce6e56e32400b184898cb5c1c1c5dc42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  core: {fileID: 0}
   weapon: {fileID: 0}
   weaponGO: {fileID: 0}
 --- !u!1 &7680863446993445270
@@ -424,6 +435,7 @@ Transform:
   - {fileID: 1022378900842642636}
   - {fileID: 7723368489323917928}
   - {fileID: 7795559961114167647}
+  - {fileID: 7575223189149469177}
   m_Father: {fileID: 959111468274321930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &164681968492309248
@@ -439,10 +451,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entity: {fileID: 0}
-  entityMovement: {fileID: 0}
-  findTarget: {fileID: 0}
-  weaponHolder: {fileID: 0}
-  effectStats: {fileID: 0}
 --- !u!1 &8568225482626800411
 GameObject:
   m_ObjectHideFlags: 0
@@ -469,11 +477,11 @@ Transform:
   m_GameObject: {fileID: 8568225482626800411}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.288, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 959111468274321930}
+  m_Father: {fileID: 1647516858303904719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3193550305143540087
 MonoBehaviour:
@@ -487,8 +495,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c13fa4a00ff1304da0abcdb61493307, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entity: {fileID: 0}
-  target: {fileID: 0}
+  core: {fileID: 0}
+  spawnPoint: {x: 0, y: 0}
+  target: {x: 0, y: 0}
+  targetTransform: {fileID: 0}
   isTakeDamage: 0
   isAttack: 0
   isSkill: 0

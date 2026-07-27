@@ -41,7 +41,7 @@ public class Player : BaseEntity
     #endregion
 
     #region Unity Callback Functions
-    private void Awake()
+    public override void Awake()
     {
         core = GetComponentInChildren<Core>();
         idleState = new PlayerIdleState(this, "Idle");

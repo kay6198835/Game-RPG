@@ -15,6 +15,11 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     {
         base.Awake();
     }
+    protected override void Start()
+    {
+        base.Start();
+        Debug.Log(Core);
+    }
     public Transform FindTargetMethod(float range)
     {
         this.range = range;
