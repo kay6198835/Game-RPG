@@ -8,7 +8,7 @@ public class EntityData : ScriptableObject
     [SerializeField] private EntityStatsSO statsSO;
     [Header("Player Component")]
     [SerializeField] private LayerMask layerMask;
-    [SerializeField] private Animator aima;
+    [SerializeField] private AnimatorOverrideController aima;
     [Header("Idle State")]
     [SerializeField] private float rangeCheckFieldOfView;
     [SerializeField] private float idleDurationTime;
@@ -21,7 +21,7 @@ public class EntityData : ScriptableObject
 
     //public float MaxHealth { get => maxHealth; }
     public LayerMask LayerMask { get => layerMask; }
-    public Animator Aima { get => aima;}
+    public AnimatorOverrideController Aima { get => aima;}
     public float RangeCheckFieldOfView { get => rangeCheckFieldOfView;}
     public float IdleDurationTime { get => idleDurationTime;}
     public float MovementVelocities { get => movementVelocities;}
