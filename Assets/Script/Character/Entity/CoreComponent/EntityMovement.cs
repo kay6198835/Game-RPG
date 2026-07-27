@@ -116,4 +116,25 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         indexWaypoints = 0;
         targetPosition = Vector2.zero;
     }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (Waypoints == null || Waypoints.Count == 0) return;
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(transform.position, Waypoints[0]);
+        for (int i = 0; i < Waypoints.Count - 1; i++)
+        {
+            Gizmos.DrawLine(Waypoints[i], Waypoints[i + 1]);
+        }
+
+        Gizmos.color = Color.yellow;
+        for (int i = 0; i < Waypoints.Count; i++)
+        {
+            Gizmos.DrawSphere(Waypoints[i], 0.08f);
+        }
+
+        Gizmos.color = indexWaypoints < Waypoints.Count ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(targetPosition, 0.15f);
+    }
 }

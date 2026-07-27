@@ -50,6 +50,5 @@ public enum EventID
     ON_TEST,
     ON_ENEMY_DEATH,
     ON_ROOM_CLEAR,
-    ON_PLAYER_DEATH
 }
 

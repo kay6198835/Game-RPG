@@ -17,7 +17,7 @@ public class PlayerDisadvantageState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (Status == EndRangeTrigger)
+        if (Status == StatusAnimation.EndRangeTrigger)
         {
             if (inputHandler.MoveVector == Vector2.zero)
             {
