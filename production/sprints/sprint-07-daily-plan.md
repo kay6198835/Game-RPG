@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 1 (2026-07-27) — branch still red, but 3/9 S1 bugs confirmed fixed in working tree (uncommitted)
+## Status Verdict: 🟡 DAY 2 (2026-07-28) — all 3 remaining compile blockers cleared (committed); 2 confirmed still-open functional bugs (BUG-028, BUG-032, BUG-033); Pathfinding off-plan work (bug chasing/chạy theo lỗi) recurred a 4th cycle
 
 Sprint 6 closed **CONCERNS**: Must-Have bug list from its own scope mostly landed (8-9/9 task count),
 but late-week off-plan work (Base/CoreBase hub refactor + Pathfinding) shipped uncompiled — 6
@@ -57,6 +57,20 @@ Result: **branch still will not compile** — BUG-025/026/029 (all "quick, do ea
 | S7-08 (Play Mode verify `GetCoreComponent<T>()`) | 0.2d | **Gate** — do not start S7-09/S7-11 until this passes |
 
 Goal: by end of Tue, zero Console errors and the component hub confirmed live for Player + Entity.
+
+**Status (verified via code read, standup 2026-07-28, no Unity CLI in this environment):**
+| Task | Status |
+|------|--------|
+| S7-07 (BUG-031) | ✅ Done, committed (`eb8b7a4`) — `CoreComponentBase.Setup()` restored, called from `Awake()`, `Core` backing field populated |
+| S7-03 (BUG-027) | ✅ Original bug resolved, committed — but `EntityMovement.cs` has since been **fully rewritten** around a Pathfinding/grid-node system (`SendResquestPath`, `Node`, `Waypoints`, `EnemyManager.Instance.RequestPath`) in commit `b195af2` ("bug chasing") — scope now far exceeds the original null-check fix |
+| S7-04 (BUG-028) | ❌ Still open, no progress since yesterday — `EntityInput.GetTargetInRange()` body still fully commented out; enemy FOV/target-acquisition and `isAttack` range detection remain dead code |
+| S7-08 (Play Mode verify) | ⚠️ Not run (no Unity CLI here) — but all 3 remaining compile blockers (BUG-025/026/029) are now cleared, so the branch should compile; owner needs to confirm in-Editor before S7-09/S7-11 start |
+
+Bonus, also confirmed fixed today (not tracked S7 IDs, but from the original Known Bugs list in `CLAUDE.md`):
+- Bug #7 — `EntityDeathState` now correctly extends `EntityBasicState`/`EntityState` (was `MonoBehaviour`)
+- Bug #8 — `EntityBasicState.LogicUpdate()` death block no longer empty — transitions to `entity.DeathState` when `Health <= 0`; `EntityDeathState` emits `ON_ENEMY_DEATH`
+
+BUG-026 (S7-02) re-check: compiles now, but only because the entire `PlayerDeathState.LogicUpdate()` body was **commented out** rather than fixed — `ON_PLAYER_DEATH`/`ON_REALOAD_GAME` are never emitted from player death anymore. Same "compiles but functionally dead" pattern flagged in the Sprint 6 retro and in yesterday's BUG-028 partial fix — now also affecting Bug #6/S7-11's scope (player death chain has one more disconnected piece to restore).
 
 ### Wed 2026-07-29 — Post-gate fixes
 
@@ -139,6 +153,44 @@ items not started; Wed's two items also untouched.
 - QA plan still missing (6th consecutive cycle as of today) — still deferred to owner per sprint doc.
 
 (Prior: no entries yet, sprint not started.)
+
+### 2026-07-28 (Tue) — Day 2 standup (autonomous scheduled run)
+
+**Yesterday (2026-07-27 Mon → early Tue commits, verified via `git log`/`git show --stat`):**
+
+| Commit | Content |
+|--------|---------|
+| `eb8b7a4` "fix state, corecomponent issue of entity" | Large mixed commit (24 files) — lands S7-00/S7-06/S7-07/S7-03 fixes together with scene (`LoadRandomMap.unity`, ~4500 line diff), prefab, animator controller, and JSON room data changes. **Not** split into scoped per-bug commits (lần lưu code theo từng bug/scoped commit) as yesterday's standup explicitly recommended. |
+| `02f23ec` "fix entity move animation not playing" (Claude session) | Clean, scoped — `Entity.cs` + `EntityBasicState.cs`, animator controller wiring fix |
+| `6c817b2` "revert" | Reverted part of the prefab/scene/`EntityData.cs` changes from `eb8b7a4` |
+| `b195af2` "bug chasing" (Tue 01:10, message: "Need check relationship between grid position and world position from object to node in grid") | `EntityMovement.cs` rewritten around Pathfinding (`Node`/`Waypoints`/`EnemyManager.Instance.RequestPath`), plus `EntityInput.cs`, `EntityMoveState.cs`, `EnemySpawner.cs`, `GridBuilder.cs`, `PathfindingGrid.cs` — exploratory/debugging (dò lỗi), not tied to a tracked bug ID |
+| `7d9c85e` | Merge commit |
+
+**Bug re-check (re-read all 9 tracked S1 bugs against current file contents — full table in the Tue section above):** BUG-024/025/029/030/031 ✅ confirmed fixed and committed. BUG-026 "resolved" only by commenting out the whole affected block (functionally dead, not fixed — see note above). BUG-027 resolved but the file was then rewritten well past scope. BUG-028/032/033 ❌ still open, no progress since yesterday.
+
+**Net vs. plan:** compile blockers (BUG-025/026/029) are all cleared — branch should build clean, S7-08 gate is reachable — but two things need owner attention before trusting that: (1) BUG-026 was cleared by deletion not repair, and (2) a large amount of untested Pathfinding rewiring landed alongside the compile fixes, none of it in this sprint's planned scope.
+
+**Today's plan:**
+| Task | Est. | Rationale |
+|------|------|-----------|
+| S7-08 (Play Mode verify hub) | 0.2d | Attempt first — all prerequisite compile fixes (S7-00/05/06/07, plus S7-01/02) are in; owner confirms in-Editor since no Unity CLI here |
+| Finish S7-04 (BUG-028) | ~0.2d | Carried from yesterday, unchanged — wire `GetTargetInRange()` using `entityFind.FindTargetMethod(...)` + a restored `Core.Entity.Data` reference, instead of leaving the body commented out |
+| S7-09 (BUG-032) | 0.2d | Restore `Core.GetCoreComponent(out input)` in `EntityWeaponMelee.Awake()` (currently commented, line 26) — gate on S7-08 passing first |
+| S7-10 (BUG-033) | 0.15d | Independent, no gate — `EnemySpawner.cs:62` still checks `set.Count == 0 || set == null` (wrong order); swap to `set == null || set.Count == 0` |
+| Real fix for BUG-026 | ~0.15d | Restore `PlayerDeathState.LogicUpdate()` body; fold into S7-11 (Bug #6 re-scope) rather than leave commented, since it feeds the same player-death chain |
+
+**Blockers:**
+- No Unity Editor CLI in this environment — S7-08's compile/Play Mode confirmation needs the owner in-Editor.
+- S7-04/BUG-028 still unfinished — even once compile is confirmed, enemy target acquisition (FOV/attack-range) stays non-functional until this lands.
+
+**Emerging risks:**
+- **Off-plan work recurred a 4th consecutive cycle** (chạy lố phạm vi/scope creep) — `b195af2` rewires `EntityMovement`/`EntityInput`/`EntityMoveState`/`EnemySpawner`/`GridBuilder`/`PathfindingGrid` into a Pathfinding-driven movement system, directly against `sprint-07.md`'s own line: *"no further work on Pathfinding or Base/CoreBase until the hub refactor is confirmed compiling and working (S7-08 gate)."* This is exactly the pattern S7-D4 (scheduled Thu 07-30) exists to fix — and it happened again before S7-D4 was even held. Recommend pulling S7-D4 earlier if the owner has time, rather than waiting for Thursday.
+- Commit hygiene regression: `eb8b7a4` bundles several unrelated bug fixes with large scene/asset diffs in one commit — the exact anti-pattern yesterday's standup asked to stop. No action needed on the commit itself now (already pushed history), but worth a direct word to whoever is committing, not just another tracker note.
+- BUG-026's "fix" makes Bug #6/S7-11 slightly bigger in scope than tracked: `PlayerDeathState` now emits nothing at all (was previously at least attempting real logic), on top of the pre-existing `NegativeReciver`/`PlayerData.currentHealth` disconnect.
+- Tooling note: the `rtk` git-status hook returned stale/incorrect output for this repo mid-session (`git status`/`git diff` showed phantom modified files in `EntityMovement.cs`/`EventManager.cs` that `rtk proxy git status --porcelain` proved did not exist). Future automated runs should double-check with `rtk proxy git status --porcelain` if the filtered output looks inconsistent with recent commits.
+- ADR-0002 (S7-12) still `Status: Proposed` — not flipped yet (not due until Thu per plan).
+- `production/qa/bugs/` still empty (only `.gitkeep`) — S7-D3 not started (not due until Thu per plan).
+- QA plan still missing (5th consecutive **sprint** cycle, per `sprint-07.md`) — still deferred to owner per sprint doc.
 
 ---
 
