@@ -31,13 +31,14 @@ public class Entity : BaseEntity
     public EntityDeathState DeathState { get => deathState; }
     public EntityData Data { get => data;}
 
-    private void Awake()
+    public override void Awake()
     {
         LoadEntity();
         LoadState();
     }
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         stateMachine.Initialize(idleState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
@@ -49,7 +50,7 @@ public class Entity : BaseEntity
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         particle = GetComponentInChildren<ParticleSystem>();
-        anim.runtimeAnimatorController = data.Aima;
+        anim = data.Aima;
     }
     private void LoadState()
     {

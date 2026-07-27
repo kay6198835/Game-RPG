@@ -3,8 +3,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class MazeGenerator
 {
-    private int _rows = 10;
-    private int _columns = 10;
+    private int _rows = 2;
+    private int _columns = 2;
     public Cell[] Gird;
     private Stack<Cell> stack = new Stack<Cell>();
     private readonly Random _random = new Random();

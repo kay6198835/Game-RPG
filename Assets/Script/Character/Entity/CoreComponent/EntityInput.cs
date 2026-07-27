@@ -39,7 +39,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public bool IsFindTarget { get => isFindTarget; }
     public Vector2 Target { get => target; }
     public Transform TargetTransform { get => targetTransform; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
@@ -57,9 +56,10 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     private EntityFindTarget entityFind;
     protected override void Start()
     {
+        base.Start();
         Core.GetCoreComponent(out entityFind);
     }
-    private void Update()
+    public void Update()
     {
         DirectionMehod();
         GetTargetInRange();
@@ -74,19 +74,19 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     private void GetTargetInRange()
     {
 
-        // fix need refactor
-        if (targetTransform == null)
-        {
-            targetTransform = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
-        }
-        if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
-        {
-            isAttack = true;
-        }
-        else
-        {
-            isAttack = false;
-        }
+        // // fix need refactor
+        // if (targetTransform == null)
+        // {
+        //     targetTransform = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
+        // }
+        // if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
+        // {
+        //     isAttack = true;
+        // }
+        // else
+        // {
+        //     isAttack = false;
+        // }
     }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
@@ -96,11 +96,11 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     {
         if (targetTransform != null)
         {
-            directionLookVector = (targetTransform - (Vector2)transform.position).normalized;
+            directionLookVector = (targetTransform.position - transform.position).normalized;
         }
         else
         {
-            directionLookVector = (targetTransform - target).normalized;
+            directionLookVector = (target - (Vector2)transform.position).normalized;
         }
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }
@@ -138,5 +138,10 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     private void ChangeIsTakeDamage()
     {
         this.isTakeDamage = !this.isTakeDamage;
+    }
+
+    public void SetSpawnPoint(Vector2 spawnPoint)
+    {
+        this.spawnPoint = spawnPoint;
     }
 }

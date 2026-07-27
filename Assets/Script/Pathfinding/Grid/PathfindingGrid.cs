@@ -14,10 +14,11 @@ public class PathfindingGrid
 
     public int MaxSize => cols * rows;
 
-    public void BuildGrid(LevelData data)
+    public void BuildGrid(LevelData data, Vector2 originPosition)
     {
+        this.originPosition = originPosition;
         if (build == null) build = new GridBuilder();
-        nodesGrid = build.BuildGrid(data, ref cols, ref rows, ref originPosition);
+        nodesGrid = build.BuildGrid(data, ref cols, ref rows, ref this.originPosition);
         searchGrid = new SearchNode[cols, rows];
         for (int x = 0; x < cols; x++)
         {
@@ -31,8 +32,8 @@ public class PathfindingGrid
     private Vector2Int GetGridPosition(Vector2 positionWorld)
     {
         Vector2 gridPosition = positionWorld - originPosition; ;
-        int x = Mathf.RoundToInt(gridPosition.x);
-        int y = Mathf.RoundToInt(gridPosition.y);
+        int x = Mathf.RoundToInt(Mathf.Abs(gridPosition.x));
+        int y = Mathf.RoundToInt(Mathf.Abs(gridPosition.y));
         if (x < 0 || x >= cols || y < 0 || y >= rows) return -Vector2Int.one;
         return new Vector2Int(x, y);
     }

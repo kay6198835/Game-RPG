@@ -3,9 +3,13 @@ using UnityEngine;
 public abstract class BaseEntity : MonoBehaviour
 {
     protected abstract IState CurrentState { get; }
+    public virtual void Awake()
+    {
+
+    }
     public virtual void Start()
     {
-        
+
     }
     public virtual void Update()
     {

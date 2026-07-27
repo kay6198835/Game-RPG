@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class MazeController : MonoBehaviour
 {
-    [SerializeField] public int Rows = 3;
-    [SerializeField] public int Columns = 3;
+    [SerializeField] public int Rows = 2;
+    [SerializeField] public int Columns = 2;
     [SerializeField] MazeGenerator _generator;
     [SerializeField] public MapGridController MapGrid;
     [SerializeField] public RoomGridController RoomGrid;

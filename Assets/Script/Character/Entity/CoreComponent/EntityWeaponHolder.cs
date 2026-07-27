@@ -12,7 +12,7 @@ public class EntityWeaponHolder : EntityCoreComponent<EntityCore>
     protected override void Awake()
     {
         base.Awake();
-        weaponGO = Instantiate(Core.Entity.Data.WeaponSO.Weapon,this.transform.position,Quaternion.identity,this.transform);
-        weapon = weaponGO.GetComponent<EntityWeapon>();
+        //weaponGO = Instantiate(Core.Entity.Data.WeaponSO.Weapon,this.transform.position,Quaternion.identity,this.transform);
+        //weapon = weaponGO.GetComponent<EntityWeapon>();
     }
 }

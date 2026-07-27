@@ -7,6 +7,7 @@ public class EntityMoveState : EntityBasicState
     protected float moveTime;
     protected float moveDurationTime;
     protected Vector2 directionMoveVector;
+    private float time;
 
     public EntityMoveState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
@@ -22,7 +23,13 @@ public class EntityMoveState : EntityBasicState
     public override void LogicUpdate()
     {
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
-        base.LogicUpdate();
+        time += Time.deltaTime;
+
+        if(time >= 3)
+        {
+            time = 0;
+            entityMovement.SendResquestPath();
+        }
     }
     public override void DoChecks()
     {

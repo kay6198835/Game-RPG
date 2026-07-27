@@ -4,8 +4,9 @@ public class Core : CoreBase
 {
     [SerializeField] public Player Player { get; private set; }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         Player = GetComponentInParent<Player>();
         
     }

@@ -3,8 +3,8 @@ using UnityEngine;
 
 public abstract class CoreBase : MonoBehaviour, ICore
 {
-    [SerializeField] private List<ICoreComponent<ICore>> coreComponents = new List<ICoreComponent<ICore>>();
-    private readonly Dictionary<System.Type, ICoreComponent<ICore>> _cache = new Dictionary<System.Type, ICoreComponent<ICore>>();
+    [SerializeField] public List<ICoreComponent<ICore>> coreComponents = new List<ICoreComponent<ICore>>();
+    protected readonly Dictionary<System.Type, ICoreComponent<ICore>> _cache = new Dictionary<System.Type, ICoreComponent<ICore>>();
 
     protected virtual void Awake()
     {
@@ -12,7 +12,10 @@ public abstract class CoreBase : MonoBehaviour, ICore
     }
     public virtual void AddCoreComponent(ICoreComponent<ICore> coreComponent)
     {
-        if (!coreComponents.Contains(coreComponent)) coreComponents.Add(coreComponent);
+        if (!coreComponents.Contains(coreComponent))
+        {
+            coreComponents.Add(coreComponent);
+        }
     }
     public virtual void GetCoreComponent<T>(out T coreComponent) where T : ICoreComponent<ICore>
     {
@@ -35,7 +38,10 @@ public abstract class CoreBase : MonoBehaviour, ICore
     }
     public virtual void Setup()
     {
-        foreach (var comp in GetComponentsInChildren<ICoreComponent<ICore>>(true))
-            AddCoreComponent(comp);
+        var allCoreComponents = GetComponentsInChildren<ICoreComponent>(true);
+        foreach (var comp in allCoreComponents)
+        {
+            AddCoreComponent((ICoreComponent<ICore>)comp);
+        }
     }
 }

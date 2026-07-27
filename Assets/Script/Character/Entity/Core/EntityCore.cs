@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EntityCore : CoreBase, INegativeReceiver
@@ -14,8 +12,9 @@ public class EntityCore : CoreBase, INegativeReceiver
     }
     #endregion
 
-    private void Awake()
+    protected override void Awake()
     {
         entity = GetComponentInParent<Entity>();
+        base.Awake();
     }
 }

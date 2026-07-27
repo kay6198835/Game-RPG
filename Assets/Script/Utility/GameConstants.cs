@@ -26,6 +26,15 @@ public static class GameConstants
     {
         public static class Vector
         {
+            public static readonly Vector2 TOP = Vector2.up;
+            public static readonly Vector2 RIGHT = Vector2.right;
+            public static readonly Vector2 LEFT = Vector2.left;
+            public static readonly Vector2 BOTTOM = Vector2.down;
+            //Sub Direction
+            public static readonly Vector2 TOP_RIGHT = (Vector2.up + Vector2.right).normalized;
+            public static readonly Vector2 RIGHT_DOWN = (Vector2.right + Vector2.down).normalized;
+            public static readonly Vector2 DOWN_LEFT = (Vector2.down + Vector2.left).normalized;
+            public static readonly Vector2 LEFT_TOP = (Vector2.left + Vector2.up).normalized;
             public static readonly Vector2[] ALL =
             {
                 TOP,
@@ -37,15 +46,6 @@ public static class GameConstants
                 DOWN_LEFT,
                 LEFT_TOP,
             };
-            public static readonly Vector2 TOP = Vector2.up;
-            public static readonly Vector2 RIGHT = Vector2.right;
-            public static readonly Vector2 LEFT = Vector2.left;
-            public static readonly Vector2 BOTTOM = Vector2.down;
-            //Sub Direction
-            public static readonly Vector2 TOP_RIGHT = (Vector2.up + Vector2.right).normalized;
-            public static readonly Vector2 RIGHT_DOWN = (Vector2.right + Vector2.down).normalized;
-            public static readonly Vector2 DOWN_LEFT = (Vector2.down + Vector2.left).normalized;
-            public static readonly Vector2 LEFT_TOP = (Vector2.left + Vector2.up).normalized;
         }
         //Main Direction
         public static class Name

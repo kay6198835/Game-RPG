@@ -16,7 +16,6 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out entityMovement);
         entity.Core.GetCoreComponent(out entityInput);
         entity.Core.GetCoreComponent(out weaponHolder);
-
     }
     public override void LogicUpdate()
     {
