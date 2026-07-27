@@ -47,7 +47,8 @@ public class GridBuilder
         this.cols = cols;
         this.rows = rows;
         this.nodesGrid = nodesGrid;
-        this.originPosition = originPosition - min;
+        this.originPosition = originPosition + min;
+        originPosition = this.originPosition;
         SetNodeNeighbors();
         return nodesGrid;
     }

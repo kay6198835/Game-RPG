@@ -25,11 +25,11 @@ public class EntityMoveState : EntityBasicState
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
         time += Time.deltaTime;
 
-        if(time >= 3)
-        {
-            time = 0;
-            entityMovement.SendResquestPath();
-        }
+        // if(time >= 1)
+        // {
+        //     time = 0;
+        //     entityMovement.SendResquestPath();
+        // }
     }
     public override void DoChecks()
     {

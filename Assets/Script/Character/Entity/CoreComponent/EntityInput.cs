@@ -58,6 +58,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     {
         base.Start();
         Core.GetCoreComponent(out entityFind);
+        this.spawnPoint = this.transform.position;
     }
     public void Update()
     {
@@ -138,10 +139,5 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     private void ChangeIsTakeDamage()
     {
         this.isTakeDamage = !this.isTakeDamage;
-    }
-
-    public void SetSpawnPoint(Vector2 spawnPoint)
-    {
-        this.spawnPoint = spawnPoint;
     }
 }

@@ -6,13 +6,17 @@ using Unity.VisualScripting;
 public class EntityMovement : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Rigidbody2D rb;
-    [SerializeField] private Vector2 target;
+    [SerializeField] private Vector2 playerPosition;
     [SerializeField] protected List<Vector2> Waypoints;
     [SerializeField] protected Vector2 targetPosition;
     [SerializeField] protected int indexWaypoints;
     [SerializeField] protected float speed;
     [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected int maxRadiusSpawnPoint;
+    [SerializeField] protected GameObject enPoint;
+    [SerializeField] protected float distance;
+    [SerializeField] protected bool isSendRequest;
+
 
     protected override void Start()
     {
@@ -29,22 +33,30 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void MoveToTarget()
     {
-        float distance = Vector2.Distance(transform.position, targetPosition);
-
-        if (distance <= 0.3f && indexWaypoints < Waypoints.Count - 1)
+        if (isSendRequest) return;
+        distance = Vector2.Distance(transform.position, targetPosition);
+        if (distance <= 0.2f)
         {
             indexWaypoints++;
-            SetPointToForward(Waypoints[indexWaypoints]);
+            if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+            {
+                SendResquestPath();
+                isSendRequest = true;
+            }
         }
-        if (targetPosition == Vector2.zero) return;
 
-        rb.MovePosition(rb.position + (targetPosition - (Vector2)transform.position)
+        if (targetPosition == Vector2.zero || Waypoints.Count == 0 || indexWaypoints > Waypoints.Count - 1) return;
+        SetPointToForward(Waypoints[indexWaypoints]);
+        rb.MovePosition(rb.position + (targetPosition - (Vector2)transform.position).normalized
         * speed * Time.fixedDeltaTime);
+        this.enPoint.transform.position = playerPosition;
+        entityInput.SetTarget(targetPosition);
     }
 
     private void SetPointToForward(Vector2 targetPosition)
     {
         this.targetPosition = targetPosition;
+        // + Vector2.one * 0.5f;
     }
 
     private void GetPath(Path path)
@@ -52,6 +64,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         Waypoints.Clear();
         Waypoints.AddRange(path.Waypoints);
         indexWaypoints = 0;
+        isSendRequest = false;
         if (path.Waypoints.Count > 0) SetPointToForward(Waypoints[indexWaypoints]);
 
     }
@@ -60,15 +73,15 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         if (entityInput.TargetTransform != null)
         {
-            this.target = entityInput.TargetTransform.position;
+            this.playerPosition = entityInput.TargetTransform.position;
         }
         else
         {
-            this.target = GetRandomNodePositionWorld();
-            entityInput.SetTarget(target);
+            this.playerPosition = GetRandomNodePositionWorld();
         }
-        PathRequest request = new PathRequest(transform.position, target, GetPath);
+        PathRequest request = new PathRequest(transform.position, playerPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
+        Debug.Log("SendResquestPath");
     }
 
     private const int MaxSetNodeAttempts = 10;
@@ -89,9 +102,8 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
             Utility.RandomShuffle(allDirection);
             foreach (var direction in allDirection)
             {
-                Node validNode = EnemyManager.Instance.GetNodeByPositionWorld(
-                    ((Vector2)randomAddRangePosition * direction) + SpawnPoint
-                );
+                var worldPosition = (Vector2)randomAddRangePosition * direction + SpawnPoint;
+                Node validNode = EnemyManager.Instance.GetNodeByPositionWorld(worldPosition);
                 if (validNode != null) return validNode;
             }
         }
