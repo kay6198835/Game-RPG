@@ -50,7 +50,7 @@ public class Entity : BaseEntity
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         particle = GetComponentInChildren<ParticleSystem>();
-        anim = data.Aima;
+        anim.runtimeAnimatorController = data.Aima;
     }
     private void LoadState()
     {

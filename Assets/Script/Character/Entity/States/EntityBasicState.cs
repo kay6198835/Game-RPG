@@ -39,6 +39,7 @@ public class EntityBasicState : EntityState
     }
     public override void Exit()
     {
+        base.Exit();
         entityMovement = null;
         entityInput = null;
         weaponHolder = null;
