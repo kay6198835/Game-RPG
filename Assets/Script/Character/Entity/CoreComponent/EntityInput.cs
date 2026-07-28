@@ -63,7 +63,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public void Update()
     {
         DirectionMehod();
-        GetTargetInRange();
+        //GetTargetInRange();
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
@@ -75,19 +75,19 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     private void GetTargetInRange()
     {
 
-        // // fix need refactor
-        // if (targetTransform == null)
-        // {
-        //     targetTransform = entityFind.FindTargetMethod(entity.Data.RangeCheckFieldOfView);
-        // }
-        // if (entityFind.FindTargetMethod(entity.Data.RangeCheckAttack) != null)
-        // {
-        //     isAttack = true;
-        // }
-        // else
-        // {
-        //     isAttack = false;
-        // }
+        // fix need refactor
+        if (targetTransform == null)
+        {
+            targetTransform = entityFind.FindTargetMethod(Core.Entity.Data.RangeCheckFieldOfView);
+        }
+        if (entityFind.FindTargetMethod(Core.Entity.Data.RangeCheckAttack) != null)
+        {
+            isAttack = true;
+        }
+        else
+        {
+            isAttack = false;
+        }
     }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
@@ -95,14 +95,15 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void DirectionMehod()
     {
-        if (targetTransform != null)
-        {
-            directionLookVector = (targetTransform.position - transform.position).normalized;
-        }
-        else
-        {
-            directionLookVector = (target - (Vector2)transform.position).normalized;
-        }
+        // if (targetTransform != null)
+        // {
+        //     directionLookVector = (targetTransform.position - transform.position).normalized;
+        // }
+        // else
+        // {
+            
+        // }
+        directionLookVector = (target - (Vector2)transform.position).normalized;
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }
     public void SetTarget(Vector2 targetPosition)

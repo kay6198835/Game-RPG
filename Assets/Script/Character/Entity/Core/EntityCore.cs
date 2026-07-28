@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EntityCore : CoreBase, INegativeReceiver
 {
-    [SerializeField] private Entity entity;
+    [SerializeField] protected Entity entity;
     #region Properties
     public Entity Entity { get => entity; }
 
