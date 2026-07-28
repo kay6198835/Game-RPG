@@ -31,21 +31,43 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         rb = GetComponentInParent<Rigidbody2D>();
     }
 
-    public void MoveToTarget()
+    public void CheckMoveState()
     {
-        if (isSendRequest) return;
-        distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance <= 0.2f)
+        if (!entityInput.TargetTransform)
         {
-            indexWaypoints++;
-            if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+            if (isSendRequest) return;
+            distance = Vector2.Distance(transform.position, targetPosition);
+            if (distance <= 0.2f)
             {
-                SendResquestPath();
-                isSendRequest = true;
+                indexWaypoints++;
+                if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+                {
+                    SendResquestPath();
+                    isSendRequest = true;
+                }
+            }
+
+            if (targetPosition == Vector2.zero || Waypoints.Count == 0 || indexWaypoints > Waypoints.Count - 1)
+            {
+
+                return;
+            }
+        }
+        else
+        {
+            // 5 is range attack check to change state to attack
+            if(distance == 5)
+            {
+                // set is attack in input
             }
         }
 
-        if (targetPosition == Vector2.zero || Waypoints.Count == 0 || indexWaypoints > Waypoints.Count - 1) return;
+        MoveToTarget();
+    }
+
+    private void MoveToTarget()
+    {
+        if(targetPosition == Vector2.zero) return;
         SetPointToForward(Waypoints[indexWaypoints]);
         rb.MovePosition(rb.position + (targetPosition - (Vector2)transform.position).normalized
         * speed * Time.fixedDeltaTime);
@@ -69,6 +91,11 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     }
 
+    public void CheckDonePath()
+    {
+
+    }
+
     public void SendResquestPath()
     {
         if (entityInput.TargetTransform != null)
@@ -81,7 +108,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
         PathRequest request = new PathRequest(transform.position, playerPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
-        Debug.Log("SendResquestPath");
     }
 
     private const int MaxSetNodeAttempts = 10;

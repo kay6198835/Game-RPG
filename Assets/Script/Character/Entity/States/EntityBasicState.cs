@@ -34,6 +34,7 @@ public class EntityBasicState : EntityState
         }
         if (entityInput.IsAttack && weaponHolder.Weapon.CheckCanAttack(entity, startTime))
         {
+            entityMovement.StopMove();
             entity.StateMachine.ChangeState(entity.AttackState);
         }
     }

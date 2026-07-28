@@ -22,14 +22,25 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
+        base.LogicUpdate();
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
         time += Time.deltaTime;
-
-        // if(time >= 1)
-        // {
-        //     time = 0;
-        //     entityMovement.SendResquestPath();
-        // }
+        if (!entityInput.TargetTransform)
+        {
+            if (time >= 5)
+            {
+                time = 0;
+                //Change to Idle State
+            }
+        }
+        else
+        {
+            if (time >= 1)
+            {
+                time = 0;
+                entityMovement.SendResquestPath();
+            }
+        }
     }
     public override void DoChecks()
     {
@@ -38,7 +49,7 @@ public class EntityMoveState : EntityBasicState
     }
     public override void PhysicsUpdate()
     {
-        entityMovement.MoveToTarget();
+        entityMovement.CheckMoveState();
     }
     public override void Exit()
     {
