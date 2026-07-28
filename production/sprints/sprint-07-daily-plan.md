@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 2 (2026-07-28) — all 3 remaining compile blockers cleared (committed); 2 confirmed still-open functional bugs (BUG-028, BUG-032, BUG-033); Pathfinding off-plan work (bug chasing/chạy theo lỗi) recurred a 4th cycle
+## Status Verdict: 🟠 DAY 3 (2026-07-29) — compile blockers stay cleared; 3 confirmed still-open functional bugs (BUG-028, BUG-032, BUG-033); off-plan Pathfinding work (bug chasing/chạy theo lỗi) now spans 3 consecutive days with zero tracked bug ID; S7-08 Play Mode gate (cổng xác nhận) still not confirmed by owner
 
 Sprint 6 closed **CONCERNS**: Must-Have bug list from its own scope mostly landed (8-9/9 task count),
 but late-week off-plan work (Base/CoreBase hub refactor + Pathfinding) shipped uncompiled — 6
@@ -80,6 +80,17 @@ BUG-026 (S7-02) re-check: compiles now, but only because the entire `PlayerDeath
 | S7-10 (BUG-033/ES-1, `EnemySpawner.cs:62`) | 0.15d | Independent of S7-08, can start any day |
 | S7-11 (Bug #6 re-scope + EditMode test) | 0.4d | Gated on S7-08 — largest single item this sprint |
 | S7-12 (ADR-0002 Accepted) | 0.1d | Independent, quick |
+
+**Status (verified via code read, standup 2026-07-29, no Unity CLI in this environment):**
+
+| Task | Status |
+|------|--------|
+| S7-09 (BUG-032) | ❌ Still open — `EntityWeaponMelee.cs:26` `Core.GetCoreComponent(out input)` still commented out; `SetAbility()` line 49 dereferences `input.Skill` → NullReferenceException on first enemy skill use |
+| S7-10 (BUG-033) | ❌ Still open — `EnemySpawner.cs:62` still `if (set.Count == 0 || set == null)` — wrong order, will NullRef when `set` is null before `.Count` short-circuits |
+| S7-11 (Bug #6) | ❌ Not started — `NegativeReciver`/`PlayerData.currentHealth` disconnect untouched; no EditMode test |
+| S7-12 (ADR-0002) | ❌ Not started — `docs/architecture/adr-0002-enemymanager-singleton-exception.md` Status line still reads `Proposed` |
+| S7-04 (BUG-028, carried from Tue) | ❌ Still open, but progressed — `EntityInput.GetTargetInRange()` (line 75-90) now has real FOV/attack-range logic restored (`entityFind.FindTargetMethod(...)`), but the call site at line 66 is still commented out (`//GetTargetInRange();`) — method is dead code until that one line is uncommented |
+| BUG-026 (S7-02, real fix) | ❌ Still open — `PlayerDeathState.LogicUpdate()` body remains fully commented out; `ON_PLAYER_DEATH`/`ON_REALOAD_GAME` never emitted from player death |
 
 ### Thu 2026-07-30 — Decisions + Should-Have
 
@@ -191,6 +202,50 @@ items not started; Wed's two items also untouched.
 - ADR-0002 (S7-12) still `Status: Proposed` — not flipped yet (not due until Thu per plan).
 - `production/qa/bugs/` still empty (only `.gitkeep`) — S7-D3 not started (not due until Thu per plan).
 - QA plan still missing (5th consecutive **sprint** cycle, per `sprint-07.md`) — still deferred to owner per sprint doc.
+
+---
+
+### 2026-07-29 (Wed) — Day 3 standup (autonomous scheduled run)
+
+**Yesterday (2026-07-28 Tue → 2026-07-29 early Wed, verified via `git log`/`git show --stat`):**
+
+| Commit | Author | Content |
+|--------|--------|---------|
+| `06ec980` "fix issue enemy chase" (08:14, Claude session) | Claude | `Pathfinding/Grid/GridBuilder.cs` only — 12 insertions/7 deletions |
+| `dcc5841` "update move/idle/attakck state" (16:17) | Kay | `EntityMovement.cs`, `EntityBasicState.cs`, `EntityMoveState.cs` — 55 insertions/17 deletions |
+| `66dd771` "coding" (Wed 01:58) | Kay | 8 files: `EntityCore.cs`, `EntityInput.cs`, `EntityMovement.cs`, `EntityMoveState.cs`, plus scene/prefab/asset diffs (`LoadRandomMap.unity`, `EnemyPrefab.prefab`, `RoomModel.asset`) — 135 insertions/363 deletions |
+
+Plus an **uncommitted** working-tree change right now to `EntityMovement.cs` (`ChaseToTarget()` rewrite: pathfinding node re-check + `Waypoints.Count == 0` guard, 20 insertions/21 deletions) — 4th day in a row this same method has changed.
+
+**Bug re-check (all 9 original S1 IDs + Wed's 4 items, re-read against current file contents):**
+- ✅ Fixed & committed: BUG-024, BUG-025, BUG-027 (scope exceeded), BUG-029, BUG-030, BUG-031
+- ❌ Still open: BUG-026 (`PlayerDeathState.LogicUpdate()` body still fully commented out — dead, not fixed), BUG-028/S7-04 (`GetTargetInRange()` logic now correctly written but call site at `EntityInput.cs:66` still commented out — one line from done), BUG-032/S7-09 (`EntityWeaponMelee.cs:26` `input` field still never assigned — NullRef on first enemy skill use), BUG-033/S7-10 (`EnemySpawner.cs:62` null-check order still wrong)
+- ❌ Not started: S7-11 (Bug #6 re-scope + EditMode test), S7-12 (ADR-0002 still `Status: Proposed`), S7-13 (S4-05/06 forced decision), S7-D3 (`production/qa/bugs/` still only `.gitkeep`)
+
+**Net vs. plan:** none of Wed's 4 planned Must-Have items (S7-09, S7-10, S7-11, S7-12) landed. All three of yesterday's + today's early-morning commits instead continued the unplanned Pathfinding rewrite (`EntityMovement`/`EntityInput`/`EntityMoveState`/`GridBuilder`) with zero tracked bug ID — this is now the **3rd consecutive day** of this exact pattern (`b195af2` Tue 01:10 → `06ec980`/`dcc5841` Tue → `66dd771` + uncommitted Wed). S7-08 (Play Mode gate) still has no owner confirmation recorded, so this work keeps landing without the sprint's own stated gate being cleared first.
+
+**Today's plan:**
+
+| Task | Est. | Rationale |
+|------|------|-----------|
+| Finish S7-04 (BUG-028) | 0.05d | One-line fix now — uncomment `GetTargetInRange();` call at `EntityInput.cs:66`; the hard part (rewiring FOV/attack logic) is already done |
+| S7-09 (BUG-032) | 0.1d | Trivial — uncomment `Core.GetCoreComponent(out input)` at `EntityWeaponMelee.cs:26` |
+| S7-10 (BUG-033) | 0.1d | Trivial — swap to `set == null \|\| set.Count == 0` at `EnemySpawner.cs:62` |
+| S7-08 (Play Mode verify) | 0.2d | **Owner action required** — no Unity CLI here; this gate has been reachable since Tue and is now blocking S7-09/S7-11 from being marked done even after code lands |
+| S7-11 (Bug #6 + BUG-026 real fix) | 0.4d | Fold `PlayerDeathState.LogicUpdate()` restoration into this story per Tue's plan — largest remaining Must-Have item |
+| S7-12 (ADR-0002 Accepted) | 0.1d | Trivial, 3rd day untouched — flip `Status: Proposed → Accepted` |
+
+**Blockers:**
+- No Unity Editor CLI in this environment — S7-08 confirmation and all functional verification depend on the owner running Play Mode manually.
+- S7-04/S7-09/S7-10 are all now one-line fixes away from done but remain open — suggests attention is going to the Pathfinding rewrite instead of closing out the tracked Must-Have list.
+
+**Emerging risks:**
+- **Off-plan work (chạy lố phạm vi) has now recurred on 3 consecutive days** (Tue `b195af2`+`06ec980`+`dcc5841`, Wed `66dd771`+uncommitted), directly against the sprint's own stated rule ("no further work on Pathfinding... until the hub refactor is confirmed compiling and working"). S7-D4 (root-cause conversation) is scheduled for Thu 07-30 — recommend the owner pull it forward to today rather than let a 4th day land, since Thu's plan also depends on Must-Have (S7-09/10/11/12) actually closing first and none of it did yesterday.
+- Uncommitted `EntityMovement.cs` change sitting in the working tree at standup time — same file has now changed in 4 straight sessions (`eb8b7a4`, `b195af2`, `dcc5841`, `66dd771`, + uncommitted); recommend committing or reverting before it grows further, per repo hygiene norms already flagged Tue.
+- BUG-026's real fix keeps getting deferred into S7-11 — Bug #6/S7-11 scope is now: (1) `NegativeReciver`↔`PlayerData.currentHealth` disconnect, (2) missing `ON_PLAYER_DEATH` listener, (3) restoring `PlayerDeathState.LogicUpdate()` body. Three sub-problems in one 0.4d estimate is optimistic — consider re-estimating if it slips past today.
+- ADR-0002 (S7-12) — 3rd day still `Proposed`, was estimated 0.1d/trivial each day and still not done; likely not a complexity problem, just deprioritized under the Pathfinding work.
+- `production/qa/bugs/` still empty (only `.gitkeep`) — S7-D3 not due until Thu, no action needed yet.
+- QA plan still missing (6th consecutive sprint cycle) — still deferred to owner per sprint doc.
 
 ---
 
