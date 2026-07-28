@@ -23,7 +23,8 @@ public class GridBuilder
             if (p.y > max.y) max.y = p.y;
 
             Vector2Int pos = new Vector2Int(p.x, p.y);
-            bool isFloor = data.tiles[i] == GameConstants.TileName.FLOOR;
+            bool isFloor = data.tiles[i] == GameConstants.TileName.FLOOR
+                        || data.tiles[i] == GameConstants.TileName.SPAWN;
 
             walkableAt[pos] = walkableAt.TryGetValue(pos, out bool cur)
                 ? (cur && isFloor)
@@ -41,7 +42,7 @@ public class GridBuilder
                 Vector2Int rawPos = new Vector2Int(min.x + x, min.y + y);
                 bool walkable = walkableAt.TryGetValue(rawPos, out bool isFloor) && isFloor;
                 Vector2Int gridPosition = new Vector2Int(x, y);
-                nodesGrid[x, y] = new Node(gridPosition, walkable, originPosition + (Vector2)gridPosition);
+                nodesGrid[x, y] = new Node(gridPosition, walkable, originPosition + (Vector2)rawPos);
             }
         }
         this.cols = cols;
@@ -63,17 +64,21 @@ public class GridBuilder
             {
                 foreach (Vector2 dir in GameConstants.Direction.Vector.ALL)
                 {
-                    int nx = col + (int)dir.x;
-                    int ny = row + (int)dir.y;
+                    // Diagonal entries in ALL are normalized (~0.707); truncating with (int)
+                    // collapses them to 0, so round to keep the ±1 diagonal step.
+                    int dirX = Mathf.RoundToInt(dir.x);
+                    int dirY = Mathf.RoundToInt(dir.y);
+                    int nx = col + dirX;
+                    int ny = row + dirY;
 
                     if (!IsInside(nx, ny))
                         continue;
                     Node neighbor = nodesGrid[nx, ny];
                     // Corner Cutting
-                    if (dir.x != 0 && dir.y != 0)
+                    if (dirX != 0 && dirY != 0)
                     {
-                        Node horizontal = nodesGrid[col + (int)dir.x, row];
-                        Node vertical = nodesGrid[col, row + (int)dir.y];
+                        Node horizontal = nodesGrid[col + dirX, row];
+                        Node vertical = nodesGrid[col, row + dirY];
 
                         if (!horizontal.Walkable && !vertical.Walkable)
                             continue;
