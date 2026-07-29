@@ -15,7 +15,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected float distance;
     //[SerializeField] protected bool isSendRequest;
     [SerializeField] protected Vector2 testDirection;
-    [SerializeField] protected Node _lastPlayerNodePosition;
+    [SerializeField] protected Vector2 _lastPlayerNodePosition;
     [SerializeField] protected PathfindingGrid grid;
 
     protected override void Start()
@@ -24,7 +24,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         Core.GetCoreComponent(out entityInput);
         if (maxRadiusSpawnPoint == 0) maxRadiusSpawnPoint = 3;
         indexWaypoints = 0;
-        if (!grid) grid = EnemyManager.Instance.Grid;
+        grid = EnemyManager.Instance.Grid;
     }
     protected override void Awake()
     {
@@ -61,10 +61,14 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     }
     private void ChaseToTarget()
     {
-        Vector2 playerNodePosition = grid.GetNodeFromWorld(entity.Input.Target.transform.position).TileMapPosition;
-
-        if (playerNodePosition == _lastPlayerNodePosition) return;   // player chưa đổi ô → giữ path cũ
-        _lastPlayerNodePosition = playerNodePosition;
+        Vector2 playerNodePosition = grid.GetNodeFromWorld(entityInput.TargetTransform.position).TileMapPosition;
+        // player chưa đổi ô → giữ path cũ
+        if (playerNodePosition != _lastPlayerNodePosition)
+        {
+            _lastPlayerNodePosition = playerNodePosition;
+            SendResquestPath();
+            return;
+        }
 
         distance = Vector2.Distance(transform.position, targetPosition);
         if (distance < 0.05f)
@@ -85,14 +89,14 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     public void MoveToTarget()
     {
         if (targetPosition == Vector2.zero) return;
-        testDirection = (targetPosition - (Vector2)transform.position).normalized;
+        testDirection = (targetPosition - (Vector2)Core.Entity.transform.position).normalized;
         rb.MovePosition(rb.position + testDirection * speed * Time.fixedDeltaTime);
         entityInput.SetTarget(targetPosition);
     }
 
     private void SetPointToForward(Vector2 targetPosition)
     {
-        this.targetPosition = targetPosition;
+        this.targetPosition = targetPosition + Vector2.one * 0.5f;
     }
 
     private void GetPath(Path path)
