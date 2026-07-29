@@ -49,7 +49,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     private void SetMoveRandom()
     {
         distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance <= 0.15f)
+        if (distance < 0.05f)
         {
             indexWaypoints++;
             if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
@@ -62,25 +62,22 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     }
     private void ChaseToTarget()
     {
-    //     var realtimePlayerNode = EnemyManager.Instance.GetNodeByPositionWorld(entityInput.TargetTransform.position);
-    //     if (playerNode != realtimePlayerNode)
-    //     {
-    //         Debug.Log("Change playerNode");
-    //         playerNode = realtimePlayerNode;
-    //         SendResquestPath();
-    //         return;
-    //     }
-        distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance <= 0.15f)
-        {
-            SendResquestPath();
-            // indexWaypoints++;
+        var grid = EnemyManager.Instance.Grid;   // expose getter
+        Node playerNode = grid.GetNodeFromWorld(entity.Input.Target.transform.position);
 
-            // if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
-            // {
-            //     SendResquestPath();
-            //     return;
-            // }
+        if (playerNode == _lastPlayerNode) return;   // player chưa đổi ô → giữ path cũ
+        _lastPlayerNode = playerNode;
+
+        distance = Vector2.Distance(transform.position, targetPosition);
+        if (distance < 0.05f)
+        {
+            indexWaypoints++;
+
+            if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+            {
+                SendResquestPath();
+                return;
+            }
         }
         SetPointToForward(Waypoints[indexWaypoints]);
 
@@ -102,9 +99,10 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void GetPath(Path path)
     {
+        if (!path.Success || path.Waypoints.Count == 0) return;
         Waypoints.Clear();
         Waypoints.AddRange(path.Waypoints);
-        indexWaypoints = 0;
+        indexWaypoints = path.Waypoints.Count > 1 ? 1 : 0;
         if (Waypoints.Count != 0) SetPointToForward(Waypoints[indexWaypoints]);
     }
 
