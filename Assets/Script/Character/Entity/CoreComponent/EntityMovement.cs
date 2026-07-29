@@ -65,9 +65,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public bool CheckPlayerPosition()
     {
-        currentPlayerNode = grid.GetNodeFromWorld(entityInput.TargetTransform.position) != null ?
-        grid.GetNodeFromWorld(entityInput.TargetTransform.position).TileMapPosition : Vector2.zero;
-        //player not change grid position
+        currentPlayerNode = grid.GetNodeFromWorld(entityInput.TargetTransform.position);
+        if (currentPlayerNode == null) return false;
+        //player changed grid cell → need new path
         return currentPlayerNode.TileMapPosition != _lastPlayerNodePosition;
     }
 

@@ -3,7 +3,6 @@ using UnityEngine;
 
 public static class AStar
 {
-    private Path pathResponse;
     public static Path FindPath(PathfindingGrid grid, Vector2 startWorld, Vector2 targetWorld)
     {
         SearchNode startNode  = grid.GetNodeFromWorld(startWorld);
@@ -68,7 +67,6 @@ public static class AStar
         }
         waypoints.Add(start.Node.WorldPosition);
         waypoints.Reverse();   // đang là target→start, đảo lại thành start→target
-        pathResponse.SetPath(waypoints, true);
-        return pathResponse;
+        return new Path(waypoints, true);
     }
 }
