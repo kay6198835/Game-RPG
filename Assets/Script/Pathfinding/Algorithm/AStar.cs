@@ -67,7 +67,6 @@ public static class AStar
         }
         waypoints.Add(start.Node.WorldPosition);
         waypoints.Reverse();   // đang là target→start, đảo lại thành start→target
-
         return new Path(waypoints, true);
     }
 }

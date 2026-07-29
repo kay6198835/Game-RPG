@@ -11,6 +11,7 @@ public class PathRequestManager : MonoBehaviour
     public void SetGrid(PathfindingGrid grid) => _grid = grid;
 
     public void Request(PathRequest request) => _queue.Enqueue(request);
+    private Path path; 
 
     private void Update()
     {
@@ -20,7 +21,7 @@ public class PathRequestManager : MonoBehaviour
         while (_queue.Count > 0 && processed < maxRequestsPerFrame)
         {
             PathRequest req = _queue.Dequeue();
-            Path path = AStar.FindPath(_grid, req.Start, req.Target);
+            path = AStar.FindPath(_grid, req.Start, req.Target);
             req.Callback?.Invoke(path);
             processed++;
         }
