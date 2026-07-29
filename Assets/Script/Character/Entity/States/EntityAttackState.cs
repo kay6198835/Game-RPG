@@ -6,6 +6,8 @@ public class EntityAttackState : EntityUseWeaponState
 {
     private float startAttackTime;
     public float StartAttackTime { get => startAttackTime; }
+
+    EntityAttack entityAttack;
     public EntityAttackState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -16,11 +18,11 @@ public class EntityAttackState : EntityUseWeaponState
     }
     public override void LogicUpdate()
     {
-        base.LogicUpdate();
         if (Status == StatusAnimation.StartRangeTrigger)
         {
-            weaponHolder.Weapon.Attack();
+            entityAttack.Attack();
             Status = StatusAnimation.OnActivate;
         }
+        base.LogicUpdate();
     }
 }

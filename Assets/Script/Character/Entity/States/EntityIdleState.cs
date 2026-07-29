@@ -15,15 +15,19 @@ public class EntityIdleState : EntityBasicState
     {
         base.Enter();
         idleDurationTime = entityData.IdleDurationTime;
-        idleTime = startTime + idleDurationTime;
         entityMovement.StopMove();
+        // Should set by entityData
+        idleDurationTime = 3;
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (idleTime <= Time.time || entity.Input.Target != null)
+        idleTime += Time.deltaTime;
+        if (idleTime >= idleDurationTime || entityFindTarget.DistanceToPlayer() >= 0)
         {
+            idleTime = 0;
             entity.StateMachine.ChangeState(entity.MoveState);
+            return;
         }
     }
 }

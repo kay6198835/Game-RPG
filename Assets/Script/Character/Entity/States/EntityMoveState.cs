@@ -23,27 +23,29 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        // base.LogicUpdate();
-        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
-        time += Time.deltaTime;
-        // if (!entityInput.TargetTransform)
-        // {
-        //     if (time >= 5)
-        //     {
-        //         time = 0;
-        //         //Change to Idle State
-        //     }
-        // }
-        // else
-        // {
-        //     // if (time >= 1)
-        //     // {
-        //     //     time = 0;
-        //     //     entityMovement.SendResquestPath();
-        //     // }
-        // }
+        base.LogicUpdate();
 
+        if (!entityInput.TargetTransform)
+        {
+            time += Time.deltaTime;
+            if (time >= 10)
+            {
+                time = 0;
+                entity.StateMachine.ChangeState(entity.IdleState);
+                return;
+            }
+        }
         entityMovement.CheckMove();
+
+        if (entityFindTarget.IsNearPlayer())
+        {
+            entity.StateMachine.ChangeState(entity.IdleState);
+            return;
+            //Back Foward 
+            // 3-5 unit for range entity
+            // 2-3 unit for melee entity
+
+        }
     }
     public override void DoChecks()
     {
@@ -52,11 +54,12 @@ public class EntityMoveState : EntityBasicState
     }
     public override void PhysicsUpdate()
     {
-        entityMovement.MoveToTarget();
+        if (entityMovement != null) entityMovement.MoveToTarget();
+
     }
     public override void Exit()
     {
-        base.Exit();
         entityMovement.StopMove();
+        base.Exit();
     }
 }

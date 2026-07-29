@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class EntityTakeDamageState : EntityDisadvantageState
 {
+    EntityInput entityInput;
+    EntityMovement entityMovement;
     public override void Enter()
     {
         base.Enter();
-        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionIsAttaked);
+        entity.Core.GetCoreComponent(out entityMovement);
+        entity.Core.GetCoreComponent(out entityInput);
+        entityMovement.StopMove();
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionIsAttaked);
     }
     public EntityTakeDamageState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
@@ -23,5 +28,7 @@ public class EntityTakeDamageState : EntityDisadvantageState
     public override void Exit()
     {
         base.Exit();
+        entityMovement = null;
+        entityInput = null;
     }
 }

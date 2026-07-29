@@ -7,6 +7,7 @@ public class EntityBasicState : EntityState
     protected EntityMovement entityMovement;
     protected EntityInput entityInput;
     protected EntityWeaponHolder weaponHolder;
+    protected EntityFindTarget entityFindTarget;
     public EntityBasicState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -16,26 +17,34 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out entityMovement);
         entity.Core.GetCoreComponent(out entityInput);
         entity.Core.GetCoreComponent(out weaponHolder);
+        entity.Core.GetCoreComponent(out entityFindTarget);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
         if (entityInput.IsTakeDamage)
         {
             if (entity.Data.StatsSO.Health <= 0)
             {
                 stateMachine.ChangeState(entity.DeathState);
+                return;
             }
             else
             {
                 stateMachine.ChangeState(entity.TakeDamageState);
+                return;
             }
         }
-        if (entityInput.IsAttack && weaponHolder.Weapon.CheckCanAttack(entity, startTime))
+        // if (entityInput.IsAttack && weaponHolder.Weapon.CheckCanAttack(entity, startTime))
+        // {
+        //     entityMovement.StopMove();
+        //     entity.StateMachine.ChangeState(entity.AttackState);
+        // }
+        if (entityFindTarget.IsInRange())
         {
-            entityMovement.StopMove();
             entity.StateMachine.ChangeState(entity.AttackState);
+            return;
         }
     }
     public override void Exit()
@@ -44,6 +53,7 @@ public class EntityBasicState : EntityState
         entityMovement = null;
         entityInput = null;
         weaponHolder = null;
+        entityFindTarget = null;
     }
 
 }

@@ -29,6 +29,7 @@ public class PlayerBasicState : PlayerState
             if (weaponHolder.FindInteraction())
             {
                 stateMachine.ChangeState(player.EquidUnequidState);
+                return;
             }
         }
         else if (inputHandler.IsInteractor)
@@ -36,6 +37,7 @@ public class PlayerBasicState : PlayerState
             if (interactor.FindInteraction())
             {
                 stateMachine.ChangeState(player.IntertorState);
+                return;
             }
         }
         else if (weaponHolder.Weapon != null)
@@ -43,10 +45,12 @@ public class PlayerBasicState : PlayerState
             if (inputHandler.IsAttack)
             {
                 stateMachine.ChangeState(player.AttackState);
+                return;
             }
             else if (inputHandler.IsSkill && abilityHolder.CanUseAbility)
             {
                 stateMachine.ChangeState(player.AbilityState);
+                return;
             }
         }
         if (inputHandler.IsTakeDamage)
