@@ -16,7 +16,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     //[SerializeField] protected bool isSendRequest;
     [SerializeField] protected Vector2 testDirection;
     [SerializeField] protected Vector2 _lastPlayerNodePosition;
+    [SerializeField] protected Vector2 currentPlayerNodePosition;
     [SerializeField] protected PathfindingGrid grid;
+    [SerializeField] protected Vector2[] allDirection;
 
     protected override void Start()
     {
@@ -51,21 +53,28 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         if (distance < 0.05f)
         {
             indexWaypoints++;
-            if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
-            {
-                SendResquestPath();
-                return;
-            }
+        }
+        if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+        {
+            SendResquestPath();
+            return;
         }
         SetPointToForward(Waypoints[indexWaypoints]);
     }
+
+    public bool CheckPlayerPosition()
+    {
+        currentPlayerNodePosition = grid.GetNodeFromWorld(entityInput.TargetTransform.position) != null ?
+        grid.GetNodeFromWorld(entityInput.TargetTransform.position) : Vector2.zero;
+        //player not change grid position
+        return currentPlayerNodePosition != _lastPlayerNodePosition;
+    }
+
     private void ChaseToTarget()
     {
-        Vector2 playerNodePosition = grid.GetNodeFromWorld(entityInput.TargetTransform.position).TileMapPosition;
-        // player chưa đổi ô → giữ path cũ
-        if (playerNodePosition != _lastPlayerNodePosition)
+        if (CheckPlayerPosition())
         {
-            _lastPlayerNodePosition = playerNodePosition;
+            _lastPlayerNodePosition = currentPlayerNodePosition;
             SendResquestPath();
             return;
         }
@@ -137,7 +146,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         for (int attempt = 0; attempt < MaxSetNodeAttempts; attempt++)
         {
             Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(0, maxRadiusSpawnPoint), Random.Range(0, maxRadiusSpawnPoint));
-            var allDirection = (Vector2[])GameConstants.Direction.Vector.ALL.Clone();
+            allDirection = (Vector2[])GameConstants.Direction.Vector.ALL.Clone();
             Utility.RandomShuffle(allDirection);
             foreach (var direction in allDirection)
             {
