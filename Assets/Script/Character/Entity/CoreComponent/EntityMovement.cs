@@ -16,7 +16,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     //[SerializeField] protected bool isSendRequest;
     [SerializeField] protected Vector2 testDirection;
     [SerializeField] protected Vector2 _lastPlayerNodePosition;
-    [SerializeField] protected Vector2 currentPlayerNodePosition;
+    [SerializeField] protected SearchNode currentPlayerNode;
     [SerializeField] protected PathfindingGrid grid;
     [SerializeField] protected Vector2[] allDirection;
 
@@ -27,6 +27,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         if (maxRadiusSpawnPoint == 0) maxRadiusSpawnPoint = 3;
         indexWaypoints = 0;
         grid = EnemyManager.Instance.Grid;
+        allDirection = (Vector2[])GameConstants.Direction.Vector.ALL.Clone();
     }
     protected override void Awake()
     {
@@ -64,17 +65,17 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public bool CheckPlayerPosition()
     {
-        currentPlayerNodePosition = grid.GetNodeFromWorld(entityInput.TargetTransform.position) != null ?
-        grid.GetNodeFromWorld(entityInput.TargetTransform.position) : Vector2.zero;
+        currentPlayerNode = grid.GetNodeFromWorld(entityInput.TargetTransform.position) != null ?
+        grid.GetNodeFromWorld(entityInput.TargetTransform.position).TileMapPosition : Vector2.zero;
         //player not change grid position
-        return currentPlayerNodePosition != _lastPlayerNodePosition;
+        return currentPlayerNode.TileMapPosition != _lastPlayerNodePosition;
     }
 
     private void ChaseToTarget()
     {
         if (CheckPlayerPosition())
         {
-            _lastPlayerNodePosition = currentPlayerNodePosition;
+            _lastPlayerNodePosition = currentPlayerNode.TileMapPosition;
             SendResquestPath();
             return;
         }
@@ -83,12 +84,11 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         if (distance < 0.05f)
         {
             indexWaypoints++;
-
-            if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
-            {
-                SendResquestPath();
-                return;
-            }
+        }
+        if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+        {
+            SendResquestPath();
+            return;
         }
         SetPointToForward(Waypoints[indexWaypoints]);
 
@@ -146,7 +146,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         for (int attempt = 0; attempt < MaxSetNodeAttempts; attempt++)
         {
             Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(0, maxRadiusSpawnPoint), Random.Range(0, maxRadiusSpawnPoint));
-            allDirection = (Vector2[])GameConstants.Direction.Vector.ALL.Clone();
             Utility.RandomShuffle(allDirection);
             foreach (var direction in allDirection)
             {

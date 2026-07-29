@@ -12,5 +12,12 @@ public class Path
         Success = success;
     }
 
+    public void SetPath(List<Vector2> waypoints, bool success)
+    {
+        Waypoints.Clear();
+        Waypoints.AddRange(waypoints);
+        Success = success;
+    }
+
     public static readonly Path Failure = new Path(new List<Vector2>(), false);
 }
