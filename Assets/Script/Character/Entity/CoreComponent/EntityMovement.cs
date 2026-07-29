@@ -15,9 +15,8 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected float distance;
     //[SerializeField] protected bool isSendRequest;
     [SerializeField] protected Vector2 testDirection;
-    [SerializeField] protected Node playerNode;
-    private bool canGetNewPath;
-
+    [SerializeField] protected Node _lastPlayerNodePosition;
+    [SerializeField] protected PathfindingGrid grid;
 
     protected override void Start()
     {
@@ -25,7 +24,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         Core.GetCoreComponent(out entityInput);
         if (maxRadiusSpawnPoint == 0) maxRadiusSpawnPoint = 3;
         indexWaypoints = 0;
-        canGetNewPath = true;
+        if (!grid) grid = EnemyManager.Instance.Grid;
     }
     protected override void Awake()
     {
@@ -62,11 +61,10 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     }
     private void ChaseToTarget()
     {
-        var grid = EnemyManager.Instance.Grid;   // expose getter
-        Node playerNode = grid.GetNodeFromWorld(entity.Input.Target.transform.position);
+        Vector2 playerNodePosition = grid.GetNodeFromWorld(entity.Input.Target.transform.position).TileMapPosition;
 
-        if (playerNode == _lastPlayerNode) return;   // player chưa đổi ô → giữ path cũ
-        _lastPlayerNode = playerNode;
+        if (playerNodePosition == _lastPlayerNodePosition) return;   // player chưa đổi ô → giữ path cũ
+        _lastPlayerNodePosition = playerNodePosition;
 
         distance = Vector2.Distance(transform.position, targetPosition);
         if (distance < 0.05f)
