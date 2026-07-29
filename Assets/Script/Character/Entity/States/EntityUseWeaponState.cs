@@ -6,6 +6,7 @@ public class EntityUseWeaponState : EntityState
 {
     protected EntityMovement entityMovement;
     protected EntityWeaponHolder weaponHolder;
+    protected EntityInput entityInput;
     public EntityUseWeaponState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -14,8 +15,9 @@ public class EntityUseWeaponState : EntityState
         base.Enter();
         entity.Core.GetCoreComponent(out entityMovement);
         entity.Core.GetCoreComponent(out weaponHolder);
+        entity.Core.GetCoreComponent(out entityInput);
         entityMovement.StopMove();
-        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entity.Input.DirectionLook);
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
     }
     public override void LogicUpdate()
     {
@@ -31,5 +33,6 @@ public class EntityUseWeaponState : EntityState
         base.Exit();
         entityMovement = null;
         weaponHolder = null;
+        entityInput = null;
     }
 }

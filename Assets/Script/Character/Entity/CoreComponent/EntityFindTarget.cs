@@ -9,17 +9,41 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     [SerializeField] private LayerMask player, obstracles;
     //[SerializeField] private bool isFindTarget;
     [SerializeField] private Collider2D collider;
-    public Transform Target { get => target;}
+    [SerializeField] private float distanceToPlayer;
+    [SerializeField] private EntityInput entityInput;
+    public Transform Target { get => target; }
+    [Range(1, 20)]
+    public float minRange, maxRange;
 
     protected override void Awake()
     {
         base.Awake();
+        Core.GetCoreComponent(out entityInput);
     }
     protected override void Start()
     {
         base.Start();
         Debug.Log(Core);
     }
+
+    public float DistanceToPlayer()
+    {
+        if (entityInput.TargetTransform == null) return -1f;
+        distanceToPlayer = Vector2.Distance(Core.Entity.transform.position, entityInput.TargetTransform.position);
+        return distanceToPlayer;
+    }
+
+    public bool IsInRange()
+    {
+        return DistanceToPlayer() <= maxRange && DistanceToPlayer() >= minRange;
+    }
+
+    public bool IsNearPlayer()
+    {
+
+        return DistanceToPlayer() <= minRange && DistanceToPlayer() > 0;
+    }
+
     public Transform FindTargetMethod(float range)
     {
         this.range = range;
@@ -27,7 +51,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
             this.transform.position,
             range,
             player);
-        if(collider != null)
+        if (collider != null)
         {
             target = collider.transform;
         }
@@ -38,19 +62,19 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         return target;
     }
 
-    public bool FindWall(Vector2 direction,float speed)
+    public bool FindWall(Vector2 direction, float speed)
     {
         bool isFindWall;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, speed*0.5f, obstracles);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, speed * 0.5f, obstracles);
         if (hit.collider != null)
         {
-            isFindWall=true;
+            isFindWall = true;
         }
         else
         {
-            isFindWall=false;
+            isFindWall = false;
         }
-        return isFindWall; 
+        return isFindWall;
     }
     private void OnDrawGizmos()
     {

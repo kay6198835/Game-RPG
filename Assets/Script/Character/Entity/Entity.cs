@@ -4,21 +4,17 @@ using UnityEngine;
 
 public class Entity : BaseEntity
 {
-    [SerializeField] protected EntityInput input;
     [SerializeField] protected EntityCore core;
-
-
     [SerializeField] protected Animator anim;
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected ParticleSystem particle;
-    [SerializeField] protected EntityStateMachine stateMachine;
+    [SerializeField] public EntityStateMachine stateMachine = new EntityStateMachine();
     [SerializeField] protected EntityData data;
     [SerializeField] private EntityIdleState idleState;
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
     [SerializeField] private EntityDeathState deathState;
-    public EntityInput Input { get => input;}
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }
     public ParticleSystem Particle { get => particle; }
@@ -46,7 +42,6 @@ public class Entity : BaseEntity
     {
         stateMachine = new EntityStateMachine();
         core = GetComponentInChildren<EntityCore>();
-        input = GetComponentInChildren<EntityInput>();
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         particle = GetComponentInChildren<ParticleSystem>();

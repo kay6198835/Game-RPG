@@ -7,7 +7,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
 {
     [SerializeField] protected Vector2 spawnPoint;
     // [SerializeField] protected Entity entity;
-    [SerializeField] protected Vector2 target;
+    [SerializeField] protected Vector2 targetFowardPosition;
     [SerializeField] protected Transform targetTransform;
     [Header("State")]
     [SerializeField] protected bool isTakeDamage = false;
@@ -39,7 +39,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public Vector2 Target { get => target; }
     public Transform TargetTransform { get => targetTransform; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     //public float AngleSin { get => angleSin;}
@@ -103,12 +102,12 @@ public class EntityInput : EntityCoreComponent<EntityCore>
         // {
             
         // }
-        directionLookVector = (target - (Vector2)transform.position).normalized;
+        directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }
     public void SetTarget(Vector2 targetPosition)
     {
-        this.target = targetPosition;
+        this.targetFowardPosition = targetPosition;
     }
     public void SetDirectionRadom()
     {

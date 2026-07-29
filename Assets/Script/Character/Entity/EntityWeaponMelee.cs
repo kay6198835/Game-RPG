@@ -11,7 +11,7 @@ public class EntityWeaponMelee : EntityWeapon
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
-    private EntityInput input;
+    private EntityInput entityInput;
     protected override void Awake()
     {
         base.Awake();
@@ -46,11 +46,11 @@ public class EntityWeaponMelee : EntityWeapon
     }
     public override ActivateSkill SetAbility()
     {
-        if (input.Skill == EntityInput.SkillType.Ability)
+        if (entityInput.Skill == EntityInput.SkillType.Ability)
         {
             currentAbilitySO = statsMelee.AbilityWeapon;
         }
-        else if (input.Skill == EntityInput.SkillType.Special)
+        else if (entityInput.Skill == EntityInput.SkillType.Special)
         {
             currentAbilitySO = statsMelee.SkillWeapon;
         }
@@ -78,7 +78,7 @@ public class EntityWeaponMelee : EntityWeapon
     }
     protected void CenterAttackPosition(Entity entity)
     {
-        centerAttackPosition = (Vector2)entity.transform.position + entity.Input.DirectionLookVector.normalized * currrentSA.attackRange;
+        centerAttackPosition = (Vector2)entity.transform.position + entityInput.DirectionLookVector.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {

@@ -16,7 +16,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     //[SerializeField] protected bool isSendRequest;
     [SerializeField] protected Vector2 testDirection;
     [SerializeField] protected Vector2 _lastPlayerNodePosition;
-    [SerializeField] protected SearchNode currentPlayerNode;
+    [SerializeField] protected Vector2 currentPlayerNode;
     [SerializeField] protected PathfindingGrid grid;
     [SerializeField] protected Vector2[] allDirection;
 
@@ -51,7 +51,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     private void SetMoveRandom()
     {
         distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance < 0.05f)
+        if (distance < 0.7f)
         {
             indexWaypoints++;
         }
@@ -65,23 +65,24 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public bool CheckPlayerPosition()
     {
-        currentPlayerNode = grid.GetNodeFromWorld(entityInput.TargetTransform.position);
-        if (currentPlayerNode == null) return false;
+        SearchNode node = grid.GetNodeFromWorld(entityInput.TargetTransform.position);
+        if (node == null) return false;
+        currentPlayerNode = node.TileMapPosition;
         //player changed grid cell → need new path
-        return currentPlayerNode.TileMapPosition != _lastPlayerNodePosition;
+        return currentPlayerNode != _lastPlayerNodePosition;
     }
 
     private void ChaseToTarget()
     {
         if (CheckPlayerPosition())
         {
-            _lastPlayerNodePosition = currentPlayerNode.TileMapPosition;
+            _lastPlayerNodePosition = currentPlayerNode;
             SendResquestPath();
             return;
         }
 
         distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance < 0.05f)
+        if (distance < 0.7f)
         {
             indexWaypoints++;
         }
@@ -91,7 +92,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
             return;
         }
         SetPointToForward(Waypoints[indexWaypoints]);
-
 
     }
 
