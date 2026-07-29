@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🟠 DAY 3 (2026-07-29) — compile blockers stay cleared; 3 confirmed still-open functional bugs (BUG-028, BUG-032, BUG-033); off-plan Pathfinding work (bug chasing/chạy theo lỗi) now spans 3 consecutive days with zero tracked bug ID; S7-08 Play Mode gate (cổng xác nhận) still not confirmed by owner
+## Status Verdict: 🔴 DAY 4 (2026-07-30) — compile blockers (biên dịch/compile) stay cleared, but ALL Wed-planned Must-Have items (S7-04/09/10/11/12) still open on Day 4; off-plan Pathfinding + new enemy-lifecycle work (phạm vi ngoài kế hoạch/off-plan scope) now spans 5 consecutive days with zero tracked bug ID, plus a merge from an untracked branch (`origin/feature/enemy-control`); S7-D4 root-cause conversation (cuộc họp gốc rễ vấn đề), scheduled for today, has not been held; S7-08 Play Mode gate (cổng xác nhận) still not confirmed by owner
 
 Sprint 6 closed **CONCERNS**: Must-Have bug list from its own scope mostly landed (8-9/9 task count),
 but late-week off-plan work (Base/CoreBase hub refactor + Pathfinding) shipped uncompiled — 6
@@ -100,6 +100,57 @@ BUG-026 (S7-02) re-check: compiles now, but only because the entire `PlayerDeath
 | S7-D4 (off-plan-work root-cause conversation) | 0.3d | Highest-value Should-Have — 3-cycle pattern, needs a real process fix not another observation |
 | S7-D3 (individual `BUG-NNN.md` files) | 0.2d | Process change, low effort |
 | Buffer / catch-up | — | 1-day buffer reserved for Must-Have slippage |
+
+**Status (verified via code read, standup 2026-07-30, no Unity CLI in this environment):**
+
+| Task | Status |
+|------|--------|
+| S7-04 (BUG-028) | ❌ Still open — `EntityInput.cs:65` call site `//GetTargetInRange();` still commented out; the one-line uncomment flagged since Wed remains undone |
+| S7-09 (BUG-032) | ❌ Still open — `EntityWeaponMelee.cs:26` `//Core.GetCoreComponent(out input);` still commented out |
+| S7-10 (BUG-033) | ❌ Still open — `EnemySpawner.cs:62` still `if (set.Count == 0 || set == null)`, wrong order |
+| S7-11 (Bug #6) | ❌ Not done, but partially progressed — `NegativeReciver.TakeDamage()` no longer throws `NotImplementedException`; it now decrements its own `int currentHealth` field and emits `ON_PLAYER_DEATH` on death. **Still fails acceptance**: (a) `NegativeReciver.currentHealth` (int) is a separate field from `PlayerData.currentHealth` (float) — no write-through, `Reborn()` contract untouched; (b) zero listeners for `ON_PLAYER_DEATH` anywhere in the codebase — `PlayerDeathState.LogicUpdate()` still has the emit call commented out (line 19); (c) no EditMode test exists (`tests/EditMode/` still only `.gitkeep`) |
+| S7-12 (ADR-0002) | ❌ Not started — `docs/architecture/adr-0002-enemymanager-singleton-exception.md` line 4 still reads `Proposed` — 4th day untouched |
+| S7-13 (S4-05/06 forced decision) | ❌ Not started |
+| S7-D3 (BUG-NNN.md files) | ❌ Not started — `production/qa/bugs/` still only `.gitkeep` |
+| S7-D4 (root-cause conversation) | ❌ Not held — scheduled for today, requires owner facilitation (this is an autonomous run, no user present to hold it) |
+
+**Yesterday (2026-07-29 daytime → 2026-07-30 early morning, verified via `git log --stat`):**
+
+| Commit | Author | Content |
+|--------|--------|---------|
+| `a5654b5` "fix issue", `bd1542d` "fixing", `ca9b2a7` "fix", `d8fc040` "fix" | Kay / kiet.ho | 4 more commits touching `EntityMovement.cs` (5th–8th session on this file), plus `PathRequestManager.cs`, `AStar.cs`, `Path.cs` — continued untracked Pathfinding debugging |
+| `21c3a8f` "done chase player" | Kay | `EntityMovement.cs` + `EnemyManager.cs` |
+| `d37ccbe` "fix: resolve compile errors in entity chase pathfinding" (Claude session) | Claude | Real compile fixes: `SearchNode` field assignment (was CS0029), static-class instance field (CS0708) in `AStar`, readonly `Success` assignment (CS0191) in `Path` — genuine bug fixes, but for bugs introduced by the untracked Pathfinding work itself, not a tracked S7 ID |
+| `46f1ef3` "docs(tech-debt): log deferred enemy-scaling & horde-pathfinding solutions" (Claude session) | Claude | **Positive process signal**: TD-034/TD-035 added to `docs/tech-debt-register.md` — deferred enemy-count scaling and horde-pathfinding rewrites, consciously scoped out with a documented WHY instead of silently shipped or silently dropped |
+| `703bd21`/`1c60160` merges | — | Merged `origin/feature/enemy-control` into `sprint-07` — brings a **separate, previously untracked branch's** work into this sprint branch |
+| `66d1161` "base life cycle idle/move/attack" | Kay | New scope: 19 files — new `EntityAttack.cs` (hardcoded `TakeDamage(10, ...)`, not read from `EntityData`/`AttackSO` — flagging as a data-driven-convention deviation, not confirmed as a new bug), `EntityFindTarget.cs`, `EntityInput.cs`, `EntityMovement.cs`, `Entity.cs`, `EntityWeaponMelee.cs`, 6 Entity state files, `PlayerState.cs`/`PlayerStateMachine.cs`/`PlayerBasicState.cs`/`PlayerMoveState.cs`, plus prefab/scene/SO assets. Commit message itself flags unfinished work: *"need fix flow bettwen move and attack, when IsNearPlayer need move backward for a while"* |
+
+**Net vs. plan:** zero of today's or yesterday's planned Must-Have items (S7-04/09/10/11/12/13) landed. This is now the **5th consecutive day** of off-plan work (Tue `b195af2`+`06ec980`+`dcc5841` → Wed `66dd771`+uncommitted → Wed/Thu `a5654b5`+`bd1542d`+`ca9b2a7`+`d8fc040`+`d37ccbe` → Thu `66d1161`), and it has now grown to include merging in a separate untracked branch (`origin/feature/enemy-control`) and starting a new "enemy life cycle" scope not in `sprint-07.md` at all. S7-11 (Bug #6) shows real but incomplete movement — the `NotImplementedException` is gone, which is progress, but the acceptance criteria (single HP source of truth, listener firing, EditMode test) are all still unmet. One genuine bright spot: TD-034/TD-035 show the tech-debt register being used correctly (deferred with a documented reason) rather than the debt just accumulating silently.
+
+**Today's plan (remaining, Thu):**
+
+| Task | Est. | Rationale |
+|------|------|-----------|
+| S7-04 (BUG-028) | 0.05d | Still a one-line uncomment (`EntityInput.cs:65`) — 3rd day flagged as trivial and still open |
+| S7-09 (BUG-032) | 0.1d | Still a one-line uncomment (`EntityWeaponMelee.cs:26`) — 2nd day flagged as trivial and still open |
+| S7-10 (BUG-033) | 0.1d | Still a 2-token reorder (`EnemySpawner.cs:62`) — 2nd day flagged as trivial and still open |
+| S7-12 (ADR-0002) | 0.1d | Flip `Status: Proposed → Accepted` — 4th day untouched, zero complexity reason for the delay |
+| S7-13 (S4-05/06 decision) | 0.1d | 6th carry — must close this cycle per sprint doc, no further silent re-carry |
+| S7-11 (Bug #6 finish) | ~0.25d remaining | Wire `NegativeReciver` to write through to `PlayerData.currentHealth` (drop the separate int field), uncomment + fix `PlayerDeathState.LogicUpdate()`, add a `GameManager`/listener for `ON_PLAYER_DEATH`, then the EditMode test |
+| S7-D4 (root-cause conversation) | — | **Owner action required** — cannot be autonomously facilitated; flagging here for the 2nd time (was due today) is not a substitute for holding it |
+
+**Blockers:**
+- No Unity Editor CLI in this environment — S7-08 gate confirmation still outstanding since Tue, now Day 4.
+- 5 of 6 Must-Have Thu items are one-line-or-smaller fixes that keep not getting picked up — attention is consistently going to the untracked Pathfinding/enemy-lifecycle work instead.
+- `origin/feature/enemy-control` merge adds an unknown-scope branch's history into `sprint-07` — worth the owner confirming this was intentional and reviewing what it brought in beyond `66d1161`.
+
+**Emerging risks:**
+- **Off-plan work has now recurred 5 consecutive days**, directly against `sprint-07.md`'s explicit rule and now escalated to merging in outside branch work and opening brand-new scope (enemy attack/life-cycle) with zero tracked bug ID. S7-D4 was scheduled specifically for today to address this and has not happened — recommend the owner treat this as urgent rather than let it carry to Friday, the sprint's last day.
+- `EntityAttack.cs` hardcodes `TakeDamage(10, ...)` — appears to conflict with `.claude/rules/gameplay-code.md` ("ALL numeric gameplay values... MUST live in ScriptableObjects"); flagging for owner review, not filing as a bug autonomously since this run may not have full context on whether it's a placeholder.
+- S7-11/Bug #6 real fix is close but still splits across 3 sub-problems (write-through, listener, test) — same risk flagged Wed of the 0.4d estimate being optimistic; now Day 4 of the sprint with none of the 3 sub-problems closed.
+- Friday is the sprint's last day and currently has Should-Have stretch items (S7-D1/D2/N1) planned — with 6 Must-Have items still open on Thu, recommend Friday's plan be Must-Have-only (S7-04/09/10/11/12/13 + S7-08 owner confirmation), not Should-Have stretch.
+- QA plan still missing (6th consecutive sprint cycle) — still deferred to owner per sprint doc.
+- `production/qa/bugs/` still empty (S7-D3 not started, due today) — recommend deferring to Friday buffer if S7-D4/Must-Have take priority.
 
 ### Fri 2026-07-31 — Should-Have stretch + wrap prep
 
@@ -246,6 +297,18 @@ Plus an **uncommitted** working-tree change right now to `EntityMovement.cs` (`C
 - ADR-0002 (S7-12) — 3rd day still `Proposed`, was estimated 0.1d/trivial each day and still not done; likely not a complexity problem, just deprioritized under the Pathfinding work.
 - `production/qa/bugs/` still empty (only `.gitkeep`) — S7-D3 not due until Thu, no action needed yet.
 - QA plan still missing (6th consecutive sprint cycle) — still deferred to owner per sprint doc.
+
+---
+
+### 2026-07-30 (Thu) — Day 4 standup (autonomous scheduled run)
+
+See Thu row of the Day-by-Day Plan table above for full detail (yesterday's commits, bug re-check,
+today's plan, blockers, emerging risks). Summary: **zero Must-Have items closed for a 2nd straight
+day**; off-plan work now at 5 consecutive days and has escalated to a branch merge
+(`origin/feature/enemy-control`) plus new untracked "enemy life cycle" scope (`66d1161`); S7-D4
+(root-cause conversation), due today, not held — owner action required. One bright spot: TD-034/TD-035
+show the tech-debt register being used as intended (deferred with documented reason, not silently
+dropped).
 
 ---
 
