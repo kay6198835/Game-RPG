@@ -50,12 +50,10 @@ public class EntityMoveState : EntityBasicState
     public override void DoChecks()
     {
         base.DoChecks();
-
     }
     public override void PhysicsUpdate()
     {
-        if (entityMovement != null) entityMovement.MoveToTarget();
-
+        if (entityMovement != null) entityMovement.MoveForwardToTarget();
     }
     public override void Exit()
     {

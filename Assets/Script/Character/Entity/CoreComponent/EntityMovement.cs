@@ -10,7 +10,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected Vector2 targetPosition;
     [SerializeField] protected int indexWaypoints;
     [SerializeField] protected float speed;
-    [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected int maxRadiusSpawnPoint;
     [SerializeField] protected float distance;
     //[SerializeField] protected bool isSendRequest;
@@ -20,10 +19,14 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected PathfindingGrid grid;
     [SerializeField] protected Vector2[] allDirection;
 
+    [SerializeField] protected EntityInput entityInput;
+    [SerializeField] protected EntityFindTarget entityFindTarget;
+
     protected override void Start()
     {
         base.Start();
         Core.GetCoreComponent(out entityInput);
+        Core.GetCoreComponent(out entityFindTarget);
         if (maxRadiusSpawnPoint == 0) maxRadiusSpawnPoint = 3;
         indexWaypoints = 0;
         grid = EnemyManager.Instance.Grid;
@@ -39,8 +42,13 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         if (entityInput.TargetTransform)
         {
             // Call Chase
-
+            // if (entityFindTarget.IsNearPlayer())
+            // {
+            //     // Do late
+            //     // FleeTarget()
+            // }
             ChaseToTarget();
+
         }
         else
         {
@@ -63,7 +71,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         SetPointToForward(Waypoints[indexWaypoints]);
     }
 
-    public bool CheckPlayerPosition()
+    private bool CheckPlayerPosition()
     {
         SearchNode node = grid.GetNodeFromWorld(entityInput.TargetTransform.position);
         if (node == null) return false;
@@ -92,10 +100,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
             return;
         }
         SetPointToForward(Waypoints[indexWaypoints]);
-
     }
 
-    public void MoveToTarget()
+    private void MoveForwardToTarget()
     {
         if (targetPosition == Vector2.zero) return;
         testDirection = (targetPosition - (Vector2)Core.Entity.transform.position).normalized;
@@ -134,7 +141,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private const int MaxSetNodeAttempts = 10;
 
-    public Vector2 GetRandomNodePositionWorld()
+    private Vector2 GetRandomNodePositionWorld()
     {
         Vector2 SpawnPoint = entityInput.SpawnPoint;
         Node node = SetNode(SpawnPoint);
