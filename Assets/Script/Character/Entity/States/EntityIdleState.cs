@@ -23,6 +23,10 @@ public class EntityIdleState : EntityBasicState
     {
         base.LogicUpdate();
         idleTime += Time.deltaTime;
+        if (entityFindTarget.IsNearPlayer())
+        {
+            return;
+        }
         if (idleTime >= idleDurationTime || entityFindTarget.DistanceToPlayer() >= 0)
         {
             idleTime = 0;

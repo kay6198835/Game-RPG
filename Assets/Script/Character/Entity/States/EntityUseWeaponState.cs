@@ -22,10 +22,16 @@ public class EntityUseWeaponState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (Status == StatusAnimation.EndRangeTrigger)
+        if (Status == StatusAnimation.None)
         {
-            entity.StateMachine.ChangeState(entity.IdleState);
-            //Debug.Log("Attack");
+            // if (inputHandler.MoveVector == Vector2.zero)
+            // {
+            //     stateMachine.ChangeState(player.IdleState);
+            // }
+            // else
+            // {
+            //     stateMachine.ChangeState(player.MoveState);
+            // }
         }
     }
     public override void Exit()

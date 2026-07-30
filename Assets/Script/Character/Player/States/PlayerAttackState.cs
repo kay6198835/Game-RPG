@@ -58,6 +58,7 @@ public class PlayerAttackState : PlayerUseWeaponState
             default:
                 break;
         }
+        
     }
 
     public override void SetAnimationStatus(StatusAnimation statusAnimation)

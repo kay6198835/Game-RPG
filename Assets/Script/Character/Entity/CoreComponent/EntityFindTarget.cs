@@ -13,7 +13,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     [SerializeField] private EntityInput entityInput;
     public Transform Target { get => target; }
     [Range(1, 20)]
-    public float minRange, maxRange;
+    [SerializeField] private float minRange, maxRange;
 
     protected override void Awake()
     {
@@ -24,6 +24,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     {
         base.Start();
         Debug.Log(Core);
+        // minRange, maxRange set by entity data
     }
 
     public float DistanceToPlayer()
@@ -33,15 +34,10 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         return distanceToPlayer;
     }
 
-    public bool IsInRange()
-    {
-        return DistanceToPlayer() <= maxRange && DistanceToPlayer() >= minRange;
-    }
 
     public bool IsNearPlayer()
     {
-
-        return DistanceToPlayer() <= minRange && DistanceToPlayer() > 0;
+        return DistanceToPlayer() < minRange && DistanceToPlayer() > 0;
     }
 
     public Transform FindTargetMethod(float range)
