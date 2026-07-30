@@ -102,7 +102,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         SetPointToForward(Waypoints[indexWaypoints]);
     }
 
-    private void MoveForwardToTarget()
+    public void MoveForwardToTarget()
     {
         if (targetPosition == Vector2.zero) return;
         testDirection = (targetPosition - (Vector2)Core.Entity.transform.position).normalized;

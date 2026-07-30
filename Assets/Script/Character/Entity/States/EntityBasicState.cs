@@ -8,6 +8,7 @@ public class EntityBasicState : EntityState
     protected EntityInput entityInput;
     protected EntityWeaponHolder weaponHolder;
     protected EntityAttack entityAttack;
+    protected EntityFindTarget entityFindTarget;
     public EntityBasicState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -18,6 +19,7 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out entityInput);
         entity.Core.GetCoreComponent(out weaponHolder);
         entity.Core.GetCoreComponent(out entityAttack);
+        entity.Core.GetCoreComponent(out entityFindTarget);
     }
     public override void LogicUpdate()
     {
@@ -54,6 +56,7 @@ public class EntityBasicState : EntityState
         entityInput = null;
         weaponHolder = null;
         entityAttack = null;
+        entityFindTarget = null;
     }
 
 }
