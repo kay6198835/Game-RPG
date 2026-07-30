@@ -94,15 +94,15 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void DirectionMehod()
     {
-        // if (targetTransform != null)
-        // {
-        //     directionLookVector = (targetTransform.position - transform.position).normalized;
-        // }
-        // else
-        // {
-            
-        // }
-        directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
+        if (targetTransform != null)
+        {
+            directionLookVector = (targetTransform.position - transform.position).normalized;
+        }
+        else
+        {
+            directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
+        }
+
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }
     public void SetTarget(Vector2 targetPosition)

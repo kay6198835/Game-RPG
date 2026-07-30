@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EntityAttackState : EntityBasicState
 {
-    EntityAttack entityAttack;
+    float startAttackTime;
     public EntityAttackState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
 
@@ -17,14 +17,13 @@ public class EntityAttackState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        if (StatusAnimation.OnActivate <= Status && Status <= StatusAnimation.OffActivate)
-        {
-            entityAttack.Attack();
-        }
+        entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
 
         switch (Status)
         {
             case StatusAnimation.StartRangeTrigger:
+                Status = StatusAnimation.OnActivate;
+                entityAttack.Attack();
                 // OnColider
                 break;
             case StatusAnimation.EndRangeTrigger:
@@ -32,11 +31,24 @@ public class EntityAttackState : EntityBasicState
                 break;
             case StatusAnimation.None:
                 //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
-                base.LogicUpdate();
+                if (entityAttack.IsInRangeAttack())
+                {
+                    if (entityFindTarget.DistanceToPlayer() > 0)
+                    {
+                        stateMachine.ChangeState(entity.MoveState);
+                        return;
+                    }
+                    else
+                    {
+                        stateMachine.ChangeState(entity.IdleState);
+                        return;
+                    }
+                }
+
+                //Check why warning when change state
                 break;
             default:
                 break;
         }
-        base.LogicUpdate();
     }
 }

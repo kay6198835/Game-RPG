@@ -9,6 +9,9 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     public float minRange, maxRange;
     public float attackRate;
     public float nextAttackTime;
+    public Vector2 centerAttackPosition;
+    public LayerMask layerMask;
+    public Collider2D[] hitBuffer;
     protected override void Start()
     {
         base.Start();
@@ -20,20 +23,22 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     }
     public void Attack()
     {
-        if (entityInput.TargetTransform.gameObject.TryGetComponen(out INegativeReceiver negativeReceiver))
+        int count = Physics2D.OverlapCircleNonAlloc(centerAttackPosition, maxRange - minRange, hitBuffer, layerMask);
+        for (int i = 0; i < count; i++)
         {
-            negativeReceiver.TakeDamage(10, Core.Entity.transform.position);
+            if (hitBuffer[i].TryGetComponent(out INegativeReceiver receiver))
+                receiver.TakeDamage(10, Core.Entity.transform.position);
         }
     }
 
     public bool IsInRangeAttack()
     {
-        return entityFindTarget.DistanceToPlayer() <= maxRange && DistanceToPlayer() >= minRange;
+        return entityFindTarget.DistanceToPlayer() <= maxRange && entityFindTarget.DistanceToPlayer() >= minRange;
     }
 
     private void OnDrawGizmosSelected()
     {
-        if (currrentSA != null)
+        if (Core != null)
         {
             Gizmos.DrawWireSphere(Core.Entity.transform.position, minRange);
             Gizmos.DrawWireSphere(Core.Entity.transform.position, maxRange);
