@@ -3,6 +3,7 @@
 **Branch:** `claude/melee-attack-damage-review-urd4l0`
 **Date:** 2026-07-30
 **Scope:** Player melee damage (`WeaponMelee.Attack()`) + enemy AI/damage changes on this branch (diff vs `origin/feature/enemy-control`).
+**Status:** 0 of 16 issues fixed — all re-verified against local HEAD `7995066` (no gameplay code changed since the review). Both melee directions currently deal no reliable damage (player path unwired; enemy path NullRefs).
 
 Priority legend: 🔴 blocking · 🟠 should-fix · 🟡 defensive/minor · ⚪ decided-skip
 
@@ -47,6 +48,7 @@ root RB, so `rb.MovePosition` still moves it and `attachedRigidbody` resolves to
 | B7 | 🟡 | Magic numbers: waypoint threshold `0.7f` (×2), `time >= 10` timeout. | `EntityMovement.cs`, `EntityMoveState.cs` | Move to constants/SO. |
 | B8 | 🟡 | `EntityFindTarget.IsInRange()`/`IsNearPlayer()` call `DistanceToPlayer()` twice per invocation, each recomputing the distance and re-writing the serialized `distanceToPlayer` field (query with a side effect), in per-frame state code. | `EntityFindTarget.cs` | Compute once, compare cached value; avoid mutating a serialized field as a side effect. |
 | B9 | 🟡 | `PathRequestManager.path` promoted from a loop local to a field for no functional reason — widens scope and retains the last `Path` across frames. | `PathRequestManager.cs:14` | Revert to a local. |
+| B10 | 🟠 | Base/derived double-transition: `base.LogicUpdate()` (EntityBasicState) may `ChangeState`, but its `return` only exits the base method — the derived state continues and can `ChangeState` again, overwriting the base transition within the same frame. Same pattern in `EntityMoveState`. | `EntityIdleState.cs:24-31`, `EntityMoveState.cs` | After `base.LogicUpdate()`, bail if the state already changed (check `stateMachine.CurrentState` or a changed-state flag) before running further transitions. |
 
 ---
 
@@ -79,6 +81,6 @@ root RB, so `rb.MovePosition` still moves it and `attachedRigidbody` resolves to
 1. B1, B2 (blocking NullRefs — enemy damage is dead until fixed)
 2. A1 (wire player `Attack()` — player damage is dead until fixed)
 3. B3, B4 (enemy damage correctness: data-driven + range + cooldown)
-4. A2, A4 (player: NonAlloc + combo reset)
+4. A2, A4, B10 (player: NonAlloc + combo reset; enemy: double-transition guard)
 5. A3, A5, B5–B9 (defensive + cleanup)
 6. C1 (damage unit test — required by test-standards)
