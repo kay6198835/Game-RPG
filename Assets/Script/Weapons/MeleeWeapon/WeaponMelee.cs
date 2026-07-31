@@ -23,17 +23,10 @@ public class WeaponMelee : Weapon
     {
 
     }
-    public override void Attack()
+    public override void MakeDamage()
     {
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(centerAttackPosition, currrentSA.attackRange, statsMelee.LayerMask);
-        foreach (Collider2D enemy in hitEnemies)
-        {
-            INegativeReceiver damageable = enemy.GetComponentInChildren<INegativeReceiver>();
-            if (damageable != null)
-            {
-                damageable.TakeDamage(currrentSA.attackDamege, transform.position);
-            }
-        }
+        if (other.TryGetComponent(out INegativeReceiver receiver))
+            receiver.TakeDamage(10, Core.Entity.transform.position);
     }
     public override void SetAbility()
     {

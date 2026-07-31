@@ -41,7 +41,7 @@ public class PlayerAttackState : PlayerUseWeaponState
             case StatusAnimation.EndRangeTrigger:
                 if (inputHandler.BufferIsAttack || inputHandler.IsAttack)
                 {
-                    weaponHolder.Weapon.SetAnimation(player);
+                    weaponHolder.Attack();
                     int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
                     player.Anim.Play(stateHash, 0, 0f);
                     Status = StatusAnimation.Start;
@@ -58,7 +58,7 @@ public class PlayerAttackState : PlayerUseWeaponState
             default:
                 break;
         }
-        
+
     }
 
     public override void SetAnimationStatus(StatusAnimation statusAnimation)

@@ -12,7 +12,6 @@ public class EntityAttackState : EntityBasicState
     public override void Enter()
     {
         base.Enter();
-        entity.Core.GetCoreComponent(out entityAttack);
         startAttackTime = startTime;
     }
     public override void LogicUpdate()
@@ -21,14 +20,6 @@ public class EntityAttackState : EntityBasicState
 
         switch (Status)
         {
-            case StatusAnimation.StartRangeTrigger:
-                Status = StatusAnimation.OnActivate;
-                entityAttack.Attack();
-                // OnColider
-                break;
-            case StatusAnimation.EndRangeTrigger:
-                // OffColider
-                break;
             case StatusAnimation.None:
                 //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
                 if (entityAttack.IsInRangeAttack())
@@ -50,5 +41,11 @@ public class EntityAttackState : EntityBasicState
             default:
                 break;
         }
+    }
+
+    public override void Exit()
+    {
+        entityAttack.Exit();
+        base.Exit();
     }
 }

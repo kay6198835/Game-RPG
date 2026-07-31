@@ -23,12 +23,23 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     }
     public void Attack()
     {
-        int count = Physics2D.OverlapCircleNonAlloc(centerAttackPosition, maxRange - minRange, hitBuffer, layerMask);
-        for (int i = 0; i < count; i++)
-        {
-            if (hitBuffer[i].TryGetComponent(out INegativeReceiver receiver))
-                receiver.TakeDamage(10, Core.Entity.transform.position);
-        }
+        if (other.TryGetComponent(out INegativeReceiver receiver))
+            receiver.TakeDamage(10, Core.Entity.transform.position);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Attack();
+    }
+
+    public void Setting()
+    {
+        hitBuffer = [];
+    }
+
+    public void Exit()
+    {
+        hitBuffer = [];
     }
 
     public bool IsInRangeAttack()
