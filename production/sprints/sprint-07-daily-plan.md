@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🔴 DAY 4 (2026-07-30) — compile blockers (biên dịch/compile) stay cleared, but ALL Wed-planned Must-Have items (S7-04/09/10/11/12) still open on Day 4; off-plan Pathfinding + new enemy-lifecycle work (phạm vi ngoài kế hoạch/off-plan scope) now spans 5 consecutive days with zero tracked bug ID, plus a merge from an untracked branch (`origin/feature/enemy-control`); S7-D4 root-cause conversation (cuộc họp gốc rễ vấn đề), scheduled for today, has not been held; S7-08 Play Mode gate (cổng xác nhận) still not confirmed by owner
+## Status Verdict: 🔴 DAY 5 / FINAL DAY (2026-07-31) — ZERO Must-Have items (S7-04/09/10/11/12/13) closed after 5 full days; a fresh, more severe finding (phát hiện nghiêm trọng hơn/more severe finding) supersedes the whole bug list: `EntityCore.TakeDamage()` — the enemy-side damage receiver (bộ nhận sát thương phía enemy) — still `throw new NotImplementedException()`, so **every player melee hit on an enemy currently crashes** (every call resolves `INegativeReceiver` to `EntityCore` via `GetComponentInChildren`); independent code review (`docs/reviews/melee-combat-review.md`, 16 findings, 0 fixed as of last verify) confirms player attack is also never invoked (`AnimationPlayerController.Attack()` empty) — **combat is non-functional in both directions** on the sprint's last day; off-plan work (phạm vi ngoài kế hoạch) is now on its 6th consecutive day, including 2 more merges from `origin/feature/enemy-control`; S7-D4 root-cause conversation (cuộc họp gốc rễ vấn đề) never held; S7-08 Play Mode gate (cổng xác nhận) never confirmed by owner across the entire sprint
 
 Sprint 6 closed **CONCERNS**: Must-Have bug list from its own scope mostly landed (8-9/9 task count),
 but late-week off-plan work (Base/CoreBase hub refactor + Pathfinding) shipped uncompiled — 6
@@ -160,6 +160,51 @@ BUG-026 (S7-02) re-check: compiles now, but only because the entire `PlayerDeath
 | S7-D2 (Bug #15 build-safe JSON load) | 0.5d | If Must-Have closed clean |
 | S7-N1 (first playtest) | — | Only if S7-08/09/11 all confirmed stable |
 | Friday wrap-up prep | — | Feeds into Sat 22:00 `/weekly-wrapup` |
+
+**Status (verified via code read, standup 2026-07-31, no Unity CLI in this environment) — none of the above apply, Must-Have never closed:**
+
+| Task | Status |
+|------|--------|
+| S7-04 (BUG-028) | ❌ Still open — `EntityInput.cs:65` call site `//GetTargetInRange();` still commented out, unchanged since Wed (3rd day flagged as a 1-line fix) |
+| S7-09 (BUG-032) | ❌ Still open — `EntityWeaponMelee.cs:26` `//Core.GetCoreComponent(out input);` still commented out; `SetAbility()` still dereferences an unassigned `entityInput` |
+| S7-10 (BUG-033) | ❌ Still open — `EnemySpawner.cs:62` still `if (set.Count == 0 || set == null)`, wrong order |
+| S7-11 (Bug #6) | ❌ Not done, unchanged since Thu — `NegativeReciver.currentHealth` (int) still a separate field from `PlayerData.currentHealth` (float); `PlayerDeathState.LogicUpdate()` emit calls still fully commented out; no EditMode test |
+| S7-12 (ADR-0002) | ❌ Not started — `Status: Proposed`, 5th day untouched |
+| S7-13 (S4-05/06 decision) | ❌ Not started — 7th carry cycle now, sprint's last day, still no written decision |
+| S7-D3 (BUG-NNN.md files) | ❌ Not started — `production/qa/bugs/` still empty |
+| S7-D4 (root-cause conversation) | ❌ Never held across the entire sprint — requires owner facilitation |
+| S7-08 (Play Mode gate) | ❌ Never confirmed by owner — every other Must-Have item has been nominally gated on this and none of them closed anyway |
+
+**NEW finding today, more severe than the tracked list — enemy damage receiver crashes on every hit:** `EntityCore.cs:9` (`Assets/Script/Character/Entity/Core/EntityCore.cs`) — `TakeDamage()` is `throw new System.NotImplementedException()`. `EntityCore` implements `INegativeReceiver` and is the component every attack call resolves via `GetComponentInChildren<INegativeReceiver>()` (`WeaponMelee.cs:31`, `EntityWeaponMelee.cs:39`, `Projectile.cs:46`). This means **every player melee/projectile hit that lands on an enemy throws at runtime** — not a silent no-op, an actual exception. Not a tracked S7 bug ID; recommend filing as BUG-038 (P0) immediately, ahead of the existing Must-Have list, since it blocks the most basic gameplay loop (player deals damage to enemy).
+
+**Independent review confirms combat is broken both directions:** `docs/reviews/melee-combat-review.md` (added 2026-07-30, re-verified same day at commit `7995066`, 0/16 findings fixed) — player-side: `WeaponMelee.Attack()` is never called anywhere (`AnimationPlayerController.Attack()` is an empty stub), so player melee currently deals **zero** damage regardless of the `EntityCore` crash above. Enemy-side: `EntityAttackState.entityAttack` was unassigned (now fixed, confirmed in today's code read — `Enter()` resolves it via `Core.GetCoreComponent`), but `EntityAttack.hitBuffer` is serialized as an **empty array** (`hitBuffer: []` in `EnemyPrefab.prefab`) — `Physics2D.OverlapCircleNonAlloc` with a zero-length buffer can never register a hit, so enemy attacks silently deal zero damage (no exception, easy to miss in Play Mode). Also `EntityAttack.nextAttackTime` is set once in `Start()` and never advanced after an attack — the new cooldown gate (`CallAttack()`) is structurally present but functionally always-true, same "added but dead" pattern flagged repeatedly this sprint.
+
+**Also new since Thu:** a second `INegativeReceiver` implementer, `EntityNegativeReciver.cs` (`Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs`, added in commit `809f71c`), duplicates the exact `throw new NotImplementedException()` pattern of the original Bug #6 — currently not attached to `EnemyPrefab` (not found in prefab component list) so it's inert dead code today, but it is a landmine if wired in later without being finished first. Recommend either deleting it or finishing it, not leaving both an implemented (if buggy) `EntityCore.TakeDamage()` path and a throwing duplicate side by side.
+
+**Today's plan — Must-Have only, no Should-Have stretch (per Thu's explicit recommendation):**
+
+| Task | Est. | Rationale |
+|------|------|-----------|
+| **BUG-038 (new, `EntityCore.TakeDamage()` NotImplementedException)** | 0.15d | **P0, do first** — implement real health decrement + `ON_ENEMY_DEATH`/death-state hookup, mirroring `NegativeReciver.cs`'s pattern; every other combat fix is worthless until this stops throwing |
+| Wire `WeaponMelee.Attack()` call site (melee-combat-review A1) | 0.15d | P0 — player currently deals zero damage; call `weaponHolder.Weapon.Attack()` on `StartRangeTrigger`, mirror `EntityAttackState` |
+| Fix `EntityAttack.hitBuffer` empty-array (melee-combat-review B2/new) | 0.05d | P0 — allocate a real buffer (e.g. `new Collider2D[8]`) in `Awake()`/`Start()`, not left at prefab default `[]` |
+| S7-04 (BUG-028) | 0.05d | 4th day flagged as a 1-line uncomment |
+| S7-09 (BUG-032) | 0.1d | 3rd day flagged as a 1-line uncomment |
+| S7-10 (BUG-033) | 0.1d | 3rd day flagged as a 2-token reorder |
+| S7-12 (ADR-0002) | 0.1d | 6th day untouched, zero complexity reason |
+| S7-13 (S4-05/06 decision) | 0.1d | **7th carry, sprint's last day — must close today or explicitly re-scope into Sprint 8, not silently carry an 8th time** |
+| S7-D4 (root-cause conversation) | — | **Owner action required, cannot be autonomously facilitated** — flagging for the 3rd time; if this doesn't happen today it should be the #1 agenda item for Sunday's kickoff, not another tracker note |
+
+**Blockers:**
+- No Unity Editor CLI in this environment — S7-08 gate has never been confirmed across all 5 sprint days; none of this sprint's "done" claims have been verified in an actual running Editor.
+- The newly-found `EntityCore.TakeDamage()` crash means even if S7-09/S7-10/S7-04 land today, the combat loop still cannot be smoke-tested end-to-end without also fixing BUG-038 and the review's A1/B2 findings — recommend treating today's "Must-Have" as the original S7 list **plus** these 3 new items, not instead of them.
+
+**Emerging risks:**
+- **Sprint 7 will very likely close with its stated Sprint Goal unmet**: "get the branch compiling again, then verify the enemy death chain end-to-end in Play Mode" — the branch likely compiles, but the actual combat loop (the thing the death chain depends on) has been shown today to be non-functional in both directions. Recommend Sat `/weekly-wrapup` treat this as CONCERNS-or-worse, not a clean close.
+- Off-plan work has now recurred **6 consecutive days** (Tue→Wed→Thu→Thu-night/Fri-morning `8ba5dcc`/`e538fdf`/`809f71c`/`f059a96`/`ca0b03b` + 2 more merges of `origin/feature/enemy-control`), with S7-D4 — the process fix specifically scheduled to stop this — never held once across the whole sprint. This is the clearest possible evidence the pattern needs a structural fix (e.g., a pre-push compile+smoke check, or explicitly re-scoping "enemy control" as its own tracked epic instead of drive-by merges), not another flag in tomorrow's log.
+- S7-13 (S4-05/06) is now a **7th carry** with zero movement any cycle — this is no longer an estimation problem, it is a decision nobody is making; recommend the owner just make the call in under 5 minutes rather than let it re-carry into Sprint 8.
+- `production/qa/bugs/` still empty after 5 days (S7-D3 not started) and no QA plan exists for the 6th consecutive sprint cycle — both still deferred to owner, but worth surfacing together: this sprint will close with no individual bug records and no QA plan, on a sprint whose entire goal was bug-fixing.
+- `EntityAttack.minRange`/`maxRange`/`attackRate`/`layerMask`/`hitBuffer` are all public fields (not `[SerializeField] private`), violating `gameplay-code.md`'s "no public fields on MonoBehaviours" rule — flagged for owner review, not filed as a bug autonomously.
 
 ---
 
@@ -312,11 +357,46 @@ dropped).
 
 ---
 
+### 2026-07-31 (Fri) — Day 5 / final day standup (autonomous scheduled run)
+
+**Yesterday (2026-07-30 daytime → 2026-07-31 00:32, verified via `git log --pretty` with dates):**
+
+| Commit | Time | Content |
+|--------|------|---------|
+| `7995066` / `4986651` (Claude session) | 08:47 / 09:25 | Independent melee-combat code review added: 16 findings, 0 fixed at time of writing (`docs/reviews/melee-combat-review.md`) |
+| `ca0cf3b` "enhance flow" | 20:37 | `EntityAttack.cs`, `EntityFindTarget.cs`, `EntityMovement.cs`, 4 Entity state files, `PlayerAttackState.cs` — fixes `EntityAttackState.entityAttack` unassigned (review finding B1), adds `CallAttack()` cooldown gate (structurally, not functionally — `nextAttackTime` never advances) |
+| `8ba5dcc` / `e538fdf` / `24fc9bd` (merge) | 00:23–00:27 | Animation/prefab/scene asset changes (Knight combo-attack anim, collider) + a 2nd merge of `origin/feature/enemy-control` |
+| `809f71c` / `f059a96` / `ca0b03b` / `60377d8` (merge) | 00:30–00:32 | New `EntityNegativeReciver.cs` (duplicates the `NotImplementedException` pattern), `EntityInput.cs`/`EntityMovement.cs`/`Entity.cs`/`EntityAttackState.cs`/`EntityBasicState.cs` touched again, + a 3rd merge of `origin/feature/enemy-control` |
+
+**Bug re-check + new finding:** see the Fri section of the Day-by-Day Plan above for the full status
+table. Net: **zero of the 6 tracked Must-Have items closed**, and a new P0 finding — `EntityCore.TakeDamage()`
+still throws `NotImplementedException`, so every player hit on an enemy currently crashes at runtime.
+Combined with the melee-combat-review's finding that player `Attack()` is never invoked at all, **combat
+does not work in either direction** as of this standup, on the sprint's last day.
+
+**Net vs. sprint goal:** Sprint 7's stated goal — "get the branch compiling again, then verify the enemy
+death chain end-to-end in Play Mode" — will not be met today as originally scoped. The branch likely
+compiles (BUG-024–031 confirmed fixed in earlier days), but the thing the death chain depends on (enemies
+being able to take and deal damage) is confirmed broken via static code read. Recommend Sat's
+`/weekly-wrapup` score this CONCERNS-or-worse rather than treat "compiles" as sufficient for a clean close.
+
+**Today's plan / blockers / risks:** see the Fri section of the Day-by-Day Plan above — full detail there
+(BUG-038 fix, review A1/B2 fixes, remaining 1-line Must-Have items, S7-13 forced decision, S7-D4 escalation).
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
+- **NEW P0 (2026-07-31): `EntityCore.TakeDamage()` throws `NotImplementedException`** — every player hit
+  on an enemy crashes. Recommend filing as BUG-038 and fixing before anything else next session; this
+  supersedes Bug #6 in urgency since Bug #6 is the player-death side, this is the enemy-damage side and
+  currently more broken (exception, not just disconnected state).
 - Bug #6 — 8th carry cycle, regressed twice; S7-11 is the first attempt scoped with a mandatory
   EditMode test. If this slips again, escalate to a dedicated spike rather than a 3rd opportunistic fix.
-- Off-plan work — 3 consecutive cycles. S7-D4 is scheduled specifically to break the pattern, not
-  just re-flag it. If Thu/Fri produces another unplanned architecture commit, that itself is the
-  clearest evidence the root-cause conversation hasn't landed.
-- QA plan — 5 consecutive cycles with none. Flagged in `sprint-07.md`, deferred to owner.
+- Off-plan work — now **6 consecutive cycles**, including 3 merges of `origin/feature/enemy-control` this
+  sprint alone. S7-D4 was scheduled specifically to break the pattern and has not been held once across
+  the entire sprint — this itself is the clearest evidence the root-cause conversation needs to happen,
+  not be re-flagged a 4th time.
+- S7-13 (S4-05/S4-06) — 7th carry, zero movement any cycle. This is a decision-avoidance problem, not an
+  estimation problem — recommend the owner just make the call.
+- QA plan — 6 consecutive cycles with none. Flagged in `sprint-07.md`, deferred to owner.
