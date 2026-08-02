@@ -400,3 +400,52 @@ being able to take and deal damage) is confirmed broken via static code read. Re
 - S7-13 (S4-05/S4-06) — 7th carry, zero movement any cycle. This is a decision-avoidance problem, not an
   estimation problem — recommend the owner just make the call.
 - QA plan — 6 consecutive cycles with none. Flagged in `sprint-07.md`, deferred to owner.
+
+---
+
+## Sprint 7 Closure — Saturday Wrap-up (2026-08-02, autonomous scheduled run)
+
+**Verdict: CONCERNS**
+
+Real, durable progress landed (6/9 of Sprint 6's compile-blocking S1 bugs confirmed fixed by direct
+code read: BUG-024/025/027/029/030/031 — the component-hub refactor is now structurally sound). But
+the sprint's own stated goal — verify the enemy death chain end-to-end in Play Mode — was not met, and
+ends the week further away than at kickoff: combat is confirmed non-functional in **both** directions
+(`WeaponMelee.Attack()` regressed to an empty body — BUG-041; `EntityCore.TakeDamage()` and the new
+`EntityNegativeReciver.TakeDamage()` both `throw NotImplementedException` — BUG-042). Off-plan
+Pathfinding/Base-refactor work recurred a 7th consecutive cycle, this time in direct violation of this
+sprint's own written "do not start" instruction, and S7-D4 (the root-cause conversation scheduled to
+address this) was not held for the 2nd sprint running.
+
+**Velocity**: 6/14 Must-Have tasks landed (~43% by count; 6/9 of Sprint 6's specific compile-error
+carries confirmed closed). Full detail: `production/retros/retro-sprint-07-2026-08-02.md`.
+
+**Carry-over into Sprint 8** (full detail + carry-count in the retro's Carryover Analysis table):
+- BUG-041 (player attack empty+unwired, new/regressed) — Critical, do first
+- BUG-042 (enemy TakeDamage duplicate-NotImplemented, new) — Critical, do first
+- BUG-043 (divergent EntityAttack/EntityWeaponMelee paths, new)
+- BUG-044 (PlayerDeathState orphaned, new — fold into Bug #6 re-scope)
+- Bug #6 / S7-11 (player damage write-through + death listener) — 8th carry
+- BUG-032 / S7-09 (enemy skill NullRef) — 2nd carry, "one line" fix per Wed standup, still open
+- BUG-033 / S7-10 (spawn null-guard order) — 5th carry, "one line" fix, still open
+- Bug #14 (MazeController missing `return`) — carried unchanged
+- Bug #15 (JSON load via `Application.dataPath`) — carried unchanged
+- ADR-0002 (`EnemyManager` singleton) status flip Proposed→Accepted — 4th carry, still trivial
+- S4-05/S4-06 keep-or-cut decision — 8th carry, zero movement, needs owner call directly
+- Off-plan-work root-cause conversation (S7-D4 equivalent) — must be the first act of Sprint 8, not
+  scheduled-and-skipped a 3rd time
+- S7-D3 (file individual `production/qa/bugs/BUG-NNN.md` reports) — not started
+- QA plan — 6th consecutive cycle with none
+- First playtest — 8th consecutive cycle, gated on BUG-041/042 landing
+
+**Next sprint plan**: not created by this run per the wrap-up skill's autonomous scope (sprint creation
+is Sunday kickoff's job, not Saturday wrap-up's). Sunday's `/weekly-kickoff` should pull the carry-over
+list above directly.
+
+**Reports generated this run**:
+- `production/qa/bug-triage-2026-08-02.md`
+- `production/retros/retro-sprint-07-2026-08-02.md`
+- This closure entry
+
+**Playtest**: skipped — no playtest log found under `production/qa/playtests/` newer than
+`playtest-2026-06-12-weekly-wrapup.md`. Run `/playtest-report` manually if a session happens.
