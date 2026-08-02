@@ -1,5 +1,16 @@
 # Sprint 7 — 2026-07-27 to 2026-07-31
 
+**Status: CLOSED — verdict CONCERNS** (2026-08-02 Saturday wrap-up, autonomous). 6/9 of Sprint 6's
+compile-blocking S1 bugs confirmed fixed (BUG-024/025/027/029/030/031) — component hub structurally
+sound. Sprint's own stated goal ("verify enemy death chain end-to-end in Play Mode") **not met**:
+combat confirmed non-functional in both directions at close (BUG-041 player attack unwired, BUG-042
+enemy TakeDamage still throws NotImplementedException). Off-plan Pathfinding/Base-refactor work
+recurred a 7th consecutive cycle, directly against this sprint's own "do not start" instruction;
+S7-D4 root-cause conversation not held for the 2nd sprint running. Full detail:
+`production/qa/bug-triage-2026-08-02.md`, `production/retros/retro-sprint-07-2026-08-02.md`, and the
+closure section at the bottom of `sprint-07-daily-plan.md`. Carry-over list recorded there — Sprint 8
+plan created separately at Sunday `/weekly-kickoff`.
+
 **Opened:** 2026-07-26 Sunday 22:00 kickoff (autonomous scheduled run). Branch `sprint-07`, created
 from `sprint-06` tip (`a27cb34`). `gh` CLI unavailable in this environment — draft PR
 (`--base sprint-06 --head sprint-07`, title `Sprint 7`) was **not** auto-created; run manually if
