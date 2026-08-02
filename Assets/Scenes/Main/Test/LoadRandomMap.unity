@@ -136,7 +136,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 959111468274321930, guid: ab1960eba80261845b0b32248f014e27, type: 3}
       propertyPath: m_LocalPosition.x
@@ -180,11 +180,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1512208091581607076, guid: ab1960eba80261845b0b32248f014e27, type: 3}
       propertyPath: maxRange
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1512208091581607076, guid: ab1960eba80261845b0b32248f014e27, type: 3}
       propertyPath: minRange
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1512208091581607076, guid: ab1960eba80261845b0b32248f014e27, type: 3}
       propertyPath: attackRate
@@ -198,6 +198,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: d0db906fa3b190741b840055b37a6db1, type: 2}
+    - target: {fileID: 7532365003631008685, guid: ab1960eba80261845b0b32248f014e27, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7723368489323917928, guid: ab1960eba80261845b0b32248f014e27, type: 3}
       propertyPath: m_LocalScale.x
       value: 1

@@ -425,14 +425,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   core: {fileID: 0}
   minRange: 0.5
-  maxRange: 2
+  maxRange: 1
   attackRate: 0
   nextAttackTime: 0
   centerAttackPosition: {x: 0, y: 0}
   layerMask:
     serializedVersion: 2
     m_Bits: 128
-  hitBuffer: []
 --- !u!61 &7532365003631008685
 BoxCollider2D:
   m_ObjectHideFlags: 0

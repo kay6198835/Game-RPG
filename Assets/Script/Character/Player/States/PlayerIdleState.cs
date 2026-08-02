@@ -16,12 +16,13 @@ public class PlayerIdleState : PlayerBasicState
 
     public override void LogicUpdate()
     {
-        base.LogicUpdate();
+
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION,
          inputHandler.DirectionMouse);
         if (inputHandler.MoveVector != Vector2.zero)
         {
             stateMachine.ChangeState(player.MoveState);
         }
+        base.LogicUpdate();
     }
 }

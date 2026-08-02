@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class EntityAttackState : EntityBasicState
 {
     float startAttackTime;
@@ -20,23 +19,27 @@ public class EntityAttackState : EntityBasicState
 
         switch (Status)
         {
+            case StatusAnimation.OnActivate:
+                Debug.Log("OnActivate");
+                entityAttack.Attack();
+                Status = StatusAnimation.OffActivate;
+                break;
+            case StatusAnimation.EndRangeTrigger:
+                Status = StatusAnimation.None;
+                break;
             case StatusAnimation.None:
-                //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
                 if (entityAttack.IsInRangeAttack())
                 {
-                    if (entityFindTarget.DistanceToPlayer() > 0)
-                    {
-                        stateMachine.ChangeState(entity.MoveState);
-                        return;
-                    }
-                    else
-                    {
-                        stateMachine.ChangeState(entity.IdleState);
-                        return;
-                    }
+                    int stateHash = entity.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                    entity.Anim.Play(stateHash, 0, 0f);
+                    Status = StatusAnimation.Start;
+                    return;
                 }
-
-                //Check why warning when change state
+                else if (!entityFindTarget.IsNearPlayer() && entityFindTarget.OutOfRange())
+                {
+                    stateMachine.ChangeState(entity.MoveState);
+                    return;
+                }
                 break;
             default:
                 break;

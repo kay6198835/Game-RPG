@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[RequireComponent(typeof(BoxCollider2D))]
 public class EntityAttack : EntityCoreComponent<EntityCore>
 {
     private EntityInput entityInput;
@@ -11,7 +11,7 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     public float nextAttackTime;
     public Vector2 centerAttackPosition;
     public LayerMask layerMask;
-    public Collider2D[] hitBuffer;
+    private Collider2D[] hitColliders;
     protected override void Start()
     {
         base.Start();
@@ -20,26 +20,30 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
 
         // minRange, maxRange set by entity data
         nextAttackTime = Time.time;
+        //collider = GetComponent<BoxCollider2D>();
+        hitColliders = new Collider2D[10];
     }
     public void Attack()
     {
-        if (other.TryGetComponent(out INegativeReceiver receiver))
-            receiver.TakeDamage(10, Core.Entity.transform.position);
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        Attack();
+        int count = Physics2D.OverlapCircleNonAlloc(Core.Entity.transform.position , maxRange, hitColliders, layerMask);
+        for (int i = 0; i < count; i++)
+        {
+            if (hitColliders[i].TryGetComponent(out INegativeReceiver receiver))
+            {
+                receiver.TakeDamage(10, Core.Entity.transform.position);
+                Debug.Log("Hit " + hitColliders[i].name);
+            }
+        }
     }
 
     public void Setting()
     {
-        hitBuffer = [];
+
     }
 
     public void Exit()
     {
-        hitBuffer = [];
+
     }
 
     public bool IsInRangeAttack()
