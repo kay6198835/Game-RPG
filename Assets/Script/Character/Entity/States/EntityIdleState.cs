@@ -21,7 +21,6 @@ public class EntityIdleState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        base.LogicUpdate();
         idleTime += Time.deltaTime;
         if (entityFindTarget.IsNearPlayer())
         {
@@ -33,5 +32,6 @@ public class EntityIdleState : EntityBasicState
             entity.StateMachine.ChangeState(entity.MoveState);
             return;
         }
+        base.LogicUpdate();
     }
 }

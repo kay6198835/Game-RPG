@@ -23,10 +23,14 @@ public class WeaponMelee : Weapon
     {
 
     }
-    public override void MakeDamage()
+    public override void Attack()
     {
-        if (other.TryGetComponent(out INegativeReceiver receiver))
-            receiver.TakeDamage(10, Core.Entity.transform.position);
+        
+    }
+    public void MakeDamage()
+    {
+        // if (other.TryGetComponent(out INegativeReceiver receiver))
+        //     receiver.TakeDamage(10, Core.Entity.transform.position);
     }
     public override void SetAbility()
     {

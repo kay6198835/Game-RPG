@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class EntityMoveState : EntityBasicState
 {
     protected float moveTime;
@@ -23,7 +22,7 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        base.LogicUpdate();
+        
 
         if (!entityInput.TargetTransform)
         {
@@ -35,7 +34,6 @@ public class EntityMoveState : EntityBasicState
                 return;
             }
         }
-        entityMovement.CheckMove();
 
         if (entityFindTarget.IsNearPlayer())
         {
@@ -44,8 +42,9 @@ public class EntityMoveState : EntityBasicState
             //Back Foward 
             // 3-5 unit for range entity
             // 2-3 unit for melee entity
-
         }
+        entityMovement.CheckMove();
+        base.LogicUpdate();
     }
     public override void DoChecks()
     {

@@ -39,7 +39,7 @@ public class WeaponHolder : Interact
     public void Attack()
     {
         if (Weapon == null) return;
-        Weapon.SetAnimation(player);
+        Weapon.SetAnimation(Core.Player);
     }
 
     
