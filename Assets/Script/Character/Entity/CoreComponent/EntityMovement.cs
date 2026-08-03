@@ -66,7 +66,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void FleeTarget()
     {
-        if (!CheckNearPostion(endPosition, 0.7f)) return;
+        if (!CheckNearPostion(endPosition)) return;
         fleeDistance = Random.Range(4f, 6f);
         var fleePosition = Core.Entity.transform.position +
         ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * fleeDistance);
@@ -94,15 +94,15 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
     }
 
-    private bool CheckNearPostion(Vector2 positionCheck, float distanceCheck)
+    private bool CheckNearPostion(Vector2 positionCheck)
     {
         float distance = Vector2.Distance(transform.position, positionCheck);
-        return distance < distanceCheck ? true : false;
+        return distance < GameConstants.SettingStats.PADDING_NODE_VALUE ? true : false;
     }
 
     private void MoveToNodeTarget()
     {
-        if (CheckNearPostion(targetPosition, 0.7f))
+        if (CheckNearPostion(targetPosition))
         {
             indexWaypoints++;
         }
@@ -150,7 +150,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void ToRandomPosition()
     {
-        if (!CheckNearPostion(endPosition, 0.7f)) return;
+        if (!CheckNearPostion(endPosition)) return;
         Vector2 spawnPoint = entityInput.SpawnPoint;
         Node node = SetNodeRandom(spawnPoint);
         targetPosition = node != null ? node.WorldPosition : spawnPoint;
