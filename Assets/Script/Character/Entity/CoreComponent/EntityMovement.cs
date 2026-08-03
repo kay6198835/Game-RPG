@@ -8,6 +8,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected List<Vector2> Waypoints;
     [SerializeField] protected Vector2 targetPosition;
+    [SerializeField] protected Vector2 endPosition;
     [SerializeField] protected int indexWaypoints;
     [SerializeField] protected float speed;
     [SerializeField] protected int maxRadiusSpawnPoint;
@@ -19,6 +20,8 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected Vector2[] allDirection;
     [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected EntityFindTarget entityFindTarget;
+    [Range(4, 6)]
+    [SerializeField] protected float distanceFlee;
 
     protected override void Start()
     {
@@ -57,15 +60,28 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void SendResquestPath()
     {
-        PathRequest request = new PathRequest(transform.position, targetPosition, GetPath);
+        PathRequest request = new PathRequest(transform.position, endPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
     }
 
     private void FleeTarget()
     {
-        Vector2 fleePosition = (Vector2)(Core.Entity.transform.position * 2f - entityInput.TargetTransform.position);
-        Node node = SetNodeRandom(fleePosition);
-        targetPosition = node != null ? node.WorldPosition : fleePosition;
+        if (!CheckNearPostion(endPosition, 0.7f)) return;
+        fleeDistance = Random.Range(4f, 6f);
+        var fleePosition = Core.Entity.transform.position +
+        ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * fleeDistance);
+        Node validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)fleePosition);
+
+        if (validNode != null && validNode.Walkable)
+        {
+            endPosition = validNode.WorldPosition;
+        }
+        else
+        {
+            validNode = SetNodeRandom((Vector2)fleePosition);
+            endPosition = validNode != null ? validNode.WorldPosition : Core.Entity.transform.position;
+        }
+
     }
     private void ChaseToTarget()
     {
@@ -78,10 +94,15 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
     }
 
+    private bool CheckNearPostion(Vector2 positionCheck, float distanceCheck)
+    {
+        float distance = Vector2.Distance(transform.position, positionCheck);
+        return distance < distanceCheck ? true : false;
+    }
+
     private void MoveToNodeTarget()
     {
-        distance = Vector2.Distance(transform.position, targetPosition);
-        if (distance < 0.7f)
+        if (CheckNearPostion(targetPosition, 0.7f))
         {
             indexWaypoints++;
         }
@@ -129,6 +150,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void ToRandomPosition()
     {
+        if (!CheckNearPostion(endPosition, 0.7f)) return;
         Vector2 spawnPoint = entityInput.SpawnPoint;
         Node node = SetNodeRandom(spawnPoint);
         targetPosition = node != null ? node.WorldPosition : spawnPoint;
@@ -144,7 +166,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
             {
                 var worldPosition = (Vector2)randomAddRangePosition * direction + orginPosition;
                 Node validNode = EnemyManager.Instance.GetNodeByPositionWorld(worldPosition);
-                if (validNode != null) return validNode;
+                if (validNode != null && validNode.Walkable) return validNode;
             }
         }
         return null;
