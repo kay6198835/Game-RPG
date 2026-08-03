@@ -34,8 +34,6 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         distanceToPlayer = Vector2.Distance(Core.Entity.transform.position, entityInput.TargetTransform.position);
         return distanceToPlayer;
     }
-
-
     public bool IsNearPlayer()
     {
         return DistanceToPlayer() < minRange && DistanceToPlayer() > 0;
@@ -44,6 +42,10 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     public bool OutOfRange()
     {
         return DistanceToPlayer() > maxRange;
+    }
+    public bool IsInRangeAttack()
+    {
+        return !OutOfRange() && !IsNearPlayer();
     }
 
     public Transform FindTargetMethod(float range)

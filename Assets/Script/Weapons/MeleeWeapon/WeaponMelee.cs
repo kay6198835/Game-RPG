@@ -25,7 +25,7 @@ public class WeaponMelee : Weapon
     }
     public override void Attack()
     {
-        
+
     }
     public void MakeDamage()
     {
@@ -72,7 +72,8 @@ public class WeaponMelee : Weapon
         }
         lastClickTime = Time.time;
         player.Anim.speed = 1f;
-        deplayTime = DurationNextAttack() / player.Anim.speed;
+        deplayTime = Utility.DurationNextAttack(statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV.clips) 
+        / player.Anim.speed;
         currrentSA = statsMelee.AttackState[currentStateIndex];
         // Send AnimationController to Player by Event
         player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
@@ -80,22 +81,6 @@ public class WeaponMelee : Weapon
         CenterAttackPosition(player);
         currentStateIndex++;
         lastClickTime = Time.time;
-    }
-    private float DurationNextAttack()
-    {
-
-        var clipPairs = statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV.clips;
-
-        float totalDuration = 0f;
-
-        foreach (var pair in clipPairs)
-        {
-            if (pair.overrideClip != null)
-            {
-                totalDuration += pair.overrideClip.length;
-            }
-        }
-        return totalDuration / 8;
     }
 
     protected void CenterAttackPosition(Player player)

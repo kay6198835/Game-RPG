@@ -12,6 +12,7 @@ public class EntityAttackState : EntityBasicState
     {
         base.Enter();
         startAttackTime = startTime;
+
     }
     public override void LogicUpdate()
     {
@@ -28,14 +29,12 @@ public class EntityAttackState : EntityBasicState
                 Status = StatusAnimation.None;
                 break;
             case StatusAnimation.None:
-                if (entityAttack.IsInRangeAttack())
+                if (entityFindTarget.IsInRangeAttack())
                 {
-                    int stateHash = entity.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
-                    entity.Anim.Play(stateHash, 0, 0f);
-                    Status = StatusAnimation.Start;
+                    stateMachine.ChangeState(entity.IdleState);
                     return;
                 }
-                else if (!entityFindTarget.IsNearPlayer() && entityFindTarget.OutOfRange())
+                else
                 {
                     stateMachine.ChangeState(entity.MoveState);
                     return;

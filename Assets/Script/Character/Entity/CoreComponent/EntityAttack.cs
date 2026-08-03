@@ -25,7 +25,7 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     }
     public void Attack()
     {
-        int count = Physics2D.OverlapCircleNonAlloc(Core.Entity.transform.position , maxRange, hitColliders, layerMask);
+        int count = Physics2D.OverlapCircleNonAlloc(Core.Entity.transform.position, maxRange, hitColliders, layerMask);
         for (int i = 0; i < count; i++)
         {
             if (hitColliders[i].TryGetComponent(out INegativeReceiver receiver))
@@ -46,11 +46,6 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
 
     }
 
-    public bool IsInRangeAttack()
-    {
-        return entityFindTarget.DistanceToPlayer() <= maxRange && entityFindTarget.DistanceToPlayer() >= minRange;
-    }
-
     private void OnDrawGizmosSelected()
     {
         if (Core != null)
@@ -62,8 +57,9 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
 
     public bool CallAttack()
     {
-        if (nextAttackTime <= Time.time && IsInRangeAttack())
+        if (nextAttackTime <= Time.time && entityFindTarget.IsInRangeAttack())
         {
+            nextAttackTime = Time.time + Utility.DurationNextAttack(entity.Anim.directionAttackAnimatorOV.clips) * 1.3f;
             return true;
         }
         return false;

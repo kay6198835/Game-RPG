@@ -22,8 +22,6 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        
-
         if (!entityInput.TargetTransform)
         {
             time += Time.deltaTime;
@@ -33,15 +31,6 @@ public class EntityMoveState : EntityBasicState
                 entity.StateMachine.ChangeState(entity.IdleState);
                 return;
             }
-        }
-
-        if (entityFindTarget.IsNearPlayer())
-        {
-            entity.StateMachine.ChangeState(entity.IdleState);
-            return;
-            //Back Foward 
-            // 3-5 unit for range entity
-            // 2-3 unit for melee entity
         }
         entityMovement.CheckMove();
         base.LogicUpdate();

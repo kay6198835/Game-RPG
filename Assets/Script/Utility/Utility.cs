@@ -174,7 +174,7 @@ public static class Utility
     #endregion
 
 
-    public static T AssetLoader<T>(string path) where T :  UnityEngine.Object
+    public static T AssetLoader<T>(string path) where T : UnityEngine.Object
     {
         T asset = Resources.Load<T>(path);
 
@@ -211,10 +211,25 @@ public static class Utility
         for (int i = n - 1; i > 0; i--)
         {
             // Unity's Random.Range is inclusive for min, exclusive for max
-            int r = Random.Range(0, i + 1); 
-            
+            int r = Random.Range(0, i + 1);
+
             // Swap elements using a tuple
             (list[r], list[i]) = (list[i], list[r]);
         }
+    }
+
+    public static float DurationNextAttack(KeyValuePair<AnimationClip, AnimationClip>[] clips)
+    {
+
+        float totalDuration = 0f;
+
+        foreach (var pair in clips)
+        {
+            if (pair.overrideClip != null)
+            {
+                totalDuration += pair.overrideClip.length;
+            }
+        }
+        return totalDuration / clips.Length;
     }
 }
