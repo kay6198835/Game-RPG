@@ -302,7 +302,7 @@ MonoBehaviour:
   collider: {fileID: 0}
   distanceToPlayer: 0
   entityInput: {fileID: 0}
-  minRange: 1
+  minRange: 0.5
   maxRange: 1
 --- !u!1 &6425847005951648876
 GameObject:
@@ -352,16 +352,18 @@ MonoBehaviour:
   rb: {fileID: 0}
   Waypoints: []
   targetPosition: {x: 0, y: 0}
+  endPosition: {x: 0, y: 0}
   indexWaypoints: 0
   speed: 0
   maxRadiusSpawnPoint: 5
   distance: 0
-  testDirection: {x: 0, y: 0}
+  forwardDirection: {x: 0, y: 0}
   _lastPlayerNodePosition: {x: 0, y: 0}
   currentPlayerNode: {x: 0, y: 0}
   allDirection: []
   entityInput: {fileID: 0}
   entityFindTarget: {fileID: 0}
+  distanceFlee: 0
 --- !u!1 &7211229155540618973
 GameObject:
   m_ObjectHideFlags: 0

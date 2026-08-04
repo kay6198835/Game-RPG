@@ -67,9 +67,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     private void FleeTarget()
     {
         if (!CheckNearPostion(endPosition)) return;
-        fleeDistance = Random.Range(4f, 6f);
+        distanceFlee = Random.Range(4f, 6f);
         var fleePosition = Core.Entity.transform.position +
-        ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * fleeDistance);
+        ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * distanceFlee);
         Node validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)fleePosition);
 
         if (validNode != null && validNode.Walkable)

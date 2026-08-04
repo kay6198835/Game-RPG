@@ -218,18 +218,30 @@ public static class Utility
         }
     }
 
-    public static float DurationNextAttack(KeyValuePair<AnimationClip, AnimationClip>[] clips)
+    public static List<KeyValuePair<AnimationClip, AnimationClip>> GetOverrideClips(AnimatorOverrideController overrideController)
     {
+        var overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>(overrideController.overridesCount);
+        overrideController.GetOverrides(overrides);
+        return overrides;
+    }
 
+    public static List<KeyValuePair<AnimationClip, AnimationClip>> GetOverrideClips(AnimatorOverrideController overrideController, string nameFilter)
+    {
+        return GetOverrideClips(overrideController)
+            .Where(pair => pair.Key != null && pair.Key.name.Contains(nameFilter))
+            .ToList();
+    }
+
+    public static float DurationNextAttack(List<KeyValuePair<AnimationClip, AnimationClip>> clips)
+    {
         float totalDuration = 0f;
-
         foreach (var pair in clips)
         {
-            if (pair.overrideClip != null)
+            if (pair.Value != null)
             {
-                totalDuration += pair.overrideClip.length;
+                totalDuration += pair.Value.length;
             }
         }
-        return totalDuration / clips.Length;
+        return totalDuration / clips.Count;
     }
 }

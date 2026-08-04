@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 public class WeaponMelee : Weapon
 {
@@ -72,7 +70,9 @@ public class WeaponMelee : Weapon
         }
         lastClickTime = Time.time;
         player.Anim.speed = 1f;
-        deplayTime = Utility.DurationNextAttack(statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV.clips) 
+        var overrides = Utility.GetOverrideClips(
+            statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV, "Attack");
+        deplayTime = Utility.DurationNextAttack(overrides)
         / player.Anim.speed;
         currrentSA = statsMelee.AttackState[currentStateIndex];
         // Send AnimationController to Player by Event

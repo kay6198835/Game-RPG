@@ -59,7 +59,8 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     {
         if (nextAttackTime <= Time.time && entityFindTarget.IsInRangeAttack())
         {
-            nextAttackTime = Time.time + Utility.DurationNextAttack(entity.Anim.directionAttackAnimatorOV.clips) * 1.3f;
+            nextAttackTime = Time.time +
+            Utility.DurationNextAttack(Utility.GetOverrideClips(Core.Entity.Data.Aima, "Attack")) * 1.3f;
             return true;
         }
         return false;
