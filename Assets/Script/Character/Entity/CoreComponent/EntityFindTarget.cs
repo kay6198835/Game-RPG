@@ -30,23 +30,30 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
 
     public float DistanceToPlayer()
     {
-        if (entityInput.TargetTransform == null) return -1f;
-        distanceToPlayer = Vector2.Distance(Core.Entity.transform.position, entityInput.TargetTransform.position);
+        TryGetDistanceToPlayer();
         return distanceToPlayer;
     }
-    public bool IsNearPlayer()
+    public bool HasTarget => entityInput != null && entityInput.TargetTransform != null;
+
+    /// <summary>Distance to the current target; false when no target — distance is only valid on true.</summary>
+    public bool TryGetDistanceToPlayer()
     {
-        return DistanceToPlayer() < minRange && DistanceToPlayer() > 0;
+        if (!HasTarget)
+        {
+            distanceToPlayer = 0f;
+            return false;
+        }
+        distanceToPlayer = Vector2.Distance(Core.Entity.transform.Position2D(), entityInput.TargetTransform.Position2D());;
+        return true;
     }
 
-    public bool OutOfRange()
-    {
-        return DistanceToPlayer() > maxRange;
-    }
-    public bool IsInRangeAttack()
-    {
-        return !OutOfRange() && !IsNearPlayer();
-    }
+    public bool IsNearPlayer() => TryGetDistanceToPlayer() && distanceToPlayer < minRange;
+
+    public bool OutOfRange() => !TryGetDistanceToPlayer() || distanceToPlayer > maxRange;
+
+    public bool IsInRangeAttack() => TryGetDistanceToPlayer()
+                                     && distanceToPlayer >= minRange
+                                     && distanceToPlayer <= maxRange;
 
     public Transform FindTargetMethod(float range)
     {

@@ -26,7 +26,7 @@ public class EntityIdleState : EntityBasicState
         {
             return;
         }
-        if (idleTime >= idleDurationTime || entityFindTarget.DistanceToPlayer() >= 0)
+        if (idleTime >= idleDurationTime || entityFindTarget.DistanceToPlayer() > 0)
         {
             idleTime = 0;
             entity.StateMachine.ChangeState(entity.MoveState);
