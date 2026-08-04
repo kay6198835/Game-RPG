@@ -120,6 +120,10 @@ public class RoomGeneraterController : MonoBehaviour
         nextRoomCell.SetDoorPoints(this.DoorPoints);
         if (!nextRoomCell.IsCleared)
         {
+            Vector3Int cellOffset = Vector3Int.RoundToInt(nextRoomCell.transform.position);
+            PathfindingGrid grid = new GridBuilder().BuildGrid(Data, cellOffset, _genmap[0]);
+            EventManager.Emit(EventID.ON_GRID_BUILT, grid);
+
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
         }

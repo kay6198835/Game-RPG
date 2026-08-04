@@ -18,8 +18,13 @@ public class EntityData : ScriptableObject
     [SerializeField] private float rangeCheckAttack;
     [Header("Attack State")]
     [SerializeField] private WeaponSO weaponSO;
+    [Header("Pathfinding")]
+    [SerializeField] private float pathRequestInterval = 0.3f;
+    [SerializeField, Range(0.1f, 0.5f)] private float waypointReachDistance = 0.2f;
 
     //public float MaxHealth { get => maxHealth; }
+    public float PathRequestInterval { get => pathRequestInterval; }
+    public float WaypointReachDistance { get => waypointReachDistance; }
     public LayerMask LayerMask { get => layerMask; }
     public AnimatorOverrideController Aima { get => aima;}
     public float RangeCheckFieldOfView { get => rangeCheckFieldOfView;}
