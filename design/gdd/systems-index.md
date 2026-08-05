@@ -36,6 +36,7 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 18 | Level Editor Tool | Tools | Tools | Alpha | Designed | *(implemented — editor-only)* |
 | 19 | Stat System | Foundation | Foundation | MVP | Designed | design/gdd/stat-system.md |
 | 20 | Enemy Spawn & Per-Room Management | Gameplay/Map | Feature | MVP | Approved | design/gdd/enemy-spawn-system.md |
+| 21 | Attack Speed | Gameplay | Feature | MVP | Designed | design/gdd/attack-speed-system.md |
 
 ---
 
@@ -58,6 +59,7 @@ Layer 3 — Feature
   Melee Combat                   ← Character + Enemy AI + Damage & Health
   Weapon System                  ← Character + Melee Combat
   Skill & Ability System         ← Character + Weapon System + Animation System
+  Attack Speed                   ← Weapon System + Stat System + Animation System
   Room Progression               ← Dungeon Generation + Enemy AI + Event Bus
   Enemy Spawn & Per-Room Mgmt    ← Room Progression + Enemy AI + Event Bus + Stat System
   Death & Restart                ← Character + Event Bus
@@ -115,9 +117,9 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 
 ## GDD Progress
 
-- **Total systems**: 20
-- **Designed / In Progress**: 13 (Event Bus, Input, Damage & Health, **Animation**, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**, **Enemy Spawn**)
-- **With standalone GDD files**: 7 (animation-system.md, character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**, **enemy-spawn-system.md**)
+- **Total systems**: 21
+- **Designed / In Progress**: 14 (Event Bus, Input, Damage & Health, **Animation**, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**, **Enemy Spawn**, **Attack Speed**)
+- **With standalone GDD files**: 8 (animation-system.md, character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**, **enemy-spawn-system.md**, **attack-speed-system.md**)
 - **Not Started**: 3 MVP systems still need standalone GDDs (Death & Restart, HUD, Per-Run Upgrades)
 - **Alpha/Tools (lower priority)**: 2 remaining
 
