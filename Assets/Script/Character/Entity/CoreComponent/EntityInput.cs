@@ -35,7 +35,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
         Special,
         Ability
     }
-    #region Read_Value 
+    #region Read_Value
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
@@ -94,14 +94,15 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     }
     private void DirectionMehod()
     {
-        if (targetTransform != null)
+        // if (targetTransform != null)
+        // {
+        //     directionLookVector = (targetTransform.position - transform.position).normalized;
+        // }
+        // else
         {
-            directionLookVector = (targetTransform.position - transform.position).normalized;
+
         }
-        else
-        {
-            directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
-        }
+        directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
 
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
     }

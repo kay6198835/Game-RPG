@@ -66,7 +66,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void FleeTarget()
     {
-        if (!CheckNearPostion(endPosition)) return;
+        if (!CheckNearPostion(entityInput.TargetTransform.position)) return;
         distanceFlee = Random.Range(4f, 6f);
         var fleePosition = Core.Entity.transform.position +
         ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * distanceFlee);
@@ -90,22 +90,20 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
             targetPosition = entityInput.TargetTransform.position;
             _lastPlayerNodePosition = currentPlayerNode;
             SendResquestPath();
-            return;
         }
     }
 
     private bool CheckNearPostion(Vector2 positionCheck)
     {
         float distance = Vector2.Distance(transform.position, positionCheck);
+        Debug.Log("Distance to target: " + distance);
         return distance < GameConstants.SettingStats.PADDING_NODE_VALUE ? true : false;
     }
 
     private void MoveToNodeTarget()
     {
-        if (CheckNearPostion(targetPosition))
-        {
-            indexWaypoints++;
-        }
+        if (!CheckNearPostion(targetPosition)) return;
+        indexWaypoints++;
         if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
         {
             SendResquestPath();
@@ -133,7 +131,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void SetPointToForward(Vector2 targetPosition)
     {
-        this.targetPosition = targetPosition + Vector2.one * 0.5f;
+        this.targetPosition = targetPosition;
     }
 
     private void GetPath(Path path)
@@ -150,10 +148,13 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private void ToRandomPosition()
     {
-        if (!CheckNearPostion(endPosition)) return;
-        Vector2 spawnPoint = entityInput.SpawnPoint;
-        Node node = SetNodeRandom(spawnPoint);
-        targetPosition = node != null ? node.WorldPosition : spawnPoint;
+        if (CheckNearPostion(endPosition) || endPosition == Vector2.zero)
+        {
+            Vector2 spawnPoint = entityInput.SpawnPoint;
+            Node node = SetNodeRandom(spawnPoint);
+            endPosition = node != null ? node.WorldPosition : spawnPoint;
+
+        }
     }
 
     private Node SetNodeRandom(Vector2 orginPosition)
@@ -177,6 +178,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         Waypoints.Clear();
         indexWaypoints = 0;
+        endPosition = Vector2.zero;
         targetPosition = Vector2.zero;
     }
 
