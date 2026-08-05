@@ -18,7 +18,6 @@ public class EntityMoveState : EntityBasicState
         base.Enter();
         moveDurationTime = entityData.MoveDurationTime;
         moveTime = startTime + moveDurationTime;
-        entityMovement.SendResquestPath();
     }
     public override void LogicUpdate()
     {

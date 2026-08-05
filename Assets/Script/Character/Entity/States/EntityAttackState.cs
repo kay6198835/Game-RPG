@@ -20,15 +20,22 @@ public class EntityAttackState : EntityBasicState
 
         switch (Status)
         {
+            case StatusAnimation.Start:
+                entityInput.SetTarget(entityInput.TargetTransform.position);
+                break;
+            case StatusAnimation.StartRangeTrigger:
+                break;
             case StatusAnimation.OnActivate:
-                Debug.Log("OnActivate");
                 entityAttack.Attack();
                 Status = StatusAnimation.OffActivate;
                 break;
-            case StatusAnimation.EndRangeTrigger:
-                Status = StatusAnimation.None;
+            case StatusAnimation.OffActivate:
                 break;
-            case StatusAnimation.None:
+            case StatusAnimation.EndRangeTrigger:
+                Status = StatusAnimation.End;
+                break;
+            case StatusAnimation.End:
+                entityAttack.SetRecovery();
                 if (entityFindTarget.IsInRangeAttack())
                 {
                     stateMachine.ChangeState(entity.IdleState);

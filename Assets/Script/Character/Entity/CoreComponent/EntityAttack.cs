@@ -36,6 +36,11 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
         }
     }
 
+    public void SetRecovery()
+    {
+        nextAttackTime = Time.time + Core.Entity.Anim.GetCurrentAnimatorStateInfo(0).length * 1.3f;
+    }
+
     public void Setting()
     {
 

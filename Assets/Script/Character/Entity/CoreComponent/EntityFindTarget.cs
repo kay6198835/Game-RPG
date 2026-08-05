@@ -47,13 +47,25 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         return true;
     }
 
-    public bool IsNearPlayer() => TryGetDistanceToPlayer() && distanceToPlayer < minRange;
+    public bool IsNearPlayer()
+    {
+        var isNearPlayer = TryGetDistanceToPlayer() && distanceToPlayer < minRange;
+        return isNearPlayer;
+    }
 
-    public bool OutOfRange() => !TryGetDistanceToPlayer() || distanceToPlayer > maxRange;
+    public bool OutOfRange()
+    {
+        var isOutOfRange = !TryGetDistanceToPlayer() || distanceToPlayer > maxRange;
+        return isOutOfRange;
+    }
 
-    public bool IsInRangeAttack() => TryGetDistanceToPlayer()
-                                     && distanceToPlayer >= minRange
-                                     && distanceToPlayer <= maxRange;
+    public bool IsInRangeAttack()
+    {
+        var isInRangeAttack = TryGetDistanceToPlayer()
+                             && distanceToPlayer >= minRange
+                             && distanceToPlayer <= maxRange;
+        return isInRangeAttack;
+    }
 
     public Transform FindTargetMethod(float range)
     {

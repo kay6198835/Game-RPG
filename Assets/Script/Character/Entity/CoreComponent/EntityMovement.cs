@@ -15,12 +15,13 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected float distance;
     [SerializeField] protected Vector2 forwardDirection;
     [SerializeField] protected Vector2 _lastPlayerNodePosition;
-    [SerializeField] protected Vector2 currentPlayerNode;
+    [SerializeField] protected Vector2 currentPlayerNodePosition;
     [SerializeField] protected PathfindingGrid grid;
     [SerializeField] protected Vector2[] allDirection;
     [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected EntityFindTarget entityFindTarget;
-    [Range(4, 6)]
+    [Range(4, 10)]
+    [SerializeField] protected float minDistanceFlee, maxDistanceFlee;
     [SerializeField] protected float distanceFlee;
 
     protected override void Start()
@@ -60,14 +61,15 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void SendResquestPath()
     {
+        if(endPosition == Vector2.zero) return;
         PathRequest request = new PathRequest(transform.position, endPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
     }
 
     private void FleeTarget()
     {
-        if (!CheckNearPostion(entityInput.TargetTransform.position)) return;
-        distanceFlee = Random.Range(4f, 6f);
+        if (!entityFindTarget.IsNearPlayer()) return;
+        distanceFlee = Random.Range(minDistanceFlee, maxDistanceFlee);
         var fleePosition = Core.Entity.transform.position +
         ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * distanceFlee);
         Node validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)fleePosition);
@@ -87,8 +89,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         if (CheckPlayerPosition())
         {
-            targetPosition = entityInput.TargetTransform.position;
-            _lastPlayerNodePosition = currentPlayerNode;
+            endPosition = entityInput.TargetTransform.position;
             SendResquestPath();
         }
     }
@@ -96,15 +97,19 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     private bool CheckNearPostion(Vector2 positionCheck)
     {
         float distance = Vector2.Distance(transform.position, positionCheck);
-        Debug.Log("Distance to target: " + distance);
         return distance < GameConstants.SettingStats.PADDING_NODE_VALUE ? true : false;
     }
 
     private void MoveToNodeTarget()
     {
-        if (!CheckNearPostion(targetPosition)) return;
-        indexWaypoints++;
-        if (indexWaypoints > Waypoints.Count - 1 || Waypoints.Count == 0)
+        if (Waypoints.Count == 0)
+        {
+            SendResquestPath();
+            return;
+        }
+        if (CheckNearPostion(targetPosition)) indexWaypoints++;
+
+        if (indexWaypoints > Waypoints.Count - 1)
         {
             SendResquestPath();
             return;
@@ -116,9 +121,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         SearchNode node = grid.GetNodeFromWorld(entityInput.TargetTransform.position);
         if (node == null) return false;
-        currentPlayerNode = node.TileMapPosition;
+        currentPlayerNodePosition = node.TileMapPosition;
         //player changed grid cell → need new path
-        return currentPlayerNode != _lastPlayerNodePosition;
+        return Vector2.Distance(entityInput.TargetTransform.position, currentPlayerNodePosition) > 0.1f;
     }
 
     public void MoveForwardToTarget()
