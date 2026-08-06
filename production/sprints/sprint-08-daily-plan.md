@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 1 IN PROGRESS (2026-08-03) — combat still fully broken both directions; root-cause conversation (S8-00) not yet held by owner.
+## Status Verdict: 🔴 DAY 4 (2026-08-06) — zero Must-Have tasks landed on `sprint-08` branch after 3 elapsed sprint days; all week's real code work happened on an unmerged, off-plan branch (`origin/feature/enemy-control`) and does not touch BUG-041/BUG-042. S8-00 root-cause conversation still not held — 4th unaddressed cycle.
 
 Sprint 7 closed CONCERNS: component hub structurally sound, but combat confirmed non-functional in
 both directions at close (BUG-041, BUG-042), and the off-plan-work root-cause conversation (S7-D4) was
@@ -128,15 +128,96 @@ a general reminder.
 
 ---
 
+### Tue 2026-08-04 / Wed 2026-08-05 — no automated standup ran (gap)
+
+No `chore(standup)` commit exists on `sprint-08` for either day — `git log sprint-08` shows only the
+Mon 08-03 standup and the 08-06 module-quality-audit between kickoff and today. This run cannot
+reconstruct what those sessions intended (no session state left behind); reconstructing **actual**
+code activity from `git log --all` instead, since real work continued on `origin/feature/enemy-control`
+(not `sprint-08`) both days:
+
+- **Tue 2026-08-04**: `8f1cff0` "fix check range", `cfae933` "feat(pathfinding): add A* enemy chase
+  system", `c80fc47` "update flee target" — all on `origin/feature/enemy-control`. Pathfinding/chase
+  work, not on the sprint's Must-Have list (S8-01 through S8-07).
+- **Wed 2026-08-05**: `f0bef93` "coding", `b3a52e0` "design: add attack speed system GDD" (new
+  `design/gdd/attack-speed-system.md`, 247 lines), `2df0c04` "done logic flow idle<->move<->attack
+  (need polish more)" — same branch. Touches `EntityAttack.cs`, `EntityFindTarget.cs`,
+  `EntityInput.cs`, `EntityMovement.cs`, `EntityAttackState.cs`, `EntityIdleState.cs`,
+  `EntityMoveState.cs` — enemy AI state-flow polish. **Verified directly: does not touch
+  `EntityCore.TakeDamage()` (still `throw NotImplementedException`, BUG-042) or `WeaponMelee.Attack()`
+  (still empty, BUG-041) even on this branch.**
+
+This is the exact off-plan-work pattern S8-00 exists to stop, recurring for a 4th time this sprint
+(3rd+4th days), on top of S8-00 itself never being held. No code from either day has been merged into
+`sprint-08` — `git log sprint-08 ^sprint-07` still shows only kickoff + Mon standup + module-audit,
+zero task-ID-linked commits.
+
+### Thu 2026-08-06 10:00 — Day 4 standup (autonomous)
+
+**Yesterday/this week so far, verified against code, not the carry-over table:**
+
+| Bug/Task | File | Status on `sprint-08` | Status on `origin/feature/enemy-control` |
+|----------|------|------------------------|-------------------------------------------|
+| BUG-041 (S8-01) | `WeaponMelee.cs:26-34` | ⚠️ OPEN — `Attack()` still empty, `MakeDamage()` still fully commented out | ⚠️ OPEN — identical, unchanged |
+| BUG-042 (S8-02) | `EntityCore.cs:9-12` | ⚠️ OPEN — still `throw new NotImplementedException()`; `EntityNegativeReciver.cs` duplicate still present | ⚠️ OPEN — identical, unchanged |
+| BUG-043 (S8-03) | `EntityAttack.cs` vs `EntityWeaponMelee.cs` | ⚠️ OPEN — both paths still present; `nextAttackTime` still never advances after `Attack()` | Partial motion only — `EntityAttack.cs` gained a few lines this week, still two divergent paths |
+| BUG-044 (S8-04) | `PlayerDeathState.cs:17-24` | ⚠️ OPEN, unchanged — body still fully commented out | not touched |
+| BUG-032 (S8-06) | `EntityWeaponMelee.cs:26` | ⚠️ OPEN — `//Core.GetCoreComponent(out input);` still commented out | not touched |
+| BUG-033 (S8-07) | `EnemySpawner.cs:62` | ⚠️ OPEN — still `set.Count == 0 \|\| set == null` (wrong order) | not checked |
+| ADR-0002 (S8-10) | `docs/architecture/adr-0002-*.md` | ⚠️ Status still **Proposed** — not flipped | — |
+| S8-00 root-cause conversation | — | ⚠️ Not held — 4th unaddressed cycle (3 in Sprint 7 lineage + this one) | — |
+
+**Net: 0 of the sprint's 8 Must-Have tasks (S8-01 through S8-07, S8-12) have landed on `sprint-08`.**
+Zero task-ID-linked commits exist on the branch. Meanwhile ~920 lines changed on the unmerged feature
+branch this week (enemy AI state-flow polish, a new A* pathfinding chase system, and a full new GDD
+`design/gdd/attack-speed-system.md`) — real, non-trivial work, but entirely outside this sprint's
+scoped Must-Have list and not merged anywhere the sprint can credit it.
+
+**Today's plan (re-planned — original Thu row assumed Must-Have was done by now; it is not):**
+
+| Task | Est. | Note |
+|------|------|------|
+| S8-01 — fix BUG-041 (`WeaponMelee.Attack()`/`MakeDamage()` wiring) | 0.2d | Unblocks all downstream verification; highest priority now, 4 days late |
+| S8-02 — fix BUG-042 (`EntityCore.TakeDamage()` real impl; delete `EntityNegativeReciver.cs` duplicate) | 0.2d | Same priority tier as S8-01 |
+| Reconcile `origin/feature/enemy-control` → `sprint-08` | 0.5d (new, unplanned) | Branch carries real, wanted enemy-AI/pathfinding progress but has drifted 8 commits / ~1300 lines from `sprint-08` unmerged; needs review + Play Mode check before merge, not a blind fast-forward — flagged as risk below, not started autonomously since it touches prefab/AI behavior |
+| S8-06 / S8-07 — one-line fixes (BUG-032, BUG-033) | 0.1d each | Trivial, still open, pick up alongside S8-01/02 |
+| S8-00 root-cause conversation | 0.1d | **Owner action required, 4th ask.** No code path substitutes for this. |
+
+**Blockers:**
+- S8-00 needs the owner in the room — unchanged blocker, now 4th cycle unheld.
+- Merging `origin/feature/enemy-control` requires an in-Editor Play Mode check (no Unity CLI in this
+  environment) before it can be folded into `sprint-08` — owner action needed.
+
+**Emerging risks (new today):**
+- **Sprint is 1 day from its Fri close with 0/8 Must-Have items landed on the sprint branch.** At the
+  current rate, Sprint 8 is on track to close CONCERNS or worse, repeating Sprint 7's outcome despite
+  being explicitly scoped as the recovery sprint.
+- The off-plan-work pattern the sprint's #1 risk warned about (`High probability, High impact`) has
+  now recurred through Tue and Wed with real, sizeable commits (~1300 lines across 4 commits) on a
+  branch that isn't `sprint-08`. Per the sprint's own risk mitigation: **"If it recurs anyway, escalate
+  to a hard process gate (e.g., branch protection / pre-push check) next cycle rather than a 4th
+  conversation."** That condition has now been met — recommend Sprint 9 start with a hard gate instead
+  of scheduling a 4th conversation.
+- No standup was recorded Tue or Wed — tracker continuity gap, noted above; root cause not established
+  by this autonomous run (no session state left to explain the gap).
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
-- **S8-00 root-cause conversation — 3rd scheduling attempt.** Held zero times across Sprints 6 and 7.
-  If this slips a 3rd time, the recommendation for Sprint 9 is a hard process gate (branch protection
-  or a required pre-push compile+smoke check) rather than a 4th conversation.
-- BUG-041/BUG-042 — P0, combat non-functional in both directions until fixed. Nothing else in the
-  sprint can be meaningfully verified until these land.
-- Bug #6 — 8th carry cycle, regressed twice. S8-05 is the third attempt scoped with a mandatory
-  EditMode test.
+- **S8-00 root-cause conversation — held zero times across 4 cycles now (Sprint 6, Sprint 7, and twice
+  this sprint's own window).** The sprint's own risk table condition for escalation ("if it recurs
+  anyway") is now met per the 2026-08-06 standup — recommend a hard process gate (branch protection or
+  required pre-push compile+smoke check) for Sprint 9 instead of a 5th conversation attempt.
+- BUG-041/BUG-042 — P0, combat non-functional in both directions until fixed. Still 0% landed on
+  `sprint-08` as of Day 4 (2026-08-06). Nothing else in the sprint can be meaningfully verified until
+  these land.
+- **New 2026-08-06**: `origin/feature/enemy-control` has diverged 8 commits / ~1300 lines from
+  `sprint-08` (enemy AI state-flow, A* pathfinding chase, attack-speed GDD) without touching either P0
+  bug. Needs an owner-reviewed merge decision — not a silent fast-forward — before Sprint 9 kickoff, or
+  the divergence compounds further.
+- Bug #6 — 8th carry cycle, regressed twice. S8-05 not yet started this sprint (was scheduled for Wed,
+  no standup recorded that day).
 - S8-11 (S4-05/S4-06) — 8th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
 - QA plan — 7 consecutive cycles with none. Flagged in `sprint-08.md`, deferred to owner.
