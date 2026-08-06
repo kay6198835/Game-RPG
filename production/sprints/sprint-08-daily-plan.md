@@ -203,21 +203,77 @@ scoped Must-Have list and not merged anywhere the sprint can credit it.
 
 ---
 
+### Thu 2026-08-06 22:11 — Post-merge update (autonomous, same-day follow-up)
+
+**Context:** the 10:40 standup above ran before the day's real activity. Two commits landed on
+`sprint-08` later the same evening: `b74a14f` "update flow equid weapon, need check flow change attack
+statae" (22:08) and `c5f26b1` "Merge branch 'origin/feature/enemy-control' into sprint-08" (22:08) —
+**the divergent-branch merge flagged as an emerging risk this morning has now happened**, resolving
+that specific risk item. This run re-verified every Must-Have bug directly against the merged code
+(`sprint-08` HEAD), not the carry-over table:
+
+| Bug/Task | File | Status after merge |
+|----------|------|---------------------|
+| BUG-041 (S8-01) | `Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs` (renamed from `WeaponMelee.cs`) | ⚠️ OPEN, unchanged — `Attack()` still empty; `MakeDamage()` still fully commented out |
+| BUG-042 (S8-02) | `EntityCore.cs:9` | ⚠️ OPEN, unchanged — still `throw new NotImplementedException()` |
+| **BUG-053 (new)** | `EntityNegativeReciver.cs` | 🆕 **New S1** — the merge rewrote this duplicate receiver with player-copied logic: it now calls `Core.GetCoreComponent(out PlayerInputHandler input)` (wrong hub — `Core` is `EntityCore`, has no `PlayerInputHandler`) and emits `EventID.ON_PLAYER_DEATH` on enemy death. Filed as `production/qa/bugs/BUG-053.md`. Makes S8-02's "exactly one `INegativeReceiver` implementer" criterion harder, not easier, to close — the duplicate needs deleting, not patching. |
+| BUG-043 (S8-03) | `EntityAttack.cs` vs `EntityWeaponMelee.cs` | ⚠️ OPEN — two paths still both present. Partial improvement: `EntityAttack.CallAttack()` now actually advances `nextAttackTime` (previously never did) — cooldown gate criterion is closer, but consolidation into one path still not done |
+| BUG-044 (S8-04) | `PlayerDeathState.cs:17-24` | ⚠️ OPEN, unchanged — body still fully commented out |
+| BUG-032 (S8-06) | `EntityWeaponMelee.cs:26` | ⚠️ OPEN, unchanged — still `//Core.GetCoreComponent(out input);` (comment now says "fix or remove it") |
+| BUG-033 (S8-07) | `EnemySpawner.cs:62` | ⚠️ OPEN, unchanged — still `set.Count == 0 \|\| set == null` (wrong order) |
+| ADR-0002 (S8-10) | `docs/architecture/adr-0002-*.md` | ⚠️ Status still **Proposed** |
+| S8-00 root-cause conversation | — | ⚠️ Not held — 5th unaddressed cycle now |
+
+**Net: still 0 of 8 Must-Have tasks (S8-01–S8-07, S8-12) landed, with 1 sprint day remaining
+(Fri 2026-08-07).** The merge brought in real enemy-AI/pathfinding progress and resolved the
+branch-divergence risk, but touched neither P0 bug and introduced one new S1 (BUG-053). Also notable
+for `/doc-sync` (not actioned here — out of scope for this run): the merge renamed
+`NewPlayer.cs`→`Player.cs`, `WeaponMelee.cs`→`MeleeWeapon.cs`, `WeaponMeleeStats.cs`→`MeleeWeaponStats.cs`,
+`WeaponRangeStats.cs`→`RangeWeaponStats.cs`, and deleted `Shooting.cs`/`WeaponAttack.cs` — CLAUDE.md's
+Repository Layout section now names stale filenames for all of these.
+
+**Plan for Fri 2026-08-07 (sprint's last scheduled day):**
+
+| Task | Est. | Note |
+|------|------|------|
+| S8-01 — fix BUG-041 | 0.2d | Still the single highest-priority item — nothing else in the sprint is verifiable until this and S8-02 land |
+| S8-02 — fix BUG-042 + BUG-053 together | 0.3d (revised up from 0.2d) | Now explicitly two files to reconcile, not one — delete `EntityNegativeReciver.cs`, implement `EntityCore.TakeDamage()` for real |
+| S8-06 / S8-07 | 0.1d each | Still trivial one-line fixes, still open — cheapest path to any Must-Have credit before sprint close |
+| S8-00 root-cause conversation | 0.1d | **Owner action, 5th ask.** Escalation condition from the sprint's own risk table was already met as of yesterday's standup |
+
+**Realistic sprint-close assessment:** with 1 day left and 0/8 Must-Have landed, Sprint 8 — explicitly
+scoped as a *recovery* sprint — is very unlikely to close clean. Recommend the Friday close treat
+S8-01/S8-02/BUG-053 as the only realistic Must-Have target (a partial recovery: at least one attack
+direction verified working), formally re-carry the rest into Sprint 9, and use the close to finally
+decide on the hard process gate (branch protection / pre-push compile+smoke check) the risk table has
+been recommending since yesterday.
+
+**Blockers:** unchanged — S8-00 needs the owner in the room; no code path substitutes.
+
+**Emerging risks (new tonight):**
+- BUG-053 — see above, filed as a new S1. Worth surfacing at sprint close as evidence that off-plan
+  branch work, even once merged, still needs a Play-Mode/code review pass before being trusted as
+  progress — the branch divergence risk is resolved, but it shipped a new bug in the process.
+- CLAUDE.md Repository Layout is now stale on filenames (see rename list above) — flag for `/doc-sync`,
+  not actioned by this run per its .cs/asset edit restriction.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
-- **S8-00 root-cause conversation — held zero times across 4 cycles now (Sprint 6, Sprint 7, and twice
-  this sprint's own window).** The sprint's own risk table condition for escalation ("if it recurs
-  anyway") is now met per the 2026-08-06 standup — recommend a hard process gate (branch protection or
-  required pre-push compile+smoke check) for Sprint 9 instead of a 5th conversation attempt.
-- BUG-041/BUG-042 — P0, combat non-functional in both directions until fixed. Still 0% landed on
-  `sprint-08` as of Day 4 (2026-08-06). Nothing else in the sprint can be meaningfully verified until
-  these land.
-- **New 2026-08-06**: `origin/feature/enemy-control` has diverged 8 commits / ~1300 lines from
-  `sprint-08` (enemy AI state-flow, A* pathfinding chase, attack-speed GDD) without touching either P0
-  bug. Needs an owner-reviewed merge decision — not a silent fast-forward — before Sprint 9 kickoff, or
-  the divergence compounds further.
-- Bug #6 — 8th carry cycle, regressed twice. S8-05 not yet started this sprint (was scheduled for Wed,
-  no standup recorded that day).
+- **S8-00 root-cause conversation — held zero times across 5 cycles now (Sprint 6, Sprint 7, and three
+  times this sprint's own window).** The sprint's own risk table condition for escalation ("if it
+  recurs anyway") was already met as of the 2026-08-06 morning standup — recommend a hard process gate
+  (branch protection or required pre-push compile+smoke check) for Sprint 9 instead of a 6th
+  conversation attempt.
+- BUG-041/BUG-042/BUG-053 — P0/S1, combat non-functional in both directions until fixed, plus a new
+  merge-introduced bug in the enemy damage-receiver duplicate. Still 0% landed on `sprint-08` with 1
+  sprint day remaining. Nothing else in the sprint can be meaningfully verified until these land.
+- `origin/feature/enemy-control` divergence — **resolved** 2026-08-06 22:08 (`c5f26b1`), but the merge
+  itself introduced BUG-053; recommend a Play-Mode check on the merged enemy-control code before
+  Sprint 9 kickoff, not just a compile check.
+- Bug #6 — 8th carry cycle, regressed twice. S8-05 not started this sprint at all (was scheduled for
+  Wed, no standup recorded that day, and Thu/Fri are now committed to BUG-041/042/053 recovery).
 - S8-11 (S4-05/S4-06) — 8th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
 - QA plan — 7 consecutive cycles with none. Flagged in `sprint-08.md`, deferred to owner.
