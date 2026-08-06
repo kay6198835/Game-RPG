@@ -15,18 +15,13 @@ public class EntityIdleState : EntityBasicState
     {
         base.Enter();
         idleDurationTime = entityData.IdleDurationTime;
-        entityMovement.StopMove();
         // Should set by entityData
         idleDurationTime = 3;
     }
     public override void LogicUpdate()
     {
         idleTime += Time.deltaTime;
-        if (entityFindTarget.IsNearPlayer())
-        {
-            return;
-        }
-        if (idleTime >= idleDurationTime || entityFindTarget.DistanceToPlayer() >= 0)
+        if (idleTime >= idleDurationTime || entityFindTarget.OutOfRange() || entityFindTarget.IsNearPlayer())
         {
             idleTime = 0;
             entity.StateMachine.ChangeState(entity.MoveState);

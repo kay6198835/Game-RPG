@@ -38,11 +38,6 @@ public class EntityBasicState : EntityState
                 return;
             }
         }
-        // if (entityInput.IsAttack && weaponHolder.Weapon.CheckCanAttack(entity, startTime))
-        // {
-        //     entityMovement.StopMove();
-        //     entity.StateMachine.ChangeState(entity.AttackState);
-        // }
         if (entityAttack.CallAttack())
         {
             entity.StateMachine.ChangeState(entity.AttackState);

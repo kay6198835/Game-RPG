@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerEquidUnequid : PlayerUseWeaponState
 {
-    protected WeaponHolder weaponHolder;
     public PlayerEquidUnequid(Player player, string animBoolName) : base(player, animBoolName)
     {
     }

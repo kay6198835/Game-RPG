@@ -4,16 +4,9 @@ using UnityEngine;
 
 public class WeaponStats : ScriptableObject
 {
-    [Header("WP data")]
-    protected WeaponType type;
-    [SerializeField] protected LayerMask layerMask;
-    [SerializeField] protected List<AttackSO> attackState;
-    [SerializeField] protected ActivateSkill abilityWeapon;
-    [SerializeField] protected ActivateSkill skillWeapon;
-
-    public WeaponType Type { get => type; }
-    public LayerMask LayerMask { get => layerMask; }
-    public ActivateSkill AbilityWeapon { get => abilityWeapon; }
-    public ActivateSkill SkillWeapon { get => skillWeapon; }
-    public List<AttackSO> AttackState { get => attackState; }
+    [field: SerializeField] public WeaponType Type { get; protected set; }
+    [field: SerializeField] public LayerMask LayerMask { get; protected set; }
+    // [field: SerializeField] public List<AttackSO> AttackState { get; protected set; }
+    [field: SerializeField] public ActivateSkill AbilityWeapon { get; protected set; }
+    [field: SerializeField] public ActivateSkill SkillWeapon { get; protected set; }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 //[RequireComponent(typeof(BoxCollider2D))]
 
 
-public class SwordAndShield : WeaponMelee
+public class SwordAndShield : MeleeWeapon
 {
 
 }

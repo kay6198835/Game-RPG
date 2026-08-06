@@ -7,7 +7,7 @@ using UnityEngine.WSA;
 public class EntityWeaponMelee : EntityWeapon
 {
     [Header("Melee Weapon")]
-    [SerializeField] private WeaponMeleeStats statsMelee;
+    [SerializeField] private MeleeWeaponStats statsMelee;
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
@@ -15,9 +15,9 @@ public class EntityWeaponMelee : EntityWeapon
     protected override void Awake()
     {
         base.Awake();
-        if (stats.GetType() == typeof(WeaponMeleeStats))
+        if (stats.GetType() == typeof(MeleeWeaponStats))
         {
-            statsMelee = (WeaponMeleeStats)stats;
+            statsMelee = (MeleeWeaponStats)stats;
         }
         else
         {

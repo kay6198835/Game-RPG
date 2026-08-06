@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class WeaponHolder : Interact
 {
-    [SerializeField] public Weapon Weapon { get; private set; }
+    public Weapon Weapon;
 
     protected override void Awake()
     {
@@ -20,14 +20,14 @@ public class WeaponHolder : Interact
         }
         else
         {
-            this.Weapon = null;
+            // this.Weapon = null;
         }
     }
     public override void Intertion()
     {
         if (Weapon != null)
         {
-            Weapon.UnEquid();
+            Weapon.UnEquid(this);
 
         }
         if (Weapon == null)
@@ -42,5 +42,5 @@ public class WeaponHolder : Interact
         Weapon.SetAnimation(Core.Player);
     }
 
-    
+
 }

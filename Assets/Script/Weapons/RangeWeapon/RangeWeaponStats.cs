@@ -4,7 +4,7 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "WeaponData/RangeWeaponData")]
 
-public class WeaponRangeStats : WeaponStats
+public class RangeWeaponStats : WeaponStats
 {
     [Header("RW Stats")]
     public string weaponName;
@@ -12,4 +12,8 @@ public class WeaponRangeStats : WeaponStats
     public float firerate;
     public float timeBtwShots;
     public float StartTimeBtwShots;
+    void OnValidate()
+    {
+        this.Type = WeaponType.RangeWP;
+    }
 }

@@ -25,7 +25,7 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     }
     public void Attack()
     {
-        int count = Physics2D.OverlapCircleNonAlloc(Core.Entity.transform.position , maxRange, hitColliders, layerMask);
+        int count = Physics2D.OverlapCircleNonAlloc(Core.Entity.transform.position, maxRange, hitColliders, layerMask);
         for (int i = 0; i < count; i++)
         {
             if (hitColliders[i].TryGetComponent(out INegativeReceiver receiver))
@@ -36,6 +36,11 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
         }
     }
 
+    public void SetRecovery()
+    {
+        nextAttackTime = Time.time + Core.Entity.Anim.GetCurrentAnimatorStateInfo(0).length * 1.3f;
+    }
+
     public void Setting()
     {
 
@@ -44,11 +49,6 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
     public void Exit()
     {
 
-    }
-
-    public bool IsInRangeAttack()
-    {
-        return entityFindTarget.DistanceToPlayer() <= maxRange && entityFindTarget.DistanceToPlayer() >= minRange;
     }
 
     private void OnDrawGizmosSelected()
@@ -62,8 +62,10 @@ public class EntityAttack : EntityCoreComponent<EntityCore>
 
     public bool CallAttack()
     {
-        if (nextAttackTime <= Time.time && IsInRangeAttack())
+        if (nextAttackTime <= Time.time && entityFindTarget.IsInRangeAttack())
         {
+            nextAttackTime = Time.time +
+            Utility.DurationNextAttack(Utility.GetOverrideClips(Core.Entity.Data.Aima, "Attack")) * 1.3f;
             return true;
         }
         return false;
