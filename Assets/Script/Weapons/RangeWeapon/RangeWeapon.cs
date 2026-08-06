@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[RequireComponent(typeof(Shooting))]
+
 public class RangeWeapon : Weapon
 {
-    [SerializeField] private WeaponRangeStats statsMelee;
+    [SerializeField] private RangeWeaponStats statsMelee;
 
-    public WeaponRangeStats StatsMelee { get => statsMelee;}
+    public RangeWeaponStats StatsMelee { get => statsMelee;}
 
     public override void Attack()
     {
 
     }
 
-    public override bool CheckCanAttack(Player player)
+    public override bool CheckCanAttack()
     {
         return canAttack;
     }

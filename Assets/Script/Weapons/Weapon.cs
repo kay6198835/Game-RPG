@@ -11,13 +11,14 @@ public abstract class Weapon : InteractiveObjects
     protected bool canAttack;
     protected AbilityHolder abilityHolder;
     protected WeaponHolder weaponHolder;
+    [field: SerializeField] protected Player Player;
     protected override void Awake()
     {
         base.Awake();
         collider = GetComponent<Collider2D>();
     }
     public abstract void Attack();
-    public virtual bool CheckCanAttack(Player player)
+    public virtual bool CheckCanAttack()
     {
         if (lastClickTime + deplayTime >= Time.time)
         {
@@ -69,7 +70,7 @@ public abstract class Weapon : InteractiveObjects
         transform.SetParent(weaponHolder.transform);
         transform.position = transform.parent.position;
     }
-    public virtual void UnEquid()
+    public virtual void UnEquid(WeaponHolder weaponHolder)
     {
         transform.position = transform.parent.position + new Vector3(1f, 1f, 0f);
         transform.SetParent(null);

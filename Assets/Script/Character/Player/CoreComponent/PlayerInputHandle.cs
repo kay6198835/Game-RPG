@@ -200,7 +200,7 @@ public class PlayerInputHandler : CoreComponent<Core>
             {
                 SetBufferAttack(true);
             }
-            else if (weaponHolder.Weapon.CheckCanAttack(Core.Player))
+            else if (weaponHolder.Weapon.CheckCanAttack())
             {
                 isAttack = true;
             }

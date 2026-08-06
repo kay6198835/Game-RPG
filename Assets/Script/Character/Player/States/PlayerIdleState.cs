@@ -22,6 +22,7 @@ public class PlayerIdleState : PlayerBasicState
         if (inputHandler.MoveVector != Vector2.zero)
         {
             stateMachine.ChangeState(player.MoveState);
+            return;
         }
         base.LogicUpdate();
     }

@@ -8,7 +8,7 @@ using UnityEngine.Tilemaps;
 
 public class RoomGeneraterController : MonoBehaviour
 {
-    [SerializeField] public FastMovement _fastMovement;
+    [SerializeField] public Player _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
     // [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;

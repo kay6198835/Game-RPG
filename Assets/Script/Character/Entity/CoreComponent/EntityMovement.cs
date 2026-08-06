@@ -20,9 +20,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected Vector2[] allDirection;
     [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected EntityFindTarget entityFindTarget;
-    [Range(4, 10)]
-    [SerializeField] protected float minDistanceFlee, maxDistanceFlee;
-    [SerializeField] protected float distanceFlee;
 
     protected override void Start()
     {
@@ -69,9 +66,8 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     private void FleeTarget()
     {
         if (!entityFindTarget.IsNearPlayer()) return;
-        distanceFlee = Random.Range(minDistanceFlee, maxDistanceFlee);
         var fleePosition = Core.Entity.transform.position +
-        ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * distanceFlee);
+        ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * 3);
         Node validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)fleePosition);
 
         if (validNode != null && validNode.Walkable)

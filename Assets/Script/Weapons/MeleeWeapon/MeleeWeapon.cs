@@ -1,21 +1,14 @@
 using UnityEngine;
-public class WeaponMelee : Weapon
+public class MeleeWeapon : Weapon
 {
-    [Header("Melee Weapon")]
-    [SerializeField] private WeaponMeleeStats statsMelee;
     public int currentStateIndex { get; private set; } = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
     protected PlayerInputHandler inputHandler;
+    protected MeleeWeaponStats StatsMelee => (MeleeWeaponStats)stats;
     protected override void Awake()
     {
         base.Awake();
-        if (stats.GetType() == typeof(WeaponMeleeStats))
-        {
-            statsMelee = (WeaponMeleeStats)stats;
-
-            //stats = new WeaponMeleeStats();
-        }
     }
     private void Start()
     {
@@ -32,14 +25,14 @@ public class WeaponMelee : Weapon
     }
     public override void SetAbility()
     {
-        if (inputHandler.Skill == PlayerInputHandler.SkillType.Ability)
-        {
-            currentAbilitySO = statsMelee.AbilityWeapon;
-        }
-        else if (inputHandler.Skill == PlayerInputHandler.SkillType.Special)
-        {
-            currentAbilitySO = statsMelee.SkillWeapon;
-        }
+        // if (inputHandler.Skill == PlayerInputHandler.SkillType.Ability)
+        // {
+        //     currentAbilitySO = statsMelee.AbilityWeapon;
+        // }
+        // else if (inputHandler.Skill == PlayerInputHandler.SkillType.Special)
+        // {
+        //     currentAbilitySO = statsMelee.SkillWeapon;
+        // }
         base.SetAbility();
     }
     public override void Equid(WeaponHolder weaponHolder)
@@ -47,11 +40,11 @@ public class WeaponMelee : Weapon
         base.Equid(weaponHolder);
         weaponHolder.Core.GetCoreComponent(out inputHandler);
     }
-    public override bool CheckCanAttack(Player player)
+    public override bool CheckCanAttack()
     {                                                                                  // dòng 52 (anchor)
-        if (base.CheckCanAttack(player) && !inputHandler.BufferIsAttack)
+        if (base.CheckCanAttack() && !inputHandler.BufferIsAttack)
         {
-            SetAnimation(player);
+            //SetAnimation();
         }
         else
         {
@@ -62,7 +55,7 @@ public class WeaponMelee : Weapon
 
     public override void SetAnimation(Player player)
     {
-        if (currentStateIndex >= statsMelee.AttackState.Count
+        if (currentStateIndex >= StatsMelee.AttackState.Count
         //|| lastClickTime + deplayTime < Time.time
         )
         {
@@ -71,10 +64,10 @@ public class WeaponMelee : Weapon
         lastClickTime = Time.time;
         player.Anim.speed = 1f;
         var overrides = Utility.GetOverrideClips(
-            statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV, "Attack");
+            StatsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV, "Attack");
         deplayTime = Utility.DurationNextAttack(overrides)
         / player.Anim.speed;
-        currrentSA = statsMelee.AttackState[currentStateIndex];
+        currrentSA = StatsMelee.AttackState[currentStateIndex];
         // Send AnimationController to Player by Event
         player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
         //Attack Position

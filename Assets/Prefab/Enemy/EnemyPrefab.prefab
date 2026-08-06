@@ -209,7 +209,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7866443947369635150}
-  - component: {fileID: 6030674384655786090}
+  - component: {fileID: 3585430843033655528}
   m_Layer: 6
   m_Name: NegativeReciver
   m_TagString: Untagged
@@ -232,7 +232,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1647516858303904719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6030674384655786090
+--- !u!114 &3585430843033655528
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -241,11 +241,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3773334401792911527}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67338086a6ba0854686235682f860347, type: 3}
+  m_Script: {fileID: 11500000, guid: 67371b05b76c96447af52322cb34d199, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  currentHealth: 0
+  currentHealth: 100
 --- !u!1 &4464370259628664231
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,7 +354,7 @@ MonoBehaviour:
   targetPosition: {x: 0, y: 0}
   endPosition: {x: 0, y: 0}
   indexWaypoints: 0
-  speed: 1.5
+  speed: 0
   maxRadiusSpawnPoint: 5
   distance: 0
   forwardDirection: {x: 0, y: 0}

@@ -27,8 +27,7 @@ public class WeaponsController : MonoBehaviour
 
         if (EquipWp.Type == WeaponType.RangeWP)
         {
-            Shooting shootScript = currWp.GetComponent<Shooting>();
-            shootScript.enabled = true;
+
 
         }
         else if (EquipWp.Type == WeaponType.MeleeWP)
@@ -45,8 +44,7 @@ public class WeaponsController : MonoBehaviour
     {
         if (EquipWp.Type == WeaponType.RangeWP)
         {
-            Shooting shootScript = currWp.GetComponent<Shooting>();
-            shootScript.enabled = false;
+ 
         }
         else if (EquipWp.Type == WeaponType.MeleeWP)
         {
