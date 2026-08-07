@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🔴 DAY 4 (2026-08-06) — zero Must-Have tasks landed on `sprint-08` branch after 3 elapsed sprint days; all week's real code work happened on an unmerged, off-plan branch (`origin/feature/enemy-control`) and does not touch BUG-041/BUG-042. S8-00 root-cause conversation still not held — 4th unaddressed cycle.
+## Status Verdict: 🔴 DAY 5 / FINAL (2026-08-07) — zero Must-Have tasks landed on `sprint-08` branch through the sprint's last scheduled day; BUG-041/BUG-042/BUG-053 confirmed still open, byte-identical to last night's post-merge check. S8-00 root-cause conversation still not held — 5th unaddressed cycle.
 
 Sprint 7 closed CONCERNS: component hub structurally sound, but combat confirmed non-functional in
 both directions at close (BUG-041, BUG-042), and the off-plan-work root-cause conversation (S7-D4) was
@@ -256,6 +256,50 @@ been recommending since yesterday.
   progress — the branch divergence risk is resolved, but it shipped a new bug in the process.
 - CLAUDE.md Repository Layout is now stale on filenames (see rename list above) — flag for `/doc-sync`,
   not actioned by this run per its .cs/asset edit restriction.
+
+---
+
+### Fri 2026-08-07 10:00 — Day 5 / final scheduled-day standup (autonomous)
+
+**Yesterday (2026-08-06 evening, since the last standup):** no further commits — HEAD on `sprint-08`
+is still `5ec8045` (last night's standup commit), same as when the 22:11 post-merge update was written.
+Re-verified all three open Must-Have blockers directly against current code, byte-identical to last
+night:
+
+| Bug/Task | File | Status |
+|----------|------|--------|
+| BUG-041 (S8-01) | `Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs:17-25` | ⚠️ OPEN, unchanged — `Attack()` still an empty override; `MakeDamage()` still a non-override method with body fully commented out |
+| BUG-042 (S8-02) | `Assets/Script/Character/Entity/Core/EntityCore.cs:9-12` | ⚠️ OPEN, unchanged — still `throw new System.NotImplementedException()` |
+| BUG-053 | `Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs` | ⚠️ OPEN, unchanged — still calls `Core.GetCoreComponent(out PlayerInputHandler input)` (wrong hub) and emits `ON_PLAYER_DEATH` on enemy death |
+
+**Analysis:** 0d burned since last night (no commits). Planned burn for the sprint's Must-Have set was
+1.75d; actual landed = 0d across all 5 sprint days. S8-00 (root-cause conversation) never held —
+now a 5th unaddressed cycle, exactly as flagged last night.
+
+**Verdict: BLOCKED** — biggest reason: no owner-authored commit since the merge; the two P0 fixes
+(S8-01/S8-02) still require a programmer session that has not happened, and S8-00 still requires the
+owner in the room, which no autonomous run can substitute for.
+
+**Today's plan (last scheduled sprint day):**
+
+| Task | Est. | Why now |
+|------|------|---------|
+| S8-01 — fix BUG-041 (`MeleeWeapon.Attack()`/`MakeDamage()` wiring) | 0.2d | Still the single highest-leverage fix — nothing else verifiable until this lands |
+| S8-02 — fix BUG-042 + BUG-053 together | 0.3d | Delete/rewrite `EntityNegativeReciver.cs` duplicate, implement `EntityCore.TakeDamage()` for real |
+| S8-06 / S8-07 — one-line fixes (BUG-032, BUG-033) | 0.1d each | Cheapest possible Must-Have credit before close, still untouched |
+| S8-00 root-cause conversation | 0.1d | 5th ask — owner action, no code path substitutes |
+
+💡 **Focus:** S8-01 first (smallest, unblocks player→enemy verification), then S8-02+BUG-053 together
+since they're now one reconciliation, not two separate fixes.
+
+**Sprint close assessment:** with the last scheduled day starting at 0/8 Must-Have landed, Sprint 8 —
+explicitly scoped as a recovery sprint — is going into its Friday close very unlikely to land clean.
+Recommend today's close formally re-carry S8-01 through S8-07/S8-12 into Sprint 9, and use the close
+to decide the hard process gate (branch protection / pre-push compile+smoke check) the risk table has
+recommended since Thursday, rather than a 6th root-cause conversation attempt.
+
+**Blockers:** unchanged — S8-00 needs the owner in the room; S8-01/S8-02 need an actual coding session
+on `sprint-08` (none held since the 22:08 merge last night).
 
 ---
 
