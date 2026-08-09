@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dự Đoán Tỷ Số World Cup</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-2: #243449;
+    --accent: #22c55e;
+    --accent-2: #38bdf8;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #334155;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 64px;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 28px; }
+  header h1 { font-size: 1.9rem; margin-bottom: 6px; }
+  header h1 .ball { font-size: 1.6rem; }
+  header p { color: var(--muted); font-size: 0.95rem; }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 22px;
+  }
+  .panel h2 {
+    font-size: 1.1rem;
+    margin-bottom: 14px;
+    color: var(--accent-2);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .form-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 0.78rem; color: var(--muted); }
+  input, select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  input:focus, select:focus { border-color: var(--accent-2); }
+  input.score { width: 64px; text-align: center; }
+
+  button {
+    background: var(--accent);
+    color: #052e16;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(1.1); }
+  button.secondary { background: var(--accent-2); color: #082f49; }
+  button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); padding: 5px 10px; font-size: 0.8rem; }
+  button.small { padding: 6px 12px; font-size: 0.82rem; }
+
+  .match {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .match-head {
+    display: flex; flex-wrap: wrap; justify-content: space-between;
+    align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .match-title { font-size: 1.15rem; font-weight: 700; }
+  .match-title .vs { color: var(--muted); font-weight: 400; font-size: 0.9rem; margin: 0 8px; }
+  .match-time { color: var(--muted); font-size: 0.85rem; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .badge.upcoming { background: #1d4ed8; color: #dbeafe; }
+  .badge.finished { background: #166534; color: #dcfce7; }
+  .final-score { font-size: 1.05rem; font-weight: 700; color: var(--accent); }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  th, td { padding: 8px 10px; text-align: left; font-size: 0.9rem; }
+  th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+  tr:not(:last-child) td { border-bottom: 1px solid rgba(51,65,85,0.5); }
+  td.center, th.center { text-align: center; }
+
+  .result-correct { color: var(--accent); font-weight: 700; }
+  .result-wrong { color: var(--danger); font-weight: 700; }
+  .result-pending { color: var(--muted); }
+
+  .inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .inline-form .x { color: var(--muted); }
+
+  .leaderboard tr td:first-child { font-weight: 700; width: 48px; }
+  .points-neg { color: var(--danger); font-weight: 700; }
+  .points-zero { color: var(--accent); font-weight: 700; }
+  .empty { color: var(--muted); font-style: italic; font-size: 0.9rem; padding: 8px 0; }
+
+  .toolbar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 16px; }
+  @media (max-width: 600px) {
+    .form-row { flex-direction: column; align-items: stretch; }
+    input.score { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><span class="ball">⚽</span> Dự Đoán Tỷ Số World Cup</h1>
+    <p>Đoán đúng tỷ số: <strong style="color:#22c55e">+0 điểm</strong> · Đoán sai: <strong style="color:#ef4444">−1 điểm</strong> · Ai ít điểm âm nhất là vua dự đoán!</p>
+  </header>
+
+  <section class="panel">
+    <h2>🏆 Bảng Xếp Hạng</h2>
+    <div id="leaderboard"></div>
+  </section>
+
+  <section class="panel">
+    <h2>➕ Thêm Trận Đấu</h2>
+    <div class="form-row">
+      <div class="field">
+        <label>Đội nhà</label>
+        <input id="homeTeam" type="text" placeholder="VD: Mexico">
+      </div>
+      <div class="field">
+        <label>Đội khách</label>
+        <input id="awayTeam" type="text" placeholder="VD: Nam Phi">
+      </div>
+      <div class="field">
+        <label>Thời gian</label>
+        <input id="matchTime" type="datetime-local">
+      </div>
+      <button onclick="addMatch()">Thêm trận</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>📅 Danh Sách Trận Đấu Sắp Tới</h2>
+    <div id="upcomingMatches"></div>
+  </section>
+
+  <section class="panel">
+    <h2>✅ Trận Đã Có Kết Quả</h2>
+    <div id="finishedMatches"></div>
+  </section>
+
+  <div class="toolbar">
+    <button class="danger small" onclick="resetAll()">Xóa toàn bộ dữ liệu</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "wc-predictions-v1";
+
+function seedMatches() {
+  const seeds = [
+    { home: "Mexico", away: "Đội bảng A", time: "2026-06-11T19:00" },
+    { home: "Canada", away: "Đội bảng B", time: "2026-06-12T18:00" },
+    { home: "Mỹ", away: "Đội bảng D", time: "2026-06-12T20:00" },
+  ];
+  return seeds.map((s, i) => ({
+    id: Date.now() + i,
+    home: s.home, away: s.away, time: s.time,
+    predictions: [], result: null,
+  }));
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  const data = { matches: seedMatches() };
+  save(data);
+  return data;
+}
+
+function save(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let state = load();
+
+function formatTime(t) {
+  if (!t) return "Chưa rõ thời gian";
+  const d = new Date(t);
+  if (isNaN(d)) return t;
+  return d.toLocaleString("vi-VN", {
+    weekday: "short", day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  })[c]);
+}
+
+function addMatch() {
+  const home = document.getElementById("homeTeam").value.trim();
+  const away = document.getElementById("awayTeam").value.trim();
+  const time = document.getElementById("matchTime").value;
+  if (!home || !away) { alert("Nhập tên hai đội!"); return; }
+  state.matches.push({ id: Date.now(), home, away, time, predictions: [], result: null });
+  document.getElementById("homeTeam").value = "";
+  document.getElementById("awayTeam").value = "";
+  document.getElementById("matchTime").value = "";
+  save(state); render();
+}
+
+function deleteMatch(id) {
+  if (!confirm("Xóa trận đấu này?")) return;
+  state.matches = state.matches.filter(m => m.id !== id);
+  save(state); render();
+}
+
+function addPrediction(id) {
+  const match = state.matches.find(m => m.id === id);
+  if (!match) return;
+  const name = document.getElementById("pname-" + id).value.trim();
+  const h = document.getElementById("ph-" + id).value;
+  const a = document.getElementById("pa-" + id).value;
+  if (!name) { alert("Nhập tên người dự đoán!"); return; }
+  if (h === "" || a === "" || +h < 0 || +a < 0) { alert("Nhập tỷ số hợp lệ!"); return; }
+  if (match.predictions.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    alert(name + " đã dự đoán trận này rồi!"); return;
+  }
+  match.predictions.push({ name, home: +h, away: +a });
+  save(state); render();
+}
+
+function removePrediction(id, idx) {
+  const match = state.matches.find(m => m.id === id);
+  if (!match || match.result) return;
+  match.predictions.splice(idx, 1);
+  save(state); render();
+}
+
+function setResult(id) {
+  const match = state.matches.find(m => m.id === id);
+  if (!match) return;
+  const h = document.getElementById("rh-" + id).value;
+  const a = document.getElementById("ra-" + id).value;
+  if (h === "" || a === "" || +h < 0 || +a < 0) { alert("Nhập kết quả hợp lệ!"); return; }
+  match.result = { home: +h, away: +a };
+  save(state); render();
+}
+
+function clearResult(id) {
+  const match = state.matches.find(m => m.id === id);
+  if (!match) return;
+  if (!confirm("Hủy kết quả trận này? Điểm sẽ được tính lại.")) return;
+  match.result = null;
+  save(state); render();
+}
+
+function resetAll() {
+  if (!confirm("Xóa TOÀN BỘ trận đấu, dự đoán và điểm số?")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = load();
+  render();
+}
+
+function isCorrect(p, result) {
+  return p.home === result.home && p.away === result.away;
+}
+
+function computeScores() {
+  const scores = {};
+  for (const m of state.matches) {
+    for (const p of m.predictions) {
+      if (!(p.name in scores)) scores[p.name] = { points: 0, correct: 0, wrong: 0 };
+      if (m.result) {
+        if (isCorrect(p, m.result)) scores[p.name].correct++;
+        else { scores[p.name].wrong++; scores[p.name].points -= 1; }
+      }
+    }
+  }
+  return scores;
+}
+
+function renderLeaderboard() {
+  const scores = computeScores();
+  const names = Object.keys(scores);
+  const el = document.getElementById("leaderboard");
+  if (names.length === 0) {
+    el.innerHTML = '<div class="empty">Chưa có ai tham gia dự đoán.</div>';
+    return;
+  }
+  names.sort((a, b) => scores[b].points - scores[a].points || scores[b].correct - scores[a].correct || a.localeCompare(b));
+  let rows = names.map((n, i) => {
+    const s = scores[n];
+    const cls = s.points < 0 ? "points-neg" : "points-zero";
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
+    return `<tr>
+      <td class="center">${medal}</td>
+      <td>${esc(n)}</td>
+      <td class="center result-correct">${s.correct}</td>
+      <td class="center result-wrong">${s.wrong}</td>
+      <td class="center ${cls}">${s.points}</td>
+    </tr>`;
+  }).join("");
+  el.innerHTML = `<table class="leaderboard">
+    <tr><th class="center">#</th><th>Người chơi</th><th class="center">Đúng</th><th class="center">Sai</th><th class="center">Điểm</th></tr>
+    ${rows}
+  </table>`;
+}
+
+function renderPredictionTable(m) {
+  if (m.predictions.length === 0) {
+    return '<div class="empty">Chưa có dự đoán nào.</div>';
+  }
+  const rows = m.predictions.map((p, idx) => {
+    let resultCell;
+    if (m.result) {
+      resultCell = isCorrect(p, m.result)
+        ? '<span class="result-correct">✔ Đúng (+0)</span>'
+        : '<span class="result-wrong">✘ Sai (−1)</span>';
+    } else {
+      resultCell = '<span class="result-pending">Chờ kết quả</span>';
+    }
+    const removeBtn = m.result ? "" :
+      `<button class="danger" onclick="removePrediction(${m.id}, ${idx})">Xóa</button>`;
+    return `<tr>
+      <td>${esc(p.name)}</td>
+      <td class="center">${p.home} - ${p.away}</td>
+      <td class="center">${resultCell}</td>
+      <td class="center">${removeBtn}</td>
+    </tr>`;
+  }).join("");
+  return `<table>
+    <tr><th>Người dự đoán</th><th class="center">Tỷ số dự đoán</th><th class="center">Kết quả</th><th></th></tr>
+    ${rows}
+  </table>`;
+}
+
+function renderMatch(m) {
+  const finished = !!m.result;
+  const statusBadge = finished
+    ? '<span class="badge finished">Đã kết thúc</span>'
+    : '<span class="badge upcoming">Sắp diễn ra</span>';
+  const scoreLine = finished
+    ? `<span class="final-score">${m.result.home} - ${m.result.away}</span>`
+    : "";
+
+  const predictForm = finished ? "" : `
+    <div class="inline-form">
+      <input id="pname-${m.id}" type="text" placeholder="Tên người dự đoán" style="width:170px">
+      <input id="ph-${m.id}" class="score" type="number" min="0" placeholder="${esc(m.home)}">
+      <span class="x">−</span>
+      <input id="pa-${m.id}" class="score" type="number" min="0" placeholder="${esc(m.away)}">
+      <button class="small" onclick="addPrediction(${m.id})">Thêm dự đoán</button>
+    </div>`;
+
+  const resultForm = finished ? `
+    <div class="inline-form">
+      <button class="small secondary" onclick="clearResult(${m.id})">Sửa lại kết quả</button>
+    </div>` : `
+    <div class="inline-form">
+      <span style="color:var(--muted);font-size:0.85rem">Nhập kết quả:</span>
+      <input id="rh-${m.id}" class="score" type="number" min="0" placeholder="${esc(m.home)}">
+      <span class="x">−</span>
+      <input id="ra-${m.id}" class="score" type="number" min="0" placeholder="${esc(m.away)}">
+      <button class="small secondary" onclick="setResult(${m.id})">Chốt kết quả</button>
+    </div>`;
+
+  return `<div class="match">
+    <div class="match-head">
+      <div>
+        <div class="match-title">${esc(m.home)}<span class="vs">vs</span>${esc(m.away)} ${scoreLine}</div>
+        <div class="match-time">🕒 ${esc(formatTime(m.time))}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${statusBadge}
+        <button class="danger" onclick="deleteMatch(${m.id})">Xóa trận</button>
+      </div>
+    </div>
+    ${renderPredictionTable(m)}
+    ${predictForm}
+    ${resultForm}
+  </div>`;
+}
+
+function render() {
+  renderLeaderboard();
+  const upcoming = state.matches.filter(m => !m.result)
+    .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+  const finished = state.matches.filter(m => m.result)
+    .sort((a, b) => (b.time || "").localeCompare(a.time || ""));
+  document.getElementById("upcomingMatches").innerHTML =
+    upcoming.length ? upcoming.map(renderMatch).join("") : '<div class="empty">Không có trận nào sắp diễn ra. Thêm trận mới ở trên!</div>';
+  document.getElementById("finishedMatches").innerHTML =
+    finished.length ? finished.map(renderMatch).join("") : '<div class="empty">Chưa có trận nào kết thúc.</div>';
+}
+
+render();
+</script>
+</body>
+</html>
