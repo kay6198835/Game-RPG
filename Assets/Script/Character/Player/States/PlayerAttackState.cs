@@ -16,6 +16,7 @@ public class PlayerAttackState : PlayerUseWeaponState
     {
         base.Enter();
         startAttackTime = startTime;
+        weaponHolder.Attack();
     }
 
     public override void Exit()
@@ -25,10 +26,6 @@ public class PlayerAttackState : PlayerUseWeaponState
 
     public override void LogicUpdate()
     {
-        // if (isAnimationFinishedTrigger && inputHandler.IsAttack)
-        // {
-        //     stateMachine.ChangeState(player.AttackState);
-        // }
         switch (Status)
         {
             case StatusAnimation.Start:
@@ -38,6 +35,13 @@ public class PlayerAttackState : PlayerUseWeaponState
                 }
                 //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
                 break;
+            case StatusAnimation.OnActivate:
+                weaponHolder.MakeDamage();
+                Status = StatusAnimation.OffActivate;
+                break;
+            case StatusAnimation.OffActivate:
+
+                break;
             case StatusAnimation.EndRangeTrigger:
                 if (inputHandler.BufferIsAttack || inputHandler.IsAttack)
                 {
@@ -46,16 +50,14 @@ public class PlayerAttackState : PlayerUseWeaponState
                     player.Anim.Play(stateHash, 0, 0f);
                     Status = StatusAnimation.Start;
                 }
-                else
-                {
-                    Status = StatusAnimation.None;
-                }
                 break;
-            case StatusAnimation.None:
-                //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
+            case StatusAnimation.End:
                 base.LogicUpdate();
                 break;
+            case StatusAnimation.None:
+                break;
             default:
+                inputHandler.SetStatusAnimation(Status);
                 break;
         }
 

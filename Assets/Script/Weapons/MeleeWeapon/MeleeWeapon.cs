@@ -55,19 +55,19 @@ public class MeleeWeapon : Weapon
 
     public override void SetAnimation(Player player)
     {
-        if (currentStateIndex >= StatsMelee.AttackState.Count
-        //|| lastClickTime + deplayTime < Time.time
+        if (currentStateIndex == StatsMelee.AttackState.Count
+        || lastClickTime + deplayTime < Time.time
         )
         {
             currentStateIndex = 0;
         }
         lastClickTime = Time.time;
         player.Anim.speed = 1f;
+        currrentSA = StatsMelee.AttackState[currentStateIndex];
         var overrides = Utility.GetOverrideClips(
-            StatsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV, "Attack");
+            currrentSA.directionAttackAnimatorOV, "Attack");
         deplayTime = Utility.DurationNextAttack(overrides)
         / player.Anim.speed;
-        currrentSA = StatsMelee.AttackState[currentStateIndex];
         // Send AnimationController to Player by Event
         player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
         //Attack Position
