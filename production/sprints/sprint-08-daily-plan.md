@@ -12,7 +12,7 @@
 
 ---
 
-## Status Verdict: 🔴 DAY 5 / FINAL (2026-08-07) — zero Must-Have tasks landed on `sprint-08` branch through the sprint's last scheduled day; BUG-041/BUG-042/BUG-053 confirmed still open, byte-identical to last night's post-merge check. S8-00 root-cause conversation still not held — 5th unaddressed cycle.
+## Status Verdict: 🔴 UNCLOSED / OVERRUN — Sprint 8's final scheduled day (Fri 2026-08-07) ended with 0/8 Must-Have items landed. No `/weekly-wrapup` close and no `/weekly-kickoff` for Sprint 9 ran over the weekend (Sat 2026-08-08 22:00 / Sun 2026-08-09 22:00) — branch is still `sprint-08`, no retro file exists, no `sprint-09.md`. This Monday standup (2026-08-10) is running against an overrun, unclosed sprint.
 
 Sprint 7 closed CONCERNS: component hub structurally sound, but combat confirmed non-functional in
 both directions at close (BUG-041, BUG-042), and the off-plan-work root-cause conversation (S7-D4) was
@@ -303,16 +303,87 @@ on `sprint-08` (none held since the 22:08 merge last night).
 
 ---
 
+### Mon 2026-08-10 10:00 — Day 6 / overrun standup (autonomous)
+
+**Weekend gap first (blocker, surfaced above the usual yesterday/today split):** neither
+`/weekly-wrapup` (Sat 2026-08-08 22:00) nor `/weekly-kickoff` (Sun 2026-08-09 22:00) appears to have
+run — `git log --all --since=2026-08-07 --until=2026-08-11` shows zero real commits past the Fri
+`a29895b` standup (only two local stash-style refs, `WIP on sprint-08` / `index on sprint-08`, both
+pointing at `a29895b`, no distinct content). No `production/retros/retro-sprint-08-*.md` exists, no
+`sprint-09.md` exists. Sprint 8 is still formally open, 3 days past its Friday close, and this run
+continues treating it as the active sprint per the standup skill's own detection rule (branch =
+`sprint-08`, highest-numbered sprint file = `sprint-08.md`) — it is not this run's place to force a
+close or kickoff unattended, but the gap itself is now the top blocker.
+
+**Yesterday (2026-08-07 evening → 2026-08-10, no commits landed):** working tree on `sprint-08` has
+uncommitted, unstaged changes (owner's local in-progress work, not part of any commit yet):
+- `Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs` — `OnDirection()` reworked to
+  read screen position via `context.ReadValue<Vector2>()` instead of `Input.mousePosition`, plus a
+  `Debug.Log("Camera: " + cam)` left in (comment says "fix camera null reference exception") — looks
+  like an in-progress debug session, not a finished fix.
+- `Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs` — `currentStateIndex` gained `[field:
+  SerializeField]` (Inspector visibility only, no logic change).
+- `Assets/Scenes/Main/Test/LoadRandomMap.unity`, `Assets/Resources/DOTweenSettings.asset`,
+  `Assets/Script/Character/Player/Input/PlayerInput.inputactions`, `ProjectSettings/EditorBuildSettings.asset`
+  — scene/asset drift, not reviewed further per this run's read-only-on-.cs/assets constraint.
+
+None of the uncommitted changes touch the three open Must-Have blockers. **Re-verified directly
+against current code, byte-identical to Friday's last check:**
+
+| Bug/Task | File | Status |
+|----------|------|--------|
+| BUG-041 (S8-01) | `Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs:17-25` | ⚠️ OPEN — `Attack()` still an empty override; `MakeDamage()` still a non-override method, body fully commented out |
+| BUG-042 (S8-02) | `Assets/Script/Character/Entity/Core/EntityCore.cs:9-12` | ⚠️ OPEN — still `throw new System.NotImplementedException()` |
+| BUG-053 | `Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs:10` | ⚠️ OPEN — still `Core.GetCoreComponent(out PlayerInputHandler input)` (wrong hub) and still emits `ON_PLAYER_DEATH` on enemy death |
+| BUG-032 (S8-06) | `Assets/Script/Character/Entity/EntityWeaponMelee.cs:26` | ⚠️ OPEN — still `//Core.GetCoreComponent(out input);` |
+| BUG-033 (S8-07) | `Assets/Script/Enemy/EnemySpawner.cs:62` | ⚠️ OPEN — still `set.Count == 0 \|\| set == null` (wrong order) |
+| ADR-0002 (S8-10) | `docs/architecture/adr-0002-*.md` | ⚠️ Status still **Proposed** |
+| S8-00 root-cause conversation | — | ⚠️ Not held — 6th unaddressed cycle |
+
+**Net: 6 sprint-days in (Mon–Fri scheduled + this overrun Monday), still 0/8 Must-Have tasks landed on
+`sprint-08`.** Total idle time since any commit on this branch: ~3 days (Fri 12:59 → Mon standup).
+
+**Today's plan — same fixes, now the single highest-priority item on the whole project:**
+
+| Task | Est. | Note |
+|------|------|------|
+| S8-01 — fix BUG-041 (`MeleeWeapon.Attack()`/`MakeDamage()` wiring) | 0.2d | Still nothing else is verifiable until this lands; 3rd calendar day since last touched |
+| S8-02 — fix BUG-042 + BUG-053 together | 0.3d | Delete/rewrite `EntityNegativeReciver.cs` duplicate, implement `EntityCore.TakeDamage()` for real |
+| S8-06 / S8-07 — one-line fixes (BUG-032, BUG-033) | 0.1d each | Cheapest possible Must-Have credit, still untouched after 6 cycles / 2 cycles |
+| Resolve the sprint-close gap | — | **Owner decision needed**: formally close Sprint 8 (retro + carry-over) and kick off Sprint 9, or explicitly extend Sprint 8 — this run defaults to "still Sprint 8" per detection rule but flags it rather than deciding silently |
+| S8-00 root-cause conversation | 0.1d | 6th ask — owner action, no code path substitutes |
+
+**Blockers:**
+- Sprint 8 has no formal close and Sprint 9 has no kickoff — 3 days overrun with no owner action
+  recorded. This is now blocking the tracker itself, not just the Must-Have bugs.
+- S8-01/S8-02/S8-06/S8-07 need an actual coding session — none held on `sprint-08` since the
+  2026-08-06 22:08 merge, now 4 calendar days ago.
+- S8-00 still needs the owner in the room — unchanged, 6th cycle.
+
+**Emerging risks (new today):**
+- The weekend gap (no wrapup, no kickoff) compounds the sprint's own top risk: 6 cycles now with the
+  off-plan-work root-cause conversation unheld, and the scheduled process itself (weekly-wrapup/kickoff)
+  also silently skipped for the first time this project's recorded history — worth checking whether the
+  `weekly-wrapup`/`weekly-kickoff` schedules are still correctly registered.
+- Owner has uncommitted local changes on `PlayerInputHandle.cs` that look mid-debug (stray
+  `Debug.Log`) — flagging so it isn't lost, not treated as a fix to any tracked bug.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
-- **S8-00 root-cause conversation — held zero times across 5 cycles now (Sprint 6, Sprint 7, and three
-  times this sprint's own window).** The sprint's own risk table condition for escalation ("if it
-  recurs anyway") was already met as of the 2026-08-06 morning standup — recommend a hard process gate
-  (branch protection or required pre-push compile+smoke check) for Sprint 9 instead of a 6th
-  conversation attempt.
+- **S8-00 root-cause conversation — held zero times across 6 cycles now (Sprint 6, Sprint 7, and four
+  times this sprint's own window, including this overrun Monday).** The sprint's own risk table
+  condition for escalation ("if it recurs anyway") was already met as of the 2026-08-06 morning
+  standup — recommend a hard process gate (branch protection or required pre-push compile+smoke check)
+  for Sprint 9 instead of a 7th conversation attempt.
 - BUG-041/BUG-042/BUG-053 — P0/S1, combat non-functional in both directions until fixed, plus a new
-  merge-introduced bug in the enemy damage-receiver duplicate. Still 0% landed on `sprint-08` with 1
-  sprint day remaining. Nothing else in the sprint can be meaningfully verified until these land.
+  merge-introduced bug in the enemy damage-receiver duplicate. Still 0% landed on `sprint-08`, now 3
+  sprint days into overrun. Nothing else in the sprint can be meaningfully verified until these land.
+- **Sprint 8 close / Sprint 9 kickoff gap (new 2026-08-10)** — neither `/weekly-wrapup` nor
+  `/weekly-kickoff` ran over the weekend of 2026-08-08/09; branch and tracker are 3 days past the
+  sprint's own scheduled Friday close with no retro filed. Needs an explicit owner decision (close now
+  vs. extend) before the tracker's day-by-day plan means anything further.
 - `origin/feature/enemy-control` divergence — **resolved** 2026-08-06 22:08 (`c5f26b1`), but the merge
   itself introduced BUG-053; recommend a Play-Mode check on the merged enemy-control code before
   Sprint 9 kickoff, not just a compile check.
