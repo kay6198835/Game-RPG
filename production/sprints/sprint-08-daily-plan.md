@@ -392,3 +392,53 @@ against current code, byte-identical to Friday's last check:**
 - S8-11 (S4-05/S4-06) — 8th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
 - QA plan — 7 consecutive cycles with none. Flagged in `sprint-08.md`, deferred to owner.
+
+---
+
+## Belated Saturday Wrap-up Addendum (2026-08-10, `pm-weekly-wrapup` scheduled task)
+
+**Sequencing note**: this run was scheduled for Sat 2026-08-08 22:00 and did not fire on time. By the
+time it actually ran (Mon 2026-08-10), the Monday overrun standup (`74db8f1`) had already written a
+closure scorecard directly into `sprint-08.md` (verdict **CONCERNS**), and the kickoff run (`eb65772`)
+had already branched `sprint-09` and opened `sprint-09.md`/`sprint-09-daily-plan.md` — both committed
+minutes before this run started. **This run does not re-close Sprint 8 or re-open Sprint 9** — that
+already happened. What follows is what this run adds on top, produced independently before it
+discovered the branch had moved:
+
+- `production/qa/bug-triage-2026-08-10.md` — a deeper triage pass than the Monday scorecard, built from
+  3 parallel lead-programmer code-review agents (Entity/AI, Player, Weapons/Map/Utility clusters)
+  reading every changed file in full rather than a status-table re-check.
+- `production/retros/retro-sprint-08-2026-08-10.md` — a full retrospective (velocity trend, estimation
+  accuracy, carryover analysis, previous-action-item follow-up) that fills a gap the Monday closure
+  didn't cover — `sprint-08.md`'s scorecard is a compact status table, not a retro. **Verdict note**:
+  this retro independently assesses **FAIL** (0/8 Must-Have landed, first time in this project's
+  history), a stricter read than the Monday closure's **CONCERNS** — both readings agree on every
+  underlying fact (see the retro's Summary), they differ only on where the CONCERNS/FAIL line sits for
+  a zero-landed sprint. Flagging the discrepancy rather than silently picking one; the owner should
+  treat CONCERNS as the closure of record since it's what's already stamped on `sprint-08.md`.
+
+**New findings not yet reflected in `sprint-09.md`'s carry-over table** — these came from this run's
+code review, which happened after Sprint 9 was already kicked off, so they were not available to that
+process:
+- **BUG-054 (new)** — `EntityNegativeReciver.currentHealth` (Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs:5,8-9)
+  is never initialized from `EntityStatsSO`; the guard `if (currentHealth <= 0) return;` makes
+  `TakeDamage()` a silent no-op on every call, masking BUG-053's wrong-hub crash entirely (the crash
+  line is never reached). Sprint 9's S9-02 already plans to delete `EntityNegativeReciver.cs` and
+  reimplement `EntityCore.TakeDamage()` for real, so this is likely resolved by that task's scope as
+  written — flagging so the acceptance check explicitly covers "health actually initializes," not just
+  "no exception."
+- **BUG-055 (new)** — `EntityBasicState`'s death check reads `entity.Data.StatsSO.Health`, but the
+  damage-writing component uses its own disconnected field — same "two sources of truth" shape as
+  Bug #6 on the player side, worth checking S9-02 writes to the SO-backed value, not a new local field.
+- **BUG-057 (new)** — `EntityAttackState.LogicUpdate()` (`Entity/States/EntityAttackState.cs:24`) has no
+  null check on `TargetTransform` before dereferencing `.position` — same bug class as the already-fixed
+  `EntityMoveState` NullRef (Bug #5), just a second location that was never covered by that fix.
+- **BUG-059 (new)** — `RangeWeapon.Attack()` (`Weapons/RangeWeapon/RangeWeapon.cs:11-14`) is also an
+  empty override, same contract violation as BUG-041 — not currently blocking (ranged weapons aren't in
+  active use) but will need the same fix whenever they are.
+
+Full detail on all of the above, plus 3 more minor/backlog findings (BUG-056, BUG-058, BUG-060,
+BUG-061), is in `production/qa/bug-triage-2026-08-10.md`.
+
+**Playtest**: skipped — no playtest log found under `production/qa/playtests/` newer than
+`playtest-2026-06-12-weekly-wrapup.md`. Run `/playtest-report` manually if a session happens.
