@@ -13,7 +13,7 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 1 / OPENING (2026-08-10) — fresh branch, no work started yet. Scope deliberately cut to 1.0d Must-Have (vs. Sprint 8's 1.75d, of which 0d landed) to test whether a narrower cut succeeds where three consecutive lighter-scoped recovery attempts (Sprints 7, 8, and implicitly 6) did not.
+## Status Verdict: 🔴 DAY 2 (2026-08-11) — ESCALATE. All 5 of Mon's planned Must-Have items (S9-00, S9-01, S9-02, S9-06, S9-07) verified NOT landed by code inspection. This is the exact zero-progress pattern Sprint 8 produced (0/8 Must-Have) repeating on Day 1 of the narrower-scoped "test" sprint. Per this file's own Carry-Over Watch List: "If Day 1 of Sprint 9 also shows zero movement, escalate: the recovery-sprint framing itself may need to change." That trigger has now fired.
 
 ---
 
@@ -74,7 +74,49 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 
 ## Standup Log
 
-*(No standups logged yet — sprint opened 2026-08-10, same day as this kickoff.)*
+### Tue 2026-08-11 — Daily Standup (autonomous, no user present)
+
+**Yesterday (Mon 2026-08-10) — verified against actual code, not commit messages:**
+
+| Task | Planned | Verified status |
+|------|---------|------------------|
+| S9-00 (process gate artifact) | 0.1d | ❌ NOT DONE — no `.git/hooks/pre-push`, no `production/process/` dir, no written rule found in `CLAUDE.md` or elsewhere |
+| S9-01 (BUG-041, `MeleeWeapon.Attack()`) | 0.2d | ❌ NOT DONE — `Attack()` body still empty (`MeleeWeapon.cs:64-67`); `MakeDamage()` `TakeDamage` call still fully commented out (`MeleeWeapon.cs:70-71`) |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | ❌ NOT DONE — `EntityCore.TakeDamage()` still `throw new NotImplementedException()` (`EntityCore.cs:11`); `EntityNegativeReciver.cs` (the duplicate, wrong-hub receiver) still exists, unfixed |
+| S9-06 (BUG-032, one-liner) | 0.1d | ❌ NOT DONE — `EntityWeaponMelee.cs:26` still `//Core.GetCoreComponent(out input);` |
+| S9-07 (BUG-033, one-liner) | 0.1d | ❌ NOT DONE — `EnemySpawner.cs:62` still `set.Count == 0 \|\| set == null` (wrong order, NullReferenceException risk unchanged) |
+
+**What actually landed instead (off-plan, mirrors Sprint 8's drift pattern):** commit `fd4520a`
+"polish attack combo" (merged into `sprint-09` as `b22220b`) touched `PlayerInputHandle.cs`,
+`PlayerAttackState.cs`, `PlayerUseWeaponState.cs`, `MeleeWeapon.cs` — combo/animation-state sequencing,
+not the P0 damage-chain bugs. A further **13 files are currently uncommitted** on the branch
+(`WeaponHolder.cs`, `Player.cs`, `PlayerState.cs`, `PlayerAttackState.cs`, `MeleeWeapon.cs`,
+`RangeWeapon.cs`, `Weapon.cs`, 3 combo animation clips, `LoadRandomMap.unity`, `.claude/settings.local.json`)
+— same direction (attack/combo flow), still no `TakeDamage`/`Attack()` wiring for BUG-041/042. This is
+the pattern S9-00 was supposed to gate, and S9-00 itself was never drafted.
+
+**Today's plan (revised — Day 1 Must-Have carries forward, Day 2's own plan is blocked on it):**
+
+| Task | Est. | Rationale |
+|------|------|-----------|
+| S9-01 (BUG-041) | 0.2d | Still the sprint's stated #1 P0 — land before touching anything else |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | Still P0 — implement `EntityCore.TakeDamage()`, delete `EntityNegativeReciver.cs` |
+| S9-06 (BUG-032) | 0.1d | One-liner, zero excuse to still be open on 4th carry |
+| S9-07 (BUG-033) | 0.1d | One-liner, zero excuse to still be open on 7th carry |
+| S9-12 (Play Mode verify) | 0.2d | **Blocked** until S9-01/S9-02 actually land — cannot run today as originally scheduled |
+| S9-00 (process gate) | 0.1d | Still undrafted — recommend minimum viable version today: one written line in `CLAUDE.md` stating combo/animation-flow work belongs on its own branch, reviewed before merge into `sprint-09` |
+
+**Blockers:**
+- No owner presence to make the S9-00 policy call or resolve the recurring off-plan-branch pattern (3rd+ time: Sprint 6 implicit, Sprint 8 explicit BUG-053 introduction, Sprint 9 Day 1 combo-polish drift).
+- No Unity Editor session in this run — Play Mode verification (S9-12) cannot be performed by this automated standup regardless of code state.
+
+**Risks (new/reinforced):**
+- Recovery-sprint framing itself is now in question — 2 consecutive sprints (8, 9) at Day-1/Day-2 showing zero Must-Have movement despite shrinking scope both times. Distributed autonomous daily check-ins are not surfacing or preventing the drift; only detecting it after the fact.
+- BUG-041/042/053 combat-chain bugs are now 3rd carry (was 2nd carry in Sprint 9 plan) if not resolved before this sprint closes.
+
+### Mon 2026-08-10 (kickoff day — no separate standup filed)
+
+*(Sprint opened this day; see kickoff commit `eb65772` and `sprint-09.md` for opening context.)*
 
 ---
 
