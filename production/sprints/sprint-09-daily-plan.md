@@ -13,7 +13,7 @@
 
 ---
 
-## Status Verdict: 🔴 DAY 2 (2026-08-11) — ESCALATE. All 5 of Mon's planned Must-Have items (S9-00, S9-01, S9-02, S9-06, S9-07) verified NOT landed by code inspection. This is the exact zero-progress pattern Sprint 8 produced (0/8 Must-Have) repeating on Day 1 of the narrower-scoped "test" sprint. Per this file's own Carry-Over Watch List: "If Day 1 of Sprint 9 also shows zero movement, escalate: the recovery-sprint framing itself may need to change." That trigger has now fired.
+## Status Verdict: 🔴 DAY 3 (2026-08-12) — ESCALATE (unresolved, 3rd consecutive day). All 5 of Mon's planned Must-Have items (S9-00, S9-01, S9-02, S9-06, S9-07) verified NOT landed by code inspection for a 3rd straight day. Zero commits landed on `sprint-09` since the Tue 2026-08-11 standup (`3c99d0f`) — `git log 3c99d0f..HEAD` is empty. The same 13-14 uncommitted files (attack/combo/animation flow, not the P0 damage chain) are still sitting uncommitted on the branch, now with a larger diff (`.claude/settings.local.json` added; combo-animation clips grew). This is the same off-plan drift flagged Tue, still uncorrected. Sprint is at 60% elapsed (Day 3/5) with 0% of Must-Have landed.
 
 ---
 
@@ -74,6 +74,56 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 
 ## Standup Log
 
+### Wed 2026-08-12 — Daily Standup (autonomous, no user present)
+
+**Yesterday (Tue 2026-08-11) — verified against actual code, not commit messages:**
+
+`git log 3c99d0f..HEAD` on `sprint-09` is **empty** — no commits (không có commit nào) landed between
+Tue's standup and this run. The 14 files flagged uncommitted (chưa commit) in Tue's standup are still
+uncommitted, diff grew slightly (`.claude/settings.local.json` added to the changed-file list; combo
+animation clips (`Knight_ComboAttack_State1/2/3`) show a larger diff than Tue). No evidence of any
+Must-Have work session having occurred.
+
+| Task | Planned | Verified status (re-checked by reading the actual files, 2026-08-12) |
+|------|---------|------------------|
+| S9-00 (process gate artifact) | 0.1d | ❌ NOT DONE — no `.git/hooks/pre-push`, no `production/process/` dir, no branch-policy line in `CLAUDE.md` |
+| S9-01 (BUG-041, `MeleeWeapon.Attack()`) | 0.2d | ❌ NOT DONE — [`MeleeWeapon.cs:60-63`](Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs#L60) `Attack()` body still empty; [`MakeDamage()`](Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs#L64) still fully commented out, no `TakeDamage` call |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | ❌ NOT DONE — [`EntityCore.cs:11`](Assets/Script/Character/Entity/Core/EntityCore.cs#L11) `TakeDamage()` still `throw new System.NotImplementedException()`; [`EntityNegativeReciver.cs`](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs) (the duplicate, wrong-hub receiver — BUG-053) still exists unfixed, still calls `Core.GetCoreComponent(out PlayerInputHandler input)` on an `EntityCore` hub and still emits `ON_PLAYER_DEATH` on enemy death |
+| S9-06 (BUG-032, one-liner) | 0.1d | ❌ NOT DONE — [`EntityWeaponMelee.cs:26`](Assets/Script/Character/Entity/EntityWeaponMelee.cs#L26) still `//Core.GetCoreComponent(out input);` — `entityInput` field stays null, so `SetAbility()`/`CenterAttackPosition()` will `NullReferenceException` the first time either runs |
+| S9-07 (BUG-033, one-liner) | 0.1d | ❌ NOT DONE — [`EnemySpawner.cs:62`](Assets/Script/Enemy/EnemySpawner.cs#L62) still `set.Count == 0 \|\| set == null` (wrong order — `set.Count` evaluates first and throws if `set` is null, short-circuit never reached) |
+
+**Today's plan (3rd carry of Monday's Must-Have batch — unchanged task list, escalated urgency):**
+
+| Task | Est. | Rationale |
+|------|------|-----------|
+| S9-01 (BUG-041) | 0.2d | P0, 3rd carry — still the single highest-priority item; combat is non-functional in the player→enemy direction until this lands |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | P0, 3rd carry — `EntityCore.TakeDamage()` implementation + delete `EntityNegativeReciver.cs` |
+| S9-06 (BUG-032) | 0.1d | One-liner, 5th carry — uncomment `Core.GetCoreComponent(out input)` at `EntityWeaponMelee.cs:26` |
+| S9-07 (BUG-033) | 0.1d | One-liner, 8th carry — swap null-check order at `EnemySpawner.cs:62` |
+| S9-12 (Play Mode verify) | 0.2d | Still **blocked** on S9-01/S9-02 |
+| S9-00 (process gate) | 0.1d | Still undrafted, 3rd carry — recommend minimum viable version: one written line in `CLAUDE.md` stating attack/combo/animation-flow work lands on its own tracked branch, reviewed before merge into `sprint-09` |
+
+**Blockers:**
+- No owner presence (không có mặt) across 3 consecutive scheduled runs to make the S9-00 policy call,
+  review/merge the 14 uncommitted files, or redirect effort from off-plan combo work back to the P0
+  damage-chain bugs.
+- No Unity Editor session in this automated run — S9-12 Play Mode verification cannot be performed
+  regardless of code state.
+- The uncommitted combo/animation work itself is not evaluated here (scope: verify only) — it may be
+  good work, but it is not the sprint's stated Must-Have, and nothing indicates anyone is actively
+  finishing it either (diff has grown but not been committed in 2+ days).
+
+**Risks (escalated):**
+- Sprint 9 is now at Day 3/5 (60% elapsed) with 0/5 Monday Must-Have items landed — same trajectory as
+  Sprint 8's 0/8. The scope cut (8 items → 5 items) has not changed the outcome pattern.
+- At current velocity, S9-12 (the Play Mode confirmation gate) cannot be scheduled before Friday even
+  in the best case, leaving 0 slack for the Should-Have queue (Bug #6, BUG-043, BUG-044) or any playtest.
+- QA plan: still **0 for 8** consecutive sprint cycles (`production/qa/qa-plan-sprint-09.md` does not
+  exist) — unchanged from sprint open, deferred to owner per standing policy.
+- Recommend for owner review at next sync: whether the distributed-autonomous-standup model itself is
+  the right mechanism for landing P0 fixes, or whether these five items need a single directed session
+  (a repeat of the framing question raised Tue 2026-08-11, still open).
+
 ### Tue 2026-08-11 — Daily Standup (autonomous, no user present)
 
 **Yesterday (Mon 2026-08-10) — verified against actual code, not commit messages:**
@@ -122,11 +172,13 @@ the pattern S9-00 was supposed to gate, and S9-00 itself was never drafted.
 
 ## Carry-Over Watch List (re-verify every standup)
 
-- **BUG-041/BUG-042/BUG-053 — P0/S1, 2nd carry now, combat non-functional in both directions.** Zero
-  progress across all of Sprint 8's 5 scheduled days despite being the sprint's explicitly stated
-  single goal. If Day 1 of Sprint 9 also shows zero movement, escalate: the "recovery sprint" framing
-  itself may need to change (e.g., a single dedicated pairing session rather than distributed daily
-  autonomous check-ins).
+- **BUG-041/BUG-042/BUG-053 — P0/S1, combat non-functional in both directions.** Zero progress across
+  all of Sprint 8's 5 scheduled days despite being that sprint's explicitly stated single goal, and now
+  zero progress across Sprint 9 Days 1-3 as well (re-verified by direct code read on 2026-08-12 — see
+  Wed standup entry above). The escalation trigger fired Tue 2026-08-11 and remains unresolved on Day 3;
+  the "recovery sprint" framing itself has not changed the outcome. **Standing recommendation, now 2
+  standups running: a single dedicated pairing/owner session likely resolves this faster than continued
+  distributed autonomous check-ins, which can detect the drift but not correct it.**
 - **S9-00 process gate** — replaces the S8-00 conversation (0/6 held across 3 sprints). Verify it
   actually gets adopted (hook committed or rule written into a project doc), not just proposed again.
 - Bug #6 — 9th carry cycle, regressed twice historically, deliberately Should-Have (not Must-Have)
