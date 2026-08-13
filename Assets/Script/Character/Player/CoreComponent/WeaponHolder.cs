@@ -1,46 +1,52 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponHolder : Interact
 {
-    public Weapon Weapon;
+    [SerializeField] private Weapon weapon;
+
+    public Weapon Weapon { get => weapon; }
 
     protected override void Awake()
     {
         base.Awake();
         interactableMask = LayerMask.GetMask("Weapon");
     }
+
     public void Equid_UnEquid(Weapon weapon)
     {
-        if (this.Weapon == null)
-        {
-            this.Weapon = weapon;
-        }
-        else
-        {
-            // this.Weapon = null;
-        }
+        this.weapon = this.weapon == null ? weapon : null;
     }
+
     public override void Intertion()
     {
-        if (Weapon != null)
+        if (weapon != null)
         {
-            Weapon.UnEquid(this);
-
+            weapon.UnEquid(this);
+            return;
         }
-        if (Weapon == null)
-        {
-            base.Intertion();
-        }
+        base.Intertion();
     }
 
+    /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>
     public void Attack()
     {
-        if (Weapon == null) return;
-        Weapon.SetAnimation(Core.Player);
+        if (weapon == null) return;
+        weapon.OnAttackEnter(Core.Player);
     }
 
+    public bool CanAttack() => weapon != null && weapon.CanAttack();
 
+    public bool CanChain() => weapon != null && weapon.CanChain();
+
+    public void MakeDamage()
+    {
+        if (weapon == null) return;
+        weapon.OnActivate();
+    }
+
+    public void EndDamage()
+    {
+        if (weapon == null) return;
+        weapon.OnDeactivate();
+    }
 }
