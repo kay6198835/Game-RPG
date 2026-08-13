@@ -52,6 +52,8 @@ public class PlayerAttackState : PlayerUseWeaponState
                 break;
 
             case StatusAnimation.None:
+                break;
+            case StatusAnimation.End:
                 base.LogicUpdate();
                 break;
 
