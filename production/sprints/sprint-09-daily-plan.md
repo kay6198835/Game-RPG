@@ -13,7 +13,7 @@
 
 ---
 
-## Status Verdict: 🔴 DAY 3 (2026-08-12) — ESCALATE (unresolved, 3rd consecutive day). All 5 of Mon's planned Must-Have items (S9-00, S9-01, S9-02, S9-06, S9-07) verified NOT landed by code inspection for a 3rd straight day. Zero commits landed on `sprint-09` since the Tue 2026-08-11 standup (`3c99d0f`) — `git log 3c99d0f..HEAD` is empty. The same 13-14 uncommitted files (attack/combo/animation flow, not the P0 damage chain) are still sitting uncommitted on the branch, now with a larger diff (`.claude/settings.local.json` added; combo-animation clips grew). This is the same off-plan drift flagged Tue, still uncorrected. Sprint is at 60% elapsed (Day 3/5) with 0% of Must-Have landed.
+## Status Verdict: 🟡 DAY 4 (2026-08-13) — PARTIAL MOVEMENT, WRONG BRANCH. First real code progress this sprint: S9-01 (BUG-041) and S9-06 (BUG-032) are now code-complete, landed via 3 commits (`797a562`, `30e8ecc`, `f40a6e8`) on `origin/feature/fix-player-control` — **not merged into `sprint-09`**. `git log sprint-09..origin/feature/fix-player-control` shows exactly those 3 commits ahead; `git log origin/feature/fix-player-control..sprint-09` shows the two standup commits `sprint-09` has that the feature branch lacks — the branches diverged at `fd4520a` and have not been reconciled. S9-02 (BUG-042/053, the sprint's largest P0) and S9-07 (BUG-033) remain completely untouched, 4th and 9th carries respectively. S9-00 process gate still undrafted — today's own branch drift is the exact pattern it exists to prevent. 1 day of sprint capacity remains after today.
 
 ---
 
@@ -59,7 +59,7 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 | S9-11 (S4-05/S4-06 forced decision) | 0.1d | 9th carry — make the call |
 | S9-08 (Bug #14, missing `return`) | 0.1d | Should-Have, quick |
 | S9-D1 (individual BUG-NNN.md files) | 0.2d | Should-Have |
-| Buffer / catch-up | — | Reserved for Must-Have slippage |
+| Buffer / catch-up | — | Reserved for Must-Have slippage — **now the actual use of today, since S9-02/S9-07/S9-00 are still open Must-Have items, not the Should-Have queue planned for today** |
 
 ### Fri 2026-08-14 — Nice-to-Have stretch + wrap prep
 
@@ -73,6 +73,59 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 ---
 
 ## Standup Log
+
+### Thu 2026-08-13 — Daily Standup (autonomous, no user present)
+
+**Since Wed's standup (2026-08-12 11:31) — verified against actual code, not commit messages:**
+
+First real code movement this sprint — but it landed on `origin/feature/fix-player-control`, not
+`sprint-09`. Three commits: `797a562` "refactor(weapons): unify melee and ranged behind one attack
+state" (2026-08-13 07:12 UTC), `30e8ecc` "chore: record send_later permission in local settings"
+(07:14 UTC, trivial), `f40a6e8` "update" (14:38 +07, a 2-line addition to `PlayerAttackState.cs`).
+None of these are on `sprint-09` — the two branches diverged at `fd4520a` ("polish attack combo") and
+have not been reconciled since; `sprint-09` has two standup commits (`3c99d0f`, `c90c5fd`) that
+`feature/fix-player-control` lacks, and vice versa.
+
+| Task | Planned | Verified status (code read, 2026-08-13) |
+|------|---------|------------------|
+| S9-01 (BUG-041, `MeleeWeapon.Attack()`) | 0.2d | ✅ CODE-COMPLETE (wrong branch) — the weapon refactor rewired `MeleeWeapon` entirely onto a shared `OnAttackEnter`/`OnActivate` lifecycle with `RangeWeapon`. `OnActivate()` now runs `Physics2D.OverlapCircleNonAlloc` + loops `INegativeReceiver.TakeDamage()` over hits ([`MeleeWeapon.cs`](Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs)). Functionally fixes BUG-041. **Not merged into `sprint-09`; not yet Play-Mode verified (S9-12)** |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | ❌ STILL NOT DONE — [`EntityCore.cs`](Assets/Script/Character/Entity/Core/EntityCore.cs) `TakeDamage()` still `throw new System.NotImplementedException()`; [`EntityNegativeReciver.cs`](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs) (duplicate, wrong-hub receiver) still exists, still calls `Core.GetCoreComponent(out PlayerInputHandler input)` on an `EntityCore` hub, still emits `ON_PLAYER_DEATH` on enemy death. 4th carry, zero movement all sprint. |
+| S9-06 (BUG-032, one-liner) | 0.1d | ✅ DONE (wrong branch) — [`EntityWeaponMelee.cs`](Assets/Script/Character/Entity/EntityWeaponMelee.cs) `Awake()` now calls `holder.Core.GetCoreComponent(out entityInput);` uncommented — landed as a side effect of the weapon refactor, not a targeted fix |
+| S9-07 (BUG-033, one-liner) | 0.1d | ❌ STILL NOT DONE — [`EnemySpawner.cs:62`](Assets/Script/Enemy/EnemySpawner.cs#L62) still `set.Count == 0 \|\| set == null` (wrong order). 9th carry. |
+| S9-00 (process gate) | 0.1d | ❌ STILL NOT DONE — no `.git/hooks/pre-push`, no `production/process/`, no branch-policy line in `CLAUDE.md`. 4th carry — today's own branch drift (real fixes landing on `feature/fix-player-control` again) is a live example of exactly the pattern this item exists to catch. |
+| S9-12 (Play Mode verify) | 0.2d | Still blocked — enemy→player direction still throws (S9-02 open); no Unity Editor session possible in this automated run regardless of code state |
+
+**Also sitting uncommitted on `feature/fix-player-control` right now** (working tree, not staged, left
+untouched per this run's read-only-code constraint): `.claude/settings.local.json`, 3 combo-attack
+animation clips (`Knight_ComboAttack_State1/2/3`), `LoadRandomMap.unity`, `PlayerInputHandle.cs`,
+`Player.cs`, `PlayerState.cs`, and a partially-staged `RangeWeapon.cs` (5 lines added + 5 removed —
+reads as mid-edit, likely tuning in progress).
+
+**Today's plan (Day 4/5, 80% elapsed):**
+
+| Task | Est. | Rationale |
+|------|------|-----------|
+| Merge/reconcile `feature/fix-player-control` → `sprint-09` | — | Structural, not estimated as a task — S9-01/S9-06's fixes exist but don't count toward this sprint's Definition of Done until merged. The weapon refactor touched 15+ files (`Weapon.cs`, `WeaponHolder.cs`, `PlayerAttackState.cs`, both weapon subclasses, new `IAimProvider`/`RangeAttackSO`, 3 deleted files) — recommend the owner review scope deliberately rather than an autonomous merge |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | P0, 4th carry — the only Must-Have item with zero code movement all sprint |
+| S9-07 (BUG-033) | 0.1d | One-liner, 9th carry — zero excuse remaining |
+| S9-00 (process gate) | 0.1d | 4th carry — today's drift is the strongest case yet for landing this |
+| S9-12 (Play Mode verify) | 0.2d | Still blocked on S9-02 and on the merge above |
+
+**Blockers:**
+- No owner presence across 4 consecutive scheduled runs — unchanged from prior days.
+- S9-01/S9-06 fixes exist but sit on the wrong branch; without a merge decision they do not close this
+  sprint's own Definition of Done, and risk being lost/re-diverged if the two branches keep moving
+  independently.
+- No Unity Editor session in this automated run — S9-12 cannot be performed regardless of code state.
+
+**Risks (updated):**
+- Day 4/5 (80% elapsed): 2 of 6 Must-Have items now code-complete (up from 0 on Wed) but 0 merged into
+  `sprint-09` and 0 Play-Mode confirmed. Best case, 1 day remains to merge, land S9-02/S9-07/S9-00, and
+  run S9-12 — the same amount of work as Sprint 8 failed to complete in 5 days.
+- The branch-drift pattern flagged every standup this sprint recurred again today, on the same day real
+  progress finally happened — this now reads as a persistent habit (workflow default), not a one-off
+  mistake, and S9-00 remains the only proposed countermeasure, still undrafted on its 4th carry.
+- QA plan: **9th consecutive cycle** with none (`production/qa/qa-plan-sprint-09.md` still absent).
 
 ### Wed 2026-08-12 — Daily Standup (autonomous, no user present)
 
@@ -173,16 +226,18 @@ the pattern S9-00 was supposed to gate, and S9-00 itself was never drafted.
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-041/BUG-042/BUG-053 — P0/S1, combat non-functional in both directions.** Zero progress across
-  all of Sprint 8's 5 scheduled days despite being that sprint's explicitly stated single goal, and now
-  zero progress across Sprint 9 Days 1-3 as well (re-verified by direct code read on 2026-08-12 — see
-  Wed standup entry above). The escalation trigger fired Tue 2026-08-11 and remains unresolved on Day 3;
-  the "recovery sprint" framing itself has not changed the outcome. **Standing recommendation, now 2
-  standups running: a single dedicated pairing/owner session likely resolves this faster than continued
-  distributed autonomous check-ins, which can detect the drift but not correct it.**
+  all of Sprint 8's 5 scheduled days despite being that sprint's explicitly stated single goal. Sprint 9
+  Days 1-3 also showed zero progress; **Day 4 (today) is the first break in that pattern** — BUG-041 is
+  now code-complete — but it landed on `feature/fix-player-control`, not `sprint-09`, so it does not yet
+  count as landed on this sprint's branch. BUG-042/BUG-053 remain fully untouched, 4th carry. **Standing
+  recommendation, now 3 standups running: a single dedicated pairing/owner session likely resolves the
+  remaining piece (S9-02) faster than continued distributed autonomous check-ins, which can detect and
+  now partially explain the drift but not correct it.**
 - **S9-00 process gate** — replaces the S8-00 conversation (0/6 held across 3 sprints). Verify it
   actually gets adopted (hook committed or rule written into a project doc), not just proposed again.
+  Today's drift is a concrete, recent example to cite when finally drafting it.
 - Bug #6 — 9th carry cycle, regressed twice historically, deliberately Should-Have (not Must-Have)
   this cycle to avoid Sprint 8's overcommitment pattern.
 - S9-11 (S4-05/S4-06) — 9th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
-- QA plan — 8 consecutive cycles with none. Flagged in `sprint-09.md`, deferred to owner.
+- QA plan — 9 consecutive cycles with none. Flagged in `sprint-09.md`, deferred to owner.
