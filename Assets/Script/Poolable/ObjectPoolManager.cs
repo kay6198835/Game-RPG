@@ -21,6 +21,13 @@ public class ObjectPoolManager : MonoBehaviour
         pool.Spawn(position);
     }
 
+    public GameObject Spawn(Vector2 position, Quaternion rotation, GameObject prefab)
+    {
+        var pool = Get(prefab);
+        if (pool == null) return null;
+        return pool.Spawn(position, rotation);
+    }
+
     public void Register(GameObject prefab)
     {
         if (pools.TryGetValue(prefab, out Pool pool)) return;

@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
-using UnityEngine.WSA;
 
 public class EntityWeaponMelee : EntityWeapon
 {
@@ -11,20 +7,17 @@ public class EntityWeaponMelee : EntityWeapon
     private int currentStateIndex = 0;
     private Vector2 centerAttackPosition;
     private AttackSO currrentSA;
+    private IAimProvider aim;
     private EntityInput entityInput;
     protected override void Awake()
     {
         base.Awake();
-        if (stats.GetType() == typeof(MeleeWeaponStats))
+        statsMelee = stats as MeleeWeaponStats;
+        if (holder != null)
         {
-            statsMelee = (MeleeWeaponStats)stats;
+            holder.Core.GetCoreComponent(out entityInput);
+            aim = entityInput;
         }
-        else
-        {
-            statsMelee = null;
-        }
-         //Core.GetCoreComponent(out input);
-         // fix or remove it
     }
     private void Start()
     {
@@ -60,11 +53,11 @@ public class EntityWeaponMelee : EntityWeapon
     {
         if (base.CheckCanAttack(entity, lastClickTime))
         {
-            if (currentStateIndex == statsMelee.AttackState.Count || lastClickTime + durationNextAttack + deplayTime < Time.time)
+            if (currentStateIndex >= statsMelee.StageCount || lastClickTime + durationNextAttack + deplayTime < Time.time)
             {
                 currentStateIndex = 0;
             }
-            currrentSA = statsMelee.AttackState[currentStateIndex];
+            currrentSA = statsMelee.GetStage(currentStateIndex);
             entity.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
             CenterAttackPosition(entity);
             currentStateIndex++;
@@ -78,7 +71,7 @@ public class EntityWeaponMelee : EntityWeapon
     }
     protected void CenterAttackPosition(Entity entity)
     {
-        centerAttackPosition = (Vector2)entity.transform.position + entityInput.DirectionLookVector.normalized * currrentSA.attackRange;
+        centerAttackPosition = (Vector2)entity.transform.position + aim.AimDirection.normalized * currrentSA.attackRange;
     }
     private void OnDrawGizmosSelected()
     {

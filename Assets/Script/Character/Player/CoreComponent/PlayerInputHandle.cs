@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : CoreComponent<Core>
+public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 {
+    public Vector2 AimDirection => directionMouseVector;
+
     #region Attribute
     public float starTime;
     public enum SkillState
@@ -201,7 +203,7 @@ public class PlayerInputHandler : CoreComponent<Core>
             {
                 SetBufferAttack(true);
             }
-            else if (weaponHolder.Weapon.CheckCanAttack())
+            else if (weaponHolder.Weapon.CanAttack())
             {
                 isAttack = true;
             }
