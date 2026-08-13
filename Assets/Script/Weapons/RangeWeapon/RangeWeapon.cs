@@ -18,7 +18,7 @@ public class RangeWeapon : Weapon
     public override bool CanChain()
     {
         if (!CanAttack()) return false;
-        return StatsRange.AutoFire || CurrentStageIndex < stats.StageCount;
+        return StatsRange.AutoFire || CurrentStageIndex != 0;
     }
 
     public override void OnAttackEnter(Player player)

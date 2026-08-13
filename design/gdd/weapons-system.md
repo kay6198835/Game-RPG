@@ -56,9 +56,11 @@ attack: its own hitbox range, damage, and directional animator override. The lis
 data; whether pressing again advances through it is a separate behavioural decision.
 
 **Stage rules (identical for melee and ranged):**
-1. Each attack input plays `AttackStages[CurrentStageIndex]`, then increments the index
-2. If the index passes the end of the list, or the chain window expires, it resets to 0
-3. The chain window equals the current stage's animation length (`Utility.DurationNextAttack`)
+1. Each attack input plays `AttackStages[CurrentStageIndex]`, then advances the index modulo `StageCount`
+2. The index therefore wraps to 0 after the last stage and is always a valid index into the list
+3. A zero index is the signal that the chain just completed — this is what `CanChain()` tests
+4. If the chain window expires, the index resets to 0 so the next attack starts from stage 1
+5. The chain window equals the current stage's animation length (`Utility.DurationNextAttack`)
 
 **Chaining is decided by `Weapon.CanChain()`, not by the list:**
 
@@ -145,10 +147,11 @@ chainWindow = Utility.DurationNextAttack(overrideClips) ÷ player.Anim.speed
 # Stage selection (shared)
 if (CurrentStageIndex >= StageCount || !chainOpen) CurrentStageIndex = 0
 currentStage = AttackStages[CurrentStageIndex]
+CurrentStageIndex = (CurrentStageIndex + 1) % StageCount
 
 # Chain permission
-Weapon.CanChain()      = CanAttack() && CurrentStageIndex < StageCount
-RangeWeapon.CanChain() = CanAttack() && (AutoFire || CurrentStageIndex < StageCount)
+Weapon.CanChain()      = CanAttack() && CurrentStageIndex != 0
+RangeWeapon.CanChain() = CanAttack() && (AutoFire || CurrentStageIndex != 0)
 RangeWeapon.CanAttack() = base.CanAttack() && Time.time >= nextFireTime
 
 # Melee damage

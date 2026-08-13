@@ -28,14 +28,18 @@ public abstract class Weapon : InteractiveObjects
     /// <summary>True when a brand new attack may be started from a non-attacking state.</summary>
     public virtual bool CanAttack() => stats != null && stats.StageCount > 0;
 
-    /// <summary>True when the attack state may play another stage without leaving the state.</summary>
-    public virtual bool CanChain() => CanAttack() && CurrentStageIndex < stats.StageCount;
+    /// <summary>
+    /// True when the attack state may play another stage without leaving the state.
+    /// The index wraps to 0 after the last stage, so a zero index means the chain just completed.
+    /// </summary>
+    public virtual bool CanChain() => CanAttack() && CurrentStageIndex != 0;
 
     /// <summary>Selects the stage to play and prepares the animator. Called on every stage, not just the first.</summary>
     public virtual void OnAttackEnter(Player player)
     {
         if (!CanAttack()) return;
 
+        // StageCount can shrink while the SO is edited in play mode, so clamp as well as time out.
         if (CurrentStageIndex >= stats.StageCount || lastAttackTime + chainWindow < Time.time)
         {
             CurrentStageIndex = 0;
@@ -48,7 +52,7 @@ public abstract class Weapon : InteractiveObjects
         player.Anim.runtimeAnimatorController = currentStage.directionAttackAnimatorOV;
 
         lastAttackTime = Time.time;
-        CurrentStageIndex++;
+        CurrentStageIndex = (CurrentStageIndex + 1) % stats.StageCount;
     }
 
     /// <summary>The hit frame. Melee resolves a hitbox here, ranged spawns projectiles.</summary>
