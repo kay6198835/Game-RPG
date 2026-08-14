@@ -69,23 +69,61 @@ public class StatsSO : ScriptableObject
         return lookup[type] == null ? null : lookup[type];
     }
 
-    /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số.</summary>
-    public void AddModifier(StatType type, StatModifier modifier)
+    /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số mà nó nhắm tới.</summary>
+    public void AddModifier(StatModifier modifier)
     {
+        if (modifier == null) return;
         EnsureInitialized();
-        GetOrCreate(type).AddModifier(modifier);
-        AfterChanged(type);
+        GetOrCreate(modifier.TargetStat).AddModifier(modifier);
+        AfterChanged(modifier.TargetStat);
+    }
+
+    /// <summary>
+    /// Gắn nhiều modifier từ cùng một nguồn trong MỘT lần (trang bị, buff, thẻ nâng cấp).
+    /// Đối xứng với RemoveModifiersFromSource — chỉ recalc derived một lần cho cả cụm,
+    /// thay vì một lần cho mỗi modifier như khi gọi AddModifier lặp.
+    /// Mỗi modifier được nhân bản rồi đóng dấu source, nên list truyền vào (asset dùng chung)
+    /// không bị sửa. source phải là reference ổn định: lúc gỡ so khớp bằng ReferenceEquals.
+    /// </summary>
+    public void AddModifiersFromSource(object source, IReadOnlyList<StatModifier> modifiers)
+    {
+        if (modifiers == null) return;
+        EnsureInitialized();
+
+        bool primaryChanged = false;
+        for (int i = 0; i < modifiers.Count; i++)
+        {
+            StatModifier authored = modifiers[i];
+            if (authored == null) continue;
+
+            Stat stat = GetOrCreate(authored.TargetStat);
+            stat.AddModifier(authored.WithSource(source));
+
+            OnStatChanged?.Invoke(stat.Type);
+            if (stat.Type.IsPrimary()) primaryChanged = true;
+        }
+        if (primaryChanged) RecalculateDerived();
     }
 
     /// <summary>Gỡ mọi modifier đến từ một nguồn (tháo trang bị, hết buff).</summary>
     public void RemoveModifiersFromSource(object source)
     {
         EnsureInitialized();
+
         bool primaryChanged = false;
         for (int i = 0; i < stats.Count; i++)
         {
             Stat stat = stats[i];
-            if (!stat.RemoveModifiersFromSource(source)) continue;
+            IReadOnlyList<StatModifier> mods = stat.Modifiers;
+
+            bool removed = false;
+            for (int j = mods.Count - 1; j >= 0; j--)   // duyệt ngược để RemoveAt không lệch index
+            {
+                if (!ReferenceEquals(mods[j].Source, source)) continue;
+                stat.RemoveModifierAt(j);
+                removed = true;
+            }
+            if (!removed) continue;
 
             OnStatChanged?.Invoke(stat.Type);
             if (stat.Type.IsPrimary()) primaryChanged = true;
