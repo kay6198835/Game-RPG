@@ -25,6 +25,9 @@ public class StatModifierTesterEditor : Editor
         if (GUILayout.Button("Add Modifier (from selected source)"))
             tester.AddModifierFromSource();
 
+        if (GUILayout.Button("Add Modifier Group (from selected source)"))
+            tester.AddGroupFromSource();
+
         if (GUILayout.Button("Remove Modifiers (this tester — all sources)"))
             tester.RemoveAllTesterSources();
 
