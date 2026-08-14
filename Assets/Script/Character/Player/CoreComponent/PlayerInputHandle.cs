@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : CoreComponent<Core>
+public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 {
+    public Vector2 AimDirection => directionMouseVector;
+
     #region Attribute
     public float starTime;
     public enum SkillState
@@ -56,6 +58,7 @@ public class PlayerInputHandler : CoreComponent<Core>
     [SerializeField] private SkillState state;
     [SerializeField] private SkillType skill;
     [SerializeField] private DisadvantageState disadvantage;
+    [SerializeField] private StatusAnimation statusAnimation;
 
     #region Get value 
     public Vector2 MoveVector { get => moveVector; }
@@ -195,12 +198,12 @@ public class PlayerInputHandler : CoreComponent<Core>
 
         if (context.started && !BufferIsAttack)
         {
-            if (StatusAnimation.StartRangeTrigger <= Core.Player.stateMachine.CurrentState.Status
-            && Core.Player.stateMachine.CurrentState.Status <= StatusAnimation.EndRangeTrigger)
+            if (StatusAnimation.StartRangeTrigger <= statusAnimation
+            && statusAnimation < StatusAnimation.EndRangeTrigger)
             {
                 SetBufferAttack(true);
             }
-            else if (weaponHolder.Weapon.CheckCanAttack())
+            else if (weaponHolder.Weapon.CanAttack())
             {
                 isAttack = true;
             }
@@ -306,6 +309,10 @@ public class PlayerInputHandler : CoreComponent<Core>
     public void SetBufferAttack(bool bufferIsAttack)
     {
         this.BufferIsAttack = bufferIsAttack;
+    }
+    public void SetStatusAnimation(StatusAnimation statusAnimation)
+    {
+        this.statusAnimation = statusAnimation;
     }
     #endregion
 

@@ -1,7 +1,7 @@
 ---
 status: reverse-documented
 source: Assets/Script/Weapons/
-date: 2026-05-19
+date: 2026-08-13
 verified-by: Kiet
 ---
 
@@ -11,7 +11,7 @@ verified-by: Kiet
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet
 > implemented. Sections marked **[BUG]** identify known defects.
 
-**Status**: In Design
+**Status**: Implemented — melee and ranged share one attack state
 
 ---
 
@@ -49,62 +49,84 @@ has different visual feedback, grounding the action in space rather than just pr
 - An unequipped weapon remains in the world as a pickup
 - Without a weapon, the player cannot enter Attack or Skill states
 
-### Melee Combat — 3-Hit Combo
+### Attack Stages — Shared By Both Weapon Types [IMPLEMENTED]
 
-Each melee weapon has a `List<AttackSO>` in its `WeaponMeleeStats` SO defining the combo
-sequence. For the demo, all melee weapons use a **3-hit combo**: light → light → heavy.
+Every weapon owns a `List<AttackSO> AttackStages` on its `WeaponStats` SO. A stage is one
+attack: its own hitbox range, damage, and directional animator override. The list is the
+data; whether pressing again advances through it is a separate behavioural decision.
 
-**Combo rules:**
-1. Each LMB press advances to the next `AttackSO` in the list
-2. Pressing LMB before the combo window expires continues the chain
-3. If the combo window expires OR the combo reaches the end, the index resets to 0
-4. Each `AttackSO` has its own: hitbox range, damage value, and directional animator override
+**Stage rules (identical for melee and ranged):**
+1. Each attack input plays `AttackStages[CurrentStageIndex]`, then increments the index
+2. If the index passes the end of the list, or the chain window expires, it resets to 0
+3. The chain window equals the current stage's animation length (`Utility.DurationNextAttack`)
 
-**Attack execution flow:**
-1. `PlayerBasicState` checks `Weapon.CheckCanAttack(player)` each frame
-2. On pass: `CheckCanAttack` loads the current `AttackSO`, swaps the Animator override, increments combo index, and records the combo window
-3. Player transitions to `PlayerAttackState` — movement freezes
-4. The Animator fires the `AnimationTrigger` event at the hit frame
-5. `PlayerAttackState.LogicUpdate` calls `Weapon.Attack()` on that event
-6. `Weapon.Attack()` runs `Physics2D.OverlapCircleAll` and applies damage **[BUG — currently empty; see Edge Cases]**
-7. Animator fires `AnimationFinished` → player returns to Idle/Move
+**Chaining is decided by `Weapon.CanChain()`, not by the list:**
 
-**Attack direction:** Hit center = `player.position + DirectionMouseVector × attackRange`
-Direction is read from mouse position and quantized to 8 directions (45° bins).
+| Weapon | `StageCount` | `AutoFire` | Behaviour |
+|--------|--------------|------------|-----------|
+| Sword | 3 | — | 3-hit chain (light → light → heavy), then the state exits |
+| Bow | 3 | `false` | 3-stage draw chain, identical structure to melee |
+| Pistol | 1 | `true` | replays stage 0 at the fire-rate cadence |
+| Shotgun | 2 | `true` | 2 distinct stages, then loops back to stage 0 |
 
-### Ranged Combat **[GAP — incomplete, needs integration]**
+A one-stage ranged weapon is therefore not a degenerate combo — the index resets to 0 on
+every shot, and `AutoFire` keeps the chain alive while the trigger is held.
 
-Ranged weapons fire projectiles in the player-facing direction. The intended flow:
+**Attack execution flow (weapon-agnostic):**
+1. `PlayerBasicState` gates entry on `inputHandler.IsAttack && weaponHolder.CanAttack()`
+2. Player transitions to `PlayerAttackState` — movement freezes
+3. `Enter()` calls `WeaponHolder.Attack()` → `Weapon.OnAttackEnter(player)`, which picks the stage, swaps the animator override, and records the chain window
+4. Animator fires `AnimationOnAction` at the hit frame → `Weapon.OnActivate()`
+5. Animator fires `AnimtionFinishTrigger` → `Weapon.OnDeactivate()`, then either chains (if input is held/buffered and `CanChain()`) or sets `Status = None` to exit to Idle/Move
 
-1. Player presses LMB with a ranged weapon equipped
-2. `RangeWeapon.CheckCanAttack()` validates cooldown (`timeBtwShots`)
-3. Player transitions to `PlayerAttackState`
-4. On `AnimationTrigger`: `RangeWeapon.Attack()` calls `Shooting.shoot()`
-5. `Shooting.shoot()` instantiates a bullet at `firePoint`, applies impulse force
-6. Bullet travels until it hits a `BlockObject` layer (wall) or a damageable entity
-7. On hit: `bullet.OnCollisionEnter2D` calls `INegativeReceiver.TakeDamage(BulletSO.dmg, transform.position)`
+`PlayerAttackState` never branches on `WeaponType`. Only `OnActivate()` and the use of the
+aim direction differ between the two weapon families.
 
-**Current status:**
-- `RangeWeapon.Attack()` — **EMPTY STUB [BUG]**
-- `RangeWeapon.CheckCanAttack()` — returns raw bool, no cooldown logic **[BUG]**
-- `bullet.TakeDamage()` call — **commented out [BUG]**
-- `Shooting.Update()` — reads `Input.GetMouseButton(0)` directly, bypasses state machine **[BUG]**
+**Attack direction:** both families read `IAimProvider.AimDirection`, implemented by
+`PlayerInputHandler` (mouse direction) and `EntityInput` (look direction).
+Melee: hit center = `player.position + AimDirection × attackRange`.
+Ranged: `firePoint.right = AimDirection`.
+
+### Melee Specifics [IMPLEMENTED]
+
+`MeleeWeapon.OnActivate()` runs `Physics2D.OverlapCircleNonAlloc` against a cached
+`Collider2D[]` buffer sized by `maxTargetsPerSwing`, and calls
+`INegativeReceiver.TakeDamage(attackDamege, transform.position)` on every hit — multi-hit
+AoE is intentional for the player.
+
+### Ranged Specifics [IMPLEMENTED]
+
+`RangeAttackSO` extends `AttackSO` with the projectile payload: `BulletPrefab`,
+`BulletData`, `ProjectileCount`, `SpreadAngle`, `RecoveryTime`.
+
+`RangeWeapon.OnActivate()` spawns `ProjectileCount` bullets from `ObjectPoolManager`
+(pooled — no `Instantiate` per shot), fanned across `SpreadAngle` centred on the aim
+direction, then sets `nextFireTime = Time.time + RecoveryTime`.
+
+`bullet.cs` reads its speed and lifetime from `BulletDataSO`, applies damage through
+`INegativeReceiver`, and returns itself to the pool on hit, on wall contact
+(`blockMask`), or on lifetime expiry.
+
+**Fire rate lives per stage** (`RangeAttackSO.RecoveryTime`), not on the weapon — a charged
+shot and a quick shot on the same weapon need different recovery. The former weapon-level
+`firerate` / `timeBtwShots` / `StartTimeBtwShots` fields are removed; `timeBtwShots` was a
+runtime countdown stored in a shared SO asset, which persisted across play sessions.
 
 ### Weapon Skill Slots
 
-Every `WeaponMeleeStats` SO carries two ability references:
+Every `WeaponStats` SO carries two ability references:
 
 | Slot | Input | Field | Purpose |
 |------|-------|-------|---------|
 | `abilityWeapon` | RMB (held) | `WeaponStats.abilityWeapon` | Weapon-bound ability (e.g. block, special) |
 | `skillWeapon` | E (held) | `WeaponStats.skillWeapon` | Weapon-bound skill (e.g. slash, dash-attack) |
 
-`WeaponMelee.SetAbility()` reads the player's input enum and routes to the correct SO,
+`Weapon.SetAbility()` reads the player's input enum and routes to the correct SO,
 which is then registered with `AbilityHolder`. The ability lifecycle (Start→Cast→Do→Exit)
 is driven by `AbilityHolder` per frame — not by the weapon itself.
 
 ### Block Mechanic
-Out of scope for the demo. `blockDamage` and `shieldEra` fields in `WeaponMeleeStats` are
+Out of scope for the demo. `blockDamage` and `shieldEra` fields in `MeleeWeaponStats` are
 unused. The `BlockAbility` SO handles blocking when it is in scope.
 
 ---
@@ -113,43 +135,58 @@ unused. The `BlockAbility` SO handles blocking when it is in scope.
 
 ```
 # Melee hitbox center
-hitCenter = player.transform.position + (DirectionMouseVector × currrentSA.attackRange)
+hitCenter = player.transform.position + (AimDirection.normalized × currentStage.attackRange)
 
-# Combo window
-comboOpen = (lastClickTime + durationNextAttack + deplayTime) > Time.time
-            deplayTime        = 0.5f  (constant, defined in Weapon base class)
-            durationNextAttack = animatorClipLength ÷ 8
-            [NOTE: ÷ 8 accounts for 8 directional variants in the AnimatorOverride clip]
+# Chain window (shared by both weapon families)
+chainOpen  = (lastAttackTime + chainWindow) > Time.time
+chainWindow = Utility.DurationNextAttack(overrideClips) ÷ player.Anim.speed
+              [DurationNextAttack averages the 8 directional variants of the clip set]
 
-# Melee damage (reference: EntityWeaponMelee — working)
-finalDamage = currrentSA.attackDamege
+# Stage selection (shared)
+if (CurrentStageIndex >= StageCount || !chainOpen) CurrentStageIndex = 0
+currentStage = AttackStages[CurrentStageIndex]
+
+# Chain permission
+Weapon.CanChain()      = CanAttack() && CurrentStageIndex < StageCount
+RangeWeapon.CanChain() = CanAttack() && (AutoFire || CurrentStageIndex < StageCount)
+RangeWeapon.CanAttack() = base.CanAttack() && Time.time >= nextFireTime
+
+# Melee damage
+finalDamage = currentStage.attackDamege
               [no multiplier, no armor reduction — raw value from AttackSO]
 
-# Ranged bullet travel
-bulletVelocity = firePoint.right × WeaponRangeStats.firerate   (impulse, not per-frame)
-bulletLifetime = BulletDataSO.lifetime seconds, then auto-destroy
+# Ranged spread (ProjectileCount > 1)
+step       = SpreadAngle ÷ (ProjectileCount - 1)
+startAngle = aimAngle - (SpreadAngle ÷ 2)
+angle[i]   = startAngle + step × i
 
 # Ranged cooldown
-canShoot = timeBtwShots <= 0
-           timeBtwShots decrements each frame; resets to StartTimeBtwShots on fire
+nextFireTime = Time.time + RangeAttackSO.RecoveryTime
+
+# Bullet travel
+bulletVelocity = transform.right × BulletDataSO.speed
+bulletLifetime = BulletDataSO.lifetime seconds, then released back to the pool
 ```
 
 ---
 
 ## Edge Cases
 
-| Scenario | Current Behaviour | Correct Behaviour |
-|----------|------------------|-------------------|
-| `WeaponMelee.Attack()` fires | **[BUG]** `OverlapCircleAll` runs, foreach body is empty — no damage applied | Mirror `EntityWeaponMelee.Attack()`: get `INegativeReceiver` from each hit collider, call `TakeDamage(attackDamege, transform.position)` |
-| Bullet hits player/enemy | **[BUG]** Collision detected correctly but `TakeDamage()` call is commented out (line 30, bullet.cs) | Uncomment and call `INegativeReceiver.TakeDamage(BulletSO.dmg, transform.position)` |
-| `RangeWeapon.Attack()` called | **[BUG]** Empty method — nothing happens | Must call `Shooting.shoot()` or equivalent |
-| `Shooting.Update()` runs | **[BUG]** Reads `Input.GetMouseButton(0)` directly — fires outside state machine | Remove from Shooting.Update(); trigger only from `PlayerAttackState` on `AnimationTrigger` |
-| `Weapon.SetWeaponHolder()` line 45 | **[BUG]** Code commented out — holder assignment broken | Uncomment or reroute weapon-to-holder binding |
-| Combo index at end of list | Resets to 0 correctly | ✓ Correct |
-| LMB while no weapon equipped | `WeaponHolder.Weapon == null` — `CheckCanAttack` should return false | Gate: `if (weapon == null) return false` in `CheckCanAttack` |
-| LMB during TakeDamage state | `PlayerBasicState` transitions to TakeDamage before attack check | ✓ Priority ordering prevents this (TakeDamage > Attack) |
-| Multiple enemies in hitbox | `WeaponMelee` uses `OverlapCircleAll` (hits all); `EntityWeaponMelee` uses `OverlapCircle` (first only) | Player melee should use `OverlapCircleAll` to enable multi-hit — intentional AoE for player |
-| `attackDamege = 0` in default AttackSO | All attacks deal 0 damage until SO is configured | Validator: warn if `attackDamege == 0` on AttackSO assets |
+| Scenario | Behaviour |
+|----------|-----------|
+| Melee hit frame | `OverlapCircleNonAlloc` + `TakeDamage(attackDamege, transform.position)` on every hit collider ✓ |
+| Bullet hits player/enemy | `bullet.OnCollisionEnter2D` resolves `INegativeReceiver` and calls `TakeDamage(BulletSO.dmg, ...)`, then releases to the pool ✓ |
+| Bullet hits a wall | `blockMask` match → released to the pool, no damage ✓ |
+| Bullet outlives `lifetime` | Released to the pool by the `Update()` timer, never `Destroy`ed ✓ |
+| Bullet has no `PoolMember` (hand-placed in a scene) | Falls back to `Destroy(gameObject)` ✓ |
+| Stage index passes end of list | Resets to 0 ✓ |
+| Attack input while no weapon equipped | `WeaponHolder.CanAttack()` returns false — `PlayerBasicState` never enters `PlayerAttackState` ✓ |
+| Attack input while ranged weapon is on cooldown | `RangeWeapon.CanAttack()` returns false; the state is not re-entered, so the cooldown cannot be bypassed by leaving and re-entering ✓ |
+| Attack finishes with no buffered input | `Status = None` → `PlayerUseWeaponState` exits to Idle/Move ✓ (previously the status stayed at `EndRangeTrigger` and the player was stuck in the attack state) |
+| Attack input during TakeDamage state | `PlayerBasicState` transitions to TakeDamage before the attack check ✓ (TakeDamage > Attack) |
+| Multiple enemies in melee hitbox | All are hit, bounded by `maxTargetsPerSwing` — intentional AoE for the player ✓ |
+| Ranged stats SO wired onto a melee weapon (or vice versa) | `CanAttack()` returns false instead of throwing `InvalidCastException` ✓ |
+| `attackDamege = 0` in an AttackSO | All attacks deal 0 damage until the SO is configured — **[GAP]** no validator warns about this yet |
 
 ---
 
@@ -161,7 +198,7 @@ canShoot = timeBtwShots <= 0
 | **Skill/Ability system** (`ActivateSkill`, `AbilityHolder`) | Weapon SO carries ability references; `SetAbility()` registers them with `AbilityHolder` | Weapons → Skills |
 | **Animation system** (`AnimationEventManager`) | `AnimationTrigger` event drives `Attack()` call; `directionAttackAnimatorOV` provides directional clips | Weapons → Animation |
 | **Interface** (`INegativeReceiver`) | All damage application goes through this interface — weapons must never call `.health` directly | Weapons → Interface |
-| **Pooling** (`ObjectPooling`) | Bullets should be pooled — currently `Instantiate` every shot **[GAP]** | Weapons → Pooling |
+| **Pooling** (`ObjectPoolManager` / `Pool`) | Ranged weapons spawn every projectile through the pool; bullets release themselves back | Weapons → Pooling |
 | **Map/Room** (`RoomController`) | Room clear counts enemies; weapons drive enemy death events | Weapons → Map (indirect) |
 
 ---
@@ -170,62 +207,81 @@ canShoot = timeBtwShots <= 0
 
 All values in ScriptableObject assets — never hardcode in MonoBehaviours.
 
-### Per-attack tuning (`AttackSO`)
+### Per-stage tuning (`AttackSO` — both weapon families)
 
 | Field | Effect | Demo target |
 |-------|--------|-------------|
-| `attackRange` | Hitbox radius (units) | 1.0 (light), 1.5 (heavy) |
+| `attackRange` | Melee hitbox radius / ranged muzzle offset (units) | 1.0 (light), 1.5 (heavy) |
 | `attackDamege` | Raw damage dealt | 10 (light), 20 (heavy) |
-| `directionAttackAnimatorOV` | Directional clip set for this attack | one per AttackSO |
+| `directionAttackAnimatorOV` | Directional clip set for this stage | one per stage |
 
-### Per-weapon tuning (`WeaponMeleeStats`)
-
-| Field | Effect | Notes |
-|-------|--------|-------|
-| `layerMask` | Which layers the hitbox hits | set in Inspector |
-| `attackState` | Combo sequence (`List<AttackSO>`) | 3 entries for demo |
-| `abilityWeapon` | RMB ability SO reference | per-weapon |
-| `skillWeapon` | E key skill SO reference | per-weapon |
-
-### Ranged tuning (`WeaponRangeStats` + `BulletDataSO`)
+### Per-stage ranged tuning (`RangeAttackSO`)
 
 | Field | Effect | Notes |
 |-------|--------|-------|
-| `StartTimeBtwShots` | Fire rate cooldown (seconds) | lower = faster |
-| `firerate` | Bullet impulse force | higher = faster bullet |
-| `BulletDataSO.lifetime` | Bullet range (indirectly) | seconds until despawn |
-| `BulletDataSO.dmg` | Bullet damage | raw, no reduction |
+| `BulletPrefab` | Which projectile to pool and spawn | required |
+| `BulletData` | `BulletDataSO` carrying speed / lifetime / damage | required |
+| `ProjectileCount` | Projectiles per shot | 1 = single, >1 = shotgun fan |
+| `SpreadAngle` | Total fan width in degrees | 0 for a single accurate shot |
+| `RecoveryTime` | Cooldown before the next shot (seconds) | lower = faster |
 
-### Global timing (`Weapon` base class)
+### Per-weapon tuning (`WeaponStats`)
+
+| Field | Effect | Notes |
+|-------|--------|-------|
+| `LayerMask` | Which layers the melee hitbox hits | set in Inspector |
+| `AttackStages` | Stage list (`List<AttackSO>`) | 3 entries for melee, 1+ for ranged |
+| `AbilityWeapon` | RMB ability SO reference | per-weapon |
+| `SkillWeapon` | E key skill SO reference | per-weapon |
+| `AutoFire` (ranged only) | Holding the trigger replays the stage list | true for pistols, false for a draw chain |
+
+### Bullet tuning (`BulletDataSO`)
+
+| Field | Effect | Notes |
+|-------|--------|-------|
+| `speed` | Projectile velocity (units/sec) | set on the SO, applied on spawn |
+| `lifetime` | Bullet range, indirectly (seconds) | released to the pool on expiry |
+| `dmg` | Bullet damage | raw, no reduction |
+| `targetMask` | Which layers the bullet damages | set in Inspector |
+
+### Per-weapon-instance tuning (MonoBehaviour Inspector)
 
 | Field | Effect | Default |
 |-------|--------|---------|
-| `deplayTime` | Min delay before first attack in a new combo | 0.5s |
+| `maxTargetsPerSwing` (`MeleeWeapon`) | Hit buffer size — caps multi-hit AoE | 8 |
+| `firePoint` (`RangeWeapon`) | Muzzle transform, rotated to the aim direction | required |
+| `blockMask` (`bullet`) | Layers that stop a projectile without damage | walls |
 
 ---
 
 ## Acceptance Criteria
 
 ### Melee — Player
-- [ ] LMB advances through a 3-hit combo (light → light → heavy) with distinct animations per direction
+- [ ] LMB advances through a 3-stage chain (light → light → heavy) with distinct animations per direction
 - [ ] Each hit applies `AttackSO.attackDamege` damage to all enemies within `attackRange` via `INegativeReceiver.TakeDamage()`
-- [ ] Combo resets after the combo window expires or after the 3rd hit
-- [ ] Missing combo window (too slow between LMB presses) resets to hit 1
+- [ ] Chain resets after the chain window expires or after the 3rd hit
+- [ ] Missing the chain window (too slow between LMB presses) resets to stage 1
 - [ ] No weapon equipped → LMB has no effect
+- [ ] Attack state exits to Idle/Move when the animation finishes with no buffered input
 
 ### Melee — Enemy
-- [ ] `EntityWeaponMelee.Attack()` correctly deals damage to player (already functional — regression check only)
+- [ ] `EntityWeaponMelee.Attack()` correctly deals damage to player (regression check only)
 
-### Ranged — Player **[all currently unimplemented]**
-- [ ] LMB fires a bullet from `firePoint` in the player-facing direction
-- [ ] Bullet travels at `firerate` impulse speed and despawns after `lifetime` seconds
-- [ ] Bullet collision with enemy applies `BulletDataSO.dmg` via `INegativeReceiver.TakeDamage()`
-- [ ] Bullet collision with wall (`BlockObject` layer) destroys bullet with no damage
-- [ ] `StartTimeBtwShots` cooldown prevents rapid-fire spam
-- [ ] `Shooting.Update()` no longer reads input directly — fires only from state machine trigger
-- [ ] Bullets are pooled — no `Instantiate` per shot at runtime
+### Ranged — Player
+- [ ] LMB fires a bullet from `firePoint` in the aim direction
+- [ ] Bullet travels at `BulletDataSO.speed` and returns to the pool after `lifetime` seconds
+- [ ] Bullet collision with an enemy applies `BulletDataSO.dmg` via `INegativeReceiver.TakeDamage()`
+- [ ] Bullet collision with a `blockMask` layer returns it to the pool with no damage
+- [ ] `RangeAttackSO.RecoveryTime` prevents rapid-fire spam, and cannot be bypassed by leaving and re-entering the attack state
+- [ ] Bullets are pooled — no `Instantiate` per shot after the pool warms up
+- [ ] `ProjectileCount > 1` fans projectiles evenly across `SpreadAngle`
+
+### Ranged — Stage chaining
+- [ ] A 1-stage weapon with `AutoFire = true` repeats stage 0 while the trigger is held
+- [ ] A 3-stage weapon with `AutoFire = false` runs the chain exactly like a melee combo, then exits
+- [ ] No code path in `PlayerAttackState` branches on `WeaponType`
 
 ### Weapon Management
 - [ ] Player can equip a weapon by pressing F near a pickup
-- [ ] Equipping a second weapon drops the first
+- [ ] Unequipping clears `WeaponHolder.Weapon` so a different weapon can be picked up
 - [ ] Ability/skill slots on weapon SO are correctly registered with `AbilityHolder` on equip
