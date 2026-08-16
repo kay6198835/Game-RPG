@@ -13,7 +13,9 @@
 
 ---
 
-## Status Verdict: 🟡 DAY 4 (2026-08-13) — PARTIAL MOVEMENT, WRONG BRANCH. First real code progress this sprint: S9-01 (BUG-041) and S9-06 (BUG-032) are now code-complete, landed via 3 commits (`797a562`, `30e8ecc`, `f40a6e8`) on `origin/feature/fix-player-control` — **not merged into `sprint-09`**. `git log sprint-09..origin/feature/fix-player-control` shows exactly those 3 commits ahead; `git log origin/feature/fix-player-control..sprint-09` shows the two standup commits `sprint-09` has that the feature branch lacks — the branches diverged at `fd4520a` and have not been reconciled. S9-02 (BUG-042/053, the sprint's largest P0) and S9-07 (BUG-033) remain completely untouched, 4th and 9th carries respectively. S9-00 process gate still undrafted — today's own branch drift is the exact pattern it exists to prevent. 1 day of sprint capacity remains after today.
+## Status Verdict: 🟢 CLOSED (2026-08-15, Saturday wrap-up) — CONCERNS, 2/6 Must-Have code-complete, 0/6 Play-Mode-confirmed. S9-01 (BUG-041) and S9-06 (BUG-032) — flagged as stranded on `origin/feature/fix-player-control` in Thursday's entry below — were in fact merged into `sprint-09` for real that same evening via `bfe7dd4` (merge of `claude/weapon-architecture-stats-dermi4`, 2026-08-13 16:52), after Thursday's standup ran. `MeleeWeapon.OnActivate()` now correctly applies melee damage; `RangeWeapon.OnActivate()` (not originally scoped) also now works as a side effect of the same refactor. S9-02 (BUG-042/053, the sprint's largest P0) still received zero movement across all 5 scheduled days — it is now the sole fully-untouched Must-Have item. No Friday standup was filed. Full detail: `production/retros/retro-sprint-09-2026-08-15.md`, `production/qa/bug-triage-2026-08-15.md`, and the closure block now at the top of `sprint-09.md`.
+
+## Status Verdict (Day 4, 2026-08-13, superseded by close-out above): 🟡 PARTIAL MOVEMENT, WRONG BRANCH. First real code progress this sprint: S9-01 (BUG-041) and S9-06 (BUG-032) are now code-complete, landed via 3 commits (`797a562`, `30e8ecc`, `f40a6e8`) on `origin/feature/fix-player-control` — **not merged into `sprint-09`**. `git log sprint-09..origin/feature/fix-player-control` shows exactly those 3 commits ahead; `git log origin/feature/fix-player-control..sprint-09` shows the two standup commits `sprint-09` has that the feature branch lacks — the branches diverged at `fd4520a` and have not been reconciled. S9-02 (BUG-042/053, the sprint's largest P0) and S9-07 (BUG-033) remain completely untouched, 4th and 9th carries respectively. S9-00 process gate still undrafted — today's own branch drift is the exact pattern it exists to prevent. 1 day of sprint capacity remains after today.
 
 ---
 
@@ -73,6 +75,36 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 ---
 
 ## Standup Log
+
+### Sat 2026-08-15 — Weekly Wrap-Up (autonomous, no user present)
+
+**Since Thursday's standup (2026-08-13 15:38) — verified against `origin/sprint-09`'s actual tip
+(`bfe7dd4`), not a local ref:**
+
+No Friday standup was filed. But real activity did land after Thursday's standup commit: the
+weapon-architecture refactor (`claude/weapon-architecture-stats-dermi4`) was merged into `sprint-09`
+Thursday evening (`7012d31`/`bfe7dd4`, 2026-08-13 16:48-16:52), plus one more commit
+(`4241a3b`, 09:14 UTC same day). This is the reconciliation Thursday's own entry recommended — it
+happened, just without a standup recording it.
+
+| Task | Planned | Final verified status (code read against `origin/sprint-09` tip, 2026-08-15) |
+|------|---------|------------------|
+| S9-01 (BUG-041) | 0.2d | ✅ CLOSED — `MeleeWeapon.OnActivate()` correctly resolves `OverlapCircleNonAlloc` hits and calls `INegativeReceiver.TakeDamage()`. On `sprint-09` for real this time, not stranded on a feature branch. Static-verified; Play Mode still pending. |
+| S9-02 (BUG-042 + BUG-053) | 0.3d | ❌ STILL NOT DONE — unchanged, byte-identical to Thursday's read. Now the sprint's only fully-untouched Must-Have item. |
+| S9-06 (BUG-032) | 0.1d | ⚠️ Code-level fix applied (`EntityWeaponMelee.cs` guarded `GetCoreComponent`) — pending Play Mode confirmation that the enemy prefab's `holder` field is actually wired |
+| S9-07 (BUG-033) | 0.1d | ❌ STILL NOT DONE — `EnemySpawner.cs:62` unchanged, 7th carry |
+| S9-00 (process gate) | 0.1d | ❌ STILL NOT DONE — no hook, no doc rule, 4th carry |
+| S9-12 (Play Mode verify) | 0.2d | ❌ Not reached — blocked on S9-02 and on no Unity CLI in this environment |
+
+**Correction note:** this run's first pass mistakenly branched off a stale local `sprint-09` ref (8
+commits behind `origin/sprint-09`) and produced an incorrect finding (a phantom compile error in
+`PlayerAttackState.cs`) before a `git push` rejection surfaced the staleness. That pass was discarded;
+this entry and the linked reports reflect the actual `origin/sprint-09` tip.
+
+**Sprint 9 closes: CONCERNS.** 2/6 Must-Have items code-complete (up from 0/6 two sprints running), 0/6
+Play-Mode-confirmed. Full closure detail recorded at the top of `sprint-09.md` and in
+`production/retros/retro-sprint-09-2026-08-15.md`. Carry-over and velocity feed Sunday's
+`/weekly-kickoff` for Sprint 10 — this run does not open Sprint 10.
 
 ### Thu 2026-08-13 — Daily Standup (autonomous, no user present)
 

@@ -1,5 +1,45 @@
 # Sprint 9 — 2026-08-10 to 2026-08-14
 
+**Status: CLOSED — CONCERNS (2026-08-15 Saturday `pm-weekly-wrapup`, on-slot autonomous run).** Full
+detail: `production/retros/retro-sprint-09-2026-08-15.md` and `production/qa/bug-triage-2026-08-15.md`.
+
+**Final scorecard — 2 of 6 Must-Have tasks code-complete, 0 of 6 Play-Mode-confirmed (S9-12 unreached),
+on `sprint-09`:**
+
+| Item | Final status |
+|------|--------------|
+| S9-00 process gate | ❌ Never drafted — 4th carry, unaddressed since Sprint 4 |
+| S9-01 / BUG-041 (player attack unwired) | ✅ CLOSED — `MeleeWeapon.OnActivate()` now correctly runs `OverlapCircleNonAlloc` + `INegativeReceiver.TakeDamage()`, landed via the weapon-architecture refactor merged into `sprint-09` (`bfe7dd4`, 2026-08-13). Static-verified only; Play Mode confirmation still pending. |
+| S9-02 / BUG-042 + BUG-053 (enemy TakeDamage + duplicate receiver) | ❌ OPEN, zero movement all sprint — `EntityCore.TakeDamage()` still throws, `EntityNegativeReciver.cs` duplicate still unfixed. Now the sprint's only remaining fully-untouched Must-Have item. |
+| S9-06 / BUG-032 (one-line fix) | ⚠️ Code-level fix applied (`EntityWeaponMelee.cs` guarded `GetCoreComponent`) — leaves open pending Play Mode confirmation that the enemy prefab's `holder` reference is actually wired |
+| S9-07 / BUG-033 (one-line fix) | ❌ OPEN, untouched — 7th carry |
+| S9-12 (Play Mode verify gate) | ❌ Not reached — no Unity Editor session in this automated environment |
+| S9-10 (ADR-0002 Accepted) | ❌ Still **Proposed** — untouched |
+| S9-11 (S4-05/S4-06 forced decision) | ❌ Zero movement — 9th carry becomes 10th |
+| QA Plan | ❌ Still none — 9th consecutive cycle without one |
+| First playtest | ❌ Not run — 10th consecutive cycle |
+| **Bonus, not originally scoped**: BUG-059 (RangeWeapon.Attack empty) | ✅ CLOSED as a side effect of the weapon-architecture refactor |
+| **Bonus, not originally scoped**: BUG-060 (dead `WeaponsController`/`PlayerCombat` references) | ✅ CLOSED — both files deleted this week |
+
+**Root cause of what remains open:** S9-02 (the sprint's largest single item) received zero code
+movement across all 5 scheduled days, unlike S9-01/S9-06 which finally landed via a real coding session
+(Tue-Thu) merged from `claude/weapon-architecture-stats-dermi4`. S9-00, meant to govern exactly this
+kind of feature-branch merge, was never drafted — this week's merge happened to be safe, but the sprint
+has no mechanism to have known that in advance, the same gap Sprint 8's BUG-053-introducing merge fell
+through.
+
+**Carried forward to Sprint 10:** BUG-042, BUG-053, BUG-054 (bundle, now the sprint's sole remaining
+true blocker), BUG-043, BUG-044, Bug #6/S7-11 (10th carry), BUG-033 (7th carry), ADR-0002 flip (6th
+carry), S4-05/S4-06 decision (10th carry), QA plan (9th cycle), S9-12 verification gate (now also
+covering BUG-032's prefab-wiring confirmation), S9-00/process gate (4th carry).
+
+**Process recommendation for Sprint 10:** open with S9-02 as the literal first task (everything else in
+Sprint 9's original Must-Have set is closed or verification-only), and get an owner-in-Editor session
+scheduled specifically to run S9-12 — three consecutive sprints (7, 8, 9) have now closed without a
+single Play Mode confirmation.
+
+---
+
 **Opened:** 2026-08-10 (Monday, overrun Sunday 22:00 kickoff — the scheduled Sun 2026-08-09 22:00 run
 did not fire/complete in time; no `/weekly-wrapup` closed Sprint 8 on Sat 2026-08-08 either). Branch
 `sprint-09`, created from `sprint-08` tip (`a29895b`, last commit "daily standup 2026-08-07" — no
