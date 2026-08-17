@@ -53,6 +53,7 @@ public class Stat
         {
             if (Mathf.Approximately(baseValue, value)) return;
             baseValue = value;
+            cachedValue = CalculateFinalValue();
             SetDirty();
         }
     }
@@ -95,7 +96,6 @@ public class Stat
 
     private void SetDirty()
     {
-        Debug.Log($"[Stat] {type} marked dirty.");
         isDirty = true;
         OnChanged?.Invoke();
     }
