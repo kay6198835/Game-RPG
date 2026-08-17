@@ -3,7 +3,71 @@
 > Status: **Proposed** — awaiting phase-by-phase approval
 > Date: 2026-08-17
 > Scope: Unity 2022.3.62f3 LTS, uGUI + TextMeshPro 3.0.7
-> Related: ADR-0001 (StatSystem dual data structure), ADR-0002 (singleton exception)
+> Related: ADR-0001 (StatSystem dual data structure), ADR-0002 (singleton exception),
+> `docs/architecture/architecture-review-2026-07-13.md`, `.claude/docs/technical-preferences.md`
+
+---
+
+## 0.0 Relationship to existing architecture artifacts
+
+**There is no master architecture document.** `docs/architecture/architecture.md` does not
+exist — the architecture review of 2026-07-13 states this explicitly and recommends
+running `/create-architecture` only *after* the two HIGH-priority Foundation ADRs are
+written. What exists instead:
+
+| Artifact | What it covers | Bearing on this plan |
+|---|---|---|
+| `.claude/rules/*.md` (12 files) | Per-domain coding standards, informally architectural | Cited throughout this document |
+| `.claude/docs/technical-preferences.md` | Engine, platform, budgets, forbidden patterns, Architecture Decisions Log | **Conflict found — see below** |
+| `docs/architecture/adr-0001..0003` | StatSystem dual data, EnemyManager singleton, spawn selection | All three still `Proposed`, none `Accepted` |
+| `docs/architecture/architecture-review-2026-07-13.md` | Traceability: 59 technical requirements, 50 gaps. Verdict **CONCERNS** | Two HIGH-priority gaps are exactly this plan's Phase 0 |
+
+### This plan's Phase 0 collides with the two HIGH-priority ADR gaps
+
+The architecture review's "write ADRs first" list has exactly two entries, and Phase 0
+changes both systems:
+
+- **TR-fnd-EVENT (Event Bus)** — "the static `EventManager` pub/sub bus has **no ADR**, yet
+  it is the highest-risk system in the index (**12 of 20 systems route through it**)".
+  Phase 0 adds `Clear()` to it.
+- **TR-char-003 (Damage & Health)** — "the question of **who owns the health value** ... has
+  no ADR. This is a shared Foundation contract (Combat, Enemy AI, **HUD**, Death)".
+  Phase 0 answers precisely that question by putting health in `StatsSO`.
+
+**Consequence for this plan:** the ADR is not an optional follow-up. Phase 0 makes a
+Foundation-level decision that an existing review already flagged as needing an ADR
+*before* more systems build on it. The two ADRs are therefore Phase 0 deliverables, not
+Section 4 nice-to-haves.
+
+**Also note:** the Architecture Decisions Log in `technical-preferences.md` has five
+entries, all gameplay-level (state machines, SO-first, EventManager, `INegativeReceiver`,
+no new singletons). **None concern UI.** UI appears exactly once in the entire architecture
+review, incidentally. This plan is the project's first UI architecture decision.
+
+### ⚠ Conflict: recorded platform scope contradicts this plan's mobile constraint
+
+`.claude/docs/technical-preferences.md` records:
+
+```
+Target Platforms: PC (Windows)
+Gamepad Support: None (demo target)
+Touch Support:   None
+```
+
+This plan was written to a "PC first, **mobile later**" constraint, and Phase 6 exists to
+serve it. Those cannot both stand. **This needs an owner decision:**
+
+- if mobile is genuinely planned → `technical-preferences.md` must be updated, and Phase 6
+  stays;
+- if mobile is aspirational → drop Phase 6, and the "don't hardcode pixel sizes, don't
+  assume hover" constraint on Phases 1-5 becomes optional rather than binding.
+
+Nothing else in this plan changes either way — the constraint only affects Phase 6 and two
+authoring guidelines. It is called out rather than silently resolved because it is a scope
+decision, not a technical one.
+
+*(Minor drift, noted not fixed: `technical-preferences.md` says "New singletons beyond
+`MazeController`", omitting `EnemyManager`, which CLAUDE.md and ADR-0002 both permit.)*
 
 ---
 
@@ -322,10 +386,17 @@ Nothing visual changes.
 - [ ] Route `NegativeReciver.TakeDamage()` through `StatsSO`; remove its own `currentHealth` field (**P1/P2**)
 - [ ] Fix the `StatsViewDTO` write-back in `RecalculateDerived()` (**P4**)
 - [ ] Delete the four stray `using UnityEngine.UIElements;` lines (**P11**)
+- [ ] **ADR: Event Bus** — record the static-bus contract, `EventID`-enum-only extension rule, register/unregister lifecycle, and the new `Clear()` semantics *(HIGH-priority gap TR-fnd-EVENT from the 2026-07-13 review)*
+- [ ] **ADR: Damage & Health** — record `INegativeReceiver.TakeDamage(int, Vector2)` and health-value ownership landing on `StatsSO` *(HIGH-priority gap TR-char-003; the review names HUD as a dependent of this contract)*
 
 **Files touched:** `Manager/EventManager.cs`, `StatSystem/StatsSO.cs`,
 `Character/Player/CoreComponent/NegativeReciver.cs`, `Character/Player/PlayerData.cs`,
-plus the four P11 files.
+plus the four P11 files; two new files under `docs/architecture/`.
+
+**Why the ADRs sit here and not in a follow-up section:** these are the only two
+HIGH-priority gaps in the architecture review, and Phase 0 changes both systems. Writing
+the code without the ADR leaves the same informal-decision gap the review already rated
+**CONCERNS**.
 
 **Stays runnable:** no UI is touched. Behaviour is unchanged except that stat changes now
 propagate correctly and events no longer leak across restarts.
@@ -464,12 +535,19 @@ tooltip in Phase 5 is the kind of thing that makes Phase 6 expensive.
 
 ---
 
-## 4. Follow-up documentation (not built by this plan)
+## 4. Follow-up documentation
+
+Two ADRs moved **into Phase 0** (see §0.0) because the architecture review already rates
+them HIGH priority. What remains here is genuinely follow-up:
 
 - [ ] **UI GDD** — `design/gdd/ui-system.md` does not exist. The 8-section format in
       `.claude/rules/design-docs.md` applies.
-- [ ] **ADR** — the uGUI + MVVM-lite choice warrants an ADR alongside the existing
-      `docs/architecture/adr-0001..0003`.
+- [ ] **ADR: UI architecture** — the uGUI + MVVM-lite choice. Lower priority than the two
+      Foundation ADRs; can follow Phase 1 once the framework shape is confirmed in code.
+- [ ] **Resolve the platform-scope conflict** in `.claude/docs/technical-preferences.md`
+      (§0.0) — owner decision, blocks nothing before Phase 6.
+- [ ] **Not this plan's job, but adjacent:** all three existing ADRs are still `Proposed`.
+      The review notes they gate Sprint 5/6 stories until `Accepted`.
 
 ---
 
@@ -477,10 +555,10 @@ tooltip in Phase 5 is the kind of thing that makes Phase 6 expensive.
 
 | Phase | Title | Status | Blocked by |
 |---|---|---|---|
-| 0 | Foundation & safety | ☐ Not started | — |
+| 0 | Foundation & safety **+ 2 Foundation ADRs** | ☐ Not started | — |
 | 1 | UI core framework | ☐ Not started | Phase 0 |
 | 2 | Migrate StatsUI | ☐ Not started | Phase 1 |
 | 3 | HUD + GameManager | ☐ Not started | Phase 1, **sprint-10 S10-01** |
 | 4 | Popup stack + upgrade cards | ☐ Not started | Phase 3 |
 | 5 | Inventory / shop / talent | ☐ Not started | Phase 2, Phase 4 |
-| 6 | Mobile readiness | ☐ Deferred | Phase 5 |
+| 6 | Mobile readiness | ☐ Deferred | Phase 5, **platform-scope conflict (§0.0)** |
