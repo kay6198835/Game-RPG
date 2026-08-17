@@ -45,7 +45,6 @@ public class StatsSO : ScriptableObject
         for (int i = 0; i < stats.Count; i++)
         {
             stats[i]?.MarkDirty();
-
         }
         RecalculateDerived();
     }
@@ -107,6 +106,7 @@ public class StatsSO : ScriptableObject
 
             OnStatChanged?.Invoke(stat.Type);
             if (stat.Type.IsPrimary()) primaryChanged = true;
+            AfterChanged(modifiers[i].TargetStat);
         }
         if (primaryChanged) RecalculateDerived();
     }
@@ -169,7 +169,8 @@ public class StatsSO : ScriptableObject
                 continue;
             }
             lookup[s.Type] = s;
-            StatsViewDTO statViewDTO = new StatsViewDTO(s.Type, s.BaseValue, s.Value);
+            StatsViewDTO statViewDTO = new StatsViewDTO(s.Type);
+            statViewDTO.Update(s.BaseValue, s.Value);
             statViewDTOs[s.Type] = statViewDTO;
         }
 
@@ -188,12 +189,19 @@ public class StatsSO : ScriptableObject
     private void AfterChanged(StatType type)
     {
         OnStatChanged?.Invoke(type);
-        if (type.IsPrimary()) RecalculateDerived();
+        if (type.IsPrimary())
+        {
+            Stat stat = Get(type);
+            statViewDTOs[type].Update(stat.BaseValue, stat.Value);
+            Debug.Log($"[StatsSO] AfterChanged: {type} = {stat.Value}");
+            RecalculateDerived();
+        }
     }
 
     public float GetStatValue(StatType type)
     {
-        return Get(type).Value;
+        Stat stat = Get(type);
+        return stat != null ? stat.Value : 0f;
     }
 
     private void RecalculateDerived()
@@ -209,7 +217,7 @@ public class StatsSO : ScriptableObject
             StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
             target.BaseValue = newBase;
             lookup[target.Type] = target;
-            Debug.Log($"[StatsSO] RecalculateDerived: {target.Type} = {newBase}/ {lookup[target.Type].Value}");
+            statViewDTO.Update(target.BaseValue, target.Value);
             OnStatChanged?.Invoke(target.Type);
         }
     }
@@ -231,7 +239,7 @@ public class StatsSO : ScriptableObject
         statViewDTOs.TryGetValue(type, out StatsViewDTO statViewDTO);
         if (statViewDTO == null)
         {
-            statViewDTO = new StatsViewDTO(type, lookup[type].BaseValue, lookup[type].Value);
+            statViewDTO = new StatsViewDTO(type);
             statViewDTOs[type] = statViewDTO;
         }
         return statViewDTO;
@@ -248,17 +256,15 @@ public class StatsViewDTO
     public float BonusValue;
     public float FinalValue;
     public float BaseValue;
-    public StatsViewDTO(StatType type, float baseValue, float finalValue)
+    public StatsViewDTO(StatType statType)
     {
-        this.StatType = type;
-        Name = GameConstants.StatTypeName[type];
+        StatType = statType;
+        Name = GameConstants.StatTypeName[statType];
+    }
+    public void Update(float baseValue, float finalValue)
+    {
         this.BaseValue = baseValue;
         this.FinalValue = finalValue;
         this.BonusValue = FinalValue - BaseValue;
-        Debug.Log($"[StatsViewDTO] {StatType} created: Base={BaseValue}, Final={FinalValue}, Bonus={BonusValue}");
-    }
-    public StatsViewDTO()
-    {
-
     }
 }
