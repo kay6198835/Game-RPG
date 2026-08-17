@@ -157,24 +157,24 @@ public static class GameConstants
     }
     #endregion
 
-    public static readonly Dictionary<StatType, string> StatsTypeNames = new Dictionary<StatType, string>
+    public static readonly Dictionary<StatType, string> StatTypeName = new Dictionary<StatType, string>
     {
         { StatType.INT, "INT" },
         { StatType.STR, "STR" },
         { StatType.DEX, "DEX" },
         { StatType.VIT, "VIT" },
         { StatType.LUK, "LUK" },
-        { StatType.MaxHP, "MaxHP" },
-        { StatType.MaxMana, "MaxMana" },
-        { StatType.PhysicalDamage, "PhysicalDamage" },
-        { StatType.MagicDamage, "MagicDamage" },
+        { StatType.MaxHP, "Max HP" },
+        { StatType.MaxMana, "Max Mana" },
+        { StatType.PhysicalDamage, "Physical Damage" },
+        { StatType.MagicDamage, "Magic Damage" },
         { StatType.Defense, "Defense" },
-        { StatType.AttackSpeed, "AttackSpeed" },
-        { StatType.CritChance, "CritChance" },
-        { StatType.CritDamage, "CritDamage" },
-        { StatType.MoveSpeed, "MoveSpeed" },
-        { StatType.HPRegen, "HPRegen" },
-        { StatType.ManaRegen, "ManaRegen" },
+        { StatType.AttackSpeed, "Attack Speed" },
+        { StatType.CritChance, "Crit Chance" },
+        { StatType.CritDamage, "Crit Damage" },
+        { StatType.MoveSpeed, "Move Speed" },
+        { StatType.HPRegen, "HP Regen" },
+        { StatType.ManaRegen, "Mana Regen" },
         { StatType.Evasion, "Evasion" },
     };
 }

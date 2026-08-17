@@ -26,6 +26,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 
     [SerializeField] private Vector2 moveVector;
     [SerializeField] private Vector2 mouseVector;
+    [SerializeField] private Vector2 screenPos;
 
     [Header("Direction by Keyboard")]
     [SerializeField] private Vector2 directionKeyboardVector;
@@ -60,6 +61,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     [SerializeField] private DisadvantageState disadvantage;
     [SerializeField] private StatusAnimation statusAnimation;
 
+    private Camera mainCamera;
+
     #region Get value 
     public Vector2 MoveVector { get => moveVector; }
     public Vector2 MouseVector { get => mouseVector; }
@@ -92,12 +95,15 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     {
         base.Awake();
         playerInput = new PlayerInput();
+
     }
     protected override void Start()
     {
         base.Start();
         Core.GetCoreComponent(out weaponHolder);
         Core.GetCoreComponent(out abilityHolder);
+        mainCamera = Camera.main;
+
 
     }
     #region OnMethod
@@ -158,7 +164,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     }
     private void OnDirection(InputAction.CallbackContext context)
     {
-        mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseVector = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         directionMouseVector = (mouseVector - (Vector2)this.transform.position).normalized;
         AngleCalculate(directionMouseVector, ref angleMouseDirection, ref directionMouse);
         this.angleRotationPlayer = Vector2.SignedAngle(transform.right, directionMouseVector);

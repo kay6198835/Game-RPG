@@ -55,8 +55,17 @@ different coefficients.
 - **Enemy variety** is layered on top of the archetype formula by a **rank** tier
   (creep / elite / champion) and a separate **boss** definition. Rank and boss scaling
   parameters are maintained in the spreadsheet and the combat balance doc.
-- **Modifiers**: buffs, equipment, and effects attach as `StatModifier`s on top of the
-  computed base value; they never mutate the base.
+- **Modifiers** `[IMPLEMENTED]`: buffs, equipment, and effects attach as `StatModifier`s on top of
+  the computed base value; they never mutate the base. A bundle of modifiers (one piece of
+  equipment, one buff, one upgrade card) is authored as a `StatModifierGroupSO` asset and attached
+  or detached as a unit, keyed by **source**:
+  - `StatsSO.AddModifiersFromSource(source, modifiers)` attaches the whole bundle;
+    `StatsSO.RemoveModifiersFromSource(source)` detaches everything from that source.
+  - `source` is matched by reference identity, so it must be the **owning instance** (the equipped
+    item instance, MonoBehaviour, or ability instance) — never a value type and never the shared
+    group asset, or two copies of the same asset cannot be detached independently.
+  - Bulk operations recalculate derived stats once for the whole bundle, not once per modifier.
+  - `Stat` itself only ever adds or removes a single modifier; all iteration lives in `StatsSO`.
 
 ---
 

@@ -79,8 +79,8 @@ public abstract class Weapon : InteractiveObjects
         weaponHolder.Core.GetCoreComponent(out abilityHolder);
         weaponHolder.Core.GetCoreComponent(out PlayerInputHandler inputHandler);
         aim = inputHandler;
-
         weaponHolder.Equid_UnEquid(this);
+        stats.modifiers.ApplyTo(weaponHolder.Core.Player.Stats, this);
         transform.SetParent(weaponHolder.transform);
         transform.position = transform.parent.position;
     }
@@ -93,7 +93,7 @@ public abstract class Weapon : InteractiveObjects
         }
         transform.SetParent(null);
         pickupCollider.enabled = true;
-
+        stats.modifiers.RemoveFrom(weaponHolder.Core.Player.Stats, this);
         weaponHolder.Equid_UnEquid(this);
         abilityHolder = null;
         aim = null;

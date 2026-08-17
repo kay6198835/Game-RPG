@@ -18,6 +18,7 @@ public class Player : BaseEntity
 
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
     [SerializeField] private PlayerData data;
+    [SerializeField] private StatsSO stats;
     [SerializeField] private Core core;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
@@ -37,6 +38,7 @@ public class Player : BaseEntity
     public PlayerSkillWeaponState AbilityState { get => abilityState; }
     public PlayerTakeDamageState TakeDamageState { get => takeDamageState; }
     public PlayerData Data { get => data; }
+    public StatsSO Stats { get => stats; }
 
     #endregion
 
@@ -65,10 +67,12 @@ public class Player : BaseEntity
 
     #region Other Functions
 
+    private void AnimationStart() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.Start);
     private void AnimationTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.StartRangeTrigger);
     private void AnimationOnAction() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.OnActivate);
     private void AnimationOffAction() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.OffActivate);
     private void AnimtionFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
+    private void AnimationEnd() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.End);
 
 
     #endregion

@@ -7,16 +7,22 @@ using UnityEngine;
 /// type + baseValue được serialize để chỉnh trong Inspector; modifiers là runtime-only.
 /// Value chỉ tính lại khi có thay đổi (dirty flag), KHÔNG tính lại mỗi frame.
 /// Công thức: FinalValue = (Base + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
+///
+/// Tầng này chỉ thao tác TỪNG modifier một. Mọi thao tác hàng loạt (gắn/gỡ theo nguồn)
+/// nằm ở StatsSO — nơi đã giữ sẵn việc gom event và RecalculateDerived.
 /// </summary>
 [Serializable]
 public class Stat
 {
     [SerializeField] private StatType type;
     [SerializeField] private float baseValue;
+    [SerializeField] private float cachedValue;
+    private bool isDirty = false;
 
-    private float cachedValue;
-    private bool isDirty = true;
-    public List<StatModifier> modifiers;   // runtime-only: StatModifier không Unity-serializable
+    // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
+    // StatsSO.stats -> nếu để serialize, buff runtime sẽ ghi thẳng vào .asset và sống dai
+    // qua các phiên Play Mode.
+    [field: SerializeField] public List<StatModifier> modifiers { get; private set; } = new List<StatModifier>();
 
     /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
     public StatType Type => type;
@@ -34,7 +40,11 @@ public class Stat
         this.baseValue = baseValue;
     }
 
-    private List<StatModifier> Modifiers => modifiers ??= new List<StatModifier>();
+    // private List<StatModifier> ModifierList => modifiers ??= new List<StatModifier>();
+
+    /// <summary>Modifier đang gắn (chỉ đọc). StatsSO duyệt list này để gỡ theo nguồn.</summary>
+    // Không dùng ModifierList: đọc thôi thì đừng tạo list rỗng cho stat chưa từng có modifier nào.
+    public IReadOnlyList<StatModifier> Modifiers => (IReadOnlyList<StatModifier>)modifiers ?? Array.Empty<StatModifier>();
 
     public float BaseValue
     {
@@ -63,8 +73,8 @@ public class Stat
 
     public void AddModifier(StatModifier modifier)
     {
-        Modifiers.Add(modifier);
-        Modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
+        modifiers.Add(modifier);
+        modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
         SetDirty();
     }
 
@@ -75,31 +85,18 @@ public class Stat
         return true;
     }
 
-    /// <summary>Gỡ mọi modifier đến từ một nguồn (tháo trang bị, hết buff...).</summary>
-    public bool RemoveModifiersFromSource(object source)
+    /// <summary>Gỡ modifier ở vị trí index — dùng khi caller đã duyệt sẵn list, khỏi tìm lại tuyến tính.</summary>
+    public void RemoveModifierAt(int index)
     {
-        if (modifiers == null) return false;
-        bool removed = false;
-        for (int i = modifiers.Count - 1; i >= 0; i--)
-        {
-            if (ReferenceEquals(modifiers[i].Source, source))
-            {
-                modifiers.RemoveAt(i);
-                removed = true;
-            }
-        }
-        if (removed) SetDirty();
-        return removed;
+        if (modifiers == null || index < 0 || index >= modifiers.Count) return;
+        modifiers.RemoveAt(index);
+        SetDirty();
     }
 
     private void SetDirty()
     {
+        Debug.Log($"[Stat] {type} marked dirty.");
         isDirty = true;
-        if (isDirty)
-        {
-            cachedValue = CalculateFinalValue();
-            isDirty = false;
-        }
         OnChanged?.Invoke();
     }
 
@@ -136,5 +133,11 @@ public class Stat
             }
         }
         return finalValue;
+    }
+    public void ClearModifiers()
+    {
+        if (modifiers == null || modifiers.Count == 0) return;
+        modifiers.Clear();
+        SetDirty();
     }
 }
