@@ -17,7 +17,7 @@
 
 ---
 
-## Status Verdict: 🟡 OPEN (2026-08-16, Sunday kickoff) — Sprint just opened, no work yet. S10-01 (BUG-042/053/054) is the sprint's literal first task per Sprint 9's retro Action Item #1 — 4th carry, zero movement across all of Sprint 9. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12).
+## Status Verdict: 🟡 OPEN (2026-08-17, Mon standup) — S10-01 (the sprint's literal Day-1 task, BUG-042/053/054) still **zero movement** — now a 5th consecutive cycle. Unplanned StatSystem/UI/combo work landed instead (see standup log below), ahead of S10-02's process gate, which is exactly the sequencing risk the sprint's own Risks table called out. S10-02, S10-04, S10-05 all still open too. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12).
 
 ---
 
@@ -25,16 +25,16 @@
 
 ### Mon 2026-08-17 — Enemy combat chain (the sprint's one true blocker)
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S10-01 (BUG-042 + BUG-053 + BUG-054, `EntityCore.TakeDamage()` chain) | 0.3d | P0 — literal first task, per retro Action Item #1. Implement for real; delete `EntityNegativeReciver.cs`, don't patch it. |
-| S10-04 (BUG-033, one-line fix) | 0.1d | Trivial, 8th carry — zero excuse remains |
-| S10-05 (BUG-044, PlayerDeathState orphaned) | 0.15d | 5th carry |
-| S10-02 (S9-00 process gate, enforced version) | 0.15d | 5th carry — land as a real pre-push hook this time, not another written-policy draft |
+| Task | Est. | Status (as of Mon standup) | Notes |
+|------|------|------|-------|
+| S10-01 (BUG-042 + BUG-053 + BUG-054, `EntityCore.TakeDamage()` chain) | 0.3d | ⚠️ OPEN — untouched | P0 — literal first task, per retro Action Item #1. Implement for real; delete `EntityNegativeReciver.cs`, don't patch it. **5th consecutive cycle at zero movement — still today's #1 priority.** |
+| S10-04 (BUG-033, one-line fix) | 0.1d | ⚠️ OPEN — untouched | Trivial, 9th carry — zero excuse remains |
+| S10-05 (BUG-044, PlayerDeathState orphaned) | 0.15d | ⚠️ OPEN — untouched, but unblocked | 6th carry. Note: this morning's merge wired `StatusAnimation.Start`/`.End` anim events for the first time (`Player.AnimationStart()`/`AnimationEnd()`) — the exact triggers this fix's commented-out body checks. Worth confirming the anim-event plumbing before assuming this is still a from-scratch task. |
+| S10-02 (S9-00 process gate, enforced version) | 0.15d | ⚠️ OPEN — untouched | 6th carry — land as a real pre-push hook this time, not another written-policy draft. **Now higher-priority than originally scoped**: today's unplanned merge (see standup log) landed 43 files onto `sprint-10` before this gate existed, which is the exact scenario S10-02 exists to catch. |
 
-Goal: land the sprint's largest and longest-stalled item on Day 1, before anything else competes for
-branch time — mirrors Sprint 9's Day 1 plan, which this time actually needs to land on S10-01 specifically
-rather than repeating the pattern where trivial items land but the P0 doesn't.
+Goal (carried unchanged from kickoff, still valid): land the sprint's largest and longest-stalled item
+today, before anything else competes for branch time. Today's unplanned StatSystem/UI merge (see
+Standup Log) did **not** touch any of these four — none of Monday's Must-Have scope moved.
 
 ### Tue 2026-08-18 — Verification gate + forced decision
 
@@ -79,6 +79,58 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 
 ## Standup Log
 
+### Mon 2026-08-17 — Daily Standup (autonomous, no owner present)
+
+**Yesterday (Sunday 2026-08-16):** kickoff only, no dev work — sprint just opened.
+
+**Early this morning (Mon 2026-08-17, ~09:25–09:26, ~2h before this standup):** Kay merged
+`origin/feature/fix-player-control` into `sprint-10` (commit `d430899` "update logic data logic, UI
+stats system" + merge `1f111fa`), then continued on top of it. 43 files, +3805/-313 — this is the
+same WIP that Sunday's kickoff **stashed and explicitly deferred as S10-11**, gated behind S10-02
+(process gate) landing first. **S10-02 has not landed** (no pre-push hook exists yet — only Git's
+`pre-push.sample` is present) — so this reconciliation happened *before* its own gate, which is
+exactly the "Medium/Medium" risk the sprint plan named for S10-11. Not a compile-check failure (no
+CI here to confirm either way), just a sequencing note (rule tracking, không phải lỗi — the owner is
+free to override the plan; flagging for visibility per the PM role (vai trò PM)).
+
+Content of the merge (verified via `git diff`, not just the commit message):
+- `Assets/Script/StatSystem/`: `Stat.cs`, `StatModifier.cs` reworked; new `StatModifierGroupSO.cs` /
+  `StatModifierGroup.cs` (SO "Game/Stat Modifier Group") for authored equip/buff modifier bundles;
+  `StatsSO.cs` gains batched `AddModifiersFromSource()`. `ADR-0001` and `CLAUDE.md` StatSystem section
+  updated to match — docs kept in sync with code, good practice (thực hành tốt).
+  - New `Assets/Script/UI/StatSlot.cs` + `StatsUI.cs`, new `StatsSystem` prefabs (Primary/Derived stat
+  slots), new UI Toolkit panel settings, 2 new `EventID` entries
+  (`ON_OPEN_STATS_PLAYER_UI`/`ON_CLOSE_STATS_PLAYER_UI`) — a new player-facing stats panel (bảng chỉ
+  số người chơi).
+- `Weapon.cs`: equip/unequip now calls `stats.modifiers.ApplyTo/RemoveFrom(Player.Stats, this)` — gear
+  stat modifiers actually apply on equip now.
+- `Player.cs` / `PlayerState.cs`: new `AnimationStart()`/`AnimationEnd()` anim-event handlers wired to
+  `StatusAnimation.Start`/`.End` (previously only `StartRangeTrigger`/`OnActivate`/`OffActivate`/
+  `EndRangeTrigger` existed). **Relevant to S10-05** — `PlayerDeathState.LogicUpdate()`'s commented-out
+  body checks exactly `StatusAnimation.Start`/`.End`; the animation-event plumbing it needs may now
+  actually exist. Worth a quick look before treating S10-05 as a from-scratch 0.15d task.
+- 3 `Knight_ComboAttack` animation clips + `LoadRandomMap.unity` scene changes — combo-attack polish,
+  same area Sprint 9's weapon-architecture refactor touched.
+
+**Checked against the tracker — none of Monday's planned Must-Have items landed in this merge**
+(verified by reading the current file contents, not just the diff):
+- ❌ **S10-01** (BUG-042/053/054) — `EntityCore.TakeDamage()` still `throw new NotImplementedException()`
+  verbatim; `EntityNegativeReciver.cs` (the duplicate receiver) still present, not deleted. **5th
+  consecutive cycle at zero movement.**
+- ❌ **S10-02** (process gate) — no pre-push hook in `.git/hooks/` (only the stock `.sample`).
+- ❌ **S10-04** (BUG-033) — `EnemySpawner.cs:62` still reads `set.Count == 0 || set == null` (wrong
+  order, NullReferenceException risk unfixed). 9th carry.
+- ❌ **S10-05** (BUG-044) — `PlayerDeathState.LogicUpdate()` body still fully commented out.
+- ADR-0002 — still `Status: Proposed`, not flipped to Accepted (S10-09, Should-Have).
+
+**Housekeeping note:** `git stash list` shows 5 separate `WIP on origin/feature/fix-player-control: ...`
+entries (`stash@{1}`–`stash@{4}`, `stash@{6}`) accumulated across recent sprint switches, not just the
+one Sunday's kickoff created. None were touched by this morning's merge (it came from the branch
+directly, not a stash pop) — recommend the owner review and clear the stale ones once confirmed
+superseded, so a future `git stash list` scan doesn't have to re-triage all of them.
+
+---
+
 ### Sun 2026-08-16 — Weekly Kickoff (autonomous, no owner present)
 
 Sprint 9 closed CONCERNS (2/6 Must-Have code-complete: BUG-041, BUG-032; 0/6 Play-Mode-confirmed) —
@@ -96,16 +148,23 @@ the 10th consecutive cycle — flagged, deferred to owner per every prior cycle'
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** Zero code movement across
-  all 5 of Sprint 9's scheduled days, 4th carry. Now the sprint's literal first task (S10-01). Prior
-  retros' standing recommendation: a single dedicated session likely resolves this faster than continued
-  distributed autonomous check-ins.
-- **S10-02 process gate** — 5th carry as this item (S9-00), same underlying pattern since Sprint 4.
-  Retro Action Item #3 specifically asks for an *enforced* version this cycle, not another written note.
-- **S10-11 (stashed WIP on `origin/feature/fix-player-control`)** — new this cycle. Recoverable via
-  `git stash list` (labeled `pre-kickoff-sprint-10: ...`). Do not let this sit stashed indefinitely —
-  it likely contains real progress on the same files the weapon-architecture refactor touched.
+  all 5 of Sprint 9's scheduled days, **now 5th carry (confirmed still zero movement Mon standup)**. The
+  sprint's literal first task (S10-01), still untouched. Prior retros' standing recommendation: a single
+  dedicated session likely resolves this faster than continued distributed autonomous check-ins.
+- **S10-02 process gate** — **now 6th carry**, same underlying pattern since Sprint 4. Retro Action
+  Item #3 specifically asks for an *enforced* version this cycle, not another written note. Mon standup
+  found the gate landed *after* the exact scenario it exists to catch (see S10-11 below) — raises this
+  item's urgency, not just its carry count.
+- **S10-11 (WIP from `origin/feature/fix-player-control`)** — ✅ merged onto `sprint-10` Mon 2026-08-17
+  ~09:26 (commits `d430899`/`1f111fa`), by the owner directly, **ahead of S10-02** landing. Content
+  verified (StatSystem rework, new stats UI panel, weapon-stat hookup on equip, new animation-event
+  triggers, combo-attack anim polish) — see Mon standup log for full breakdown. Sequencing risk the
+  sprint plan flagged for S10-11 has materialized; no evidence of harm found in this review, but S10-02
+  landing is now overdue rather than merely carried.
 - **S10-06 (S4-05/S4-06)** — 11th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
 - **S10-03 Play Mode verify gate** — unreached 3 consecutive sprints (S7-08, S8-12, S9-12). No Unity CLI
-  in this automated environment; requires an owner-in-Editor session specifically.
+  in this automated environment; requires an owner-in-Editor session specifically. This morning's merge
+  changes the player attack/combo/animation-event surface again — one more reason S10-03 needs a real
+  in-Editor pass rather than being assumed stable.
 - QA plan — 10 consecutive cycles with none. Flagged in `sprint-10.md`, deferred to owner.
