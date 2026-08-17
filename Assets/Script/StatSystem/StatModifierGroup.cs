@@ -10,8 +10,8 @@ using UnityEngine;
 /// StatsSO gỡ modifier bằng ReferenceEquals, nên nếu lấy asset làm source thì hai bản sao
 /// cùng asset sẽ không tháo độc lập được.
 /// </summary>
-[CreateAssetMenu(fileName = "StatModifierGroup", menuName = "Game/Stat Modifier Group")]
-public class StatModifierGroupSO : ScriptableObject
+[System.Serializable]
+public class StatModifierGroup
 {
     [SerializeField] private List<StatModifier> modifiers = new List<StatModifier>();
 
@@ -22,7 +22,7 @@ public class StatModifierGroupSO : ScriptableObject
     {
         if (stats == null)
         {
-            Debug.LogWarning($"[{nameof(StatModifierGroupSO)}] statsSO là null.", this);
+            Debug.LogWarning($"[{nameof(StatModifierGroup)}] statsSO là null.");
             return;
         }
         stats.AddModifiersFromSource(source, modifiers);
@@ -33,7 +33,7 @@ public class StatModifierGroupSO : ScriptableObject
     {
         if (stats == null)
         {
-            Debug.LogWarning($"[{nameof(StatModifierGroupSO)}] statsSO là null.", this);
+            Debug.LogWarning($"[{nameof(StatModifierGroup)}] statsSO là null.");
             return;
         }
         stats.RemoveModifiersFromSource(source);

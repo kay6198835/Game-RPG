@@ -31,7 +31,7 @@ public class StatModifierTester : MonoBehaviour
     [SerializeField] private SourceId source = SourceId.A;
 
     [Header("Group (button 3 - Add bundle)")]
-    [SerializeField] private StatModifierGroupSO modifierGroup;
+    [SerializeField] private StatModifierGroup modifierGroup;
 
     public StatsSO Stats => statsSO;
     public StatType PrimaryToAllocate { get => primaryToAllocate; set => primaryToAllocate = value; }

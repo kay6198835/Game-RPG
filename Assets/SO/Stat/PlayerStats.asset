@@ -16,55 +16,72 @@ MonoBehaviour:
   stats:
   - type: 0
     baseValue: 10
-    modifiers: []
+    cachedValue: 10
+    <modifiers>k__BackingField: []
   - type: 1
     baseValue: 10
-    modifiers: []
+    cachedValue: 10
+    <modifiers>k__BackingField: []
   - type: 2
     baseValue: 10
-    modifiers: []
+    cachedValue: 10
+    <modifiers>k__BackingField: []
   - type: 3
     baseValue: 10
-    modifiers: []
+    cachedValue: 10
+    <modifiers>k__BackingField: []
   - type: 4
     baseValue: 10
-    modifiers: []
-  - type: 100
-    baseValue: 198
-    modifiers: []
+    cachedValue: 10
+    <modifiers>k__BackingField: []
   - type: 101
     baseValue: 143
-    modifiers: []
+    cachedValue: 143
+    <modifiers>k__BackingField: []
   - type: 102
     baseValue: 31.2
-    modifiers: []
+    cachedValue: 31.2
+    <modifiers>k__BackingField: []
   - type: 103
     baseValue: 29.2
-    modifiers: []
+    cachedValue: 29.2
+    <modifiers>k__BackingField: []
   - type: 104
     baseValue: 20.6
-    modifiers: []
+    cachedValue: 20.6
+    <modifiers>k__BackingField: []
   - type: 105
     baseValue: 0.95
-    modifiers: []
+    cachedValue: 0.95
+    <modifiers>k__BackingField: []
   - type: 106
     baseValue: 9
-    modifiers: []
+    cachedValue: 9
+    <modifiers>k__BackingField: []
   - type: 107
     baseValue: 158
-    modifiers: []
+    cachedValue: 158
+    <modifiers>k__BackingField: []
   - type: 108
     baseValue: 3.2
-    modifiers: []
+    cachedValue: 3.2
+    <modifiers>k__BackingField: []
   - type: 109
     baseValue: 2.1000001
-    modifiers: []
+    cachedValue: 2.1000001
+    <modifiers>k__BackingField: []
   - type: 110
     baseValue: 1.88
-    modifiers: []
+    cachedValue: 1.88
+    <modifiers>k__BackingField: []
   - type: 111
     baseValue: 3.5
-    modifiers: []
+    cachedValue: 3.5
+    <modifiers>k__BackingField: []
+  - type: 100
+    baseValue: 198
+    cachedValue: 198
+    <modifiers>k__BackingField: []
   statFormulas:
   - targetStat: 100
     baseConstant: 50
@@ -152,3 +169,4 @@ MonoBehaviour:
       coefficient: 0.25
     - sourceStat: 4
       coefficient: 0.1
+  <isDevMode>k__BackingField: 0

@@ -10,10 +10,23 @@ public class StatsSO : ScriptableObject
     [SerializeField] DerivedStatFormula[] statFormulas;
 
     private readonly Dictionary<StatType, Stat> lookup = new Dictionary<StatType, Stat>(); // index runtime, KHÔNG serialize -> Get O(1)
+    public readonly Dictionary<StatType, StatsViewDTO> statViewDTOs = new Dictionary<StatType, StatsViewDTO>();
+    //[SerializeField] private List<Stat> stats = new List<Stat>(); 
     private bool initialized;
 
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
     public event Action<StatType> OnStatChanged;
+    [field: SerializeField] public bool isDevMode { get; private set; } = false;   // bật để debug khi stat dirty / recalc derived
+    void OnEnable()
+    {
+
+        for (int i = 0; i < stats.Count; i++)
+        {
+            stats[i]?.ClearModifiers();
+        }
+        initialized = false;
+        EnsureInitialized();
+    }
 
     public int Level
     {
@@ -30,43 +43,36 @@ public class StatsSO : ScriptableObject
     private void OnValidate()
     {
         for (int i = 0; i < stats.Count; i++)
+        {
             stats[i]?.MarkDirty();
+
+        }
         RecalculateDerived();
     }
-
-    public void Test()
-    {
-        foreach (var item in stats)
-        {
-            Debug.Log($"[StatsSO] Level changed, {item.Type} = {lookup[item.Type]}");
-        }
-    }
-
     public void Reset()
     {
         stats.Clear();
         lookup.Clear();
+        statViewDTOs.Clear();
         foreach (StatType t in Enum.GetValues(typeof(StatType)))
         {
             Stat s = new(t, 0f);
             stats.Add(s);
-            Debug.Log($"[StatsSO] Reset {t} = {s.Value}");
             lookup[t] = s;
         }
         initialized = true;
         RecalculateDerived();
         //Test();
     }
-
-    private void OnEnable() => initialized = false;   // rebuild index khi SO nạp lại (vào/ra Play Mode)
-
     // ------------------------- API chính -------------------------
 
     /// <summary>Đọc giá trị cuối cùng của một chỉ số. O(1).</summary>
     public Stat Get(StatType type)
     {
         EnsureInitialized();
-        return lookup[type] == null ? null : lookup[type];
+        Stat stat = null;
+        lookup.TryGetValue(type, out stat);
+        return stat;
     }
 
     /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số mà nó nhắm tới.</summary>
@@ -152,6 +158,7 @@ public class StatsSO : ScriptableObject
         initialized = true;
 
         lookup.Clear();
+        statViewDTOs.Clear();
         // Bỏ null / trùng key ngay trong list authored -> giữ bất biến list ↔ dict 1:1.
         for (int i = stats.Count - 1; i >= 0; i--)
         {
@@ -162,6 +169,8 @@ public class StatsSO : ScriptableObject
                 continue;
             }
             lookup[s.Type] = s;
+            StatsViewDTO statViewDTO = new StatsViewDTO(s.Type, s.BaseValue, s.Value);
+            statViewDTOs[s.Type] = statViewDTO;
         }
 
         // Bù các StatType còn thiếu trong enum, không thiếu chỉ số nào.
@@ -196,8 +205,8 @@ public class StatsSO : ScriptableObject
 
             Stat target = GetOrCreate(formula.targetStat);
             float newBase = formula.Evaluate(GetStatValue, level);
-            if (Mathf.Approximately(target.BaseValue, newBase)) continue;
-
+            if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
+            StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
             target.BaseValue = newBase;
             lookup[target.Type] = target;
             Debug.Log($"[StatsSO] RecalculateDerived: {target.Type} = {newBase}/ {lookup[target.Type].Value}");
@@ -215,5 +224,41 @@ public class StatsSO : ScriptableObject
             lookup[type] = stat;
         }
         return stat;
+    }
+
+    private StatsViewDTO GetOrCreateStatsViewDTO(StatType type)
+    {
+        statViewDTOs.TryGetValue(type, out StatsViewDTO statViewDTO);
+        if (statViewDTO == null)
+        {
+            statViewDTO = new StatsViewDTO(type, lookup[type].BaseValue, lookup[type].Value);
+            statViewDTOs[type] = statViewDTO;
+        }
+        return statViewDTO;
+    }
+
+
+}
+[System.Serializable]
+
+public class StatsViewDTO
+{
+    public StatType StatType;
+    public string Name;
+    public float BonusValue;
+    public float FinalValue;
+    public float BaseValue;
+    public StatsViewDTO(StatType type, float baseValue, float finalValue)
+    {
+        this.StatType = type;
+        Name = GameConstants.StatTypeName[type];
+        this.BaseValue = baseValue;
+        this.FinalValue = finalValue;
+        this.BonusValue = FinalValue - BaseValue;
+        Debug.Log($"[StatsViewDTO] {StatType} created: Base={BaseValue}, Final={FinalValue}, Bonus={BonusValue}");
+    }
+    public StatsViewDTO()
+    {
+
     }
 }

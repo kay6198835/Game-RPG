@@ -18,4 +18,5 @@ public abstract class WeaponStats : ScriptableObject
     public int StageCount => AttackStages == null ? 0 : AttackStages.Count;
 
     public AttackSO GetStage(int index) => AttackStages[index];
+    [field: SerializeField] public StatModifierGroup modifiers { get; protected set; }
 }

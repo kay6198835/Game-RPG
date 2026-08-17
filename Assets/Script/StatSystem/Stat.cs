@@ -16,14 +16,13 @@ public class Stat
 {
     [SerializeField] private StatType type;
     [SerializeField] private float baseValue;
-
-    private float cachedValue;
-    private bool isDirty = true;
+    [SerializeField] private float cachedValue;
+    private bool isDirty = false;
 
     // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
     // StatsSO.stats -> nếu để serialize, buff runtime sẽ ghi thẳng vào .asset và sống dai
     // qua các phiên Play Mode.
-    [NonSerialized] private List<StatModifier> modifiers;
+    [field: SerializeField] public List<StatModifier> modifiers { get; private set; } = new List<StatModifier>();
 
     /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
     public StatType Type => type;
@@ -41,7 +40,7 @@ public class Stat
         this.baseValue = baseValue;
     }
 
-    private List<StatModifier> ModifierList => modifiers ??= new List<StatModifier>();
+    // private List<StatModifier> ModifierList => modifiers ??= new List<StatModifier>();
 
     /// <summary>Modifier đang gắn (chỉ đọc). StatsSO duyệt list này để gỡ theo nguồn.</summary>
     // Không dùng ModifierList: đọc thôi thì đừng tạo list rỗng cho stat chưa từng có modifier nào.
@@ -74,8 +73,8 @@ public class Stat
 
     public void AddModifier(StatModifier modifier)
     {
-        ModifierList.Add(modifier);
-        ModifierList.Sort((a, b) => a.Order.CompareTo(b.Order));
+        modifiers.Add(modifier);
+        modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
         SetDirty();
     }
 
@@ -96,6 +95,7 @@ public class Stat
 
     private void SetDirty()
     {
+        Debug.Log($"[Stat] {type} marked dirty.");
         isDirty = true;
         OnChanged?.Invoke();
     }
@@ -133,5 +133,11 @@ public class Stat
             }
         }
         return finalValue;
+    }
+    public void ClearModifiers()
+    {
+        if (modifiers == null || modifiers.Count == 0) return;
+        modifiers.Clear();
+        SetDirty();
     }
 }
