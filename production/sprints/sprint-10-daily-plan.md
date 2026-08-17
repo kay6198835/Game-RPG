@@ -17,7 +17,7 @@
 
 ---
 
-## Status Verdict: 🟡 OPEN (2026-08-17, Mon standup) — S10-01 (the sprint's literal Day-1 task, BUG-042/053/054) still **zero movement** — now a 5th consecutive cycle. Unplanned StatSystem/UI/combo work landed instead (see standup log below), ahead of S10-02's process gate, which is exactly the sequencing risk the sprint's own Risks table called out. S10-02, S10-04, S10-05 all still open too. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12).
+## Status Verdict: 🟡 OPEN (2026-08-18, Tue standup) — S10-01 (BUG-042/053/054) still **zero movement**, now 6th consecutive cycle: `EntityCore.TakeDamage()` still `throw new NotImplementedException()` verbatim, `EntityNegativeReciver.cs` still present. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62` (`set.Count == 0 || set == null`), 10th carry. S10-05 (BUG-044) still fully commented out, 6th carry. S10-02 (process gate) still no `.git/hooks/pre-push`, 7th carry. Monday's only commit (`ce8ba15`) touched StatSystem/UI/Pooling/`EnemySpawner.Spawn()` signature (unrelated `Quaternion.identity` param fix, not the null-guard) — none of Monday's 4 Must-Have tasks moved a 2nd day running. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12).
 
 ---
 
@@ -27,10 +27,10 @@
 
 | Task | Est. | Status (as of Mon standup) | Notes |
 |------|------|------|-------|
-| S10-01 (BUG-042 + BUG-053 + BUG-054, `EntityCore.TakeDamage()` chain) | 0.3d | ⚠️ OPEN — untouched | P0 — literal first task, per retro Action Item #1. Implement for real; delete `EntityNegativeReciver.cs`, don't patch it. **5th consecutive cycle at zero movement — still today's #1 priority.** |
-| S10-04 (BUG-033, one-line fix) | 0.1d | ⚠️ OPEN — untouched | Trivial, 9th carry — zero excuse remains |
-| S10-05 (BUG-044, PlayerDeathState orphaned) | 0.15d | ⚠️ OPEN — untouched, but unblocked | 6th carry. Note: this morning's merge wired `StatusAnimation.Start`/`.End` anim events for the first time (`Player.AnimationStart()`/`AnimationEnd()`) — the exact triggers this fix's commented-out body checks. Worth confirming the anim-event plumbing before assuming this is still a from-scratch task. |
-| S10-02 (S9-00 process gate, enforced version) | 0.15d | ⚠️ OPEN — untouched | 6th carry — land as a real pre-push hook this time, not another written-policy draft. **Now higher-priority than originally scoped**: today's unplanned merge (see standup log) landed 43 files onto `sprint-10` before this gate existed, which is the exact scenario S10-02 exists to catch. |
+| S10-01 (BUG-042 + BUG-053 + BUG-054, `EntityCore.TakeDamage()` chain) | 0.3d | ⚠️ OPEN — untouched (re-verified Tue) | P0 — literal first task, per retro Action Item #1. Implement for real; delete `EntityNegativeReciver.cs`, don't patch it. **6th consecutive cycle at zero movement — still today's #1 priority.** |
+| S10-04 (BUG-033, one-line fix) | 0.1d | ⚠️ OPEN — untouched (re-verified Tue) | Trivial, 10th carry — zero excuse remains |
+| S10-05 (BUG-044, PlayerDeathState orphaned) | 0.15d | ⚠️ OPEN — untouched (re-verified Tue) | 6th carry. `PlayerDeathState.LogicUpdate()` body confirmed still fully commented out despite `AnimationStart()`/`AnimationEnd()` plumbing landing Mon — the wiring this fix needs exists now, just not used yet. |
+| S10-02 (S9-00 process gate, enforced version) | 0.15d | ⚠️ OPEN — untouched (re-verified Tue) | 7th carry — land as a real pre-push hook this time, not another written-policy draft. Still overdue: Monday's merge landed 43 files onto `sprint-10` before this gate existed, exactly the scenario S10-02 exists to catch. |
 
 Goal (carried unchanged from kickoff, still valid): land the sprint's largest and longest-stalled item
 today, before anything else competes for branch time. Today's unplanned StatSystem/UI merge (see
@@ -78,6 +78,31 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 ---
 
 ## Standup Log
+
+### Tue 2026-08-18 — Daily Standup (autonomous, no owner present)
+
+**Yesterday (Mon 2026-08-17):** only one commit landed after the morning's merge — `ce8ba15` "update UI
+stats, update event/logic flow stats system" (00:58, 2026-08-18 by clock but attributed to Monday's work
+session). Touched `StatSystem/Stat.cs`/`StatsSO.cs`, new `Assets/Script/UI/StatsUIController.cs`
+(replacing `StatsUI.cs`), `Poolable/ObjectPoolManager.cs`/`Pool.cs`, 2 renamed Stat prefab assets, and
+`EnemySpawner.cs` (+2/-3 — added a `Quaternion.identity` param to two `objectPoolManager.Spawn()` calls,
+**not** the BUG-033 null-guard fix at line 62). None of Monday's 4 planned Must-Have tasks (S10-01,
+S10-02, S10-04, S10-05) moved — verified directly against current file contents, not just commit
+messages:
+- ❌ **S10-01** — `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim;
+  `EntityNegativeReciver.cs` still present at `Character/Entity/CoreComponent/`. **6th consecutive cycle
+  at zero movement.**
+- ❌ **S10-04** — `EnemySpawner.cs:62` still `set.Count == 0 || set == null` (wrong order). 10th carry.
+- ❌ **S10-05** — `PlayerDeathState.LogicUpdate()` body still fully commented out (lines 17-24).
+- ❌ **S10-02** — no `.git/hooks/pre-push` (only `.sample`). 7th carry.
+
+**Evaluation:** SLIPPED — day's entire planned Must-Have scope (1.0d combined) burned 0d for the 2nd day
+running; StatSystem/UI/Pooling work (unplanned/Should-Have-adjacent) continues to take branch time ahead
+of the sprint's declared literal-first-task. Pattern now identical to the retro's Action Item #1 concern:
+distributed autonomous check-ins are not surfacing enough pressure to move S10-01 — the prior retros'
+standing recommendation (a single dedicated owner session) remains unactioned.
+
+---
 
 ### Mon 2026-08-17 — Daily Standup (autonomous, no owner present)
 
@@ -148,13 +173,14 @@ the 10th consecutive cycle — flagged, deferred to owner per every prior cycle'
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** Zero code movement across
-  all 5 of Sprint 9's scheduled days, **now 5th carry (confirmed still zero movement Mon standup)**. The
-  sprint's literal first task (S10-01), still untouched. Prior retros' standing recommendation: a single
-  dedicated session likely resolves this faster than continued distributed autonomous check-ins.
-- **S10-02 process gate** — **now 6th carry**, same underlying pattern since Sprint 4. Retro Action
-  Item #3 specifically asks for an *enforced* version this cycle, not another written note. Mon standup
-  found the gate landed *after* the exact scenario it exists to catch (see S10-11 below) — raises this
-  item's urgency, not just its carry count.
+  all 5 of Sprint 9's scheduled days, **now 6th carry (confirmed still zero movement Tue standup —
+  `EntityCore.TakeDamage()` still throws, `EntityNegativeReciver.cs` still present)**. The sprint's
+  literal first task (S10-01), still untouched 2 days running. Prior retros' standing recommendation: a
+  single dedicated session likely resolves this faster than continued distributed autonomous check-ins.
+- **S10-02 process gate** — **now 7th carry**, same underlying pattern since Sprint 4. Retro Action
+  Item #3 specifically asks for an *enforced* version this cycle, not another written note. Still no
+  `.git/hooks/pre-push` as of Tue standup — the gate remains landed *after* the scenario it exists to
+  catch (see S10-11 below).
 - **S10-11 (WIP from `origin/feature/fix-player-control`)** — ✅ merged onto `sprint-10` Mon 2026-08-17
   ~09:26 (commits `d430899`/`1f111fa`), by the owner directly, **ahead of S10-02** landing. Content
   verified (StatSystem rework, new stats UI panel, weapon-stat hookup on equip, new animation-event
