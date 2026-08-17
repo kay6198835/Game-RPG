@@ -2,18 +2,53 @@
 
 > Status: **Proposed** — awaiting phase-by-phase approval
 > Date: 2026-08-17
+> **Superseded in part**: the project ratified a baseline architecture on 2026-08-17
+> (`docs/architecture/architecture.md`). This plan now conforms to it — see §0.1.
 > Scope: Unity 2022.3.62f3 LTS, uGUI + TextMeshPro 3.0.7
 > Related: ADR-0001 (StatSystem dual data structure), ADR-0002 (singleton exception),
 > `docs/architecture/architecture-review-2026-07-13.md`, `.claude/docs/technical-preferences.md`
 
 ---
 
+## 0.1 Conformance to the ratified architecture
+
+`docs/architecture/architecture.md` was ratified on 2026-08-17. Three things in this plan
+change as a result; everything else stands.
+
+| This plan originally said | Ratified architecture says | Resolution |
+|---|---|---|
+| MVVM-lite, `UIView` / `UIScreen` / `UIPopup`, folder `Assets/Script/UI/Core/` | **Presenter + ViewModel + View**, folder `Presentation/` with `IPresenter`, `IView`, `PresenterBase`, `ViewModelBase` | **Adopt the ratified naming and folders.** The shape is nearly identical — a passive View driven by a non-MonoBehaviour adapter — so this is renaming, not redesign. |
+| UI input = "commands on the ViewModel" (informal) | Formal **Command** pattern: `View → Presenter → Command → System` | **Adopt.** UI interaction produces a Command object, not a method call on a ViewModel. |
+| Health source of truth = **`StatsSO`** | **Rule 7** — no mutable runtime state in a ScriptableObject | ⚠️ **Reversal — needs owner confirmation. See below.** |
+
+### ⚠️ Rule 7 reverses the health decision
+
+Earlier today the health source of truth was set to `StatsSO`. Rule 7 of the ratified
+architecture forbids exactly that: current HP is mutable runtime state, and a
+ScriptableObject asset is shared by every instance referencing it.
+
+This is not hypothetical here. `docs/architecture/adoption-analysis.md` §4 verifies that
+**no ScriptableObject is instantiated anywhere in the 157-file codebase** — so
+`EntityStatsSO` already produces a live shared-health bug between enemies.
+
+**Recommended replacement:** `StatsSO` keeps base stats and formulas; a runtime
+`StatsComponent` owns `CurrentHP` and the live modifier stack and raises
+`HealthChangedEvent` / `StatsChangedEvent`. This still delivers everything the original
+choice was made for — one owner, one change signal, equipment moving `MaxHP` — while
+satisfying Rule 7. It also removes the Editor-persistence caveat that the original
+decision had to accept.
+
+**Phase 0 is blocked on confirming this.** Everything else in Phase 0 is unaffected.
+
+---
+
 ## 0.0 Relationship to existing architecture artifacts
 
-**There is no master architecture document.** `docs/architecture/architecture.md` does not
-exist — the architecture review of 2026-07-13 states this explicitly and recommends
-running `/create-architecture` only *after* the two HIGH-priority Foundation ADRs are
-written. What exists instead:
+*Written before the architecture was ratified. At the time there was no master
+architecture document — `docs/architecture/architecture.md` now exists and supersedes the
+first paragraph below. The ADR-gap findings still stand.*
+
+What existed when this plan was drafted:
 
 | Artifact | What it covers | Bearing on this plan |
 |---|---|---|
@@ -32,7 +67,7 @@ changes both systems:
   Phase 0 adds `Clear()` to it.
 - **TR-char-003 (Damage & Health)** — "the question of **who owns the health value** ... has
   no ADR. This is a shared Foundation contract (Combat, Enemy AI, **HUD**, Death)".
-  Phase 0 answers precisely that question by putting health in `StatsSO`.
+  Phase 0 answers precisely that question — see §0.1 for where health ownership landed.
 
 **Consequence for this plan:** the ADR is not an optional follow-up. Phase 0 makes a
 Foundation-level decision that an existing review already flagged as needing an ADR
@@ -85,7 +120,7 @@ currently paying down.
 | UI scope (quy mô) | Full basic RPG set: HUD, menu flow, inventory/equipment, shop/talent, popups |
 | Priority (ưu tiên) | **Testability (khả năng test)** — UI logic must be unit-testable in EditMode |
 | Team | Solo dev — minimize layers and file count; no over-engineering |
-| Health source of truth (nguồn sự thật) | **`StatsSO`** — decided |
+| Health source of truth (nguồn sự thật) | ~~`StatsSO`~~ → **runtime `StatsComponent`** (Rule 7 reversal, §0.1 — pending confirmation) |
 | Event bus (bus sự kiện) scope | **Patch in place + separate typed channel for UI** — decided |
 
 ---
@@ -274,7 +309,7 @@ Grounded in this codebase rather than general preference:
 authoring is prefab-based rather than markup-based. For the screen counts this project
 will reach, that cost is not material. Revisit only on a Unity 6 migration.
 
-### Decision 2 — MVVM-lite with a passive View
+### Decision 2 — Presenter + ViewModel + passive View
 
 Three layers, thin:
 
@@ -354,19 +389,30 @@ UI never holds a `GameObject` reference to the Player or an Enemy — required b
 `.claude/rules/ui-code.md`. This is what keeps the UI testable: a ViewModel driven by a
 fake Model needs no scene.
 
-### Decision 6 — Health lives in `StatsSO`
+### Decision 6 — Health lives in a runtime `StatsComponent`
 
-`StatsSO` gains `CurrentHP` as the single source of truth. `NegativeReciver` writes through
-to it instead of owning its own `int`.
+> **Revised 2026-08-17** after the architecture was ratified. The original decision put
+> `CurrentHP` on `StatsSO`; Rule 7 forbids mutable runtime state in a ScriptableObject.
+> See §0.1. **Pending owner confirmation.**
 
-**Why:** `OnStatChanged` (`:18`) already exists, so the UI gets binding with no new event
-plumbing; `MaxHP` is already a derived stat, so equipment and buffs applied through
-`StatModifierGroupSO` automatically move the health bar's maximum with no extra code.
+`StatsSO` keeps base stats, derived-stat formulas, and authored modifier groups —
+configuration only, read-only at runtime. A runtime `StatsComponent` on the character owns
+`CurrentHP` and the live modifier stack, and raises the health/stat change events.
 
-**Trade-off, stated explicitly:** run state now lives on an asset that persists between
-Editor Play sessions. `StatsSO.OnEnable()` (`:20-29`) already clears modifiers on load; the
-reset must be extended to cover `CurrentHP`, or health carries over between playtests. This
-is a known Unity SO hazard and must be covered by an EditMode test.
+**Why this still delivers the original goal:** the reason `StatsSO` was chosen was one
+owner, one change signal, and equipment automatically moving `MaxHP`. A runtime component
+gives all three — it reads `MaxHP` from the same derived-stat formulas and raises its own
+change event — without the shared-asset hazard.
+
+**What it fixes that the original could not:** `docs/architecture/adoption-analysis.md` §4
+verifies no ScriptableObject is ever instantiated in this codebase, so `EntityStatsSO`
+already shares one health pool across every enemy referencing it. Putting player health on
+an SO would have built the same bug deliberately. The Editor-persistence caveat the
+original decision had to accept also disappears.
+
+**Trade-off accepted:** one more component to wire on the character prefab, and
+`StatsSO.OnStatChanged` is no longer the binding hook for health specifically — the
+`StatsComponent` event is. Stat *values* still bind through `StatsSO`.
 
 ---
 
@@ -382,8 +428,8 @@ Every phase ends with the game still playable. No phase requires a big-bang rewr
 Nothing visual changes.
 
 - [ ] Add `Clear()` / scene-load reset to `EventManager` (fixes **P9**)
-- [ ] Add `CurrentHP` to `StatsSO` as single source of truth; extend `OnEnable()` reset to cover it (**P1**, Decision 6)
-- [ ] Route `NegativeReciver.TakeDamage()` through `StatsSO`; remove its own `currentHealth` field (**P1/P2**)
+- [ ] Add a runtime `StatsComponent` owning `CurrentHP` as single source of truth; `StatsSO` keeps base stats and formulas only (**P1**, §0.1 Rule 7)
+- [ ] Route `NegativeReciver.TakeDamage()` through `StatsComponent`; remove its own `currentHealth` field (**P1/P2**)
 - [ ] Fix the `StatsViewDTO` write-back in `RecalculateDerived()` (**P4**)
 - [ ] Delete the four stray `using UnityEngine.UIElements;` lines (**P11**)
 - [ ] **ADR: Event Bus** — record the static-bus contract, `EventID`-enum-only extension rule, register/unregister lifecycle, and the new `Clear()` semantics *(HIGH-priority gap TR-fnd-EVENT from the 2026-07-13 review)*
@@ -415,14 +461,15 @@ checklist and in `.claude/rules/scriptableobject-data.md` as the canonical reset
 
 **Goal:** build the skeleton every later screen plugs into.
 
-- [ ] `Assets/Script/UI/Core/Observable.cs` — `Observable<T>`, raises only on change
-- [ ] `UIView` base MonoBehaviour; `UIScreen`, `UIPopup` subclasses; `UILayer` enum
+- [ ] `Presentation/Core/` — `IPresenter`, `IView`, `PresenterBase`, `ViewModelBase`
+- [ ] `Presentation/Core/Observable.cs` — `Observable<T>`, raises only on change
+- [ ] `UILayer` enum (HUD / Screen / Popup / Overlay)
 - [ ] `ScreenStack` — plain C#, push / pop / peek, so it is unit-testable
 - [ ] `UIRootView` — Inspector-wired, owns one Canvas per layer, drives the stack
 - [ ] Retire the `Manager/UI/UIManager.cs` stub into `UIRootView`
-- [ ] *(Optional but recommended)* asmdef split so ViewModels compile without Unity UI refs
+- [ ] *(Optional but recommended)* asmdef split so Presenters and ViewModels compile without Unity UI refs
 
-**Files touched:** new folder `Assets/Script/UI/Core/`; delete
+**Files touched:** new folder `Assets/Script/Presentation/Core/`; delete
 `Assets/Script/Manager/UI/UIManager.cs`.
 
 **Stays runnable:** the framework is inert until a screen registers with it. Nothing in the
@@ -439,9 +486,10 @@ nothing.
 **Goal:** prove the pattern on real existing code before building anything new. Closes
 **P3, P5, P6, P7, P8, P10**.
 
-- [ ] `StatsViewModel` — plain C#, subscribes `StatsSO.OnStatChanged`, exposes `Observable<StatsViewDTO>` per `StatType`
-- [ ] `StatsScreen : UIScreen` — builds slots **once**, reuses them on reopen
-- [ ] `StatSlotView` — passive, `[SerializeField] private`, no logic
+- [ ] `CharacterStatsPresenter` — plain C#, subscribes to the stats change event, transforms to ViewModel
+- [ ] `CharacterStatsViewModel` + `StatDisplayData` (`BaseValue` / `Bonus` / `Total`)
+- [ ] `CharacterStatsView` — passive, `[SerializeField] private`, `Render(viewModel)` only; builds slots **once** and reuses them on reopen
+- [ ] Folder: `Presentation/Character/Stats/`
 - [ ] Wire a real open/close trigger (nothing emits `ON_OPEN_STATS_PLAYER_UI` today)
 - [ ] Delete `UI/StatsUI.cs` and `UI/StatSlot.cs` once the replacement is verified in Play Mode
 
@@ -454,8 +502,9 @@ working in Play Mode, then delete. The prefab script re-assignment is manual Ins
 — small, and a solo dev can do it in one sitting. Do not rename the MonoBehaviour and the
 file in the same commit, or Unity loses the GUID binding.
 
-**Test evidence:** EditMode — a stat change on a fake `StatsSO` produces the correct DTO on
-the ViewModel; opening the screen twice does not double the slot count.
+**Test evidence:** EditMode — a stat change produces the correct `StatDisplayData` on the
+ViewModel, with no Unity scene required (the Presenter is plain C#); opening the screen
+twice does not double the slot count.
 
 ---
 
@@ -465,11 +514,11 @@ the ViewModel; opening the screen twice does not double the slot count.
 death).
 
 - [ ] `GameManager` — Inspector-wired, **no singleton**; state machine Menu / Playing / Paused / Dead (**P12**)
-- [ ] `PlayerHudViewModel` + `HealthBarView`, driving the existing script-less `HealthBar.prefab` / `ManaBar.prefab`
+- [ ] `PlayerHUDPresenter` + `PlayerHUDViewModel` + `PlayerHUDView` in `Presentation/HUD/`, driving the existing script-less `HealthBar.prefab` / `ManaBar.prefab`
 - [ ] Subscribe `ON_PLAYER_DEATH` → death screen → `PlayerData.Reborn()` + reload (**P8**)
 
 **Files touched:** new `Assets/Script/Manager/GameManager.cs`, new
-`Assets/Script/UI/Hud/`; `Prefab/UI/HealthBar.prefab`, `ManaBar.prefab` get their scripts.
+`Assets/Script/Presentation/HUD/`; `Prefab/UI/HealthBar.prefab`, `ManaBar.prefab` get their scripts.
 
 **⚠ Ordering dependency:** this phase **must not start before sprint-10 story `S10-01`
 lands**. Until `EntityNegativeReciver.cs` is deleted, enemy death emits `ON_PLAYER_DEATH`
@@ -492,7 +541,7 @@ playtest for the death → restart loop (integration story, BLOCKING per
 - [ ] Room-clear three-card upgrade popup — `ChoiceText.prefab` and `Content.prefab` already exist
 - [ ] Time-scale handling owned by `GameManager`, never by a UI script
 
-**Files touched:** new `Assets/Script/UI/Screens/`; hooks into `ON_CLEAR_ENEMY` /
+**Files touched:** new `Assets/Script/Presentation/Menu/`; hooks into `ON_CLEAR_ENEMY` /
 `ON_ROOM_CLEAR`.
 
 **Stays runnable:** each popup is independent; ship them one at a time.

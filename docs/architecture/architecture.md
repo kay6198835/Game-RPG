@@ -1,212 +1,370 @@
 # Game-RPG — Master Architecture
 
-> **Status**: TEMPLATE — skeleton seeded with verified project facts, awaiting completion
-> **Last Updated**: 2026-08-17
+> **Status**: RATIFIED — this is the project's baseline architecture
+> **Ratified**: 2026-08-17 by project owner
 > **Engine**: Unity 2022.3.62f3 LTS
-> **Owner**: [name]
+> **Current conformance**: see `docs/architecture/adoption-analysis.md`
 
-<!--
-HOW TO USE THIS FILE
-
-Sections are marked with one of:
-  [VERIFIED]  — read from code or an existing doc; trust it, update when code changes
-  [FILL]      — you need to decide or write this
-  [DERIVED]   — assembled from other docs; re-check when those change
-
-This is the master blueprint the 2026-07-13 architecture review says is missing
-("docs/architecture/architecture.md does not exist ... no master blueprint tying the
-Foundation layer together"). It sits ABOVE the ADRs: ADRs record individual decisions,
-this file records how the pieces fit together. Keep it short — if a section grows past
-a page it probably wants its own ADR or technical design doc.
-
-Related templates already in the repo (do not duplicate them here):
-  .claude/docs/templates/architecture-decision-record.md  — one decision
-  .claude/docs/templates/technical-design-document.md     — one system, in depth
-  .claude/docs/templates/architecture-traceability.md     — GDD requirement → ADR matrix
--->
+Do not replace this with a different architecture — full Clean Architecture, system-wide
+MVC/MVVM, system-wide ECS, or DDD — without a stated technical reason recorded as an ADR.
 
 ---
 
-## 1. Purpose and scope
+## 1. Overall model
 
-**[FILL]** One paragraph: what this document is for and who reads it.
+Hybrid Game Architecture. Four concerns, with data/config underneath all of them.
 
-Suggested wording to adapt:
-> This document describes how Game-RPG's systems fit together — the layers, the
-> contracts they share, and the rules governing dependencies between them. It is the
-> entry point for anyone touching more than one system. Individual decisions live in
-> ADRs; individual systems live in technical design docs.
+```
+                         GAME
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+     GAMEPLAY          SERVICES        PRESENTATION
+        │                 │                 │
+        │                 │           ┌─────┴─────┐
+        │                 │           │           │
+        │                 │          View     Presenter
+        │                 │           │           │
+        │                 │       Unity UI    ViewModel
+        │                 │                 │
+        └─────────────────┼─────────────────┘
+                          │
+                     DATA / CONFIG
+```
 
-**Out of scope:** per-system internals, gameplay tuning, art and audio pipelines.
+Patterns in use: Component-Based, Systems-based gameplay, Data-Driven, Event-Driven,
+State Machine, Command, Service Layer, Presenter + ViewModel, ScriptableObject for static
+config.
+
+**Apply a pattern only where it solves a real problem.** Rule 6 below is binding.
 
 ---
 
-## 2. Constraints [VERIFIED — source: `.claude/docs/technical-preferences.md`]
+## 2. Dependency direction — the most important rule
 
-| Constraint | Value |
+```
+                    ┌──────────────┐
+                    │   GAMEPLAY   │
+                    └──────┬───────┘
+                           │ Events / State
+                           ▼
+                    ┌──────────────┐
+                    │  PRESENTER   │
+                    └──────┬───────┘
+                           │ ViewModel
+                           ▼
+                    ┌──────────────┐
+                    │     VIEW     │
+                    └──────┬───────┘
+                           ▼
+                    ┌──────────────┐
+                    │   UNITY UI   │
+                    └──────────────┘
+```
+
+Interaction travels the other way, and only through commands:
+
+```
+Unity UI → View → Presenter → Command → Gameplay System
+```
+
+- Gameplay must never depend on Unity UI.
+- Gameplay must never know `Text`, `Image`, `Button`, `VisualElement`, `UIDocument`.
+- The View must never modify gameplay state directly.
+
+---
+
+## 3. Gameplay layer
+
+Gameplay is the core. Target structure:
+
+```
+Gameplay
+├── Entity        Player · Enemy · NPC
+├── Components    Stats · Health · Combat · Movement · ...
+├── Systems       CombatSystem · DamageSystem · StatSystem ·
+│                 MovementSystem · AISystem · SpawnSystem · InventorySystem
+├── StateMachine
+├── Commands
+└── Events
+```
+
+**Entity/Component holds state and capability. System processes mechanics.**
+
+Never let `Player` or `Entity` become a God Object. The current split is correct and
+should be preserved:
+
+```
+Player
+├── MovementComponent
+├── CombatComponent
+├── StatsComponent
+├── HealthComponent
+└── StateMachine
+```
+
+### Project mapping [as of 2026-08-17]
+
+| Architecture element | This project |
 |---|---|
-| Engine | Unity 2022.3.62f3 LTS |
-| Language | C# (.NET Standard 2.1) |
-| Rendering | URP — 2D Renderer |
-| Physics | Physics2D (Box2D) |
-| Target platform | PC (Windows) |
-| Input | Keyboard + Mouse. No gamepad, no touch |
-| Target framerate | 60 FPS (16.7 ms frame budget) |
-| Draw calls | ≤ 100 per frame |
-| Memory ceiling | 256 MB |
-| Per-enemy update budget | ≤ 0.1 ms per enemy per frame |
-
-> ⚠️ **Open conflict:** the platform row says PC-only / no touch, but UI planning assumes
-> "PC first, mobile later". Resolve before Phase 6 of `UI_ARCHITECTURE_PLAN.md`.
+| Entity | `Character/Player/Player.cs`, `Character/Entity/Entity.cs` (both `BaseEntity`) |
+| Component hub | `Core` / `EntityCore` (both `CoreBase`), `GetCoreComponent<T>()` |
+| Components | `Character/Player/CoreComponent/`, `Character/Entity/CoreComponent/` |
+| State machine | `PlayerStateMachine`, `EntityStateMachine`, `IState` |
+| **Systems** | ❌ **does not exist** — logic currently lives inside states and components |
+| **Commands** | ❌ **does not exist** — input drives states through boolean flags |
+| Events | `Manager/EventManager.cs` (`EventID` enum) |
 
 ---
 
-## 3. Layer map **[FILL — structure seeded, arrows need confirming]**
+## 4. State machine
 
-Draw the dependency direction. An arrow means "may reference"; absence means "must not".
+Manages behaviour and lifecycle of an entity: transitions, state lifecycle,
+state-specific behaviour.
 
 ```
-        ┌─────────────────────────────────────────────┐
-        │  Presentation:  UI · HUD · Minimap          │
-        └──────────────────────┬──────────────────────┘
-                               │ reads only
-        ┌──────────────────────┴──────────────────────┐
-        │  Gameplay:  Character (Player/Entity)       │
-        │             Weapons · Skills · Items        │
-        └──────────────────────┬──────────────────────┘
-                               │
-        ┌──────────────────────┴──────────────────────┐
-        │  World:  Map/Dungeon · Enemy spawn          │
-        └──────────────────────┬──────────────────────┘
-                               │
-        ┌──────────────────────┴──────────────────────┐
-        │  Foundation:  EventManager · StatSystem     │
-        │               Core hubs · Pooling · SO data │
-        └─────────────────────────────────────────────┘
+Player:  Idle · Move · Attack · Combo · Dodge · Hit · Dead
+Enemy:   Idle · Patrol · Chase · Attack · Recover · Flee · Dead
 ```
 
-**Rule to state explicitly [FILL]:** which direction may references point, and what the
-consequence is for a violation.
+**A state machine is not a gameplay system** (Rule 8). Do not push whole systems into
+states. A state decides *when*; a system decides *what happens*.
 
 ---
 
-## 4. System inventory **[DERIVED — fill Status and ADR columns]**
+## 5. Command pattern
 
-| System | Entry point | ADR | Status |
-|---|---|---|---|
-| Event bus | `Script/Manager/EventManager.cs` | ❌ none — **HIGH priority gap** | Working |
-| Animation bus | `Script/Manager/AnimationEventManager.cs` | ❌ none | Working |
-| Player state machine | `Script/Character/Player/NewPlayer.cs` | ❌ none | Working |
-| Enemy AI | `Script/Character/Entity/Entity.cs` | ❌ none | Working |
-| Damage / health | `Script/Interface/INegativeReciver.cs` | ❌ none — **HIGH priority gap** | Broken |
-| Stat system | `Script/StatSystem/StatsSO.cs` | ADR-0001 | Working, unconsumed |
-| Dungeon generation | `Script/Map/Maze/MazeController.cs` | ❌ none | Working |
-| Room progression | `Script/Map/Room/RoomGridController.cs` | ❌ none | Working |
-| Enemy spawn | `Script/Enemy/EnemySpawner.cs` | ADR-0002, ADR-0003 | Partial |
-| Weapons / skills | `Script/Weapons/`, `Script/Skill_Ability/` | ❌ none | Partial |
-| Object pooling | `Script/Poolable/ObjectPoolManager.cs` | ❌ none | Working |
-| UI | `Script/UI/` | ❌ none | Stub |
+A command represents a gameplay action, decoupled from whoever requested it.
 
----
+```
+Input / AI / Network
+        │
+        ▼
+     Command  →  Command Handler  →  System  →  Gameplay
+```
 
-## 5. Cross-cutting contracts [VERIFIED]
+```
+Keyboard ───────┐
+AI ─────────────┼──> AttackCommand ──> CombatSystem
+Network ────────┘
+```
 
-These are touched by many systems. Changing one is a breaking change.
+Examples: `AttackCommand`, `DodgeCommand`, `MoveCommand`, `UseSkillCommand`,
+`EquipItemCommand`, `InteractCommand`.
 
-### 5.1 Event bus — `EventManager`
-Static pub/sub. **12 of 20 indexed systems route through it** — the highest-risk single
-component in the project.
-
-- Extend by adding to the `EventID` enum only — never add `static Action` fields to classes
-- Every `Resgister` in `OnEnable()` needs a matching `UnResgister` in `OnDisable()`
-- Note the intentional typos: `Resgister` / `UnResgister`
-
-**[FILL]** Payload typing rule, and lifetime/reset semantics across scene loads.
-
-### 5.2 Damage — `INegativeReceiver`
-`TakeDamage(int amountDamage, Vector2 attackPosition)`. All damage flows through this; no
-MonoBehaviour mutates another entity's health directly.
-
-**[FILL]** **Who owns the health value.** This is unresolved today and is the single
-biggest source of confusion — see §6.
-
-### 5.3 Component hubs — `Core` / `EntityCore`
-Components self-register via `AddCoreComponent()`; consumers resolve via
-`GetCoreComponent<T>(out var comp)`. These are the only permitted hubs.
-
-### 5.4 Data — ScriptableObject-first
-Gameplay numbers live in SO assets, never hardcoded in MonoBehaviours.
-
-**[FILL]** Rule for runtime-mutable SOs — Editor Play sessions persist asset changes, so
-state each SO's reset contract.
-
-### 5.5 Singletons
-Permitted: `MazeController`, `EnemyManager` (ADR-0002). Nothing else.
-Known violations: `LevelManager`, `ObjectPoolManager` — tracked as TD-023 / TD-031.
+The point is that gameplay logic never depends on the *source* of the action. This is
+what makes AI, replay, and networked input possible later without touching combat code.
 
 ---
 
-## 6. Data ownership map **[FILL — highest-value section, currently the weakest area]**
+## 6. Events
 
-One row per piece of mutable runtime state. "Owner" means the single place allowed to
-write it; everything else reads or requests a change through the owner.
+Gameplay must not know what UI, audio, or VFX are doing.
 
-| State | Owner | Readers | Change signal |
-|---|---|---|---|
-| Player current health | ⚠️ **undecided — 3 competing stores** | HUD, death flow | none today |
-| Player stats | `StatsSO` | UI, combat | `OnStatChanged` |
-| Enemy health | [FILL] | [FILL] | [FILL] |
-| Current room | [FILL] | Minimap, spawner | `ON_LOAD_MAP` |
-| Run progress | [FILL] | [FILL] | [FILL] |
+```
+CombatSystem → DamageEvent ─┬─> UI
+                            ├─> Audio
+                            ├─> VFX
+                            └─> Quest
+```
 
-> Filling this table is the fastest way to prevent the class of bug the project keeps
-> hitting: the same value stored in several places with no owner and no change signal.
+Examples: `DamageEvent`, `HealthChangedEvent`, `StatsChangedEvent`, `ItemEquippedEvent`,
+`EnemyDiedEvent`, `AttackStartedEvent`, `AttackFinishedEvent`.
 
----
-
-## 7. Dependency rules **[FILL]**
-
-State the ones that would otherwise be re-litigated per pull request. Starters, all
-already enforced in `.claude/rules/`:
-
-- UI reads game state; it never writes it, and holds no `GameObject` reference to Player or Enemy
-- Core components depend on interfaces, never on concrete state classes
-- No `GameObject.Find()` / `FindObjectOfType()` / `SendMessage()` in production code
-- No allocation in `Update()` / `LogicUpdate()` / `PhysicsUpdate()`
-- `Physics2D` NonAlloc variants only in hot paths
+An event carries only the information the listener needs. **The event bus is not a global
+dumping ground** (Rule 9) — every event needs an owner, a lifecycle, and clear semantics.
 
 ---
 
-## 8. Open architecture decisions **[DERIVED — source: architecture review 2026-07-13]**
+## 7. Service layer
 
-| # | Decision needed | Priority | Blocks |
-|---|---|---|---|
-| 1 | Event bus contract → ADR | **HIGH** | 12 of 20 systems |
-| 2 | Damage & health ownership → ADR | **HIGH** | Combat, Enemy AI, HUD, Death |
-| 3 | Accept ADR-0001 / 0002 / 0003 (all still `Proposed`) | **HIGH** | Sprint 5/6 stories |
-| 4 | UI architecture → ADR | MEDIUM | `UI_ARCHITECTURE_PLAN.md` Phase 1+ |
-| 5 | Core component-hub contract → ADR | MEDIUM | — |
-| 6 | Animation second-bus rationale → ADR | MEDIUM | — |
-| 7 | Platform scope: is mobile real? | MEDIUM | UI Phase 6 |
-| 8 | Build-safe JSON loading (Bug #15) | LOW | Player builds |
+For systems with a global responsibility or an infrastructure role:
 
-Review verdict at last run: **CONCERNS** — 59 technical requirements, 50 gaps.
+```
+Services
+├── SaveService
+├── AudioService
+├── PoolService
+├── SceneService
+├── InputService
+└── EventService
+```
 
----
+**Do not make these singletons by default** (Rule 5). Prefer dependency injection, a
+composition root, or explicit dependencies. Where Unity's lifecycle genuinely forces
+global access, the reason must be stated and the dependency controlled.
 
-## 9. Change process **[FILL]**
-
-- What size of change requires an ADR before code?
-- Who reviews an architecture change on a solo project — self-review checklist, or a gate?
-- When does this file get updated, and by whom?
-
-Suggested minimum: any change to §5 (cross-cutting contracts) or §6 (data ownership)
-requires an ADR first. Everything else is ordinary work.
+Currently permitted singletons: `MazeController`, `EnemyManager` (ADR-0002). Nothing else.
 
 ---
 
-## 10. Revision history
+## 8. Data-driven design
 
-| Date | Author | Change |
+Separate configuration from runtime state.
+
+```
+ScriptableObject  →  Runtime Object  →  Gameplay System
+   (config)          (mutable state)
+```
+
+```
+Data
+├── CharacterData · EnemyData · WeaponData
+├── SkillData · AttackData · AnimationData
+└── ItemData
+```
+
+**Rule 7 is binding and currently violated — see §11.** A ScriptableObject asset is
+shared by every instance that references it. Mutable runtime state written into an SO is
+shared state, and in Unity it also survives between Editor Play sessions.
+
+| Configuration data | Runtime state |
+|---|---|
+| Base stats, formulas, curves | Current HP, active modifiers, cooldowns |
+| Prefab references, ranges, damage | Position, target, state timers |
+| Lives in a ScriptableObject asset | Lives in a runtime component or plain C# object |
+
+---
+
+## 9. Presentation layer
+
+```
+Gameplay ──Event/State──> Presenter ──ViewModel──> View ──> Unity UI
+```
+
+### Presenter
+
+Adapter between gameplay and UI. Exactly three responsibilities:
+
+| Responsibility | Meaning |
+|---|---|
+| **Subscribe** | Receive events/state from gameplay |
+| **Transform** | Convert gameplay data into presentation data |
+| **Command** | Turn UI interaction into a Command |
+
+A Presenter must **not**: calculate damage or stats, run combat or AI, touch `Image` /
+`Text` / `Button` directly, hold business logic, or grow into a giant UIManager.
+
+If a Presenter starts containing `CalculateDamage()`, `ApplyModifier()`, `FindTarget()`,
+`CanAttack()`, or `CalculateStats()`, that logic belongs in a gameplay system.
+
+### View
+
+Presentation only. Receives data; never queries gameplay.
+
+```csharp
+view.Render(viewModel);      // correct
+playerStats.GetStrength();   // wrong — View must not know gameplay
+```
+
+### ViewModel
+
+Presentation state. Belongs to the Presentation layer — gameplay must never depend on it.
+
+```
+CharacterStatsViewModel
+├── Strength   ┐
+├── Dexterity  ├─ each a StatDisplayData { BaseValue, Bonus, Total }
+├── Intelligence
+├── Vitality
+└── Luck
+```
+
+### Folder structure
+
+```
+Presentation/
+├── Core/          IPresenter · IView · PresenterBase · ViewModelBase
+├── Character/
+│   ├── Stats/     CharacterStatsPresenter · View · ViewModel · StatDisplayData
+│   └── Equipment/ EquipmentPresenter · View · ViewModel
+├── HUD/           PlayerHUDPresenter · View · ViewModel
+├── Inventory/     InventoryPresenter · View · ViewModel
+└── Menu/          PauseMenuPresenter · View · ViewModel
+```
+
+### Both directions, concretely
+
+```
+UI → Gameplay:   User → Equip Button → InventoryView → InventoryPresenter
+                      → EquipItemCommand → InventorySystem → Player Equipment
+
+Gameplay → UI:   PlayerStats → StatsChangedEvent → CharacterStatsPresenter
+                      → CharacterStatsViewModel → CharacterStatsView
+```
+
+Never: `Button → Player → Equipment.Add()`.
+
+---
+
+## 10. Unity-specific rule
+
+Keep Unity-specific code at the outer layer. `MonoBehaviour`, `ScriptableObject`,
+`Animator`, `Physics`, `Input`, `Scene`, `GameObject`, `Transform`, uGUI are all fine
+where Unity is genuinely needed.
+
+Do not be extreme about removing `MonoBehaviour` from everything — Unity's lifecycle is a
+natural part of Unity architecture. The goal is simply:
+
+> Unity-specific code where Unity is needed; gameplay logic where gameplay is needed.
+
+---
+
+## 11. Architectural rules
+
+| # | Rule | Status in this project |
 |---|---|---|
-| 2026-08-17 | — | Created as template, seeded from code, technical-preferences, and the 2026-07-13 review |
+| 1 | No God Object | ⚠️ `PlayerInputHandler` (324 lines) |
+| 2 | No UI dependency in Gameplay | ✅ holds today |
+| 3 | No gameplay logic in Presenter | n/a — no Presenter exists yet |
+| 4 | No direct gameplay modification from View | ✅ holds today |
+| 5 | No singleton by default | ⚠️ `LevelManager`, `ObjectPoolManager` |
+| 6 | No over-engineering | ✅ |
+| 7 | **Static data ≠ runtime state** | ❌ **violated — see below** |
+| 8 | State machine is not a gameplay system | ⚠️ no Systems layer exists |
+| 9 | Events are not a global dump | ⚠️ untyped `Action<object>` payloads |
+| 10 | Unity is not the whole architecture | ✅ |
+
+### Rule 7 — the live violation
+
+`EntityStatsSO` stores mutable runtime health (`health`, `modifiersHealth`) directly on
+the ScriptableObject asset, and **no SO is ever instantiated anywhere in the codebase**.
+Every enemy sharing an `EntityStatsSO` asset therefore shares one health value.
+
+`PlayerData.currentHealth` and `StatsSO`'s runtime modifier stack have the same shape.
+
+Resolution direction: SO holds base/config; a runtime component owns current values.
+Tracked in `adoption-analysis.md`.
+
+---
+
+## 12. Goals this architecture serves
+
+Gameplay independent of UI · UI independent of gameplay internals · Player and Enemy reuse
+the same components and systems · Combat, stats, and AI extensible · animation changes do
+not break combat · UI changes do not touch gameplay · new command sources (AI, network,
+replay) can be added · infrastructure swappable · clear data-driven workflow · important
+logic testable · debuggable · not over-engineered.
+
+> **Simple enough to iterate, structured enough to scale.**
+>
+> Where several implementations are possible, prefer the one with the fewest abstractions
+> that still preserves dependency direction and separation of responsibility.
+
+---
+
+## 13. Change process
+
+- Any change to §2 (dependency direction), §8 (data/state split), or §9 (presentation
+  contract) requires an ADR before code.
+- Everything else is ordinary work.
+- Update this file when the project mapping in §3 or the rule status in §11 changes.
+
+---
+
+## 14. Revision history
+
+| Date | Change |
+|---|---|
+| 2026-08-17 | Created as template skeleton |
+| 2026-08-17 | Replaced with the owner-ratified Hybrid Game Architecture; project mapping and rule-conformance status added |
