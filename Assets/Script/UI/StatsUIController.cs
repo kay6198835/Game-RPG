@@ -14,23 +14,36 @@ public class StatsUIController : MonoBehaviour
     public GameObject derivedStatSlotContainer;
     public GameObject UIPannel;
     public StatsSO statsSO;
-    public ObjectPoolManager objectPoolManager;
+    ObjectPoolManager objectPoolManager;
+    Dictionary<StatType, int> gainKeyValues;
+    public int totalLevelUpBonusValue;
     void Awake()
     {
         objectPoolManager = GetComponent<ObjectPoolManager>();
         GetStatsUI(statsSO);
     }
-
+    void OnEnable()
+    {
+        EventManager.Resgister(EventID.ON_INCREASE_STATS_BY_UI, IncreaseStat);
+        EventManager.Resgister(EventID.ON_DECREASE_STATS_BY_UI, DecreaseStat);
+        EventManager.Resgister(EventID.ON_UPDATE_STATS_BY_UI, GetStatsViewModel);
+    }
+    void OnDisable()
+    {
+        EventManager.UnResgister(EventID.ON_INCREASE_STATS_BY_UI, IncreaseStat);
+        EventManager.UnResgister(EventID.ON_DECREASE_STATS_BY_UI, DecreaseStat);
+        EventManager.UnResgister(EventID.ON_UPDATE_STATS_BY_UI, GetStatsViewModel);
+    }
     private void GetStatsUI(StatsSO stats)
     {
         foreach (var stat in stats.statViewDTOs)
         {
             GameObject statSlotObject = objectPoolManager.Spawn(Vector2.zero, Quaternion.identity,
-            StatTypeExtensions.IsPrimary(stat.Key) ? PrimaryStatSlotPrefab.gameObject : DerivedStatSlotPrefab.gameObject,
-            StatTypeExtensions.IsPrimary(stat.Key) ? primaryStatSlotContainer.transform : derivedStatSlotContainer.transform);
+            stat.Key.IsPrimary() ? PrimaryStatSlotPrefab.gameObject : DerivedStatSlotPrefab.gameObject,
+            stat.Key.IsPrimary() ? primaryStatSlotContainer.transform : derivedStatSlotContainer.transform);
             StatSlot statSlot = statSlotObject.GetComponent<StatSlot>();
             statSlot.statViewDTO = stat.Value;
-            (StatTypeExtensions.IsPrimary(stat.Key) ? ListPrimaryStat : ListDerivedStat)[stat.Key] = statSlot;
+            (stat.Key.IsPrimary() ? ListPrimaryStat : ListDerivedStat)[stat.Key] = statSlot;
             statSlot.UpdateStatSlot(stat.Value);
         }
         CloseStatsUI();
@@ -46,6 +59,27 @@ public class StatsUIController : MonoBehaviour
         foreach (var statSlot in ListDerivedStat.Values)
         {
             objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Release(statSlot.gameObject);
+        }
+        foreach (var (type, amount) in gainKeyValues)
+        {
+            statsSO.AddPrimaryPoint(type, -amount);
+        }
+        gainKeyValues.Clear();
+        value = 0;
+    }
+
+    public void UpdateViewRunTime()
+    {
+        foreach (var statSlot in ListPrimaryStat.Values)
+        {
+            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            statSlot.UpdateStatSlot(statsViewDTO);
+        }
+
+        foreach (var statSlot in ListDerivedStat.Values)
+        {
+            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            statSlot.UpdateStatSlot(statsViewDTO);
         }
     }
 
@@ -64,7 +98,48 @@ public class StatsUIController : MonoBehaviour
             statSlot.UpdateStatSlot(statsViewDTO);
             objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Reload(Vector2.one, derivedStatSlotContainer.transform);
         }
+
+
+        totalLevelUpBonusValue = statsSO.StatUnusedBonus;
+        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
     }
 
+    private void GetStatsViewModel(object obj = null)
+    {
+        foreach (var (type, amount) in gainKeyValues)
+        {
+            statsSO.AddPrimaryPoint(type, amount);
+        }
+    }
 
+    public void IncreaseStat(StatType statType)
+    {
+        if (!gainKeyValues.TryGetValue(statType, out int value))
+        {
+            value = 1;
+            gainKeyValues.Add(statType, value);
+        }
+        else
+        {
+            value++;
+            gainKeyValues[statType] = value;
+        }
+        statsSO.AddPrimaryPoint(statType, 1);
+        totalLevelUpBonusValue--;
+        UpdateViewRunTime();
+        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
+    }
+
+    public void DecreaseStat(StatType statType)
+    {
+        if (gainKeyValues.TryGetValue(statType, out int value) && value > 0)
+        {
+            value--;
+            gainKeyValues[statType] = value;
+        }
+        statsSO.AddPrimaryPoint(statType, --1);
+        totalLevelUpBonusValue++;
+        UpdateViewRunTime();
+        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
+    }
 }

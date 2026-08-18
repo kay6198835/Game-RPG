@@ -6,9 +6,9 @@ using UnityEngine;
 public class StatsSO : ScriptableObject
 {
     [SerializeField, Min(1)] private int level = 1;
+    [SerializeField, Min(1)] private int statUnusedBonus = 0;
     [SerializeField] private List<Stat> stats = new List<Stat>();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
     [SerializeField] DerivedStatFormula[] statFormulas;
-
     private readonly Dictionary<StatType, Stat> lookup = new Dictionary<StatType, Stat>(); // index runtime, KHÔNG serialize -> Get O(1)
     public readonly Dictionary<StatType, StatsViewDTO> statViewDTOs = new Dictionary<StatType, StatsViewDTO>();
     //[SerializeField] private List<Stat> stats = new List<Stat>(); 
@@ -17,15 +17,28 @@ public class StatsSO : ScriptableObject
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
     public event Action<StatType> OnStatChanged;
     [field: SerializeField] public bool isDevMode { get; private set; } = false;   // bật để debug khi stat dirty / recalc derived
+    public float StatUnusedBonus
+    {
+        get => statUnusedBonus;
+        set
+        {
+            statUnusedBonus = CalculateStatUnusedBonus();
+        }
+    }
     void OnEnable()
     {
-
+        OnStatChanged += AfterChange;
         for (int i = 0; i < stats.Count; i++)
         {
             stats[i]?.ClearModifiers();
         }
         initialized = false;
         EnsureInitialized();
+    }
+
+    void OnDisable()
+    {
+        OnStatChanged -= AfterChange;
     }
 
     public int Level
@@ -36,7 +49,10 @@ public class StatsSO : ScriptableObject
             int clamped = Mathf.Max(1, value);
             if (clamped == level) return;
             level = clamped;
-            RecalculateDerived();
+#if UNITY_EDITOR
+    RecalculateDerived();
+#endif
+
         }
     }
 
@@ -61,7 +77,6 @@ public class StatsSO : ScriptableObject
         }
         initialized = true;
         RecalculateDerived();
-        //Test();
     }
     // ------------------------- API chính -------------------------
 
@@ -69,19 +84,18 @@ public class StatsSO : ScriptableObject
     public Stat Get(StatType type)
     {
         EnsureInitialized();
-        Stat stat = null;
-        lookup.TryGetValue(type, out stat);
+        lookup.TryGetValue(type, out Stat stat);
         return stat;
     }
 
     /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số mà nó nhắm tới.</summary>
-    public void AddModifier(StatModifier modifier)
-    {
-        if (modifier == null) return;
-        EnsureInitialized();
-        GetOrCreate(modifier.TargetStat).AddModifier(modifier);
-        AfterChanged(modifier.TargetStat);
-    }
+    // public void AddModifier(StatModifier modifier)
+    // {
+    //     if (modifier == null) return;
+    //     EnsureInitialized();
+    //     GetOrCreate(modifier.TargetStat).AddModifier(modifier);
+    //     OnStatChanged?.Invoke(modifier.TargetStat);
+    // }
 
     /// <summary>
     /// Gắn nhiều modifier từ cùng một nguồn trong MỘT lần (trang bị, buff, thẻ nâng cấp).
@@ -103,10 +117,9 @@ public class StatsSO : ScriptableObject
 
             Stat stat = GetOrCreate(authored.TargetStat);
             stat.AddModifier(authored.WithSource(source));
-
             OnStatChanged?.Invoke(stat.Type);
             if (stat.Type.IsPrimary()) primaryChanged = true;
-            AfterChanged(modifiers[i].TargetStat);
+
         }
         if (primaryChanged) RecalculateDerived();
     }
@@ -186,22 +199,30 @@ public class StatsSO : ScriptableObject
         RecalculateDerived();
     }
 
+    private int CalculateStatUnusedBonus()
+    {
+        int statUnusedBonus = 0;
+        foreach (var (type, stat) in lookup)
+        {
+            if (type.IsPrimary())
+            {
+                statUnusedBonus += stat.BaseValue;
+            }
+        }
+        return statUnusedBonus;
+    }
+
     private void AfterChanged(StatType type)
     {
-        OnStatChanged?.Invoke(type);
-        if (type.IsPrimary())
-        {
-            Stat stat = Get(type);
-            statViewDTOs[type].Update(stat.BaseValue, stat.Value);
-            Debug.Log($"[StatsSO] AfterChanged: {type} = {stat.Value}");
-            RecalculateDerived();
-        }
+        Stat stat = GetOrCreate(type);
+        StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
+        statViewDTO.Update(stat.BaseValue, stat.Value);
     }
 
     public float GetStatValue(StatType type)
     {
-        Stat stat = Get(type);
-        return stat != null ? stat.Value : 0f;
+        Stat stat = GetOrCreate(type);
+        return stat.Value;
     }
 
     private void RecalculateDerived()
@@ -214,10 +235,8 @@ public class StatsSO : ScriptableObject
             Stat target = GetOrCreate(formula.targetStat);
             float newBase = formula.Evaluate(GetStatValue, level);
             if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
-            StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
             target.BaseValue = newBase;
             lookup[target.Type] = target;
-            statViewDTO.Update(target.BaseValue, target.Value);
             OnStatChanged?.Invoke(target.Type);
         }
     }
