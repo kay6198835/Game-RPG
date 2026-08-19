@@ -159,7 +159,7 @@ public class StatsSO : ScriptableObject
             return;
         }
         EnsureInitialized();
-        GetOrCreate(type).BaseValue += amount;
+        GetOrCreate(type).LevelUpVType += amount;
         AfterChanged(type);
     }
 
@@ -183,7 +183,7 @@ public class StatsSO : ScriptableObject
             }
             lookup[s.Type] = s;
             StatsViewDTO statViewDTO = new StatsViewDTO(s.Type);
-            statViewDTO.Update(s.BaseValue, s.Value);
+            statViewDTO.Update(s.AdjustedValue, s.Value);
             statViewDTOs[s.Type] = statViewDTO;
         }
 
@@ -206,9 +206,10 @@ public class StatsSO : ScriptableObject
         {
             if (type.IsPrimary())
             {
-                statUnusedBonus += stat.BaseValue;
+                statUnusedBonus += stat.LevelUpVType;
             }
         }
+        statUnusedBonus = level - statUnusedBonus;
         return statUnusedBonus;
     }
 
@@ -216,7 +217,7 @@ public class StatsSO : ScriptableObject
     {
         Stat stat = GetOrCreate(type);
         StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
-        statViewDTO.Update(stat.BaseValue, stat.Value);
+        statViewDTO.Update(stat.AdjustedValue, stat.Value);
     }
 
     public float GetStatValue(StatType type)
@@ -234,8 +235,8 @@ public class StatsSO : ScriptableObject
 
             Stat target = GetOrCreate(formula.targetStat);
             float newBase = formula.Evaluate(GetStatValue, level);
-            if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
-            target.BaseValue = newBase;
+            if (!isDevMode && Mathf.Approximately(target.AdjustedValue, newBase)) continue;
+            target.AdjustedValue = newBase;
             lookup[target.Type] = target;
             OnStatChanged?.Invoke(target.Type);
         }
@@ -274,16 +275,16 @@ public class StatsViewDTO
     public string Name;
     public float BonusValue;
     public float FinalValue;
-    public float BaseValue;
+    public float AdjustedValue;
     public StatsViewDTO(StatType statType)
     {
         StatType = statType;
         Name = GameConstants.StatTypeName[statType];
     }
-    public void Update(float baseValue, float finalValue)
+    public void Update(float adjustedValue, float finalValue)
     {
-        this.BaseValue = baseValue;
+        this.AdjustedValue = adjustedValue;
         this.FinalValue = finalValue;
-        this.BonusValue = FinalValue - BaseValue;
+        this.BonusValue = FinalValue - AdjustedValue;
     }
 }

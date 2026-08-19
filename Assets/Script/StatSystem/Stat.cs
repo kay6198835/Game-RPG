@@ -14,14 +14,35 @@ using UnityEngine;
 [Serializable]
 public class Stat
 {
-    [SerializeField] private StatType type;
+    [field: SerializeField] public StatType Type { get; private set; }
     [SerializeField] private float baseValue;
-    [SerializeField] private float cachedValue;
-    private bool isDirty = false;
+    [SerializeField] private float levelUpValue;
+    [SerializeField] private float equipmentValue;
 
-    // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
-    // StatsSO.stats -> nếu để serialize, buff runtime sẽ ghi thẳng vào .asset và sống dai
-    // qua các phiên Play Mode.
+    public float BaseValue { get => baseValue; set => SetField(ref baseValue, value); }
+    public float LevelUpValue { get => levelUpValue; set => SetField(ref levelUpValue, value); }
+    public float AdjustedValue => baseValue + levelUpValue;   // derived — no setter, no serialize
+    public float Value
+    {
+        get
+        {
+            if (isDirty)
+            {
+                cachedValue = CalculateFinalValue();
+                isDirty = false;
+            }
+            return cachedValue;
+        }
+    }                     // lazy, dirty-flag path you already have
+
+    private void SetField(ref float field, float value)
+    {
+        if (Mathf.Approximately(field, value)) return;
+        field = value;
+        SetDirty();
+    }
+
+    private bool isDirty = false;
     [field: SerializeField] public List<StatModifier> modifiers { get; private set; } = new List<StatModifier>();
 
     /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
@@ -46,31 +67,7 @@ public class Stat
     // Không dùng ModifierList: đọc thôi thì đừng tạo list rỗng cho stat chưa từng có modifier nào.
     public IReadOnlyList<StatModifier> Modifiers => (IReadOnlyList<StatModifier>)modifiers ?? Array.Empty<StatModifier>();
 
-    public float BaseValue
-    {
-        get => baseValue;
-        set
-        {
-            if (Mathf.Approximately(baseValue, value)) return;
-            baseValue = value;
-            cachedValue = CalculateFinalValue();
-            SetDirty();
-        }
-    }
 
-    /// <summary>Giá trị cuối cùng sau khi áp dụng toàn bộ modifier.</summary>
-    public float Value
-    {
-        get
-        {
-            if (isDirty)
-            {
-                cachedValue = CalculateFinalValue();
-                isDirty = false;
-            }
-            return cachedValue;
-        }
-    }
 
     public void AddModifier(StatModifier modifier)
     {
@@ -102,7 +99,7 @@ public class Stat
 
     private float CalculateFinalValue()
     {
-        float finalValue = baseValue;
+        float finalValue = AdjustedValue;
         if (modifiers == null) return finalValue;
 
         float percentAddSum = 0f;
