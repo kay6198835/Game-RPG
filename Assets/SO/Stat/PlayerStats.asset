@@ -13,41 +13,76 @@ MonoBehaviour:
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
   level: 1
+  statUnusedBonus: 0
   stats:
-  - type: 0
-    baseValue: 43
-  - type: 1
+  - <Type>k__BackingField: 0
     baseValue: 10
-  - type: 2
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 1
     baseValue: 10
-  - type: 3
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 2
     baseValue: 10
-  - type: 4
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 3
     baseValue: 10
-  - type: 100
-    baseValue: 264
-  - type: 101
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 4
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 100
+    baseValue: 198
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 101
     baseValue: 143
-  - type: 102
-    baseValue: 103.8
-  - type: 103
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 102
+    baseValue: 31.2
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 103
     baseValue: 29.2
-  - type: 104
-    baseValue: 37.1
-  - type: 105
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 104
+    baseValue: 20.6
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 105
     baseValue: 0.95
-  - type: 106
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 106
     baseValue: 9
-  - type: 107
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 107
     baseValue: 158
-  - type: 108
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 108
     baseValue: 3.2
-  - type: 109
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 109
     baseValue: 2.1
-  - type: 110
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 110
     baseValue: 1.88
-  - type: 111
+    levelUpValue: 0
+    equipmentValue: 0
+  - <Type>k__BackingField: 111
     baseValue: 3.5
+    levelUpValue: 0
+    equipmentValue: 0
   statFormulas:
   - targetStat: 100
     baseConstant: 50

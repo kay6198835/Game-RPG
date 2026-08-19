@@ -29,10 +29,14 @@ using UnityEngine;
 [Serializable]
 public class Stat
 {
-    [SerializeField] private StatType type;
+    // Serialize dưới key `<Type>k__BackingField`, KHÔNG phải `type`. Mọi .asset phải dùng
+    // đúng key đó, nếu không Unity đọc không ra và cả list rơi hết về STR (0).
+    [field: SerializeField] public StatType Type { get; private set; }
+
     [SerializeField] private float baseValue;
     [SerializeField] private float levelUpValue;
     [SerializeField] private float equipmentValue;
+
     // KHÔNG serialize: đây là cache, không phải dữ liệu authored. Nếu serialize thì mọi lần
     // tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
     // lần đọc Value đầu tiên sau khi load luôn tính lại, thay vì tin vào cache đã lưu.
@@ -44,9 +48,6 @@ public class Stat
     // qua các phiên Play Mode.
     [NonSerialized] private List<StatModifier> modifiers = new List<StatModifier>();
 
-    /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
-    public StatType Type => type;
-
     /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
 
@@ -57,7 +58,7 @@ public class Stat
 
     public Stat(StatType type, float baseValue = 0f, float levelUpValue = 0f, float equipmentValue = 0f)
     {
-        this.type = type;
+        Type = type;
         this.baseValue = baseValue;
         this.levelUpValue = levelUpValue;
         this.equipmentValue = equipmentValue;
@@ -109,7 +110,7 @@ public class Stat
     /// <summary>Alias của Value — giữ đúng tên trong bảng công thức stat.</summary>
     public float FinalValue => Value;
 
-    /// <summary>Phần chênh do modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
+    /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
     public float BonusValue => Value - AdjustedValue;
 
     // ------------------------- Modifier -------------------------

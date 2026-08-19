@@ -86,7 +86,7 @@ public class StatModifierTesterEditor : Editor
         if (stats == null) return;
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"Live Values (Level {stats.Level})", EditorStyles.boldLabel);
+        //EditorGUILayout.LabelField($"Live Values (Level {stats.Level})", EditorStyles.boldLabel);
 
         EditorGUILayout.LabelField("Primary", EditorStyles.miniBoldLabel);
         foreach (StatType t in Enum.GetValues(typeof(StatType)))
