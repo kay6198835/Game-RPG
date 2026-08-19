@@ -3,24 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Một chỉ số đơn lẻ: StatType + hai tầng giá trị authored + danh sách modifier runtime.
+/// Một chỉ số đơn lẻ: StatType + ba tầng giá trị authored + danh sách modifier runtime.
 ///
-/// Hai tầng authored (serialize, sửa được ở Inspector):
-///   BaseValue     — giá trị gốc của chỉ số
-///   LevelUpValue  — cộng dồn từ lên cấp / phân bổ điểm
+/// Ba tầng authored (serialize, sửa được ở Inspector):
+///   BaseValue       — giá trị gốc của chỉ số
+///   LevelUpValue    — cộng dồn từ lên cấp / phân bổ điểm
+///   EquipmentValue  — cộng dồn từ trang bị đang mặc
 ///
-/// Ba giá trị dẫn xuất (KHÔNG serialize — tính ra, không author được):
-///   AdjustedValue  = BaseValue + LevelUpValue
-///   FinalValue     = (AdjustedValue + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
-///   EquipmentValue = FinalValue − AdjustedValue   (đóng góp của trang bị và buff)
-///
-/// Trang bị tác động qua StatModifier (xem StatModifierGroup), không qua một field nhập tay.
-///
-/// EquipmentValue BẮT BUỘC tính bằng hiệu, không cộng dồn riêng trong vòng lặp modifier.
-/// Đặt A = AdjustedValue, F = ΣFlat, p = 1 + phần trăm thì đóng góp E phải thoả
-/// A + E = (A + F) × p, tức E = (A + F) × p − A — trong E có A. Vòng lặp chỉ nhìn thấy
-/// modifiers nên không có hằng số nào ('0', '1', ...) thay được A: gieo bằng A rồi trừ ra
-/// ở cuối là cách duy nhất đúng.
+/// Hai tầng dẫn xuất (KHÔNG serialize — tính ra, không author được):
+///   AdjustedValue = BaseValue + LevelUpValue
+///   FinalValue    = (AdjustedValue + EquipmentValue + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
 ///
 /// Value chỉ tính lại khi có thay đổi (dirty flag), KHÔNG tính lại mỗi frame.
 ///
@@ -28,9 +20,8 @@ using UnityEngine;
 /// Sửa ở Inspector / Undo / prefab revert / deserialize đều KHÔNG gọi SetDirty() — vì vậy
 /// StatsSO.OnValidate() phải gọi MarkDirty() cho từng Stat. Đừng bỏ hook đó.
 ///
-/// CHỈ hai field authored được serialize. cachedValue, equipmentValue và modifiers cố tình
-/// KHÔNG serialize: chúng là kết quả tính / trạng thái runtime, nếu lưu xuống .asset thì file
-/// tự thay đổi sau mỗi Play Mode.
+/// CHỈ ba field authored được serialize. cachedValue và modifiers cố tình KHÔNG serialize:
+/// chúng là trạng thái runtime, nếu lưu xuống .asset thì file tự thay đổi sau mỗi Play Mode.
 ///
 /// Tầng này chỉ thao tác TỪNG modifier một. Mọi thao tác hàng loạt (gắn/gỡ theo nguồn)
 /// nằm ở StatsSO — nơi đã giữ sẵn việc gom event và RecalculateDerived.
@@ -44,12 +35,12 @@ public class Stat
 
     [SerializeField] private float baseValue;
     [SerializeField] private float levelUpValue;
+    [SerializeField] private float equipmentValue;
 
-    // KHÔNG serialize: đều là kết quả tính, không phải dữ liệu authored. Nếu serialize thì mọi
-    // lần tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
+    // KHÔNG serialize: đây là cache, không phải dữ liệu authored. Nếu serialize thì mọi lần
+    // tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
     // lần đọc Value đầu tiên sau khi load luôn tính lại, thay vì tin vào cache đã lưu.
     [NonSerialized] private float cachedValue;
-    [NonSerialized] private float equipmentValue;
     [NonSerialized] private bool isDirty = true;
 
     // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
@@ -57,7 +48,7 @@ public class Stat
     // qua các phiên Play Mode.
     [NonSerialized] private List<StatModifier> modifiers = new List<StatModifier>();
 
-    /// <summary>Bắn ra khi một trong hai tầng authored hoặc modifier thay đổi.</summary>
+    /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
 
     /// <summary>Buộc tính lại Value ở lần đọc kế tiếp (dùng sau khi sửa field trong Inspector).</summary>
@@ -65,11 +56,12 @@ public class Stat
 
     public Stat() { }   // Unity deserialization
 
-    public Stat(StatType type, float baseValue = 0f, float levelUpValue = 0f)
+    public Stat(StatType type, float baseValue = 0f, float levelUpValue = 0f, float equipmentValue = 0f)
     {
         Type = type;
         this.baseValue = baseValue;
         this.levelUpValue = levelUpValue;
+        this.equipmentValue = equipmentValue;
     }
 
     /// <summary>Modifier đang gắn (chỉ đọc). StatsSO duyệt list này để gỡ theo nguồn.</summary>
@@ -90,12 +82,18 @@ public class Stat
         set => SetField(ref levelUpValue, value);
     }
 
+    public float EquipmentValue
+    {
+        get => equipmentValue;
+        set => SetField(ref equipmentValue, value);
+    }
+
     // ------------------------- Tầng dẫn xuất -------------------------
 
-    /// <summary>Gốc + lên cấp, CHƯA tính modifier. Không serialize: đây là giá trị tính ra.</summary>
+    /// <summary>Gốc + lên cấp, CHƯA tính trang bị và modifier. Không serialize: đây là giá trị tính ra.</summary>
     public float AdjustedValue => baseValue + levelUpValue;
 
-    /// <summary>Giá trị cuối cùng sau khi áp dụng toàn bộ modifier (trang bị, buff).</summary>
+    /// <summary>Giá trị cuối cùng sau khi áp dụng trang bị và toàn bộ modifier.</summary>
     public float Value
     {
         get
@@ -112,22 +110,8 @@ public class Stat
     /// <summary>Alias của Value — giữ đúng tên trong bảng công thức stat.</summary>
     public float FinalValue => Value;
 
-    /// <summary>
-    /// Phần chênh do trang bị và buff tạo ra. CHỈ ĐỌC: đây là kết quả tính, không gán được —
-    /// CalculateFinalValue() ghi đè nó ở mỗi lần recalc nên mọi giá trị gán từ ngoài đều bị nuốt.
-    /// Đọc Value trước để chắc chắn equipmentValue đã ứng với lần recalc gần nhất.
-    /// </summary>
-    public float EquipmentValue
-    {
-        get
-        {
-            _ = Value;
-            return equipmentValue;
-        }
-    }
-
-    /// <summary>Bằng đúng EquipmentValue — giữ tên cũ cho UI hiển thị "+12" màu xanh.</summary>
-    public float BonusValue => EquipmentValue;
+    /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
+    public float BonusValue => Value - AdjustedValue;
 
     // ------------------------- Modifier -------------------------
 
@@ -175,17 +159,10 @@ public class Stat
         OnChanged?.Invoke();
     }
 
-    // Gieo bằng AdjustedValue, KHÔNG phải 0 hay 1: modifier phần trăm nhân vào toàn bộ giá trị,
-    // nên nếu bắt đầu từ hằng số thì "+20%" ra một con số cố định bất kể stat đang là 31 hay 5000.
-    // Đóng góp của modifier bóc ra bằng phép trừ ở cuối — xem phần chứng minh ở doc của class.
     private float CalculateFinalValue()
     {
-        float finalValue = AdjustedValue;
-        if (modifiers == null)
-        {
-            equipmentValue = 0f;
-            return finalValue;
-        }
+        float finalValue = AdjustedValue + equipmentValue;
+        if (modifiers == null) return finalValue;
 
         float percentAddSum = 0f;
         for (int i = 0; i < modifiers.Count; i++)
@@ -214,8 +191,6 @@ public class Stat
                     break;
             }
         }
-
-        equipmentValue = finalValue - AdjustedValue;
         return finalValue;
     }
 }
