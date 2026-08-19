@@ -12,76 +12,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ddbf4281c7bbc0409c19795f09a2ec5, type: 3}
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
-  level: 0
+  level: 1
   stats:
   - type: 0
     baseValue: 43
-    cachedValue: 43
-    <modifiers>k__BackingField: []
   - type: 1
     baseValue: 10
-    cachedValue: 10
-    <modifiers>k__BackingField: []
   - type: 2
     baseValue: 10
-    cachedValue: 10
-    <modifiers>k__BackingField: []
   - type: 3
     baseValue: 10
-    cachedValue: 10
-    <modifiers>k__BackingField: []
   - type: 4
     baseValue: 10
-    cachedValue: 10
-    <modifiers>k__BackingField: []
   - type: 100
-    baseValue: 256
-    cachedValue: 256
-    <modifiers>k__BackingField: []
+    baseValue: 264
   - type: 101
-    baseValue: 140
-    cachedValue: 140
-    <modifiers>k__BackingField: []
+    baseValue: 143
   - type: 102
-    baseValue: 102.6
-    cachedValue: 102.6
-    <modifiers>k__BackingField: []
+    baseValue: 103.8
   - type: 103
-    baseValue: 28
-    cachedValue: 28
-    <modifiers>k__BackingField: []
+    baseValue: 29.2
   - type: 104
-    baseValue: 36.5
-    cachedValue: 36.5
-    <modifiers>k__BackingField: []
+    baseValue: 37.1
   - type: 105
     baseValue: 0.95
-    cachedValue: 0.95
-    <modifiers>k__BackingField: []
   - type: 106
     baseValue: 9
-    cachedValue: 9
-    <modifiers>k__BackingField: []
   - type: 107
     baseValue: 158
-    cachedValue: 158
-    <modifiers>k__BackingField: []
   - type: 108
     baseValue: 3.2
-    cachedValue: 3.2
-    <modifiers>k__BackingField: []
   - type: 109
-    baseValue: 2
-    cachedValue: 2
-    <modifiers>k__BackingField: []
+    baseValue: 2.1
   - type: 110
-    baseValue: 1.8
-    cachedValue: 1.8
-    <modifiers>k__BackingField: []
+    baseValue: 1.88
   - type: 111
     baseValue: 3.5
-    cachedValue: 3.5
-    <modifiers>k__BackingField: []
   statFormulas:
   - targetStat: 100
     baseConstant: 50

@@ -69,9 +69,15 @@ public class StatModifierTesterEditor : Editor
 
     private void DrawPrimaryOnlyPopup(SerializedProperty prop)
     {
-        int current = Mathf.Max(0, Array.IndexOf(PrimaryTypes, (StatType)prop.intValue));
-        int selected = EditorGUILayout.Popup("Primary To Allocate", current, PrimaryNames);
-        prop.intValue = (int)PrimaryTypes[selected];
+        // Chỉ ghi khi người dùng thực sự đổi lựa chọn. Ghi vô điều kiện mỗi lần repaint sẽ
+        // âm thầm nắn giá trị hợp lệ về STR khi prop đang giữ một StatType không phải primary
+        // (IndexOf trả -1 -> kẹp về 0), và làm scene bẩn liên tục.
+        int current = Array.IndexOf(PrimaryTypes, (StatType)prop.intValue);
+
+        EditorGUI.BeginChangeCheck();
+        int selected = EditorGUILayout.Popup("Primary To Allocate", Mathf.Max(0, current), PrimaryNames);
+        if (EditorGUI.EndChangeCheck() || current < 0)
+            prop.intValue = (int)PrimaryTypes[selected];
     }
 
     private void DrawLiveReadout(StatModifierTester tester)

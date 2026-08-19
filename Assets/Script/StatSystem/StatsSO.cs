@@ -48,7 +48,12 @@ public class StatsSO : ScriptableObject
         }
         RecalculateDerived();
     }
-    public void Reset()
+    /// <summary>
+    /// Xoá sạch profile và seed lại mọi StatType về 0 — CHỈ dùng từ nút test.
+    /// KHÔNG được đặt tên là Reset(): đó là Unity message, Editor sẽ tự gọi khi bấm Reset
+    /// trong context menu của asset, và cuốn sạch toàn bộ số liệu balance đã author.
+    /// </summary>
+    public void SeedAllStats()
     {
         stats.Clear();
         lookup.Clear();
@@ -160,12 +165,21 @@ public class StatsSO : ScriptableObject
         lookup.Clear();
         statViewDTOs.Clear();
         // Bỏ null / trùng key ngay trong list authored -> giữ bất biến list ↔ dict 1:1.
-        for (int i = stats.Count - 1; i >= 0; i--)
+        // Duyệt XUÔI và giữ bản ĐẦU TIÊN: bản trùng phía sau thường là bản do GetOrCreate
+        // sinh ra với baseValue 0, còn bản đầu mới là số bạn author. Duyệt ngược sẽ giữ
+        // nhầm bản 0 và âm thầm nuốt mất dữ liệu đã cân bằng.
+        for (int i = 0; i < stats.Count; i++)
         {
             Stat s = stats[i];
-            if (s == null || lookup.ContainsKey(s.Type))
+            if (s == null)
             {
-                stats.RemoveAt(i);
+                stats.RemoveAt(i--);
+                continue;
+            }
+            if (lookup.ContainsKey(s.Type))
+            {
+                Debug.LogWarning($"[StatsSO] {name}: '{s.Type}' khai báo trùng tại index {i} — giữ bản đầu, gỡ bản này.", this);
+                stats.RemoveAt(i--);
                 continue;
             }
             lookup[s.Type] = s;
@@ -207,12 +221,18 @@ public class StatsSO : ScriptableObject
     private void RecalculateDerived()
     {
         if (statFormulas == null) return;
+
+        // Asset cũ có thể lưu level 0 (field initializer `= 1` KHÔNG áp dụng cho asset đã
+        // serialize từ trước — giá trị trên đĩa luôn thắng). Level 0 làm mọi số hạng perLevel
+        // bị nhân 0 và sai toàn bộ bảng cân bằng, nên kẹp sàn ngay tại chỗ đọc.
+        int effectiveLevel = Mathf.Max(1, level);
+
         foreach (var formula in statFormulas)
         {
             if (formula == null) continue;
 
             Stat target = GetOrCreate(formula.targetStat);
-            float newBase = formula.Evaluate(GetStatValue, level);
+            float newBase = formula.Evaluate(GetStatValue, effectiveLevel);
             if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
             StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
             target.BaseValue = newBase;

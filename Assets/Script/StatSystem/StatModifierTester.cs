@@ -91,7 +91,7 @@ public class StatModifierTester : MonoBehaviour
     public void ResetProfile()
     {
         if (!Guard()) return;
-        statsSO.Reset();
+        statsSO.SeedAllStats();
     }
 
     private bool Guard()

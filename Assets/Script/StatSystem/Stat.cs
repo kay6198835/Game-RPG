@@ -20,6 +20,9 @@ using UnityEngine;
 /// Sửa ở Inspector / Undo / prefab revert / deserialize đều KHÔNG gọi SetDirty() — vì vậy
 /// StatsSO.OnValidate() phải gọi MarkDirty() cho từng Stat. Đừng bỏ hook đó.
 ///
+/// CHỈ ba field authored được serialize. cachedValue và modifiers cố tình KHÔNG serialize:
+/// chúng là trạng thái runtime, nếu lưu xuống .asset thì file tự thay đổi sau mỗi Play Mode.
+///
 /// Tầng này chỉ thao tác TỪNG modifier một. Mọi thao tác hàng loạt (gắn/gỡ theo nguồn)
 /// nằm ở StatsSO — nơi đã giữ sẵn việc gom event và RecalculateDerived.
 /// </summary>
@@ -30,13 +33,16 @@ public class Stat
     [SerializeField] private float baseValue;
     [SerializeField] private float levelUpValue;
     [SerializeField] private float equipmentValue;
-    [SerializeField] private float cachedValue;
-    private bool isDirty = false;
+    // KHÔNG serialize: đây là cache, không phải dữ liệu authored. Nếu serialize thì mọi lần
+    // tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
+    // lần đọc Value đầu tiên sau khi load luôn tính lại, thay vì tin vào cache đã lưu.
+    [NonSerialized] private float cachedValue;
+    [NonSerialized] private bool isDirty = true;
 
     // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
     // StatsSO.stats -> nếu để serialize, buff runtime sẽ ghi thẳng vào .asset và sống dai
     // qua các phiên Play Mode.
-    [field: SerializeField] public List<StatModifier> modifiers { get; private set; } = new List<StatModifier>();
+    [NonSerialized] private List<StatModifier> modifiers = new List<StatModifier>();
 
     /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
     public StatType Type => type;
