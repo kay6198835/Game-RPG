@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 public class StatSlot : MonoBehaviour
 {
     [SerializeField] public StatsViewDTO statViewDTO;
@@ -8,8 +9,8 @@ public class StatSlot : MonoBehaviour
     [SerializeField] public TMPro.TextMeshProUGUI statNameText;
     [SerializeField] public TMPro.TextMeshProUGUI finalValueText;
     [SerializeField] public TMPro.TextMeshProUGUI bonusValueText;
-    [SerializeField] public TMPro.TextMeshProUGUI bottonIncreaseStat;
-    [SerializeField] public TMPro.TextMeshProUGUI bottonDecreaseStat;
+    [SerializeField] public Button bottonIncreaseStat;
+    [SerializeField] public Button bottonDecreaseStat;
     [SerializeField] public int levelUpBonusValue;
     [SerializeField] public int totalLevelUpBonusValue;
     void Awake()
@@ -35,8 +36,8 @@ public class StatSlot : MonoBehaviour
     }
     void UpdateTotalLevelUpBonusValue(object obj = null)
     {
-        bottonIncreaseStat.SetActive(totalLevelUpBonusValue > 0);
-        bottonDecreaseStat.SetActive(levelUpBonusValue > 0);
+        bottonIncreaseStat.interactable = totalLevelUpBonusValue > 0;
+        bottonDecreaseStat.interactable = levelUpBonusValue > 0;
     }
     public void DecreaseStat()
     {

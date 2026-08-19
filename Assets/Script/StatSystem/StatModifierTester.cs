@@ -48,7 +48,7 @@ public class StatModifierTester : MonoBehaviour
     public void LevelUp()
     {
         if (!Guard()) return;
-        statsSO.Level += 1;
+        //statsSO.Level += 1;
         statsSO.AddPrimaryPoint(primaryToAllocate, pointsPerLevel);
     }
 
@@ -56,7 +56,7 @@ public class StatModifierTester : MonoBehaviour
     public void AddModifierFromSource()
     {
         if (!Guard()) return;
-        statsSO.AddModifier(new StatModifier(modifierTarget, modifierValue, modifierType, CurrentSource));
+        //statsSO.AddModifier(new StatModifier(modifierTarget, modifierValue, modifierType, CurrentSource));
     }
 
     /// <summary>Gắn cả cụm modifier từ nguồn hiện tại — gỡ lại bằng nút Remove theo nguồn.</summary>

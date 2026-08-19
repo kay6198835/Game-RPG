@@ -6,7 +6,7 @@ using UnityEngine;
 public class StatsSO : ScriptableObject
 {
     [SerializeField, Min(1)] private int level = 1;
-    [SerializeField, Min(1)] private int statUnusedBonus = 0;
+    [SerializeField, Min(1)] private int statUnusedBonus;
     [SerializeField] private List<Stat> stats = new List<Stat>();          // nguồn dữ liệu: sửa trực tiếp ở Inspector
     [SerializeField] DerivedStatFormula[] statFormulas;
     private readonly Dictionary<StatType, Stat> lookup = new Dictionary<StatType, Stat>(); // index runtime, KHÔNG serialize -> Get O(1)
@@ -17,17 +17,35 @@ public class StatsSO : ScriptableObject
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
     public event Action<StatType> OnStatChanged;
     [field: SerializeField] public bool isDevMode { get; private set; } = false;   // bật để debug khi stat dirty / recalc derived
-    public float StatUnusedBonus
+    public int StatUnusedBonus
     {
         get => statUnusedBonus;
         set
         {
-            statUnusedBonus = CalculateStatUnusedBonus();
+            int clamped = Mathf.Max(1, value);
+            if (clamped == statUnusedBonus) return;
+            statUnusedBonus = clamped;
+        }
+    }
+    public int Level
+    {
+        get => level;
+        set
+        {
+            int clamped = Mathf.Max(1, value);
+            if (clamped == level) return;
+            level = clamped;
+            RecalculateDerived();
+            CalculateStatUnusedBonus();
+#if UNITY_EDITOR
+
+#endif
+
         }
     }
     void OnEnable()
     {
-        OnStatChanged += AfterChange;
+        OnStatChanged += AfterChanged;
         for (int i = 0; i < stats.Count; i++)
         {
             stats[i]?.ClearModifiers();
@@ -38,23 +56,9 @@ public class StatsSO : ScriptableObject
 
     void OnDisable()
     {
-        OnStatChanged -= AfterChange;
+        OnStatChanged -= AfterChanged;
     }
 
-    public int Level
-    {
-        get => level;
-        set
-        {
-            int clamped = Mathf.Max(1, value);
-            if (clamped == level) return;
-            level = clamped;
-#if UNITY_EDITOR
-    RecalculateDerived();
-#endif
-
-        }
-    }
 
     private void OnValidate()
     {
@@ -63,6 +67,7 @@ public class StatsSO : ScriptableObject
             stats[i]?.MarkDirty();
         }
         RecalculateDerived();
+        CalculateStatUnusedBonus();
     }
     public void Reset()
     {
@@ -159,7 +164,7 @@ public class StatsSO : ScriptableObject
             return;
         }
         EnsureInitialized();
-        GetOrCreate(type).LevelUpVType += amount;
+        GetOrCreate(type).LevelUpValue += amount;
         AfterChanged(type);
     }
 
@@ -199,24 +204,24 @@ public class StatsSO : ScriptableObject
         RecalculateDerived();
     }
 
-    private int CalculateStatUnusedBonus()
+    private void CalculateStatUnusedBonus()
     {
-        int statUnusedBonus = 0;
+        statUnusedBonus = 0;
         foreach (var (type, stat) in lookup)
         {
             if (type.IsPrimary())
             {
-                statUnusedBonus += stat.LevelUpVType;
+                statUnusedBonus += (int)stat.LevelUpValue;
             }
         }
-        statUnusedBonus = level - statUnusedBonus;
-        return statUnusedBonus;
+        statUnusedBonus = level - statUnusedBonus - 1; // trừ 1 vì level 1 không có điểm bonus
+        if (statUnusedBonus < 0) statUnusedBonus = 0;
     }
 
     private void AfterChanged(StatType type)
     {
         Stat stat = GetOrCreate(type);
-        StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(target.Type);
+        StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(stat.Type);
         statViewDTO.Update(stat.AdjustedValue, stat.Value);
     }
 
@@ -235,10 +240,11 @@ public class StatsSO : ScriptableObject
 
             Stat target = GetOrCreate(formula.targetStat);
             float newBase = formula.Evaluate(GetStatValue, level);
-            if (!isDevMode && Mathf.Approximately(target.AdjustedValue, newBase)) continue;
-            target.AdjustedValue = newBase;
+            if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
+            target.BaseValue = newBase;
             lookup[target.Type] = target;
             OnStatChanged?.Invoke(target.Type);
+            Debug.Log($"[StatsSO] Recalc {target.Type}: {newBase} (level {level})");
         }
     }
 

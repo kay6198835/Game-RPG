@@ -18,6 +18,7 @@ public class Stat
     [SerializeField] private float baseValue;
     [SerializeField] private float levelUpValue;
     [SerializeField] private float equipmentValue;
+    [SerializeField] private float cachedValue;   // lazy, dirty-flag path you already have
 
     public float BaseValue { get => baseValue; set => SetField(ref baseValue, value); }
     public float LevelUpValue { get => levelUpValue; set => SetField(ref levelUpValue, value); }
@@ -45,9 +46,6 @@ public class Stat
     private bool isDirty = false;
     [field: SerializeField] public List<StatModifier> modifiers { get; private set; } = new List<StatModifier>();
 
-    /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
-    public StatType Type => type;
-
     /// <summary>Bắn ra khi BaseValue hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
     /// <summary>Buộc tính lại Value ở lần đọc kế tiếp (dùng sau khi sửa baseValue trong Inspector).</summary>
@@ -57,7 +55,7 @@ public class Stat
 
     public Stat(StatType type, float baseValue = 0f)
     {
-        this.type = type;
+        this.Type = type;
         this.baseValue = baseValue;
     }
 

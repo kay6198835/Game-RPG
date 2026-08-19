@@ -65,22 +65,7 @@ public class StatsUIController : MonoBehaviour
             statsSO.AddPrimaryPoint(type, -amount);
         }
         gainKeyValues.Clear();
-        value = 0;
-    }
-
-    public void UpdateViewRunTime()
-    {
-        foreach (var statSlot in ListPrimaryStat.Values)
-        {
-            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
-            statSlot.UpdateStatSlot(statsViewDTO);
-        }
-
-        foreach (var statSlot in ListDerivedStat.Values)
-        {
-            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
-            statSlot.UpdateStatSlot(statsViewDTO);
-        }
+        totalLevelUpBonusValue = 0;
     }
 
     public void OpenStatsUI()
@@ -103,6 +88,20 @@ public class StatsUIController : MonoBehaviour
         totalLevelUpBonusValue = statsSO.StatUnusedBonus;
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
     }
+    public void UpdateViewRunTime()
+    {
+        foreach (var statSlot in ListPrimaryStat.Values)
+        {
+            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            statSlot.UpdateStatSlot(statsViewDTO);
+        }
+
+        foreach (var statSlot in ListDerivedStat.Values)
+        {
+            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            statSlot.UpdateStatSlot(statsViewDTO);
+        }
+    }
 
     private void GetStatsViewModel(object obj = null)
     {
@@ -112,8 +111,9 @@ public class StatsUIController : MonoBehaviour
         }
     }
 
-    public void IncreaseStat(StatType statType)
+    public void IncreaseStat(object obj = null)
     {
+        StatType statType = (StatType)obj;
         if (!gainKeyValues.TryGetValue(statType, out int value))
         {
             value = 1;
@@ -130,14 +130,15 @@ public class StatsUIController : MonoBehaviour
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
     }
 
-    public void DecreaseStat(StatType statType)
+    public void DecreaseStat(object obj = null)
     {
+        StatType statType = (StatType)obj;
         if (gainKeyValues.TryGetValue(statType, out int value) && value > 0)
         {
             value--;
             gainKeyValues[statType] = value;
         }
-        statsSO.AddPrimaryPoint(statType, --1);
+        statsSO.AddPrimaryPoint(statType, -1);
         totalLevelUpBonusValue++;
         UpdateViewRunTime();
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
