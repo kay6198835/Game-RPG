@@ -48,7 +48,7 @@ public class Stat
     // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
     // StatsSO.stats -> nếu để serialize, buff runtime sẽ ghi thẳng vào .asset và sống dai
     // qua các phiên Play Mode.
-    [NonSerialized] private List<StatModifier> modifiers = new List<StatModifier>();
+    [SerializeField] private List<StatModifier> modifiers = new List<StatModifier>();
 
     /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
