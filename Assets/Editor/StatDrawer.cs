@@ -6,9 +6,9 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Vẽ một Stat trong Inspector: ba tầng authored sửa được, hai tầng dẫn xuất chỉ để xem.
+/// Vẽ một Stat trong Inspector: hai tầng authored sửa được, ba giá trị dẫn xuất chỉ để xem.
 ///
-/// AdjustedValue / FinalValue / BonusValue KHÔNG serialize (xem Stat.cs) nên không lấy được
+/// AdjustedValue / EquipmentValue / FinalValue KHÔNG serialize (xem Stat.cs) nên không lấy được
 /// qua SerializedProperty. Drawer lần theo propertyPath bằng reflection để cầm đúng instance
 /// Stat đang sống, rồi đọc property trực tiếp — nhờ vậy số hiển thị bao gồm cả modifier
 /// runtime lúc đang Play Mode, chứ không phải một bản chụp cũ nằm trong .asset.
@@ -19,7 +19,7 @@ public class StatDrawer : PropertyDrawer
     // Type là auto-property -> Unity serialize dưới tên backing field này, không phải "Type".
     private const string TYPE_FIELD = "<Type>k__BackingField";
     private const float PAD = 2f;
-    private const int ROWS_EXPANDED = 8;
+    private const int ROWS_EXPANDED = 7;
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
@@ -34,18 +34,16 @@ public class StatDrawer : PropertyDrawer
         SerializedProperty typeProp = property.FindPropertyRelative(TYPE_FIELD);
         SerializedProperty baseProp = property.FindPropertyRelative("baseValue");
         SerializedProperty levelUpProp = property.FindPropertyRelative("levelUpValue");
-        SerializedProperty equipProp = property.FindPropertyRelative("equipmentValue");
 
         Stat stat = ResolveStat(property);
 
         // Fallback khi reflection không cầm được instance: tính lại từ dữ liệu đã serialize.
-        // Bản fallback không thấy modifier runtime — chấp nhận được vì nó chỉ chạy ngoài Play Mode.
+        // Bản fallback không thấy modifier runtime — chấp nhận được vì nó chỉ chạy ngoài Play Mode,
+        // lúc chưa có modifier nào nên final trùng adjusted.
         float adjusted = stat != null
             ? stat.AdjustedValue
             : (baseProp?.floatValue ?? 0f) + (levelUpProp?.floatValue ?? 0f);
-        float final = stat != null
-            ? stat.Value
-            : adjusted + (equipProp?.floatValue ?? 0f);
+        float final = stat != null ? stat.Value : adjusted;
 
         Rect row = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
 
@@ -69,19 +67,16 @@ public class StatDrawer : PropertyDrawer
         row = NextRow(row);
         if (levelUpProp != null) EditorGUI.PropertyField(row, levelUpProp, new GUIContent("Level Up Value"));
 
-        row = NextRow(row);
-        if (equipProp != null) EditorGUI.PropertyField(row, equipProp, new GUIContent("Equipment Value"));
-
         using (new EditorGUI.DisabledScope(true))
         {
             row = NextRow(row);
             EditorGUI.FloatField(row, new GUIContent("Adjusted Value", "Base + LevelUp — tính ra, không lưu"), adjusted);
 
             row = NextRow(row);
-            EditorGUI.FloatField(row, new GUIContent("Final Value", "Adjusted + Equipment + modifier — tính ra, không lưu"), final);
+            EditorGUI.FloatField(row, new GUIContent("Equipment Value", "Final - Adjusted: đóng góp của trang bị và buff — tính ra, không lưu"), final - adjusted);
 
             row = NextRow(row);
-            EditorGUI.FloatField(row, new GUIContent("Bonus Value", "Final - Adjusted"), final - adjusted);
+            EditorGUI.FloatField(row, new GUIContent("Final Value", "Adjusted qua toàn bộ modifier — tính ra, không lưu"), final);
         }
 
         EditorGUI.indentLevel--;
