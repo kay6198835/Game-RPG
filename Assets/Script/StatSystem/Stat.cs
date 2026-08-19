@@ -35,7 +35,9 @@ public class Stat
 
     [SerializeField] private float baseValue;
     [SerializeField] private float levelUpValue;
-    [SerializeField] private float equipmentValue;
+    private float equipmentValue;
+    private float adjustedValue;
+    private float finalValue;
 
     // KHÔNG serialize: đây là cache, không phải dữ liệu authored. Nếu serialize thì mọi lần
     // tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
@@ -113,6 +115,12 @@ public class Stat
     /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
     public float BonusValue => Value - AdjustedValue;
 
+    public void Recaulate()
+    {
+        adjustedValue = AdjustedValue;
+        finalValue = AdjustedValue + equipmentValue;
+    }
+
     // ------------------------- Modifier -------------------------
 
     public void AddModifier(StatModifier modifier)
@@ -157,12 +165,19 @@ public class Stat
     {
         isDirty = true;
         OnChanged?.Invoke();
+        Recaulate();
     }
 
     private float CalculateFinalValue()
     {
-        float finalValue = AdjustedValue + equipmentValue;
-        if (modifiers == null) return finalValue;
+        float finalValue = AdjustedValue;
+
+        if (modifiers == null)
+        {
+            this.equipmentValue = 0f;
+            this.finalValue = finalValue;
+            return finalValue;                     // trả AdjustedValue, KHÔNG phải 0
+        }
 
         float percentAddSum = 0f;
         for (int i = 0; i < modifiers.Count; i++)
@@ -191,6 +206,9 @@ public class Stat
                     break;
             }
         }
-        return finalValue;
+
+        this.finalValue = finalValue;
+        this.equipmentValue = finalValue - AdjustedValue;
+        return this.finalValue;
     }
 }
