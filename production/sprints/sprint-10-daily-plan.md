@@ -17,7 +17,7 @@
 
 ---
 
-## Status Verdict: 🟡 OPEN (2026-08-18, Tue standup) — S10-01 (BUG-042/053/054) still **zero movement**, now 6th consecutive cycle: `EntityCore.TakeDamage()` still `throw new NotImplementedException()` verbatim, `EntityNegativeReciver.cs` still present. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62` (`set.Count == 0 || set == null`), 10th carry. S10-05 (BUG-044) still fully commented out, 6th carry. S10-02 (process gate) still no `.git/hooks/pre-push`, 7th carry. Monday's only commit (`ce8ba15`) touched StatSystem/UI/Pooling/`EnemySpawner.Spawn()` signature (unrelated `Quaternion.identity` param fix, not the null-guard) — none of Monday's 4 Must-Have tasks moved a 2nd day running. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12).
+## Status Verdict: 🔴 SLIPPING (2026-08-20, Thu standup) — S10-01 (BUG-042/053/054) still **zero movement**, now 7th consecutive cycle: `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim, `EntityNegativeReciver.cs` still present at `Character/Entity/CoreComponent/`. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62` (`set.Count == 0 || set == null`), 11th carry. S10-05 (BUG-044) still fully commented out in `PlayerDeathState.LogicUpdate()` (lines 17-24), 7th carry. S10-02 (process gate) still no `.git/hooks/pre-push` (verified: file absent, `.sample` still the only entry), 8th carry. ADR-0002 still `Status: Proposed` (S10-09, 9th carry). Wednesday (2026-08-19) landed **11 commits** (`21cae5e`→`3cbe703`), all StatSystem/Editor-tooling work (`Stat.cs`, `StatsSO.cs`, `DerivedStatFormula.cs`, new `StatDrawer.cs` custom Inspector, `PlayerStats.asset` tuning, `StatSlot.cs`/`StatsUIController.cs`) — none touched any of the 4 Must-Have tasks. 3rd consecutive day the sprint's declared literal-first-task (S10-01) received zero movement while unplanned StatSystem work consumed all branch time. Working tree is clean as of this standup (`3cbe703` "missed" is the tip, Wed 14:53) — no stray uncommitted WIP to flag this time. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12) — with only 1 scheduled day (Fri) left in this sprint, S10-03 is now at high risk of a 4th.
 
 ---
 
@@ -78,6 +78,69 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 ---
 
 ## Standup Log
+
+### Thu 2026-08-20 — Daily Standup (autonomous, no owner present)
+
+**Yesterday (Wed 2026-08-19):** 11 commits landed (`21cae5e` 04:03 → `3cbe703` 14:53), all StatSystem/Editor-tooling scope — none Must-Have:
+- `21cae5e` split `Stat` into base/levelUp/equipment authored tiers
+- `c8dd71b` add `levelUp` field for class stat
+- `46e149f` asset tuning (`PlayerStats.asset`)
+- `d7d79f3` stop `StatsSO` assets self-rewriting
+- `d3b1bf3` "coding" — `StatsSO.cs`, `StatSlot.cs`, `StatsUIController.cs`, scene changes
+- `c746f3b` new `StatDrawer.cs` — read-only Inspector display for derived stats
+- `466ff84` derive `EquipmentValue` by subtraction instead of accumulation
+- `41ab5a6` **reverted** `466ff84` same day (07:42, 3 min after) — landed then immediately backed out
+- `a061372` "fix issue calculate" — `Stat.cs` +22/-4
+- `3cbe703` "missed" — 1-line `Stat.cs` follow-up
+
+Checked all 4 Must-Have tasks directly against current file contents (not commit messages):
+- ❌ **S10-01** — `EntityCore.cs:11` still `throw new System.NotImplementedException();`; `EntityNegativeReciver.cs` still present, not deleted. **7th consecutive cycle at zero movement**, 3rd day running as the sprint's literal first task.
+- ❌ **S10-04** — `EnemySpawner.cs:62` still `set.Count == 0 || set == null` (wrong order). 11th carry.
+- ❌ **S10-05** — `PlayerDeathState.LogicUpdate()` body (lines 17-24) still fully commented out. 7th carry.
+- ❌ **S10-02** — no `.git/hooks/pre-push` (only `.sample`). 8th carry.
+- ❌ **S10-09** (Should-Have) — ADR-0002 `docs/architecture/adr-0002-enemymanager-singleton-exception.md` still `Status: Proposed`. 9th carry.
+
+Working tree: clean (`git status` — nothing to commit). The 9 modified/1 deleted files seen dirty at
+session start (`StatDrawer.cs` deleted, `Stat.cs`/`StatsSO.cs`/`DerivedStatFormula.cs`/`StatSlot.cs`/
+`StatsUIController.cs`/`PlayerStats.asset`/2 scene+prefab files modified) were already committed by the
+time this standup ran (tip `3cbe703`) — no stray WIP to flag.
+
+**Evaluation:** SLIPPING. Must-Have scope (S10-01/02/04/05, ≈0.7d combined) has now burned **0d across 3
+of the sprint's 4 scheduled days** (Mon, Tue, Wed) while unrelated StatSystem work absorbed the branch's
+entire active session. `466ff84`→`41ab5a6` (land-then-revert-same-day on `EquipmentValue` derivation) is a
+signal of unstable/uncommitted design intent in that area — worth a design pass before further churn.
+Only **Friday** remains as a scheduled sprint day; at current velocity S10-01 (the sprint's sole declared
+blocker) will close the sprint untouched an 8th consecutive cycle. Recommend: if the owner has any
+session time Friday, S10-01 needs to be the very first thing touched, before any further StatSystem
+iteration — the pattern from Sprint 9's retro (a single dedicated session resolves this faster than
+distributed autonomous check-ins) still stands unactioned.
+
+**Today's planned work (Thu, per day-by-day plan) — with estimates:**
+| Task | Est. | Note |
+|------|------|------|
+| S10-01 (BUG-042/053/054) — should be attempted before any further Should-Have scope | 0.3d | 7th carry, now the single highest-leverage task left this sprint |
+| S10-02 (pre-push hook, enforced) | 0.15d | 8th carry — small, mechanical, unblocks S10-11's own stated gate |
+| S10-04 (BUG-033 one-line swap) | 0.1d | 11th carry — trivial, zero reason to still be open |
+| S10-05 (PlayerDeathState body) | 0.15d | 7th carry — animation-event plumbing (`AnimationStart`/`AnimationEnd`) already landed Mon, this is now just wiring |
+| S10-09 (ADR-0002 → Accepted) | 0.1d | Should-Have, trivial, 9th carry |
+| S10-10 (individual `BUG-NNN.md` files) | 0.2d | Should-Have |
+
+Combined remaining Must-Have ≈0.7d fits comfortably in the 1 day left (Fri) if it's prioritized ahead of
+further StatSystem/Editor-tooling work.
+
+**Blockers:** none technical — S10-01/04/05 are all small, well-scoped, already-diagnosed fixes with no
+open dependencies. The blocker is purely session-allocation: 3 consecutive scheduled days spent on
+adjacent-but-not-blocking StatSystem work instead.
+
+**Risks:**
+- S10-03 (Play Mode verify) has 1 scheduled day left and depends on S10-01 landing first — realistic risk
+  of a 4th consecutive sprint closing without any Play Mode confirmation (S7-08, S8-12, S9-12 pattern).
+- `466ff84`/`41ab5a6` land-then-revert on `EquipmentValue` suggests the StatSystem formula isn't settled —
+  worth flagging to whoever owns that work before more cycles go into it unreviewed.
+- Sprint closes Fri 2026-08-21 — tomorrow is the last scheduled day; Should-Have items (S10-07/08/10/11/12)
+  and all Nice-to-Have items remain fully untouched.
+
+---
 
 ### Tue 2026-08-18 — Daily Standup (autonomous, no owner present)
 
@@ -173,13 +236,14 @@ the 10th consecutive cycle — flagged, deferred to owner per every prior cycle'
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** Zero code movement across
-  all 5 of Sprint 9's scheduled days, **now 6th carry (confirmed still zero movement Tue standup —
+  all 5 of Sprint 9's scheduled days, **now 7th carry (confirmed still zero movement Thu standup —
   `EntityCore.TakeDamage()` still throws, `EntityNegativeReciver.cs` still present)**. The sprint's
-  literal first task (S10-01), still untouched 2 days running. Prior retros' standing recommendation: a
-  single dedicated session likely resolves this faster than continued distributed autonomous check-ins.
-- **S10-02 process gate** — **now 7th carry**, same underlying pattern since Sprint 4. Retro Action
+  literal first task (S10-01), still untouched 3 days running (Mon/Tue/Wed). Only 1 scheduled day (Fri)
+  remains this sprint. Prior retros' standing recommendation: a single dedicated session likely resolves
+  this faster than continued distributed autonomous check-ins.
+- **S10-02 process gate** — **now 8th carry**, same underlying pattern since Sprint 4. Retro Action
   Item #3 specifically asks for an *enforced* version this cycle, not another written note. Still no
-  `.git/hooks/pre-push` as of Tue standup — the gate remains landed *after* the scenario it exists to
+  `.git/hooks/pre-push` as of Thu standup — the gate remains landed *after* the scenario it exists to
   catch (see S10-11 below).
 - **S10-11 (WIP from `origin/feature/fix-player-control`)** — ✅ merged onto `sprint-10` Mon 2026-08-17
   ~09:26 (commits `d430899`/`1f111fa`), by the owner directly, **ahead of S10-02** landing. Content
@@ -190,7 +254,12 @@ the 10th consecutive cycle — flagged, deferred to owner per every prior cycle'
 - **S10-06 (S4-05/S4-06)** — 11th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
 - **S10-03 Play Mode verify gate** — unreached 3 consecutive sprints (S7-08, S8-12, S9-12). No Unity CLI
-  in this automated environment; requires an owner-in-Editor session specifically. This morning's merge
-  changes the player attack/combo/animation-event surface again — one more reason S10-03 needs a real
-  in-Editor pass rather than being assumed stable.
+  in this automated environment; requires an owner-in-Editor session specifically. Depends on S10-01,
+  which is still untouched with 1 scheduled day left — real risk of a 4th consecutive unreached cycle.
+- **S10-09 (ADR-0002 Accept)** — still `Status: Proposed`, now 9th carry, zero movement any cycle,
+  trivial (0.1d) sign-off-only change.
 - QA plan — 10 consecutive cycles with none. Flagged in `sprint-10.md`, deferred to owner.
+- **`EquipmentValue` derivation instability** — new this cycle: `466ff84` (derive by subtraction) landed
+  then was reverted 3 minutes later same day (`41ab5a6`, Wed 07:39/07:42) via `git revert`, followed by
+  `a061372`/`3cbe703` further `Stat.cs` calc fixes later Wed. Suggests the StatSystem formula in this area
+  isn't settled — flag for design review before more cycles go in unreviewed.
