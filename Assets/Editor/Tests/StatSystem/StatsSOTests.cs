@@ -10,11 +10,11 @@ namespace Game.Tests.StatSystem
     /// <summary>
     /// Bộ test EditMode cho StatsSO — chạy bằng Window ▸ General ▸ Test Runner ▸ EditMode.
     ///
-    /// Quy ước:
-    /// - Test KHÔNG có category: chốt hành vi hiện tại, phải XANH.
-    /// - [Category("KnownBug")]: mô tả hành vi ĐÚNG theo tài liệu, hiện đang ĐỎ vì code còn lỗi.
-    ///   Sửa xong bug thì test tự xanh, không cần sửa test. Muốn chạy bỏ qua nhóm này:
-    ///   Test Runner ▸ ô filter ▸ gõ tên test, hoặc CLI -testCategory "!KnownBug".
+    /// Toàn bộ test phải XANH. Hợp đồng cốt lõi đang được chốt ở đây:
+    ///   AdjustedValue = BaseValue + LevelUpValue                    (KHÔNG gồm EquipmentValue)
+    ///   Value         = (AdjustedValue + EquipmentValue + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
+    ///   BonusValue    = Value − AdjustedValue
+    /// EquipmentValue là tầng ĐẦU VÀO chỉ RecalculateDerived ghi; primary stat luôn giữ 0.
     ///
     /// Mỗi test tự dựng StatsSO riêng (StatsProfileFactory) và huỷ trong TearDown —
     /// không bao giờ chạm vào asset StatsProfile thật trong project.
@@ -153,14 +153,18 @@ namespace Game.Tests.StatSystem
         }
 
         [Test]
-        public void SeedAllStats_ViewDTOs_AreCleared()
+        public void SeedAllStats_ViewDTOs_AreRebuiltAtZero()
         {
             StatsSO profile = Create(stats: StatList(NewStat(StatType.STR, 100f)));
             profile.Get(StatType.STR);
 
             profile.SeedAllStats();
 
-            Assert.That(profile.statViewDTOs, Is.Empty);
+            foreach (StatType type in Enum.GetValues(typeof(StatType)))
+            {
+                Assert.That(profile.statViewDTOs.ContainsKey(type), Is.True, $"Thiếu DTO cho {type}.");
+                AssertFloat(profile.statViewDTOs[type].FinalValue, 0f, $"{type}.FinalValue");
+            }
         }
 
         // =====================================================================
@@ -259,30 +263,18 @@ namespace Game.Tests.StatSystem
 
             profile.Level = 5;
 
-            AssertFloat(profile.Get(StatType.MaxHP).BaseValue, 50f);
+            AssertFloat(profile.Get(StatType.MaxHP).AdjustedValue, 50f);
         }
 
         [Test]
-        public void StatUnusedBonus_SetBelowOne_ClampsToOne()
+        public void StatUnusedBonus_AtLevelOne_IsZero()
         {
-            // Setter kẹp sàn 1 (khớp [Min(1)] trên field), trong khi CalculateStatUnusedBonus
-            // ghi thẳng vào field nên VẪN có thể ra 0. Test này chốt sự bất đối xứng đó.
-            StatsSO profile = Create(level: 1);
-            profile.StatUnusedBonus = 7;
+            StatsSO profile = Create(level: 1, stats: StatList(NewStat(StatType.STR, 10f)));
 
-            profile.StatUnusedBonus = 0;
+            profile.Level = 2;
+            profile.Level = 1;
 
-            Assert.That(profile.StatUnusedBonus, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void StatUnusedBonus_SetPositiveValue_IsStored()
-        {
-            StatsSO profile = Create(level: 1);
-
-            profile.StatUnusedBonus = 12;
-
-            Assert.That(profile.StatUnusedBonus, Is.EqualTo(12));
+            Assert.That(profile.StatUnusedBonus, Is.EqualTo(0));
         }
 
         // =====================================================================
@@ -346,39 +338,33 @@ namespace Game.Tests.StatSystem
         }
 
         [Test]
-        public void AddPrimaryPoint_RaisesNoOnStatChanged()
+        public void AddPrimaryPoint_RaisesOnStatChangedForThatStat()
         {
-            // Hành vi hiện tại: gọi thẳng AfterChanged, KHÔNG bắn OnStatChanged
-            // -> UI subscribe qua OnStatChanged sẽ không thấy việc cộng điểm.
             StatsSO profile = Create(stats: StatList(NewStat(StatType.STR, 100f)));
             profile.Get(StatType.STR);
 
-            int changes = 0;
-            profile.OnStatChanged += _ => changes++;
+            int strChanges = 0;
+            profile.OnStatChanged += type => { if (type == StatType.STR) strChanges++; };
             profile.AddPrimaryPoint(StatType.STR, 5f);
 
-            Assert.That(changes, Is.EqualTo(0));
+            Assert.That(strChanges, Is.EqualTo(1));
         }
 
         [Test]
-        public void AddPrimaryPoint_DoesNotRefreshStatUnusedBonus()
+        public void AddPrimaryPoint_RefreshesStatUnusedBonus()
         {
-            // Điểm chưa tiêu chỉ được tính lại khi Level đổi, không phải khi tiêu điểm.
             StatsSO profile = Create(level: 1, stats: StatList(NewStat(StatType.STR, 10f)));
             profile.Level = 10;
 
             profile.AddPrimaryPoint(StatType.STR, 3f);
 
-            Assert.That(profile.StatUnusedBonus, Is.EqualTo(9));
+            Assert.That(profile.StatUnusedBonus, Is.EqualTo(6)); // 10 - 3 - 1
         }
 
         [Test]
-        [Category("KnownBug")]
         public void AddPrimaryPoint_WithDerivedFormula_RecalculatesDerivedStat()
         {
-            // ĐÚNG: cộng điểm primary phải kéo theo derived tính lại.
-            // HIỆN TẠI: AddPrimaryPoint chỉ gọi AfterChanged, không gọi RecalculateDerived
-            // -> MaxHP giữ nguyên giá trị cũ cho tới lần đổi Level kế tiếp.
+            // Cộng điểm primary phải kéo theo derived tính lại ngay, không chờ đổi Level.
             StatsSO profile = Create(level: 1, devMode: true,
                 stats: StatList(NewStat(StatType.STR, 10f)),
                 formulas: new[]
@@ -802,13 +788,16 @@ namespace Game.Tests.StatSystem
         }
 
         [Test]
-        public void GetStatEquipValue_PrimaryStatWithFlatModifier_ReturnsBonusPart()
+        public void GetStatEquipValue_PrimaryStatWithFlatModifier_StaysZero()
         {
+            // EquipmentValue là tầng lan truyền từ công thức — primary stat không bao giờ nhận.
+            // Bonus của primary nằm trong list modifier và lộ ra qua BonusValue.
             StatsSO profile = Create(stats: StatList(NewStat(StatType.STR, 100f)));
 
             profile.AddModifiersFromSource(new object(), ModifierList(NewModifier(StatType.STR, 7f)));
 
-            AssertFloat(profile.GetStatEquipValue(StatType.STR), 7f);
+            AssertFloat(profile.GetStatEquipValue(StatType.STR), 0f, "EquipmentValue");
+            AssertFloat(profile.Get(StatType.STR).BonusValue, 7f, "BonusValue");
         }
 
         [Test]
@@ -821,15 +810,16 @@ namespace Game.Tests.StatSystem
         }
 
         [Test]
-        public void EquipmentValue_SetOnPrimaryStat_IsOverwrittenByRecalculation()
+        public void EquipmentValue_OnceSet_SurvivesRecalculation()
         {
-            // EquipmentValue của primary là giá trị DẪN XUẤT (Value - AdjustedValue), không phải
-            // tầng author được: gán tay xong bị CalculateFinalValue ghi đè ngay.
+            // CalculateFinalValue chỉ ĐỌC equipmentValue, không ghi -> không có gì cuốn mất nó.
             StatsSO profile = Create(stats: StatList(NewStat(StatType.STR, 100f)));
 
             profile.Get(StatType.STR).EquipmentValue = 50f;
 
-            AssertFloat(profile.GetStatEquipValue(StatType.STR), 0f);
+            AssertFloat(profile.GetStatEquipValue(StatType.STR), 50f, "EquipmentValue");
+            AssertFloat(profile.Get(StatType.STR).Value, 150f, "Value");
+            AssertFloat(profile.Get(StatType.STR).AdjustedValue, 100f, "AdjustedValue");
         }
 
         [Test]
@@ -895,17 +885,13 @@ namespace Game.Tests.StatSystem
                 stats: StatList(NewStat(StatType.STR, 10f)),
                 formulas: new[] { Formula(StatType.MaxHP, baseConstant: 0f, perLevel: 10f) });
 
-            AssertFloat(profile.Get(StatType.MaxHP).BaseValue, 10f);
+            AssertFloat(profile.Get(StatType.MaxHP).AdjustedValue, 10f);
         }
 
         [Test]
-        [Category("KnownBug")]
         public void RecalculateDerived_WithDevModeOff_UpdatesDerivedStats()
         {
-            // ĐÚNG: derived stat phải được công thức ghi đè kể cả khi isDevMode = false.
-            // HIỆN TẠI: guard `Mathf.Approximately(target.Value, newBase.Value)` luôn so 0 với 0
-            // (Stat.Value của mọi stat non-primary trả về field finalValue chưa bao giờ được gán)
-            // -> `continue` cho MỌI công thức, RecalculateDerived thành no-op hoàn toàn khi tắt dev mode.
+            // Công thức phải ghi vào derived stat kể cả khi isDevMode = false (cấu hình lúc ship).
             StatsSO profile = Create(level: 1, devMode: false,
                 stats: StatList(NewStat(StatType.STR, 10f)),
                 formulas: new[] { Formula(StatType.MaxHP, baseConstant: 250f) });
@@ -914,56 +900,47 @@ namespace Game.Tests.StatSystem
         }
 
         [Test]
-        [Category("KnownBug")]
         public void Get_DerivedStat_ValueReturnsCalculatedFinalValue()
         {
-            // ĐÚNG: Value = AdjustedValue khi không có modifier.
-            // HIỆN TẠI: nhánh non-primary của Stat.CalculateFinalValue() không gán this.finalValue
-            // rồi vẫn `return this.finalValue` -> mọi derived stat luôn trả 0.
+            // Value = AdjustedValue khi không có modifier — kể cả với stat non-primary.
             StatsSO profile = Create(stats: StatList(NewStat(StatType.MaxHP, 100f)));
 
             AssertFloat(profile.Get(StatType.MaxHP).Value, 100f);
         }
 
         [Test]
-        [Category("KnownBug")]
-        public void GetStatEquipValue_DerivedStat_DoesNotAccumulateAcrossRecalculations()
+        public void BonusValue_DerivedStatWithFlatModifier_DoesNotAccumulate()
         {
-            // ĐÚNG: một modifier Flat +10 -> EquipmentValue = 10.
-            // HIỆN TẠI: nhánh non-primary dùng `+=` và SetDirty() gọi Recaulate() thêm một lần
-            // ngoài lần tính trong Value -> phần chênh bị cộng dồn (ra 20).
+            // Bonus được tính bằng hiệu ở mỗi lần đọc, không lưu ở đâu -> đọc bao nhiêu lần cũng vậy.
             StatsSO profile = Create(stats: StatList(NewStat(StatType.MaxHP, 100f)));
 
             profile.AddModifiersFromSource(new object(), ModifierList(NewModifier(StatType.MaxHP, 10f)));
 
-            AssertFloat(profile.GetStatEquipValue(StatType.MaxHP), 10f);
+            Stat maxHp = profile.Get(StatType.MaxHP);
+            AssertFloat(maxHp.BonusValue, 10f, "lần đọc 1");
+            AssertFloat(maxHp.BonusValue, 10f, "lần đọc 2");
+            AssertFloat(maxHp.Value, 110f, "Value");
         }
 
         [Test]
-        [Category("KnownBug")]
-        public void Evaluate_NoContributions_PutsConstantInBaseValueOnly()
+        public void Evaluate_NoContributions_SplitsConstantAndLevelGrowth()
         {
-            // ĐÚNG: BaseValue = baseConstant + level × perLevel; LevelUpValue / EquipmentValue = 0.
-            // HIỆN TẠI: Evaluate khởi tạo cả ba tầng bằng cùng một `value`
-            // -> hằng số bị đếm ba lần, AdjustedValue ra gấp đôi.
+            // baseConstant -> BaseValue; level × perLevel -> LevelUpValue. Hằng số chỉ được đếm MỘT lần.
             StatsSO profile = Create(level: 3, devMode: true,
                 stats: StatList(NewStat(StatType.STR, 10f)),
                 formulas: new[] { Formula(StatType.MaxHP, baseConstant: 50f, perLevel: 10f) });
 
             Stat maxHp = profile.Get(StatType.MaxHP);
-            AssertFloat(maxHp.BaseValue, 80f, "BaseValue");
-            AssertFloat(maxHp.LevelUpValue, 0f, "LevelUpValue");
+            AssertFloat(maxHp.BaseValue, 50f, "BaseValue");
+            AssertFloat(maxHp.LevelUpValue, 30f, "LevelUpValue");
             AssertFloat(maxHp.EquipmentValue, 0f, "EquipmentValue");
             AssertFloat(maxHp.AdjustedValue, 80f, "AdjustedValue");
         }
 
         [Test]
-        [Category("KnownBug")]
         public void Evaluate_SingleContribution_AppliesItsCoefficient()
         {
-            // ĐÚNG: BaseValue = 50 + STR.BaseValue × 2 = 70; LevelUpValue = STR.LevelUpValue × 2 = 8.
-            // HIỆN TẠI: vòng lặp cộng `sourceBaseValue` của vòng TRƯỚC rồi mới đọc stat của vòng
-            // hiện tại -> contribution cuối cùng luôn bị bỏ; với 1 contribution thì mất sạch.
+            // BaseValue = 50 + STR.BaseValue × 2 = 70; LevelUpValue = STR.LevelUpValue × 2 = 8.
             StatsSO profile = Create(level: 1, devMode: true,
                 stats: StatList(NewStat(StatType.STR, 10f, 4f)),
                 formulas: new[]
@@ -978,11 +955,10 @@ namespace Game.Tests.StatSystem
         }
 
         [Test]
-        [Category("KnownBug")]
         public void Evaluate_MultipleContributions_PairEachSourceWithItsOwnCoefficient()
         {
-            // ĐÚNG: BaseValue = 50 + STR(10)×2 + DEX(20)×3 = 130; LevelUpValue = 4×2 + 6×3 = 26.
-            // HIỆN TẠI: lệch một nhịp -> STR bị nhân hệ số của DEX, DEX bị bỏ hẳn (ra 80 / 62).
+            // BaseValue = 50 + STR(10)×2 + DEX(20)×3 = 130; LevelUpValue = 4×2 + 6×3 = 26.
+            // Mỗi contribution phải đi với ĐÚNG hệ số của chính nó.
             StatsSO profile = Create(level: 1, devMode: true,
                 stats: StatList(
                     NewStat(StatType.STR, 10f, 4f),
@@ -997,6 +973,61 @@ namespace Game.Tests.StatSystem
             Stat maxHp = profile.Get(StatType.MaxHP);
             AssertFloat(maxHp.BaseValue, 130f, "BaseValue");
             AssertFloat(maxHp.LevelUpValue, 26f, "LevelUpValue");
+        }
+
+        [Test]
+        public void RecalculateDerived_DerivedStatWithOwnModifier_KeepsThatModifier()
+        {
+            // Công thức chỉ ghi ba tầng nó sở hữu, KHÔNG đụng list modifier của target.
+            StatsSO profile = Create(level: 1, devMode: true,
+                stats: StatList(NewStat(StatType.STR, 10f)),
+                formulas: new[] { Formula(StatType.MaxHP, baseConstant: 100f) });
+            profile.AddModifiersFromSource(new object(), ModifierList(NewModifier(StatType.MaxHP, 25f)));
+
+            profile.Level = 5;   // ép RecalculateDerived chạy lại
+
+            Assert.That(profile.Get(StatType.MaxHP).Modifiers.Count, Is.EqualTo(1));
+            AssertFloat(profile.Get(StatType.MaxHP).Value, 125f);
+        }
+
+        [Test]
+        public void AddModifiersFromSource_BonusOnPrimary_PropagatesToDerivedBonus()
+        {
+            StatsSO profile = Create(level: 1, devMode: true,
+                stats: StatList(NewStat(StatType.STR, 10f)),
+                formulas: new[]
+                {
+                    Formula(StatType.PhysicalDamage, baseConstant: 0f, perLevel: 0f,
+                        Contribution(StatType.STR, 2f)),
+                });
+            float adjustedBefore = profile.Get(StatType.PhysicalDamage).AdjustedValue;
+
+            profile.AddModifiersFromSource(new object(), ModifierList(NewModifier(StatType.STR, 10f)));
+
+            Stat physical = profile.Get(StatType.PhysicalDamage);
+            AssertFloat(physical.AdjustedValue, adjustedBefore, "AdjustedValue không được đổi");
+            AssertFloat(physical.BonusValue, 20f, "BonusValue");
+            AssertFloat(physical.Value, adjustedBefore + 20f, "Value");
+        }
+
+        [Test]
+        public void Value_EquipmentTierAndPercentModifier_ScaleTogether()
+        {
+            // Phần lan truyền nằm TRONG ngoặc nên bị modifier phần trăm nhân theo.
+            StatsSO profile = Create(level: 1, devMode: true,
+                stats: StatList(NewStat(StatType.STR, 10f)),
+                formulas: new[]
+                {
+                    Formula(StatType.PhysicalDamage, baseConstant: 0f, perLevel: 0f,
+                        Contribution(StatType.STR, 2f)),
+                });
+            profile.AddModifiersFromSource(new object(), ModifierList(NewModifier(StatType.STR, 10f)));
+
+            profile.AddModifiersFromSource(new object(),
+                ModifierList(NewModifier(StatType.PhysicalDamage, 0.5f, ModifierType.PercentAdd)));
+
+            // (Adjusted 20 + Equipment 20) × 1.5 = 60
+            AssertFloat(profile.Get(StatType.PhysicalDamage).Value, 60f);
         }
     }
 }

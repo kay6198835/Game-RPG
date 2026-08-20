@@ -19,9 +19,18 @@ compiles into `Assembly-CSharp-Editor` — that assembly already references both
 
 Run them via **Window ▸ General ▸ Test Runner ▸ EditMode**.
 
-Tests marked `[Category("KnownBug")]` describe the *documented* behaviour and fail
-today because of open bugs; they turn green when the bug is fixed. Exclude them from a
-CI run with `-testCategory "!KnownBug"`.
+All tests are expected to pass. The suite pins the StatSystem calculation contract:
+
+```
+AdjustedValue = BaseValue + LevelUpValue                    (excludes EquipmentValue)
+Value         = (AdjustedValue + EquipmentValue + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
+BonusValue    = Value − AdjustedValue
+```
+
+`EquipmentValue` is an *input* tier written only by `StatsSO.RecalculateDerived()` (the
+contribution propagated from primary stats through `DerivedStatFormula`); primary stats
+always keep it at 0. The bonus shown to the player is always `BonusValue`, computed by
+subtraction and never stored.
 
 If assembly definitions are ever introduced for `Assets/Script/`, these suites should be
 moved into a proper `Tests.EditMode` asmdef and this note removed.
