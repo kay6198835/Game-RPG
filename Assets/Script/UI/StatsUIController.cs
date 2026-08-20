@@ -13,14 +13,18 @@ public class StatsUIController : MonoBehaviour
     public GameObject primaryStatSlotContainer;
     public GameObject derivedStatSlotContainer;
     public GameObject UIPannel;
-    public StatsSO statsSO;
     ObjectPoolManager objectPoolManager;
     Dictionary<StatType, int> gainKeyValues;
     public int totalLevelUpBonusValue;
+    public IPlayerStatService playerStatService;
     void Awake()
     {
         objectPoolManager = GetComponent<ObjectPoolManager>();
-        GetStatsUI(statsSO);
+        GetStatsUI();
+    }
+    void Start()
+    {
+        
     }
     void OnEnable()
     {
@@ -34,9 +38,10 @@ public class StatsUIController : MonoBehaviour
         EventManager.UnResgister(EventID.ON_DECREASE_STATS_BY_UI, DecreaseStat);
         EventManager.UnResgister(EventID.ON_UPDATE_STATS_BY_UI, GetStatsViewModel);
     }
-    private void GetStatsUI(StatsSO stats)
+    private void GetStatsUI()
     {
-        foreach (var stat in stats.statViewDTOs)
+        var initialize = playerStatService.GetFullViewStats();
+        foreach (var stat in initialize)
         {
             GameObject statSlotObject = objectPoolManager.Spawn(Vector2.zero, Quaternion.identity,
             stat.Key.IsPrimary() ? PrimaryStatSlotPrefab.gameObject : DerivedStatSlotPrefab.gameObject,
@@ -63,7 +68,7 @@ public class StatsUIController : MonoBehaviour
         if (gainKeyValues == null || gainKeyValues.Count == 0) return;
         foreach (var (type, amount) in gainKeyValues)
         {
-            statsSO.AddPrimaryPoint(type, -amount);
+            playerStatService.AddPrimaryPoint(type, -amount);
         }
         gainKeyValues.Clear();
         totalLevelUpBonusValue = 0;
@@ -73,33 +78,33 @@ public class StatsUIController : MonoBehaviour
     {
         foreach (var statSlot in ListPrimaryStat.Values)
         {
-            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            StatsViewDTO statsViewDTO = playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
             objectPoolManager.Get(PrimaryStatSlotPrefab.gameObject).Reload(Vector2.one, primaryStatSlotContainer.transform);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
-            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            StatsViewDTO statsViewDTO = playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
             objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Reload(Vector2.one, derivedStatSlotContainer.transform);
         }
 
 
-        totalLevelUpBonusValue = statsSO.StatUnusedBonus;
+        totalLevelUpBonusValue = playerStatService.GetLevelUpStatsBonus();
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
     }
     public void UpdateViewRunTime()
     {
         foreach (var statSlot in ListPrimaryStat.Values)
         {
-            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            StatsViewDTO statsViewDTO = playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
-            StatsViewDTO statsViewDTO = statsSO.statViewDTOs[statSlot.statType];
+            StatsViewDTO statsViewDTO = playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
         }
     }
@@ -108,7 +113,7 @@ public class StatsUIController : MonoBehaviour
     {
         foreach (var (type, amount) in gainKeyValues)
         {
-            statsSO.AddPrimaryPoint(type, amount);
+            playerStatService.AddPrimaryPoint(type, amount);
         }
     }
 
@@ -125,7 +130,7 @@ public class StatsUIController : MonoBehaviour
             value++;
             gainKeyValues[statType] = value;
         }
-        statsSO.AddPrimaryPoint(statType, 1);
+        playerStatService.AddPrimaryPoint(statType, 1);
         totalLevelUpBonusValue--;
         UpdateViewRunTime();
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
@@ -139,7 +144,7 @@ public class StatsUIController : MonoBehaviour
             value--;
             gainKeyValues[statType] = value;
         }
-        statsSO.AddPrimaryPoint(statType, -1);
+        playerStatService.AddPrimaryPoint(statType, -1);
         totalLevelUpBonusValue++;
         UpdateViewRunTime();
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);

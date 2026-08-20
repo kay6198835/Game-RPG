@@ -117,29 +117,6 @@ public class Stat
 
     // ------------------------- Tầng dẫn xuất -------------------------
 
-    /// <summary>Gốc + lên cấp, CHƯA tính trang bị và modifier. Không serialize: đây là giá trị tính ra.</summary>
-    // public float AdjustedValue => baseValue + levelUpValue;
-
-    // /// <summary>Giá trị cuối cùng sau khi áp dụng trang bị và toàn bộ modifier.</summary>
-    // public float Value
-    // {
-    //     get
-    //     {
-    //         if (isDirty)
-    //         {
-    //             cachedValue = CalculateFinalValue();
-    //             isDirty = false;
-    //         }
-    //         return cachedValue;
-    //     }
-    // }
-
-    // /// <summary>Alias của Value — giữ đúng tên trong bảng công thức stat.</summary>
-    // public float FinalValue => Value;
-
-    // /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
-    // public float BonusValue => Value - AdjustedValue;
-
     public void Recaulate()
     {
         adjustedValue = AdjustedValue;
@@ -233,8 +210,6 @@ public class Stat
         this.finalValue = finalValue;
         this.adjustedValue = baseValue + levelUpValue;
         this.equipmentValue = finalValue - (baseValue + levelUpValue) + equipmentByPrimaryValue;
-        Debug.Log("finalValue: " + this.finalValue);
-        Debug.Log("equipmentValue: " + this.equipmentValue);
         return this.finalValue;
     }
 }
