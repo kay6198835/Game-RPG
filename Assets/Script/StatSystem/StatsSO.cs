@@ -171,6 +171,7 @@ public class StatsSO : ScriptableObject
         EnsureInitialized();
         GetOrCreate(type).LevelUpValue += amount;
         AfterChanged(type);
+        RecalculateDerived();
     }
 
     // ------------------------- Nội bộ -------------------------
@@ -202,7 +203,7 @@ public class StatsSO : ScriptableObject
             }
             lookup[s.Type] = s;
             StatsViewDTO statViewDTO = new StatsViewDTO(s.Type);
-            statViewDTO.Update(s.AdjustedValue, s.FinalValue);
+            statViewDTO.Update(s.BaseValue, s.LevelUpValue, s.EquipmentValue);
             statViewDTOs[s.Type] = statViewDTO;
         }
 
@@ -218,7 +219,7 @@ public class StatsSO : ScriptableObject
         RecalculateDerived();
     }
 
-    private void CalculateStatUnusedBonus()
+    public void CalculateStatUnusedBonus()
     {
         statUnusedBonus = 0;
         foreach (var (type, stat) in lookup)
@@ -236,7 +237,7 @@ public class StatsSO : ScriptableObject
     {
         Stat stat = GetOrCreate(type);
         StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(stat.Type);
-        statViewDTO.Update(stat.AdjustedValue, stat.FinalValue);
+        statViewDTO.Update(stat.BaseValue, stat.LevelUpValue, stat.EquipmentValue);
     }
 
     public float GetStatValue(StatType type)
@@ -316,18 +317,22 @@ public class StatsViewDTO
 {
     public StatType StatType;
     public string Name;
-    public float BonusValue;
+    public float BaseValue;
+    public float LevelUpValue;
     public float FinalValue;
     public float AdjustedValue;
+    public float EquipmentValue;
     public StatsViewDTO(StatType statType)
     {
         StatType = statType;
         Name = GameConstants.StatTypeName[statType];
     }
-    public void Update(float adjustedValue, float finalValue)
+    public void Update(float baseValue, float levelUpValue, float equipmentValue)
     {
-        this.AdjustedValue = adjustedValue;
-        this.FinalValue = finalValue;
-        this.BonusValue = FinalValue - AdjustedValue;
+        this.BaseValue = baseValue;
+        this.LevelUpValue = levelUpValue;
+        this.AdjustedValue = baseValue + levelUpValue;
+        this.EquipmentValue = equipmentValue;
+        this.FinalValue = baseValue + levelUpValue + equipmentValue;
     }
 }

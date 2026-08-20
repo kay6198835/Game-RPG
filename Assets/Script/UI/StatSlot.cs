@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,11 +33,12 @@ public class StatSlot : MonoBehaviour
         statType = statViewDTO.StatType;
         statNameText.text = GameConstants.StatTypeName[statType];
         finalValueText.text = statViewDTO.FinalValue.ToString();
-        bonusValueText.text = "(+ " + statViewDTO.BonusValue.ToString() + ")";
+        bonusValueText.text = "(+ " + statViewDTO.EquipmentValue.ToString() + ")";
     }
     void UpdateTotalLevelUpBonusValue(object obj = null)
     {
         if (!statType.IsPrimary()) return;
+        this.totalLevelUpBonusValue = (int)obj;
         bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
         bottonDecreaseStat.gameObject.SetActive(levelUpBonusValue > 0);
     }
