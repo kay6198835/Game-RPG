@@ -1,92 +1,45 @@
 using UnityEngine;
+
 public class MeleeWeapon : Weapon
 {
-    public int currentStateIndex { get; private set; } = 0;
+    [Header("Melee")]
+    [SerializeField] private int maxTargetsPerSwing = 8;
+
+    private Collider2D[] hits;
     private Vector2 centerAttackPosition;
-    private AttackSO currrentSA;
-    protected PlayerInputHandler inputHandler;
-    protected MeleeWeaponStats StatsMelee => (MeleeWeaponStats)stats;
+
     protected override void Awake()
     {
         base.Awake();
-    }
-    private void Start()
-    {
-
-    }
-    public override void Attack()
-    {
-
-    }
-    public void MakeDamage()
-    {
-        // if (other.TryGetComponent(out INegativeReceiver receiver))
-        //     receiver.TakeDamage(10, Core.Entity.transform.position);
-    }
-    public override void SetAbility()
-    {
-        // if (inputHandler.Skill == PlayerInputHandler.SkillType.Ability)
-        // {
-        //     currentAbilitySO = statsMelee.AbilityWeapon;
-        // }
-        // else if (inputHandler.Skill == PlayerInputHandler.SkillType.Special)
-        // {
-        //     currentAbilitySO = statsMelee.SkillWeapon;
-        // }
-        base.SetAbility();
-    }
-    public override void Equid(WeaponHolder weaponHolder)
-    {
-        base.Equid(weaponHolder);
-        weaponHolder.Core.GetCoreComponent(out inputHandler);
-    }
-    public override bool CheckCanAttack()
-    {                                                                                  // dòng 52 (anchor)
-        if (base.CheckCanAttack() && !inputHandler.BufferIsAttack)
-        {
-            //SetAnimation();
-        }
-        else
-        {
-            canAttack = false;
-        }
-        return canAttack;
+        hits = new Collider2D[maxTargetsPerSwing];
     }
 
-    public override void SetAnimation(Player player)
+    public override void OnAttackEnter(Player player)
     {
-        if (currentStateIndex >= StatsMelee.AttackState.Count
-        //|| lastClickTime + deplayTime < Time.time
-        )
-        {
-            currentStateIndex = 0;
-        }
-        lastClickTime = Time.time;
-        player.Anim.speed = 1f;
-        var overrides = Utility.GetOverrideClips(
-            StatsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV, "Attack");
-        deplayTime = Utility.DurationNextAttack(overrides)
-        / player.Anim.speed;
-        currrentSA = StatsMelee.AttackState[currentStateIndex];
-        // Send AnimationController to Player by Event
-        player.Anim.runtimeAnimatorController = currrentSA.directionAttackAnimatorOV;
-        //Attack Position
-        CenterAttackPosition(player);
-        currentStateIndex++;
-        lastClickTime = Time.time;
-    }
-
-    protected void CenterAttackPosition(Player player)
-    {
-        // need check late
+        base.OnAttackEnter(player);
         centerAttackPosition = (Vector2)player.transform.position
-        + inputHandler.DirectionMouseVector.normalized * currrentSA.attackRange;
+            + aim.AimDirection.normalized * currentStage.attackRange;
     }
+
+    public override void OnActivate()
+    {
+        int count = Physics2D.OverlapCircleNonAlloc(
+            centerAttackPosition, currentStage.attackRange, hits, stats.LayerMask);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (hits[i].TryGetComponent(out INegativeReceiver receiver))
+            {
+                receiver.TakeDamage(currentStage.attackDamege, transform.position);
+            }
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
-        if (currrentSA != null)
+        if (currentStage != null)
         {
-            Gizmos.DrawWireSphere(centerAttackPosition, currrentSA.attackRange);
+            Gizmos.DrawWireSphere(centerAttackPosition, currentStage.attackRange);
         }
     }
 }

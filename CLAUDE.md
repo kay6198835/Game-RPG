@@ -126,9 +126,11 @@
 
       StatSystem/                               # NEW 2026-06-30 → 07-01 — RPG stat framework, chưa được gameplay tiêu thụ (GDD: design/gdd/stat-system.md; số liệu: ToolExcel/stat_system_formula_reference.xlsx)
         StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived MaxHP/MaxMana/PhysicalDamage/MagicDamage/Defense... (100+)
-        Stat.cs, StatModifier.cs                # Base value + modifier stack
+        Stat.cs                                 # Base value + modifier stack. Chỉ thao tác TỪNG modifier (AddModifier/RemoveModifier/RemoveModifierAt); phơi list read-only qua `Modifiers`; `modifiers` là [NonSerialized]; SetDirty lười (tính lại khi đọc Value)
+        StatModifier.cs                         # Một type hai vai: authored (targetStat/type/value serialize được) + runtime (Source [NonSerialized], đóng dấu bằng WithSource()). Order suy ra từ Type, không author được
+        StatModifierGroupSO.cs                  # SO "Game/Stat Modifier Group": cụm modifier authored (trang bị / buff / thẻ nâng cấp) — ApplyTo() / RemoveFrom() theo source
         DerivedStatFormula.cs                   # Formula mapping primary → derived
-        StatsSO.cs                              # SO "Game/Stats Profile": level-driven RecalculateDerived(), OnStatChanged event
+        StatsSO.cs                              # SO "Game/Stats Profile": level-driven RecalculateDerived(), OnStatChanged event. Tầng DUY NHẤT làm thao tác hàng loạt — AddModifiersFromSource() / RemoveModifiersFromSource() gom về 1 lần recalc
 
       Handler/
         EventHandler/                           # EMPTY folder — WIP placeholder

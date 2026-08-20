@@ -6,7 +6,7 @@ public class PlayerState : IState
     protected Player player;
     protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
-    public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
+    public StatusAnimation Status  = StatusAnimation.None;
     protected float startTime;
     protected string animBoolName;
     //protected StateStyle stateStyle;

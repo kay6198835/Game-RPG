@@ -5,78 +5,99 @@ public abstract class Weapon : InteractiveObjects
     [Header("Abtract Weapon")]
     [SerializeField] protected WeaponStats stats;
     [SerializeField] protected ActivateSkill currentAbilitySO;
-    [SerializeField] protected Collider2D collider;
-    protected float lastClickTime;
-    protected float deplayTime;
-    protected bool canAttack;
+    [SerializeField] protected Collider2D pickupCollider;
+
+    protected AttackSO currentStage;
+    protected float lastAttackTime;
+    protected float chainWindow;
+
+    protected IAimProvider aim;
     protected AbilityHolder abilityHolder;
-    protected WeaponHolder weaponHolder;
-    [field: SerializeField] protected Player Player;
+    protected WeaponHolder holder;
+
+    public int CurrentStageIndex { get; protected set; }
+    public WeaponStats Stats => stats;
+    public AttackSO CurrentStage => currentStage;
+
     protected override void Awake()
     {
         base.Awake();
-        collider = GetComponent<Collider2D>();
+        pickupCollider = GetComponent<Collider2D>();
     }
-    public abstract void Attack();
-    public virtual bool CheckCanAttack()
+
+    /// <summary>True when a brand new attack may be started from a non-attacking state.</summary>
+    public virtual bool CanAttack() => stats != null && stats.StageCount > 0;
+
+    /// <summary>
+    /// True when the attack state may play another stage without leaving the state.
+    /// The index wraps to 0 after the last stage, so a zero index means the chain just completed.
+    /// </summary>
+    public virtual bool CanChain() => CanAttack() && CurrentStageIndex != 0;
+
+    /// <summary>Selects the stage to play and prepares the animator. Called on every stage, not just the first.</summary>
+    public virtual void OnAttackEnter(Player player)
     {
-        if (lastClickTime + deplayTime >= Time.time)
+        if (!CanAttack()) return;
+
+        // StageCount can shrink while the SO is edited in play mode, so clamp as well as time out.
+        if (CurrentStageIndex >= stats.StageCount || lastAttackTime + chainWindow < Time.time)
         {
-            canAttack = false;
+            CurrentStageIndex = 0;
         }
-        else
-        {
-            canAttack = true;
-            lastClickTime = Time.time;
-        }
-        return canAttack;
+
+        currentStage = stats.GetStage(CurrentStageIndex);
+        player.Anim.speed = 1f;
+        chainWindow = Utility.DurationNextAttack(
+            Utility.GetOverrideClips(currentStage.directionAttackAnimatorOV, "Attack")) / player.Anim.speed;
+        player.Anim.runtimeAnimatorController = currentStage.directionAttackAnimatorOV;
+
+        lastAttackTime = Time.time;
+        CurrentStageIndex = (CurrentStageIndex + 1) % stats.StageCount;
     }
-    public virtual void SetAnimation(Player player)
-    { }
+
+    /// <summary>The hit frame. Melee resolves a hitbox here, ranged spawns projectiles.</summary>
+    public abstract void OnActivate();
+
+    /// <summary>End of the active frames. Optional per weapon type.</summary>
+    public virtual void OnDeactivate() { }
+
     public virtual void SetAbility()
     {
         abilityHolder.SetAblityWeapon(currentAbilitySO);
     }
-    public virtual void SetWeaponHolder(WeaponHolder weaponHolder)
-    {
-        // if (holder == null)
-        // {
-        //     collider.enabled = false;
-        //     //holder = weaponHolder;
-        //     //abilityHolder = holder.Core.AbilityHolder;
-        //     transform.SetParent(holder.transform);
-        //     transform.position = transform.parent.position;
-        // }
-        // else
-        // {
-        //     transform.position = transform.parent.position + Vector3.one * 1f;
-        //     transform.SetParent(null);
-        //     abilityHolder = null;
-        //     //holder = null;
-        //     collider.enabled = true;
-        // }
-    }
+
     public override bool Interact(Interact interactor)
     {
         Equid((WeaponHolder)interactor);
         return true;
     }
+
     public virtual void Equid(WeaponHolder weaponHolder)
     {
-        collider.enabled = false;
-        weaponHolder.Core.GetCoreComponent(out this.weaponHolder);
-        weaponHolder.Core.GetCoreComponent(out this.abilityHolder);
+        pickupCollider.enabled = false;
+        holder = weaponHolder;
+        weaponHolder.Core.GetCoreComponent(out abilityHolder);
+        weaponHolder.Core.GetCoreComponent(out PlayerInputHandler inputHandler);
+        aim = inputHandler;
         weaponHolder.Equid_UnEquid(this);
+        stats.modifiers.ApplyTo(weaponHolder.Core.Player.Stats, this);
         transform.SetParent(weaponHolder.transform);
         transform.position = transform.parent.position;
     }
+
     public virtual void UnEquid(WeaponHolder weaponHolder)
     {
-        transform.position = transform.parent.position + new Vector3(1f, 1f, 0f);
+        if (transform.parent != null)
+        {
+            transform.position = transform.parent.position + (Vector3)Vector2.one;
+        }
         transform.SetParent(null);
-        collider.enabled = true;
+        pickupCollider.enabled = true;
+        stats.modifiers.RemoveFrom(weaponHolder.Core.Player.Stats, this);
         weaponHolder.Equid_UnEquid(this);
         abilityHolder = null;
-        weaponHolder = null;
+        aim = null;
+        this.holder = null;
+        CurrentStageIndex = 0;
     }
 }

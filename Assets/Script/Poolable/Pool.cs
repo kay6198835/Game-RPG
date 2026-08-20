@@ -4,30 +4,40 @@ public class Pool : MonoBehaviour
 {
     [SerializeField] private GameObject prefab;
     [SerializeField] private Queue<PoolMember> inactiveObjects = new Queue<PoolMember>();
-    public void Spawn(Vector2 position)
+    public void Spawn(Vector2 position, Transform parent = null)
+    {
+        Spawn(position, Quaternion.identity, parent);
+    }
+
+    public GameObject Spawn(Vector2 position, Quaternion rotation, Transform parent = null)
     {
         if (inactiveObjects.Count == 0)
         {
-            GameObject obj = Instantiate(prefab, position, Quaternion.identity, transform);
+            GameObject obj = Instantiate(prefab, position, rotation, parent == null ? transform : parent);
             if (!obj.TryGetComponent<PoolMember>(out PoolMember member))
             {
                 member = obj.AddComponent<PoolMember>();
             }
             member = obj.GetComponent<PoolMember>();
             member.Initialize(this);
+            return obj;
         }
-        else
-        {
-            Reload(position);
-        }
+        return Reload(position, rotation, parent);
     }
 
-    public void Reload(Vector2 position)
+    public void Reload(Vector2 position, Transform parent = null)
+    {
+        Reload(position, Quaternion.identity, parent);
+    }
+
+    public GameObject Reload(Vector2 position, Quaternion rotation, Transform parent = null)
     {
         var reload = inactiveObjects.Dequeue();
         reload.gameObject.SetActive(true);
-        reload.gameObject.transform.SetPositionAndRotation(position, Quaternion.identity);
+        reload.gameObject.transform.SetPositionAndRotation(position, rotation);
+        reload.gameObject.transform.SetParent(parent);
         reload.SwitchIsInPool(false);
+        return reload.gameObject;
     }
 
     public void Release(GameObject gameObject)

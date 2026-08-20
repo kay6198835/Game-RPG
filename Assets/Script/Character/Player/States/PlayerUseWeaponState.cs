@@ -34,10 +34,12 @@ public class PlayerUseWeaponState : PlayerState
             if (inputHandler.MoveVector == Vector2.zero)
             {
                 stateMachine.ChangeState(player.IdleState);
+                return;
             }
             else
             {
                 stateMachine.ChangeState(player.MoveState);
+                return;
             }
         }
     }

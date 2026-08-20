@@ -30,18 +30,30 @@ public class DerivedStatFormula
     [Header("Đóng góp từ primary stats")]
     public StatContribution[] contributions;
 
-    public float Evaluate(Func<StatType, float> getStat, int level)
+    public Stat Evaluate(Func<StatType, Stat> getStat, int level)
     {
         float value = baseConstant + level * perLevel;
-
+        float BaseValue = baseConstant;
+        float LevelUpValue = level * perLevel;
+        float EquipmentValue = 0;
+        float sourceBaseValue = 0;
+        float sourceLevelUpValue = 0;
+        float sourceEquipmentValue = 0;
         if (contributions != null)
         {
             for (int i = 0; i < contributions.Length; i++)
             {
-                float sourceValue = getStat(contributions[i].sourceStat);
-                value += sourceValue * contributions[i].coefficient;
+                sourceBaseValue = getStat(contributions[i].sourceStat).BaseValue;
+                BaseValue += sourceBaseValue * contributions[i].coefficient;
+
+                sourceLevelUpValue = getStat(contributions[i].sourceStat).LevelUpValue;
+                LevelUpValue += sourceLevelUpValue * contributions[i].coefficient;
+                
+                sourceEquipmentValue = getStat(contributions[i].sourceStat).EquipmentValue;
+                EquipmentValue += sourceEquipmentValue * contributions[i].coefficient;
             }
         }
-        return value;
+
+        return new Stat(targetStat, BaseValue, LevelUpValue, EquipmentValue);
     }
 }
