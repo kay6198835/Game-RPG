@@ -60,6 +60,7 @@ public class StatsUIController : MonoBehaviour
         {
             objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Release(statSlot.gameObject);
         }
+        if (gainKeyValues == null || gainKeyValues.Count == 0) return;
         foreach (var (type, amount) in gainKeyValues)
         {
             statsSO.AddPrimaryPoint(type, -amount);

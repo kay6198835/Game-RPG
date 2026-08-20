@@ -202,7 +202,7 @@ public class StatsSO : ScriptableObject
             }
             lookup[s.Type] = s;
             StatsViewDTO statViewDTO = new StatsViewDTO(s.Type);
-            statViewDTO.Update(s.AdjustedValue, s.Value);
+            statViewDTO.Update(s.AdjustedValue, s.FinalValue);
             statViewDTOs[s.Type] = statViewDTO;
         }
 
@@ -236,13 +236,23 @@ public class StatsSO : ScriptableObject
     {
         Stat stat = GetOrCreate(type);
         StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(stat.Type);
-        statViewDTO.Update(stat.AdjustedValue, stat.Value);
+        statViewDTO.Update(stat.AdjustedValue, stat.FinalValue);
     }
 
     public float GetStatValue(StatType type)
     {
         Stat stat = GetOrCreate(type);
-        return stat.Value;
+        return stat.AdjustedValue;
+    }
+    public Stat GetStat(StatType type)
+    {
+        Stat stat = GetOrCreate(type);
+        return stat;
+    }
+    public float GetStatEquipValue(StatType type)
+    {
+        Stat stat = GetOrCreate(type);
+        return stat.EquipmentValue;
     }
 
     private void RecalculateDerived()
@@ -257,14 +267,20 @@ public class StatsSO : ScriptableObject
         foreach (var formula in statFormulas)
         {
             if (formula == null) continue;
-
             Stat target = GetOrCreate(formula.targetStat);
-            float newBase = formula.Evaluate(GetStatValue, effectiveLevel);
-            if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
-            target.BaseValue = newBase;
-            lookup[target.Type] = target;
+            Stat newBase = formula.Evaluate(GetStat, effectiveLevel);
+            if (!isDevMode && (
+                Mathf.Approximately(target.FinalValue, newBase.FinalValue)||
+                Mathf.Approximately(target.LevelUpValue, newBase.LevelUpValue)||
+                Mathf.Approximately(target.EquipmentValue, newBase.EquipmentValue)||
+                Mathf.Approximately(target.EquipmentByPrimaryValue, newBase.EquipmentByPrimaryValue))
+            ) continue;
+
+            target.BaseValue = newBase.BaseValue;
+            target.LevelUpValue = newBase.LevelUpValue;
+            target.EquipmentValue = newBase.EquipmentValue;
+            target.EquipmentByPrimaryValue = newBase.EquipmentByPrimaryValue;
             OnStatChanged?.Invoke(target.Type);
-            Debug.Log($"[StatsSO] Recalc {target.Type}: {newBase} (level {level})");
         }
     }
 
