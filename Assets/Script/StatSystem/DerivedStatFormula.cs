@@ -33,9 +33,9 @@ public class DerivedStatFormula
     public Stat Evaluate(Func<StatType, Stat> getStat, int level)
     {
         float value = baseConstant + level * perLevel;
-        float BaseValue = value;
-        float LevelUpValue = value;
-        float EquipmentValue = value;
+        float BaseValue = baseConstant;
+        float LevelUpValue = level * perLevel;
+        float EquipmentValue = 0;
         float sourceBaseValue = 0;
         float sourceLevelUpValue = 0;
         float sourceEquipmentValue = 0;
@@ -43,14 +43,14 @@ public class DerivedStatFormula
         {
             for (int i = 0; i < contributions.Length; i++)
             {
-                BaseValue += sourceBaseValue * contributions[i].coefficient;
                 sourceBaseValue = getStat(contributions[i].sourceStat).BaseValue;
+                BaseValue += sourceBaseValue * contributions[i].coefficient;
 
-                LevelUpValue += sourceLevelUpValue * contributions[i].coefficient;
                 sourceLevelUpValue = getStat(contributions[i].sourceStat).LevelUpValue;
+                LevelUpValue += sourceLevelUpValue * contributions[i].coefficient;
                 
-                EquipmentValue += sourceEquipmentValue * contributions[i].coefficient;
                 sourceEquipmentValue = getStat(contributions[i].sourceStat).EquipmentValue;
+                EquipmentValue += sourceEquipmentValue * contributions[i].coefficient;
             }
         }
 

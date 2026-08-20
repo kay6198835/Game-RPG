@@ -202,7 +202,7 @@ public class StatsSO : ScriptableObject
             }
             lookup[s.Type] = s;
             StatsViewDTO statViewDTO = new StatsViewDTO(s.Type);
-            statViewDTO.Update(s.AdjustedValue, s.Value);
+            statViewDTO.Update(s.AdjustedValue, s.FinalValue);
             statViewDTOs[s.Type] = statViewDTO;
         }
 
@@ -236,7 +236,7 @@ public class StatsSO : ScriptableObject
     {
         Stat stat = GetOrCreate(type);
         StatsViewDTO statViewDTO = GetOrCreateStatsViewDTO(stat.Type);
-        statViewDTO.Update(stat.AdjustedValue, stat.Value);
+        statViewDTO.Update(stat.AdjustedValue, stat.FinalValue);
     }
 
     public float GetStatValue(StatType type)
@@ -269,11 +269,17 @@ public class StatsSO : ScriptableObject
             if (formula == null) continue;
             Stat target = GetOrCreate(formula.targetStat);
             Stat newBase = formula.Evaluate(GetStat, effectiveLevel);
-            if (!isDevMode && Mathf.Approximately(target.Value, newBase.Value)) continue;
+            if (!isDevMode && (
+                Mathf.Approximately(target.FinalValue, newBase.FinalValue)||
+                Mathf.Approximately(target.LevelUpValue, newBase.LevelUpValue)||
+                Mathf.Approximately(target.EquipmentValue, newBase.EquipmentValue)||
+                Mathf.Approximately(target.EquipmentByPrimaryValue, newBase.EquipmentByPrimaryValue))
+            ) continue;
 
             target.BaseValue = newBase.BaseValue;
             target.LevelUpValue = newBase.LevelUpValue;
             target.EquipmentValue = newBase.EquipmentValue;
+            target.EquipmentByPrimaryValue = newBase.EquipmentByPrimaryValue;
             OnStatChanged?.Invoke(target.Type);
         }
     }

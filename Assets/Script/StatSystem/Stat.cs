@@ -35,9 +35,10 @@ public class Stat
 
     [SerializeField] private float baseValue;
     [SerializeField] private float levelUpValue;
-    private float equipmentValue;
-    private float adjustedValue;
-    private float finalValue;
+    [SerializeField] private float equipmentValue;
+    [SerializeField] private float equipmentByPrimaryValue;
+    [SerializeField] private float adjustedValue;
+    [SerializeField] private float finalValue;
 
     // KHÔNG serialize: đây là cache, không phải dữ liệu authored. Nếu serialize thì mọi lần
     // tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
@@ -63,7 +64,16 @@ public class Stat
         Type = type;
         this.baseValue = baseValue;
         this.levelUpValue = levelUpValue;
-        this.equipmentValue = equipmentValue;
+        if (type.IsPrimary())
+        {
+            this.equipmentValue = equipmentValue;
+        }
+        else
+        {
+            this.equipmentByPrimaryValue = equipmentValue;
+        }
+        finalValue = baseValue + levelUpValue + equipmentValue + equipmentByPrimaryValue;
+
     }
 
     /// <summary>Modifier đang gắn (chỉ đọc). StatsSO duyệt list này để gỡ theo nguồn.</summary>
@@ -89,31 +99,46 @@ public class Stat
         get => equipmentValue;
         set => SetField(ref equipmentValue, value);
     }
+    public float EquipmentByPrimaryValue
+    {
+        get => equipmentByPrimaryValue;
+        set => SetField(ref equipmentByPrimaryValue, value);
+    }
+    public float AdjustedValue
+    {
+        get => adjustedValue;
+        set => SetField(ref adjustedValue, value);
+    }
+    public float FinalValue
+    {
+        get => finalValue;
+        set => SetField(ref finalValue, value);
+    }
 
     // ------------------------- Tầng dẫn xuất -------------------------
 
     /// <summary>Gốc + lên cấp, CHƯA tính trang bị và modifier. Không serialize: đây là giá trị tính ra.</summary>
-    public float AdjustedValue => baseValue + levelUpValue;
+    // public float AdjustedValue => baseValue + levelUpValue;
 
-    /// <summary>Giá trị cuối cùng sau khi áp dụng trang bị và toàn bộ modifier.</summary>
-    public float Value
-    {
-        get
-        {
-            if (isDirty)
-            {
-                cachedValue = CalculateFinalValue();
-                isDirty = false;
-            }
-            return cachedValue;
-        }
-    }
+    // /// <summary>Giá trị cuối cùng sau khi áp dụng trang bị và toàn bộ modifier.</summary>
+    // public float Value
+    // {
+    //     get
+    //     {
+    //         if (isDirty)
+    //         {
+    //             cachedValue = CalculateFinalValue();
+    //             isDirty = false;
+    //         }
+    //         return cachedValue;
+    //     }
+    // }
 
-    /// <summary>Alias của Value — giữ đúng tên trong bảng công thức stat.</summary>
-    public float FinalValue => Value;
+    // /// <summary>Alias của Value — giữ đúng tên trong bảng công thức stat.</summary>
+    // public float FinalValue => Value;
 
-    /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
-    public float BonusValue => Value - AdjustedValue;
+    // /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
+    // public float BonusValue => Value - AdjustedValue;
 
     public void Recaulate()
     {
@@ -170,13 +195,12 @@ public class Stat
 
     private float CalculateFinalValue()
     {
-        float finalValue = AdjustedValue;
-
-        if (modifiers == null)
+        float finalValue = baseValue + levelUpValue;
+        if (modifiers == null || modifiers.Count == 0)
         {
-            this.equipmentValue = 0f;
-            this.finalValue = finalValue;
-            return finalValue;                     // trả AdjustedValue, KHÔNG phải 0
+            this.equipmentValue = equipmentByPrimaryValue;
+            this.adjustedValue = baseValue + levelUpValue;
+            return this.finalValue = finalValue + equipmentValue;                     // trả AdjustedValue, KHÔNG phải 0
         }
 
         float percentAddSum = 0f;
@@ -206,19 +230,11 @@ public class Stat
                     break;
             }
         }
-        if (Type.IsPrimary())
-        {
-            this.finalValue = finalValue;
-            this.equipmentValue = finalValue - AdjustedValue;
-        }
-        else
-        {
-            this.equipmentValue += finalValue - AdjustedValue;
-        }
-        if (Type == StatType.MaxHP)
-        {
-            Debug.Log(Type + " " + finalValue);
-        }
+        this.finalValue = finalValue;
+        this.adjustedValue = baseValue + levelUpValue;
+        this.equipmentValue = finalValue - (baseValue + levelUpValue) + equipmentByPrimaryValue;
+        Debug.Log("finalValue: " + this.finalValue);
+        Debug.Log("equipmentValue: " + this.equipmentValue);
         return this.finalValue;
     }
 }

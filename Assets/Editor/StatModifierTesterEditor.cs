@@ -102,7 +102,7 @@ public class StatModifierTesterEditor : Editor
     private void DrawStatLine(StatsSO stats, StatType t)
     {
         Stat stat = stats.Get(t);
-        float value = stat != null ? stat.Value : 0f;
+        float value = stat != null ? stat.FinalValue : 0f;
         EditorGUILayout.LabelField(t.ToString(), value.ToString("0.###"));
     }
 
