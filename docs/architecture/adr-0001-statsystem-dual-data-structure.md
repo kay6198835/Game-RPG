@@ -37,7 +37,9 @@ data source.
 
 ### Constraints
 - The Unity Inspector cannot serialize/edit `Dictionary<K,V>` on the current engine version.
-- `StatModifier` is runtime-only and not Unity-serializable (see `Stat.modifiers`).
+- `StatModifier` is Unity-serializable for its authored part (`targetStat` / `type` / `value`), but
+  its `Source` is runtime-only. `Stat.modifiers` is therefore `[NonSerialized]` so runtime buffs are
+  never written into the `StatsSO` asset.
 - Gameplay reads stats through `StatsSO.Get(StatType)` — a hot path that requires O(1).
 
 ### Requirements
@@ -54,7 +56,7 @@ List ↔ Dictionary invariant.
 
 ### Key Interfaces
 - `float StatsSO.Get(StatType type)` — O(1) read via `lookup`.
-- `void StatsSO.AddModifier / RemoveModifiersFromSource / AddPrimaryPoint` — write through `List`, then resync.
+- `void StatsSO.AddModifier / AddModifiersFromSource / RemoveModifiersFromSource / AddPrimaryPoint` — write through `List`, then resync.
 
 ## Alternatives Considered
 

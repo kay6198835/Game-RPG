@@ -1,18 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-
-[CreateAssetMenu(menuName ="WeaponData/MeeleeWeaponData/StateData/Normal Attack")]
+[CreateAssetMenu(menuName = "WeaponData/AttackStage/Melee")]
 public class AttackSO : ScriptableObject
 {
     [SerializeField] public string nameState;
+
     [Header("Stats")]
-    [SerializeField] public float attackRange = 1f;
-    [SerializeField] public int attackDamege = 0;
-    [SerializeField] public float attackRate = 1f;
-    
+    [SerializeField, Range(0.1f, 20f)] public float attackRange = 1f;
+    [SerializeField, Range(0, 999)] public int attackDamege = 0;
+    [SerializeField, Range(0.1f, 10f)] public float attackRate = 1f;
+
     [Header("Atributte")]
     [SerializeField] public AnimatorOverrideController directionAttackAnimatorOV;
     [SerializeField] public ActivateSkill ability;

@@ -42,7 +42,7 @@ public class PlayerBasicState : PlayerState
         }
         else if (weaponHolder.Weapon != null)
         {
-            if (inputHandler.IsAttack)
+            if (inputHandler.IsAttack && weaponHolder.CanAttack())
             {
                 stateMachine.ChangeState(player.AttackState);
                 return;

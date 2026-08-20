@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class EntityInput : EntityCoreComponent<EntityCore>
+public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
 {
+    public Vector2 AimDirection => directionLookVector;
+
     [SerializeField] protected Vector2 spawnPoint;
     // [SerializeField] protected Entity entity;
     [SerializeField] protected Vector2 targetFowardPosition;
