@@ -270,12 +270,13 @@ public class StatsSO : ScriptableObject
             Stat target = GetOrCreate(formula.targetStat);
             Stat newBase = formula.Evaluate(GetStat, effectiveLevel);
             if (!isDevMode && (
-                Mathf.Approximately(target.FinalValue, newBase.FinalValue)||
-                Mathf.Approximately(target.LevelUpValue, newBase.LevelUpValue)||
-                Mathf.Approximately(target.EquipmentValue, newBase.EquipmentValue)||
-                Mathf.Approximately(target.EquipmentByPrimaryValue, newBase.EquipmentByPrimaryValue))
+                Mathf.Approximately(target.FinalValue, newBase.FinalValue) &&
+                Mathf.Approximately(target.LevelUpValue, newBase.LevelUpValue) &&
+                Mathf.Approximately(target.EquipmentValue, newBase.EquipmentValue) &&
+                Mathf.Approximately(target.EquipmentByPrimaryValue, newBase.EquipmentByPrimaryValue) &&
+                Mathf.Approximately(target.FinalValue, newBase.FinalValue)
+                )
             ) continue;
-
             target.BaseValue = newBase.BaseValue;
             target.LevelUpValue = newBase.LevelUpValue;
             target.EquipmentValue = newBase.EquipmentValue;
