@@ -36,8 +36,9 @@ public class StatSlot : MonoBehaviour
     }
     void UpdateTotalLevelUpBonusValue(object obj = null)
     {
-        bottonIncreaseStat.interactable = totalLevelUpBonusValue > 0;
-        bottonDecreaseStat.interactable = levelUpBonusValue > 0;
+        if (!statType.IsPrimary()) return;
+        bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
+        bottonDecreaseStat.gameObject.SetActive(levelUpBonusValue > 0);
     }
     public void DecreaseStat()
     {

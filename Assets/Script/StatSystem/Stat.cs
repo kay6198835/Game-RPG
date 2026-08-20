@@ -118,7 +118,7 @@ public class Stat
     public void Recaulate()
     {
         adjustedValue = AdjustedValue;
-        finalValue = AdjustedValue + equipmentValue;
+        CalculateFinalValue();
     }
 
     // ------------------------- Modifier -------------------------
@@ -206,9 +206,19 @@ public class Stat
                     break;
             }
         }
-
-        this.finalValue = finalValue;
-        this.equipmentValue = finalValue - AdjustedValue;
+        if (Type.IsPrimary())
+        {
+            this.finalValue = finalValue;
+            this.equipmentValue = finalValue - AdjustedValue;
+        }
+        else
+        {
+            this.equipmentValue += finalValue - AdjustedValue;
+        }
+        if (Type == StatType.MaxHP)
+        {
+            Debug.Log(Type + " " + finalValue);
+        }
         return this.finalValue;
     }
 }

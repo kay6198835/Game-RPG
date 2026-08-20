@@ -242,7 +242,17 @@ public class StatsSO : ScriptableObject
     public float GetStatValue(StatType type)
     {
         Stat stat = GetOrCreate(type);
-        return stat.Value;
+        return stat.AdjustedValue;
+    }
+    public Stat GetStat(StatType type)
+    {
+        Stat stat = GetOrCreate(type);
+        return stat;
+    }
+    public float GetStatEquipValue(StatType type)
+    {
+        Stat stat = GetOrCreate(type);
+        return stat.EquipmentValue;
     }
 
     private void RecalculateDerived()
@@ -257,14 +267,14 @@ public class StatsSO : ScriptableObject
         foreach (var formula in statFormulas)
         {
             if (formula == null) continue;
-
             Stat target = GetOrCreate(formula.targetStat);
-            float newBase = formula.Evaluate(GetStatValue, effectiveLevel);
-            if (!isDevMode && Mathf.Approximately(target.BaseValue, newBase)) continue;
-            target.BaseValue = newBase;
-            lookup[target.Type] = target;
+            Stat newBase = formula.Evaluate(GetStat, effectiveLevel);
+            if (!isDevMode && Mathf.Approximately(target.Value, newBase.Value)) continue;
+
+            target.BaseValue = newBase.BaseValue;
+            target.LevelUpValue = newBase.LevelUpValue;
+            target.EquipmentValue = newBase.EquipmentValue;
             OnStatChanged?.Invoke(target.Type);
-            Debug.Log($"[StatsSO] Recalc {target.Type}: {newBase} (level {level})");
         }
     }
 
