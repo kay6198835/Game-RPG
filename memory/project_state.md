@@ -42,7 +42,6 @@ CLAUDE.md carries the same facts in long form.
 | BUG-053 | BLOCKER | `EntityNegativeReciver` runs player logic on an enemy: resolves `PlayerInputHandler` off `EntityCore` (→ NRE) and emits `ON_PLAYER_DEATH` on enemy death | EntityNegativeReciver.cs:10 |
 | — | BLOCKER | Enemy health has two disconnected stores: damage lands on `EntityNegativeReciver.currentHealth`, the death check reads `EntityStatsSO.Health`. Enemies cannot die | EntityBasicState.cs:30 |
 | NEW-2 | HIGH | `EntityStatsSO.ModifiersAmor` getter and setter recurse into themselves → `StackOverflowException` (TD-011, open since 2026-05-31) | EntityStatsSO.cs:47 |
-| NEW-4 | HIGH | `Stat.modifiers` is still `[SerializeField]` although its own comment and ADR-0001 require `[NonSerialized]`, so runtime buffs keep leaking into `.asset` files. The two leaked `STR +1 Flat` modifiers were cleaned out of `PlayerStats.asset` / `Test.asset` on `sprint-10`, but the cause is unchanged — expect recurrence. Note `StatModifierGroup.modifiers` on `WeaponStats` must stay serialized | Stat.cs:52 |
 | 6 | HIGH | Player death chain incomplete — `PlayerData.currentHealth` never written, `Reborn()` has no caller, no `GameManager`, `PlayerDeathState` never constructed | NegativeReciver.cs:6 |
 | BUG-044 | HIGH | `PlayerDeathState.LogicUpdate()` body fully commented out; state absent from `Player.Awake()` | PlayerDeathState.cs:17 |
 | BUG-043 | MEDIUM | Two divergent enemy attack paths: `EntityWeaponMelee.Attack()` and `EntityAttack.Attack()` (the latter hardcodes damage `10`) | EntityAttack.cs:33 |
@@ -57,7 +56,8 @@ CLAUDE.md carries the same facts in long form.
 | 17 | LOW | Dead code: `DoorController.OpenDoor()`/`CheckCanBeOpened()`, `RoomCell.UpdateStatusDoor()` — no-ops | DoorController.cs:29 |
 | BUG-052 | DOC | `Character/Base/`, `Pathfinding/`, `Poolable/` have no ADR. CLAUDE.md's Repository Layout now lists them; the ADR decision is still owed | — |
 
-**Closed since the last update:** Bugs #4, #5, #7, #8, #9 (and #10, #11 previously).
+**Closed since the last update:** Bugs #4, #5, #7, #8, #9, NEW-3 (fixed on `sprint-10`) and NEW-4
+(fixed 2026-08-21 — `Stat.modifiers` no longer serialized). Plus #10, #11 previously.
 
 ---
 
@@ -120,9 +120,9 @@ Register/UnRegister pairing is clean: all six subscriber files balance exactly
    implementer for the enemy, route health through `EntityStatsSO`, delete the duplicate.
 3. **Player death** (Bug #6 + BUG-044, story S10-08) — write `PlayerData.currentHealth`, construct
    `PlayerDeathState`, restore its body, add a `GameManager` that calls `Reborn()` and reloads.
-4. **StatSystem correctness** (NEW-2, NEW-4) — the recursive `ModifiersAmor` property and the modifier
-   serialization leak. Both are silent failures, not crashes at the call site. The `||`/`&&` guard in
-   `RecalculateDerived()` was fixed on `sprint-10`.
+4. **StatSystem correctness** (NEW-2) — the recursive `ModifiersAmor` property, a silent failure that
+   kills the Editor on first access. The `||`/`&&` guard in `RecalculateDerived()` was fixed on
+   `sprint-10`; the `Stat.modifiers` serialization leak was fixed on 2026-08-21 (C1).
 5. **Start-room teleport** (Bug #13).
 6. **Enemy spawn hardening** — BUG-033 null-guard, the ADR-0003 budget-invariant fallback, and the
    two-parallel-drivers question (BUG-ES-2).
