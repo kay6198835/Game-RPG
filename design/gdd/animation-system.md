@@ -2,7 +2,20 @@
 
 > **Status**: In Design
 > **Author**: Kiet + Claude
-> **Last Updated**: 2026-05-19
+> **Last Updated**: 2026-05-19 (implementation-status claims corrected 2026-08-20)
+
+> **⚠️ Implementation drift — read before using this document (2026-08-20 audit).**
+> The **design intent below is unchanged and still owned by design.** Two *descriptive*
+> claims in it were false and have been corrected in place: Bug #9 is fixed, and
+> `AnimationName.cs` is not a missing constants file.
+> One larger divergence is **not** corrected here because it is a design decision, not a
+> factual error: this GDD specifies a **flag-based** handoff (`isAnimationTrigger`,
+> `isAnimationFinished`, reset after one frame). The shipped code uses a **`StatusAnimation`
+> enum** set through `PlayerState.SetAnimationStatus()`; neither flag exists anywhere in the
+> codebase. Whether the GDD should be rewritten against the enum model, or the code brought
+> back to flags, is an open owner decision (audit item D-5). Until it is resolved, treat the
+> "States and Transitions" and "Formulas" sections as describing an intended contract that
+> the code does not implement.
 > **Implements Pillar**: Foundation — enables responsive combat timing across all character systems
 
 ## Overview
@@ -44,10 +57,11 @@ The animation system is invisible infrastructure: if it is well-built, players d
 | `DoSkillAnimation` | Active frame of skill clip | `isAnimationTrigger = true` → skill `Do()` phase |
 | `EndAnimation` | Clip completes | `isAnimationFinished = true` → state exits |
 
-**⚠️ Bug #9 — `AnimationPlayerController.OnEnable()` line 21:**
-Currently registers `StartAnimation` twice; `EndAnimation` is never registered and never fires. Fix: change line 21 handler from `StartAnimation` to `EndAnimation`. Mirror the fix in `OnDisable()`.
+**✅ Bug #9 — FIXED (verified 2026-08-20).**
+`AnimationPlayerController.OnEnable()` line 21 registers `AnimationEventId.EndAnimation`, and
+`OnDisable()` line 29 mirrors it. All five event ids register and unregister exactly once.
 
-**Correct registration table:**
+**Registration table (matches source):**
 
 | Line | EventId | Handler |
 |------|---------|---------|
@@ -55,18 +69,24 @@ Currently registers `StartAnimation` twice; `EndAnimation` is never registered a
 | 18 | `MoveAnimation` | `Move()` |
 | 19 | `AttactAnimation` | `Attack()` |
 | 20 | `DoSkillAnimation` | `DoSkill()` |
-| **21** | **`EndAnimation`** | **`EndAnimation()`** ← fix here |
+| 21 | `EndAnimation` | `EndAnimation()` |
 
-**AnimationName constants (required — `AnimationName.cs` currently empty):**
+⚠️ Separate issue, still open: four of those five handlers (`StartAnimation`, `EndAnimation`,
+`Attack`, `DoSkill`) have **empty bodies**. Registration is correct; the behaviour this GDD
+specifies for them is not implemented. Only `Move()` does anything.
+
+**AnimationName constants** — corrected 2026-08-20. `AnimationName.cs` is *not* an empty
+constants file: it is an unrelated empty `ScriptableObject` stub with a `[CreateAssetMenu]`
+attribute and should be deleted (TD-016). The real constants live in
+`GameConstants.AnimationName` and are in use (e.g. `EntityBasicState.cs:27` reads
+`GameConstants.AnimationName.Parameter.DIRECTION`). `IDLE`, `MOVE`, `ATTACK`,
+`EQUIP_UNEQUIP`, `INTERACTOR`, `ABILITY` and `TAKE_DAMAGE` all exist there. Still missing
+from `GameConstants`, and still required by this design:
 
 | Constant | Value | Used by |
 |----------|-------|---------|
-| `IDLE` | `"Idle"` | `PlayerIdleState` |
-| `MOVE` | `"Move"` | `PlayerMoveState` |
-| `ATTACK` | `"Attack"` | `PlayerAttackState` |
 | `SKILL` | `"Skill"` | `PlayerSkillWeaponState` |
-| `TAKE_DAMAGE` | `"TakeDamage"` | `PlayerTakeDamageState` |
-| `DEATH` | `"Death"` | Future death state |
+| `DEATH` | `"Death"` | `PlayerDeathState` (exists but is never constructed — BUG-044) |
 
 ---
 
@@ -124,7 +144,7 @@ AnimatorOverrideController depth:
 | **`AttactAnimation` fires but weapon is null** | `PlayerAttackState.LogicUpdate()` calls `Weapon.Attack()` — if weapon is null → NullReferenceException. Guard: check `WeaponHolder.Weapon != null` before calling. |
 | **`EndAnimation` fires twice on the same clip** | If the animator loops or a clip has a bug, `isAnimationFinished` could be set twice. Because the flag resets immediately after the first read, the second occurrence is a no-op — the state has already exited. No issue. |
 | **Skill `ExitAbility()` does not restore controller** | Player is stuck with the skill's controller; subsequent attack animations will be wrong. `ExitAbility()` must always restore `runtimeAnimatorController` to the weapon base controller, even when the skill is interrupted. |
-| **Bug #9 — `EndAnimation` never fires** | As documented in Detailed Design: `AnimationPlayerController.OnEnable()` line 21 registers the wrong event. Consequence: every use-weapon state never exits, player is permanently stuck. This fix is mandatory before demo. |
+| **Bug #9 — `EndAnimation` never fires** | ✅ **RESOLVED 2026-08-20.** Line 21 registers `EndAnimation` correctly. Kept here for history because several other documents still cite this bug as open. |
 | **`isAnimationTrigger` still `true` when entering a new state** | If a state exits without resetting the flag, the next state receives a phantom event on its first frame. Every state `Enter()` must reset `isAnimationTrigger = false`. |
 
 ## Dependencies
@@ -165,9 +185,9 @@ All animation timing is configured in the Unity Animator inspector — not in co
 - [ ] **GIVEN** player uses Slash skill (E key), **WHEN** the skill animation reaches the active frame, **THEN** `DoSkillAnimation` fires and the projectile spawns correctly
 - [ ] **GIVEN** player equips a weapon with 3 attacks in the combo, **WHEN** each hit uses a different `directionAttackAnimatorOV`, **THEN** each hit plays the correct directional animation matching the mouse direction
 - [ ] **GIVEN** player uses a skill, **WHEN** the skill exits (`ExitAbility()`), **THEN** `runtimeAnimatorController` is restored to the previous controller and subsequent attacks animate correctly
-- [ ] **GIVEN** Bug #9 is fixed, **WHEN** any use-weapon state completes its animation, **THEN** `EndAnimation` fires exactly once and the state exits — no permanent state lock
+- [x] **GIVEN** Bug #9 is fixed, **WHEN** any use-weapon state completes its animation, **THEN** `EndAnimation` fires exactly once and the state exits — no permanent state lock *(registration verified 2026-08-20; end-to-end exit behaviour is driven by `StatusAnimation.End`, not by this flag — see the drift note at the top)*
 - [ ] **GIVEN** player takes damage during an attack animation, **WHEN** `PlayerTakeDamageState.Enter()` is called, **THEN** `isAnimationTrigger` and `isAnimationFinished` are both reset to `false`
-- [ ] **GIVEN** `AnimationName.cs` is populated, **WHEN** any state calls `Animator.SetBool(AnimationName.IDLE, true)`, **THEN** the correct Animator parameter is set with no magic string errors
+- [ ] **GIVEN** `GameConstants.AnimationName` is complete (`SKILL` and `DEATH` still missing), **WHEN** any state calls `Animator.SetBool(GameConstants.AnimationName.IDLE, true)`, **THEN** the correct Animator parameter is set with no magic string errors
 
 ## Open Questions
 

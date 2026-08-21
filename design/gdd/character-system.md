@@ -11,7 +11,12 @@ verified-by: Kiet
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet
 > implemented. Sections marked **[BUG]** identify known defects.
 
-**Status**: In Design
+**Status**: In Design (implementation-status claims corrected 2026-08-20)
+
+> **Audit note (2026-08-20).** Design intent below is unchanged. Only *descriptive* claims —
+> class names, API names, and `[BUG]` markers — were corrected against source. Where a
+> `[BUG]` has been fixed it is marked ✅ and kept for history, because other documents still
+> cite several of them as open.
 
 ---
 
@@ -57,7 +62,7 @@ when to use a skill.
 **Transition priority (highest wins when multiple conditions are true):**
 `TakeDamage > EquipUnequip > Interact > Attack > Skill > Move > Idle`
 
-**Attack gate:** `PlayerBasicState` checks `IsAttack && WeaponHolder.Weapon != null && Weapon.CheckCanAttack(player)` each frame. The weapon's `CheckCanAttack` manages the attack cooldown internally.
+**Attack gate:** `PlayerBasicState` checks `inputHandler.IsAttack && weaponHolder.Weapon != null && weaponHolder.CanAttack()` each frame (`PlayerBasicState.cs:43-49`). Corrected 2026-08-20 — `CheckCanAttack()` no longer exists. The current weapon API is `CanAttack()` / `CanChain()` / `OnAttackEnter(Player)` / `OnActivate()` / `OnDeactivate()`; cooldown and stage selection live in `Weapon.OnAttackEnter()`.
 
 **Skill lifecycle** (driven by `AbilityHolder` each frame):
 ```
@@ -75,15 +80,17 @@ Enter(player) → Activate() → Cast() [held] → Do() [released or DoNonCast t
 | **Move** | From Idle; target detected or wander timer | `moveDurationTime` elapsed (no target) OR attack range reached | towards target or random |
 | **Attack** | Within `rangeCheckAttack` + `CanAttack` passes | `animationFinished` event | frozen |
 | **TakeDamage** | `INegativeReceiver.TakeDamage()` called, health > 0 | `animationFinished` event | frozen; knockback dir set |
-| **Death** | health ≤ 0 **[BUG — not triggered; see Edge Cases]** | despawn | frozen |
+| **Death** | health ≤ 0 **[BUG — unreachable; see Edge Cases]** | despawn | frozen |
 
-**Target detection:** `EntityInput.Update()` runs `Physics2D.OverlapCircle` every frame with `rangeCheckFieldOfView` radius. Player is automatically detected — no manual assignment needed.
+**Target detection [BUG — disabled]:** the design is that `EntityInput.Update()` resolves a target within `rangeCheckFieldOfView` every frame. In source, the call is commented out — `EntityInput.cs:67` reads `//GetTargetInRange();`, and that method is the only writer of `targetTransform`. `TargetTransform` is therefore permanently `null`: enemies never detect the player, `EntityMoveState` always takes the no-target branch, and `EntityAttackState.cs:24` would NullRef if reached. Restore it **with** a null guard and `OverlapCircleNonAlloc` (TD-037 / TD-005).
 
 **Obstacle avoidance:** When moving without a target and a wall is detected via raycast,
 the entity turns 90° left or right plus a random bonus angle (45–90°) and continues.
 
-**Chase range [GAP]:** Currently hardcoded as `10f` in `EntityMoveState`. This should be
-read from `EntityData.rangeCheckChase` (field does not yet exist — needs adding to `EntityData` SO).
+**Chase range [GAP]:** `EntityData.rangeCheckChase` still does not exist. Corrected
+2026-08-20: after the `EntityMoveState` rewrite the literal `10` at line 27 is a **no-target
+timeout in seconds**, not a chase distance — so there are now two gaps, a magic timer and a
+missing chase-range field (TD-019).
 
 ### Damage Rule
 
@@ -91,8 +98,11 @@ read from `EntityData.rangeCheckChase` (field does not yet exist — needs addin
 INegativeReceiver.TakeDamage(int amountDamage, Vector2 attackPosition)
 ```
 
-- Called by weapons (`Weapon.Attack()`) and projectiles (`Projectile.CheckCollisions()`)
-- Implementors: `Core` (Player) and `EntityCore` (Entity)
+- Called by weapons (`Weapon.OnActivate()`) and projectiles (`Projectile.CheckCollisions()`)
+- **Implementors, corrected 2026-08-20** — the design is one implementer per character. Source has:
+  - Player: `NegativeReciver` (a `CoreComponent<Core>`, *not* `Core` itself) — implemented, emits `ON_PLAYER_DEATH`
+  - Enemy: **two** implementers, which is the defect. `EntityCore.TakeDamage()` throws `NotImplementedException` (BUG-042), while `EntityNegativeReciver.TakeDamage()` decrements its own `currentHealth`, resolves `PlayerInputHandler` off an `EntityCore` (→ NRE) and emits `ON_PLAYER_DEATH` on an *enemy* death (BUG-053)
+  - Target shape per story S10-01: `EntityCore` is the sole implementer, health routed through `EntityStatsSO`, `EntityNegativeReciver.cs` deleted
 - `attackPosition` is used only to compute knockback direction — it does not affect damage amount
 - After health reaches 0, further `TakeDamage` calls are no-ops
 
@@ -126,14 +136,14 @@ knockbackDir    = Atan2((attackPos - entityPos).x, (attackPos - entityPos).y)
 
 | Scenario | Current Behaviour | Correct Behaviour |
 |----------|------------------|-------------------|
-| Enemy loses target mid-chase | **[BUG]** `EntityMoveState` dereferences `Target.transform.position` before the null check on line 30 → NullReferenceException | Guard: `if (Target == null) → Idle` at top of `LogicUpdate()` |
-| Player health ≤ 0 | `Core.TakeDamage` stops further damage but no death event fires, no restart | Should emit `ON_PLAYER_DEATH`; `GameManager` calls `PlayerData.Reborn()` + reload |
-| Entity health ≤ 0 | `EntityBasicState` health ≤ 0 block is empty — entity freezes | Transition to `EntityDeathState`; play death anim; despawn |
-| `EntityDeathState` called | **[BUG]** Extends `MonoBehaviour` instead of `EntityState` — not in state machine | Rewrite to extend `EntityState` |
-| `EntityStatsSO.ModifiersAmor` read | **[BUG]** Property getter calls itself → stack overflow | Fix getter: `return modifiersAmor` (lowercase field) |
+| Enemy loses target mid-chase | ✅ **RESOLVED** — `EntityMoveState.LogicUpdate()` now opens with `if (!entityInput.TargetTransform)` and falls back to a 10s timeout → `IdleState` (`EntityMoveState.cs:24-33`) | Guard at top of `LogicUpdate()` — done |
+| Player health ≤ 0 | **[PARTIAL]** `NegativeReciver.TakeDamage()` guards at zero and emits `ON_PLAYER_DEATH` (the event now exists in `EventID`). Still missing: it writes its own `currentHealth`, never `PlayerData.currentHealth`; `PlayerDeathState.LogicUpdate()` is commented out and the state is never constructed in `Player.Awake()` (BUG-044); no `GameManager` exists, so `PlayerData.Reborn()` has no caller | Write through to `PlayerData`; construct and restore `PlayerDeathState`; add a `GameManager` that calls `Reborn()` and reloads `StartScene` |
+| Entity health ≤ 0 | ✅ transition implemented (`EntityBasicState.cs:30-34`) but **unreachable**: it reads `entity.Data.StatsSO.Health`, which nothing decrements. Damage lands on `EntityNegativeReciver.currentHealth` instead — two disconnected stores, so enemies cannot die (TD-036) | One health store, owned by `EntityStatsSO` and written through the Core hub |
+| `EntityDeathState` called | ✅ **RESOLVED** — extends `EntityBasicState`, constructed in `Entity.LoadState()`, emits `ON_ENEMY_DEATH` on `EndRangeTrigger` (`EntityDeathState.cs:1,13-19`) | — |
+| `EntityStatsSO.ModifiersAmor` read | **[BUG — still open, 12 weeks]** getter is `get => ModifiersAmor;` and the setter also reads and writes itself → `StackOverflowException`, which is uncatchable and kills the Editor rather than logging. Latent only because armour is not applied in the damage formula yet (`EntityStatsSO.cs:45-56`, TD-011) | Fix getter/setter to use the lowercase `modifiersAmor` field |
 | Skill used without weapon | `AbilityHolder` may invoke skill while `WeaponHolder.Weapon == null` — unchecked | `PlayerBasicState` should gate skill check on `WeaponHolder.Weapon != null` |
 | Enemy attack at edge of chase range | Possible: entity attacks at range 10f then exits attack but re-enters immediately | `rangeCheckAttack` must be ≤ chase range; gate checked each frame |
-| `AnimationPlayerController.OnEnable` | **[BUG]** `StartAnimation` callback registered twice; `EndAnimation` callback never fires | Line 21: second registration should be `EndAnimation` |
+| `AnimationPlayerController.OnEnable` | ✅ **RESOLVED** — line 21 registers `EndAnimation`, mirrored at line 29 (Bug #9) | — |
 
 ---
 
@@ -141,11 +151,11 @@ knockbackDir    = Atan2((attackPos - entityPos).x, (attackPos - entityPos).y)
 
 | System | Role | Direction |
 |--------|------|-----------|
-| **Weapons** (`Assets/Script/Weapons/`) | `Weapon.Attack()` and `Weapon.CheckCanAttack()` are called by attack states | Character → Weapons |
+| **Weapons** (`Assets/Script/Weapons/`) | `WeaponHolder.Attack()` → `Weapon.OnAttackEnter()` on state entry; `WeaponHolder.MakeDamage()` → `Weapon.OnActivate()` on the animation hit frame | Character → Weapons |
 | **Skill/Ability** (`Assets/Script/Skill_Ability/`) | `ActivateSkill` SO provides ability lifecycle; `AbilityHolder` drives it | Character → Skills |
-| **Event Manager** (`EventManager.cs`) | `ON_PLAYER_DEATH`, `ON_PLAYER_TAKE_DAMAGE`, `ON_ENEMY_DEATH` events needed — not yet in `EventID` enum | Character → EventManager |
+| **Event Manager** (`EventManager.cs`) | Corrected 2026-08-20 — `ON_PLAYER_DEATH` and `ON_ENEMY_DEATH` **now exist** (the enum has 19 values). Only `ON_PLAYER_TAKE_DAMAGE` is still absent, and `.claude/rules/ui-code.md` tells the health bar to bind to it | Character → EventManager |
 | **Animation** (`AnimationEventManager.cs`) | `AnimationTrigger` fires weapon/skill; `AnimationFinished` exits states | Character → Animation |
-| **Input** (`PlayerInputHandle.cs`) | Provides `MoveVector`, `DirectionMouse`, `IsAttack`, `IsSkill`, `IsTakeDamage` | Input → Character |
+| **Input** (`PlayerInputHandle.cs`, class `PlayerInputHandler`) | Provides `MoveVector`, `DirectionMouse`, `IsAttack`, `IsSkill`, `IsTakeDamage`, plus `BufferIsAttack` for combo buffering; also implements `IAimProvider` so weapons read aim direction through the interface rather than the concrete type | Input → Character |
 | **Map** (`RoomController`) | Enemies must be registered with `RoomController` for room-clear tracking | Character → Map |
 
 ---
@@ -165,7 +175,7 @@ All values live in ScriptableObject assets — never hardcode in state classes.
 | Enemy attack range | `EntityData` | `rangeCheckAttack` | varies | Attack trigger radius |
 | Enemy idle duration | `EntityData` | `idleDurationTime` | varies | Seconds before wandering |
 | Enemy move duration | `EntityData` | `moveDurationTime` | varies | Seconds before idle |
-| Enemy chase range | `EntityData` | `rangeCheckChase` **[GAP — field missing]** | 10f | Max pursuit distance |
+| Enemy chase range | `EntityData` | `rangeCheckChase` **[GAP — field still missing]** | — | Max pursuit distance. Note: the literal `10` at `EntityMoveState.cs:27` is a no-target **timeout in seconds** after the rewrite, not a chase range (TD-019) |
 | Ability cooldown | per `ActivateSkill` SO | per-skill field | varies | Set in `Exit()` phase |
 
 ---
@@ -193,14 +203,14 @@ All values live in ScriptableObject assets — never hardcode in state classes.
 - [ ] `currentHealth ≤ 0` emits `ON_PLAYER_DEATH`; scene reloads to StartScene
 
 ### Enemy AI
-- [ ] Enemy detects player within `rangeCheckFieldOfView` and pursues
+- [ ] Enemy detects player within `rangeCheckFieldOfView` and pursues — **blocked**: `GetTargetInRange()` is commented out (TD-037)
 - [ ] Enemy loses target and transitions to Idle after `moveDurationTime`
 - [ ] Enemy attacks when within `rangeCheckAttack`; player health decrements
 - [ ] Enemy avoids walls during random wander
-- [ ] Enemy null-dereference on target loss is resolved (no NullRef in console)
+- [x] Enemy null-dereference on target loss is resolved (no NullRef in console) — done
 
 ### Enemy Damage & Death
-- [ ] `INegativeReceiver.TakeDamage()` decrements entity health via `EntityStatsSO.ModifiersHealth`
+- [ ] `INegativeReceiver.TakeDamage()` decrements entity health via `EntityStatsSO.ModifiersHealth` — **currently false**: damage goes to `EntityNegativeReciver.currentHealth` instead (TD-036)
 - [ ] TakeDamage state plays stun + directional knockback animation
 - [ ] `health ≤ 0` transitions to `EntityDeathState`; entity despawns
-- [ ] `EntityDeathState` extends `EntityState` (not MonoBehaviour)
+- [x] `EntityDeathState` extends `EntityState` (not MonoBehaviour) — done
