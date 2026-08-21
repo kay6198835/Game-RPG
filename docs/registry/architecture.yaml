@@ -6,27 +6,48 @@
 
 state_ownership:
   - state: enemy_room_alive_count
-    owner: EnemyManager
+    owner: RoomCell
     adr: ADR-0002
-    interface: "EnemyManager.Instance (read-only aliveCount during Fighting state)"
+    adr_status: stale
+    interface: "RoomCell.EnemyCount (int, private set); RoomCell.OnDoneSpawnEnemy(int) / OnSpawnExtraEnemy() / OnEnemyDeath()"
     note: >
-      Reset explicitly by the ON_LOAD_MAP handler each room transition —
-      Awake() fires once per dungeon run, not once per room (see ADR-0002
-      Decision correction).
+      CORRECTED 2026-08-20 by documentation audit. ADR-0002 assigns this state to
+      EnemyManager, but the shipped owner is RoomCell (RoomCell.cs:22,44-62).
+      RoomGridController forwards ON_DONE_SPAWN_ENEMY / ON_SPAWN_EXTRA_ENEMY /
+      ON_ENEMY_DEATH to the current cell, and RoomCell emits ON_CLEAR_ENEMY when the
+      count reaches zero. EnemyManager holds no alive-count field of any kind — it
+      became the pathfinding service instead (see api_decisions below). This registry
+      row is a derived view, so ADR-0002 must be amended to match before the row can
+      be considered authoritative again.
 
 interfaces:
   - contract: room_enemy_selection
     adr: ADR-0003
     signature: "RoomModel.GetSpawnSet() -> List<EnemySpawnEntry> { enemy, count }"
+    guarantee_status: violated_by_implementation
     detail: >
-      Budget-bounded Candidate-Pool fill loop. Guarantees: totalSpend <= B
-      (Room Budget) always — overspend is structurally impossible because a
-      candidate must satisfy weight <= remaining (no overflow cap); the loop
-      terminates in at most B iterations; each pick round terminates in at
-      most 5 roll attempts (retryCount capped at 4 + 1 forced fallback).
+      Budget-bounded Candidate-Pool fill loop. Intended guarantees: totalSpend <= B
+      (Room Budget) always — overspend structurally impossible because a candidate
+      must satisfy weight <= remaining (no overflow cap); the loop terminates in at
+      most B iterations; each pick round terminates in at most 5 roll attempts
+      (retryCount capped at 4 + 1 forced fallback).
+      VERIFIED 2026-08-20 — implementation status per guarantee:
+        - loop termination: HOLDS (weight >= 1 is enforced by [Range(1,100)]).
+        - 5 roll attempts per round: HOLDS (RoomModel.cs:55).
+        - totalSpend <= B: DOES NOT HOLD. RoomModel.SetListCandidate() at
+          RoomModel.cs:55-58 does `if (retry > 4) { candidateEnemies.AddRange(
+          enemiesOfRoom); return; }` with no weight filter, so a candidate heavier
+          than the remaining budget can be picked and weightBudget goes negative.
+          A Legendary-only pool (5% roll) reaches that fallback in roughly 77% of
+          rounds. Tracked as TD-038; ADR-0003 must either be amended or the
+          fallback filtered.
+      Also note the serialized `overflowPercent` field on RoomModel is never read —
+      GetSpawnSet() uses a hardcoded 0.1f literal instead (RoomModel.cs:31).
       Pure method on the RoomModel SO — deliberately NOT on the EnemyManager
-      singleton (ADR-0002) so it stays unit-testable. Signature unchanged from
-      the shipped Option A implementation; only the internal algorithm changes.
+      singleton (ADR-0002) so it stays unit-testable. NOTE: it is not currently pure —
+      it mutates the serialized `candidateEnemies` list as a scratch buffer, which
+      makes it non-reentrant and unsafe if two rooms share a RoomModel (which
+      MapModel.GetRandomRoom()'s shuffle-bag allows once the bag refills).
   - contract: enemymodal_spawn_metadata
     adr: ADR-0003
     signature: "EnemyModal { GameObject Prefab; int weight; RarityTier rarityTier; } — plain [System.Serializable] class nested in RoomModel.cs, NOT a ScriptableObject, does not extend EntityModel"
@@ -47,6 +68,17 @@ interfaces:
       the plain-class shape.
 
 forbidden_patterns: []
+# NOTE 2026-08-20: this list is empty, but four patterns are forbidden by
+# .claude/rules/ and are being violated in code today. They are tracked in
+# docs/tech-debt-register.md rather than here, because this file is a derived
+# view of Accepted ADRs and none of these has an ADR:
+#   - GameObject.Find                      -> FollowPlayer.cs:24 (TD-029)
+#   - public fields on MonoBehaviour       -> NegativeReciver, EntityNegativeReciver,
+#                                             EntityAttack, StatsUIController, EnemySO
+#   - allocating Physics2D.OverlapCircle   -> EntityWeaponMelee.cs:29,
+#                                             EntityFindTarget.cs:73 (TD-005)
+#   - UI mutating gameplay state           -> StatsUIController.cs:66 calls
+#                                             statsSO.AddPrimaryPoint()
 
 api_decisions:
   - decision: enemymanager_singleton_exception
@@ -57,6 +89,20 @@ api_decisions:
       project-wide "no new singletons beyond MazeController" rule
       (technical-preferences.md, .claude/rules/engine-code.md,
       .claude/rules/manager-event-code.md).
+      SCOPE DRIFT 2026-08-20 — the shipped EnemyManager does NOT do what ADR-0002
+      describes. It is now the pathfinding service: [RequireComponent(PathRequestManager)],
+      SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). It owns no
+      aliveCount, no room lifecycle, no door locking and no ON_CLEAR_ENEMY emission —
+      that work is split across EnemySpawner, RoomCell and RoomGridController, none of
+      which is covered by any ADR. The singleton exception is therefore currently
+      un-anchored: the class it names exists, but for a different reason than the one
+      that was ratified. EntityMovement.Start() also hard-couples to it
+      (EntityMovement.cs:31, `grid = EnemyManager.Instance.Grid`), so an Entity prefab
+      NullRefs in any scene without an EnemyManager. Owner decision required before
+      story S10-09 flips this ADR to Accepted.
+      The ADR's own Verification item IS satisfied: EnemyManager.Awake() has the
+      `return` after Destroy(gameObject) that MazeController still lacks
+      (EnemyManager.cs:15 vs MazeController.cs:17-20 / TD-026).
     scope: EnemyManager only — not a general license for new singletons.
     review_trigger:
       - "Sprint 6 code-review gate when EnemyManager is implemented"
@@ -78,7 +124,7 @@ api_decisions:
       The shipped Option A two-phase uniform-random behavior and the never-built
       2026-07-08 Option B target (injected System.Random + EnemyDatabase id-lookup
       + argmin fill). Resolves GDD Open Question #8.
-    scope: RoomModel.GetSpawnSet() selection logic — implementation target for S5-A3 (RarityTier field, done) + Sprint 6 (algorithm rewrite, still open — GetSpawnSet() still runs Option A as of 2026-07-23).
+    scope: RoomModel.GetSpawnSet() selection logic — RarityTier field done (S5-A3); algorithm rewrite LANDED between 2026-07-23 and 2026-08-20 (verified: GetSpawnSet() now builds a candidate pool, rolls each candidate's RarityTier chance, picks uniformly from the passers, and retries up to 4 times before a forced fallback — Option C in shape). The earlier note "still runs Option A as of 2026-07-23" is superseded. What is NOT done: the budget guarantee (see room_enemy_selection above) and the Phase-1/Phase-2 removal was never recorded in the GDD.
     status: accepted
     status_note: >
       Accepted 2026-07-23 against the shipped EnemyModal plain-class data shape
