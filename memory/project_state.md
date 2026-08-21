@@ -27,7 +27,7 @@ CLAUDE.md carries the same facts in long form.
 | Enemy spawn pipeline | `RoomGeneraterController` parses `Tile_Spawn_Enemy` markers → `ON_GET_SPAWN_POSITIONS` → `EnemySpawner` draws a `RoomModel` from `MapModel`'s shuffle-bag, calls `GetSpawnSet()`, spawns pooled prefabs, emits `ON_DONE_SPAWN_ENEMY`. All 13 room JSONs now carry markers |
 | Spawn selection algorithm | `RoomModel.GetSpawnSet()` rewritten to candidate-pool + `RarityTier` roll + retry-fallback (ADR-0003 Option C shape). `randomRatio`, `selectionWeight` and the Phase-2 fill are gone |
 | EnemyManager | No longer a stub — it is now the **pathfinding service** (`SetPathfindingGrid`, `RequestPath`, `GetNodeByPositionWorld`). Its `Awake()` guard has the correct `return`. ⚠️ This is not the spawn-lifecycle role ADR-0002 describes |
-| StatSystem wired into gameplay | `Player.cs` holds a `StatsSO`; `Weapon.Equid()` applies `stats.modifiers.ApplyTo(Player.Stats, this)` and `UnEquid()` removes by source. `StatsUIController` + `StatSlot` render the profile |
+| StatSystem wired into gameplay | `Player.cs` holds a `StatsSO`; `Weapon.Equid()` applies `stats.StatModifiers.ApplyTo(Player.Stats, this)` and `UnEquid()` removes by source. `StatsUIController` + `StatSlot` render the profile |
 | UI Toolkit menus | `UI/UIController.cs` — runtime MainMenu / Settings / Pause from `.uxml`. **No GDD, no ADR, and `VERSION.md` currently advises against runtime UI Toolkit** |
 | Editor tooling | `Assets/Editor/StatModifierTesterEditor.cs` added alongside `LevelManagerEditor.cs` |
 

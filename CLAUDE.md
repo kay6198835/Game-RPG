@@ -167,7 +167,7 @@
         StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived MaxHP/MaxMana/PhysicalDamage/… (100-111)
         Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ✅ `modifiers` is a bare private field (NOT serialized) since 2026-08-21 — runtime buffs no longer leak into .asset files
         StatModifier.cs                         # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource()). Order derived from Type
-        StatModifierGroup.cs                    # ⚠️ NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats. ApplyTo() / RemoveFrom() by source
+        StatModifierGroup.cs                    # NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats (ratified 2026-08-21, ADR-0001). Field is `authoredModifiers` (serialized — real designer data). ApplyTo() / RemoveFrom() by source
         DerivedStatFormula.cs                   # baseConstant + level×perLevel + Σ(primary × coefficient)
         StatsSO.cs                              # SO "Game/Stats Profile": Level, StatUnusedBonus, Get/GetStat/GetStatValue, AddModifiersFromSource / RemoveModifiersFromSource, RecalculateDerived(), CalculateStatUnusedBonus() (public since sprint-10), OnStatChanged. Also declares StatsViewDTO — Update() takes (baseValue, levelUpValue, equipmentValue) since sprint-10
         StatModifierTester.cs                   # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
@@ -184,7 +184,7 @@
 
       Weapons/
         Weapon.cs (abstract base)                # CanAttack() / CanChain() / OnAttackEnter(player) / OnActivate() / OnDeactivate() / Equid() / UnEquid()
-        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages (List<AttackSO>), AbilityWeapon, SkillWeapon, modifiers (StatModifierGroup)
+        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages (List<AttackSO>), AbilityWeapon, SkillWeapon, StatModifiers (StatModifierGroup — renamed from `modifiers` 2026-08-21, FormerlySerializedAs keeps the data)
         WeaponType.cs                           # Enum: RangeWP, MeleeWP
         MeleeWeapon/
           MeleeWeapon.cs                        # ✅ OnActivate() = OverlapCircleNonAlloc + INegativeReceiver.TakeDamage() (Bug #4 FIXED). maxTargetsPerSwing buffer cached in Awake
@@ -310,7 +310,7 @@
   Enter(player) → Activate() → Cast() [button held] → Do() [button released] → Exit()
   ```
   `WeaponStats` carries two SO slots: `AbilityWeapon` (RMB/Block) and `SkillWeapon` (E key), plus a
-  `StatModifierGroup modifiers` bundle applied to `Player.Stats` on equip.
+  `StatModifierGroup StatModifiers` bundle applied to `Player.Stats` on equip.
 
   ### Damage Chain
 
