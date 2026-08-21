@@ -68,3 +68,24 @@ re-file already-tracked items as new bugs.
    feature work — this audit's scorecard independently arrives at the same conclusion
    from a different angle (module verdicts, not bug list) that combat is the project's
    critical path.
+
+---
+
+## Correction note — 2026-08-20 (documentation audit)
+
+This audit was run on 2026-08-03 and is kept as a historical record. Three of its
+scorecard rows have since been overtaken by code; the rest still hold. Nothing above
+has been rewritten.
+
+| Row | What the audit said | Verified 2026-08-20 |
+|---|---|---|
+| animation-system.md — CRITICAL | Bug #9: `AnimationPlayerController` double-registers `StartAnimation`, `EndAnimation` never fires | **Fixed.** `AnimationPlayerController.cs:21` registers `EndAnimation`, mirrored at line 29. All five event ids register and unregister exactly once. The module's other finding (TD-016) was also mis-scoped — see the tech-debt register |
+| weapons-system.md — CRITICAL | BUG-041: `WeaponMelee.Attack()` body empty AND unwired, a regression | **Fixed / superseded.** `WeaponMelee.cs` no longer exists; `MeleeWeapon.OnActivate()` does `OverlapCircleNonAlloc` + `TakeDamage`, wired through `WeaponHolder.MakeDamage()` from `PlayerAttackState.cs:32` |
+| character-system.md — CRITICAL | BUG-044, Bug #6, BUG-032 | **Still CRITICAL, but for different reasons.** Bugs #5/#7/#8 closed. Now blocking: enemies cannot die (TD-036 — damage lands on `EntityNegativeReciver.currentHealth` while the death check reads `EntityStatsSO.Health`) and enemies never acquire a target (TD-037 — `EntityInput.GetTargetInRange()` is commented out) |
+| enemy-spawn-system.md — CRITICAL | `EnemyManager` still a zero-body stub | **No longer a stub** — but it became the *pathfinding* service, not the spawn-lifecycle manager ADR-0002 describes. The scope drift is now recorded in `docs/registry/architecture.yaml` |
+| Systemic note — zero tests | `tests/EditMode/` and `tests/PlayMode/` contain only `.gitkeep` | **Unchanged.** Still zero test files project-wide (TD-014) |
+
+Recommended action 3 ("Update CLAUDE.md's Repository Layout per BUG-052") was completed on
+2026-08-20. `Character/Base/`, `Pathfinding/` and `Poolable/` are now listed, and TD-033 was
+closed against `Poolable/`. BUG-052's item 3 — whether `CoreBase`/`CoreComponentBase`
+warrants its own ADR — is still open and still needs an owner decision.

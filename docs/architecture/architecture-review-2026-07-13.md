@@ -251,3 +251,33 @@ than FAIL, but they should be formalized before more systems build on top of the
 When the two HIGH-priority Foundation ADRs are written and all three existing ADRs are Accepted,
 run `/gate-check pre-production` to advance. Re-run `/architecture-review` after each new ADR to
 verify coverage improves.
+
+---
+
+## Correction note — 2026-08-20 (documentation audit)
+
+This review is dated 2026-07-13 and is kept unedited as a historical record. Five weeks of
+code changes have moved several of its inputs. The items most likely to mislead a reader:
+
+- **`EnemyManager`** is no longer a stub, but it did not grow into the role this review and
+  ADR-0002 assume. It became the pathfinding service (`SetPathfindingGrid`, `RequestPath`,
+  `GetNodeByPositionWorld`). The spawn lifecycle it was supposed to own is split across
+  `EnemySpawner`, `RoomCell` and `RoomGridController`, none of which has an ADR. Recorded in
+  `docs/registry/architecture.yaml`.
+- **`ObjectPooling`** (referenced here as a singleton violation alongside `LevelManager`) was
+  deleted and replaced by the generic `Assets/Script/Poolable/` pool. TD-033 is closed;
+  `LevelManager` (TD-023) is still open.
+- **Three subsystems shipped after this review with no architectural coverage at all**:
+  `Character/Base/` (a new component-hub layer beneath both `Core` and `EntityCore`),
+  `Pathfinding/`, and `Poolable/`. This is BUG-052, still open.
+- **ADR-0001's stated constraint is violated by shipped code.** The ADR records
+  `Stat.modifiers` as `[NonSerialized]`; it is `[SerializeField]`, and a leaked
+  `STR +1 Flat` modifier is already committed into `PlayerStats.asset` and `Test.asset`
+  (TD-038). ADR-0001 also describes `Dictionary<StatType, float>` and
+  `float StatsSO.Get(StatType)`; the shipped types are `Dictionary<StatType, Stat>` and
+  `Stat Get(StatType)`.
+- **ADR-0003's budget guarantee does not hold.** `RoomModel.SetListCandidate()`'s `retry > 4`
+  fallback adds the full enemy list with no weight filter, so `totalSpend <= B` can be
+  exceeded (TD-038).
+
+ADR-0001 and ADR-0002 are both still `Status: Proposed`, six weeks on.
