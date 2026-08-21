@@ -115,7 +115,7 @@
 
       Enemy/                                    # Canonical Assets/Script/Enemy/ — 3 files
         EnemySO.cs                              # Data-only SO: name, level, speedMove, FOV, rateAttack, attackRange, damage, projectile, depotItem
-        EnemyManager.cs                         # ✅ NOT a stub any more — it is now the PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). Awake() guard has the correct `return`. ⚠️ this is NOT the spawn-lifecycle manager ADR-0002 describes
+        EnemyManager.cs                         # ✅ NOT a stub any more — it is now the PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). Awake() guard has the correct `return`. ADR-0002 amended 2026-08-21 to re-scope the singleton exception onto this role; the spawn lifecycle it originally described lives in RoomCell + EnemySpawner + RoomGridController and has no ADR
         EnemySpawner.cs                         # ✅ Event-driven: ON_GET_SPAWN_POSITIONS → OnGetSpawnPositions(); ON_SPAWN_EXTRA_ENEMY → SpawnExtraEnemy(). Spawns via ObjectPoolManager, emits ON_DONE_SPAWN_ENEMY. ⚠️ BUG-033 at line 62 — `set.Count == 0 || set == null` dereferences before the null test. Dead `Spawn()` method still present
 
       Pathfinding/                              # A* — NO GDD, NO ADR yet (see BUG-052)

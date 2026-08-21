@@ -8,17 +8,19 @@ state_ownership:
   - state: enemy_room_alive_count
     owner: RoomCell
     adr: ADR-0002
-    adr_status: stale
+    adr_status: amended_2026-08-21
     interface: "RoomCell.EnemyCount (int, private set); RoomCell.OnDoneSpawnEnemy(int) / OnSpawnExtraEnemy() / OnEnemyDeath()"
     note: >
-      CORRECTED 2026-08-20 by documentation audit. ADR-0002 assigns this state to
+      CORRECTED 2026-08-20 by documentation audit; ADR-0002 amended 2026-08-21 to match.
+      ADR-0002's original Decision assigned this state to
       EnemyManager, but the shipped owner is RoomCell (RoomCell.cs:22,44-62).
       RoomGridController forwards ON_DONE_SPAWN_ENEMY / ON_SPAWN_EXTRA_ENEMY /
       ON_ENEMY_DEATH to the current cell, and RoomCell emits ON_CLEAR_ENEMY when the
       count reaches zero. EnemyManager holds no alive-count field of any kind — it
-      became the pathfinding service instead (see api_decisions below). This registry
-      row is a derived view, so ADR-0002 must be amended to match before the row can
-      be considered authoritative again.
+      became the pathfinding service instead (see api_decisions below). ADR-0002's
+      2026-08-21 amendment records this ownership split, so this row is authoritative
+      again. The split across RoomCell / EnemySpawner / RoomGridController is itself
+      covered by no ADR — recorded as owed architectural debt in that amendment.
 
 interfaces:
   - contract: room_enemy_selection
@@ -96,10 +98,11 @@ api_decisions:
       that work is split across EnemySpawner, RoomCell and RoomGridController, none of
       which is covered by any ADR. The singleton exception is therefore currently
       un-anchored: the class it names exists, but for a different reason than the one
-      that was ratified. EntityMovement.Start() also hard-couples to it
-      (EntityMovement.cs:31, `grid = EnemyManager.Instance.Grid`), so an Entity prefab
-      NullRefs in any scene without an EnemyManager. Owner decision required before
-      story S10-09 flips this ADR to Accepted.
+      that was ratified. RESOLVED 2026-08-21 (owner decision C2): the code stays as is and
+      ADR-0002 was amended to re-scope the exception onto the pathfinding role. The
+      EntityMovement.Start() coupling (EntityMovement.cs:31, `grid = EnemyManager.Instance.Grid`,
+      no null guard -> Entity prefabs NullRef in any scene without an EnemyManager) is recorded
+      in that amendment as an accepted consequence. S10-09 can now flip Status honestly.
       The ADR's own Verification item IS satisfied: EnemyManager.Awake() has the
       `return` after Destroy(gameObject) that MazeController still lacks
       (EnemyManager.cs:15 vs MazeController.cs:17-20 / TD-026).
