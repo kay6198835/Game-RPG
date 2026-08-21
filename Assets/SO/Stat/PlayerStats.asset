@@ -12,35 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ddbf4281c7bbc0409c19795f09a2ec5, type: 3}
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
-  level: 1
-  statUnusedBonus: 0
+  level: 10
+  statUnusedBonus: 9
   stats:
   - <Type>k__BackingField: 0
-    baseValue: 1
-    levelUpValue: 1
-    equipmentValue: 1
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 0
     equipmentByPrimaryValue: 0
-    adjustedValue: 2
-    finalValue: 3
-    modifiers:
-    - targetStat: 0
-      type: 100
-      value: 1
+    adjustedValue: 10
+    finalValue: 10
+    modifiers: []
   - <Type>k__BackingField: 1
     baseValue: 10
     levelUpValue: 0
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 10
-    finalValue: 0
+    finalValue: 10
     modifiers: []
   - <Type>k__BackingField: 2
     baseValue: 10
-    levelUpValue: 10
+    levelUpValue: 0
     equipmentValue: 0
     equipmentByPrimaryValue: 0
-    adjustedValue: 20
-    finalValue: 0
+    adjustedValue: 10
+    finalValue: 10
     modifiers: []
   - <Type>k__BackingField: 3
     baseValue: 10
@@ -48,7 +45,7 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 10
-    finalValue: 0
+    finalValue: 10
     modifiers: []
   - <Type>k__BackingField: 4
     baseValue: 10
@@ -56,47 +53,47 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 10
-    finalValue: 0
+    finalValue: 10
     modifiers: []
   - <Type>k__BackingField: 100
-    baseValue: 172
-    levelUpValue: 10
-    equipmentValue: 2
-    equipmentByPrimaryValue: 2
-    adjustedValue: 182
-    finalValue: 0
+    baseValue: 190
+    levelUpValue: 80
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 270
+    finalValue: 270
     modifiers: []
   - <Type>k__BackingField: 101
     baseValue: 140
-    levelUpValue: 103
+    levelUpValue: 30
     equipmentValue: 0
     equipmentByPrimaryValue: 0
-    adjustedValue: 243
-    finalValue: 0
+    adjustedValue: 170
+    finalValue: 170
     modifiers: []
   - <Type>k__BackingField: 102
-    baseValue: 10.2
-    levelUpValue: 3.4
-    equipmentValue: 2.2
-    equipmentByPrimaryValue: 2.2
-    adjustedValue: 13.6
-    finalValue: 0
+    baseValue: 30
+    levelUpValue: 12
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 42
+    finalValue: 42
     modifiers: []
   - <Type>k__BackingField: 103
     baseValue: 28
-    levelUpValue: 26.2
+    levelUpValue: 12
     equipmentValue: 0
     equipmentByPrimaryValue: 0
-    adjustedValue: 54.2
-    finalValue: 0
+    adjustedValue: 40
+    finalValue: 40
     modifiers: []
   - <Type>k__BackingField: 104
-    baseValue: 15.5
-    levelUpValue: 1.1
-    equipmentValue: 0.5
-    equipmentByPrimaryValue: 0.5
-    adjustedValue: 16.6
-    finalValue: 0
+    baseValue: 20
+    levelUpValue: 6
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 26
+    finalValue: 26
     modifiers: []
   - <Type>k__BackingField: 105
     baseValue: 0.95
@@ -104,7 +101,7 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 0.95
-    finalValue: 0
+    finalValue: 0.95
     modifiers: []
   - <Type>k__BackingField: 106
     baseValue: 9
@@ -112,7 +109,7 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 9
-    finalValue: 0
+    finalValue: 9
     modifiers: []
   - <Type>k__BackingField: 107
     baseValue: 158
@@ -120,7 +117,7 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 158
-    finalValue: 0
+    finalValue: 158
     modifiers: []
   - <Type>k__BackingField: 108
     baseValue: 3.2
@@ -128,23 +125,23 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 3.2
-    finalValue: 0
+    finalValue: 3.2
     modifiers: []
   - <Type>k__BackingField: 109
     baseValue: 2
-    levelUpValue: 0.1
+    levelUpValue: 1
     equipmentValue: 0
     equipmentByPrimaryValue: 0
-    adjustedValue: 2.1
-    finalValue: 0
+    adjustedValue: 3
+    finalValue: 3
     modifiers: []
   - <Type>k__BackingField: 110
     baseValue: 1.8
-    levelUpValue: 0.88
+    levelUpValue: 0.79999995
     equipmentValue: 0
     equipmentByPrimaryValue: 0
-    adjustedValue: 2.6799998
-    finalValue: 0
+    adjustedValue: 2.6
+    finalValue: 2.6
     modifiers: []
   - <Type>k__BackingField: 111
     baseValue: 3.5
@@ -152,7 +149,7 @@ MonoBehaviour:
     equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 3.5
-    finalValue: 0
+    finalValue: 3.5
     modifiers: []
   statFormulas:
   - targetStat: 100
@@ -241,4 +238,4 @@ MonoBehaviour:
       coefficient: 0.25
     - sourceStat: 4
       coefficient: 0.1
-  <isDevMode>k__BackingField: 1
+  <isDevMode>k__BackingField: 0

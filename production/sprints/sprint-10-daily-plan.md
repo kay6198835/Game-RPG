@@ -17,7 +17,7 @@
 
 ---
 
-## Status Verdict: 🔴 SLIPPING (2026-08-20, Thu standup) — S10-01 (BUG-042/053/054) still **zero movement**, now 7th consecutive cycle: `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim, `EntityNegativeReciver.cs` still present at `Character/Entity/CoreComponent/`. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62` (`set.Count == 0 || set == null`), 11th carry. S10-05 (BUG-044) still fully commented out in `PlayerDeathState.LogicUpdate()` (lines 17-24), 7th carry. S10-02 (process gate) still no `.git/hooks/pre-push` (verified: file absent, `.sample` still the only entry), 8th carry. ADR-0002 still `Status: Proposed` (S10-09, 9th carry). Wednesday (2026-08-19) landed **11 commits** (`21cae5e`→`3cbe703`), all StatSystem/Editor-tooling work (`Stat.cs`, `StatsSO.cs`, `DerivedStatFormula.cs`, new `StatDrawer.cs` custom Inspector, `PlayerStats.asset` tuning, `StatSlot.cs`/`StatsUIController.cs`) — none touched any of the 4 Must-Have tasks. 3rd consecutive day the sprint's declared literal-first-task (S10-01) received zero movement while unplanned StatSystem work consumed all branch time. Working tree is clean as of this standup (`3cbe703` "missed" is the tip, Wed 14:53) — no stray uncommitted WIP to flag this time. Owner-in-Editor session still needed for S10-03 (Play Mode verify), unreached for 3 consecutive sprints (S7-08, S8-12, S9-12) — with only 1 scheduled day (Fri) left in this sprint, S10-03 is now at high risk of a 4th.
+## Status Verdict: 🔴 SLIPPING (2026-08-20, Thu evening check-in, 2nd standup pass same day) — S10-01 (BUG-042/053/054) still **zero movement**, 7th consecutive cycle unchanged since this morning's 09:25 standup: `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim, `EntityNegativeReciver.cs` still present. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62`, 11th carry. S10-05 (BUG-044) still fully commented out in `PlayerDeathState.LogicUpdate()` (lines 17-24), 7th carry. S10-02 still no `.git/hooks/pre-push`, 8th carry. ADR-0002 still `Status: Proposed` (S10-09, 9th carry). Since this morning's standup (`1682903`), 3 more commits landed (`e9be08f`→`7f4f90b`, 13:06→22:49), still all StatSystem/UI scope — none touched any Must-Have. Entire Thursday (all 14 commits across the day, `21cae5e`-era carryover through `7f4f90b`) closes with **0d of the 4 Must-Have tasks (≈0.7d) moved**, 4th consecutive scheduled day (Mon/Tue/Wed/Thu) at zero. Only **Friday 2026-08-21** — the sprint's last scheduled day — remains. Working tree clean as of this check-in. S10-03 (Play Mode verify) still unreached, now at high risk of a 4th consecutive sprint miss (S7-08, S8-12, S9-12 pattern) since it depends on S10-01 landing first and only one day remains.
 
 ---
 
@@ -78,6 +78,43 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 ---
 
 ## Standup Log
+
+### Thu 2026-08-20 (evening) — Standup Update, 2nd check-in same day (autonomous, no owner present)
+
+**Since this morning's standup (09:25, `1682903`):** 3 more commits landed, all StatSystem/UI scope:
+- `e9be08f` (13:06) "stats data logic done" — `Stat.cs` +60/-44: reworks `equipmentValue`/`AdjustedValue`/`FinalValue` from a lazy dirty-flag-cached `Value` getter into plain `[SerializeField]` fields set manually via `SetStat`; adds `equipmentByPrimaryValue` split (primary vs derived equipment contribution); old `Value`/`FinalValue`/`BonusValue` calc block now commented out, not deleted. Also touched `DerivedStatFormula.cs`, `StatsSO.cs`, `PlayerStats.asset`, new `Test.asset`.
+- `289e9e2` (16:13) "update" — further `PlayerStats.asset`/`Test.asset`/`StatsSO.cs` tuning.
+- `7f4f90b` (22:49) "done prototype UI stat system" — new `Stats_UI_Controller.prefab` (2614 lines), `Stat_Primary_Slot.prefab` rework, `StatsUIController.cs`/`StatSlot.cs`, `LoadRandomMap.unity` scene changes. Marks the StatSystem UI prototype (hệ thống UI chỉ số, bảng thống kê) as functionally complete per commit message — this is a real milestone for that scope, just not Must-Have scope.
+
+Re-verified all Must-Have items directly against file contents (not commit messages) — unchanged from this morning:
+- ❌ **S10-01** — `EntityCore.cs:11` still `throw new System.NotImplementedException();`; `EntityNegativeReciver.cs` still present, not deleted.
+- ❌ **S10-04** — `EnemySpawner.cs:62` still `set.Count == 0 || set == null` (wrong order).
+- ❌ **S10-05** — `PlayerDeathState.LogicUpdate()` body (lines 17-24) still fully commented out.
+- ❌ **S10-02** — no `.git/hooks/pre-push` (only `.sample`).
+- ❌ **S10-09** (Should-Have) — ADR-0002 still `Status: Proposed`.
+
+**Evaluation:** SLIPPING, unchanged trajectory. Thursday closes with the full day's session time (13:06→22:49, plus this morning's pre-standup work) spent entirely on StatSystem/UI — **4th consecutive scheduled day (Mon/Tue/Wed/Thu) at zero Must-Have movement**. `e9be08f`'s rework of `Stat.cs`'s value-calculation model is worth flagging (xin lưu ý): it moves `equipmentValue`/`AdjustedValue`/`FinalValue` from computed/cached (`isDirty` lazy recalc, deliberately `[NonSerialized]` cache per `d7d79f3`'s earlier fix for self-rewriting `.asset` files) to plain `[SerializeField]` fields set imperatively — this is a step back toward the pattern `d7d79f3` fixed 2 days ago (Wed) unless the new manual-set path is proven not to write on every Play Mode tick. Not a code change I can verify without Play Mode (owner-in-Editor check needed); flagging as a design-stability risk, same category as the `466ff84`/`41ab5a6` land-then-revert already on the watch list.
+
+**Tomorrow's (Fri 2026-08-21, sprint's last scheduled day) planned work — with estimates:**
+| Task | Est. | Note |
+|------|------|------|
+| S10-01 (BUG-042/053/054) | 0.3d | 7th carry, must be the first thing touched — last day to close the sprint's sole declared blocker |
+| S10-02 (pre-push hook, enforced) | 0.15d | 8th carry, small and mechanical |
+| S10-04 (BUG-033 one-line swap) | 0.1d | 11th carry, trivial |
+| S10-05 (PlayerDeathState body) | 0.15d | 7th carry, plumbing already exists (Mon merge), just needs the 8 lines uncommented + wired |
+| S10-03 (Play Mode verify) | 0.2d | Gate — depends on S10-01 landing first; 4th consecutive at-risk cycle if skipped |
+| S10-09 (ADR-0002 → Accepted) | 0.1d | Should-Have, trivial, 9th carry |
+
+Combined Must-Have + gate ≈0.9d — tight but fits a full Friday session if StatSystem work is not resumed before it.
+
+**Blockers:** none technical — same as this morning, purely session-allocation.
+
+**Risks:**
+- Last scheduled sprint day tomorrow; 4 consecutive days at zero Must-Have movement raises real risk the sprint closes with S10-01 untouched an 8th consecutive cycle (across Sprint 9 + Sprint 10).
+- `Stat.cs`'s `e9be08f` caching-model change (see Evaluation above) — recommend a Play Mode check on whether `PlayerStats.asset` self-rewrites again before more StatSystem work builds on it.
+- S10-03 Play Mode verify — 4th consecutive at-risk sprint (S7-08, S8-12, S9-12 pattern) if S10-01 doesn't land Friday.
+
+---
 
 ### Thu 2026-08-20 — Daily Standup (autonomous, no owner present)
 
@@ -236,11 +273,11 @@ the 10th consecutive cycle — flagged, deferred to owner per every prior cycle'
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** Zero code movement across
-  all 5 of Sprint 9's scheduled days, **now 7th carry (confirmed still zero movement Thu standup —
+  all 5 of Sprint 9's scheduled days, **still 7th carry (re-confirmed Thu evening check-in —
   `EntityCore.TakeDamage()` still throws, `EntityNegativeReciver.cs` still present)**. The sprint's
-  literal first task (S10-01), still untouched 3 days running (Mon/Tue/Wed). Only 1 scheduled day (Fri)
-  remains this sprint. Prior retros' standing recommendation: a single dedicated session likely resolves
-  this faster than continued distributed autonomous check-ins.
+  literal first task (S10-01), now untouched **4 days running (Mon/Tue/Wed/Thu)**. Only 1 scheduled day
+  (Fri, sprint's last day) remains. Prior retros' standing recommendation: a single dedicated session
+  likely resolves this faster than continued distributed autonomous check-ins.
 - **S10-02 process gate** — **now 8th carry**, same underlying pattern since Sprint 4. Retro Action
   Item #3 specifically asks for an *enforced* version this cycle, not another written note. Still no
   `.git/hooks/pre-push` as of Thu standup — the gate remains landed *after* the scenario it exists to
@@ -259,7 +296,11 @@ the 10th consecutive cycle — flagged, deferred to owner per every prior cycle'
 - **S10-09 (ADR-0002 Accept)** — still `Status: Proposed`, now 9th carry, zero movement any cycle,
   trivial (0.1d) sign-off-only change.
 - QA plan — 10 consecutive cycles with none. Flagged in `sprint-10.md`, deferred to owner.
-- **`EquipmentValue` derivation instability** — new this cycle: `466ff84` (derive by subtraction) landed
-  then was reverted 3 minutes later same day (`41ab5a6`, Wed 07:39/07:42) via `git revert`, followed by
-  `a061372`/`3cbe703` further `Stat.cs` calc fixes later Wed. Suggests the StatSystem formula in this area
-  isn't settled — flag for design review before more cycles go in unreviewed.
+- **`EquipmentValue` derivation instability** — `466ff84` (derive by subtraction) landed then was reverted
+  3 minutes later same day (`41ab5a6`, Wed 07:39/07:42) via `git revert`, followed by `a061372`/`3cbe703`
+  further `Stat.cs` calc fixes later Wed, then Thu's `e9be08f` reworked `equipmentValue`/`AdjustedValue`/
+  `FinalValue` again — from the lazy `isDirty`-cached `Value` getter to plain `[SerializeField]` fields set
+  imperatively, adding an `equipmentByPrimaryValue` split. `[SerializeField]` on these calculated fields is
+  worth a Play Mode check against `d7d79f3`'s earlier fix (2 days prior) for `StatsSO` assets self-rewriting
+  on every Play Mode tick — recommend confirming `PlayerStats.asset` stays stable before more work builds on
+  this. Formula/caching model in this area still not settled — flag for design review.

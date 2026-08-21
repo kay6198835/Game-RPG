@@ -26,17 +26,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3083647520956352367}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalRotation: {x: -0, y: -0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3539400017826965318}
+  m_Father: {fileID: 1876297341603347505}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 8.1048, y: 12.1598}
-  m_SizeDelta: {x: -14.6096, y: -26.4521}
+  m_AnchoredPosition: {x: -113.09563, y: 10.2595}
+  m_SizeDelta: {x: -257.7813, y: -30.0626}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6228040072321573295
 CanvasRenderer:
@@ -119,44 +119,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1548609874564351588}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
---- !u!1 &3159746027294820100
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3539400017826965318}
-  m_Layer: 5
-  m_Name: Button_Update_Stat
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &3539400017826965318
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3159746027294820100}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 6453147429706260293}
-  - {fileID: 1943883090966831235}
-  m_Father: {fileID: 1876297341603347505}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -117.5, y: -0.095047}
-  m_SizeDelta: {x: -234.992, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+      m_Calls:
+      - m_Target: {fileID: 896354092336259913}
+        m_TargetAssemblyTypeName: StatSlot, Assembly-CSharp
+        m_MethodName: IncreaseStat
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4604552749685319914
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,17 +158,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4604552749685319914}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3539400017826965318}
+  m_Father: {fileID: 1876297341603347505}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 8.1048, y: -11.3882}
-  m_SizeDelta: {x: -14.6096, y: -26.4522}
+  m_AnchoredPosition: {x: -113.1, y: -9.276905}
+  m_SizeDelta: {x: -257.78, y: -30.865}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5429587298242263192
 CanvasRenderer:
@@ -276,7 +251,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2808419493677636994}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 896354092336259913}
+        m_TargetAssemblyTypeName: StatSlot, Assembly-CSharp
+        m_MethodName: DecreaseStat
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4955010904040877478
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,10 +429,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3539400017826965318}
   - {fileID: 1872428457315951076}
   - {fileID: 7929557717951689527}
   - {fileID: 1978532963877343518}
+  - {fileID: 6453147429706260293}
+  - {fileID: 1943883090966831235}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -506,9 +494,11 @@ MonoBehaviour:
   statViewDTO:
     StatType: 0
     Name: 
-    BonusValue: 0
+    BaseValue: 0
+    LevelUpValue: 0
     FinalValue: 0
     AdjustedValue: 0
+    EquipmentValue: 0
   statType: 0
   statNameText: {fileID: 1148157352224811615}
   finalValueText: {fileID: 8070927452145081085}
