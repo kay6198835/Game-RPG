@@ -16,7 +16,8 @@ public enum ModifierType
 /// <summary>
 /// Một bonus gắn vào Stat. Đóng hai vai:
 /// - Authored: targetStat / type / value serialize được -> author trực tiếp trong Inspector
-///   (StatModifierGroupSO: trang bị, buff, thẻ nâng cấp).
+///   (StatModifierGroup: trang bị, buff, thẻ nâng cấp — class thuần nhúng trong WeaponStats,
+///    KHÔNG phải ScriptableObject; xem ADR-0001).
 /// - Runtime: Source đóng dấu lúc apply, KHÔNG serialize, dùng để gỡ hàng loạt theo nguồn.
 ///
 /// Asset là dữ liệu dùng chung, nên KHÔNG gắn thẳng instance authored vào Stat:

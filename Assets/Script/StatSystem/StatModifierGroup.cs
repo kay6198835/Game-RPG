@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Một "cục" modifier authored sẵn: trang bị, buff, thẻ nâng cấp per-run.
@@ -13,9 +14,15 @@ using UnityEngine;
 [System.Serializable]
 public class StatModifierGroup
 {
-    [SerializeField] private List<StatModifier> modifiers = new List<StatModifier>();
+    // Dữ liệu do designer author — BẮT BUỘC serialize. Đây là điểm khác biệt then chốt với
+    // Stat.modifiers (danh sách runtime, không được serialize) — xem comment ở Stat.cs.
+    // Đổi tên `modifiers` -> `authoredModifiers` (2026-08-21) để hai thứ không còn trùng tên;
+    // FormerlySerializedAs giữ nguyên dữ liệu đã author trong SnS_Stat.asset.
+    [SerializeField]
+    [FormerlySerializedAs("modifiers")]
+    private List<StatModifier> authoredModifiers = new List<StatModifier>();
 
-    public IReadOnlyList<StatModifier> Modifiers => modifiers;
+    public IReadOnlyList<StatModifier> Modifiers => authoredModifiers;
 
     /// <summary>Gắn toàn bộ cụm vào một StatsSO, ghi nhận nguồn là source.</summary>
     public void ApplyTo(StatsSO stats, object source)
@@ -25,7 +32,7 @@ public class StatModifierGroup
             Debug.LogWarning($"[{nameof(StatModifierGroup)}] statsSO là null.");
             return;
         }
-        stats.AddModifiersFromSource(source, modifiers);
+        stats.AddModifiersFromSource(source, authoredModifiers);
     }
 
     /// <summary>Gỡ mọi modifier đến từ source (gồm cụm này và mọi cụm khác cùng nguồn).</summary>

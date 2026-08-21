@@ -5,7 +5,7 @@ using UnityEngine;
 /// rồi dùng các nút trong Inspector (xem StatModifierTesterEditor) để thử tăng/giảm stat.
 /// - LevelUp: mô phỏng lên cấp — +1 Level và +pointsPerLevel điểm vào 1 primary được chọn.
 /// - AddModifierFromSource: tạo một StatModifier mới gắn vào StatsSO theo nguồn (source) chọn.
-/// - AddGroupFromSource: gắn cả một cụm (StatModifierGroupSO) theo nguồn đang chọn.
+/// - AddGroupFromSource: gắn cả một cụm (StatModifierGroup) theo nguồn đang chọn.
 /// - RemoveCurrentSource / RemoveAllTesterSources: gỡ modifier theo nguồn.
 /// </summary>
 public class StatModifierTester : MonoBehaviour
