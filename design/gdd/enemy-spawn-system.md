@@ -85,13 +85,30 @@ re-synced 2026-08-20; design intent unchanged since 2026-07-13.
 ### New findings from the 2026-08-20 audit
 
 - **ADR-0003's budget guarantee does not hold.** `SetListCandidate()`'s `retry > 4` fallback
-  (`RoomModel.cs:55-58`) does `candidateEnemies.AddRange(enemiesOfRoom)` with **no weight
-  filter**, so a candidate heavier than the remaining budget can be picked and `weightBudget`
-  goes negative. With a Legendary-only eligible set (5% roll per candidate), an empty first
-  pass happens in roughly 77% of rounds, so this is the common path, not an edge case. The
-  published guarantee in `docs/registry/architecture.yaml` — "overspend is structurally
-  impossible" — is therefore false. Tracked as TD-038. Wiring the unread `overflowPercent`
-  into the fallback would fix the invariant and give the dead field a purpose in one change.
+  (`RoomModel.cs:55-58`) does `candidateEnemies.AddRange(enemiesOfRoom)` with **no weight filter
+  and no rarity roll**, so a candidate heavier than the remaining budget can be picked and
+  `weightBudget` goes negative. The published guarantee in `docs/registry/architecture.yaml` —
+  "overspend is structurally impossible" — is therefore false. Real bound:
+  `totalSpend < B + max(weight)`.
+
+  Measured over 20 000 simulated rooms at `weightBudget = 100`:
+
+  | Enemy pool | Fallback reached | **Actually overspent** | Worst overspend |
+  |---|---|---|---|
+  | Legendary only, `weight = 20` | 100% of rooms | **0%** | +0 |
+  | Mixed, cheapest `weight = 20` | 7.7% | **4.2%** | **+80 (+80%)** |
+  | Mixed, includes `weight = 5` | 2.9% | **1.7%** | +35 (+35%) |
+
+  Reaching the fallback is **not** the same as overspending — the Legendary-only pool hits it every
+  room and never overspends, because the fallback still picks something affordable. So this is a
+  rare-but-severe defect (~2–4% of rooms, up to +80% of budget), not a common one. An earlier
+  revision of this section said "a Legendary-only pool hits that path in ~77% of rounds"; that was
+  wrong twice — the per-round probability is `0.95⁴ ≈ 81.5%` (four rolls, then the forced fallback),
+  and it conflated reaching the fallback with overspending. Corrected 2026-08-21.
+
+  **Accepted 2026-08-21** (owner decision C3): code unchanged, ADR-0003 amended to describe the real
+  behaviour. Tracked as TD-039, not scheduled. Wiring the unread `overflowPercent` into the fallback
+  would repair the invariant and give the dead field a purpose in one change if it is revisited.
 - **`GetSpawnSet()` is not the pure, unit-testable method ADR-0003 says it is.** It mutates
   the serialized `candidateEnemies` list as a scratch buffer (`RoomModel.cs:34,46,57,66`), so
   it dirties the asset during play, is not re-entrant, and is unsafe if two rooms share one

@@ -115,7 +115,7 @@
 
       Enemy/                                    # Canonical Assets/Script/Enemy/ — 3 files
         EnemySO.cs                              # Data-only SO: name, level, speedMove, FOV, rateAttack, attackRange, damage, projectile, depotItem
-        EnemyManager.cs                         # ✅ NOT a stub any more — it is now the PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). Awake() guard has the correct `return`. ⚠️ this is NOT the spawn-lifecycle manager ADR-0002 describes
+        EnemyManager.cs                         # ✅ NOT a stub any more — it is now the PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). Awake() guard has the correct `return`. ADR-0002 amended 2026-08-21 to re-scope the singleton exception onto this role; the spawn lifecycle it originally described lives in RoomCell + EnemySpawner + RoomGridController and has no ADR
         EnemySpawner.cs                         # ✅ Event-driven: ON_GET_SPAWN_POSITIONS → OnGetSpawnPositions(); ON_SPAWN_EXTRA_ENEMY → SpawnExtraEnemy(). Spawns via ObjectPoolManager, emits ON_DONE_SPAWN_ENEMY. ⚠️ BUG-033 at line 62 — `set.Count == 0 || set == null` dereferences before the null test. Dead `Spawn()` method still present
 
       Pathfinding/                              # A* — NO GDD, NO ADR yet (see BUG-052)
@@ -165,9 +165,9 @@
 
       StatSystem/                               # RPG stat framework (GDD: design/gdd/stat-system.md; numbers: ToolExcel/stat_system_formula_reference.xlsx)
         StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived MaxHP/MaxMana/PhysicalDamage/… (100-111)
-        Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ⚠️ `modifiers` is [SerializeField] even though its own comment and ADR-0001 require [NonSerialized] — runtime buffs leak into .asset files (assets cleaned on sprint-10; root cause unchanged)
+        Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ✅ `modifiers` is a bare private field (NOT serialized) since 2026-08-21 — runtime buffs no longer leak into .asset files
         StatModifier.cs                         # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource()). Order derived from Type
-        StatModifierGroup.cs                    # ⚠️ NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats. ApplyTo() / RemoveFrom() by source
+        StatModifierGroup.cs                    # NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats (ratified 2026-08-21, ADR-0001). Field is `authoredModifiers` (serialized — real designer data). ApplyTo() / RemoveFrom() by source
         DerivedStatFormula.cs                   # baseConstant + level×perLevel + Σ(primary × coefficient)
         StatsSO.cs                              # SO "Game/Stats Profile": Level, StatUnusedBonus, Get/GetStat/GetStatValue, AddModifiersFromSource / RemoveModifiersFromSource, RecalculateDerived(), CalculateStatUnusedBonus() (public since sprint-10), OnStatChanged. Also declares StatsViewDTO — Update() takes (baseValue, levelUpValue, equipmentValue) since sprint-10
         StatModifierTester.cs                   # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
@@ -184,7 +184,7 @@
 
       Weapons/
         Weapon.cs (abstract base)                # CanAttack() / CanChain() / OnAttackEnter(player) / OnActivate() / OnDeactivate() / Equid() / UnEquid()
-        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages (List<AttackSO>), AbilityWeapon, SkillWeapon, modifiers (StatModifierGroup)
+        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages (List<AttackSO>), AbilityWeapon, SkillWeapon, StatModifiers (StatModifierGroup — renamed from `modifiers` 2026-08-21, FormerlySerializedAs keeps the data)
         WeaponType.cs                           # Enum: RangeWP, MeleeWP
         MeleeWeapon/
           MeleeWeapon.cs                        # ✅ OnActivate() = OverlapCircleNonAlloc + INegativeReceiver.TakeDamage() (Bug #4 FIXED). maxTargetsPerSwing buffer cached in Awake
@@ -310,7 +310,7 @@
   Enter(player) → Activate() → Cast() [button held] → Do() [button released] → Exit()
   ```
   `WeaponStats` carries two SO slots: `AbilityWeapon` (RMB/Block) and `SkillWeapon` (E key), plus a
-  `StatModifierGroup modifiers` bundle applied to `Player.Stats` on equip.
+  `StatModifierGroup StatModifiers` bundle applied to `Player.Stats` on equip.
 
   ### Damage Chain
 
@@ -471,7 +471,7 @@
   | NEW-1 | LOGIC | ⚠️ OPEN | `EntityInput.Update()` has `//GetTargetInRange();` commented out — the only writer of `targetTransform`. Enemies never detect the player; `EntityAttackState` would NullRef if reached | [EntityInput.cs:67](Assets/Script/Character/Entity/CoreComponent/EntityInput.cs#L67) |
   | NEW-2 | LOGIC | ⚠️ OPEN | `EntityStatsSO.ModifiersAmor` getter/setter recurse into themselves → `StackOverflowException` (TD-011, open since 2026-05-31) | [EntityStatsSO.cs:47](Assets/Script/Character/Entity/EntityStatsSO.cs#L47) |
   | NEW-3 | LOGIC | ✅ FIXED | `StatsSO.RecalculateDerived()` skip-guard used `\|\|` where it needed `&&`. Fixed on `sprint-10` — the guard now ANDs all four comparisons, and `AddPrimaryPoint()` calls `RecalculateDerived()` directly. (Harmless leftover: `FinalValue` is compared twice) | [StatsSO.cs:274](Assets/Script/StatSystem/StatsSO.cs#L274) |
-  | NEW-4 | DATA | ⚠️ OPEN (cause) / symptom cleaned | `Stat.modifiers` is still `[SerializeField]` although its own comment and ADR-0001 require `[NonSerialized]`, so runtime buffs will keep leaking into `.asset` files. The two leaked `STR +1 Flat` modifiers were **cleaned out of `PlayerStats.asset` and `Test.asset` on `sprint-10`**, but the mechanism that wrote them is unchanged — expect recurrence after the next Play Mode session. ⚠️ `StatModifierGroup.modifiers` on `WeaponStats` must **stay** serialized (`SnS_Stat.asset` authors real data there) — two different fields, same name | [Stat.cs:52](Assets/Script/StatSystem/Stat.cs#L52) |
+  | NEW-4 | DATA | ✅ FIXED | `Stat.modifiers` no longer carries `[SerializeField]`, so runtime buffs are not written into `.asset` files any more. A warning comment above the field records the past leak (`STR +1 Flat` reached `PlayerStats.asset` / `Test.asset` and was committed) and the distinction from `StatModifierGroup.authoredModifiers`, which **must stay serialized** — `SnS_Stat.asset` holds real authored data there | [Stat.cs:49-62](Assets/Script/StatSystem/Stat.cs#L49) |
 
   ---
 

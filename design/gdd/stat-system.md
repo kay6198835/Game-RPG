@@ -2,9 +2,8 @@
 status: authored
 source: Assets/Script/StatSystem/, ToolExcel/stat_system_formula_reference.xlsx
 date: 2026-07-07
-revised: 2026-08-20 (documentation audit — recorded the StatModifierGroupSO -> StatModifierGroup
-drift as an open owner decision, and two implementation defects that falsify the Modifiers
-section and AC-1. Design intent unchanged.)
+revised: 2026-08-21 (owner ratified the plain-class StatModifierGroup shape and the field renames;
+both implementation defects the 2026-08-20 audit found are now fixed. Design intent unchanged.)
 verified-by: Kiet
 ---
 
@@ -60,7 +59,7 @@ different coefficients.
   parameters are maintained in the spreadsheet and the combat balance doc.
 - **Modifiers** `[IMPLEMENTED]`: buffs, equipment, and effects attach as `StatModifier`s on top of
   the computed base value; they never mutate the base. A bundle of modifiers (one piece of
-  equipment, one buff, one upgrade card) is authored as a `StatModifierGroupSO` asset and attached
+  equipment, one buff, one upgrade card) is authored as a `StatModifierGroup` and attached
   or detached as a unit, keyed by **source**:
   - `StatsSO.AddModifiersFromSource(source, modifiers)` attaches the whole bundle;
     `StatsSO.RemoveModifiersFromSource(source)` detaches everything from that source.
@@ -70,24 +69,33 @@ different coefficients.
   - Bulk operations recalculate derived stats once for the whole bundle, not once per modifier.
   - `Stat` itself only ever adds or removes a single modifier; all iteration lives in `StatsSO`.
 
-> ⚠️ **Implementation defect (audit 2026-08-20, re-verified 2026-08-21 — TD-038).**
-> "They never mutate the base" holds, but **runtime modifiers are being persisted**:
-> `Stat.modifiers` is `[SerializeField]` although its own doc-comment and ADR-0001 both
-> require `[NonSerialized]`. Two leaked `STR +1 Flat` modifiers were committed into
-> `Assets/SO/Stat/PlayerStats.asset` and `Test.asset`; they were **cleaned on `sprint-10`**,
-> but the attribute is unchanged so the leak will recur. `StatsSO.OnEnable()` calls
-> `ClearModifiers()` on every stat at load, which hides the churn but also means any
-> modifier legitimately authored in the Inspector is silently wiped — the two behaviours
-> are mutually exclusive and the code currently chooses "wipe everything".
+> ✅ **Owner decision 2026-08-21 — the shipped shape is ratified.** This GDD originally specified a
+> `StatModifierGroupSO` **asset**, reusable across weapons and authored independently. What shipped
+> is `StatModifierGroup` (`Assets/Script/StatSystem/StatModifierGroup.cs`), a plain
+> `[System.Serializable]` class embedded directly in `WeaponStats` — no asset file, no cross-weapon
+> reuse. **That plain-class shape is now the decision**, consistent with the precedent ADR-0003 set
+> when it accepted the same SO→plain-class downgrade for `EnemyModal` as final. The
+> `ApplyTo(StatsSO, source)` / `RemoveFrom(StatsSO, source)` API is unchanged, so everything above
+> still describes runtime behaviour accurately.
 >
-> Note the distinction: `StatModifierGroup.modifiers` (the bundle on `WeaponStats`) is
-> **correctly** serialized and must stay that way — `SnS_Stat.asset` authors real data there.
-> Only `Stat.modifiers`, the per-stat runtime list, should be `[NonSerialized]`.
+> Field names were disambiguated in the same pass — there were three things called `modifiers`:
+> `WeaponStats.modifiers` → **`WeaponStats.StatModifiers`**, and
+> `StatModifierGroup.modifiers` → **`StatModifierGroup.authoredModifiers`**. Authored data is
+> preserved through `FormerlySerializedAs`.
+
+> ✅ **Both defects found by the 2026-08-20 audit are now fixed.**
 >
-> ✅ **Resolved on `sprint-10`:** `StatsSO.RecalculateDerived()` previously skipped its update
-> when *any one* of four values matched (`||` where `&&` was needed), so derived stats stopped
-> updating unless `isDevMode` was on. The guard now ANDs all comparisons, and
-> `AddPrimaryPoint()` calls `RecalculateDerived()` directly.
+> 1. **Runtime modifiers no longer persist.** `Stat.modifiers` used to carry `[SerializeField]`
+>    against its own doc-comment and ADR-0001; two leaked `STR +1 Flat` modifiers reached
+>    `Assets/SO/Stat/PlayerStats.asset` and `Test.asset` and were committed to git. The assets were
+>    cleaned on `sprint-10`, and the attribute was removed on 2026-08-21, so the leak cannot recur.
+>    Note the distinction that caused the confusion: `StatModifierGroup.authoredModifiers` (the
+>    bundle on `WeaponStats`) is **correctly** serialized and must stay that way — `SnS_Stat.asset`
+>    authors real data there. Only `Stat.modifiers`, the per-stat runtime list, is non-serialized.
+> 2. **Derived stats recalculate again.** `StatsSO.RecalculateDerived()` previously skipped its
+>    update when *any one* of four values matched (`||` where `&&` was needed), so derived stats
+>    stopped updating unless `isDevMode` was on. Fixed on `sprint-10`; the guard now ANDs all
+>    comparisons and `AddPrimaryPoint()` calls `RecalculateDerived()` directly.
 
 ---
 

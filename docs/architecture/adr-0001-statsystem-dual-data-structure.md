@@ -38,8 +38,21 @@ data source.
 ### Constraints
 - The Unity Inspector cannot serialize/edit `Dictionary<K,V>` on the current engine version.
 - `StatModifier` is Unity-serializable for its authored part (`targetStat` / `type` / `value`), but
-  its `Source` is runtime-only. `Stat.modifiers` is therefore `[NonSerialized]` so runtime buffs are
+  its `Source` is runtime-only. `Stat.modifiers` is therefore **not serialized**, so runtime buffs are
   never written into the `StatsSO` asset.
+
+  > **Clarification 2026-08-21.** This constraint was violated in shipped code for some time —
+  > `Stat.modifiers` carried `[SerializeField]`, and two `STR +1 Flat` modifiers leaked into
+  > `PlayerStats.asset` / `Test.asset` and were committed. Fixed by removing the attribute rather
+  > than adding `[NonSerialized]`: Unity does not serialize a private field without
+  > `[SerializeField]`, so a bare private field satisfies this constraint. A warning comment on the
+  > field is what enforces it going forward.
+  >
+  > Do not confuse this with `StatModifierGroup.authoredModifiers` (the bundle embedded in
+  > `WeaponStats`), which is designer-authored data and **must** stay serialized. That group is a
+  > plain `[System.Serializable]` class, not the `StatModifierGroupSO` asset earlier drafts of
+  > `stat-system.md` described — the plain-class shape was ratified by the owner on 2026-08-21,
+  > matching the precedent ADR-0003 set for `EnemyModal`.
 - Gameplay reads stats through `StatsSO.Get(StatType)` — a hot path that requires O(1).
 
 ### Requirements
