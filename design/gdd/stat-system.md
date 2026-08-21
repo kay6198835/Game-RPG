@@ -70,19 +70,24 @@ different coefficients.
   - Bulk operations recalculate derived stats once for the whole bundle, not once per modifier.
   - `Stat` itself only ever adds or removes a single modifier; all iteration lives in `StatsSO`.
 
-> ⚠️ **Two implementation defects break this section today (audit 2026-08-20, TD-038).**
-> 1. "They never mutate the base" holds, but **runtime modifiers are being persisted**:
->    `Stat.modifiers` is `[SerializeField]` although its own doc-comment and ADR-0001 both
->    require `[NonSerialized]`. A leaked `STR +1 Flat` modifier is already committed into
->    `Assets/SO/Stat/PlayerStats.asset` and `Test.asset`. `StatsSO.OnEnable()` calls
->    `ClearModifiers()` on every stat at load, which hides the churn but also means any
->    modifier legitimately authored in the Inspector is silently wiped — the two behaviours
->    are mutually exclusive and the code currently chooses "wipe everything".
-> 2. Derived stats do **not** reliably recalculate. `StatsSO.RecalculateDerived()` skips its
->    update when **any one** of four values already matches, because the guard uses `||` where
->    it needs `&&` (`StatsSO.cs:272`). Since three of the four are 0 for most stats, the skip
->    fires almost always unless `isDevMode` is on — which directly falsifies the first
->    Acceptance Criterion below.
+> ⚠️ **Implementation defect (audit 2026-08-20, re-verified 2026-08-21 — TD-038).**
+> "They never mutate the base" holds, but **runtime modifiers are being persisted**:
+> `Stat.modifiers` is `[SerializeField]` although its own doc-comment and ADR-0001 both
+> require `[NonSerialized]`. Two leaked `STR +1 Flat` modifiers were committed into
+> `Assets/SO/Stat/PlayerStats.asset` and `Test.asset`; they were **cleaned on `sprint-10`**,
+> but the attribute is unchanged so the leak will recur. `StatsSO.OnEnable()` calls
+> `ClearModifiers()` on every stat at load, which hides the churn but also means any
+> modifier legitimately authored in the Inspector is silently wiped — the two behaviours
+> are mutually exclusive and the code currently chooses "wipe everything".
+>
+> Note the distinction: `StatModifierGroup.modifiers` (the bundle on `WeaponStats`) is
+> **correctly** serialized and must stay that way — `SnS_Stat.asset` authors real data there.
+> Only `Stat.modifiers`, the per-stat runtime list, should be `[NonSerialized]`.
+>
+> ✅ **Resolved on `sprint-10`:** `StatsSO.RecalculateDerived()` previously skipped its update
+> when *any one* of four values matched (`||` where `&&` was needed), so derived stats stopped
+> updating unless `isDevMode` was on. The guard now ANDs all comparisons, and
+> `AddPrimaryPoint()` calls `RecalculateDerived()` directly.
 
 ---
 
@@ -155,8 +160,8 @@ mirrored into the ScriptableObject assets. The knobs are:
 
 ## Acceptance Criteria
 
-- [ ] Every derived stat recalculates when a primary stat or the level changes. **Currently
-      failing** — see the `||`/`&&` guard note above (TD-038).
+- [x] Every derived stat recalculates when a primary stat or the level changes — fixed on
+      `sprint-10`; `AddPrimaryPoint()` now also calls `RecalculateDerived()` directly.
 - [ ] Percentage/fixed stats have `perLevel = 0`.
 - [ ] Derived formulas reference only primary stats (no derived-on-derived).
 - [ ] The coefficients in the SO assets match `ToolExcel/stat_system_formula_reference.xlsx`.

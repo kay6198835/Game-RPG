@@ -165,11 +165,11 @@
 
       StatSystem/                               # RPG stat framework (GDD: design/gdd/stat-system.md; numbers: ToolExcel/stat_system_formula_reference.xlsx)
         StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived MaxHP/MaxMana/PhysicalDamage/… (100-111)
-        Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ⚠️ `modifiers` is [SerializeField] even though its own comment and ADR-0001 require [NonSerialized] — runtime buffs leak into .asset files
+        Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ⚠️ `modifiers` is [SerializeField] even though its own comment and ADR-0001 require [NonSerialized] — runtime buffs leak into .asset files (assets cleaned on sprint-10; root cause unchanged)
         StatModifier.cs                         # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource()). Order derived from Type
         StatModifierGroup.cs                    # ⚠️ NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats. ApplyTo() / RemoveFrom() by source
         DerivedStatFormula.cs                   # baseConstant + level×perLevel + Σ(primary × coefficient)
-        StatsSO.cs                              # SO "Game/Stats Profile": Level, StatUnusedBonus, Get/GetStat/GetStatValue, AddModifiersFromSource / RemoveModifiersFromSource, RecalculateDerived(), OnStatChanged. Also declares StatsViewDTO
+        StatsSO.cs                              # SO "Game/Stats Profile": Level, StatUnusedBonus, Get/GetStat/GetStatValue, AddModifiersFromSource / RemoveModifiersFromSource, RecalculateDerived(), CalculateStatUnusedBonus() (public since sprint-10), OnStatChanged. Also declares StatsViewDTO — Update() takes (baseValue, levelUpValue, equipmentValue) since sprint-10
         StatModifierTester.cs                   # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
 
       Manager/
@@ -470,8 +470,8 @@
   | BUG-052 | DOC | ⚠️ OPEN | `Character/Base/`, `Pathfinding/`, `Poolable/` are live subsystems with no ADR. Layout above now lists them; the ADR decision is still owed | — |
   | NEW-1 | LOGIC | ⚠️ OPEN | `EntityInput.Update()` has `//GetTargetInRange();` commented out — the only writer of `targetTransform`. Enemies never detect the player; `EntityAttackState` would NullRef if reached | [EntityInput.cs:67](Assets/Script/Character/Entity/CoreComponent/EntityInput.cs#L67) |
   | NEW-2 | LOGIC | ⚠️ OPEN | `EntityStatsSO.ModifiersAmor` getter/setter recurse into themselves → `StackOverflowException` (TD-011, open since 2026-05-31) | [EntityStatsSO.cs:47](Assets/Script/Character/Entity/EntityStatsSO.cs#L47) |
-  | NEW-3 | LOGIC | ⚠️ OPEN | `StatsSO.RecalculateDerived()` skip-guard uses `\|\|` where it needs `&&` — derived stats stop updating unless `isDevMode` is on | [StatsSO.cs:272](Assets/Script/StatSystem/StatsSO.cs#L272) |
-  | NEW-4 | DATA | ⚠️ OPEN | `Stat.modifiers` is `[SerializeField]` — runtime buffs leak into `.asset` files. `PlayerStats.asset` and `Test.asset` each already carry a leaked `STR +1 Flat` modifier in git | [Stat.cs:52](Assets/Script/StatSystem/Stat.cs#L52) |
+  | NEW-3 | LOGIC | ✅ FIXED | `StatsSO.RecalculateDerived()` skip-guard used `\|\|` where it needed `&&`. Fixed on `sprint-10` — the guard now ANDs all four comparisons, and `AddPrimaryPoint()` calls `RecalculateDerived()` directly. (Harmless leftover: `FinalValue` is compared twice) | [StatsSO.cs:274](Assets/Script/StatSystem/StatsSO.cs#L274) |
+  | NEW-4 | DATA | ⚠️ OPEN (cause) / symptom cleaned | `Stat.modifiers` is still `[SerializeField]` although its own comment and ADR-0001 require `[NonSerialized]`, so runtime buffs will keep leaking into `.asset` files. The two leaked `STR +1 Flat` modifiers were **cleaned out of `PlayerStats.asset` and `Test.asset` on `sprint-10`**, but the mechanism that wrote them is unchanged — expect recurrence after the next Play Mode session. ⚠️ `StatModifierGroup.modifiers` on `WeaponStats` must **stay** serialized (`SnS_Stat.asset` authors real data there) — two different fields, same name | [Stat.cs:52](Assets/Script/StatSystem/Stat.cs#L52) |
 
   ---
 

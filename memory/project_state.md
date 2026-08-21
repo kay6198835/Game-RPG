@@ -1,7 +1,8 @@
 # Project State
 
-Updated 2026-08-20 (full documentation audit — every claim below re-verified against
-`Assets/Script/`; previous update was 2026-07-09).
+Updated 2026-08-21 (full documentation audit — every claim below re-verified against
+`Assets/Script/`; previous update was 2026-07-09). Re-checked against `sprint-10` HEAD
+`10023f0`, which landed a StatSystem UI prototype after the audit began.
 
 Snapshot of actual code state. Source of truth for "what is really implemented" —
 CLAUDE.md carries the same facts in long form.
@@ -41,8 +42,7 @@ CLAUDE.md carries the same facts in long form.
 | BUG-053 | BLOCKER | `EntityNegativeReciver` runs player logic on an enemy: resolves `PlayerInputHandler` off `EntityCore` (→ NRE) and emits `ON_PLAYER_DEATH` on enemy death | EntityNegativeReciver.cs:10 |
 | — | BLOCKER | Enemy health has two disconnected stores: damage lands on `EntityNegativeReciver.currentHealth`, the death check reads `EntityStatsSO.Health`. Enemies cannot die | EntityBasicState.cs:30 |
 | NEW-2 | HIGH | `EntityStatsSO.ModifiersAmor` getter and setter recurse into themselves → `StackOverflowException` (TD-011, open since 2026-05-31) | EntityStatsSO.cs:47 |
-| NEW-3 | HIGH | `StatsSO.RecalculateDerived()` skip-guard uses `\|\|` where it needs `&&` — derived stats stop updating unless `isDevMode` is on | StatsSO.cs:272 |
-| NEW-4 | HIGH | `Stat.modifiers` is `[SerializeField]` although its own comment and ADR-0001 require `[NonSerialized]`. `PlayerStats.asset` and `Test.asset` each already carry a leaked `STR +1 Flat` modifier committed to git | Stat.cs:52 |
+| NEW-4 | HIGH | `Stat.modifiers` is still `[SerializeField]` although its own comment and ADR-0001 require `[NonSerialized]`, so runtime buffs keep leaking into `.asset` files. The two leaked `STR +1 Flat` modifiers were cleaned out of `PlayerStats.asset` / `Test.asset` on `sprint-10`, but the cause is unchanged — expect recurrence. Note `StatModifierGroup.modifiers` on `WeaponStats` must stay serialized | Stat.cs:52 |
 | 6 | HIGH | Player death chain incomplete — `PlayerData.currentHealth` never written, `Reborn()` has no caller, no `GameManager`, `PlayerDeathState` never constructed | NegativeReciver.cs:6 |
 | BUG-044 | HIGH | `PlayerDeathState.LogicUpdate()` body fully commented out; state absent from `Player.Awake()` | PlayerDeathState.cs:17 |
 | BUG-043 | MEDIUM | Two divergent enemy attack paths: `EntityWeaponMelee.Attack()` and `EntityAttack.Attack()` (the latter hardcodes damage `10`) | EntityAttack.cs:33 |
@@ -120,8 +120,9 @@ Register/UnRegister pairing is clean: all six subscriber files balance exactly
    implementer for the enemy, route health through `EntityStatsSO`, delete the duplicate.
 3. **Player death** (Bug #6 + BUG-044, story S10-08) — write `PlayerData.currentHealth`, construct
    `PlayerDeathState`, restore its body, add a `GameManager` that calls `Reborn()` and reloads.
-4. **StatSystem correctness** (NEW-2, NEW-3, NEW-4) — the recursive property, the `||`/`&&` guard, and
-   the modifier serialization leak. All three are silent failures, not crashes at the call site.
+4. **StatSystem correctness** (NEW-2, NEW-4) — the recursive `ModifiersAmor` property and the modifier
+   serialization leak. Both are silent failures, not crashes at the call site. The `||`/`&&` guard in
+   `RecalculateDerived()` was fixed on `sprint-10`.
 5. **Start-room teleport** (Bug #13).
 6. **Enemy spawn hardening** — BUG-033 null-guard, the ADR-0003 budget-invariant fallback, and the
    two-parallel-drivers question (BUG-ES-2).
