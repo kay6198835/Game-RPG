@@ -38,7 +38,7 @@
 
   ```
   Assets/
-    Script/                                     # ALL active code — single source of truth
+    Script/                                     # All WIRED gameplay code. ⚠️ NOT the only .cs in Assets/ — see "Assets/Skill Enhance/" below
       Character/
         Base/                                   # Shared hub + state-machine layer under BOTH Player and Entity
           BaseEntity.cs                         # MonoBehaviour base: Awake/Start/Update/FixedUpdate ticks CurrentState
@@ -236,6 +236,19 @@
     ScriptableObjects/
     UI/Screens/   MainMenu.uxml, Settings.uxml, PauseMenu.uxml
     Scenes/       Main/StartScene, Main/SetLevel, Main/Test/LoadRandomMap, Test/Test AI, Test/ObjectPooling, SampleScene, UISample
+
+    Skill Enhance/Scripts/Abilities/            # ⚠️ A SECOND, UNWIRED ability framework — 17 .cs files (found 2026-08-21)
+      Core/                                     # AbilityDefinition, AbilityInstance, AbilitySystem, AbilityContext, AbilitySlot, IAbilityOwner, AbilityEffectDefinition, AbilityConditionDefinition
+      Effects/                                  # ShootSpiritOrbEffect, DamageInFrontEffect, LungeForwardEffect, PlayDebugLogEffect
+      Conditions/                               # HasEnoughManaCondition, NotDeadCondition
+      Runtime/                                  # SpiritOrbProjectile, SpiritDoTBehaviour, AbilityRuntimeHelpers
+      # Composition-based (definition + effect + condition SOs), unlike Script/Skill_Ability/'s
+      # inheritance-based ActivateSkill. The two share NO types and never reference each other.
+      # Not reachable from gameplay: no SO assets, no prefabs, no scene wiring, and
+      # DamageInFrontEffect.Apply() is entirely commented out. It also uses 3D Physics.OverlapSphere
+      # and a `Damageable` type that does not exist here — conventions from another project.
+      # Documented in docs/diagrams/ability-system-diagrams.md. Owner decision owed: adopt, move
+      # to prototypes/ per .claude/rules/prototype-code.md, or delete.
 
   tests/          EditMode/, PlayMode/, playtest/ — all three contain only .gitkeep (zero tests exist, TD-014)
   ToolExcel/      stat_system.xlsx, stat_system_v1.xlsx, stat_system_formula_reference.xlsx — stat formula emulators: player / 5 creep types / boss (repo root, outside Assets/). `_formula_reference` = source of truth for per-entity base/perLevel/coefficients

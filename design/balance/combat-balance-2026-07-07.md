@@ -124,9 +124,9 @@ Applied on top of the archetype base. One row = one rank; reused by all 5 archet
 
 | Rank | HP × | DMG × | DEF × | XP reward × | Notes |
 |------|------|-------|-------|-------------|-------|
-| **creep** (thường) | 1.0 | 1.0 | 1.0 | 1.0 | fills rooms |
-| **elite** (tinh anh) | 2.4 | 1.5 | 1.0 | 3.5 | 1–2 per room |
-| **champion** (chiến tướng) | 5.5 | 2.1 | 1.5 | 9.0 | room centrepiece; add 1 mechanic (enrage / summon / shield) |
+| **creep** | 1.0 | 1.0 | 1.0 | 1.0 | fills rooms |
+| **elite** | 2.4 | 1.5 | 1.0 | 3.5 | 1–2 per room |
+| **champion** | 5.5 | 2.1 | 1.5 | 9.0 | room centrepiece; add 1 mechanic (enrage / summon / shield) |
 
 Verified player-kills-enemy TTK (Trash Melee archetype, hits):
 
@@ -213,3 +213,29 @@ xpReward = baseReward × rankXpMult × floorLevel
 - [ ] Boss dies in 28–35 s and kills a standing player in 5–7 hits at matching level.
 - [ ] A reference run reaches L18–20 by the boss room.
 - [ ] Percentage stats have `perLevel = 0`.
+
+---
+
+## Appendix — implementation status (appended 2026-08-21 by documentation audit)
+
+This appendix records what the code does today. **It does not change any target above** — the
+design intent in §1–§10 is unmodified and still owns these numbers.
+
+| Claim in this doc | Verified against source | Status |
+|---|---|---|
+| §3 "damage is currently `finalDamage = rawDamage` — armor is ignored" | `NegativeReciver.cs:9` is `currentHealth -= amoutDamage`; no `Defense` term anywhere in either receiver | ✅ **Still true.** The blocking issue this doc opens with is still open, 6 weeks on |
+| §5 five archetypes | `Assets/SO/Stat/Enemy/` holds `TrashMelee`, `RangedCaster`, `Tank`, `FastSwarm`, `Assasin` (+ `Boss/BossStats`) | ✅ Assets match |
+| §2/§4 `DerivedStat = baseConstant + level×perLevel + Σ(primary×coefficient)` | `DerivedStatFormula.Evaluate()` implements exactly this shape | ✅ Formula shape matches |
+| §6 rank tiers `creep` / `elite` / `champion` | **Zero occurrences in `Assets/Script/`.** No rank field, no multiplier table, no enum | ⚠️ **Unbuilt.** The whole of §6 is aspirational |
+| §2 "Enemy `StatsSO.Level` = current floor" | Nothing anywhere assigns `.Level =` at runtime | ⚠️ **Unbuilt.** Enemy level never tracks floor depth |
+| Source cited as `stat_system.xlsx` | `design/gdd/stat-system.md` names **`stat_system_formula_reference.xlsx`** as the single source of truth. Both files exist in `ToolExcel/` | ⚠️ **Doc-vs-doc conflict** — unclear which the coefficients should be read from |
+
+> ⚠️ **Naming collision worth knowing about.** This doc's three-tier *power* axis
+> (creep / elite / champion) is unrelated to `RarityTier` (Common / Rare / Epic / Legendary) in
+> `RoomModel.cs:110`, which is a *spawn-chance* axis governing how often an enemy is picked.
+> Neither is derived from the other, and only `RarityTier` exists in code. Anyone implementing
+> §6 must add a genuinely separate axis rather than reusing `RarityTier`.
+
+**Not verified:** every concrete coefficient, `perLevel` value and TTK figure traces to
+`ToolExcel/*.xlsx`, which is binary and unreadable in the audit environment. All such numbers
+remain `[UNVERIFIED]` — they were not checked, and are not asserted to be either right or wrong.
