@@ -61,7 +61,11 @@ CLAUDE.md carries the same facts in long form.
 
 ---
 
-## EventID enum (current — 19 values)
+## EventID enum (current — 18 values)
+
+> **Corrected 2026-08-21.** This heading said "19 values" from the 2026-08-20 audit until now.
+> The enum has always had **18** — the list below is complete and was never wrong, only the
+> count was. Nothing was removed from `EventManager.cs`.
 
 `ON_PLAYER_ON_DOOR`, `ON_PLAYER_DEATH`, `ON_REALOAD_GAME`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`,
 `ON_CLEAR_ENEMY`, `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY`,

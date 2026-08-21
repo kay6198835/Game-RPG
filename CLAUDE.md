@@ -173,7 +173,7 @@
         StatModifierTester.cs                   # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
 
       Manager/
-        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (19 values — see Event System below)
+        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (18 values — see Event System below)
         AnimationEventManager.cs                # AnimationEventId enum: StartAnimation, MoveAnimation, AttactAnimation, DoSkillAnimation, EndAnimation
         UI/UIManager.cs                         # EMPTY STUB (TD-017)
 
@@ -422,7 +422,11 @@
   EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
   ```
 
-  `EventID` currently has **19 values** (`EventManager.cs`):
+  `EventID` currently has **18 values** (`EventManager.cs`):
+
+  > **Corrected 2026-08-21.** The 2026-08-20 audit wrote "19 values" here and in five other
+  > documents. The enum has always had **18**; the table below was correct all along
+  > (5 + 3 + 3 + 6 + 1 = 18) — only the total was wrong. No enum value was removed.
 
   | Group | Values |
   |---|---|
