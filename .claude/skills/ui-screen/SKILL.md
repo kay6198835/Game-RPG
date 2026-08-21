@@ -172,12 +172,28 @@ BASE=$(git rev-parse --abbrev-ref HEAD)
 Refuse to run and tell the user if `BASE` is `HEAD` (detached) - there is nothing to branch from
 in a way they can find again.
 
-**Branch name**: `feature/ui-screen-<slug>`, where `<slug>` is a kebab-case summary of the screens
+**Branch name**: `<prefix>/ui-screen-<slug>`, where `<slug>` is a kebab-case summary of the screens
 built (`stats-player`, `main-menu-settings`, `inventory-grid`). If that branch already exists,
 append `-2`, `-3`, ... rather than reusing it - a rerun must never rewrite an earlier run's history.
 
+Read `<prefix>` off the remote instead of assuming `feature/`, because this repo has a branch
+named literally `feature`, and a bare ref blocks every ref under it - the push dies with
+`! [remote rejected] ... (directory file conflict)` only *after* the commit exists:
+
 ```bash
-git switch -c feature/ui-screen-<slug>
+git ls-remote --heads origin > /tmp/heads.txt
+grep -c 'refs/heads/feature$' /tmp/heads.txt      # 1 = feature/ is blocked
+grep -o 'refs/heads/.*/ui-screen.*' /tmp/heads.txt # what past runs actually used
+```
+
+If `feature` is blocked, use the prefix the repo's own branches use - here that is
+`origin/feature/` (`origin/feature/ui-screen-skill`, `origin/feature/fix-player-control`, ...).
+The leading `origin/` is a local naming quirk of this repo, not a remote-tracking ref; keep it so
+the branch sorts with its siblings. Never delete or move the blocking `feature` branch to make
+room - it is someone else's.
+
+```bash
+git switch -c <prefix>/ui-screen-<slug>
 ```
 
 **Stage only what this skill authored.** Never `git add -A` - the working tree usually carries
@@ -213,12 +229,14 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 **Push**:
 
 ```bash
-git push -u origin feature/ui-screen-<slug>
+git push -u origin <prefix>/ui-screen-<slug>
 ```
 
 If `git remote` is empty, skip the push, say so in the report, and leave the commit on the local
 branch. If the push is rejected for auth or protected-branch reasons, report the exact error line -
-do not retry with `--force` under any circumstance.
+do not retry with `--force` under any circumstance. A `directory file conflict` rejection means the
+prefix probe above was skipped: rename with `git branch -m <newname>` and push again - the commit
+is already safe, so never reset or recommit to recover from it.
 
 Do **not** open a PR, merge, or switch back to `BASE` afterwards. Leave the user on the new branch
 and tell them the branch name and the base it came from.
