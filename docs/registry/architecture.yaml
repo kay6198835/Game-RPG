@@ -8,23 +8,25 @@ state_ownership:
   - state: enemy_room_alive_count
     owner: RoomCell
     adr: ADR-0002
-    adr_status: stale
+    adr_status: amended_2026-08-21
     interface: "RoomCell.EnemyCount (int, private set); RoomCell.OnDoneSpawnEnemy(int) / OnSpawnExtraEnemy() / OnEnemyDeath()"
     note: >
-      CORRECTED 2026-08-20 by documentation audit. ADR-0002 assigns this state to
+      CORRECTED 2026-08-20 by documentation audit; ADR-0002 amended 2026-08-21 to match.
+      ADR-0002's original Decision assigned this state to
       EnemyManager, but the shipped owner is RoomCell (RoomCell.cs:22,44-62).
       RoomGridController forwards ON_DONE_SPAWN_ENEMY / ON_SPAWN_EXTRA_ENEMY /
       ON_ENEMY_DEATH to the current cell, and RoomCell emits ON_CLEAR_ENEMY when the
       count reaches zero. EnemyManager holds no alive-count field of any kind — it
-      became the pathfinding service instead (see api_decisions below). This registry
-      row is a derived view, so ADR-0002 must be amended to match before the row can
-      be considered authoritative again.
+      became the pathfinding service instead (see api_decisions below). ADR-0002's
+      2026-08-21 amendment records this ownership split, so this row is authoritative
+      again. The split across RoomCell / EnemySpawner / RoomGridController is itself
+      covered by no ADR — recorded as owed architectural debt in that amendment.
 
 interfaces:
   - contract: room_enemy_selection
     adr: ADR-0003
     signature: "RoomModel.GetSpawnSet() -> List<EnemySpawnEntry> { enemy, count }"
-    guarantee_status: violated_by_implementation
+    guarantee_status: violated_by_implementation_accepted_2026-08-21
     detail: >
       Budget-bounded Candidate-Pool fill loop. Intended guarantees: totalSpend <= B
       (Room Budget) always — overspend structurally impossible because a candidate
@@ -36,11 +38,17 @@ interfaces:
         - 5 roll attempts per round: HOLDS (RoomModel.cs:55).
         - totalSpend <= B: DOES NOT HOLD. RoomModel.SetListCandidate() at
           RoomModel.cs:55-58 does `if (retry > 4) { candidateEnemies.AddRange(
-          enemiesOfRoom); return; }` with no weight filter, so a candidate heavier
-          than the remaining budget can be picked and weightBudget goes negative.
-          A Legendary-only pool (5% roll) reaches that fallback in roughly 77% of
-          rounds. Tracked as TD-038; ADR-0003 must either be amended or the
-          fallback filtered.
+          enemiesOfRoom); return; }` with no weight filter -- and no rarity roll
+          either -- so a candidate heavier than the remaining budget can be picked
+          and weightBudget goes negative. Real bound: totalSpend < B + max(weight).
+          Measured over 20000 simulated rooms at B=100: a mixed pool whose cheapest
+          weight is 20 overspends in ~4% of rooms, worst case +80 (+80% of budget).
+          Reaching the fallback is NOT the same as overspending -- a Legendary-only
+          pool reaches it in every room yet never overspends. Per-round fallback
+          probability is 0.95^4 ~= 81.5% (four rolls, then the forced fallback);
+          an earlier note here said ~77% of rounds, which was wrong on both the
+          exponent and the metric. ACCEPTED 2026-08-21 (owner decision C3) and
+          documented in the ADR-0003 amendment; tracked as TD-039, not scheduled.
       Also note the serialized `overflowPercent` field on RoomModel is never read —
       GetSpawnSet() uses a hardcoded 0.1f literal instead (RoomModel.cs:31).
       Pure method on the RoomModel SO — deliberately NOT on the EnemyManager
@@ -96,10 +104,11 @@ api_decisions:
       that work is split across EnemySpawner, RoomCell and RoomGridController, none of
       which is covered by any ADR. The singleton exception is therefore currently
       un-anchored: the class it names exists, but for a different reason than the one
-      that was ratified. EntityMovement.Start() also hard-couples to it
-      (EntityMovement.cs:31, `grid = EnemyManager.Instance.Grid`), so an Entity prefab
-      NullRefs in any scene without an EnemyManager. Owner decision required before
-      story S10-09 flips this ADR to Accepted.
+      that was ratified. RESOLVED 2026-08-21 (owner decision C2): the code stays as is and
+      ADR-0002 was amended to re-scope the exception onto the pathfinding role. The
+      EntityMovement.Start() coupling (EntityMovement.cs:31, `grid = EnemyManager.Instance.Grid`,
+      no null guard -> Entity prefabs NullRef in any scene without an EnemyManager) is recorded
+      in that amendment as an accepted consequence. S10-09 can now flip Status honestly.
       The ADR's own Verification item IS satisfied: EnemyManager.Awake() has the
       `return` after Destroy(gameObject) that MazeController still lacks
       (EnemyManager.cs:15 vs MazeController.cs:17-20 / TD-026).

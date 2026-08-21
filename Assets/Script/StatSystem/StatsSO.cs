@@ -46,6 +46,9 @@ public class StatsSO : ScriptableObject
     void OnEnable()
     {
         OnStatChanged += AfterChanged;
+        // Từ 2026-08-21 Stat.modifiers không còn serialize nên vòng này về lý thuyết là no-op.
+        // Giữ lại như lớp phòng vệ: nếu ai đó thêm lại [SerializeField], nó vẫn chặn được
+        // modifier cũ sống sót qua lần load kế tiếp.
         for (int i = 0; i < stats.Count; i++)
         {
             stats[i]?.ClearModifiers();

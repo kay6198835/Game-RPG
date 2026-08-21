@@ -46,10 +46,21 @@ public class Stat
     [NonSerialized] private float cachedValue;
     [NonSerialized] private bool isDirty = true;
 
-    // BẮT BUỘC [NonSerialized]: StatModifier nay đã Unity-serializable, mà Stat nằm trong
-    // StatsSO.stats -> nếu để serialize, buff runtime sẽ ghi thẳng vào .asset và sống dai
-    // qua các phiên Play Mode.
-    [SerializeField] private List<StatModifier> modifiers = new List<StatModifier>();
+    // ⚠️ KHÔNG BAO GIỜ thêm [SerializeField] vào field này.
+    //
+    // StatModifier nay đã Unity-serializable, mà Stat nằm trong StatsSO.stats. Nếu field này
+    // được serialize thì buff runtime ghi thẳng vào .asset và sống dai qua các phiên Play Mode.
+    // ĐÃ TỪNG XẢY RA: một modifier "STR +1 Flat" lọt vào PlayerStats.asset và Test.asset rồi
+    // được commit lên git; phải dọn tay trên sprint-10 (2026-08-20).
+    //
+    // Field private KHÔNG có [SerializeField] thì Unity không serialize — để trần là đủ, không
+    // cần [NonSerialized]. Nhưng vì "để trần" là trạng thái im lặng, comment này là thứ duy
+    // nhất ngăn người sau vô tình thêm attribute vào.
+    //
+    // ĐỪNG nhầm với StatModifierGroup.authoredModifiers (nhúng trong WeaponStats): field ĐÓ là
+    // dữ liệu do designer author và BẮT BUỘC phải serialize (SnS_Stat.asset đang giữ dữ liệu
+    // thật ở đó). Hai field, ý nghĩa tên giống nhau, cách xử lý ngược nhau.
+    private List<StatModifier> modifiers = new List<StatModifier>();
 
     /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
     public event Action OnChanged;

@@ -18,5 +18,10 @@ public abstract class WeaponStats : ScriptableObject
     public int StageCount => AttackStages == null ? 0 : AttackStages.Count;
 
     public AttackSO GetStage(int index) => AttackStages[index];
-    [field: SerializeField] public StatModifierGroup modifiers { get; protected set; }
+
+    // FormerlySerializedAs giữ dữ liệu đã author khi property đổi tên `modifiers` -> `StatModifiers`
+    // (2026-08-21). Khóa cũ là dạng backing-field của auto-property, không phải "modifiers" trần.
+    [field: SerializeField]
+    [field: FormerlySerializedAs("<modifiers>k__BackingField")]
+    public StatModifierGroup StatModifiers { get; protected set; }
 }
