@@ -26,7 +26,7 @@ interfaces:
   - contract: room_enemy_selection
     adr: ADR-0003
     signature: "RoomModel.GetSpawnSet() -> List<EnemySpawnEntry> { enemy, count }"
-    guarantee_status: violated_by_implementation
+    guarantee_status: violated_by_implementation_accepted_2026-08-21
     detail: >
       Budget-bounded Candidate-Pool fill loop. Intended guarantees: totalSpend <= B
       (Room Budget) always — overspend structurally impossible because a candidate
@@ -38,11 +38,17 @@ interfaces:
         - 5 roll attempts per round: HOLDS (RoomModel.cs:55).
         - totalSpend <= B: DOES NOT HOLD. RoomModel.SetListCandidate() at
           RoomModel.cs:55-58 does `if (retry > 4) { candidateEnemies.AddRange(
-          enemiesOfRoom); return; }` with no weight filter, so a candidate heavier
-          than the remaining budget can be picked and weightBudget goes negative.
-          A Legendary-only pool (5% roll) reaches that fallback in roughly 77% of
-          rounds. Tracked as TD-038; ADR-0003 must either be amended or the
-          fallback filtered.
+          enemiesOfRoom); return; }` with no weight filter -- and no rarity roll
+          either -- so a candidate heavier than the remaining budget can be picked
+          and weightBudget goes negative. Real bound: totalSpend < B + max(weight).
+          Measured over 20000 simulated rooms at B=100: a mixed pool whose cheapest
+          weight is 20 overspends in ~4% of rooms, worst case +80 (+80% of budget).
+          Reaching the fallback is NOT the same as overspending -- a Legendary-only
+          pool reaches it in every room yet never overspends. Per-round fallback
+          probability is 0.95^4 ~= 81.5% (four rolls, then the forced fallback);
+          an earlier note here said ~77% of rounds, which was wrong on both the
+          exponent and the metric. ACCEPTED 2026-08-21 (owner decision C3) and
+          documented in the ADR-0003 amendment; tracked as TD-039, not scheduled.
       Also note the serialized `overflowPercent` field on RoomModel is never read —
       GetSpawnSet() uses a hardcoded 0.1f literal instead (RoomModel.cs:31).
       Pure method on the RoomModel SO — deliberately NOT on the EnemyManager
