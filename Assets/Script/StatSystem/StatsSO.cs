@@ -318,6 +318,7 @@ public class StatsSO : ScriptableObject
 
 public class StatsViewDTO
 {
+    public const string DISPLAY_FORMAT = "0.##";
     public StatType StatType;
     public string Name;
     public float BaseValue;
@@ -332,10 +333,17 @@ public class StatsViewDTO
     }
     public void Update(float baseValue, float levelUpValue, float equipmentValue)
     {
-        this.BaseValue = baseValue;
-        this.LevelUpValue = levelUpValue;
-        this.AdjustedValue = baseValue + levelUpValue;
-        this.EquipmentValue = equipmentValue;
-        this.FinalValue = baseValue + levelUpValue + equipmentValue;
+        this.BaseValue = Round2(baseValue);
+        this.LevelUpValue = Round2(levelUpValue);
+        this.AdjustedValue = Round2(baseValue + levelUpValue);
+        this.EquipmentValue = Round2(equipmentValue);
+        this.FinalValue = Round2(baseValue + levelUpValue + equipmentValue);
+    }
+
+    // Làm tròn tại DTO chứ không tại Stat: Stat giữ độ chính xác đầy đủ cho công thức derived,
+    // DTO chỉ là bản chiếu cho UI nên chốt 2 chữ số thập phân ở đây.
+    private static float Round2(float value)
+    {
+        return (float)System.Math.Round(value, 2, System.MidpointRounding.AwayFromZero);
     }
 }

@@ -32,15 +32,29 @@ public class StatSlot : MonoBehaviour
         this.statViewDTO = statViewDTO;
         statType = statViewDTO.StatType;
         statNameText.text = GameConstants.StatTypeName[statType];
-        finalValueText.text = statViewDTO.FinalValue.ToString();
-        bonusValueText.text = "(+ " + statViewDTO.EquipmentValue.ToString() + ")";
+        finalValueText.text = statViewDTO.FinalValue.ToString(StatsViewDTO.DISPLAY_FORMAT);
+        bonusValueText.text = "(+ " + statViewDTO.EquipmentValue.ToString(StatsViewDTO.DISPLAY_FORMAT) + ")";
     }
     void UpdateTotalLevelUpBonusValue(object obj = null)
     {
         if (!statType.IsPrimary()) return;
-        this.totalLevelUpBonusValue = (int)obj;
-        bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
-        bottonDecreaseStat.gameObject.SetActive(levelUpBonusValue > 0);
+        if (bottonIncreaseStat == null || bottonDecreaseStat == null) return;
+        if (!(obj is StatBonusViewDTO bonusViewDTO)) return;
+
+        // Trần điểm của RIÊNG slot này = điểm nó đã cộng + điểm còn lại của cả phiên.
+        // Nhờ vậy `levelUpBonusValue < totalLevelUpBonusValue` đúng bằng "cả phiên còn điểm",
+        // kể cả khi người chơi rải điểm sang nhiều stat khác.
+        this.totalLevelUpBonusValue = levelUpBonusValue + bonusViewDTO.RemainingBonus;
+
+        // Hiện/ẩn theo tổng điểm bonus của phiên (TotalBonus), KHÔNG theo số điểm còn lại:
+        // ẩn theo số còn lại sẽ nuốt luôn nút giảm ngay khi người chơi tiêu hết điểm,
+        // và không còn cách nào hoàn tác trước khi bấm Update.
+        bool hasBonusThisSession = bonusViewDTO.TotalBonus > 0;
+        bottonIncreaseStat.gameObject.SetActive(hasBonusThisSession);
+        bottonDecreaseStat.gameObject.SetActive(hasBonusThisSession);
+
+        bottonIncreaseStat.interactable = levelUpBonusValue < totalLevelUpBonusValue;
+        bottonDecreaseStat.interactable = levelUpBonusValue > 0;
     }
     public void DecreaseStat()
     {
