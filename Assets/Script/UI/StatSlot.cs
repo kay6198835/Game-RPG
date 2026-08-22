@@ -21,11 +21,15 @@ public class StatSlot : MonoBehaviour
     void OnEnable()
     {
         EventManager.Resgister(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, UpdateTotalLevelUpBonusValue);
+        bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue);
+        bottonDecreaseStat.gameObject.SetActive(totalLevelUpBonusValue);
     }
     void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, UpdateTotalLevelUpBonusValue);
         levelUpBonusValue = 0;
+        bottonIncreaseStat.gameObject.SetActive(false);
+        bottonDecreaseStat.gameObject.SetActive(false);
     }
     public void UpdateStatSlot(StatsViewDTO statViewDTO)
     {
@@ -39,8 +43,8 @@ public class StatSlot : MonoBehaviour
     {
         if (!statType.IsPrimary()) return;
         this.totalLevelUpBonusValue = (int)obj;
-        bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
-        bottonDecreaseStat.gameObject.SetActive(levelUpBonusValue > 0);
+        bottonIncreaseStat.interactable = totalLevelUpBonusValue > levelUpBonusValue;
+        bottonDecreaseStat.interactable = levelUpBonusValue > 0;
     }
     public void DecreaseStat()
     {
