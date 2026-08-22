@@ -41,7 +41,10 @@ public class StatSlot : MonoBehaviour
         if (bottonIncreaseStat == null || bottonDecreaseStat == null) return;
         if (!(obj is StatBonusViewDTO bonusViewDTO)) return;
 
-        this.totalLevelUpBonusValue = bonusViewDTO.RemainingBonus;
+        // Trần điểm của RIÊNG slot này = điểm nó đã cộng + điểm còn lại của cả phiên.
+        // Nhờ vậy `levelUpBonusValue < totalLevelUpBonusValue` đúng bằng "cả phiên còn điểm",
+        // kể cả khi người chơi rải điểm sang nhiều stat khác.
+        this.totalLevelUpBonusValue = levelUpBonusValue + bonusViewDTO.RemainingBonus;
 
         // Hiện/ẩn theo tổng điểm bonus của phiên (TotalBonus), KHÔNG theo số điểm còn lại:
         // ẩn theo số còn lại sẽ nuốt luôn nút giảm ngay khi người chơi tiêu hết điểm,
@@ -50,19 +53,17 @@ public class StatSlot : MonoBehaviour
         bottonIncreaseStat.gameObject.SetActive(hasBonusThisSession);
         bottonDecreaseStat.gameObject.SetActive(hasBonusThisSession);
 
-        bottonIncreaseStat.interactable = bonusViewDTO.RemainingBonus > 0;
+        bottonIncreaseStat.interactable = levelUpBonusValue < totalLevelUpBonusValue;
         bottonDecreaseStat.interactable = levelUpBonusValue > 0;
     }
     public void DecreaseStat()
     {
-        if (levelUpBonusValue <= 0) return;
         levelUpBonusValue--;
         EventManager.Emit(EventID.ON_DECREASE_STATS_BY_UI, statType);
     }
 
     public void IncreaseStat()
     {
-        if (totalLevelUpBonusValue <= 0) return;
         levelUpBonusValue++;
         EventManager.Emit(EventID.ON_INCREASE_STATS_BY_UI, statType);
     }
