@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 [RequireComponent(typeof(ObjectPoolManager))]
 public class StatsUIController : MonoBehaviour
 {
@@ -115,7 +116,7 @@ public class StatsUIController : MonoBehaviour
     {
         EnableStatsSlot();
         UpdateViewButtonChangeStat();
-        totalLevelUpBonusValue = statsSO.StatUnusedBonus;
+        totalLevelUpBonusValue = _playerStatService.GetLevelUpStatsBonus();
         runtimeLevelUpBonusValue = totalLevelUpBonusValue;
         EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
         UIPannel.SetActive(true);
@@ -184,6 +185,6 @@ public class StatsUIController : MonoBehaviour
         runtimeLevelUpBonusValue = 0;
         UIPannel.SetActive(false);
         openUIButton.gameObject.SetActive(true);
-        statsSO.CalculateStatUnusedBonus();
+        //_playerStatService.GetLevelUpStatsBonus();
     }
 }

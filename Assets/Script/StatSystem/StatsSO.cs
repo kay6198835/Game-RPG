@@ -161,6 +161,7 @@ public class StatsSO : ScriptableObject
         GetOrCreate(type).LevelUpValue += amount;
         AfterChanged(type);
         RecalculateDerived();
+        CalculateStatUnusedBonus();
     }
     public float GetStatValue(StatType type)
     {
@@ -231,7 +232,7 @@ public class StatsSO : ScriptableObject
         RecalculateDerived();
     }
 
-    public void CalculateStatUnusedBonus()
+    private void CalculateStatUnusedBonus()
     {
         statUnusedBonus = 0;
         foreach (var (type, stat) in lookup)

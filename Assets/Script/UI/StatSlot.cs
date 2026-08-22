@@ -24,12 +24,12 @@ public class StatSlot : MonoBehaviour
         if (bottonIncreaseStat)
         {
             bottonIncreaseStat.onClick.AddListener(IncreaseStat);
-            bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue);
+            bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
         }
         if (bottonDecreaseStat)
         {
             bottonDecreaseStat.onClick.AddListener(DecreaseStat);
-            bottonDecreaseStat.gameObject.SetActive(totalLevelUpBonusValue);
+            bottonDecreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
         }
     }
     void OnDisable()

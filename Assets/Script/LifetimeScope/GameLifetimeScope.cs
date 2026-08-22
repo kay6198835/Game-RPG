@@ -1,12 +1,9 @@
-// GameLifetimeScope.cs — đặt ở root của LoadRandomMap.unity
-public sealed class GameLifetimeScope : LifetimeScope
-{
-    [SerializeField] private DungeonRoomSO _dungeonRooms;
-    [SerializeField] private StatsSO _statsTemplate;
+using VContainer;
+using VContainer.Unity;
 
+public class GameLifetimeScope : LifetimeScope
+{
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.Register<IPlayerStatService, PlayerStatService>(Lifetime.Singleton);
-
     }
 }

@@ -60,6 +60,9 @@ public class Stat
     // ĐỪNG nhầm với StatModifierGroup.authoredModifiers (nhúng trong WeaponStats): field ĐÓ là
     // dữ liệu do designer author và BẮT BUỘC phải serialize (SnS_Stat.asset đang giữ dữ liệu
     // thật ở đó). Hai field, ý nghĩa tên giống nhau, cách xử lý ngược nhau.
+    #if UNITY_EDITOR
+    [SerializeField] 
+    #endif
     private List<StatModifier> modifiers = new List<StatModifier>();
 
     /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
