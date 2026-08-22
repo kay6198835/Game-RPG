@@ -202,6 +202,12 @@ public class StatsScreenUIController : MonoBehaviour
     {
         if (_playerStatService == null || _pointsLabel == null) return;   // event can fire before Start built the tree
 
+        // Visibility is decided by the pool the session opened with, never by the live
+        // remaining count: a button that vanishes the moment it stops being usable reflows
+        // the panel on every click, and hiding Decrease at zero remaining would strand the
+        // player with no way to undo. The per-click conditions dim instead.
+        bool hasPointsThisSession = _pointsAtOpen > 0;
+
         foreach (var (type, row) in _rows)
         {
             if (!_playerStatService.GetFullViewStats().TryGetValue(type, out StatsViewDTO dto)) continue;
@@ -209,8 +215,10 @@ public class StatsScreenUIController : MonoBehaviour
             row.Bonus.text = "(+" + dto.EquipmentValue.ToString("0.##") + ")";
 
             if (row.Increase == null) continue;
-            SetVisible(row.Increase, _pointsRemaining > 0);
-            SetVisible(row.Decrease, row.SessionGain > 0);
+            SetVisible(row.Increase, hasPointsThisSession);
+            SetVisible(row.Decrease, hasPointsThisSession);
+            row.Increase.SetEnabled(_pointsRemaining > 0);
+            row.Decrease.SetEnabled(row.SessionGain > 0);
         }
 
         _pointsLabel.text = "Points: " + _pointsRemaining;

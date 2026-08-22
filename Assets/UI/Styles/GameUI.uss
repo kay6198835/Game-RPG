@@ -69,6 +69,12 @@
     scale: 0.98 0.98;
 }
 
+/* Dimmed rather than removed: SetEnabled(false) also blocks picking, so :hover never
+   fires on a disabled button and it cannot be clicked. */
+.btn:disabled {
+    opacity: 0.35;
+}
+
 .btn--danger:hover {
     background-color: rgb(190, 60, 60);
     color: rgb(240, 240, 240);
