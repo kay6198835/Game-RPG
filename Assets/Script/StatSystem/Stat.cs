@@ -221,9 +221,10 @@ public class Stat
                     break;
             }
         }
+        finalValue += equipmentByPrimaryValue;
         this.finalValue = finalValue;
         this.adjustedValue = baseValue + levelUpValue;
-        this.equipmentValue = finalValue - (baseValue + levelUpValue) + equipmentByPrimaryValue;
+        this.equipmentValue = finalValue - (baseValue + levelUpValue);
         return this.finalValue;
     }
 }
