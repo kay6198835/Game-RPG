@@ -24,6 +24,7 @@ public class StatsUIController : MonoBehaviour
 
     public int totalLevelUpBonusValue;
     public int runtimeLevelUpBonusValue;
+    readonly StatBonusViewDTO bonusViewDTO = new StatBonusViewDTO();
     void Awake()
     {
         objectPoolManager = GetComponent<ObjectPoolManager>();
@@ -106,9 +107,14 @@ public class StatsUIController : MonoBehaviour
         UpdateViewButtonChangeStat();
         totalLevelUpBonusValue = statsSO.StatUnusedBonus;
         runtimeLevelUpBonusValue = totalLevelUpBonusValue;
-        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, totalLevelUpBonusValue);
+        EmitBonusChanged();
         UIPannel.SetActive(true);
         openUIButton.gameObject.SetActive(false);
+    }
+    private void EmitBonusChanged()
+    {
+        bonusViewDTO.Update(totalLevelUpBonusValue, runtimeLevelUpBonusValue);
+        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, bonusViewDTO);
     }
     private void UpdateViewButtonChangeStat()
     {
@@ -148,7 +154,7 @@ public class StatsUIController : MonoBehaviour
         statsSO.AddPrimaryPoint(statType, 1);
         runtimeLevelUpBonusValue--;
         UpdateViewRunTime();
-        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, runtimeLevelUpBonusValue);
+        EmitBonusChanged();
     }
 
     public void DecreaseStat(object obj = null)
@@ -162,7 +168,7 @@ public class StatsUIController : MonoBehaviour
         statsSO.AddPrimaryPoint(statType, -1);
         runtimeLevelUpBonusValue++;
         UpdateViewRunTime();
-        EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, runtimeLevelUpBonusValue);
+        EmitBonusChanged();
     }
 
     public void AcceptUpdate()
@@ -174,5 +180,16 @@ public class StatsUIController : MonoBehaviour
         UIPannel.SetActive(false);
         openUIButton.gameObject.SetActive(true);
         statsSO.CalculateStatUnusedBonus();
+    }
+}
+[System.Serializable]
+public class StatBonusViewDTO
+{
+    public int TotalBonus;
+    public int RemainingBonus;
+    public void Update(int totalBonus, int remainingBonus)
+    {
+        this.TotalBonus = totalBonus;
+        this.RemainingBonus = remainingBonus;
     }
 }
