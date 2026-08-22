@@ -153,7 +153,7 @@ knockbackDir    = Atan2((attackPos - entityPos).x, (attackPos - entityPos).y)
 |--------|------|-----------|
 | **Weapons** (`Assets/Script/Weapons/`) | `WeaponHolder.Attack()` → `Weapon.OnAttackEnter()` on state entry; `WeaponHolder.MakeDamage()` → `Weapon.OnActivate()` on the animation hit frame | Character → Weapons |
 | **Skill/Ability** (`Assets/Script/Skill_Ability/`) | `ActivateSkill` SO provides ability lifecycle; `AbilityHolder` drives it | Character → Skills |
-| **Event Manager** (`EventManager.cs`) | Corrected 2026-08-20 — `ON_PLAYER_DEATH` and `ON_ENEMY_DEATH` **now exist** (the enum has 19 values). Only `ON_PLAYER_TAKE_DAMAGE` is still absent, and `.claude/rules/ui-code.md` tells the health bar to bind to it | Character → EventManager |
+| **Event Manager** (`EventManager.cs`) | Corrected 2026-08-20 — `ON_PLAYER_DEATH` and `ON_ENEMY_DEATH` **now exist** (the enum has 20 values). Only `ON_PLAYER_TAKE_DAMAGE` is still absent, and `.claude/rules/ui-code.md` tells the health bar to bind to it | Character → EventManager |
 | **Animation** (`AnimationEventManager.cs`) | `AnimationTrigger` fires weapon/skill; `AnimationFinished` exits states | Character → Animation |
 | **Input** (`PlayerInputHandle.cs`, class `PlayerInputHandler`) | Provides `MoveVector`, `DirectionMouse`, `IsAttack`, `IsSkill`, `IsTakeDamage`, plus `BufferIsAttack` for combo buffering; also implements `IAimProvider` so weapons read aim direction through the interface rather than the concrete type | Input → Character |
 | **Map** (`RoomController`) | Enemies must be registered with `RoomController` for room-clear tracking | Character → Map |

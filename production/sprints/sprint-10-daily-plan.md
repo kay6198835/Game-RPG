@@ -17,7 +17,7 @@
 
 ---
 
-## Status Verdict: 🔴 SLIPPING (2026-08-20, Thu evening check-in, 2nd standup pass same day) — S10-01 (BUG-042/053/054) still **zero movement**, 7th consecutive cycle unchanged since this morning's 09:25 standup: `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim, `EntityNegativeReciver.cs` still present. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62`, 11th carry. S10-05 (BUG-044) still fully commented out in `PlayerDeathState.LogicUpdate()` (lines 17-24), 7th carry. S10-02 still no `.git/hooks/pre-push`, 8th carry. ADR-0002 still `Status: Proposed` (S10-09, 9th carry). Since this morning's standup (`1682903`), 3 more commits landed (`e9be08f`→`7f4f90b`, 13:06→22:49), still all StatSystem/UI scope — none touched any Must-Have. Entire Thursday (all 14 commits across the day, `21cae5e`-era carryover through `7f4f90b`) closes with **0d of the 4 Must-Have tasks (≈0.7d) moved**, 4th consecutive scheduled day (Mon/Tue/Wed/Thu) at zero. Only **Friday 2026-08-21** — the sprint's last scheduled day — remains. Working tree clean as of this check-in. S10-03 (Play Mode verify) still unreached, now at high risk of a 4th consecutive sprint miss (S7-08, S8-12, S9-12 pattern) since it depends on S10-01 landing first and only one day remains.
+## Status Verdict: 🔴 SPRINT CLOSED — MISSED (2026-08-22 Sat standup, run outside its Mon–Fri window — sprint's last scheduled day was Fri 2026-08-21, no session happened Fri night through Sat to log it until now) — S10-01 (BUG-042/053/054) **zero movement across all 5 scheduled days (Mon–Fri)**, 8th consecutive cycle unchanged: `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim, `EntityNegativeReciver.cs` still present. S10-04 (BUG-033) still wrong order at `EnemySpawner.cs:62`, 12th carry. S10-05 (BUG-044) still fully commented out in `PlayerDeathState.LogicUpdate()` (lines 17-24), 8th carry. S10-02 still no `.git/hooks/pre-push`, 9th carry. ADR-0002 still `Status: Proposed` (S10-09, 10th carry). Friday's 4 commits (`ea35d1c`, `90e0f3c`, `5e5d1c5`, `3e1e4b2`) were entirely `/ui-screen` skill tooling + a StatsScreen UI Toolkit port — none touched any Must-Have. **Sprint 10 closes with 0/4 Must-Have tasks (≈0.7d) moved across the entire sprint** — worse outcome than Sprint 9's 2/6 code-complete. S10-03 (Play Mode verify) unreached a 4th consecutive sprint (S7-08, S8-12, S9-12, now S10-03). Uncommitted at this check-in: `Assets/UI Toolkit/PanelSettings.asset` (not staged, not touched — out of this run's scope). Formal close-out and carry-over into Sprint 11 belongs to Sat 22:00 `/weekly-wrapup` and Sun 22:00 `/weekly-kickoff` — this entry is a status snapshot only.
 
 ---
 
@@ -78,6 +78,71 @@ Goal: single HP source of truth confirmed via passing EditMode test; enemy attac
 ---
 
 ## Standup Log
+
+### Sat 2026-08-22 — Daily Standup, run out-of-window (autonomous, no owner present)
+
+**Note on timing:** this task is scheduled Mon–Fri 02:00; it fired today (Sat 2026-08-22) instead —
+flagging the anomaly, not correcting the schedule (out of this run's scope). Content below reviews
+Friday 2026-08-21 (the sprint's actual last scheduled day), since no standup logged it yet.
+
+**Friday 2026-08-21 — 4 commits landed** (`e1cd01f`→`3e1e4b2`, continuing Thursday-evening's docs
+cleanup into the day):
+- `f5042d6`, `e1cd01f`, `610551f`, `4ae946d`, `f5de65a`, `3f3bda8`, `66b7604`, `7911a96` — doc/ADR sync
+  pass (StatModifierGroup rename, ADR-0001/0002/0003 amendments, animation-system GDD rewrite,
+  `CLAUDE.md` corrections) — housekeeping, not Must-Have code.
+- `ea35d1c` "add /ui-screen UI Toolkit screen generator" — new `.claude/skills/ui-screen/` skill
+  (templates + reference doc).
+- `5e5d1c5` "add StatsScreen UI Toolkit port of the UGUI stats panel" — new
+  `StatsScreenUIController.cs`, `StatPointAllocator.cs`, 4 new `.uxml` screens, `EventManager.cs`
+  touched, `UISample.unity` scene changes.
+- `90e0f3c`, `3e1e4b2` — two follow-up fixes to the new `/ui-screen` skill itself (auto-branch/commit
+  behavior, remote-prefix probe).
+
+**Re-verified all Must-Have items directly against file contents** (not commit messages) — unchanged
+from Thursday evening, now closing the sprint still open:
+- ❌ **S10-01** — `EntityCore.cs:11` still `throw new System.NotImplementedException();`;
+  `EntityNegativeReciver.cs` still present, not deleted. **8th consecutive cycle, 0 of 5 scheduled
+  sprint days moved this task.**
+- ❌ **S10-04** — `EnemySpawner.cs:62` still `set.Count == 0 || set == null` (wrong order). 12th carry.
+- ❌ **S10-05** — `PlayerDeathState.LogicUpdate()` body (lines 17-24) still fully commented out. 8th
+  carry — the animation-event plumbing it needs (`AnimationStart`/`AnimationEnd`) has existed since
+  Monday's merge; this is still just 8 lines of wiring, untouched.
+- ❌ **S10-02** — no `.git/hooks/pre-push` (only `.sample`). 9th carry.
+- ❌ **S10-09** (Should-Have) — ADR-0002 still `Status: Proposed`. 10th carry.
+
+Working tree at this check-in: `Assets/UI Toolkit/PanelSettings.asset` modified, uncommitted — noted,
+not acted on (asset file, out of this run's write scope).
+
+**Evaluation:** Sprint 10 closes MISSED on its sole Must-Have scope — **0/4 tasks (≈0.7d) moved across
+all 5 scheduled days (Mon/Tue/Wed/Thu/Fri)**, the worst result of any sprint reviewed so far (worse than
+Sprint 9's 2/6 code-complete). Every session across the sprint went to StatSystem/UI/tooling work
+instead — real, shipped work (a new `/ui-screen` skill, a StatsScreen UI Toolkit port, ADR/doc sync),
+but never the declared blocker. S10-01 has now gone 8 consecutive standup cycles at zero across two
+sprints (Sprint 9 + Sprint 10) without a single line changed at `EntityCore.cs:11`. S10-03 (Play Mode
+verify) is now unreached for a 4th consecutive sprint (S7-08, S8-12, S9-12, S10-03).
+
+**Next steps (for Sat 22:00 `/weekly-wrapup` and Sun 22:00 `/weekly-kickoff`, not this run):**
+| Task | Est. | Note |
+|------|------|------|
+| S10-01 (BUG-042/053/054) | 0.3d | Carry to Sprint 11 as literal first task — 8th carry, same recommendation as every prior retro: needs one dedicated session, not distributed autonomous check-ins |
+| S10-02 (pre-push hook, enforced) | 0.15d | 9th carry |
+| S10-04 (BUG-033 one-line swap) | 0.1d | 12th carry — zero excuse remains |
+| S10-05 (PlayerDeathState body) | 0.15d | 8th carry, plumbing ready since Mon 08-17 |
+| S10-03 (Play Mode verify) | 0.2d | Gate, depends on S10-01 |
+| S10-09 (ADR-0002 → Accepted) | 0.1d | 10th carry, trivial |
+
+**Blockers:** none technical — same 4 items, same estimates, unchanged for a full sprint.
+
+**Risks:**
+- This is the 2nd consecutive sprint (Sprint 9 + Sprint 10) where the declared P0 blocker saw zero
+  code movement — pattern is now structural, not incidental. Strongly recommend Sprint 11 kickoff
+  address session-allocation directly (e.g. block the first session solely on S10-01, no StatSystem
+  work permitted until it lands).
+- S10-03 Play Mode verify: 4 consecutive sprints unreached.
+- `EquipmentValue`/`Stat.cs` caching-model churn (see Carry-Over Watch List) still unresolved — worth a
+  design pass before Sprint 11 builds further on it.
+
+---
 
 ### Thu 2026-08-20 (evening) — Standup Update, 2nd check-in same day (autonomous, no owner present)
 

@@ -352,7 +352,7 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 
 | System | Role | Direction |
 |--------|------|-----------|
-| **Event Manager** | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY`, `ON_ENEMY_DEATH`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` all **[IMPLEMENTED]** (the enum has 19 values as of 2026-08-20). `ON_ROOM_CLEAR` exists but has **no producer** | Map → EventManager |
+| **Event Manager** | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY`, `ON_ENEMY_DEATH`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` all **[IMPLEMENTED]** (the enum has 20 values as of 2026-08-22). `ON_ROOM_CLEAR` exists but has **no producer** | Map → EventManager |
 | **Character system** | `DoorController` tags player via "Player" tag; `fastMovement` is the player transform for teleport | Map → Character |
 | **Enemy AI** | ✅ `EntityDeathState` emits `ON_ENEMY_DEATH`. ⚠️ Corrected 2026-08-20: the count is tracked by **`RoomCell`**, not `EnemyManager` — `EnemyManager` became the pathfinding service and owns no alive-count. `docs/registry/architecture.yaml` records this ownership change and flags ADR-0002 as stale | Enemy → Map |
 | **Enemy Spawn & Per-Room Mgmt** | Owns spawn selection; the room combat lifecycle actually lives in `RoomCell` + `RoomGridController`. `RoomCell.CloseDoor()`/`OpenDoors()` and `IsCleared` are called from `RoomGeneraterController`/`RoomGridController`, not from the spawner. The `Tile_Spawn_Enemy` parser is built (`RoomGeneraterController.LoadRoom()`); the `RoomType → RoomData` routing was never built and Bug #16 is still open | Spawn ↔ Map |

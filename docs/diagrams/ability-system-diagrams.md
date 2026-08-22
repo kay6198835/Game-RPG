@@ -1,12 +1,42 @@
 # Ability System — Diagrams
 
-> Source: `Assets/Skill Enhance/Scripts/`
+> Source: `prototypes/skill-enhance-abilities/Scripts/` (was `Assets/Skill Enhance/Scripts/` until 2026-08-22)
 > Branch: `claude/review-skill-architecture-2df7z`
 > Date: 2026-05-20
 
+> ⚠️ **These diagrams do NOT describe the ability system the game runs** (verified 2026-08-21).
+> They accurately describe the 17 files now in `prototypes/skill-enhance-abilities/Scripts/Abilities/`
+> — but that framework is **not wired into gameplay**:
+>
+> - `Assets/Script/` never references `AbilitySystem`, `AbilityDefinition`, `AbilitySlot` or
+>   `IAbilityOwner`, and those files never reference `Player`, `EventManager`, `StatsSO` or
+>   `INegativeReceiver`. The two halves share no types at all.
+> - It ships **no** SO assets, prefabs or scene wiring, so nothing can instantiate it.
+> - `DamageInFrontEffect.Apply()` is entirely commented out, and what is commented out uses 3D
+>   `Physics.OverlapSphere` plus a `Damageable` type that does not exist in this project — 3D
+>   conventions in a 2D game.
+>
+> **The live system is `Assets/Script/Skill_Ability/`** — `ActivateSkill` subclasses
+> (`DashAbility`, `SlashAbility`, `BlockAbility`) driven by `AbilityHolder` through the
+> `Enter → Activate → Cast → Do → Exit` lifecycle. It is inheritance-based; the one below is
+> composition-based (definition + effect + condition SOs). They are different designs, not
+> different versions of one design.
+>
+> ✅ **Resolved 2026-08-22 (owner decision): kept, and relocated to `prototypes/`** per
+> `.claude/rules/prototype-code.md` — not adopted, not deleted. Because `prototypes/` sits outside
+> `Assets/`, Unity no longer compiles these files at all. Treat every diagram below as a
+> description of parked prototype code, not of anything the game runs. The hypothesis it was
+> testing, why it stalled, and how to pick it back up are in
+> `prototypes/skill-enhance-abilities/README.md`.
+>
+> One overstatement to note before reading §4/§5: the class diagrams show `IAbilityOwner` exposing
+> `CharacterStats Stats`, `Health Health` and `SimpleCharacterMotor Motor`. All three are commented
+> out in the source — the interface really only exposes `Transform`. None of those three types has
+> ever existed in this project.
+
 ---
 
-## 1. Kiến trúc tổng thể (Architecture Overview)
+## 1. Architecture Overview
 
 ```mermaid
 flowchart TD
@@ -24,14 +54,14 @@ flowchart TD
     end
 
     subgraph PROJECTILE["Projectile"]
-        ORB["SpiritOrbProjectile\nRigidbody2D.velocity = dir × 10\nDestroy after 8s nếu miss"]
+        ORB["SpiritOrbProjectile\nRigidbody2D.velocity = dir × 10\nDestroy after 8s if it misses"]
     end
 
     subgraph ENEMY_DOT["DoT on Enemy"]
-        DOT["SpiritDoTBehaviour\n-25 HP mỗi giây × 5 lần"]
-        CHECK{"IsDead trong 5s?"}
-        SUMMON["Instantiate SummonPrefab\ntại vị trí enemy"]
-        EXPIRE["Destroy component\nkhông triệu hồi"]
+        DOT["SpiritDoTBehaviour\n-25 HP per second × 5 ticks"]
+        CHECK{"IsDead within 5s?"}
+        SUMMON["Instantiate SummonPrefab\nat the enemy position"]
+        EXPIRE["Destroy component\nno summon"]
     end
 
     SO -->|Equip| AI
@@ -42,12 +72,12 @@ flowchart TD
     ORB -->|OnTriggerEnter2D| DOT
     DOT --> CHECK
     CHECK -->|YES| SUMMON
-    CHECK -->|NO - hết 5s| EXPIRE
+    CHECK -->|NO - 5s elapsed| EXPIRE
 ```
 
 ---
 
-## 2. Luồng kích hoạt Spirit Orb (Sequence Diagram)
+## 2. Spirit Orb Activation Flow (Sequence Diagram)
 
 ```mermaid
 sequenceDiagram
@@ -59,7 +89,7 @@ sequenceDiagram
     participant DOT as SpiritDoTBehaviour
     participant E as Enemy
 
-    P->>AS: Nhấn E
+    P->>AS: Press E
     AS->>AI: CanStart()?
     AI-->>AS: ✓
     AS->>AI: TryActivateInstant()
@@ -72,32 +102,32 @@ sequenceDiagram
     ORB->>DOT: AddComponent.Initialize(25, 5s)
     ORB-->>ORB: Destroy()
 
-    loop mỗi 1 giây tối đa 5 lần
+    loop every 1s, max 5 ticks
         DOT->>E: TakeDamage(25)
         alt IsDead == true
             DOT->>DOT: TrySummon()
             DOT-->>DOT: Destroy(this)
         end
     end
-    Note over DOT: Hết 5s vẫn sống → Destroy, không summon
+    Note over DOT: Survives the full 5s → Destroy, no summon
 ```
 
 ---
 
-## 3. Vòng đời Ability (State Diagram)
+## 3. Ability Lifecycle (State Diagram)
 
 ```mermaid
 stateDiagram-v2
     [*] --> Ready: Equip
 
-    Ready --> Activating: Nhấn E\n[cooldown=0, mana≥20]
-    Ready --> Ready: [cooldown>0 hoặc mana<20]
+    Ready --> Activating: Press E\n[cooldown=0, mana≥20]
+    Ready --> Ready: [cooldown>0 or mana<20]
     Activating --> OnCooldown: SpendMana + StartCooldown(8s)
-    OnCooldown --> Ready: Hết 8s
+    OnCooldown --> Ready: 8s elapsed
 
     Activating --> Flying: Spawn Orb
-    Flying --> [*]: Miss — hết 8s
-    Flying --> DoT_Active: Trúng enemy
+    Flying --> [*]: Miss — 8s elapsed
+    Flying --> DoT_Active: Hit enemy
 
     state DoT_Active {
         [*] --> s1: tick 1 → -25HP
@@ -108,8 +138,8 @@ stateDiagram-v2
         s5 --> [*]
     }
 
-    DoT_Active --> Summon: IsDead trong 5s
-    DoT_Active --> End: Hết 5s, sống
+    DoT_Active --> Summon: IsDead within 5s
+    DoT_Active --> End: 5s elapsed, still alive
     Summon --> [*]: Instantiate entity
     End --> [*]
 ```
@@ -314,7 +344,7 @@ classDiagram
 
 ## 5. Class Diagram — Full Stereotypes (Standard Mermaid)
 
-> Bản đầy đủ với `<<interface>>`, `<<ScriptableObject>>`, `<<MonoBehaviour>>` — dùng cho GitHub, Notion, VS Code
+> Full version with `<<interface>>`, `<<ScriptableObject>>`, `<<MonoBehaviour>>` stereotypes — renders in GitHub, Notion and VS Code
 
 ```mermaid
 classDiagram
