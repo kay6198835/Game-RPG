@@ -332,10 +332,15 @@ public class StatsViewDTO
     }
     public void Update(float baseValue, float levelUpValue, float equipmentValue)
     {
-        this.BaseValue = baseValue;
-        this.LevelUpValue = levelUpValue;
-        this.AdjustedValue = baseValue + levelUpValue;
-        this.EquipmentValue = equipmentValue;
-        this.FinalValue = baseValue + levelUpValue + equipmentValue;
+        this.BaseValue = Round2(baseValue);
+        this.LevelUpValue = Round2(levelUpValue);
+        this.AdjustedValue = Round2(baseValue + levelUpValue);
+        this.EquipmentValue = Round2(equipmentValue);
+        this.FinalValue = Round2(baseValue + levelUpValue + equipmentValue);
+    }
+
+    private static float Round2(float value)
+    {
+        return (float)System.Math.Round(value, 2, System.MidpointRounding.AwayFromZero);
     }
 }
