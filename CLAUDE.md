@@ -38,7 +38,7 @@
 
   ```
   Assets/
-    Script/                                     # All WIRED gameplay code. ⚠️ NOT the only .cs in Assets/ — see "Assets/Skill Enhance/" below
+    Script/                                     # ALL gameplay code in Assets/ — single source of truth again since 2026-08-22 (the second ability framework moved to prototypes/, see below)
       Character/
         Base/                                   # Shared hub + state-machine layer under BOTH Player and Entity
           BaseEntity.cs                         # MonoBehaviour base: Awake/Start/Update/FixedUpdate ticks CurrentState
@@ -173,7 +173,7 @@
         StatModifierTester.cs                   # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
 
       Manager/
-        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (18 values — see Event System below)
+        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (20 values — see Event System below)
         AnimationEventManager.cs                # AnimationEventId enum: StartAnimation, MoveAnimation, AttactAnimation, DoSkillAnimation, EndAnimation
         UI/UIManager.cs                         # EMPTY STUB (TD-017)
 
@@ -237,18 +237,15 @@
     UI/Screens/   MainMenu.uxml, Settings.uxml, PauseMenu.uxml
     Scenes/       Main/StartScene, Main/SetLevel, Main/Test/LoadRandomMap, Test/Test AI, Test/ObjectPooling, SampleScene, UISample
 
-    Skill Enhance/Scripts/Abilities/            # ⚠️ A SECOND, UNWIRED ability framework — 17 .cs files (found 2026-08-21)
-      Core/                                     # AbilityDefinition, AbilityInstance, AbilitySystem, AbilityContext, AbilitySlot, IAbilityOwner, AbilityEffectDefinition, AbilityConditionDefinition
-      Effects/                                  # ShootSpiritOrbEffect, DamageInFrontEffect, LungeForwardEffect, PlayDebugLogEffect
-      Conditions/                               # HasEnoughManaCondition, NotDeadCondition
-      Runtime/                                  # SpiritOrbProjectile, SpiritDoTBehaviour, AbilityRuntimeHelpers
-      # Composition-based (definition + effect + condition SOs), unlike Script/Skill_Ability/'s
-      # inheritance-based ActivateSkill. The two share NO types and never reference each other.
-      # Not reachable from gameplay: no SO assets, no prefabs, no scene wiring, and
-      # DamageInFrontEffect.Apply() is entirely commented out. It also uses 3D Physics.OverlapSphere
-      # and a `Damageable` type that does not exist here — conventions from another project.
-      # Documented in docs/diagrams/ability-system-diagrams.md. Owner decision owed: adopt, move
-      # to prototypes/ per .claude/rules/prototype-code.md, or delete.
+  prototypes/     Prototype code — OUTSIDE Assets/, so Unity does not compile it (.claude/rules/prototype-code.md)
+    skill-enhance-abilities/                    # A second, composition-based ability framework — 17 .cs files.
+                                                # Was Assets/Skill Enhance/; moved 2026-08-22 by owner decision.
+                                                # Never wired: no SO assets, no prefabs, no scene wiring, shares no
+                                                # types with Script/Skill_Ability/, and DamageInFrontEffect.Apply()
+                                                # is fully commented out (3D Physics.OverlapSphere + a `Damageable`
+                                                # type that does not exist here). See its README.md for the
+                                                # hypothesis/result/decision and how to pick it back up;
+                                                # docs/diagrams/ability-system-diagrams.md diagrams it
 
   tests/          EditMode/, PlayMode/, playtest/ — all three contain only .gitkeep (zero tests exist, TD-014)
   ToolExcel/      stat_system.xlsx, stat_system_v1.xlsx, stat_system_formula_reference.xlsx — stat formula emulators: player / 5 creep types / boss (repo root, outside Assets/). `_formula_reference` = source of truth for per-entity base/perLevel/coefficients
@@ -435,18 +432,21 @@
   EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
   ```
 
-  `EventID` currently has **18 values** (`EventManager.cs`):
+  `EventID` currently has **20 values** (`EventManager.cs`):
 
-  > **Corrected 2026-08-21.** The 2026-08-20 audit wrote "19 values" here and in five other
-  > documents. The enum has always had **18**; the table below was correct all along
-  > (5 + 3 + 3 + 6 + 1 = 18) — only the total was wrong. No enum value was removed.
+  > **Count history — check here before assuming a value was deleted.** The 2026-08-20 audit wrote
+  > "19 values" here and in five other documents; that was a miscount, the real figure was **18**
+  > and the table below was correct all along. Corrected to 18 on 2026-08-21. Then on **2026-08-22**
+  > the StatsScreen UI work genuinely added `ON_REVERT_STATS_BY_UI` and `ON_RESTORE_STATS_BY_UI`,
+  > taking it to **20** (5 + 3 + 3 + 8 + 1). So 19→18 was a correction; 18→20 was a real change.
+  > Nothing has ever been removed.
 
   | Group | Values |
   |---|---|
   | Room / map | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`, `ON_CLEAR_ENEMY`, `ON_ROOM_CLEAR` |
   | Spawn | `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` |
   | Life cycle | `ON_PLAYER_DEATH`, `ON_ENEMY_DEATH`, `ON_REALOAD_GAME` |
-  | Stats UI | `ON_OPEN_STATS_PLAYER_UI`, `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`, `ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI` |
+  | Stats UI | `ON_OPEN_STATS_PLAYER_UI`, `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`, `ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`, `ON_REVERT_STATS_BY_UI`, `ON_RESTORE_STATS_BY_UI` |
   | Debug | `ON_TEST` |
 
   Still missing: **`ON_PLAYER_TAKE_DAMAGE`** — `.claude/rules/ui-code.md` tells the health bar to bind

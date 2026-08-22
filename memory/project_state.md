@@ -61,17 +61,21 @@ CLAUDE.md carries the same facts in long form.
 
 ---
 
-## EventID enum (current — 18 values)
+## EventID enum (current — 20 values)
 
-> **Corrected 2026-08-21.** This heading said "19 values" from the 2026-08-20 audit until now.
-> The enum has always had **18** — the list below is complete and was never wrong, only the
-> count was. Nothing was removed from `EventManager.cs`.
+> **Count history — read this before assuming a value was deleted.** The 2026-08-20 audit wrote
+> "19 values", which was simply a miscount; the real figure was **18** and the list below was
+> complete and correct all along. Corrected to 18 on 2026-08-21. Then on **2026-08-22** the
+> StatsScreen UI work genuinely added two values — `ON_REVERT_STATS_BY_UI` and
+> `ON_RESTORE_STATS_BY_UI` — taking the enum to **20**. So 19→18 was a correction; 18→20 was a
+> real change. Nothing has ever been removed from `EventManager.cs`.
 
 `ON_PLAYER_ON_DOOR`, `ON_PLAYER_DEATH`, `ON_REALOAD_GAME`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`,
 `ON_CLEAR_ENEMY`, `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY`,
 `ON_TEST`, `ON_ENEMY_DEATH`, `ON_ROOM_CLEAR`, `ON_OPEN_STATS_PLAYER_UI`,
 `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`,
-`ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`
+`ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`, `ON_REVERT_STATS_BY_UI`,
+`ON_RESTORE_STATS_BY_UI`
 
 Still missing: **`ON_PLAYER_TAKE_DAMAGE`** — `.claude/rules/ui-code.md` instructs the health bar to
 bind to it, but the value has never existed.
