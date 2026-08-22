@@ -1,5 +1,49 @@
 # Sprint 10 — 2026-08-17 to 2026-08-21
 
+**Status: CLOSED — FAIL (2026-08-22 Saturday `pm-weekly-wrapup`, on-slot autonomous run).** Full
+detail: `production/retros/retro-sprint-10-2026-08-22.md` and `production/qa/bug-triage-2026-08-22.md`.
+
+**Final scorecard — 0 of 6 Must-Have tasks completed, 1 of 6 Should-Have tasks completed, on
+`sprint-10`:**
+
+| Item | Final status |
+|------|--------------|
+| S10-01 / BUG-042+053+054 (enemy `TakeDamage()` chain) | ❌ OPEN, zero movement — `EntityCore.cs:9-12` and `EntityNegativeReciver.cs` byte-identical to two weeks ago. 6th consecutive triage cycle at zero for this exact item, despite being scheduled as "the literal first task" in both Sprint 9's and Sprint 10's plans |
+| S10-02 (process gate) | ❌ Never landed — no `.git/hooks/pre-push` or equivalent exists. 6th carry |
+| S10-03 (Play Mode verify gate) | ❌ Not reached — no Unity Editor session in this automated environment. 4th consecutive sprint (S7-08, S8-12, S9-12, S10-03) |
+| S10-04 / BUG-033 (`EnemySpawner.cs:62` null-guard order) | ❌ OPEN, untouched — 9th carry. File was touched this week for an unrelated `ObjectPoolManager.Spawn` signature change; line 62 itself unchanged |
+| S10-05 / BUG-044 (`PlayerDeathState` orphaned) | ❌ OPEN, untouched — 6th carry. `Player.cs` was touched this week (StatSystem/DI edits) but the state-construction block is unchanged |
+| S10-06 (S4-05/S4-06 forced decision) | ❌ Zero movement — 11th carry becomes 12th, oldest unresolved item in the project |
+| S10-11 (reconcile `origin/feature/fix-player-control` WIP) | ⚠️ Landed (merge `518ab63`) but **without its own stated gate** — `sprint-10.md` scoped this to depend on S10-02 landing first, which did not happen |
+| S10-09 (ADR-0002 Accepted) | ❌ Still **Proposed** — untouched |
+| QA Plan | ❌ Still none — 10th consecutive cycle without one |
+| First playtest | ❌ Not run — 11th consecutive cycle; no playtest log found for this week |
+
+**What did land**: a VContainer dependency-injection layer (`Assets/Script/LifetimeScope/`,
+`IPlayerStatService`/`PlayerStatService`) wrapping `StatsSO`, plus StatSystem correctness fixes
+(`StatsSO.RecalculateDerived()` skip-guard, `Stat.modifiers` serialization leak) — real work, but
+entirely outside this sprint's declared Must-Have scope. New finding this cycle: `StatsUIController.cs`
+is left mid-migration between the old direct-`StatsSO` pattern and the new DI service (filed as
+BUG-062, see `bug-triage-2026-08-22.md`).
+
+**🔴 Code review also caught a critical regression**: a later merge-conflict-resolution commit
+(`aa4e620`) silently reintroduced `[SerializeField]` on `Stat.modifiers` (`Stat.cs:63-66`, gated behind
+`#if UNITY_EDITOR`), undoing the exact fix (`f5de65a`) that closed the `PlayerStats.asset` data-leak
+incident (CLAUDE.md `NEW-4`) — an ADR-0001 violation, caught 89 minutes after introduction. Filed as
+**BUG-063** (S1), see `production/qa/bugs/BUG-063.md`. One-line fix, recommend landing before anything
+else next sprint.
+
+**Carryover into Sprint 11**: **BUG-063 (StatSystem regression, fix first — cheapest, highest-risk item
+in the backlog)**, S10-01/BUG-042+053+054 (open as the only Must-Have item until it lands, per retro
+action item #1), S10-02 process gate, S10-04/BUG-033, S10-05/BUG-044, S10-06 S4-05/S4-06 decision,
+S10-09 ADR-0002 Accept, QA plan, first playtest, BUG-062 follow-up, VContainer/DI ADR retrofit.
+
+**Velocity**: 0/6 Must-Have (0.0d of 1.0d planned) — down from Sprint 9's 2/6 code-complete. First
+0%-Must-Have sprint since the multi-sprint zero-movement stretch predating Sprint 9's weapon-architecture
+close.
+
+---
+
 **Opened:** 2026-08-16 (Sunday 22:00 `pm-weekly-kickoff`, on-slot autonomous run — no owner present).
 Branch `sprint-10`, created from `sprint-09` tip (`7eb3378`, "chore(wrapup): weekly wrap-up 2026-08-15"),
 after `git fetch origin sprint-09` confirmed the local ref matched `origin/sprint-09` exactly (process
