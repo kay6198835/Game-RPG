@@ -25,11 +25,6 @@ public class StatPointAllocator : MonoBehaviour
     {
         _playerStatService = playerStatService;
     }
-    private void Awake()
-    {
-        ResolveMissingAssets();
-    }
-
     private void OnEnable()
     {
         EventManager.Resgister(EventID.ON_OPEN_STATS_PLAYER_UI, OnOpen);
@@ -109,11 +104,9 @@ public class StatPointAllocator : MonoBehaviour
             if (!type.IsPrimary()) continue;
             Stat stat = _playerStatService.GetStat(type);
             if (stat == null || stat.LevelUpValue == 0f) continue;
-            // need check
-            //_playerStatService.AddPrimaryPoint(type, -stat.LevelUpValue);
+            _playerStatService.AddPrimaryPoint(type, -(int)stat.LevelUpValue);
         }
         _sessionGains.Clear();
-        _playerStatService.GetLevelUpStatsBonus();
         _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
         _pointsRemaining = _pointsAtOpen;
         ResetSession();
@@ -123,7 +116,6 @@ public class StatPointAllocator : MonoBehaviour
     {
         if (_playerStatService == null) return;
         _sessionGains.Clear();
-        _playerStatService.GetLevelUpStatsBonus();
         _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
         _pointsRemaining = _pointsAtOpen;
         ResetSession();
@@ -137,17 +129,5 @@ public class StatPointAllocator : MonoBehaviour
     {
         EventManager.Emit(EventID.ON_RESET_STATS_UI_SESSION, _pointsRemaining);
         Broadcast();
-    }
-
-    /// <summary>
-    /// Editor-only safety net so the sample scene plays with an empty Inspector slot.
-    /// Assign the slot explicitly for a real build.
-    /// </summary>
-    private void ResolveMissingAssets()
-    {
-#if UNITY_EDITOR
-        // if (_playerStatService == null)
-        //     _playerStatService = UnityEditor.AssetDatabase.LoadAssetAtPath<_playerStatService>("Assets/SO/Stat/PlayerStats.asset");
-#endif
     }
 }

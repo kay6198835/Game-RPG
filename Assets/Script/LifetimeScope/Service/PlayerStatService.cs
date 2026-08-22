@@ -1,9 +1,18 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public class PlayerStatService : IPlayerStatService
 {
-    private StatsSO statsSO;
+    private readonly StatsSO statsSO;
+
+    public PlayerStatService(StatsSO statsSO)
+    {
+        this.statsSO = statsSO;
+    }
+
+    public int GetLevel()
+    {
+        return statsSO.Level;
+    }
     public Dictionary<StatType, StatsViewDTO> GetFullViewStats()
     {
         return statsSO.FullStatView();
@@ -35,6 +44,7 @@ public class PlayerStatService : IPlayerStatService
 
     public void AddPrimaryPoint(StatType statType, int amount)
     {
-        statsSO.AddPrimaryPoint(statType);
+        // amount must be forwarded: Decrease/Revert pass a negative value.
+        statsSO.AddPrimaryPoint(statType, amount);
     }
 }

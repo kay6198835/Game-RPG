@@ -34,8 +34,8 @@ public class StatsScreenUIController : MonoBehaviour
     [SerializeField] private PanelSettings _panelSettings;
     [SerializeField] private int _sortingOrder = 10;   // above the menu UIDocument in UISample
 
-    [Header("Data (read-only)")]
-    // [SerializeField] private StatsSO _playerStatService;
+    // Injected by GameLifetimeScope, not serialized: the screen reads stats through the
+    // service and never holds the StatsSO asset.
     private IPlayerStatService _playerStatService;
 
     private UIDocument _document;
@@ -214,7 +214,7 @@ public class StatsScreenUIController : MonoBehaviour
         }
 
         _pointsLabel.text = "Points: " + _pointsRemaining;
-        SetVisible(_restoreButton, _playerStatService.GetLevelUpStatsBonus() > 1);
+        SetVisible(_restoreButton, _playerStatService.GetLevel() > 1);
         SetVisible(_revertButton, _pointsAtOpen > _pointsRemaining);
         SetVisible(_updateButton, _pointsAtOpen != _pointsRemaining);
     }
@@ -263,7 +263,6 @@ public class StatsScreenUIController : MonoBehaviour
         if (_primaryRowAsset == null) _primaryRowAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatRowPrimary.uxml");
         if (_derivedRowAsset == null) _derivedRowAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatRowDerived.uxml");
         if (_panelSettings == null) _panelSettings = UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>("Assets/UI Toolkit/PanelSettings.asset");
-        //if (_playerStatService == null) _playerStatService = UnityEditor.AssetDatabase.LoadAssetAtPath<StatsSO>("Assets/SO/Stat/PlayerStats.asset");
 #endif
     }
 }
