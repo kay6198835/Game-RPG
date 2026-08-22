@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <!-- Read-only stat row. Mirrors Stat_Derived_Slot.prefab. -->
+    <ui:VisualElement name="stat-row" class="stat-row">
+        <ui:Label name="label-name"  text="Max HP" class="stat-row__name" />
+        <ui:Label name="label-final" text="0"      class="stat-row__value" />
+        <ui:Label name="label-bonus" text="(+0)"   class="stat-row__bonus" />
+    </ui:VisualElement>
+</ui:UXML>

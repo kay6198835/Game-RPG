@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <!-- One allocatable stat row. Mirrors Stat_Primary_Slot.prefab. -->
+    <ui:VisualElement name="stat-row" class="stat-row">
+        <ui:Label  name="label-name"   text="STR"  class="stat-row__name" />
+        <ui:Label  name="label-final"  text="0"    class="stat-row__value" />
+        <ui:Label  name="label-bonus"  text="(+0)" class="stat-row__bonus" />
+        <ui:Button name="btn-decrease" text="-"    class="btn stat-row__step" />
+        <ui:Button name="btn-increase" text="+"    class="btn stat-row__step" />
+    </ui:VisualElement>
+</ui:UXML>
