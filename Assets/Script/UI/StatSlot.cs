@@ -14,6 +14,10 @@ public class StatSlot : MonoBehaviour
     [SerializeField] public Button bottonDecreaseStat;
     [SerializeField] public int levelUpBonusValue;
     [SerializeField] public int totalLevelUpBonusValue;
+    // Visibility latches to the pool the panel opened with, not to the live remaining
+    // count: hiding the pair the moment the pool empties would strand the player with no
+    // way to take a point back.
+    private bool sessionPoolLatched;
     void Awake()
     {
 
@@ -21,23 +25,27 @@ public class StatSlot : MonoBehaviour
     void OnEnable()
     {
         EventManager.Resgister(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, UpdateTotalLevelUpBonusValue);
-        if (bottonIncreaseStat)
-        {
-            bottonIncreaseStat.onClick.AddListener(IncreaseStat);
-            bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
-        }
-        if (bottonDecreaseStat)
-        {
-            bottonDecreaseStat.onClick.AddListener(DecreaseStat);
-            bottonDecreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
-        }
+        sessionPoolLatched = false;
+        // Held back until the first broadcast reports the pool - totalLevelUpBonusValue is
+        // still last session's number at this point.
+        SetStepButtonsVisible(false);
+        if (bottonIncreaseStat) bottonIncreaseStat.onClick.AddListener(IncreaseStat);
+        if (bottonDecreaseStat) bottonDecreaseStat.onClick.AddListener(DecreaseStat);
     }
     void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, UpdateTotalLevelUpBonusValue);
         levelUpBonusValue = 0;
-        bottonIncreaseStat.gameObject.SetActive(false);
-        bottonDecreaseStat.gameObject.SetActive(false);
+        // Slots are pooled, so OnEnable runs again on reuse - without this the click
+        // listeners stack and one press counts several times.
+        if (bottonIncreaseStat) bottonIncreaseStat.onClick.RemoveListener(IncreaseStat);
+        if (bottonDecreaseStat) bottonDecreaseStat.onClick.RemoveListener(DecreaseStat);
+        SetStepButtonsVisible(false);
+    }
+    private void SetStepButtonsVisible(bool visible)
+    {
+        if (bottonIncreaseStat) bottonIncreaseStat.gameObject.SetActive(visible);
+        if (bottonDecreaseStat) bottonDecreaseStat.gameObject.SetActive(visible);
     }
     public void UpdateStatSlot(StatsViewDTO statViewDTO)
     {
@@ -51,7 +59,15 @@ public class StatSlot : MonoBehaviour
     {
         if (!statType.IsPrimary()) return;
         this.totalLevelUpBonusValue = (int)obj;
-        bottonIncreaseStat.interactable = totalLevelUpBonusValue > levelUpBonusValue;
+
+        if (!sessionPoolLatched)
+        {
+            sessionPoolLatched = true;
+            SetStepButtonsVisible(totalLevelUpBonusValue > 0);
+        }
+
+        // Both stay on screen for the whole session; these conditions dim them instead.
+        bottonIncreaseStat.interactable = totalLevelUpBonusValue > 0;
         bottonDecreaseStat.interactable = levelUpBonusValue > 0;
     }
     public void DecreaseStat()

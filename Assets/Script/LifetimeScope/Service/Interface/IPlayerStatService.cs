@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 public interface IPlayerStatService
 {
+    int GetLevel();
     Dictionary<StatType, StatsViewDTO> GetFullViewStats();
     StatsViewDTO GetViewStat(StatType statType);
     Stat GetStat(StatType statType);
