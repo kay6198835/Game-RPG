@@ -21,8 +21,16 @@ public class StatSlot : MonoBehaviour
     void OnEnable()
     {
         EventManager.Resgister(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, UpdateTotalLevelUpBonusValue);
-        bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue);
-        bottonDecreaseStat.gameObject.SetActive(totalLevelUpBonusValue);
+        if (bottonIncreaseStat)
+        {
+            bottonIncreaseStat.onClick.AddListener(IncreaseStat);
+            bottonIncreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
+        }
+        if (bottonDecreaseStat)
+        {
+            bottonDecreaseStat.onClick.AddListener(DecreaseStat);
+            bottonDecreaseStat.gameObject.SetActive(totalLevelUpBonusValue > 0);
+        }
     }
     void OnDisable()
     {

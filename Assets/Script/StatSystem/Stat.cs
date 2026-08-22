@@ -60,6 +60,9 @@ public class Stat
     // ĐỪNG nhầm với StatModifierGroup.authoredModifiers (nhúng trong WeaponStats): field ĐÓ là
     // dữ liệu do designer author và BẮT BUỘC phải serialize (SnS_Stat.asset đang giữ dữ liệu
     // thật ở đó). Hai field, ý nghĩa tên giống nhau, cách xử lý ngược nhau.
+    #if UNITY_EDITOR
+    [SerializeField] 
+    #endif
     private List<StatModifier> modifiers = new List<StatModifier>();
 
     /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
@@ -127,29 +130,6 @@ public class Stat
     }
 
     // ------------------------- Tầng dẫn xuất -------------------------
-
-    /// <summary>Gốc + lên cấp, CHƯA tính trang bị và modifier. Không serialize: đây là giá trị tính ra.</summary>
-    // public float AdjustedValue => baseValue + levelUpValue;
-
-    // /// <summary>Giá trị cuối cùng sau khi áp dụng trang bị và toàn bộ modifier.</summary>
-    // public float Value
-    // {
-    //     get
-    //     {
-    //         if (isDirty)
-    //         {
-    //             cachedValue = CalculateFinalValue();
-    //             isDirty = false;
-    //         }
-    //         return cachedValue;
-    //     }
-    // }
-
-    // /// <summary>Alias của Value — giữ đúng tên trong bảng công thức stat.</summary>
-    // public float FinalValue => Value;
-
-    // /// <summary>Phần chênh do trang bị và modifier tạo ra (UI hiển thị "+12" màu xanh).</summary>
-    // public float BonusValue => Value - AdjustedValue;
 
     public void Recaulate()
     {
@@ -241,11 +221,10 @@ public class Stat
                     break;
             }
         }
+        finalValue += equipmentByPrimaryValue;
         this.finalValue = finalValue;
         this.adjustedValue = baseValue + levelUpValue;
-        this.equipmentValue = finalValue - (baseValue + levelUpValue) + equipmentByPrimaryValue;
-        Debug.Log("finalValue: " + this.finalValue);
-        Debug.Log("equipmentValue: " + this.equipmentValue);
+        this.equipmentValue = finalValue - (baseValue + levelUpValue);
         return this.finalValue;
     }
 }

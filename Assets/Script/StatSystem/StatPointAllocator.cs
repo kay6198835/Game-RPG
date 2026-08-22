@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 
 /// <summary>
-/// Owns every write into StatsSO that the stats UI asks for. Lives in the gameplay layer,
+/// Owns every write into _playerStatService that the stats UI asks for. Lives in the gameplay layer,
 /// not the UI layer, so the screen stays a pure view (see .claude/rules/ui-code.md).
 ///
 /// Commands in  : ON_OPEN_STATS_PLAYER_UI, ON_INCREASE_STATS_BY_UI, ON_DECREASE_STATS_BY_UI,
@@ -13,14 +14,17 @@ using UnityEngine;
 /// </summary>
 public class StatPointAllocator : MonoBehaviour
 {
-    [SerializeField] private StatsSO statsSO;
-
+    private IPlayerStatService _playerStatService;
     /// <summary>Points spent this session, per primary stat — the undo record for Revert.</summary>
     private readonly Dictionary<StatType, int> _sessionGains = new();
 
     private int _pointsAtOpen;
     private int _pointsRemaining;
-
+    [Inject]
+    public void Construct(IPlayerStatService playerStatService)
+    {
+        _playerStatService = playerStatService;
+    }
     private void Awake()
     {
         ResolveMissingAssets();
@@ -50,20 +54,20 @@ public class StatPointAllocator : MonoBehaviour
 
     private void OnOpen(object _ = null)
     {
-        if (statsSO == null) return;
+        if (_playerStatService == null) return;
         _sessionGains.Clear();
-        _pointsAtOpen = statsSO.StatUnusedBonus;
+        _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
         _pointsRemaining = _pointsAtOpen;
         Broadcast();
     }
 
     private void OnIncrease(object obj)
     {
-        if (statsSO == null || obj == null) return;
+        if (_playerStatService == null || obj == null) return;
         StatType type = (StatType)obj;
         if (!type.IsPrimary() || _pointsRemaining <= 0) return;
 
-        statsSO.AddPrimaryPoint(type, 1f);
+        _playerStatService.AddPrimaryPoint(type, 1);
         _sessionGains.TryGetValue(type, out int spent);
         _sessionGains[type] = spent + 1;
         _pointsRemaining--;
@@ -72,13 +76,13 @@ public class StatPointAllocator : MonoBehaviour
 
     private void OnDecrease(object obj)
     {
-        if (statsSO == null || obj == null) return;
+        if (_playerStatService == null || obj == null) return;
         StatType type = (StatType)obj;
         // Only points spent in THIS session can be taken back — otherwise the player
         // would strip levels they already committed. Full respec is Restore.
         if (!_sessionGains.TryGetValue(type, out int spent) || spent <= 0) return;
 
-        statsSO.AddPrimaryPoint(type, -1f);
+        _playerStatService.AddPrimaryPoint(type, -1);
         _sessionGains[type] = spent - 1;
         _pointsRemaining++;
         Broadcast();
@@ -86,10 +90,10 @@ public class StatPointAllocator : MonoBehaviour
 
     private void OnRevert(object _ = null)
     {
-        if (statsSO == null) return;
+        if (_playerStatService == null) return;
         foreach (var (type, spent) in _sessionGains)
         {
-            if (spent > 0) statsSO.AddPrimaryPoint(type, -spent);
+            if (spent > 0) _playerStatService.AddPrimaryPoint(type, -spent);
         }
         _sessionGains.Clear();
         _pointsRemaining = _pointsAtOpen;
@@ -99,27 +103,28 @@ public class StatPointAllocator : MonoBehaviour
     /// <summary>Full respec: hands every level-up point ever spent back to the pool.</summary>
     private void OnRestore(object _ = null)
     {
-        if (statsSO == null) return;
+        if (_playerStatService == null) return;
         foreach (StatType type in Enum.GetValues(typeof(StatType)))
         {
             if (!type.IsPrimary()) continue;
-            Stat stat = statsSO.Get(type);
+            Stat stat = _playerStatService.GetStat(type);
             if (stat == null || stat.LevelUpValue == 0f) continue;
-            statsSO.AddPrimaryPoint(type, -stat.LevelUpValue);
+            // need check
+            //_playerStatService.AddPrimaryPoint(type, -stat.LevelUpValue);
         }
         _sessionGains.Clear();
-        statsSO.CalculateStatUnusedBonus();
-        _pointsAtOpen = statsSO.StatUnusedBonus;
+        _playerStatService.GetLevelUpStatsBonus();
+        _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
         _pointsRemaining = _pointsAtOpen;
         ResetSession();
     }
 
     private void OnAccept(object _ = null)
     {
-        if (statsSO == null) return;
+        if (_playerStatService == null) return;
         _sessionGains.Clear();
-        statsSO.CalculateStatUnusedBonus();
-        _pointsAtOpen = statsSO.StatUnusedBonus;
+        _playerStatService.GetLevelUpStatsBonus();
+        _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
         _pointsRemaining = _pointsAtOpen;
         ResetSession();
     }
@@ -141,8 +146,8 @@ public class StatPointAllocator : MonoBehaviour
     private void ResolveMissingAssets()
     {
 #if UNITY_EDITOR
-        if (statsSO == null)
-            statsSO = UnityEditor.AssetDatabase.LoadAssetAtPath<StatsSO>("Assets/SO/Stat/PlayerStats.asset");
+        // if (_playerStatService == null)
+        //     _playerStatService = UnityEditor.AssetDatabase.LoadAssetAtPath<_playerStatService>("Assets/SO/Stat/PlayerStats.asset");
 #endif
     }
 }
