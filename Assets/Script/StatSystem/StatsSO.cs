@@ -17,16 +17,6 @@ public class StatsSO : ScriptableObject
     /// <summary>Bắn ra mỗi khi một StatType đổi giá trị (UI subscribe để cập nhật).</summary>
     public event Action<StatType> OnStatChanged;
     [field: SerializeField] public bool isDevMode { get; private set; } = false;   // bật để debug khi stat dirty / recalc derived
-    public int StatUnusedBonus
-    {
-        get => statUnusedBonus;
-        set
-        {
-            int clamped = Mathf.Max(1, value);
-            if (clamped == statUnusedBonus) return;
-            statUnusedBonus = clamped;
-        }
-    }
     public int Level
     {
         get => level;
@@ -36,11 +26,7 @@ public class StatsSO : ScriptableObject
             if (clamped == level) return;
             level = clamped;
             RecalculateDerived();
-            CalculateStatUnusedBonus();
-#if UNITY_EDITOR
-
-#endif
-
+            // CalculateStatUnusedBonus();
         }
     }
     void OnEnable()
@@ -176,7 +162,30 @@ public class StatsSO : ScriptableObject
         AfterChanged(type);
         RecalculateDerived();
     }
-
+    public float GetStatValue(StatType type)
+    {
+        Stat stat = GetOrCreate(type);
+        return stat.AdjustedValue;
+    }
+    public Stat GetStat(StatType type)
+    {
+        Stat stat = GetOrCreate(type);
+        return stat;
+    }
+    public int GetStatUnusedBonus()
+    {
+        this.CalculateStatUnusedBonus();
+        return statUnusedBonus;
+    }
+    public Dictionary<StatType, StatsViewDTO> FullStatView()
+    {
+        return statViewDTOs;
+    }
+    
+    public StatsViewDTO GetViewStat(StatType statType)
+    {
+        return statViewDTOs[statType];
+    }
     // ------------------------- Nội bộ -------------------------
 
     private void EnsureInitialized()
@@ -243,22 +252,6 @@ public class StatsSO : ScriptableObject
         statViewDTO.Update(stat.BaseValue, stat.LevelUpValue, stat.EquipmentValue);
     }
 
-    public float GetStatValue(StatType type)
-    {
-        Stat stat = GetOrCreate(type);
-        return stat.AdjustedValue;
-    }
-    public Stat GetStat(StatType type)
-    {
-        Stat stat = GetOrCreate(type);
-        return stat;
-    }
-    public float GetStatEquipValue(StatType type)
-    {
-        Stat stat = GetOrCreate(type);
-        return stat.EquipmentValue;
-    }
-
     private void RecalculateDerived()
     {
         if (statFormulas == null) return;
@@ -311,8 +304,6 @@ public class StatsSO : ScriptableObject
         }
         return statViewDTO;
     }
-
-
 }
 [System.Serializable]
 
