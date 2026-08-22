@@ -1,6 +1,6 @@
 ---
 name: ui-screen
-description: "Build runnable UI Toolkit screens (UXML + USS + controller + wired scene) from a mockup image, a Figma description, or a plain-text flow. Produces structure-only UI with a flat placeholder stylesheet - no theming. Reads the pinned Unity version and existing project UI assets so output drops straight into the project and plays without manual Inspector wiring."
+description: "Build runnable UI Toolkit screens (UXML + USS + controller + wired scene) from a mockup image, a Figma description, or a plain-text flow. Produces structure-only UI with a flat placeholder stylesheet - no theming. Reads the pinned Unity version and existing project UI assets so output drops straight into the project and plays without manual Inspector wiring. Lands the work on its own branch off the current one, commits it, and pushes."
 argument-hint: "[screen names, or path to mockup image, or flow description]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, AskUserQuestion
@@ -19,6 +19,7 @@ This skill delivers **structure and behaviour**, not visual design.
 | Navigation flow between screens | Animation polish beyond `:hover` / `:active` |
 | Button / slider / toggle event wiring | Data binding to gameplay ScriptableObjects |
 | A scene that runs on Play with zero Inspector work | Localization, accessibility audit |
+| A feature branch, commit, and push of exactly those files | Opening a PR, merging, touching other branches |
 
 The stylesheet emitted is a **flat placeholder**: dark background, rounded buttons, hover state, nothing more. State that explicitly in the final report so the user knows restyling is a separate pass. If the user wants theming, point them at `/ux-design` for the spec and the art bible for the palette.
 
@@ -156,7 +157,93 @@ After writing files, verify: every `guid:` referenced in the scene exists in a `
 
 ---
 
-## 7. Report
+## 7. Branch, commit, push
+
+Run this **after** the verification greps in step 6 pass. Never commit files whose GUID or
+`Q<T>()` references failed to resolve - fix them first.
+
+The branch is cut from **whatever branch is checked out right now**, not from `main`. Capture it
+before anything else, because every later step refers back to it:
+
+```bash
+BASE=$(git rev-parse --abbrev-ref HEAD)
+```
+
+Refuse to run and tell the user if `BASE` is `HEAD` (detached) - there is nothing to branch from
+in a way they can find again.
+
+**Branch name**: `<prefix>/ui-screen-<slug>`, where `<slug>` is a kebab-case summary of the screens
+built (`stats-player`, `main-menu-settings`, `inventory-grid`). If that branch already exists,
+append `-2`, `-3`, ... rather than reusing it - a rerun must never rewrite an earlier run's history.
+
+Read `<prefix>` off the remote instead of assuming `feature/`, because this repo has a branch
+named literally `feature`, and a bare ref blocks every ref under it - the push dies with
+`! [remote rejected] ... (directory file conflict)` only *after* the commit exists:
+
+```bash
+git ls-remote --heads origin > /tmp/heads.txt
+grep -c 'refs/heads/feature$' /tmp/heads.txt      # 1 = feature/ is blocked
+grep -o 'refs/heads/.*/ui-screen.*' /tmp/heads.txt # what past runs actually used
+```
+
+If `feature` is blocked, use the prefix the repo's own branches use - here that is
+`origin/feature/` (`origin/feature/ui-screen-skill`, `origin/feature/fix-player-control`, ...).
+The leading `origin/` is a local naming quirk of this repo, not a remote-tracking ref; keep it so
+the branch sorts with its siblings. Never delete or move the blocking `feature` branch to make
+room - it is someone else's.
+
+```bash
+git switch -c <prefix>/ui-screen-<slug>
+```
+
+**Stage only what this skill authored.** Never `git add -A` - the working tree usually carries
+unrelated Unity churn (`.meta` timestamp rewrites, `ProjectSettings/`, `Library/` noise, the user's
+own in-progress edits). List the paths explicitly:
+
+```bash
+git add Assets/UI/Screens/<files>.uxml Assets/UI/Screens/<files>.uxml.meta \
+        Assets/UI/Styles/<file>.uss \
+        Assets/Script/UI/<file>.cs Assets/Script/UI/<file>.cs.meta \
+        Assets/Scenes/<file>.unity
+git status --short
+```
+
+Read the `git status --short` output back before committing. If a path you did not author is
+staged, unstage it. If a file you did author is missing, its `.meta` was probably forgotten -
+every new asset needs one, or the next person's Unity regenerates a different GUID and the scene
+references break.
+
+**Commit message** - Conventional Commits, `feat(ui)` scope, body naming the screens and calling
+out the placeholder styling so a reviewer does not file it as a bug:
+
+```
+feat(ui): add <ScreenName> UI Toolkit screen
+
+- <ScreenName>.uxml + rows, wired into <Scene>.unity
+- <Prefix>UIController.cs: <one line on the flow>
+- Styling is placeholder only (structure pass) - restyle in <file>.uss
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+```
+
+**Push**:
+
+```bash
+git push -u origin <prefix>/ui-screen-<slug>
+```
+
+If `git remote` is empty, skip the push, say so in the report, and leave the commit on the local
+branch. If the push is rejected for auth or protected-branch reasons, report the exact error line -
+do not retry with `--force` under any circumstance. A `directory file conflict` rejection means the
+prefix probe above was skipped: rename with `git branch -m <newname>` and push again - the commit
+is already safe, so never reset or recommit to recover from it.
+
+Do **not** open a PR, merge, or switch back to `BASE` afterwards. Leave the user on the new branch
+and tell them the branch name and the base it came from.
+
+---
+
+## 8. Report
 
 Report in English with Vietnamese in parentheses for key terms on first use, per `.claude/rules/language-reporting.md`.
 
@@ -167,5 +254,6 @@ Cover:
 3. The flow as implemented: entry screen, every transition, what Esc does, what pauses.
 4. **Explicitly**: styling is placeholder only, restyle by editing the one `.uss`.
 5. Anything left TODO - a control with no defined target, a scene name absent from disk, a screen the mockup showed only partially.
+6. Git: the new branch name, the base branch it was cut from, the commit subject, and whether the push landed. If the push was skipped or rejected, say why in one line.
 
 Never claim it runs if the references were not verified. Say what was checked.
