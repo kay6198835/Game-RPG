@@ -1,12 +1,12 @@
 # Ability System — Diagrams
 
-> Source: `Assets/Skill Enhance/Scripts/`
+> Source: `prototypes/skill-enhance-abilities/Scripts/` (was `Assets/Skill Enhance/Scripts/` until 2026-08-22)
 > Branch: `claude/review-skill-architecture-2df7z`
 > Date: 2026-05-20
 
 > ⚠️ **These diagrams do NOT describe the ability system the game runs** (verified 2026-08-21).
-> They accurately describe the 17 files in `Assets/Skill Enhance/Scripts/Abilities/` — but that
-> framework is **not wired into gameplay**:
+> They accurately describe the 17 files now in `prototypes/skill-enhance-abilities/Scripts/Abilities/`
+> — but that framework is **not wired into gameplay**:
 >
 > - `Assets/Script/` never references `AbilitySystem`, `AbilityDefinition`, `AbilitySlot` or
 >   `IAbilityOwner`, and those files never reference `Player`, `EventManager`, `StatsSO` or
@@ -22,9 +22,17 @@
 > composition-based (definition + effect + condition SOs). They are different designs, not
 > different versions of one design.
 >
-> Owner decision owed: adopt this framework, relocate it under `prototypes/` per
-> `.claude/rules/prototype-code.md`, or delete it. Until then treat every diagram below as a
-> description of unreachable code.
+> ✅ **Resolved 2026-08-22 (owner decision): kept, and relocated to `prototypes/`** per
+> `.claude/rules/prototype-code.md` — not adopted, not deleted. Because `prototypes/` sits outside
+> `Assets/`, Unity no longer compiles these files at all. Treat every diagram below as a
+> description of parked prototype code, not of anything the game runs. The hypothesis it was
+> testing, why it stalled, and how to pick it back up are in
+> `prototypes/skill-enhance-abilities/README.md`.
+>
+> One overstatement to note before reading §4/§5: the class diagrams show `IAbilityOwner` exposing
+> `CharacterStats Stats`, `Health Health` and `SimpleCharacterMotor Motor`. All three are commented
+> out in the source — the interface really only exposes `Transform`. None of those three types has
+> ever existed in this project.
 
 ---
 
