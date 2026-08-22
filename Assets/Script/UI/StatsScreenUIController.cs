@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using VContainer;
 
 /// <summary>
 /// UI Toolkit port of the UGUI stats panel (Stats_UI_Controller.prefab in LoadRandomMap).
@@ -34,7 +35,8 @@ public class StatsScreenUIController : MonoBehaviour
     [SerializeField] private int _sortingOrder = 10;   // above the menu UIDocument in UISample
 
     [Header("Data (read-only)")]
-    [SerializeField] private StatsSO _statsSO;
+    // [SerializeField] private StatsSO _playerStatService;
+    private IPlayerStatService _playerStatService;
 
     private UIDocument _document;
 
@@ -50,7 +52,11 @@ public class StatsScreenUIController : MonoBehaviour
     private int _pointsAtOpen;
     private int _pointsRemaining;
     private bool _isOpen;
-
+    [Inject]
+    public void Construct(IPlayerStatService playerStatService)
+    {
+        _playerStatService = playerStatService;
+    }
     private void Awake()
     {
         ResolveMissingAssets();
@@ -126,7 +132,7 @@ public class StatsScreenUIController : MonoBehaviour
 
     private void BuildRows()
     {
-        if (_statsSO == null) return;
+        if (_playerStatService == null) return;
 
         ScrollView primaryList = _statsRoot.Q<ScrollView>("list-primary");
         ScrollView derivedList = _statsRoot.Q<ScrollView>("list-derived");
@@ -187,18 +193,18 @@ public class StatsScreenUIController : MonoBehaviour
     private void OnSessionReset(object obj = null)
     {
         foreach (StatRow row in _rows.Values) row.SessionGain = 0;
-        if (_statsSO != null) _pointsAtOpen = _statsSO.StatUnusedBonus;
+        if (_playerStatService != null) _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
     }
 
     // ---------- view ----------
 
     private void RefreshValues()
     {
-        if (_statsSO == null || _pointsLabel == null) return;   // event can fire before Start built the tree
+        if (_playerStatService == null || _pointsLabel == null) return;   // event can fire before Start built the tree
 
         foreach (var (type, row) in _rows)
         {
-            if (!_statsSO.statViewDTOs.TryGetValue(type, out StatsViewDTO dto)) continue;
+            if (!_playerStatService.GetFullViewStats().TryGetValue(type, out StatsViewDTO dto)) continue;
             row.Final.text = dto.FinalValue.ToString("0.##");
             row.Bonus.text = "(+" + dto.EquipmentValue.ToString("0.##") + ")";
 
@@ -208,7 +214,7 @@ public class StatsScreenUIController : MonoBehaviour
         }
 
         _pointsLabel.text = "Points: " + _pointsRemaining;
-        SetVisible(_restoreButton, _statsSO.Level > 1);
+        SetVisible(_restoreButton, _playerStatService.GetLevelUpStatsBonus() > 1);
         SetVisible(_revertButton, _pointsAtOpen > _pointsRemaining);
         SetVisible(_updateButton, _pointsAtOpen != _pointsRemaining);
     }
@@ -218,9 +224,9 @@ public class StatsScreenUIController : MonoBehaviour
         _isOpen = true;
         SetVisible(_statsRoot, true);
         SetVisible(_openBarRoot, false);
-        if (_statsSO != null)
+        if (_playerStatService != null)
         {
-            _pointsAtOpen = _statsSO.StatUnusedBonus;
+            _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
             _pointsRemaining = _pointsAtOpen;
         }
         foreach (StatRow row in _rows.Values) row.SessionGain = 0;
@@ -253,11 +259,11 @@ public class StatsScreenUIController : MonoBehaviour
 #if UNITY_EDITOR
         const string screens = "Assets/UI/Screens/";
         if (_statsScreenAsset == null) _statsScreenAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatsScreen.uxml");
-        if (_openBarAsset == null)     _openBarAsset     = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatsOpenBar.uxml");
-        if (_primaryRowAsset == null)  _primaryRowAsset  = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatRowPrimary.uxml");
-        if (_derivedRowAsset == null)  _derivedRowAsset  = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatRowDerived.uxml");
-        if (_panelSettings == null)    _panelSettings    = UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>("Assets/UI Toolkit/PanelSettings.asset");
-        if (_statsSO == null)          _statsSO          = UnityEditor.AssetDatabase.LoadAssetAtPath<StatsSO>("Assets/SO/Stat/PlayerStats.asset");
+        if (_openBarAsset == null) _openBarAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatsOpenBar.uxml");
+        if (_primaryRowAsset == null) _primaryRowAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatRowPrimary.uxml");
+        if (_derivedRowAsset == null) _derivedRowAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(screens + "StatRowDerived.uxml");
+        if (_panelSettings == null) _panelSettings = UnityEditor.AssetDatabase.LoadAssetAtPath<PanelSettings>("Assets/UI Toolkit/PanelSettings.asset");
+        //if (_playerStatService == null) _playerStatService = UnityEditor.AssetDatabase.LoadAssetAtPath<StatsSO>("Assets/SO/Stat/PlayerStats.asset");
 #endif
     }
 }
