@@ -4,7 +4,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
-[RequireComponent(typeof(ObjectPoolManager))]
 public class StatsUIController : MonoBehaviour
 {
     [SerializeField] private StatSlot PrimaryStatSlotPrefab;
@@ -20,7 +19,7 @@ public class StatsUIController : MonoBehaviour
     [SerializeField] private Button restoreStatsButton;
     [SerializeField] private Button openUIButton;
     [SerializeField] private Button closeUIButton;
-    ObjectPoolManager objectPoolManager;
+    IObjecPoolService objectPoolManager;
     Dictionary<StatType, int> gainKeyValues = new();
 
     public int totalLevelUpBonusValue;
@@ -69,12 +68,12 @@ public class StatsUIController : MonoBehaviour
     {
         foreach (var statSlot in ListPrimaryStat.Values)
         {
-            objectPoolManager.Get(PrimaryStatSlotPrefab.gameObject).Release(statSlot.gameObject);
+            objectPoolManager.Release(statSlot.gameObject);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
-            objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Release(statSlot.gameObject);
+            objectPoolManager.Release(statSlot.gameObject);
         }
     }
     private void EnableStatsSlot()
@@ -83,14 +82,14 @@ public class StatsUIController : MonoBehaviour
         {
             StatsViewDTO statsViewDTO = _playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
-            objectPoolManager.Get(PrimaryStatSlotPrefab.gameObject).Reload(Vector2.one, primaryStatSlotContainer.transform);
+            objectPoolManager.Get(PrimaryStatSlotPrefab.gameObject).Spawn(Vector2.one, primaryStatSlotContainer.transform);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
             StatsViewDTO statsViewDTO = _playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
-            objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Reload(Vector2.one, derivedStatSlotContainer.transform);
+            objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Spawn(Vector2.one, derivedStatSlotContainer.transform);
         }
     }
     public void CloseStatsUI()

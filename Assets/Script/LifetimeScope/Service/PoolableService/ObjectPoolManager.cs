@@ -27,12 +27,11 @@ public class ObjectPoolManager : MonoBehaviour
         if (pool == null) return null;
         return pool.Spawn(position, rotation, parent);
     }
-
-    public void Reload(Vector2 position, Quaternion rotation, GameObject prefab, Transform parent = null)
+    public void Release(GameObject prefab)
     {
-        var pool = Get(prefab);
-        if (pool == null) return;
-        pool.Reload(position, rotation, parent);
+        var pool = Get(prefab, parent);
+        if (pool == null) return null;
+        return pool.Release(prefab);
     }
 
     private void Register(GameObject prefab, Transform parent = null)

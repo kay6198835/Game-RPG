@@ -25,12 +25,12 @@ public class Pool : MonoBehaviour
         return Reload(position, rotation, parent);
     }
 
-    public void Reload(Vector2 position, Transform parent = null)
+    private void Reload(Vector2 position, Transform parent = null)
     {
         Reload(position, Quaternion.identity, parent);
     }
 
-    public GameObject Reload(Vector2 position, Quaternion rotation, Transform parent = null)
+    private GameObject Reload(Vector2 position, Quaternion rotation, Transform parent = null)
     {
         var reload = inactiveObjects.Dequeue();
         reload.gameObject.SetActive(true);

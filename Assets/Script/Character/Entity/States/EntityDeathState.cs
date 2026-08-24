@@ -14,7 +14,7 @@ public class EntityDeathState : EntityBasicState
     {
         if (Status == StatusAnimation.EndRangeTrigger)
         {
-            EventManager.Emit(EventID.ON_ENEMY_DEATH);
+            EventManager.Emit(EventID.ON_ENEMY_DEATH, this.tranform.position);
         }
     }
 }
