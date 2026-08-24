@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPoolManager : MonoBehaviour
+public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
 {
     public Dictionary<GameObject, Pool> pools { get; set; } = new Dictionary<GameObject, Pool>();
     public Pool Get(GameObject prefab, Transform parent = null)
@@ -27,18 +27,18 @@ public class ObjectPoolManager : MonoBehaviour
         if (pool == null) return null;
         return pool.Spawn(position, rotation, parent);
     }
-    public void Release(GameObject prefab)
+    public void Release(GameObject poolObject, GameObject objectPrefab, Transform parent = null)
     {
-        var pool = Get(prefab, parent);
-        if (pool == null) return null;
-        return pool.Release(prefab);
+        var pool = Get(poolObject, parent);
+        if (pool == null) return;
+        pool.Release(objectPrefab, parent);
     }
 
     private void Register(GameObject prefab, Transform parent = null)
     {
         if (pools.TryGetValue(prefab, out Pool pool)) return;
-        GameObject poolObj = parent == null ? new GameObject($"{prefab.name} Pool") : parent.gameObject;
-        poolObj.transform.parent = parent == null ? this.transform : parent.parent;
+        GameObject poolObj = new GameObject($"{prefab.name} Pool");
+        poolObj.transform.parent = this.transform;
         pool = poolObj.AddComponent<Pool>();
         pool.Register(prefab);
         pools.Add(prefab, pool);

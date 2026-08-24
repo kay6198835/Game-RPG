@@ -19,25 +19,24 @@ public class StatsUIController : MonoBehaviour
     [SerializeField] private Button restoreStatsButton;
     [SerializeField] private Button openUIButton;
     [SerializeField] private Button closeUIButton;
-    IObjecPoolService objectPoolManager;
     Dictionary<StatType, int> gainKeyValues = new();
-
     public int totalLevelUpBonusValue;
     public int runtimeLevelUpBonusValue;
-    private IPlayerStatService _playerStatService;
+    ObjectPoolManager objectPoolManager;
+    PlayerStatService _playerStatService;
     [Inject]
-    public void Construct(IPlayerStatService playerStatService)
+    public void Construct(PlayerStatService playerStatService, ObjectPoolManager objectPoolManager)
     {
         _playerStatService = playerStatService;
+        this.objectPoolManager = objectPoolManager;
     }
     void Awake()
     {
-        objectPoolManager = GetComponent<ObjectPoolManager>();
-        GetStatsUI();
+
     }
     void Start()
     {
-
+        GetStatsUI();
     }
     void OnEnable()
     {
@@ -62,18 +61,18 @@ public class StatsUIController : MonoBehaviour
             (stat.Key.IsPrimary() ? ListPrimaryStat : ListDerivedStat)[stat.Key] = statSlot;
             statSlot.UpdateStatSlot(stat.Value);
         }
-        CloseStatsUI();
+        DisableStatsSlot();
     }
     private void DisableStatsSlot()
     {
         foreach (var statSlot in ListPrimaryStat.Values)
         {
-            objectPoolManager.Release(statSlot.gameObject);
+            objectPoolManager.Release(PrimaryStatSlotPrefab.gameObject, statSlot.gameObject);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
-            objectPoolManager.Release(statSlot.gameObject);
+            objectPoolManager.Release(DerivedStatSlotPrefab.gameObject, statSlot.gameObject);
         }
     }
     private void EnableStatsSlot()
@@ -82,14 +81,14 @@ public class StatsUIController : MonoBehaviour
         {
             StatsViewDTO statsViewDTO = _playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
-            objectPoolManager.Get(PrimaryStatSlotPrefab.gameObject).Spawn(Vector2.one, primaryStatSlotContainer.transform);
+            objectPoolManager.Spawn(Vector2.one, Quaternion.identity, PrimaryStatSlotPrefab.gameObject, primaryStatSlotContainer.transform);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
             StatsViewDTO statsViewDTO = _playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
-            objectPoolManager.Get(DerivedStatSlotPrefab.gameObject).Spawn(Vector2.one, derivedStatSlotContainer.transform);
+            objectPoolManager.Spawn(Vector2.one, Quaternion.identity, DerivedStatSlotPrefab.gameObject, derivedStatSlotContainer.transform);
         }
     }
     public void CloseStatsUI()

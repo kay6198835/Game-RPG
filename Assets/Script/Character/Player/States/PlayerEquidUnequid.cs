@@ -23,11 +23,11 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        if (StatusAnimation.OnActivate <= Status && Status <= StatusAnimation.OffActivate)
+        if (StatusAnimation.OnActivate <= Status && Status < StatusAnimation.OffActivate)
         {
             Debug.Log("Call PlayerEquidUnequid Trigger");
             weaponHolder.Intertion();
-            Status = StatusAnimation.None;
+            Status = StatusAnimation.OffActivate;
         }
     }
 }

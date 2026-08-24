@@ -1,7 +1,15 @@
-public class ItemSpawner()
+using System;
+using UnityEngine;
+using VContainer;
+public class ItemSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject droppedItemPrefab;
     [SerializeField] private IObjecPoolService objecPoolService;
+    [Inject]
+    public void Construct(IObjecPoolService objecPoolService)
+    {
+        this.objecPoolService = objecPoolService;
+    }
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_ENEMY_DEATH, DropItem);

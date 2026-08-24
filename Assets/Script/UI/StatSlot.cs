@@ -28,6 +28,7 @@ public class StatSlot : MonoBehaviour
         sessionPoolLatched = false;
         // Held back until the first broadcast reports the pool - totalLevelUpBonusValue is
         // still last session's number at this point.
+        if (!statType.IsPrimary()) return;
         SetStepButtonsVisible(false);
         if (bottonIncreaseStat) bottonIncreaseStat.onClick.AddListener(IncreaseStat);
         if (bottonDecreaseStat) bottonDecreaseStat.onClick.AddListener(DecreaseStat);
@@ -38,6 +39,7 @@ public class StatSlot : MonoBehaviour
         levelUpBonusValue = 0;
         // Slots are pooled, so OnEnable runs again on reuse - without this the click
         // listeners stack and one press counts several times.
+        if (!statType.IsPrimary()) return;
         if (bottonIncreaseStat) bottonIncreaseStat.onClick.RemoveListener(IncreaseStat);
         if (bottonDecreaseStat) bottonDecreaseStat.onClick.RemoveListener(DecreaseStat);
         SetStepButtonsVisible(false);

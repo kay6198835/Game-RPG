@@ -16,7 +16,7 @@ public class ItemOS : ScriptableObject
     [SerializeField] public int DropChance { get; protected set; }
     [SerializeField] public int Value { get; protected set; }
     [SerializeField] public StyleItem Style { get; protected set; }
-    [SerializeField, ReadOnly] private string id;
+    private string id;
     public string Id => id;
 
     public string itemName;

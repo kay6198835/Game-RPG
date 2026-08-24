@@ -55,11 +55,17 @@ public class PlayerAttackState : PlayerUseWeaponState
                 break;
             case StatusAnimation.End:
                 base.LogicUpdate();
+                Debug.Log("PlayerAttackState End");
                 break;
 
             default:
                 inputHandler.SetStatusAnimation(Status);
                 break;
         }
+    }
+    public override void Exit()
+    {
+        inputHandler.SetBufferAttack(false);
+        base.Exit();
     }
 }
