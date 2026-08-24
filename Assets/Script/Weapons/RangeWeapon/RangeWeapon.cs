@@ -4,7 +4,7 @@ public class RangeWeapon : Weapon
 {
     [Header("Range")]
     [SerializeField] private Transform firePoint;
-    [SerializeField] private ObjectPoolManager poolManager;
+    [SerializeField] private IObjecPoolService poolManager;
 
     private float nextFireTime;
 

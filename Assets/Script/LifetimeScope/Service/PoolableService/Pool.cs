@@ -25,22 +25,22 @@ public class Pool : MonoBehaviour
         return Reload(position, rotation, parent);
     }
 
-    public void Reload(Vector2 position, Transform parent = null)
+    private void Reload(Vector2 position, Transform parent = null)
     {
         Reload(position, Quaternion.identity, parent);
     }
 
-    public GameObject Reload(Vector2 position, Quaternion rotation, Transform parent = null)
+    private GameObject Reload(Vector2 position, Quaternion rotation, Transform parent = null)
     {
         var reload = inactiveObjects.Dequeue();
         reload.gameObject.SetActive(true);
         reload.gameObject.transform.SetPositionAndRotation(position, rotation);
-        reload.gameObject.transform.SetParent(parent);
+        reload.transform.parent = parent == null ? this.transform : parent;
         reload.SwitchIsInPool(false);
         return reload.gameObject;
     }
 
-    public void Release(GameObject gameObject)
+    public void Release(GameObject gameObject, Transform parent = null)
     {
         gameObject.SetActive(false);
         if (!gameObject.TryGetComponent<PoolMember>(out PoolMember member))
@@ -49,6 +49,7 @@ public class Pool : MonoBehaviour
         }
 
         if (member.isInPool) return;
+        gameObject.transform.parent = parent == null ? this.transform : parent;
         inactiveObjects.Enqueue(member);
         member.SwitchIsInPool(true);
     }

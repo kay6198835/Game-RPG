@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using UnityEngine;
 
-public class PlayerStatService : IPlayerStatService
+public class PlayerStatService : MonoBehaviour, IPlayerStatService
 {
-    private readonly StatsSO statsSO;
+    [SerializeField] private StatsSO statsSO;
 
     public PlayerStatService(StatsSO statsSO)
     {

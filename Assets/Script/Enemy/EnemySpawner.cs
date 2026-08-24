@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-[RequireComponent(typeof(ObjectPoolManager))]
+using VContainer;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private List<Vector2Int> spawnPosition;
@@ -9,10 +9,15 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float paddingPosition;
     [SerializeField] private float maxPadding;
     [SerializeField] private Vector2 positionRandom;
-    [SerializeField] private ObjectPoolManager objectPoolManager;
+    private IObjecPoolService objectPoolManager;
+    [Inject]
+    public void Construct(IObjecPoolService objectPoolManager)
+    {
+        this.objectPoolManager = objectPoolManager;
+    }
     void Awake()
     {
-        objectPoolManager = GetComponent<ObjectPoolManager>();
+
     }
     public void OnEnable()
     {

@@ -280,13 +280,14 @@ GameObject:
   - component: {fileID: 2061776250904138003}
   - component: {fileID: 6421325509711283015}
   - component: {fileID: 8015616874716781849}
+  - component: {fileID: -8649510170427404538}
   m_Layer: 5
   m_Name: Stat_Derived_Slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5746872358671647273
 RectTransform:
   m_ObjectHideFlags: 0
@@ -294,7 +295,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7293485264021860188}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -306,7 +307,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 1, y: 1}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2061776250904138003
@@ -362,12 +363,32 @@ MonoBehaviour:
   statViewDTO:
     StatType: 0
     Name: 
-    BonusValue: 0
+    BaseValue: 0
+    LevelUpValue: 0
     FinalValue: 0
+    AdjustedValue: 0
+    EquipmentValue: 0
   statType: 0
   statNameText: {fileID: 1442061879241692947}
   finalValueText: {fileID: 1305694605306294053}
   bonusValueText: {fileID: 1832917971004163910}
+  bottonIncreaseStat: {fileID: 0}
+  bottonDecreaseStat: {fileID: 0}
+  levelUpBonusValue: 0
+  totalLevelUpBonusValue: 0
+--- !u!114 &-8649510170427404538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7293485264021860188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1efc9e038853f7e4abe5a1f31968ee8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pool: {fileID: 0}
 --- !u!1 &7567055752211988434
 GameObject:
   m_ObjectHideFlags: 0
