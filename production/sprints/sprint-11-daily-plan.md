@@ -16,7 +16,7 @@
 
 ---
 
-## Status Verdict: 🟡 SPRINT OPEN — just kicked off, no work session has run yet.
+## Status Verdict: 🔴 AT RISK — Monday's session landed zero Must-Have items; all 5 Must-Have tasks (S11-01 through S11-05) confirmed still open at Tuesday standup. Session time went to DI/LifetimeScope refactor + item-spawn + animation/attack-state tweaks instead — the exact risk flagged in `sprint-11.md`'s Risks table materialized on day 1.
 
 ---
 
@@ -24,13 +24,26 @@
 
 ### Mon 2026-08-24 — BUG-063 first, then the enemy combat chain (do not touch anything else first)
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S11-01 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | 0.05d | **Literal first task** — cheapest fix in the backlog, highest risk if left (keeps leaking runtime buffs into `.asset` files) |
-| S11-02 (BUG-042 + BUG-053 + BUG-054, `EntityCore.TakeDamage()` chain) | 0.3d | **Literal second task, before any other work** — per two consecutive retros' Action Item #1. 9th consecutive cycle at zero movement across two sprints. Implement for real; delete `EntityNegativeReciver.cs`, don't patch it. |
-| S11-03 (process gate, enforced pre-push hook) | 0.15d | 10th carry — land as a real hook this time |
-| S11-04 (BUG-033, one-line fix) | 0.1d | Trivial, 13th carry |
-| S11-05 (BUG-044, PlayerDeathState orphaned) | 0.15d | 9th carry |
+| Task | Est. | Status | Notes |
+|------|------|--------|-------|
+| S11-01 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | 0.05d | ❌ NOT DONE | Re-verified 2026-08-25: `Stat.cs:63-65` still `#if UNITY_EDITOR` / `[SerializeField]` above `modifiers`, unchanged |
+| S11-02 (BUG-042 + BUG-053 + BUG-054, `EntityCore.TakeDamage()` chain) | 0.3d | ❌ NOT DONE | Re-verified: `EntityCore.cs:11` still `throw new System.NotImplementedException();` verbatim; `EntityNegativeReciver.cs` still on disk, not deleted. **10th consecutive cycle at zero movement.** |
+| S11-03 (process gate, enforced pre-push hook) | 0.15d | ❌ NOT DONE | `.git/hooks/pre-push` still missing (checked 2026-08-25). 11th carry |
+| S11-04 (BUG-033, one-line fix) | 0.1d | ❌ NOT DONE | `EnemySpawner.cs:67` (line shifted from other edits) still `set.Count == 0 \|\| set == null`, wrong order. 14th carry |
+| S11-05 (BUG-044, PlayerDeathState orphaned) | 0.15d | ❌ NOT DONE | `PlayerDeathState.LogicUpdate()` body still fully commented out; state construction in `Player.Awake()` unverified but body itself untouched. 10th carry |
+
+**What actually landed Monday instead** (`02f05cf`, `4034efd`, `217de7d`, `376bbf2` merge — 40 files,
++439/-144): a VContainer/DI refactor (`Assets/Script/LifetimeScope/` reorganized — new
+`Interface/IObjecPoolService.cs`, `Service/PoolableService/` now houses `ObjectPoolManager`/`Pool`/
+`PoolMember`, `Service/PlayerStatService/` folder), a new `Assets/Script/Item/ItemSpawner.cs`,
+`ItemOS.cs`/`PrefabRandomItem.cs` rework, `StatsUIController.cs`/`StatSlot.cs` touch-ups, 8 Knight
+equip/unequip animation clips fixed, plus small combat-state tweaks: `EntityDeathState` now emits
+`ON_ENEMY_DEATH` with a position payload, `PlayerAttackState` gained an `Exit()` clearing the attack
+buffer, `PlayerEquidUnequid`/`PlayerUseWeaponState` had `StatusAnimation` comparison bugs fixed
+(`<=`→`<`, `None`→`End`), and `RangeWeapon` was migrated to the new `IObjecPoolService` interface. None
+of this touches the 5 Must-Have files. This is the same "unrelated StatSystem/UI/tooling work absorbs
+the session" pattern the sprint's own Risks table called out as High-probability — it materialized on
+day 1, not gradually.
 
 Goal: land the sprint's two highest-leverage items (BUG-063, then S11-02) before anything else competes
 for branch time. If Monday repeats Sprint 10's pattern (StatSystem/UI work absorbing the whole day),
@@ -104,27 +117,77 @@ returned no line-level output despite `git status` showing modified, worth the o
 
 ---
 
+### Tue 2026-08-25 — Daily Standup (autonomous, no owner present)
+
+**Yesterday (2026-08-24):** 4 commits landed on `sprint-11` (`02f05cf`, `4034efd`, `217de7d`,
+`376bbf2` merge of `origin/feature/fix-player-control`), 40 files changed. None were S11-01 through
+S11-05. Verified directly against current file contents (not commit messages):
+- ❌ S11-01 (BUG-063) — still open, `Stat.cs:63-65` unchanged
+- ❌ S11-02 (BUG-042/053/054) — still open, `EntityCore.cs:11` still throws, `EntityNegativeReciver.cs`
+  still present. **10th consecutive cycle, zero movement.**
+- ❌ S11-03 (pre-push hook) — still missing. 11th carry
+- ❌ S11-04 (BUG-033) — still wrong guard order. 14th carry
+- ❌ S11-05 (BUG-044) — `PlayerDeathState.LogicUpdate()` still fully commented out. 10th carry
+
+Instead: DI/LifetimeScope reorg, new `ItemSpawner.cs`, `ItemOS`/`PrefabRandomItem` rework, `StatsUIController`
+tweaks, 8 animation clips, and small player/enemy state bug fixes (`EntityDeathState` payload,
+`PlayerAttackState.Exit()`, `PlayerEquidUnequid`/`PlayerUseWeaponState` `StatusAnimation` comparison
+fixes, `RangeWeapon` DI migration). Useful work, but not what the sprint plan sequenced as first/second
+task.
+
+**Today (2026-08-25), per Tuesday's slot in this plan — re-sequenced given zero Monday movement:**
+- S11-01 (BUG-063 fix) — Est. 0.05d (Low complexity, no dependency) — still the cheapest item in the
+  backlog; recommend landing this before anything else today
+- S11-02 (EntityCore.TakeDamage() chain) — Est. 0.3d (Medium-High: touches death-state hookup + prefab
+  cleanup, needs an owner-present session per prior retro finding that distributed autonomous check-ins
+  don't move it) — carry from Monday, now the sprint's single highest-priority item
+- S11-07 (Play Mode verify) — Est. 0.2d — blocked, depends on S11-02 landing first; cannot start today
+  unless S11-02 closes early
+- S11-06 (S4-05/S4-06 forced decision) — Est. 0.1d (Low, but owner-judgment-only — not something this
+  autonomous run can decide) — 13th carry, still needs the owner to make the call
+- S11-12 (BUG-046, `OverlapCircle`→`OverlapCircleNonAlloc`) — Est. 0.15d (Low, independent) — safe
+  filler if S11-01/S11-02 close early
+
+**Blockers:**
+- S11-02 requires an owner-present, uninterrupted session — 10 consecutive autonomous cycles have not
+  moved it. This is a process blocker, not a technical one.
+- S11-07 is hard-blocked on S11-02.
+- S11-06 needs an owner decision; cannot be resolved autonomously.
+
+**Risks:**
+- Sprint Goal's own precondition ("land BUG-063 first, then give S11-02 an uninterrupted session before
+  any other work") was violated on day 1 — 4 days remain to recover before repeating Sprint 10's FAIL
+  close (0/6 Must-Have).
+- `.git/hooks/pre-push` still absent — nothing currently prevents another day of off-plan work from
+  landing ungated, same gap that let Monday's session drift.
+- No QA plan exists — 12th consecutive cycle.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** Zero code movement across
-  8 consecutive standup cycles spanning two full sprints (Sprint 9 + Sprint 10). Now S11-02, sequenced
-  as the sprint's literal second task (after the 0.05d BUG-063 fix). Prior retros' standing
-  recommendation: a single dedicated session likely resolves this faster than continued distributed
-  autonomous check-ins.
-- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — new to this sprint's watch list, but already
-  confirmed present at kickoff. One-line fix (S11-01) — should not survive past Monday.
-- **S11-03 process gate** — now 10th carry, same underlying pattern since Sprint 4. Still no
-  `.git/hooks/pre-push` as of this kickoff.
-- **S11-06 (S4-05/S4-06)** — 12th carry, zero movement any cycle. Decision-avoidance, not an estimation
+  **10 consecutive standup cycles** spanning two-plus sprints (Sprint 9 + Sprint 10 + Sprint 11 Mon-Tue).
+  S11-02, sequenced as the sprint's literal second task, missed Monday. Prior retros' standing
+  recommendation: a single dedicated owner-present session likely resolves this faster than continued
+  distributed autonomous check-ins — now doubly confirmed by Monday's miss.
+- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — confirmed still present 2026-08-25. One-line
+  fix (S11-01) — missed Monday's "should not survive" target, now the standing first-priority item.
+- **S11-03 process gate** — now 11th carry, same underlying pattern since Sprint 4. Still no
+  `.git/hooks/pre-push` as of 2026-08-25 — this exact gap is why Monday's off-plan work landed ungated.
+- **S11-06 (S4-05/S4-06)** — 13th carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem — recommend the owner just make the call.
-- **S11-07 Play Mode verify gate** — unreached 4 consecutive sprints (S7-08, S8-12, S9-12, S10-03).
-  Depends on S11-02.
-- **S11-08 (ADR-0002 Accept)** — still `Status: Proposed`, now 9th carry, trivial (0.1d) sign-off-only
+- **S11-07 Play Mode verify gate** — unreached 4 consecutive sprints (S7-08, S8-12, S9-12, S10-03), and
+  still blocked entering Tuesday since S11-02 hasn't landed.
+- **S11-08 (ADR-0002 Accept)** — still `Status: Proposed`, now 10th carry, trivial (0.1d) sign-off-only
   change.
-- **BUG-062 (`StatsUIController.cs` mid-migration)** — new finding from Sprint 10 close, unaddressed.
-- **VContainer/DI architecture debt** — Sprint 10 landed a full DI layer (`Assets/Script/LifetimeScope/`,
-  `IPlayerStatService`) with no governing ADR. S11-14 scoped to close this before more code builds on it.
-- QA plan — 11 consecutive cycles with none. Flagged in `sprint-11.md`, deferred to owner.
+- **BUG-062 (`StatsUIController.cs` mid-migration)** — new finding from Sprint 10 close, unaddressed;
+  Monday's session touched `StatsUIController.cs`/`StatSlot.cs` again without closing this out — worth
+  the owner checking whether Monday's edit narrowed or widened the mixed old/new access.
+- **VContainer/DI architecture debt** — now grew further: Monday's session added `IObjecPoolService`,
+  reorganized `Service/PoolableService/` and `Service/PlayerStatService/`, still with no governing ADR.
+  S11-14 scoped to close this before more code builds on it — the debt is compounding sprint over sprint.
+- QA plan — 12 consecutive cycles with none. Flagged in `sprint-11.md`, deferred to owner.
 - **`PlayerStats.asset` uncommitted diff** — carried onto `sprint-11` from kickoff, unexplained
-  (`git status` shows modified, `git diff` shows no line content). Owner should confirm this isn't a
-  live BUG-063 symptom before S11-01 lands.
+  (`git status` shows modified, `git diff` shows no line content). Still unresolved (S11-N4) — owner
+  should confirm this isn't a live BUG-063 symptom before S11-01 lands.
