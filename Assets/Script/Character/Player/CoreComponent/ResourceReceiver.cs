@@ -10,8 +10,8 @@ public class ResourceReceiver : Interact
 
     public void ReceverModifierGroup(StatModifierGroup statModifierGroup)
     {
-        Core.GetCoreComponent<VitalStatsComponent>(vitalStatsComponent);
-        vitalStatsComponent.ApplyBuffDebuff(StatModifierGroup);
+        Core.GetCoreComponent<VitalStatsComponent>(out vitalStatsComponent);
+        vitalStatsComponent.ApplyBuffDebuff(statModifierGroup);
     }
 
     public void ReceverRecovery(StatType statType, float amount)

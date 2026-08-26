@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -33,6 +34,11 @@ public class StatModifierGroup
             return;
         }
         stats.AddModifiersFromSource(source, authoredModifiers);
+    }
+    public void Apply(Action<object, IReadOnlyList<StatModifier>> action, object source)
+    {
+        action(source, Modifiers);
+
     }
 
     /// <summary>Gỡ mọi modifier đến từ source (gồm cụm này và mọi cụm khác cùng nguồn).</summary>

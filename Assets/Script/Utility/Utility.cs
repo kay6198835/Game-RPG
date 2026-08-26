@@ -37,11 +37,11 @@ public static class Utility
 
     public static Vector2Int RandomPaddingDistace(int minPadding, int maxPadding)
     {
-        Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
+        return new Vector2Int(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
     }
     public static Vector2 RandomPaddingDistace(float minPadding, float maxPadding)
     {
-        Vector2 randomAddRangePosition = new Vector2(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
+        return new Vector2(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
     }
 
 

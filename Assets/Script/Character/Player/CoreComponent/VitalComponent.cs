@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using VContainer;
 
 //Multiple inheritance interface
 public class VitalStatsComponent : CoreComponent<Core>
@@ -18,12 +20,12 @@ public class VitalStatsComponent : CoreComponent<Core>
 
     public void ApplyBuffDebuff(StatModifierGroup statModifierGroup)
     {
-        statModifierGroup.Apply(playerStatService.AddModifiersFromSource);
+        statModifierGroup.Apply(playerStatService.AddModifiersFromSource, this);
     }
 
     public void ReceverRecovery(StatType statType, float amount)
     {
-        Debug.Log("ReceverRecovery: " + statType);
+        
     }
 
     public void ReceverCurrency(float amount)

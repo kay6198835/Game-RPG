@@ -16,7 +16,7 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
 
     public void Spawn(ObjectPoolRequest request)
     {
-        Spawn(request.position, request.rotation, request.parent, request.parent);
+        Spawn(request.Position, request.Rotation, request.Prefab, request.Parent);
     }
 
     public GameObject Spawn(Vector2 position, Quaternion rotation, GameObject prefab, Transform parent = null)
@@ -60,7 +60,7 @@ public class ObjectPoolRequest
         Position = position;
         Rotation = Quaternion.identity;
         Prefab = prefab;
-        parent = null;
+        Parent = null;
     }
     ObjectPoolRequest(Vector2 position, Quaternion rotation, GameObject prefab, Transform parent)
     {
