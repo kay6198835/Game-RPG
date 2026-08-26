@@ -61,5 +61,7 @@ public enum EventID
     // Allocator -> stats UI: the allocation session was wiped (accept / revert / restore).
     // The view must clear its per-row click counters and re-read StatsSO.StatUnusedBonus.
     ON_RESET_STATS_UI_SESSION,
+    ON_DROP_ITEM,
+    ON_COLLECT_ITEM,
 }
 

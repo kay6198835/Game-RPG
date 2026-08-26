@@ -81,7 +81,7 @@ public class EnemySpawner : MonoBehaviour
             {
                 positionRandom = Vector2Int.RoundToInt(spawnPosition[Random.Range(0, spawnPosition.Count)]);
 
-                objectPoolManager.Spawn(positionRandom + new Vector2(Random.Range(-maxPadding, maxPadding), Random.Range(-maxPadding, maxPadding)), Quaternion.identity, entry.enemy.Prefab);
+                objectPoolManager.Spawn(positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity, entry.enemy.Prefab);
                 //entityInput.SetSpawnPoint(positionRandom);
                 enemyCount++;
             }

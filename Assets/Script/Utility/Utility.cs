@@ -35,6 +35,15 @@ public static class Utility
         return dir.y >= 0 ? GameConstants.Direction.Vector.TOP : GameConstants.Direction.Vector.BOTTOM;
     }
 
+    public static Vector2Int RandomPaddingDistace(int minPadding, int maxPadding)
+    {
+        Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
+    }
+    public static Vector2 RandomPaddingDistace(float minPadding, float maxPadding)
+    {
+        Vector2 randomAddRangePosition = new Vector2(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
+    }
+
 
 
     #region Tilemap Door Utility
