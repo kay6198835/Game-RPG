@@ -75,9 +75,9 @@ All TTK numbers in this document assume this formula is live.
 ## 4. Player reference curve (levels 1–20)
 
 Reference build spreads the +3 points/level evenly across STR/DEX/VIT (a "combat" build).
-`perLevel`: MaxHP +8/level, AttackDmg +1.2/level, Defense +0.6/level.
+`perLevel`: HP +8/level, AttackDmg +1.2/level, Defense +0.6/level.
 
-| L | MaxHP | AtkDmg | AS | DPS | DEF |
+| L | HP | AtkDmg | AS | DPS | DEF |
 |---|------|--------|-----|-----|-----|
 | 1 | 120 | 24.0 | 1.00 | 24.0 | 10 |
 | 5 | 176 | 36.0 | 1.04 | 37.4 | 16 |
@@ -88,7 +88,7 @@ Reference build spreads the +3 points/level evenly across STR/DEX/VIT (a "combat
 Formulas (feed straight into `DerivedStatFormula`):
 
 ```
-MaxHP          = 60  + level×8   + VIT×6
+HP          = 60  + level×8   + VIT×6
 AttackDamage   = 6   + level×1.2 + STR×1.4 + DEX×0.4
 Defense        = 2   + level×0.6 + VIT×0.8
 AttackSpeed    = clamp(0.9 + DEX×0.01, 0.3, 2.0)
@@ -145,7 +145,7 @@ All inside band across the whole 1–20 range.
 Own formula, not a rank multiplier (it needs an independent tuning handle):
 
 ```
-Boss MaxHP   = 700 + level×70
+Boss HP   = 700 + level×70
 Boss AtkDmg  = 26  + level×2.6
 Boss AS      = 0.8
 Boss Defense = 8   + level×1.0

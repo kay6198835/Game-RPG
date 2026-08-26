@@ -164,7 +164,7 @@
         LevelManager.cs                         # Singleton ⚠️ (TD-023); SaveLevel() / ImportRoomJsonFiles() / UpdateRoom() (editor); GetDungeonRoomSO() / GetRandomRooms() / GetTileSOs() / GetTilemaps() (runtime); SpawnRoomEnemies() (Editor button — the second spawn driver). Also declares `LevelData`
 
       StatSystem/                               # RPG stat framework (GDD: design/gdd/stat-system.md; numbers: ToolExcel/stat_system_formula_reference.xlsx)
-        StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived MaxHP/MaxMana/PhysicalDamage/… (100-111)
+        StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived HP/Mana/PhysicalDamage/… (100-111)
         Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ✅ `modifiers` is a bare private field (NOT serialized) since 2026-08-21 — runtime buffs no longer leak into .asset files
         StatModifier.cs                         # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource()). Order derived from Type
         StatModifierGroup.cs                    # NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats (ratified 2026-08-21, ADR-0001). Field is `authoredModifiers` (serialized — real designer data). ApplyTo() / RemoveFrom() by source

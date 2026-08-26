@@ -10,6 +10,6 @@ public class EntityNegativeReciver : EntityCoreComponent<EntityCore>, INegativeR
         Core.GetCoreComponent(out PlayerInputHandler input);
         input.OnTakeDamage(attackPosition);
         if (currentHealth <= 0)
-            EventManager.Emit(EventID.ON_PLAYER_DEATH);
+            EventManager.Emit(EventID.ON_ENEMY_DEATH);
     }
 }

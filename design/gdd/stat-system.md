@@ -49,7 +49,7 @@ different coefficients.
 - **Derived stats**: computed from primary stats via a per-entity formula. They are never
   authored directly — always recalculated when a primary stat or level changes.
 - **Stat groups** (governs whether `perLevel` is used):
-  - *Flat / resource* (MaxHP, MaxMana, PhysicalDamage, MagicDamage, Defense, MagicDefense,
+  - *Flat / resource* (HP, Mana, PhysicalDamage, MagicDamage, Defense, MagicDefense,
     HPRegen, ManaRegen) — **may** use `perLevel` for guaranteed vertical growth.
   - *Percentage / soft-capped* (AttackSpeed, CritChance, CritDamage, MoveSpeed, Evasion,
     LifeSteal) — **`perLevel = 0`**; flat per-level growth here compounds degenerately.
@@ -140,7 +140,7 @@ GDD/Excel numbers map 1:1 onto its `baseConstant`, `perLevel`, and `contribution
 
 | System | Relationship |
 |--------|-------------|
-| Damage & Health | Consumes MaxHP / Defense / damage stats; damage application should apply Defense (currently `finalDamage = rawDamage` — see combat balance doc) |
+| Damage & Health | Consumes HP / Defense / damage stats; damage application should apply Defense (currently `finalDamage = rawDamage` — see combat balance doc) |
 | Character / Enemy AI | Each entity owns a `StatsSO`; enemy `Level` is intended to track dungeon floor |
 | Per-Run Upgrades | Upgrade cards add primary points / modifiers through the `StatsSO` API |
 | HUD | Subscribes to `StatsSO.OnStatChanged` to display health/mana/etc. |
