@@ -202,16 +202,18 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     {
         if (weaponHolder.Weapon == null) return;
 
-        if (context.started && !BufferIsAttack)
+        if (context.started)
         {
             if (StatusAnimation.StartRangeTrigger <= statusAnimation
-            && statusAnimation < StatusAnimation.EndRangeTrigger)
+            && statusAnimation < StatusAnimation.EndRangeTrigger && player.stateMachine.CurrentState is PlayerAttackState)
             {
                 SetBufferAttack(true);
+                Debug.Log("Continue Attack");
             }
             else if (weaponHolder.Weapon.CanAttack())
             {
                 isAttack = true;
+                Debug.Log("First Attack or Attack start reload");
             }
         }
         if (context.canceled)
