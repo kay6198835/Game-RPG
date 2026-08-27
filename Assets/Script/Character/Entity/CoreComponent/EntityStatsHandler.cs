@@ -1,15 +1,13 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerStatService : MonoBehaviour, IPlayerStatService
+public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IPlayerStatService
 {
     [SerializeField] private StatsSO statsSO;
-
-    public PlayerStatService(StatsSO statsSO)
+    public override void Awake()
     {
-        this.statsSO = statsSO;
+        base.Awake();
+        statsSO = core.entity.Stats;
     }
-
     public int GetLevel()
     {
         return statsSO.Level;

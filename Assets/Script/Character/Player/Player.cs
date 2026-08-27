@@ -14,6 +14,7 @@ public class Player : BaseEntity
     [SerializeField] private PlayerEquidUnequid equidUnequidState;
     [SerializeField] private PlayerIntertorState intertorState;
     [SerializeField] private PlayerTakeDamageState takeDamageState;
+    [SerializeField] private PlayerDeathState playerDeathState;
     #endregion
 
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();

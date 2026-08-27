@@ -55,7 +55,16 @@ public class PlayerBasicState : PlayerState
         }
         if (inputHandler.IsTakeDamage)
         {
-            stateMachine.ChangeState(player.TakeDamageState);
+            if (entityVitalStats.GetCurrentStatValue(StatType.HP) <= 0)
+            {
+                stateMachine.ChangeState(player.DeathState);
+                return;
+            }
+            else
+            {
+                stateMachine.ChangeState(player.TakeDamageState);
+                return;
+            }
         }
     }
     public override void PhysicsUpdate()

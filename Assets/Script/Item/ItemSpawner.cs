@@ -30,7 +30,7 @@ public class ItemSpawner : MonoBehaviour
     void DropItem(object obj = null)
     {
         if (!CheckRate()) return;
-        var itemObject = objecPoolService.Spawn((Vector2)obj, Quaternion.identity, droppedItemPrefab.gameObject);
+        var itemObject = objecPoolService.Spawn((GameObject)obj.transform, Quaternion.identity, droppedItemPrefab.gameObject);
         var itemController = itemObject.GetComponent<ItemController>();
         itemController.SetDataItem();
         itemObject.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);

@@ -1,12 +1,13 @@
 using UnityEngine;
+[System.Serializable]
 public class PlayerState : IState
 {
     //protected Core core;
 
     protected Player player;
-    protected PlayerStateMachine stateMachine;
+    [NonSerialized] protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
-    public StatusAnimation Status  = StatusAnimation.None;
+    public StatusAnimation Status = StatusAnimation.None;
     protected float startTime;
     protected string animBoolName;
     //protected StateStyle stateStyle;
