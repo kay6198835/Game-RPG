@@ -43,6 +43,7 @@ public enum EventID
     ON_REALOAD_GAME,
     ON_LOAD_MAZE_DONE,
     ON_LOAD_MAP,
+    ON_ENEMY_DEATH,
     ON_CLEAR_ENEMY,
     ON_GET_SPAWN_POSITIONS,
     ON_DONE_SPAWN_ENEMY,
@@ -61,5 +62,7 @@ public enum EventID
     // Allocator -> stats UI: the allocation session was wiped (accept / revert / restore).
     // The view must clear its per-row click counters and re-read StatsSO.StatUnusedBonus.
     ON_RESET_STATS_UI_SESSION,
+    ON_DROP_ITEM,
+    ON_COLLECT_ITEM,
 }
 

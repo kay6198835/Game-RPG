@@ -9,7 +9,7 @@ public class NegativeReciver : CoreComponent<Core>, INegativeReceiver
         currentHealth -= amoutDamage;
         Core.GetCoreComponent(out PlayerInputHandler input);
         input.OnTakeDamage(attackPosition);
-        if (currentHealth <= 0)
-            EventManager.Emit(EventID.ON_PLAYER_DEATH);
+        Core.GetCoreComponent(out VitalStatsComponent vitalStatsComponent);
+        vitalStatsComponent.ReceiveReduction(StatType.HP, amount);
     }
 }

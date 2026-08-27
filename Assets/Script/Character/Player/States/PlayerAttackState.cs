@@ -22,10 +22,6 @@ public class PlayerAttackState : PlayerUseWeaponState
         switch (Status)
         {
             case StatusAnimation.Start:
-                if (inputHandler.BufferIsAttack)
-                {
-                    inputHandler.SetBufferAttack(false);
-                }
                 break;
 
             case StatusAnimation.OnActivate:
@@ -38,16 +34,22 @@ public class PlayerAttackState : PlayerUseWeaponState
 
             case StatusAnimation.EndRangeTrigger:
                 weaponHolder.EndDamage();
-                if ((inputHandler.BufferIsAttack || inputHandler.IsAttack) && weaponHolder.CanChain())
+                if (inputHandler.BufferIsAttack && weaponHolder.CanChain())
                 {
+                    Debug.Log("End Window Attack");
                     weaponHolder.Attack();
                     int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
                     player.Anim.Play(stateHash, 0, 0f);
                     Status = StatusAnimation.Start;
+                    Debug.Log("Next Attack");
                 }
                 else
                 {
                     Status = StatusAnimation.None;
+                }
+                if (inputHandler.BufferIsAttack)
+                {
+                    inputHandler.SetBufferAttack(false);
                 }
                 break;
 

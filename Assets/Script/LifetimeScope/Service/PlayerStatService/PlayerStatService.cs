@@ -48,4 +48,9 @@ public class PlayerStatService : MonoBehaviour, IPlayerStatService
         // amount must be forwarded: Decrease/Revert pass a negative value.
         statsSO.AddPrimaryPoint(statType, amount);
     }
+    public Dictionary<StatType, float> GetFullStat()
+    {
+        // amount must be forwarded: Decrease/Revert pass a negative value.
+        statsSO.FullStatsValue();
+    }
 }

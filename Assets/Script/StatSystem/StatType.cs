@@ -17,8 +17,8 @@ public enum StatType
     LUK = 4,   // May mắn
     [Header("Derived Stats")]
     // ----- Derived (chỉ số dẫn xuất) -----
-    MaxHP = 100,
-    MaxMana = 101,
+    HP = 100,
+    Mana = 101,
     PhysicalDamage = 102,
     MagicDamage = 103,
     Defense = 104,

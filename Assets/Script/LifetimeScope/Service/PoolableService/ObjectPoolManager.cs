@@ -14,12 +14,10 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
         return pools[prefab];
     }
 
-    // public void Spawn(Vector2 position, Quaternion rotation = , GameObject prefab, Transform parent = null)
-    // {
-    //     var pool = Get(prefab);
-    //     if (pool == null) return;
-    //     pool.Spawn(position, rotation, parent);
-    // }
+    public void Spawn(ObjectPoolRequest request)
+    {
+        Spawn(request.Position, request.Rotation, request.Prefab, request.Parent);
+    }
 
     public GameObject Spawn(Vector2 position, Quaternion rotation, GameObject prefab, Transform parent = null)
     {
@@ -27,11 +25,17 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
         if (pool == null) return null;
         return pool.Spawn(position, rotation, parent);
     }
-    public void Release(GameObject poolObject, GameObject objectPrefab, Transform parent = null)
+    public void Release(GameObject poolObject, Transform parent = null)
     {
-        var pool = Get(poolObject, parent);
-        if (pool == null) return;
-        pool.Release(objectPrefab, parent);
+        if (!poolObject.TryGetComponent<PoolMember>(out PoolMember member))
+            return;
+
+        Pool pool = member.GetPool();
+
+        if (pool == null)
+            return;
+
+        pool.Release(poolObject, parent);
     }
 
     private void Register(GameObject prefab, Transform parent = null)
@@ -42,5 +46,27 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
         pool = poolObj.AddComponent<Pool>();
         pool.Register(prefab);
         pools.Add(prefab, pool);
+    }
+}
+
+public class ObjectPoolRequest
+{
+    public Vector2 Position;
+    public Quaternion Rotation;
+    public GameObject Prefab;
+    public Transform Parent = null;
+    ObjectPoolRequest(Vector2 position, GameObject prefab)
+    {
+        Position = position;
+        Rotation = Quaternion.identity;
+        Prefab = prefab;
+        Parent = null;
+    }
+    ObjectPoolRequest(Vector2 position, Quaternion rotation, GameObject prefab, Transform parent)
+    {
+        Position = position;
+        Rotation = rotation;
+        Prefab = prefab;
+        Parent = parent;
     }
 }

@@ -287,7 +287,7 @@ classDiagram
         MonoBehaviour
         +RuntimeStat Attack
         +RuntimeStat MoveSpeed
-        +RuntimeStat MaxMana
+        +RuntimeStat Mana
         +float CurrentMana
         +SpendMana(float)
         +RecoverMana(float)
@@ -497,7 +497,7 @@ classDiagram
         <<MonoBehaviour>>
         +RuntimeStat Attack
         +RuntimeStat MoveSpeed
-        +RuntimeStat MaxMana
+        +RuntimeStat Mana
         +float CurrentMana
         +GetStatValue(type) float
         +SpendMana(float)
@@ -535,7 +535,7 @@ classDiagram
         Attack
         MoveSpeed
         MaxHealth
-        MaxMana
+        Mana
     }
 
     AbilityDefinition --> AbilityActivationType

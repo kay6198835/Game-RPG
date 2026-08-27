@@ -6,6 +6,7 @@ public interface IPlayerStatService
     Dictionary<StatType, StatsViewDTO> GetFullViewStats();
     StatsViewDTO GetViewStat(StatType statType);
     Stat GetStat(StatType statType);
+    Dictionary<StatType, float> GetFullStat();
     float GetStatValue(StatType statType);
     void AddPrimaryPoint(StatType statType, int amount);
     int GetLevelUpStatsBonus();

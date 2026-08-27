@@ -67,12 +67,12 @@ public class StatsUIController : MonoBehaviour
     {
         foreach (var statSlot in ListPrimaryStat.Values)
         {
-            objectPoolManager.Release(PrimaryStatSlotPrefab.gameObject, statSlot.gameObject);
+            objectPoolManager.Release(statSlot.gameObject);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
-            objectPoolManager.Release(DerivedStatSlotPrefab.gameObject, statSlot.gameObject);
+            objectPoolManager.Release(statSlot.gameObject);
         }
     }
     private void EnableStatsSlot()

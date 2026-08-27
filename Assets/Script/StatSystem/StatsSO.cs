@@ -77,6 +77,7 @@ public class StatsSO : ScriptableObject
         initialized = true;
         RecalculateDerived();
     }
+    #region Main API 
     // ------------------------- API chính -------------------------
 
     /// <summary>Đọc giá trị cuối cùng của một chỉ số. O(1).</summary>
@@ -85,6 +86,16 @@ public class StatsSO : ScriptableObject
         EnsureInitialized();
         lookup.TryGetValue(type, out Stat stat);
         return stat;
+    }
+
+    public Dictionary<StatType, float> FullStatsValue()
+    {
+        Dictionary<StatType, float> fullStatsValue = new();
+        foreach (var stat in stats)
+        {
+            fullStatsValue.Add(stat.Type, stat.FinalValue);
+        }
+        return fullStatsValue;
     }
 
     /// <summary>Gắn một modifier (buff/trang bị) vào chỉ số mà nó nhắm tới.</summary>
@@ -182,11 +193,13 @@ public class StatsSO : ScriptableObject
     {
         return statViewDTOs;
     }
-    
+
     public StatsViewDTO GetViewStat(StatType statType)
     {
         return statViewDTOs[statType];
     }
+    #endregion
+
     // ------------------------- Nội bộ -------------------------
 
     private void EnsureInitialized()
