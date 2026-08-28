@@ -64,7 +64,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     public void Update()
     {
         DirectionMehod();
-        //GetTargetInRange();
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {

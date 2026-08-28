@@ -13,7 +13,6 @@ public class StatsUIController : MonoBehaviour
     [SerializeField] private GameObject primaryStatSlotContainer;
     [SerializeField] private GameObject derivedStatSlotContainer;
     [SerializeField] private GameObject UIPannel;
-    [SerializeField] private StatsSO statsSO;
     [SerializeField] private Button updateStatsButton;
     [SerializeField] private Button revertStatsButton;
     [SerializeField] private Button restoreStatsButton;
@@ -107,7 +106,7 @@ public class StatsUIController : MonoBehaviour
         if (gainKeyValues == null || gainKeyValues.Count == 0) return;
         foreach (var (type, amount) in gainKeyValues)
         {
-            statsSO.AddPrimaryPoint(type, -amount);
+            _playerStatService.AddPrimaryPoint(type, -amount);
         }
     }
     public void OpenStatsUI()
@@ -122,7 +121,7 @@ public class StatsUIController : MonoBehaviour
     }
     private void UpdateViewButtonChangeStat()
     {
-        restoreStatsButton.gameObject.SetActive(statsSO.Level > 1);
+        restoreStatsButton.gameObject.SetActive(_playerStatService.GetLevel() > 1);
         revertStatsButton.gameObject.SetActive(totalLevelUpBonusValue > runtimeLevelUpBonusValue);
         updateStatsButton.gameObject.SetActive(totalLevelUpBonusValue != runtimeLevelUpBonusValue);
     }

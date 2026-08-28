@@ -9,7 +9,6 @@ public class Entity : BaseEntity
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected ParticleSystem particle;
     [SerializeField] public EntityStateMachine stateMachine = new EntityStateMachine();
-    [SerializeField] protected EntityData data;
     [SerializeField] private EntityIdleState idleState;
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;
@@ -26,7 +25,6 @@ public class Entity : BaseEntity
     public EntityAttackState AttackState { get => attackState; }
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
     public EntityDeathState DeathState { get => deathState; }
-    public EntityData Data { get => data;}
     public StatsSO Stats { get => stats;}
 
     public override void Awake()

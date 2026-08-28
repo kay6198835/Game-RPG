@@ -71,7 +71,7 @@ public class EnemySpawner : MonoBehaviour
     {
         int enemyCount = 0;
         List<EnemySpawnEntry> set = GetRoomSpawnSet();
-        if (set.Count == 0 || set == null)
+        if (set == null || set.Count == 0)
         {
             Debug.LogWarning("SpawnRoomEnemies: nothing to spawn");
             return;

@@ -19,8 +19,8 @@ public class VitalStatsComponent : CoreComponent<Core>
     protected override void Start()
     {
         base.Start();
-        currentStats = statHandler.GetFullStat();
         Core.GetCoreComponent(out statHandler);
+        currentStats = statHandler.GetFullStat();
     }
 
     public float GetCurrentStatValue(StatType statType)

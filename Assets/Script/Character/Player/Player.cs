@@ -55,6 +55,7 @@ public class Player : BaseEntity
         intertorState = new PlayerIntertorState(this, "Interactor");
         abilityState = new PlayerSkillWeaponState(this, "Ability");
         takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
+        deathState = new PlayerDeathState(this, "Death");
     }
 
     public override void Start()
