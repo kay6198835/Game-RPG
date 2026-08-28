@@ -2,6 +2,8 @@
 status: authored
 source: Assets/Script/Weapons/MeleeWeapon/, Assets/Script/StatSystem/
 date: 2026-08-05
+revised: 2026-08-20 (documentation audit — Implementation Map retargeted from the deleted
+WeaponMelee.cs to Weapon.cs; the "player has no StatsSO" blocker cleared. Design unchanged.)
 verified-by: Kiet
 ---
 
@@ -158,11 +160,11 @@ deplayTime = 0.9 / 1.20       = 0.75s
 |----------|--------------------|
 | `speedMult` pushed very high; animation shorter than the hit frame | Clamped at `MAX_SPEED_MULT = 3.0`. The hit fires on an animation event, so it scales with playback automatically and cannot be skipped |
 | Slow debuff drives the multiplier toward zero | Clamped at `MIN_SPEED_MULT = 0.5`. The player is slowed, never frozen |
-| Stat changes mid-combo (card picked, buff expires) | Recomputed on the next `SetAnimation()` call. The currently playing clip is not retro-scaled — no visual snap |
+| Stat changes mid-combo (card picked, buff expires) | Recomputed on the next `Weapon.OnAttackEnter()` call (was `SetAnimation()`). The currently playing clip is not retro-scaled — no visual snap |
 | Weapon swapped mid-combo | Combo index resets to 0; the new weapon's `baseAttackSpeed` applies from stage 1 |
 | `attackRate` left at 0 on an `AttackSO` | Treated as a data error — clamp guarantees a floor of `MIN_SPEED_MULT`; add `[Range(0.1f, 2f)]` on the field to prevent authoring it |
 | `AnimatorOverrideController` missing a directional clip | `Utility.DurationNextAttack()` averages over present clips only — unchanged current behaviour |
-| Entity (enemy) attacks | Same model applies via `EntityWeaponMelee`; enemies read `AttackSpeed` from their own `StatsSO`. Enemy wiring is out of scope for this doc |
+| Entity (enemy) attacks | Same model applies via `EntityWeaponMelee`; enemies read `AttackSpeed` from their own `StatsSO`. Enemy wiring is out of scope for this doc. ⚠️ Note the enemy stat store is `EntityStatsSO` (base/modifier/amount floats), **not** the `StatsSO` this design assumes — the two stat systems are unreconciled, so enemy attack speed needs a decision first |
 
 ---
 
@@ -171,17 +173,21 @@ deplayTime = 0.9 / 1.20       = 0.75s
 | System | Relationship |
 |--------|-------------|
 | **Stat System** (`StatsSO`, `StatType`, `DerivedStatFormula`) | Supplies layer 2. `AttackSpeed` must be authored as a percentage-group stat with `perLevel = 0` |
-| **Weapons System** (`WeaponMelee`, `WeaponStats`, `AttackSO`) | Supplies layers 1 and 3, and owns the single application point in `SetAnimation()` |
+| **Weapons System** (`Weapon`, `MeleeWeapon`, `RangeWeapon`, `WeaponStats`, `AttackSO`) | Supplies layers 1 and 3, and owns the single application point in `Weapon.OnAttackEnter()` |
 | **Animation System** (`AnimatorOverrideController`, `AnimationEventManager`) | `Animator.speed` is the applied output. Hit frames fire as animation events and therefore scale for free |
-| **Character System** (`PlayerAttackState`, `Weapon.CheckCanAttack`) | Consumes `deplayTime` as the combo gate; requires no change |
+| **Character System** (`PlayerAttackState`, `Weapon.CanChain()`) | Consumes `chainWindow` (formerly `deplayTime`) as the combo gate; requires no change |
 | **Per-Run Upgrades** | Attack-speed cards add `StatModifier`s through the existing `StatsSO` API |
 | **HUD** | May display `effectiveAPS`; subscribes to `StatsSO.OnStatChanged` |
 
-**Blocking prerequisite:** the player currently has no `StatsSO`. `PlayerData` holds only
-`maxHealth`, `currentHealth`, and `movementVelocities`. This design assumes the player reads
-stats from `StatsSO`, which is the migration the owner has chosen. Layer 2 cannot be wired
-until that exists — a `PlayerStats : CoreCompoment` component is the natural landing spot,
-matching the existing Core hub convention.
+**Blocking prerequisite — ✅ CLEARED 2026-08-20.** This section previously read "the player
+currently has no `StatsSO`". That is no longer true: `Player.cs:21` holds
+`[SerializeField] private StatsSO stats` with a public `Stats` property, and
+`Weapon.Equid()` already applies the equipped weapon's `StatModifierGroup` to it
+(`Weapon.cs:83`), removing it by source on unequip (`Weapon.cs:96`). Layer 2 can be wired
+today by reading `player.Stats.GetStatValue(StatType.AttackSpeed)` — no new
+`PlayerStats : CoreCompoment` component is required, though one is still a reasonable
+refactor if the Core hub is preferred as the access point. `PlayerData` remains a separate
+SO holding only `maxHealth` / `currentHealth` / `movementVelocities`.
 
 ---
 
@@ -191,10 +197,10 @@ matching the existing Core hub convention.
 |------|----------|---------|-----------------|
 | `baseAttackSpeed` | `WeaponStats` (new field) | Weapon identity — the speed baseline | 0.6 – 1.5 |
 | `AttackSpeed` | `StatsSO` derived stat | Player's percentage bonus | 0 – 200 (%) |
-| `attackRate` | `AttackSO` (exists, currently unread) | Per-stage rhythm nudge | 0.7 – 1.2 |
+| `attackRate` | `AttackSO` (exists, currently unread — confirmed 2026-08-20) | Per-stage rhythm nudge | 0.7 – 1.2 |
 | `MIN_SPEED_MULT` | `GameConstants` | Floor — slow debuffs cannot freeze the player | 0.5 |
 | `MAX_SPEED_MULT` | `GameConstants` | Ceiling — protects animation legibility | 3.0 |
-| `comboGrace` | `Weapon` (existing `deplayTime` constant) | Input forgiveness added to the combo window | 0.1 – 0.3s |
+| `comboGrace` | `Weapon` (there is no such field yet — `chainWindow` is the raw clip duration) | Input forgiveness added to the combo window | 0.1 – 0.3s |
 
 Per-entity `AttackSpeed` coefficients belong in
 `ToolExcel/stat_system_formula_reference.xlsx`, consistent with
@@ -204,26 +210,41 @@ Per-entity `AttackSpeed` coefficients belong in
 
 ## Implementation Map
 
-The architecture already anticipates this change. `WeaponMelee.SetAnimation()` reads:
+> **Retargeted 2026-08-20.** This section previously pointed at `WeaponMelee.SetAnimation()`.
+> That file and method no longer exist — the weapon layer was rewritten and the stage machine
+> moved up into the abstract `Weapon` base. **The design itself is unaffected**: the single
+> application point survived the refactor intact, and the `/ Anim.speed` division this design
+> depends on is still there. Only the file and line targets changed.
+
+The architecture still anticipates this change. `Weapon.OnAttackEnter(Player)` reads:
 
 ```csharp
+currentStage = stats.GetStage(CurrentStageIndex);
 player.Anim.speed = 1f;                                                  // ← replace with speedMult
-var overrides = Utility.GetOverrideClips(
-    statsMelee.AttackState[currentStateIndex].directionAttackAnimatorOV, "Attack");
-deplayTime = Utility.DurationNextAttack(overrides) / player.Anim.speed;  // ← already correct
+chainWindow = Utility.DurationNextAttack(
+    Utility.GetOverrideClips(currentStage.directionAttackAnimatorOV, "Attack")) / player.Anim.speed;
+player.Anim.runtimeAnimatorController = currentStage.directionAttackAnimatorOV;
 ```
 
-The division by `Anim.speed` is already in place. Only the hardcoded `1f` becomes the
-computed multiplier.
+The division by `Anim.speed` is already in place, and `chainWindow` is what the old design
+called `deplayTime`. Only the hardcoded `1f` becomes the computed multiplier — and because
+this is on the abstract base rather than the melee subclass, **ranged weapons get attack
+speed for free**, which the original design did not account for. Decide whether that is
+intended before implementing.
 
 | File | Change |
 |------|--------|
-| [`WeaponMelee.cs:72`](../../Assets/Script/Weapons/MeleeWeapon/WeaponMelee.cs) | Replace `player.Anim.speed = 1f` with the resolved `speedMult` |
-| [`WeaponStats.cs`](../../Assets/Script/Weapons/WeaponStats.cs) | Add `[SerializeField] protected float baseAttackSpeed = 1f` + property |
-| [`AttackSO.cs:14`](../../Assets/Script/Weapons/MeleeWeapon/AttackSO.cs) | `attackRate` gains its layer-3 meaning; add `[Range(0.1f, 2f)]` |
+| [`Weapon.cs:49`](../../Assets/Script/Weapons/Weapon.cs) | Replace `player.Anim.speed = 1f` with the resolved `speedMult` (was `WeaponMelee.cs:72`) |
+| [`WeaponStats.cs`](../../Assets/Script/Weapons/WeaponStats.cs) | Add `[SerializeField] protected float baseAttackSpeed = 1f` + property. It sits on the shared base, so it applies to melee and ranged alike |
+| [`AttackSO.cs:11`](../../Assets/Script/Weapons/MeleeWeapon/AttackSO.cs) | `attackRate` gains its layer-3 meaning. It already carries `[Range(0.1f, 10f)]`; tighten to `[Range(0.1f, 2f)]` per the tuning table below |
 | [`StatType.cs:25`](../../Assets/Script/StatSystem/StatType.cs) | Correct the comment from "số đòn / giây" to "% attack speed bonus" |
-| [`GameConstants.cs`](../../Assets/Script/Utility/GameConstants.cs) | Add `MIN_SPEED_MULT` / `MAX_SPEED_MULT` |
-| New `PlayerStats : CoreCompoment` | Holds `StatsSO`; exposes `GetStatValue()` via the Core hub |
+| [`GameConstants.cs`](../../Assets/Script/Utility/GameConstants.cs) | Add `MIN_SPEED_MULT` / `MAX_SPEED_MULT` under `SettingStats` |
+| `Player.Stats` | Already exists (`Player.cs:21`) — read layer 2 through `player.Stats.GetStatValue(StatType.AttackSpeed)`. No new component required |
+
+⚠️ Blocker for the stat half: `StatsSO.RecalculateDerived()` currently skips its update when
+**any one** of four values already matches, because the guard uses `||` where it needs `&&`
+(`StatsSO.cs:272`). Until that is fixed, `AttackSpeed` will not recalculate on level-up or
+point allocation unless `isDevMode` is on (TD-038).
 
 Existing helpers to reuse — do not reimplement:
 [`Utility.DurationNextAttack()`](../../Assets/Script/Utility/Utility.cs),

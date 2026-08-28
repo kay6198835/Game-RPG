@@ -3,68 +3,146 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Một chỉ số đơn lẻ: StatType + BaseValue + danh sách modifier.
-/// type + baseValue được serialize để chỉnh trong Inspector; modifiers là runtime-only.
+/// Một chỉ số đơn lẻ: StatType + ba tầng giá trị authored + danh sách modifier runtime.
+///
+/// Ba tầng authored (serialize, sửa được ở Inspector):
+///   BaseValue       — giá trị gốc của chỉ số
+///   LevelUpValue    — cộng dồn từ lên cấp / phân bổ điểm
+///   EquipmentValue  — cộng dồn từ trang bị đang mặc
+///
+/// Hai tầng dẫn xuất (KHÔNG serialize — tính ra, không author được):
+///   AdjustedValue = BaseValue + LevelUpValue
+///   FinalValue    = (AdjustedValue + EquipmentValue + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
+///
 /// Value chỉ tính lại khi có thay đổi (dirty flag), KHÔNG tính lại mỗi frame.
-/// Công thức: FinalValue = (Base + ΣFlat) × (1 + ΣPercentAdd) × Π(1 + PercentMult)
+///
+/// LƯU Ý serialization: Unity ghi thẳng vào FIELD, không bao giờ đi qua property setter.
+/// Sửa ở Inspector / Undo / prefab revert / deserialize đều KHÔNG gọi SetDirty() — vì vậy
+/// StatsSO.OnValidate() phải gọi MarkDirty() cho từng Stat. Đừng bỏ hook đó.
+///
+/// CHỈ ba field authored được serialize. cachedValue và modifiers cố tình KHÔNG serialize:
+/// chúng là trạng thái runtime, nếu lưu xuống .asset thì file tự thay đổi sau mỗi Play Mode.
+///
+/// Tầng này chỉ thao tác TỪNG modifier một. Mọi thao tác hàng loạt (gắn/gỡ theo nguồn)
+/// nằm ở StatsSO — nơi đã giữ sẵn việc gom event và RecalculateDerived.
 /// </summary>
 [Serializable]
 public class Stat
 {
-    [SerializeField] private StatType type;
+    // Serialize dưới key `<Type>k__BackingField`, KHÔNG phải `type`. Mọi .asset phải dùng
+    // đúng key đó, nếu không Unity đọc không ra và cả list rơi hết về STR (0).
+    [field: SerializeField] public StatType Type { get; private set; }
+
     [SerializeField] private float baseValue;
+    [SerializeField] private float levelUpValue;
+    [SerializeField] private float equipmentValue;
+    [SerializeField] private float equipmentByPrimaryValue;
+    [SerializeField] private float adjustedValue;
+    [SerializeField] private float finalValue;
 
-    private float cachedValue;
-    private bool isDirty = true;
-    public List<StatModifier> modifiers;   // runtime-only: StatModifier không Unity-serializable
+    // KHÔNG serialize: đây là cache, không phải dữ liệu authored. Nếu serialize thì mọi lần
+    // tính lại đều ghi vào .asset -> file tự đổi sau mỗi Play Mode. isDirty khởi tạo true để
+    // lần đọc Value đầu tiên sau khi load luôn tính lại, thay vì tin vào cache đã lưu.
+    [NonSerialized] private float cachedValue;
+    [NonSerialized] private bool isDirty = true;
 
-    /// <summary>Loại chỉ số mà Stat này đại diện (STR, MaxHP, ...).</summary>
-    public StatType Type => type;
+    // ⚠️ KHÔNG BAO GIỜ thêm [SerializeField] vào field này.
+    //
+    // StatModifier nay đã Unity-serializable, mà Stat nằm trong StatsSO.stats. Nếu field này
+    // được serialize thì buff runtime ghi thẳng vào .asset và sống dai qua các phiên Play Mode.
+    // ĐÃ TỪNG XẢY RA: một modifier "STR +1 Flat" lọt vào PlayerStats.asset và Test.asset rồi
+    // được commit lên git; phải dọn tay trên sprint-10 (2026-08-20).
+    //
+    // Field private KHÔNG có [SerializeField] thì Unity không serialize — để trần là đủ, không
+    // cần [NonSerialized]. Nhưng vì "để trần" là trạng thái im lặng, comment này là thứ duy
+    // nhất ngăn người sau vô tình thêm attribute vào.
+    //
+    // ĐỪNG nhầm với StatModifierGroup.authoredModifiers (nhúng trong WeaponStats): field ĐÓ là
+    // dữ liệu do designer author và BẮT BUỘC phải serialize (SnS_Stat.asset đang giữ dữ liệu
+    // thật ở đó). Hai field, ý nghĩa tên giống nhau, cách xử lý ngược nhau.
+    #if UNITY_EDITOR
+    [SerializeField] 
+    #endif
+    private List<StatModifier> modifiers = new List<StatModifier>();
 
-    /// <summary>Bắn ra khi BaseValue hoặc modifier thay đổi.</summary>
+    /// <summary>Bắn ra khi một trong ba tầng authored hoặc modifier thay đổi.</summary>
     public event Action OnChanged;
-    /// <summary>Buộc tính lại Value ở lần đọc kế tiếp (dùng sau khi sửa baseValue trong Inspector).</summary>
+
+    /// <summary>Buộc tính lại Value ở lần đọc kế tiếp (dùng sau khi sửa field trong Inspector).</summary>
     public void MarkDirty() => SetDirty();
 
     public Stat() { }   // Unity deserialization
 
-    public Stat(StatType type, float baseValue = 0f)
+    public Stat(StatType type, float baseValue = 0f, float levelUpValue = 0f, float equipmentValue = 0f)
     {
-        this.type = type;
+        Type = type;
         this.baseValue = baseValue;
+        this.levelUpValue = levelUpValue;
+        if (type.IsPrimary())
+        {
+            this.equipmentValue = equipmentValue;
+        }
+        else
+        {
+            this.equipmentByPrimaryValue = equipmentValue;
+        }
+        finalValue = baseValue + levelUpValue + equipmentValue + equipmentByPrimaryValue;
+
     }
 
-    private List<StatModifier> Modifiers => modifiers ??= new List<StatModifier>();
+    /// <summary>Modifier đang gắn (chỉ đọc). StatsSO duyệt list này để gỡ theo nguồn.</summary>
+    // Đọc thôi thì đừng tạo list rỗng cho stat chưa từng có modifier nào.
+    public IReadOnlyList<StatModifier> Modifiers => (IReadOnlyList<StatModifier>)modifiers ?? Array.Empty<StatModifier>();
+
+    // ------------------------- Tầng authored -------------------------
 
     public float BaseValue
     {
         get => baseValue;
-        set
-        {
-            if (Mathf.Approximately(baseValue, value)) return;
-            baseValue = value;
-            SetDirty();
-        }
+        set => SetField(ref baseValue, value);
     }
 
-    /// <summary>Giá trị cuối cùng sau khi áp dụng toàn bộ modifier.</summary>
-    public float Value
+    public float LevelUpValue
     {
-        get
-        {
-            if (isDirty)
-            {
-                cachedValue = CalculateFinalValue();
-                isDirty = false;
-            }
-            return cachedValue;
-        }
+        get => levelUpValue;
+        set => SetField(ref levelUpValue, value);
     }
+
+    public float EquipmentValue
+    {
+        get => equipmentValue;
+        set => SetField(ref equipmentValue, value);
+    }
+    public float EquipmentByPrimaryValue
+    {
+        get => equipmentByPrimaryValue;
+        set => SetField(ref equipmentByPrimaryValue, value);
+    }
+    public float AdjustedValue
+    {
+        get => adjustedValue;
+        set => SetField(ref adjustedValue, value);
+    }
+    public float FinalValue
+    {
+        get => finalValue;
+        set => SetField(ref finalValue, value);
+    }
+
+    // ------------------------- Tầng dẫn xuất -------------------------
+
+    public void Recaulate()
+    {
+        adjustedValue = AdjustedValue;
+        CalculateFinalValue();
+    }
+
+    // ------------------------- Modifier -------------------------
 
     public void AddModifier(StatModifier modifier)
     {
-        Modifiers.Add(modifier);
-        Modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
+        modifiers.Add(modifier);
+        modifiers.Sort((a, b) => a.Order.CompareTo(b.Order));
         SetDirty();
     }
 
@@ -75,38 +153,46 @@ public class Stat
         return true;
     }
 
-    /// <summary>Gỡ mọi modifier đến từ một nguồn (tháo trang bị, hết buff...).</summary>
-    public bool RemoveModifiersFromSource(object source)
+    /// <summary>Gỡ modifier ở vị trí index — dùng khi caller đã duyệt sẵn list, khỏi tìm lại tuyến tính.</summary>
+    public void RemoveModifierAt(int index)
     {
-        if (modifiers == null) return false;
-        bool removed = false;
-        for (int i = modifiers.Count - 1; i >= 0; i--)
-        {
-            if (ReferenceEquals(modifiers[i].Source, source))
-            {
-                modifiers.RemoveAt(i);
-                removed = true;
-            }
-        }
-        if (removed) SetDirty();
-        return removed;
+        if (modifiers == null || index < 0 || index >= modifiers.Count) return;
+        modifiers.RemoveAt(index);
+        SetDirty();
+    }
+
+    public void ClearModifiers()
+    {
+        if (modifiers == null || modifiers.Count == 0) return;
+        modifiers.Clear();
+        SetDirty();
+    }
+
+    // ------------------------- Nội bộ -------------------------
+
+    private void SetField(ref float field, float value)
+    {
+        if (Mathf.Approximately(field, value)) return;
+        field = value;
+        SetDirty();
     }
 
     private void SetDirty()
     {
         isDirty = true;
-        if (isDirty)
-        {
-            cachedValue = CalculateFinalValue();
-            isDirty = false;
-        }
         OnChanged?.Invoke();
+        Recaulate();
     }
 
     private float CalculateFinalValue()
     {
-        float finalValue = baseValue;
-        if (modifiers == null) return finalValue;
+        float finalValue = baseValue + levelUpValue;
+        if (modifiers == null || modifiers.Count == 0)
+        {
+            this.equipmentValue = equipmentByPrimaryValue;
+            this.adjustedValue = baseValue + levelUpValue;
+            return this.finalValue = finalValue + equipmentValue;                     // trả AdjustedValue, KHÔNG phải 0
+        }
 
         float percentAddSum = 0f;
         for (int i = 0; i < modifiers.Count; i++)
@@ -135,6 +221,10 @@ public class Stat
                     break;
             }
         }
-        return finalValue;
+        finalValue += equipmentByPrimaryValue;
+        this.finalValue = finalValue;
+        this.adjustedValue = baseValue + levelUpValue;
+        this.equipmentValue = finalValue - (baseValue + levelUpValue);
+        return this.finalValue;
     }
 }

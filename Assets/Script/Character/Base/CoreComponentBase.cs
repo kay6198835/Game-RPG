@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class CoreComponentBase<T> : MonoBehaviour, ICoreComponent<T> where T : CoreBase
 {
-    [SerializeField] private T core;
+    [SerializeField] protected T core;
     public T Core { get => core; set => core = value; }
 
     protected virtual void Awake()

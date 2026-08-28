@@ -1,6 +1,6 @@
 # Systems Index
 
-> **Generated**: 2026-05-19
+> **Generated**: 2026-05-19 · **Status columns re-verified against source**: 2026-08-20
 > **Game**: Unity Action Roguelike RPG
 > **Review mode**: lean
 
@@ -28,15 +28,17 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 10 | Skill & Ability System | Gameplay | Feature | MVP | Designed | design/gdd/skill-ability-system.md |
 | 11 | Room Progression | Map | Feature | MVP | In Progress | design/gdd/map-system.md |
 | 12 | Death & Restart | Meta | Feature | MVP | Not Started | — |
-| 13 | HUD | UI | Presentation | MVP | Not Started | — |
+| 13 | HUD | UI | Presentation | MVP | Partially built, undesigned | *(none — `UI/StatsUIController.cs`, `UI/UIController.cs`; `UIManager` still an empty stub)* |
 | 14 | Per-Run Upgrades | Progression | Presentation | MVP | Not Started | — |
-| 15 | Start Menu | UI/Meta | Presentation | MVP | Not Started | — |
-| 16 | Minimap | UI | Presentation | Vertical Slice | Designed | *(in CLAUDE.md — implemented)* |
-| 17 | Object Pooling | Foundation | Foundation | Alpha | Not Started | — |
+| 15 | Start Menu | UI/Meta | Presentation | MVP | Partially built, undesigned | *(none — `UI/UIController.cs` UI Toolkit main menu / settings / pause)* |
+| 16 | Minimap | UI | Presentation | Vertical Slice | **Implemented** | *(in CLAUDE.md — `MapGridController`, DOTween)* |
+| 17 | Object Pooling | Foundation | Foundation | Alpha | **Implemented** | *(none — `Assets/Script/Poolable/`)* |
 | 18 | Level Editor Tool | Tools | Tools | Alpha | Designed | *(implemented — editor-only)* |
 | 19 | Stat System | Foundation | Foundation | MVP | Designed | design/gdd/stat-system.md |
 | 20 | Enemy Spawn & Per-Room Management | Gameplay/Map | Feature | MVP | Approved | design/gdd/enemy-spawn-system.md |
 | 21 | Attack Speed | Gameplay | Feature | MVP | Designed | design/gdd/attack-speed-system.md |
+| 22 | Pathfinding (A*) | Gameplay | Core | MVP | **Implemented, undesigned** | *(none — `Assets/Script/Pathfinding/`, BUG-052)* |
+| 23 | Character Core / Hub Layer | Foundation | Foundation | MVP | **Implemented, undesigned** | *(none — `Assets/Script/Character/Base/`, BUG-052)* |
 
 ---
 
@@ -110,17 +112,26 @@ Work top-to-bottom. Foundation systems first; do not start a system until its de
 | 14 | Per-Run Upgrades | MVP | Not Started | — |
 | 15 | Start Menu | MVP | Not Started | — |
 | 16 | Minimap | Vertical Slice | Designed ✅ | — |
-| 17 | Object Pooling | Alpha | Not Started | Ranged weapons |
+| 17 | Object Pooling | Alpha | Implemented ✅ | — (unblocked ranged weapons and pooled enemy spawning) |
 | 18 | Level Editor Tool | Alpha | Designed ✅ | — |
 
 ---
 
+> **Audit note (2026-08-20).** Four systems below are built but carry no GDD: Pathfinding,
+> the `Character/Base` hub layer, Object Pooling, and the UI Toolkit menus + Stats UI. The
+> Dependency Map and Recommended Design Order sections were written on 2026-05-19 and do not
+> yet account for Pathfinding, which every enemy now depends on at runtime
+> (`EntityMovement.Start()` reads `EnemyManager.Instance.Grid`). Treat those two sections as
+> historical planning, not as a current description.
+
 ## GDD Progress
 
-- **Total systems**: 21
+- **Total systems**: 23 (21 planned + Pathfinding and the Character/Base hub layer, both
+  discovered by the 2026-08-20 audit)
 - **Designed / In Progress**: 14 (Event Bus, Input, Damage & Health, **Animation**, Character, Enemy AI, Melee Combat, Weapon, Skill & Ability, Minimap, **Dungeon Generation**, **Room Progression**, **Enemy Spawn**, **Attack Speed**)
 - **With standalone GDD files**: 8 (animation-system.md, character-system.md, weapons-system.md, skill-ability-system.md, **map-system.md**, **stat-system.md**, **enemy-spawn-system.md**, **attack-speed-system.md**)
 - **Not Started**: 3 MVP systems still need standalone GDDs (Death & Restart, HUD, Per-Run Upgrades)
+- **Built without a GDD**: 4 — Pathfinding, Character/Base hub layer, Object Pooling, UI Toolkit menus + Stats UI (BUG-052)
 - **Alpha/Tools (lower priority)**: 2 remaining
 
 ---

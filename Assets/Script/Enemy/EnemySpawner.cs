@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-[RequireComponent(typeof(ObjectPoolManager))]
+using VContainer;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private List<Vector2Int> spawnPosition;
@@ -9,20 +9,27 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float paddingPosition;
     [SerializeField] private float maxPadding;
     [SerializeField] private Vector2 positionRandom;
-    [SerializeField] private ObjectPoolManager objectPoolManager;
+    private IObjecPoolService objectPoolManager;
+    [Inject]
+    public void Construct(IObjecPoolService objectPoolManager)
+    {
+        this.objectPoolManager = objectPoolManager;
+    }
     void Awake()
     {
-        objectPoolManager = GetComponent<ObjectPoolManager>();
+
     }
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
+        EventManager.Resgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
     public void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
+        EventManager.Resgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
     public void Spawn()
     {
@@ -55,11 +62,16 @@ public class EnemySpawner : MonoBehaviour
         return roomModel.GetSpawnSet();
     }
 
+    public void ReleaseEnemy(object obj = null)
+    {
+        objectPoolManager.Release((GameObject)obj);
+    }
+
     public void SpawnRoomEnemies(in List<Vector2Int> spawnPosition)
     {
         int enemyCount = 0;
         List<EnemySpawnEntry> set = GetRoomSpawnSet();
-        if (set.Count == 0 || set == null)
+        if (set == null || set.Count == 0)
         {
             Debug.LogWarning("SpawnRoomEnemies: nothing to spawn");
             return;
@@ -76,8 +88,7 @@ public class EnemySpawner : MonoBehaviour
             {
                 positionRandom = Vector2Int.RoundToInt(spawnPosition[Random.Range(0, spawnPosition.Count)]);
 
-                objectPoolManager.Spawn(positionRandom + new Vector2(Random.Range(-maxPadding, maxPadding), Random.Range(-maxPadding, maxPadding))
-                , entry.enemy.Prefab);
+                objectPoolManager.Spawn(positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity, entry.enemy.Prefab);
                 //entityInput.SetSpawnPoint(positionRandom);
                 enemyCount++;
             }
@@ -90,7 +101,7 @@ public class EnemySpawner : MonoBehaviour
     public void SpawnExtraEnemy(object obj = null)
     {
         RequestSpawnEnemy spawnEnemy = (RequestSpawnEnemy)obj;
-        objectPoolManager.Spawn(spawnEnemy.positionSpawn, spawnEnemy.prefab);
+        objectPoolManager.Spawn(spawnEnemy.positionSpawn, Quaternion.identity, spawnEnemy.prefab);
     }
 }
 

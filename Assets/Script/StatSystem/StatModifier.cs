@@ -1,6 +1,9 @@
+using System;
+using UnityEngine;
+
 /// <summary>
 /// Thứ tự áp dụng: Flat → PercentAdd (cộng dồn rồi nhân 1 lần) → PercentMult (nhân riêng từng cái).
-/// Giá trị enum cũng là Order mặc định.
+/// Giá trị enum cũng chính là Order.
 /// </summary>
 [System.Serializable]
 public enum ModifierType
@@ -11,22 +14,49 @@ public enum ModifierType
 }
 
 /// <summary>
-/// Một bonus đơn lẻ gắn vào Stat. Bất biến (immutable) — tạo mới thay vì sửa.
-/// Source là object tạo ra modifier (item, buff, passive...) để gỡ hàng loạt theo nguồn.
+/// Một bonus gắn vào Stat. Đóng hai vai:
+/// - Authored: targetStat / type / value serialize được -> author trực tiếp trong Inspector
+///   (StatModifierGroup: trang bị, buff, thẻ nâng cấp — class thuần nhúng trong WeaponStats,
+///    KHÔNG phải ScriptableObject; xem ADR-0001).
+/// - Runtime: Source đóng dấu lúc apply, KHÔNG serialize, dùng để gỡ hàng loạt theo nguồn.
+///
+/// Asset là dữ liệu dùng chung, nên KHÔNG gắn thẳng instance authored vào Stat:
+/// luôn đi qua WithSource() để nhân bản rồi mới đóng dấu nguồn.
 /// </summary>
 [System.Serializable]
 public sealed class StatModifier
 {
-    public readonly float Value;
-    public readonly ModifierType Type;
-    public readonly int Order;
-    public readonly object Source;
+    [SerializeField] private StatType targetStat;
+    [SerializeField] private ModifierType type;
+    [SerializeField] private float value;
 
-    public StatModifier(float value, ModifierType type, object source = null, int? order = null)
+    [NonSerialized] private object source;
+
+    /// <summary>Chỉ số mà modifier này gắn vào.</summary>
+    public StatType TargetStat => targetStat;
+    public ModifierType Type => type;
+    public float Value => value;
+
+    /// <summary>
+    /// Khóa sắp xếp trong danh sách modifier của Stat. Luôn suy ra từ Type, không author được:
+    /// Stat.CalculateFinalValue gom các PercentAdd LIÊN TIẾP dựa trên list đã sort theo Order,
+    /// nên một Order tự đặt sẽ làm sai kết quả mà không báo lỗi.
+    /// </summary>
+    public int Order => (int)type;
+
+    /// <summary>Nguồn tạo ra modifier (item, buff, passive...); StatsSO gỡ theo nguồn bằng ReferenceEquals.</summary>
+    public object Source => source;
+
+    public StatModifier() { }   // Unity deserialization
+
+    public StatModifier(StatType targetStat, float value, ModifierType type, object source = null)
     {
-        Value = value;
-        Type = type;
-        Source = source;
-        Order = order ?? (int)type;
+        this.targetStat = targetStat;
+        this.value = value;
+        this.type = type;
+        this.source = source;
     }
+
+    /// <summary>Bản sao cùng dữ liệu nhưng đóng dấu nguồn mới (dùng khi apply một asset dùng chung).</summary>
+    public StatModifier WithSource(object newSource) => new StatModifier(targetStat, value, type, newSource);
 }

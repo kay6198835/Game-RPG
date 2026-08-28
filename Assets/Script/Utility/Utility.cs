@@ -35,6 +35,15 @@ public static class Utility
         return dir.y >= 0 ? GameConstants.Direction.Vector.TOP : GameConstants.Direction.Vector.BOTTOM;
     }
 
+    public static Vector2Int RandomPaddingDistace(int minPadding, int maxPadding)
+    {
+        return new Vector2Int(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
+    }
+    public static Vector2 RandomPaddingDistace(float minPadding, float maxPadding)
+    {
+        return new Vector2(Random.Range(minPadding, maxPadding), Random.Range(minPadding, maxPadding));
+    }
+
 
 
     #region Tilemap Door Utility
@@ -232,16 +241,27 @@ public static class Utility
             .ToList();
     }
 
+    /// <summary>Mean length of the clips an override controller actually overrides.</summary>
+    /// <remarks>
+    /// AnimatorOverrideController.GetOverrides() reports every clip of the BASE controller, with a
+    /// null value wherever no override is assigned. Player.controller carries 32 clips whose name
+    /// contains "Attack" (Knight_BasicAttack + Knight_SpinAttack), but a combo stage override only
+    /// fills the 8 directional ones — so dividing by the entry count returned a window four times
+    /// too short, which expired mid-combo and reset the stage index on every chain.
+    /// </remarks>
     public static float DurationNextAttack(List<KeyValuePair<AnimationClip, AnimationClip>> clips)
     {
         float totalDuration = 0f;
+        int overriddenCount = 0;
         foreach (var pair in clips)
         {
-            if (pair.Value != null)
+            if (pair.Value == null)
             {
-                totalDuration += pair.Value.length;
+                continue;
             }
+            totalDuration += pair.Value.length;
+            overriddenCount++;
         }
-        return totalDuration / clips.Count;
+        return overriddenCount == 0 ? 0f : totalDuration / overriddenCount;
     }
 }

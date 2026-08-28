@@ -84,3 +84,37 @@ root RB, so `rb.MovePosition` still moves it and `attachedRigidbody` resolves to
 4. A2, A4, B10 (player: NonAlloc + combo reset; enemy: double-transition guard)
 5. A3, A5, B5–B9 (defensive + cleanup)
 6. C1 (damage unit test — required by test-standards)
+
+---
+
+## Superseded note — 2026-08-20 (documentation audit)
+
+This review was written on 2026-07-30 against `WeaponMelee.cs`. That file, and the API it
+reviews, no longer exist: the weapon layer was rewritten during the Sprint 8–10 refactor.
+The findings are kept as a historical record and have **not** been edited.
+
+Reader's map from the old API to the current one:
+
+| This review references | Current equivalent |
+|---|---|
+| `WeaponMelee.cs` | `Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs` |
+| `WeaponMelee.Attack()` | `Weapon.OnActivate()` (the hit frame), overridden by `MeleeWeapon` |
+| `WeaponMelee.SetAnimation()` | `Weapon.OnAttackEnter(Player)` (`Weapon.cs:38-56`) |
+| `WeaponMelee.CheckCanAttack()` | `Weapon.CanAttack()` + `Weapon.CanChain()` |
+| `WeaponMeleeStats.AttackState[]` | `WeaponStats.AttackStages` (`List<AttackSO>`) |
+| `currentStateIndex`, `deplayTime` | `Weapon.CurrentStageIndex`, `Weapon.chainWindow` |
+
+Status of the two findings quoted most often elsewhere:
+
+- **A4** (combo index leaks between attacks because the time-based reset is commented out) —
+  **resolved by the rewrite.** `Weapon.OnAttackEnter()` resets `CurrentStageIndex` to 0 when
+  `lastAttackTime + chainWindow < Time.time`, and additionally clamps when `StageCount`
+  shrinks during play-mode editing (`Weapon.cs:43-46`).
+- **B4** (enemy attack has no cooldown; the `CheckCanAttack` gate is commented out) — **still
+  open in substance.** `EntityBasicState.LogicUpdate()` now gates on
+  `entityAttack.CallAttack()`, which does carry a rate check
+  (`EntityAttack.cs:63-72`), but the enemy path is moot today: `EntityInput.GetTargetInRange()`
+  is disabled, so `AttackState` is unreachable (TD-037).
+
+For the current, source-verified state of melee combat, read
+`design/gdd/weapons-system.md` (2026-08-13) and the Known Bugs table in `CLAUDE.md`.
