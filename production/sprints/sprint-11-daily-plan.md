@@ -16,7 +16,7 @@
 
 ---
 
-## Status Verdict: 🔴 AT RISK — Tuesday had zero commits at all (only the autonomous standup commit itself). All 5 Must-Have tasks (S11-01 through S11-05) confirmed still open at Wednesday standup, unchanged from Monday. 2 of 4 sprint days now gone with 0/5 Must-Have movement; only 2 days remain (Wed, Thu — Fri is stretch/wrap).
+## Status Verdict: 🔴 AT RISK, trending FAIL close — Thursday finally produced real code movement on S11-02 (`eb8c9a0`/`3312673`/`f666e00`/`1a206f9` merge, "flow take damage entity") — `EntityNegativeReciver` rewritten onto `EntityVitalStats.ReceiveReduction` + `EntityInput.OnTakeDamage`, no longer emits `ON_PLAYER_DEATH` from enemy code (BUG-053 symptom gone), and `PlayerDeathState.LogicUpdate()` body restored (BUG-044 half-fixed). But `EntityCore.TakeDamage()` still throws `NotImplementedException` verbatim, `EntityNegativeReciver.cs` still on disk (two `INegativeReceiver` implementers, not one), `PlayerDeathState` still never constructed in `Player.Awake()`, S11-01/S11-04 untouched. **4/4 working days gone, still 0/5 Must-Have complete** — today (Fri) is stretch/wrap only, sprint will close FAIL on strict Must-Have count barring a same-day finish.
 
 ---
 
@@ -166,11 +166,13 @@ task.
 
 ## Carry-Over Watch List (re-verify every standup)
 
-- **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** Zero code movement across
-  **10 consecutive standup cycles** spanning two-plus sprints (Sprint 9 + Sprint 10 + Sprint 11 Mon-Tue).
-  S11-02, sequenced as the sprint's literal second task, missed Monday. Prior retros' standing
-  recommendation: a single dedicated owner-present session likely resolves this faster than continued
-  distributed autonomous check-ins — now doubly confirmed by Monday's miss.
+- **BUG-042/BUG-053/BUG-054 — P0/S1, combat non-functional enemy→player.** First movement in 12 cycles
+  landed Thu 2026-08-27 (`eb8c9a0`/`f666e00`) — BUG-053's `ON_PLAYER_DEATH`-from-enemy symptom fixed via
+  `EntityVitalStats`/`EntityInput.OnTakeDamage` rewrite. BUG-042 still open — `EntityCore.TakeDamage()`
+  still throws; `EntityNegativeReciver.cs` still not deleted (still two `INegativeReceiver`
+  implementers). Confirms the prior retro finding once movement started: an owner-present session got
+  it two-thirds of the way — worth protecting one more short session to finish it rather than letting it
+  regress to zero movement again.
 - **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — confirmed still present 2026-08-25. One-line
   fix (S11-01) — missed Monday's "should not survive" target, now the standing first-priority item.
 - **S11-03 process gate** — now 11th carry, same underlying pattern since Sprint 4. Still no
@@ -226,3 +228,59 @@ Re-verified all 5 Must-Have items directly against current file contents:
 - Only 2 working days left in the sprint (Wed, Thu) before Friday's stretch/wrap slot — Sprint 10's FAIL close (0/6 Must-Have) is now the likely outcome unless today changes the pattern.
 - `.git/hooks/pre-push` still absent — 12th cycle, nothing enforces the sprint's own sequencing rule.
 - No QA plan — 13th consecutive cycle.
+
+---
+
+### Thu 2026-08-27 → Fri 2026-08-28 early — Daily Standup (autonomous, no owner present)
+
+**Yesterday (2026-08-27):** 3 commits landed since the last check (`eb8c9a0` "flow take damage entity",
+`3312673` merge index, `f666e00` "coding, fix conflic", plus `1a206f9` merge — 2 of the 4 dated
+2026-08-28, likely a late Thursday-night session). **First real movement on the S11-02 chain in 12
+consecutive cycles.** Verified directly against current file contents:
+- ❌ S11-01 (BUG-063) — `Stat.cs:63-65` still `#if UNITY_EDITOR` / `[SerializeField]` above `modifiers`. Untouched. 17th carry.
+- 🟡 S11-02 (BUG-042/053/054) — **partial.** `EntityNegativeReciver.cs` rewritten: now calls new
+  `EntityVitalStats.ReceiveReduction(StatType.HP, amount)` + `EntityInput.OnTakeDamage(pos)` instead of
+  decrementing its own field and emitting `ON_PLAYER_DEATH` — BUG-053's wrong-event symptom is gone. But
+  `EntityCore.TakeDamage()` (`EntityCore.cs:11`) still `throw new System.NotImplementedException();`
+  verbatim (BUG-042 not fixed), and `EntityNegativeReciver.cs` was NOT deleted — two `INegativeReceiver`
+  implementers still coexist on the enemy side, acceptance criteria not met yet.
+- ❌ S11-04 (BUG-033) — `EnemySpawner.cs:74` still `set.Count == 0 || set == null` (wrong order), despite
+  `EnemySpawner.cs` being touched (+7 lines) in `eb8c9a0`. 16th carry.
+- 🟡 S11-05 (BUG-044) — `PlayerDeathState.LogicUpdate()` body restored (checks
+  `StatusAnimation.EndRangeTrigger` → emits `ON_PLAYER_DEATH`), no longer commented out. But
+  `Player.Awake()` still has no `new PlayerDeathState(...)` — `deathState` is `[SerializeField]` on a
+  plain C# class with no parameterless-constructor path shown; state is still unreachable at runtime.
+  Half-fixed. 12th carry on the remaining half.
+- ❌ S11-03 (pre-push hook) — untouched.
+
+New file structure landed alongside: `EntityStatsHandler.cs` / `EntityVitalStats.cs` (renamed from
+extensionless `EntityVitalStats`) on the entity side, mirroring `StatHandler.cs`/`VitalComponent.cs` on
+the player side — looks like the start of a shared stats-handler pattern between Player and Entity,
+undocumented (no ADR, consistent with the standing DI-debt pattern).
+
+**Verdict: SLIPPED, but real progress** — biggest reason: the sprint's literal #2 priority finally got
+touched after 12 cycles at zero, but neither of its two half-fixes (S11-02, S11-05) meets its written
+acceptance criteria yet, and S11-01/S11-04 (the two trivial, independent, zero-excuse items) are still
+untouched on the sprint's last day.
+
+**Today (Fri 2026-08-28), sprint's final day — finish, don't start new work:**
+1. S11-01 (BUG-063 fix) — Est. 0.05d — still the cheapest open item in the entire backlog, land it first
+2. Finish S11-02 — Est. 0.15d remaining (down from 0.3d, half the wiring is done) — implement
+   `EntityCore.TakeDamage()` for real against the new `EntityVitalStats`, delete `EntityNegativeReciver.cs`
+3. Finish S11-05 — Est. 0.05d remaining — add `deathState = new PlayerDeathState(this, "...")` to
+   `Player.Awake()` so Thursday's restored logic is actually reachable
+4. S11-04 (BUG-033) — Est. 0.1d — one-line swap, no reason for a 16th carry
+5. 💡 Focus: S11-01 + S11-04 + S11-05's missing `Awake()` line = ~0.2d combined, all trivial and
+   independent — clear these before touching S11-02 further, then use remaining time to close S11-02's
+   two acceptance gaps (throw removed, duplicate implementer deleted).
+
+**Blockers:**
+- S11-06 still needs an owner decision (14th carry) — cannot be resolved autonomously.
+- S11-03 (pre-push hook) needs owner/producer action — still nothing prevents ungated pushes.
+
+**Risks:**
+- Sprint closes today. Even with Thursday's movement, 0/5 Must-Have have met their acceptance criteria
+  as of this standup — a third consecutive FAIL close (Sprint 9, 10, 11) is the likely outcome unless
+  today's session closes at least S11-01/S11-04/S11-05 outright and finishes S11-02's remaining two gaps.
+- `.git/hooks/pre-push` — 13th cycle absent.
+- No QA plan — 14th consecutive cycle.
