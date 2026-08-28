@@ -15,6 +15,7 @@ public class Entity : BaseEntity
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
     [SerializeField] private EntityDeathState deathState;
+    [SerializeField] private StatsSO stats;
     public Animator Anim { get => anim;}
     public Rigidbody2D Rb { get => rb; }
     public ParticleSystem Particle { get => particle; }
@@ -26,6 +27,7 @@ public class Entity : BaseEntity
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
     public EntityDeathState DeathState { get => deathState; }
     public EntityData Data { get => data;}
+    public StatsSO Stats { get => stats;}
 
     public override void Awake()
     {

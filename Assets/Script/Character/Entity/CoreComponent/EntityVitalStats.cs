@@ -7,10 +7,10 @@ using VContainer;
 //Multiple inheritance interface
 //Affect max stat use modifier(statHandler)
 //Affect current stats use StatType(Dictionary)
-public class VitalStatsComponent : CoreComponent<Core>
+public class EntityVitalStats : CoreComponent<Core>
 {
     Dictionary<StatType, float> currentStats = new();
-    StatHandler statHandler;
+    EntityStatsHandler statHandler;
     protected override void Awake()
     {
         base.Awake();

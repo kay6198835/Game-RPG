@@ -14,6 +14,7 @@ public class Player : BaseEntity
     [SerializeField] private PlayerEquidUnequid equidUnequidState;
     [SerializeField] private PlayerIntertorState intertorState;
     [SerializeField] private PlayerTakeDamageState takeDamageState;
+    [SerializeField] private PlayerDeathState deathState;
     #endregion
 
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
@@ -37,6 +38,7 @@ public class Player : BaseEntity
     public PlayerIntertorState IntertorState { get => intertorState; }
     public PlayerSkillWeaponState AbilityState { get => abilityState; }
     public PlayerTakeDamageState TakeDamageState { get => takeDamageState; }
+    public PlayerDeathState DeathState { get => deathState; }
     public PlayerData Data { get => data; }
     public StatsSO Stats { get => stats; }
 

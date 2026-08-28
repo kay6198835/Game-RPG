@@ -23,6 +23,7 @@ public abstract class Weapon : InteractiveObjects
     {
         base.Awake();
         pickupCollider = GetComponent<Collider2D>();
+        CurrentStageIndex = 0;
     }
 
     /// <summary>True when a brand new attack may be started from a non-attacking state.</summary>
@@ -46,13 +47,15 @@ public abstract class Weapon : InteractiveObjects
         }
 
         currentStage = stats.GetStage(CurrentStageIndex);
+        Debug.Log(currentStage);
         player.Anim.speed = 1f;
         chainWindow = Utility.DurationNextAttack(
             Utility.GetOverrideClips(currentStage.directionAttackAnimatorOV, "Attack")) / player.Anim.speed;
         player.Anim.runtimeAnimatorController = currentStage.directionAttackAnimatorOV;
 
         lastAttackTime = Time.time;
-        CurrentStageIndex = (CurrentStageIndex + 1) % stats.StageCount;
+        Debug.Log(CurrentStageIndex);
+        CurrentStageIndex++;
     }
 
     /// <summary>The hit frame. Melee resolves a hitbox here, ranged spawns projectiles.</summary>

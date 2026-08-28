@@ -1,17 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+[System.Serializable]
 public class EntityState : IState
 {
-    protected EntityStateMachine stateMachine;
+    [NonSerialized] protected EntityStateMachine stateMachine;
     protected Entity entity;
     protected EntityData entityData;
     public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
     protected float startTime;
     protected string animBoolName;
 
-    public EntityState(Entity etity, EntityStateMachine stateMachine, EntityData entityData , string animBoolName)
+    public EntityState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName)
     {
         this.entity = etity;
         this.stateMachine = stateMachine;

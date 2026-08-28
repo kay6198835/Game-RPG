@@ -38,7 +38,10 @@ public class StatModifierGroup
     public void Apply(Action<object, IReadOnlyList<StatModifier>> action, object source)
     {
         action(source, Modifiers);
-
+    }
+    public void Remmove(Action<object> action, object source)
+    {
+        action(source);
     }
 
     /// <summary>Gỡ mọi modifier đến từ source (gồm cụm này và mọi cụm khác cùng nguồn).</summary>

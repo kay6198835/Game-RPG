@@ -23,11 +23,13 @@ public class EnemySpawner : MonoBehaviour
     {
         EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
+        EventManager.Resgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
     public void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
+        EventManager.Resgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
     public void Spawn()
     {
@@ -58,6 +60,11 @@ public class EnemySpawner : MonoBehaviour
             return new List<EnemySpawnEntry>();
         }
         return roomModel.GetSpawnSet();
+    }
+
+    public void ReleaseEnemy(object obj = null)
+    {
+        objectPoolManager.Release((GameObject)obj);
     }
 
     public void SpawnRoomEnemies(in List<Vector2Int> spawnPosition)
