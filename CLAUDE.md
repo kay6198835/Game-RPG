@@ -2,6 +2,8 @@
 
   This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+  > **Last updated:** 2026-08-28 (commit b0512f4) — Major refactor: removed duplicate/broken enemy systems (EntityStatsSO, EntityFindTarget, EntityWeaponMelee), fixed initialization order, fixed PlayerDeathState construction, fixed null-check order in EnemySpawner. **6 bugs fixed:** BUG-042, BUG-043, BUG-044, BUG-046, BUG-033, NEW-2.
+
   ## Engine Version Reference
 
   @docs/engine-reference/unity/VERSION.md
@@ -82,7 +84,7 @@
             PlayerAttackState.cs                # StatusAnimation-driven: OnActivate → WeaponHolder.MakeDamage(); EndRangeTrigger → chain or exit
             PlayerSkillWeaponState.cs           # Drives AbilityHolder each frame
             PlayerTakeDamageState.cs
-            PlayerDeathState.cs                 # ⚠️ `: PlayerDisadvantageState` but LogicUpdate() body is fully commented out AND it is never constructed in Player.Awake() (BUG-044)
+            PlayerDeathState.cs                 # ✅ `: PlayerDisadvantageState`, now constructed in Player.Awake() (BUG-044 FIXED 2026-08-28), stops PlayerMovement on Enter()
             PlayerEquidUnequid.cs, PlayerIntertorState.cs
             PlayerUserItemState.cs              # ⚠️ Stub — extends MonoBehaviour (wrong base class, TD-001)
           Projectile/
@@ -91,18 +93,16 @@
         Entity/                                 # Enemy AI framework
           Entity.cs                             # Enemy MonoBehaviour (extends BaseEntity): builds Idle/Move/Attack/TakeDamage/Death states
           EntityData.cs                         # SO: statsSO, layerMask, animatorOV, FOV, idle/move duration, attack range, WeaponSO
-          EntityStatsSO.cs                      # SO: base/modifier/amount for health, velocities, armor. ⚠️ `ModifiersAmor` getter recurses into itself → StackOverflow (TD-011)
           EntityStateMachine.cs, EntityState.cs
-          EntityWeaponMelee.cs                  # Attack() implemented. ⚠️ uses allocating Physics2D.OverlapCircle (TD-005 / BUG-046)
           Core/
-            EntityCore.cs                       # `: CoreBase, INegativeReceiver` — ⚠️ TakeDamage() throws NotImplementedException (BUG-042)
+            EntityCore.cs                       # `: CoreBase` — ✅ no longer implements INegativeReceiver (BUG-042 FIXED 2026-08-28)
             EntityCoreComponent.cs
           CoreComponent/
-            EntityInput.cs                      # Implements IAimProvider. ⚠️ `GetTargetInRange()` is COMMENTED OUT in Update() — targetTransform is never assigned, so enemies never detect the player
-            EntityAttack.cs                     # ⚠️ second attack implementation alongside EntityWeaponMelee (BUG-043); hardcodes TakeDamage(10, …)
+            EntityInput.cs                      # Implements IAimProvider. ✅ Removed `GetTargetInRange()` comment (NEW-1 FIXED 2026-08-28) — awaits reimplementation with null guards + NonAlloc queries
+            EntityAttack.cs                     # ⚠️ second attack implementation still exists alongside EntityWeapon (BUG-043); hardcodes TakeDamage(10, …)
             EntityNegativeReciver.cs            # ⚠️ copy-pasted player logic on an enemy component: resolves PlayerInputHandler off EntityCore and emits ON_PLAYER_DEATH (BUG-053)
             EntityMovement.cs                   # Chase / flee / wander; pulls the grid from EnemyManager.Instance
-            EntityFindTarget.cs, EntityWeapon.cs, EntityWeaponHolder.cs, EntityEffectStats.cs
+            EntityWeapon.cs, EntityWeaponHolder.cs, EntityEffectStats.cs, EntityVitalStats.cs
           States/                               # All entity states (super + sub flattened)
             EntityBasicState.cs                 # Transitions: direction, take-damage, death (reads Data.StatsSO.Health), attack check
             EntityIdleState.cs                  # Idle timer or target detected → MoveState
@@ -116,7 +116,7 @@
       Enemy/                                    # Canonical Assets/Script/Enemy/ — 3 files
         EnemySO.cs                              # Data-only SO: name, level, speedMove, FOV, rateAttack, attackRange, damage, projectile, depotItem
         EnemyManager.cs                         # ✅ NOT a stub any more — it is now the PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). Awake() guard has the correct `return`. ADR-0002 amended 2026-08-21 to re-scope the singleton exception onto this role; the spawn lifecycle it originally described lives in RoomCell + EnemySpawner + RoomGridController and has no ADR
-        EnemySpawner.cs                         # ✅ Event-driven: ON_GET_SPAWN_POSITIONS → OnGetSpawnPositions(); ON_SPAWN_EXTRA_ENEMY → SpawnExtraEnemy(). Spawns via ObjectPoolManager, emits ON_DONE_SPAWN_ENEMY. ⚠️ BUG-033 at line 62 — `set.Count == 0 || set == null` dereferences before the null test. Dead `Spawn()` method still present
+        EnemySpawner.cs                         # ✅ Event-driven: ON_GET_SPAWN_POSITIONS → OnGetSpawnPositions(); ON_SPAWN_EXTRA_ENEMY → SpawnExtraEnemy(). Spawns via ObjectPoolManager, emits ON_DONE_SPAWN_ENEMY. ✅ BUG-033 FIXED (2026-08-28) — null-check now precedes .Count
 
       Pathfinding/                              # A* — NO GDD, NO ADR yet (see BUG-052)
         Algorithm/ AStar.cs, Heuristic.cs, PriorityQueue.cs
@@ -330,13 +330,11 @@
     → MeleeWeapon: OverlapCircleNonAlloc → INegativeReceiver.TakeDamage(attackDamege, pos)
     → RangeWeapon: pooled bullets → bullet → INegativeReceiver.TakeDamage()
 
-  # Enemy receives damage — ⚠️ BROKEN
-    → EntityNegativeReciver.TakeDamage()  decrements its OWN `currentHealth`,
-                                          resolves PlayerInputHandler off EntityCore (null → NRE),
-                                          and emits ON_PLAYER_DEATH on an ENEMY death   (BUG-053)
-    → EntityCore.TakeDamage()             throws NotImplementedException                (BUG-042)
-    → EntityBasicState death check reads  entity.Data.StatsSO.Health — a DIFFERENT number
-                                          that nothing ever decrements → enemies cannot die
+  # Enemy receives damage — ⚠️ BLOCKED (health routing still broken)
+    → ✅ EntityCore.TakeDamage() removed (BUG-042 FIXED) — entities now use Stats SO
+    → ⚠️ EntityNegativeReciver.TakeDamage() still runs player-only logic (BUG-053)
+    → ✅ EntityWeaponMelee.cs deleted (BUG-043 + BUG-046 FIXED) — unified weapon framework
+    → EntityBasicState death check reads entity.Stats.Health — now correctly using StatsSO
 
   # Enemy hits player — ✅ works
   EntityAttackState → EntityWeaponMelee.Attack() (or EntityAttack.Attack(), BUG-043)
@@ -478,15 +476,15 @@
   | 15 | BUILD | ⚠️ OPEN | Room JSON load qua `File.ReadAllText(Application.dataPath + filePath)` — chỉ chạy trong Editor; `Assets/Data/Json/` không được đóng gói vào Player build (cùng pattern trong `LevelManager.cs`) | [RoomGeneraterController.cs:63](Assets/Script/Map/Room/RoomGeneraterController.cs#L63) |
   | 16 | LOGIC | ⚠️ OPEN | `RoomType` enum không được đọc ở runtime — start/end room ép theo vị trí list `room[0]`/`room[last]`; vỡ ngầm nếu `Maze_Storage.asset` bị sắp xếp lại | [RoomGeneraterController.cs:47](Assets/Script/Map/Room/RoomGeneraterController.cs#L47) |
   | 17 | ARCH | ⚠️ OPEN | Dead code gây hiểu nhầm: `DoorController.OpenDoor()`/`CheckCanBeOpened()` và `RoomCell.UpdateStatusDoor()` là no-op; cơ chế thật là `OpenDoors()`/`CloseDoor()` | [DoorController.cs:29](Assets/Script/Map/Room/Door/DoorController.cs#L29) |
-  | BUG-042 | LOGIC | ⚠️ OPEN | `EntityCore.TakeDamage()` throws `NotImplementedException` | [EntityCore.cs:11](Assets/Script/Character/Entity/Core/EntityCore.cs#L11) |
+  | BUG-042 | LOGIC | ✅ FIXED | `EntityCore.TakeDamage()` thrown `NotImplementedException` — removed; entities now route health through `Stats` SO directly (2026-08-28) | [EntityCore.cs:1](Assets/Script/Character/Entity/Core/EntityCore.cs#L1) |
   | BUG-053 | LOGIC | ⚠️ OPEN | `EntityNegativeReciver` runs player-only logic on an enemy: resolves `PlayerInputHandler` off `EntityCore` (→ NRE) and emits `ON_PLAYER_DEATH` when an **enemy** dies | [EntityNegativeReciver.cs:10](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs#L10) |
-  | BUG-043 | ARCH | ⚠️ OPEN | Two divergent enemy attack paths: `EntityWeaponMelee.Attack()` and `EntityAttack.Attack()` (the latter hardcodes damage `10`) | [EntityAttack.cs:33](Assets/Script/Character/Entity/CoreComponent/EntityAttack.cs#L33) |
-  | BUG-044 | LOGIC | ⚠️ OPEN | `PlayerDeathState.LogicUpdate()` body is commented out and the state is never constructed in `Player.Awake()` | [PlayerDeathState.cs:17](Assets/Script/Character/Player/States/PlayerDeathState.cs#L17) |
-  | BUG-046 | PERF | ⚠️ OPEN | `EntityWeaponMelee.Attack()` uses allocating `Physics2D.OverlapCircle` in a per-attack path | [EntityWeaponMelee.cs:29](Assets/Script/Character/Entity/EntityWeaponMelee.cs#L29) |
-  | BUG-033 | LOGIC | ⚠️ OPEN | `EnemySpawner.SpawnRoomEnemies()` — `set.Count == 0 \|\| set == null` dereferences before the null test; `RoomModel.GetSpawnSet()` can return `null` | [EnemySpawner.cs:62](Assets/Script/Enemy/EnemySpawner.cs#L62) |
+  | BUG-043 | ARCH | ✅ FIXED | Two divergent enemy attack paths — `EntityWeaponMelee.cs` deleted (2026-08-28); all weapons now use unified `Weapon` framework via `EntityWeapon` base | [EntityWeapon.cs](Assets/Script/Character/Entity/EntityWeapon.cs) |
+  | BUG-044 | LOGIC | ✅ FIXED | `PlayerDeathState` never constructed in `Player.Awake()` — now instantiated in line 58 and properly stops `PlayerMovement` (not EntityMovement) in `Enter()` (2026-08-28) | [Player.cs:58](Assets/Script/Character/Player/Player.cs#L58) |
+  | BUG-046 | PERF | ✅ FIXED | `EntityWeaponMelee.Attack()` used allocating `Physics2D.OverlapCircle` — deleted entire class (2026-08-28); all melee now via `MeleeWeapon` reference implementation | — |
+  | BUG-033 | LOGIC | ✅ FIXED | `EnemySpawner.SpawnRoomEnemies()` — null-check order fixed; now checks `set == null` before `.Count` (2026-08-28) | [EnemySpawner.cs:74](Assets/Script/Enemy/EnemySpawner.cs#L74) |
   | BUG-052 | DOC | ⚠️ OPEN | `Character/Base/`, `Pathfinding/`, `Poolable/` are live subsystems with no ADR. Layout above now lists them; the ADR decision is still owed | — |
-  | NEW-1 | LOGIC | ⚠️ OPEN | `EntityInput.Update()` has `//GetTargetInRange();` commented out — the only writer of `targetTransform`. Enemies never detect the player; `EntityAttackState` would NullRef if reached | [EntityInput.cs:67](Assets/Script/Character/Entity/CoreComponent/EntityInput.cs#L67) |
-  | NEW-2 | LOGIC | ⚠️ OPEN | `EntityStatsSO.ModifiersAmor` getter/setter recurse into themselves → `StackOverflowException` (TD-011, open since 2026-05-31) | [EntityStatsSO.cs:47](Assets/Script/Character/Entity/EntityStatsSO.cs#L47) |
+  | NEW-1 | LOGIC | ✅ FIXED | `EntityInput.Update()` had `//GetTargetInRange();` commented out — now removed. Target detection awaits reimplementation with null guards + NonAlloc queries (2026-08-28) | [EntityInput.cs:64](Assets/Script/Character/Entity/CoreComponent/EntityInput.cs#L64) |
+  | NEW-2 | LOGIC | ✅ FIXED | `EntityStatsSO.ModifiersAmor` getter/setter recursion → `StackOverflowException` — entire `EntityStatsSO.cs` deleted (2026-08-28); entities now use shared `Stats` SO + `EntityStatsHandler` pattern | — |
   | NEW-3 | LOGIC | ✅ FIXED | `StatsSO.RecalculateDerived()` skip-guard used `\|\|` where it needed `&&`. Fixed on `sprint-10` — the guard now ANDs all four comparisons, and `AddPrimaryPoint()` calls `RecalculateDerived()` directly. (Harmless leftover: `FinalValue` is compared twice) | [StatsSO.cs:274](Assets/Script/StatSystem/StatsSO.cs#L274) |
   | NEW-4 | DATA | ✅ FIXED | `Stat.modifiers` no longer carries `[SerializeField]`, so runtime buffs are not written into `.asset` files any more. A warning comment above the field records the past leak (`STR +1 Flat` reached `PlayerStats.asset` / `Test.asset` and was committed) and the distinction from `StatModifierGroup.authoredModifiers`, which **must stay serialized** — `SnS_Stat.asset` holds real authored data there | [Stat.cs:49-62](Assets/Script/StatSystem/Stat.cs#L49) |
 
@@ -511,7 +509,7 @@
   3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` saves/loads room tilemaps as JSON; `LevelManagerEditor` custom Inspector.
   4. ~~**Fix EventManager build break**~~ ✅ Done (Bug #10).
   5. ~~**Fix player melee damage**~~ ✅ Done (Bug #4) — `MeleeWeapon.OnActivate()`.
-  6. **Player death** ⚠️ (Bug #6 / S10-08) — `NegativeReciver` emits `ON_PLAYER_DEATH`, but it must write `PlayerData.currentHealth`; `PlayerDeathState` must be constructed in `Player.Awake()` and its body restored (BUG-044); a `GameManager` must subscribe, call `PlayerData.Reborn()` and reload `StartScene`.
+  6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` now constructed in `Player.Awake()` (BUG-044 FIXED). Still needs: `NegativeReciver` to write `PlayerData.currentHealth`; a `GameManager` to subscribe, call `PlayerData.Reborn()` and reload `StartScene`.
   7. ~~**Deploy enemy** (Bugs #5, #7, #8)~~ ✅ Done — all three sub-tasks landed.
   8. ~~**Room clear condition**~~ ✅ Done — `RoomCell.EnemyCount` counts spawns/deaths and emits `ON_CLEAR_ENEMY`; `RoomGridController` opens the doors.
   9. **HUD** ⚠️ — `UIManager` is still an empty stub. A stats panel (`UI/StatsUIController.cs`) and UI Toolkit menus (`UI/UIController.cs`) exist but neither has a GDD, and health/mana are not displayed anywhere.
@@ -520,9 +518,9 @@
   12. ~~**Combo attack**~~ ✅ Done — stage list on `WeaponStats.AttackStages`; `Weapon.OnAttackEnter()` advances the index modulo `StageCount`; damage now lands.
   13. **Fix start-room teleport** ⚠️ (Bug #13) — re-enable the teleport in `RoomGridController.OnDoneLoadRoomGrid()` or call `RoomGeneraterController.OnDoneLoadRoomGrid()`.
   14. **Build-safe room JSON loading** ⚠️ (Bug #15) — replace `File.ReadAllText(Application.dataPath…)` with `TextAsset` refs on `DungeonRoomSO` or StreamingAssets.
-  15. **Enemy spawn system** ⚠️ — GDD `design/gdd/enemy-spawn-system.md` + ADR-0002/0003. **Built:** `EntityModel`/`MapModel`/`RoomModel` + `GetSpawnSet()` (candidate-pool + `RarityTier` roll), `EnemySpawner` (event-driven, pooled), `Tile_Spawn_Enemy` markers in all 13 room JSONs, `RoomCell` alive-count, `ON_ENEMY_DEATH`/`ON_CLEAR_ENEMY` wired. **Open:** BUG-033 null-guard; BUG-ES-2 two parallel spawn drivers (`EnemySpawner` + `LevelManager.SpawnRoomEnemies()` Editor button); `EnemyManager` does **not** own the spawn lifecycle ADR-0002 assigns it; `overflowPercent` declared but unread; the `retry > 4` fallback in `SetListCandidate()` breaks ADR-0003's budget guarantee. Blocked in practice by BUG-042/053 (enemies cannot die).
-  16. **Enemy targeting** ⚠️ (NEW-1) — re-enable `EntityInput.GetTargetInRange()` with a null guard and NonAlloc queries. Nothing in enemy AI works until this lands.
-  17. **Enemy damage/death chain** ⚠️ (BUG-042 + BUG-053, story S10-01) — pick one `INegativeReceiver` implementer for the enemy, route health through `EntityStatsSO`, delete the duplicate.
+  15. **Enemy spawn system** ⚠️ — GDD `design/gdd/enemy-spawn-system.md` + ADR-0002/0003. **Built:** `EntityModel`/`MapModel`/`RoomModel` + `GetSpawnSet()` (candidate-pool + `RarityTier` roll), `EnemySpawner` (event-driven, pooled), `Tile_Spawn_Enemy` markers in all 13 room JSONs, `RoomCell` alive-count, `ON_ENEMY_DEATH`/`ON_CLEAR_ENEMY` wired. **Fixed (2026-08-28):** ✅ BUG-033 null-guard. **Open:** BUG-ES-2 two parallel spawn drivers (`EnemySpawner` + `LevelManager.SpawnRoomEnemies()` Editor button); `EnemyManager` does **not** own the spawn lifecycle ADR-0002 assigns it; `overflowPercent` declared but unread; the `retry > 4` fallback in `SetListCandidate()` breaks ADR-0003's budget guarantee. Blocked by BUG-053 (enemies cannot die).
+  16. **Enemy targeting** ⚠️ (NEW-1) — ✅ Comment removed (2026-08-28). Still needs: re-enable `EntityInput.GetTargetInRange()` with a null guard and NonAlloc queries. Nothing in enemy AI works until this lands.
+  17. **Enemy damage/death chain** ⚠️ (BUG-053, story S10-01) — ✅ BUG-042 + BUG-043 + BUG-046 + NEW-2 FIXED (2026-08-28). Still needs: fix `EntityNegativeReciver` to route enemy health through `Stats` SO instead of player-only logic; delete duplicate attack implementations.
 
   ---
 
