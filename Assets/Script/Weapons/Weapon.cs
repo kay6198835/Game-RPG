@@ -47,15 +47,15 @@ public abstract class Weapon : InteractiveObjects
         }
 
         currentStage = stats.GetStage(CurrentStageIndex);
-        Debug.Log(currentStage);
         player.Anim.speed = 1f;
         chainWindow = Utility.DurationNextAttack(
             Utility.GetOverrideClips(currentStage.directionAttackAnimatorOV, "Attack")) / player.Anim.speed;
         player.Anim.runtimeAnimatorController = currentStage.directionAttackAnimatorOV;
 
         lastAttackTime = Time.time;
-        Debug.Log(CurrentStageIndex);
-        CurrentStageIndex++;
+        // Wrapping is what makes a zero index mean "the chain just completed", which is the whole
+        // of CanChain(). A bare ++ leaves the index non-zero forever, so the combo never ends.
+        CurrentStageIndex = (CurrentStageIndex + 1) % stats.StageCount;
     }
 
     /// <summary>The hit frame. Melee resolves a hitbox here, ranged spawns projectiles.</summary>
