@@ -1,12 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IPlayerStatService
 {
     [SerializeField] private StatsSO statsSO;
-    public override void Awake()
+    protected override void Awake()
     {
         base.Awake();
-        statsSO = core.entity.Stats;
+        statsSO = core.Entity.Stats;
     }
     public int GetLevel()
     {
@@ -49,6 +50,6 @@ public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IPlayerStatSe
     public Dictionary<StatType, float> GetFullStat()
     {
         // amount must be forwarded: Decrease/Revert pass a negative value.
-        statsSO.FullStatsValue();
+        return statsSO.FullStatsValue();
     }
 }

@@ -11,8 +11,12 @@ public class GameLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterComponentInHierarchy<ObjectPoolManager>();
-        builder.RegisterComponentInHierarchy<PlayerStatService>();
+        builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
+        builder.RegisterComponentInHierarchy<StatHandler>().As<IPlayerStatService>();
+
+        builder.RegisterComponentInHierarchy<EnemySpawner>();
         builder.RegisterComponentInHierarchy<StatsUIController>();
+        //builder.RegisterComponentInHierarchy<StatsScreenUIController>();
+        //builder.RegisterComponentInHierarchy<StatPointAllocator>();
     }
 }

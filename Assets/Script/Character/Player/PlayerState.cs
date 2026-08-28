@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 [System.Serializable]
 public class PlayerState : IState
@@ -30,7 +31,7 @@ public class PlayerState : IState
         DoChecks();
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        this.Status = StatusAnimation.Start;
+        //this.Status = StatusAnimation.Start;
 
     }
     public virtual void Exit()

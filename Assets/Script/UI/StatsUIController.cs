@@ -22,10 +22,10 @@ public class StatsUIController : MonoBehaviour
     Dictionary<StatType, int> gainKeyValues = new();
     public int totalLevelUpBonusValue;
     public int runtimeLevelUpBonusValue;
-    ObjectPoolManager objectPoolManager;
-    PlayerStatService _playerStatService;
+    IObjecPoolService objectPoolManager;
+    IPlayerStatService _playerStatService;
     [Inject]
-    public void Construct(PlayerStatService playerStatService, ObjectPoolManager objectPoolManager)
+    public void Construct(IPlayerStatService playerStatService, IObjecPoolService objectPoolManager)
     {
         _playerStatService = playerStatService;
         this.objectPoolManager = objectPoolManager;

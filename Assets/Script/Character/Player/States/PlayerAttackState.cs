@@ -13,8 +13,8 @@ public class PlayerAttackState : PlayerUseWeaponState
     public override void Enter()
     {
         base.Enter();
+        Status = StatusAnimation.None;
         startAttackTime = startTime;
-        weaponHolder.Attack();
     }
 
     public override void LogicUpdate()
@@ -22,6 +22,9 @@ public class PlayerAttackState : PlayerUseWeaponState
         switch (Status)
         {
             case StatusAnimation.Start:
+                Status = StatusAnimation.None;
+                weaponHolder.Attack();
+
                 break;
 
             case StatusAnimation.OnActivate:
@@ -36,12 +39,12 @@ public class PlayerAttackState : PlayerUseWeaponState
                 weaponHolder.EndDamage();
                 if (inputHandler.BufferIsAttack && weaponHolder.CanChain())
                 {
-                    Debug.Log("End Window Attack");
-                    weaponHolder.Attack();
+                    // weaponHolder.Attack();
+                    // int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                    // player.Anim.Play(stateHash, 0, 0f);
                     int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
                     player.Anim.Play(stateHash, 0, 0f);
                     Status = StatusAnimation.Start;
-                    Debug.Log("Next Attack");
                 }
                 else
                 {
@@ -57,7 +60,6 @@ public class PlayerAttackState : PlayerUseWeaponState
                 break;
             case StatusAnimation.End:
                 base.LogicUpdate();
-                Debug.Log("PlayerAttackState End");
                 break;
 
             default:

@@ -10,6 +10,7 @@ public class PlayerDeathState : PlayerDisadvantageState
     public override void Enter()
     {
         base.Enter();
+        player.Core.GetCoreComponent(out EntityMovement entityMovement);
         entityMovement.StopMove();
     }
     public override void LogicUpdate()

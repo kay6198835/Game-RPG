@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -19,7 +20,7 @@ public class EntityVitalStats : CoreComponent<Core>
     {
         base.Start();
         currentStats = statHandler.GetFullStat();
-        Core.GetCoreComponent(out vitalStatsComponent);
+        Core.GetCoreComponent(out statHandler);
     }
 
     public float GetCurrentStatValue(StatType statType)
@@ -34,25 +35,25 @@ public class EntityVitalStats : CoreComponent<Core>
 
     public void ReceiverRecovery(StatType statType, float amount)
     {
-        if (statHandler[statType] + amount >= statHandler.GetStatValue(statType))
+        if (currentStats[statType] + amount >= statHandler.GetStatValue(statType))
         {
-            statHandler[statType] = statHandler.GetStatValue(statType);
+            currentStats[statType] = statHandler.GetStatValue(statType);
         }
         else
         {
-            statHandler[statType] += amount;
+            currentStats[statType] += amount;
         }
     }
 
     public void ReceiveReduction(StatType statType, float amount)
     {
-        if (statHandler[statType] - amount <= 0)
+        if (currentStats[statType] - amount <= 0)
         {
-            statHandler[statType] = 0;
+            currentStats[statType] = 0;
         }
         else
         {
-            statHandler[statType] -= amount;
+            currentStats[statType] -= amount;
         }
     }
 
@@ -65,6 +66,6 @@ public class EntityVitalStats : CoreComponent<Core>
     {
         statModifierGroup.Apply(statHandler.AddModifiersFromSource, this);
         yield return new WaitForSeconds(duration);
-        statModifierGroup.Apply(statHandler.RemoveModifiersFromSource, this);
+        statModifierGroup.Remmove(statHandler.RemoveModifiersFromSource, this);
     }
 }
