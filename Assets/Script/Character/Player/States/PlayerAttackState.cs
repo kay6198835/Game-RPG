@@ -44,8 +44,12 @@ public class PlayerAttackState : PlayerUseWeaponState
                 weaponHolder.EndDamage();
                 if ((inputHandler.BufferIsAttack || inputHandler.IsAttack) && weaponHolder.CanChain())
                 {
-                    weaponHolder.Attack();
+                    // Read the hash before Attack() swaps runtimeAnimatorController: the swap
+                    // rebinds the Animator, and querying it afterwards can report the layer's
+                    // default state instead of Attack, which would make Play() jump elsewhere.
+                    // Both stage overrides share Player.controller, so the hash stays valid.
                     int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                    weaponHolder.Attack();
                     player.Anim.Play(stateHash, 0, 0f);
                 }
                 Status = StatusAnimation.None;
