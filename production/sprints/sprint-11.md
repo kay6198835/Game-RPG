@@ -1,5 +1,46 @@
 # Sprint 11 — 2026-08-24 to 2026-08-28
 
+**Status: CLOSED — FAIL (2026-08-30 Saturday `pm-weekly-wrapup`, on-slot autonomous run).** Full detail:
+`production/retros/retro-sprint-11-2026-08-30.md` and `production/qa/bug-triage-2026-08-30.md`.
+
+**Final scorecard — 2 of 5 Must-Have tasks fully met, 1 partial, on `sprint-11`:**
+
+| Item | Final status |
+|------|--------------|
+| S11-01 / BUG-063 (`Stat.cs` serialization regression) | ❌ OPEN, untouched — `Stat.cs:63-65` still `#if UNITY_EDITOR` / `[SerializeField]` above `modifiers`. 18th+ consecutive carry on a documented one-line fix |
+| S11-02 / BUG-042+053+054 (enemy `TakeDamage()` chain) | 🟡 PARTIAL — `EntityCore.TakeDamage()` no longer throws, health now routes through `EntityVitalStats`; `EntityNegativeReciver.cs` rewritten (not literally deleted) and no longer emits the wrong `ON_PLAYER_DEATH`. Real progress after 11-12 cycles at zero. **But the same refactor session left the project not compiling** (`EntityData.cs`/`Entity.cs`/`EntityInput.cs`/`EntityAttack.cs`/`EntityEffectStats.cs` reference deleted types/members), and even past that, `EntityDeathState`'s `ON_ENEMY_DEATH` emits a `Vector3` that both subscribers cast to `GameObject` — `InvalidCastException` on every enemy death |
+| S11-03 (pre-push hook) | ❌ Never landed — `.git/hooks/pre-push` still absent. 14th carry |
+| S11-04 / BUG-033 (`EnemySpawner.cs` null-guard order) | ✅ CLOSED CLEAN — verified `set == null \|\| set.Count == 0` at current line 74 |
+| S11-05 / BUG-044 (`PlayerDeathState` orphaned) | ✅ CLOSED CLEAN — verified `Player.cs:58` constructs `PlayerDeathState`, `LogicUpdate()` body restored |
+| S11-06 (S4-05/S4-06 forced decision) | ❌ Zero movement — 15th carry, oldest unresolved item in the project |
+| S11-08 (ADR-0002 Accepted) | ❌ Still **Proposed** — untouched, 10th carry |
+| S11-13 / BUG-062 (`StatsUIController.cs` DI migration) | ✅ CLOSED — verified no direct `StatsSO` field remains, only `IPlayerStatService`/`IObjecPoolService` via `Construct()` |
+| S11-14 (DI/VContainer ADR) | ❌ Not filed — a second `ObjectPoolManager` implementation location exists (migration, not duplication, per code review) but the pattern itself is still undocumented |
+| QA Plan | ❌ Still none — 14th+ consecutive cycle |
+| First playtest | ❌ Not run this week (last log: 2026-06-12) |
+
+**🔴 Code review caught a build-breaking regression**: the entity-refactor session that fixed
+BUG-042/053 also deleted `EntityStatsSO.cs` and `EntityFindTarget.cs` and removed `Entity.Data`/the
+`data` field without updating every caller — `EntityData.cs`, `Entity.cs`, `EntityInput.cs`,
+`EntityAttack.cs`, and `EntityEffectStats.cs` all reference the removed types/members. **The project does
+not currently compile at HEAD.** Additionally, `EntityDeathState`'s `ON_ENEMY_DEATH` payload type
+(`Vector3`) doesn't match what `EnemySpawner.ReleaseEnemy`/`ItemSpawner.DropItem` expect (`GameObject`),
+and `EnemySpawner.OnDisable()` calls `Resgister` instead of `UnResgister`. See
+`production/qa/bug-triage-2026-08-30.md` for the filed bug and full code-review notes.
+
+**What did land**: genuine functional progress on the sprint's long-stuck #1 priority (S11-02) after two
+full sprints at zero, plus two clean Must-Have closes (BUG-033, BUG-044) and a confirmed Should-Have
+(BUG-062 DI migration, closing a Sprint 10 retro action item). Two bugs (BUG-043, BUG-046) closed as a
+side effect of the same entity refactor.
+
+**Carryover into Sprint 12**: fix the compile break FIRST (blocking, new — no other verification is
+possible until the build works), then BUG-063 (still the cheapest open item in the backlog), the
+`ON_ENEMY_DEATH` cast-exception + `EnemySpawner` Resgister/UnResgister bugs, S11-02's remaining literal
+acceptance-criteria gap, pre-push hook (S11-03), S4-05/S4-06 decision (S11-06), ADR-0002 Accept (S11-08),
+DI/VContainer ADR (S11-14), QA plan, first playtest.
+
+---
+
 **Opened:** 2026-08-24 (Sunday 22:00 `pm-weekly-kickoff`, on-slot autonomous run — no owner present).
 Branch `sprint-11`, created from `sprint-10` tip (`de2ed0f`, "chore(wrapup): weekly wrap-up 2026-08-22"),
 after `git fetch origin sprint-10` confirmed the local ref matched `origin/sprint-10` exactly (process
