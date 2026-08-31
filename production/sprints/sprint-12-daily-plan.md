@@ -25,9 +25,9 @@
 
 | Task | Est. | Status | Notes |
 |------|------|--------|-------|
-| S12-02 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | 0.05d | ❌ NOT DONE | 18th+ carry — retro explicitly recommends this be the literal first commit of Sprint 12, before BUG-064 or alongside it, because it has repeatedly lost every session to larger work |
-| S12-01 (BUG-064, project does not compile) | 0.4d | ❌ NOT DONE | Blocking. Needs a 2-minute architecture confirmation first: does `EntityData` get a new `Stats` SO field, or does `Entity.cs` get its `data`/`Data` pattern back with the SO type updated — decide before patching, then sweep every dangling reference (`EntityData.cs:8`, `Entity.cs`, `EntityInput.cs:57,61,81,83`, `EntityAttack.cs:68`, `EntityEffectStats.cs:20`) |
-| S12-05 (pre-push hook placeholder) | 0.15d | ❌ NOT DONE | Land even a bare `exit 0` + TODO — 14th carry, stop the silent count |
+| S12-02 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | 0.05d | ❌ NOT DONE | 19th+ carry — verified directly against source at this standup, `#if UNITY_EDITOR` / `[SerializeField]` still wraps `modifiers` at `Stat.cs:63-65`, unchanged. Retro explicitly recommends this be the literal first commit of Sprint 12 |
+| S12-01 (BUG-064, project does not compile) | 0.4d | ❌ NOT DONE (on `sprint-12`) — ⚠️ in-progress elsewhere, uncommitted | Verified directly against source: `EntityData.cs:8` still declares `EntityStatsSO statsSO`, `EntityInput.cs:57` still references deleted `EntityFindTarget`, `Entity.cs` still has `LoadEntity()`/`LoadState()`/`SetDataEntity()` — build still broken on `sprint-12` exactly as BUG-064 describes. **But**: `feature/fix-player-control` (a separate, non-sprint branch) carries a large uncommitted working-tree change touching this exact surface area — new `BaseStatsSO.cs`/`EnemyStatSO.cs`, new `EntityFindTarget.cs`, new `EntityUIController.cs`, deleted `StatsSO.cs`, `Weapon.OnActivate()` signature changed to take `finalDamage`, plus edits across `Entity.cs`/`EntityData.cs`/`EntityNegativeReciver.cs`/`WeaponHolder.cs`/`Player.cs`/`PlayerDeathState.cs`. This looks like an active attempt at the same architecture confirmation S12-01 calls for, but it is **not on `sprint-12` and not committed** — stashed only (`git stash` on `feature/fix-player-control`, entry "wip: uncommitted changes on feature/fix-player-control before standup checkout 2026-08-31"). Owner should decide whether to port/merge this WIP into `sprint-12` rather than re-deriving the fix from scratch |
+| S12-05 (pre-push hook placeholder) | 0.15d | ❌ NOT DONE | `.git/hooks/pre-push` still absent, verified — 14th+ carry, stop the silent count |
 
 Goal: land the two cheapest, zero-technical-blocker items (S12-02, S12-05) in the first 15 minutes of the
 session, before opening any Entity-side file — retro's Process Improvements section names this exact
@@ -108,6 +108,67 @@ recover via `git stash pop` on that branch — not carried onto `sprint-12`.
 
 `gh` CLI still unavailable — draft PR not auto-created, manual command left in `sprint-12.md`. No QA plan
 exists for the 14th+ consecutive cycle — flagged, deferred to owner per every prior cycle's handling.
+
+---
+
+### Mon 2026-08-31 02:00 — Daily Standup (autonomous, no owner present)
+
+**Yesterday (Sun 2026-08-30):** Sprint 12 kickoff only — no commits landed on `sprint-12` since
+`1dfc941` ("chore(kickoff): open sprint-12 2026-08-30"). `HEAD` on `sprint-12` is still that same
+kickoff commit; zero work has landed on this branch yet.
+
+**Re-verified directly against current source at this standup** (per BUG-064's own note not to trust
+tags without a fresh check):
+- 🔴 **BUG-064 / S12-01** — still broken exactly as filed. `EntityData.cs:8` still declares
+  `EntityStatsSO statsSO` (type no longer exists), `EntityInput.cs:57` still declares
+  `EntityFindTarget entityFind` (file no longer exists), `Entity.cs` still has `LoadEntity()` /
+  `LoadState()` / `SetDataEntity()` referencing the removed `data` field. Project does not compile at
+  `sprint-12` `HEAD`. Sole hard blocker, unchanged.
+- ❌ **BUG-063 / S12-02** — `Stat.cs:63-65` still wraps `modifiers` in `#if UNITY_EDITOR` /
+  `[SerializeField]`. 19th+ consecutive carry, still zero technical blocker.
+- ❌ **S12-05 (pre-push hook)** — `.git/hooks/pre-push` still does not exist. 14th+ carry.
+- ❌ **S12-07 (ADR-0002)** — `docs/architecture/adr-0002-enemymanager-singleton-exception.md` Status
+  line still reads `Proposed`. 10th+ carry.
+- **S12-09 (individual `BUG-NNN.md` files)** — `production/qa/bugs/` now holds 4 files (BUG-052,
+  BUG-053, BUG-063, BUG-064) vs. 3 last cycle — BUG-064 got one at filing time, but the task itself
+  (batch-generating the rest of the 9+ open P1 backlog) has not been run yet.
+
+**⚠️ New finding this standup — active uncommitted WIP outside `sprint-12`:** the session that ran this
+standup started on `feature/fix-player-control` (not a sprint branch) and found 36 uncommitted
+working-tree changes there, later stashed to allow the branch switch (`git stash`, message "wip:
+uncommitted changes on feature/fix-player-control before standup checkout 2026-08-31" — separate from
+the earlier-stashed `.anim` change noted at kickoff). The changed-file set overlaps heavily with
+BUG-064's exact surface: new `Assets/Script/StatSystem/BaseStatsSO.cs` and `EnemyStatSO.cs`, deleted
+`Assets/Script/StatSystem/StatsSO.cs`, a new `Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs`
+(the very file BUG-064 says is missing), a new `EntityUIController.cs`, and edits to `Entity.cs`,
+`EntityData.cs`, `EntityNegativeReciver.cs`, `EntityStatsHandler.cs`, `Player.cs`, `PlayerDeathState.cs`,
+`WeaponHolder.cs`, `NegativeReciver.cs`, and `Weapon.OnActivate()`'s signature (now takes `finalDamage`).
+This reads as an active, in-progress attempt at the same `Stats` SO architecture split S12-01 already
+calls for — but it lives only in a stash on a non-sprint branch, not in `sprint-12`. **Recommend the
+owner review this WIP before anyone starts BUG-064 from scratch on `sprint-12`** — there is real risk of
+duplicated or conflicting work if both proceed independently. Not committed or ported by this standup
+run per the hard constraint against touching `.cs`/asset files.
+
+**Today (Mon 2026-08-31) — per the existing plan, unchanged:**
+1. S12-02 (BUG-063 one-line fix) — Est. 0.05d — land first, zero excuse for a 19th carry
+2. S12-05 (pre-push hook placeholder, `exit 0` + TODO) — Est. 0.15d — land alongside S12-02 before
+   opening any Entity-side file
+3. S12-01 (BUG-064) — Est. 0.4d remaining — the sprint's sole hard blocker; **first check the
+   `feature/fix-player-control` stash above before starting fresh**, since it may already contain most
+   of the needed sweep
+
+**Blockers:**
+- No owner-in-Editor session yet this sprint — S12-01's Play Mode smoke gate cannot be confirmed until
+  one happens, same risk flagged in `sprint-12.md`.
+- S12-06 (S4-05/S4-06 forced decision) needs owner judgment — cannot be resolved autonomously.
+
+**Risks:**
+- Full 5-day sprint remaining, but Day 1 opened with zero commits and a large relevant WIP sitting
+  uncommitted on an unrelated branch — if that WIP is not surfaced to whoever picks up S12-01, duplicate
+  effort is likely.
+- `.git/hooks/pre-push` — 14th+ cycle absent, still nothing gates a repeat of last week's build-breaking
+  merge.
+- No QA plan — 14th+ consecutive cycle, deferred to owner per `sprint-12.md`.
 
 ---
 
