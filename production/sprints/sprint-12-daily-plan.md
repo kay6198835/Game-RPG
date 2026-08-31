@@ -15,7 +15,7 @@
 
 ---
 
-## Status Verdict: 🔴 BLOCKED at open — project does not compile at `HEAD` (BUG-064). Every task below except S12-01 and the two pure-decision items (S12-02, S12-06/S12-07) is hard-blocked until the build is restored.
+## Status Verdict: 🔴 BLOCKED (Day 2 of 5) — project still does not compile at `sprint-12` `HEAD` (BUG-064). Zero dev commits have landed on `sprint-12` since kickoff. A large uncommitted WIP that appears to address BUG-064's exact surface is now sitting directly in the working tree (see Tue standup entry) — needs owner triage before Wed.
 
 ---
 
@@ -37,10 +37,10 @@ sprint's sole hard blocker.
 
 ### Tue 2026-09-01 — Finish BUG-064's sub-fixes + Play Mode smoke gate
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S12-01 continued (payload mismatch, `Resgister`/`UnResgister` typo, `RangeWeapon` DI wiring) | remaining | Items c/d/e from the bug-triage recommended assignment if not finished Monday |
-| S12-01 smoke gate | — | **Gate** — owner confirms in-Editor: Unity Console zero errors, enter `LoadRandomMap`, kill one enemy, fire the ranged weapon once. Do not mark S12-01 done without this — it's an Integration story per `test-standards.md` |
+| Task | Est. | Status | Notes |
+|------|------|--------|-------|
+| S12-01 continued (payload mismatch, `Resgister`/`UnResgister` typo, `RangeWeapon` DI wiring) | remaining | ❌ NOT DONE on `sprint-12` HEAD — ⚠️ likely superseded by uncommitted WIP | Items c/d/e from the bug-triage recommended assignment if not finished Monday. See this standup's WIP finding below before re-deriving |
+| S12-01 smoke gate | — | ❌ NOT DONE | **Gate** — owner confirms in-Editor: Unity Console zero errors, enter `LoadRandomMap`, kill one enemy, fire the ranged weapon once. Do not mark S12-01 done without this — it's an Integration story per `test-standards.md` |
 
 Goal: a compiling, smoke-confirmed build by end of day Tuesday — everything else this sprint depends on it.
 
@@ -172,24 +172,98 @@ run per the hard constraint against touching `.cs`/asset files.
 
 ---
 
+### Tue 2026-09-01 02:00 — Daily Standup (autonomous, no owner present)
+
+**Yesterday (Mon 2026-08-31):** Zero commits landed on `sprint-12` — `git log --all --since="yesterday 00:00"`
+shows only the standup commit itself (`0c93917`) plus two dated `git stash`-style commits from the prior
+session's branch switch, nothing touching gameplay code. Planned Monday work (S12-02, S12-05, S12-01) did
+not land on this branch.
+
+**Re-verified directly against current source at this standup:**
+- 🔴 **BUG-064 / S12-01** — still broken on `sprint-12` `HEAD` (the last committed state): `EntityInput.cs:57`
+  still references `EntityFindTarget`, `Entity.cs` still carries `LoadEntity()`/`LoadState()`/
+  `SetDataEntity()`. No commit has restored the build.
+- ❌ **BUG-063 / S12-02** — `Stat.cs:63-65` still wraps `modifiers` in `#if UNITY_EDITOR` / `[SerializeField]`.
+  20th+ consecutive carry.
+- ❌ **S12-05 (pre-push hook)** — `.git/hooks/pre-push` still does not exist. 15th+ carry.
+- ❌ **S12-07 (ADR-0002)** — `docs/architecture/adr-0002-enemymanager-singleton-exception.md` Status line
+  still reads `Proposed`. 11th+ carry.
+- **S12-08** — second `ObjectPoolManager` still present and undocumented:
+  `Assets/Script/LifetimeScope/Service/PoolableService/ObjectPoolManager.cs` alongside
+  `Assets/Script/Poolable/`.
+- **S12-09** — `production/qa/bugs/` still holds 4 files (BUG-052, BUG-053, BUG-063, BUG-064), unchanged
+  from yesterday.
+
+**⚠️ WIP state changed since yesterday — now sitting directly in the working tree, not stashed.** This
+run started on `feature/fix-player-control` with the same ~30-file uncommitted change yesterday's standup
+found (new `BaseStatsSO.cs`/`EnemyStatSO.cs`, deleted `StatsSO.cs`, new `EntityFindTarget.cs`, new
+`EntityUIController.cs`, edits across `Entity.cs`/`EntityData.cs`/`EntityNegativeReciver.cs`/
+`WeaponHolder.cs`/`Player.cs`/`PlayerDeathState.cs`/`Weapon.cs` and others) — but this time it was **not**
+stashed; `git checkout sprint-12` carried the uncommitted working-tree changes across branches directly
+(no conflict, so git allowed it silently). Net effect: those ~30 files now show as uncommitted
+modifications with `sprint-12` checked out, in this same working directory. Read-only spot check: the new
+`EntityFindTarget.cs` now defines the class `EntityInput.cs:57` references, and `Entity.cs` still defines
+`LoadEntity()`/`LoadState()`/`SetDataEntity()` as real methods (not dangling calls) — text-level, this
+WIP looks consistent with a working BUG-064 fix, but **no Unity compile or Play Mode check was run** (out
+of this run's scope — read-only on code). Not staged, not committed, not discarded, per the hard
+constraint against touching `.cs`/asset files. **Owner action needed**: open the project in the Unity
+Editor from this exact working tree, confirm the Console is clean, and if so, commit this WIP directly to
+`sprint-12` as the S12-01 fix rather than re-deriving it — re-doing this work from scratch would be pure
+waste.
+
+**Today (Tue 2026-09-01) — per the existing plan, adjusted for the WIP finding:**
+1. Owner-in-Editor check of the current working tree (0.1d) — confirm the uncommitted WIP compiles clean
+   and passes the S12-01 smoke gate (`LoadRandomMap`, kill one enemy, fire the ranged weapon once) —
+   **do this first**, it very likely collapses the rest of today's plan into "commit and verify" instead
+   of "implement from scratch"
+2. S12-01 remainder (0.2–0.4d, contingent on #1) — if the WIP does *not* fully close BUG-064, finish the
+   remaining payload-mismatch / `Resgister`/`UnResgister` / `RangeWeapon` DI items on top of it
+3. S12-02 (BUG-063 one-line fix, 0.05d) — still zero excuse for a 20th carry, land alongside #1/#2
+4. S12-05 (pre-push hook placeholder, 0.15d) — same, cheap and unblocked
+   💡 Focus: get an owner into the Unity Editor against the current working tree before anything else —
+   the sprint's sole hard blocker may already be solved and unverified, which is a worse waste than not
+   having started it
+
+**Blockers:**
+- No owner-in-Editor session yet this sprint (Day 2) — S12-01's Play Mode smoke gate still unconfirmed,
+  and now gates a WIP that may already be complete.
+- S12-06 (S4-05/S4-06 forced decision) still needs owner judgment — cannot be resolved autonomously.
+
+**Risks:**
+- Two full days into a five-day sprint with zero commits on `sprint-12` and the sprint's sole hard blocker
+  still open — Wed/Thu's plan (S12-03, S12-04, doc-sync, ADR work) has no runway left if Tuesday also
+  closes without a compiling build landing.
+- The uncommitted WIP now lives only in this session's working tree — if the next session starts from a
+  clean `git fetch`/fresh clone instead of this exact working directory, the WIP is invisible and BUG-064
+  looks completely unstarted. Recommend the owner commit or explicitly stash-and-note it before ending
+  this session.
+- `.git/hooks/pre-push` — 15th+ cycle absent.
+- No QA plan — 15th+ consecutive cycle, deferred to owner.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
-- **BUG-064 — P0/S1, project does not compile.** New this cycle, found in Saturday's code review. Blocks
-  every other item in this sprint except the two trivial/decision-only ones. Must be the literal first
-  commit.
-- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 18th+ consecutive carry on a one-line fix with
+- **BUG-064 — P0/S1, project does not compile.** Found in Saturday's code review, still open on
+  `sprint-12` `HEAD`. Blocks every other item in this sprint except the two trivial/decision-only ones.
+  **2026-09-01 update**: a candidate fix (~30-file uncommitted WIP) is sitting directly in the working
+  tree, unstaged, un-verified in the Editor — see Tue standup entry. Not yet resolved until an owner
+  confirms it compiles and commits it.
+- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 20th+ consecutive carry on a one-line fix with
   an explanatory comment already in the file. No technical blocker has ever existed for this item.
-- **BUG-053/BUG-054 (enemy health routing)** — functional symptom looks fixed per last week's session,
+- **BUG-053/BUG-054 (enemy health routing)** — functional symptom looks fixed per Sprint 11's session,
   but cannot be confirmed until BUG-064 lands. Sequence directly after.
-- **S12-05 process gate** — now 14th carry, same underlying pattern since Sprint 6/9. Its absence is
+- **S12-05 process gate** — now 15th carry, same underlying pattern since Sprint 6/9. Its absence is
   exactly what let last week's build-breaking refactor land ungated onto `sprint-11`.
-- **S12-06 (S4-05/S4-06)** — 15th carry, zero movement any cycle. Decision-avoidance, not an estimation
+- **S12-06 (S4-05/S4-06)** — 15th+ carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem.
-- **S12-07 (ADR-0002 Accept)** — 10th carry, trivial sign-off-only change.
-- **S12-08 (DI/VContainer ADR)** — 2nd carry, now escalated: a second `ObjectPoolManager` implementation
-  exists undocumented in `LifetimeScope/Service/PoolableService/` alongside the original
-  `Assets/Script/Poolable/`, actively compounding rather than just stale.
-- **S12-09 (individual `BUG-NNN.md` files)** — 6th+ cycle, only 3 of 9+ open P1 items have files.
-- QA plan — 14th+ consecutive cycle with none. Flagged in `sprint-12.md`, deferred to owner.
-- **`feature/fix-player-control` stashed `.anim` change** — owner should recover via `git stash pop` on
-  that branch; not related to sprint-12 work.
+- **S12-07 (ADR-0002 Accept)** — 11th+ carry, trivial sign-off-only change.
+- **S12-08 (DI/VContainer ADR)** — 2nd+ carry: a second `ObjectPoolManager` implementation still exists
+  undocumented in `LifetimeScope/Service/PoolableService/` alongside the original `Assets/Script/Poolable/`.
+- **S12-09 (individual `BUG-NNN.md` files)** — 6th+ cycle, only 4 of 9+ open P1 items have files.
+- QA plan — 15th+ consecutive cycle with none. Flagged in `sprint-12.md`, deferred to owner.
+- **Uncommitted WIP now living only in this session's working tree, not on any branch** (see Tue standup
+  entry) — highest-priority item to resolve before the next session starts from a fresh checkout, or the
+  work is effectively lost/invisible.
+- **`feature/fix-player-control` stashed `.anim` change** — owner should still recover via `git stash pop`
+  on that branch; not related to sprint-12 work. Unchanged since kickoff.
