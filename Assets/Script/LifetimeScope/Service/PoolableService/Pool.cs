@@ -11,6 +11,11 @@ public class Pool : MonoBehaviour
 
     public GameObject Spawn(Vector2 position, Quaternion rotation, Transform parent = null)
     {
+        if (prefab == null)
+        {
+            Debug.LogError($"[{nameof(Pool)}] Prefab is null. Please register a prefab before spawning.");
+            return null;
+        }
         if (inactiveObjects.Count == 0)
         {
             GameObject obj = Instantiate(prefab, position, rotation, parent == null ? transform : parent);
@@ -49,7 +54,7 @@ public class Pool : MonoBehaviour
         }
 
         if (member.isInPool) return;
-        gameObject.transform.parent = parent == null ? this.transform : parent;
+        gameObject.transform.parent.SetParent(parent == null ? this.transform : parent);
         inactiveObjects.Enqueue(member);
         member.SwitchIsInPool(true);
     }

@@ -39,11 +39,11 @@ public class Entity : BaseEntity
     }
     public void OnEnable()
     {
-        Reborn();
+        //Reborn();
     }
     public void Reborn()
     {
-        stateMachine.ChangeState(idleState);
+        stateMachine.Initialize(idleState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
     private void LoadEntity()
