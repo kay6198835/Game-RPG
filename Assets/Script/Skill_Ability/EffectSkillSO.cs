@@ -8,7 +8,7 @@ using UnityEngine;
 public abstract class EffectSkillSO : AbstractSkillSO
 {
     [SerializeField] protected List<EffectData> effectData;
-    [SerializeField] protected EntityStatsSO statsSO;
+    [SerializeField] protected BaseStatsSO statsSO;
     [SerializeField] protected float lifeTime;
     [SerializeField] protected float validityDuration;
     [SerializeField] protected bool isDone;
@@ -36,7 +36,7 @@ public abstract class EffectSkillSO : AbstractSkillSO
             }
         }
     }
-    public virtual void OnEffect(EntityStatsSO statsSO)
+    public virtual void OnEffect(BaseStatsSO statsSO)
     {
         this.statsSO = statsSO;
     }
@@ -46,15 +46,15 @@ public abstract class EffectSkillSO : AbstractSkillSO
         {
             switch (EffectData[i].statsTypes)
             {
-                case Stats.Health:
-                    statsSO.ModifiersHealth = Effect(i, statsSO.ModifiersHealth);
-                    break;
-                case Stats.SpeedMove:
-                    statsSO.ModifiersVelocities = Effect(i, statsSO.ModifiersVelocities);
-                    break;
-                case Stats.Amor:
-                    statsSO.ModifiersHealth = Effect(i, statsSO.ModifiersAmor);
-                    break;
+                // case Stats.Health:
+                //     statsSO.ModifiersHealth = Effect(i, statsSO.ModifiersHealth);
+                //     break;
+                // case Stats.SpeedMove:
+                //     statsSO.ModifiersVelocities = Effect(i, statsSO.ModifiersVelocities);
+                //     break;
+                // case Stats.Amor:
+                //     statsSO.ModifiersHealth = Effect(i, statsSO.ModifiersAmor);
+                //     break;
             }
         }
     }
@@ -64,15 +64,15 @@ public abstract class EffectSkillSO : AbstractSkillSO
         {
             switch (EffectData[i].statsTypes)
             {
-                case Stats.Health:
-                    statsSO.ModifiersHealth = RemoveEffect(i, statsSO.ModifiersHealth);
-                    break;
-                case Stats.SpeedMove:
-                    statsSO.ModifiersVelocities = RemoveEffect(i, statsSO.ModifiersVelocities);
-                    break;
-                case Stats.Amor:
-                    statsSO.ModifiersHealth = RemoveEffect(i, statsSO.ModifiersAmor);
-                    break;
+                // case Stats.Health:
+                //     statsSO.ModifiersHealth = RemoveEffect(i, statsSO.ModifiersHealth);
+                //     break;
+                // case Stats.SpeedMove:
+                //     statsSO.ModifiersVelocities = RemoveEffect(i, statsSO.ModifiersVelocities);
+                //     break;
+                // case Stats.Amor:
+                //     statsSO.ModifiersHealth = RemoveEffect(i, statsSO.ModifiersAmor);
+                //     break;
             }
         }
         validityDuration = 0;

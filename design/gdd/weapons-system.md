@@ -79,7 +79,7 @@ every shot, and `AutoFire` keeps the chain alive while the trigger is held.
 2. Player transitions to `PlayerAttackState` — movement freezes
 3. `Enter()` calls `WeaponHolder.Attack()` → `Weapon.OnAttackEnter(player)`, which picks the stage, swaps the animator override, and records the chain window
 4. Animator fires `AnimationOnAction` at the hit frame → `Weapon.OnActivate()`
-5. Animator fires `AnimtionFinishTrigger` → `Weapon.OnDeactivate()`, then either chains (if input is held/buffered and `CanChain()`) or sets `Status = None` to exit to Idle/Move
+5. Animator fires `AnimationFinishTrigger` → `Weapon.OnDeactivate()`, then either chains (if input is held/buffered and `CanChain()`) or sets `Status = None` to exit to Idle/Move
 
 `PlayerAttackState` never branches on `WeaponType`. Only `OnActivate()` and the use of the
 aim direction differ between the two weapon families.

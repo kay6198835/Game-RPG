@@ -27,7 +27,7 @@ public class RangeWeapon : Weapon
         firePoint.right = aim.AimDirection.normalized;
     }
 
-    public override void OnActivate()
+    public override void OnActivate(float finalDamage)
     {
         var stage = CurrentRangeStage;
         if (stage == null || stage.BulletPrefab == null) return;

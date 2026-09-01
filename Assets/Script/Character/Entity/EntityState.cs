@@ -24,7 +24,6 @@ public class EntityState : IState
     {
         DoChecks();
         entity.Anim.SetBool(animBoolName, true);
-        Debug.Log(animBoolName);
         startTime = Time.time;
         this.Status = StatusAnimation.Start;
     }

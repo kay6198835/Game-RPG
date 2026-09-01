@@ -18,7 +18,7 @@ public class StatModifierTester : MonoBehaviour
 
     public enum SourceId { A, B, C }
 
-    [SerializeField] private StatsSO statsSO;
+    [SerializeField] private BaseStatsSO statsSO;
 
     [Header("Level Up (button 1)")]
     [SerializeField] private StatType primaryToAllocate = StatType.STR;
@@ -33,7 +33,7 @@ public class StatModifierTester : MonoBehaviour
     [Header("Group (button 3 - Add bundle)")]
     [SerializeField] private StatModifierGroup modifierGroup;
 
-    public StatsSO Stats => statsSO;
+    public BaseStatsSO Stats => statsSO;
     public StatType PrimaryToAllocate { get => primaryToAllocate; set => primaryToAllocate = value; }
 
     private object CurrentSource => source switch

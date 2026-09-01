@@ -79,7 +79,7 @@ The animation system is invisible infrastructure: if it is well-built, players d
 | `StartRangeTrigger` | `AnimationTrigger()` | Start of the active window |
 | `OnActivate` | `AnimationOnAction()` | **Hit frame** → `WeaponHolder.MakeDamage()` |
 | `OffActivate` | `AnimationOffAction()` | End of the active window → `WeaponHolder.EndDamage()` |
-| `EndRangeTrigger` | `AnimtionFinishTrigger()` *(typo intentional)* | Chain to the next stage, or fall through to exit |
+| `EndRangeTrigger` | `AnimationFinishTrigger()` | Chain to the next stage, or fall through to exit |
 | `End` | `AnimationEnd()`, and `PlayerState.Exit()` | Clip finished; use-weapon states leave to Idle/Move |
 
 **Player vs Entity coverage.** `Player.cs:70-75` implements all six event methods.

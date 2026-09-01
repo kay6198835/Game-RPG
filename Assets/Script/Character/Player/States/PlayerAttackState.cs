@@ -18,7 +18,7 @@ public class PlayerAttackState : PlayerUseWeaponState
         // The buffer gate in PlayerInputHandler.OnAttack reads statusAnimation, so it has to be
         // open from the first frame of the swing — waiting for the AnimationTrigger event puts it
         // 67-79% into the clip and silently drops every earlier press.
-        inputHandler.SetStatusAnimation(StatusAnimation.StartRangeTrigger);
+        inputHandler.SetStatusAnimation(StatusAnimation.Start);
         // Driving the first stage off the AnimationStart event made the bootstrap circular:
         // Attack() installs the clip that carries the event that calls Attack().
         weaponHolder.Attack();
