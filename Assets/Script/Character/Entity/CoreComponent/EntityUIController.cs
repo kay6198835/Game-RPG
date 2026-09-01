@@ -19,4 +19,8 @@ public class EntityUIController : EntityCoreComponent<EntityCore>
     {
         slider.value = value;
     }
+    void OnEnable()
+    {
+        slider.value = 1;
+    }
 }

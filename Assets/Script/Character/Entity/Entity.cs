@@ -37,6 +37,14 @@ public class Entity : BaseEntity
         base.Start();
         stateMachine.Initialize(idleState);
     }
+    public void OnEnable()
+    {
+        Reborn();
+    }
+    public void Reborn()
+    {
+        stateMachine.ChangeState(idleState);
+    }
     protected override IState CurrentState => stateMachine.CurrentState;
     private void LoadEntity()
     {
