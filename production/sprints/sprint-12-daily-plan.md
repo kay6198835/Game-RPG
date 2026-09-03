@@ -15,7 +15,7 @@
 
 ---
 
-## Status Verdict: 🔴 BLOCKED (Day 2 of 5) — project still does not compile at `sprint-12` `HEAD` (BUG-064). Zero dev commits have landed on `sprint-12` since kickoff. A large uncommitted WIP that appears to address BUG-064's exact surface is now sitting directly in the working tree (see Tue standup entry) — needs owner triage before Wed.
+## Status Verdict: 🔴 BLOCKED (Day 4 of 5) — project still does not compile at `sprint-12` `HEAD` (BUG-064). Zero dev commits have landed on `sprint-12` since kickoff (only standup/kickoff commits exist in the branch log). The candidate WIP found Tue is now stashed again on `feature/fix-player-control` (`stash@{0}`), untouched since Mon 08-31 — nobody has picked it up. Wed 2026-09-02 standup did not run/log (gap in this file). One day of runway left before Friday wrap-up.
 
 ---
 
@@ -242,28 +242,71 @@ waste.
 
 ---
 
+### Thu 2026-09-03 02:00 — Daily Standup (autonomous, no owner present)
+
+**Note:** No Wed 2026-09-02 standup entry exists in this file — gap, likely a missed/failed scheduled
+run. Nothing between Tue's entry and this one to cross-check against, so this entry re-verifies
+everything directly against current source rather than diffing against a Wed snapshot.
+
+**Yesterday/since Tue (2026-08-31→09-02):** Zero commits on `sprint-12` since `9a38ab8` (Tue's standup
+commit). `git log --since="2026-09-02 00:00" sprint-12` returns nothing — no dev work, no standup, no
+kickoff activity landed on this branch in the last ~40 hours.
+
+**Re-verified directly against current source at this standup (build still broken, confirmed line-by-line):**
+- 🔴 **BUG-064 / S12-01 — still open, all 7 sub-items unresolved:**
+  - (1) `EntityData.cs:8,31` still declares/exposes `EntityStatsSO statsSO` — type still deleted, still dangling.
+  - (2)/(3)/(4) `EntityInput.cs:57` still declares `EntityFindTarget entityFind` — class still does not exist in `Assets/Script/`.
+  - (6) `EnemySpawner.cs:32` (`OnDisable`) still calls `EventManager.Resgister` instead of `UnResgister` for `ON_ENEMY_DEATH` — duplicate-subscription bug still live.
+  - (7) `RangeWeapon.cs:7` still declares `[SerializeField] private IObjecPoolService poolManager` with no `[Inject]` Construct — ranged weapon `poolManager` still always null.
+  - Project does not compile at `sprint-12` `HEAD`. Zero progress since Sunday's kickoff — 4 days into a 5-day sprint with the sole Must-Have blocker completely untouched on this branch.
+- ❌ **BUG-063 / S12-02** — `Stat.cs:63-66` still wraps `modifiers` in `#if UNITY_EDITOR` / `[SerializeField]`. 21st+ consecutive carry, zero technical blocker, zero excuse.
+- ❌ **S12-05 (pre-push hook)** — `.git/hooks/pre-push` confirmed still absent. 17th+ carry.
+- ❌ **S12-07 (ADR-0002)** — `docs/architecture/adr-0002-enemymanager-singleton-exception.md:4` Status still reads `Proposed`. 13th+ carry.
+- **S12-08** — second `ObjectPoolManager` still present, still undocumented: `Assets/Script/LifetimeScope/Service/PoolableService/ObjectPoolManager.cs` alongside `Assets/Script/Poolable/`.
+- **S12-09** — `production/qa/bugs/` still holds exactly 4 files (BUG-052, BUG-053, BUG-063, BUG-064), unchanged since Mon.
+- **WIP status** — the ~30-file candidate fix from Tue is no longer sitting loose in a working tree; it is stashed on `feature/fix-player-control` as `stash@{0}` ("wip: uncommitted changes on feature/fix-player-control before standup checkout 2026-08-31"). Nobody has popped, reviewed, or ported it in the two days since. It remains the fastest path to closing S12-01 — re-deriving from scratch is strictly worse.
+
+**Today (Thu 2026-09-03) — plan, adjusted for lost runway (only 1 day left after this):**
+1. **Owner pops `stash@{0}` on `feature/fix-player-control`, opens Unity, confirms Console is clean** — Est. 0.15d. This is now the single highest-leverage action in the sprint: it may already contain the fix for BUG-064 items 1–4, and possibly more.
+2. If clean: port/merge that WIP onto `sprint-12`, then confirm items 6 and 7 (the `Resgister`/`UnResgister` typo and `RangeWeapon` DI wiring) are covered — the WIP's file list did not obviously touch `EnemySpawner.cs` or `RangeWeapon.cs`, so these two may need a small follow-up patch even after the WIP lands — Est. 0.3d combined.
+3. S12-02 (BUG-063 one-line fix) — Est. 0.05d — no reason this has not landed in 21 cycles; land it same session as #1.
+4. S12-05 (pre-push hook placeholder) — Est. 0.15d — same.
+5. Play Mode smoke gate (kill one enemy, fire ranged weapon) — cannot be skipped per `test-standards.md`, Integration-type evidence required.
+
+**Blockers:**
+- No owner-in-Editor session across 4 consecutive sprint days — S12-01's smoke gate has never been attempted, let alone confirmed. This is now the sprint's critical risk, not just a note.
+- S12-06 (S4-05/S4-06 forced decision) still needs owner judgment.
+
+**Risks:**
+- Only 1 working day left (Fri) after today. If BUG-064 does not land today, Sprint 12 closes FAIL for the second consecutive sprint on the exact same blocker, and Sprint 13 opens with the same P0 still unresolved plus a stale stash that has now sat for 4+ days.
+- Missed Wed standup means a full day passed with no re-verification checkpoint — if this pattern repeats, the tracker stops being reliable as a source of truth.
+- `.git/hooks/pre-push` — 17th+ cycle absent, still nothing gates a repeat of the Sprint 11 build-breaking merge.
+- No QA plan — 17th+ consecutive cycle, deferred to owner.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-064 — P0/S1, project does not compile.** Found in Saturday's code review, still open on
-  `sprint-12` `HEAD`. Blocks every other item in this sprint except the two trivial/decision-only ones.
-  **2026-09-01 update**: a candidate fix (~30-file uncommitted WIP) is sitting directly in the working
-  tree, unstaged, un-verified in the Editor — see Tue standup entry. Not yet resolved until an owner
-  confirms it compiles and commits it.
-- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 20th+ consecutive carry on a one-line fix with
+  `sprint-12` `HEAD` as of Thu 2026-09-03 — all 7 sub-items re-verified still broken. Blocks every other
+  item in this sprint except the two trivial/decision-only ones. **2026-09-03 update**: the candidate fix
+  is now stashed (`stash@{0}` on `feature/fix-player-control`), not lost, but untouched for 4+ days.
+  Highest-leverage single action remaining in the sprint.
+- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 21st+ consecutive carry on a one-line fix with
   an explanatory comment already in the file. No technical blocker has ever existed for this item.
 - **BUG-053/BUG-054 (enemy health routing)** — functional symptom looks fixed per Sprint 11's session,
   but cannot be confirmed until BUG-064 lands. Sequence directly after.
-- **S12-05 process gate** — now 15th carry, same underlying pattern since Sprint 6/9. Its absence is
+- **S12-05 process gate** — now 17th carry, same underlying pattern since Sprint 6/9. Its absence is
   exactly what let last week's build-breaking refactor land ungated onto `sprint-11`.
-- **S12-06 (S4-05/S4-06)** — 15th+ carry, zero movement any cycle. Decision-avoidance, not an estimation
+- **S12-06 (S4-05/S4-06)** — 17th+ carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem.
-- **S12-07 (ADR-0002 Accept)** — 11th+ carry, trivial sign-off-only change.
+- **S12-07 (ADR-0002 Accept)** — 13th+ carry, trivial sign-off-only change.
 - **S12-08 (DI/VContainer ADR)** — 2nd+ carry: a second `ObjectPoolManager` implementation still exists
   undocumented in `LifetimeScope/Service/PoolableService/` alongside the original `Assets/Script/Poolable/`.
 - **S12-09 (individual `BUG-NNN.md` files)** — 6th+ cycle, only 4 of 9+ open P1 items have files.
-- QA plan — 15th+ consecutive cycle with none. Flagged in `sprint-12.md`, deferred to owner.
-- **Uncommitted WIP now living only in this session's working tree, not on any branch** (see Tue standup
-  entry) — highest-priority item to resolve before the next session starts from a fresh checkout, or the
-  work is effectively lost/invisible.
-- **`feature/fix-player-control` stashed `.anim` change** — owner should still recover via `git stash pop`
-  on that branch; not related to sprint-12 work. Unchanged since kickoff.
+- QA plan — 17th+ consecutive cycle with none. Flagged in `sprint-12.md`, deferred to owner.
+- **Candidate BUG-064 fix stashed on `feature/fix-player-control` (`stash@{0}`)** — not committed, not
+  ported, not reviewed in the Editor, sitting untouched since Mon 08-31. Highest-priority item to resolve
+  before Friday wrap-up, or the sprint closes FAIL on the same blocker as Sprint 11.
+- **`feature/fix-player-control` stashed `.anim` change (`stash@{1}`)** — owner should still recover via
+  `git stash pop` on that branch; not related to sprint-12 work. Unchanged since kickoff.
