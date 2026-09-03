@@ -10,6 +10,7 @@ public interface IPlayerStatService
     float GetStatValue(StatType statType);
     void AddPrimaryPoint(StatType statType, int amount);
     int GetLevelUpStatsBonus();
+    int GetLevel();
     void RemoveModifiersFromSource(object source);
     void AddModifiersFromSource(object source, IReadOnlyList<StatModifier> modifiers);
 }
