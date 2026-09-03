@@ -32,7 +32,6 @@ public class DerivedStatFormula
 
     public Stat Evaluate(Func<StatType, Stat> getStat, int level)
     {
-        float value = baseConstant + level * perLevel;
         float BaseValue = baseConstant;
         float LevelUpValue = level * perLevel;
         float EquipmentValue = 0;
