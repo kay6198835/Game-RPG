@@ -111,6 +111,15 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     {
         this.targetFowardPosition = targetPosition;
     }
+
+    /// <summary>
+    /// Assigns the chase target. GetTargetInRange() is still disabled (NEW-1), so a component that
+    /// runs its own detection — BossCommander today — must push the result in for EntityMovement.
+    /// </summary>
+    public void SetTargetTransform(Transform target)
+    {
+        this.targetTransform = target;
+    }
     public void SetDirectionRadom()
     {
         directionLookAngle = Random.Range(0f, 360f);

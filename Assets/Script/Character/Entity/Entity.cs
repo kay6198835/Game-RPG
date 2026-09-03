@@ -41,12 +41,12 @@ public class Entity : BaseEntity
     {
         //Reborn();
     }
-    public void Reborn()
+    public virtual void Reborn()
     {
         stateMachine.Initialize(idleState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
-    private void LoadEntity()
+    protected virtual void LoadEntity()
     {
         stateMachine = new EntityStateMachine();
         core = GetComponentInChildren<EntityCore>();
@@ -55,7 +55,7 @@ public class Entity : BaseEntity
         particle = GetComponentInChildren<ParticleSystem>();
         anim.runtimeAnimatorController = data.Aima;
     }
-    private void LoadState()
+    protected virtual void LoadState()
     {
         idleState = new EntityIdleState(this, stateMachine, data, "Idle");
         moveState = new EntityMoveState(this, stateMachine, data, "Move");
