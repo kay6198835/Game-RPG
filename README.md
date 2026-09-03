@@ -1,45 +1,106 @@
 # Game-RPG
 
-A Unity 2D action roguelike RPG. Top-down real-time melee combat inspired by
-**Cult of the Lamb**: directional attacks, weapon-linked skills, and per-run power
-progression through procedurally generated rooms — clear the enemies to unlock the doors
-to the next room.
+A Unity 2D top-down action roguelike with real-time directional melee combat, weapon-linked
+skills, and procedurally generated dungeon rooms. Clear the enemies to unlock the doors to
+the next room.
 
-**Demo target:** one complete game life cycle — start menu → dungeon run (movement, melee
-combat, two skills, enemies, room progression) → death and restart. Scope is deliberately
-limited to the combat system.
+<!-- TODO: replace with a real 10-20s gameplay GIF. This is the single highest-impact
+     thing on this page — a game repo without a moving image gets skipped. -->
+![Gameplay](docs/images/gameplay.gif)
+
+**[▶ Play in browser](#)** · *(TODO: itch.io WebGL build link)*
 
 ---
 
-## Getting started
+## My role
+
+Solo project — I designed and implemented every system in `Assets/Script/`: the combat and
+state-machine framework, the A\* pathfinding, the stat system, procedural dungeon generation,
+the enemy AI, and the dependency-injection wiring.
+
+Third-party assets used: DOTween (tweening), VContainer (DI), and the sprite/animation art
+listed in [`CREDITS.md`](CREDITS.md).
+
+**Development note:** AI-assisted tooling (Claude Code) was used for documentation, code
+review, and refactoring passes. All architecture and gameplay systems are my own design and
+implementation.
+
+---
+
+## Technical highlights
+
+The parts of this project I would most want to talk through in an interview:
+
+### Custom A\* pathfinding with a frame-budgeted request queue
+`Assets/Script/Pathfinding/`
+
+Rather than using Unity's NavMesh, enemy navigation runs on a hand-written A\* over a tilemap
+grid: a binary-heap [`PriorityQueue`](Assets/Script/Pathfinding/Algorithm/PriorityQueue.cs),
+an octile [`Heuristic`](Assets/Script/Pathfinding/Algorithm/Heuristic.cs) for 8-way movement,
+and a [`PathRequestManager`](Assets/Script/Pathfinding/PathRequestManager.cs) that caps
+searches at `maxRequestsPerFrame` so a room full of enemies cannot spike the frame time.
+
+### Data-driven derived stat system
+`Assets/Script/StatSystem/`
+
+Primary stats (STR/DEX/INT/VIT/LUK) feed derived stats (HP, damage, crit…) through
+[`DerivedStatFormula`](Assets/Script/StatSystem/DerivedStatFormula.cs):
+
+```
+BaseValue = baseConstant + level × perLevel + Σ(sourceStat × coefficient)
+```
+
+Every coefficient is authored in the Inspector, so balancing never touches code. Buffs and
+equipment apply as source-tagged [`StatModifier`](Assets/Script/StatSystem/StatModifier.cs)
+bundles — equipping a weapon stamps its modifiers with the weapon as the source, and
+unequipping removes exactly that source by reference. The balance numbers are modelled in
+[`ToolExcel/`](ToolExcel/) and mirrored into the ScriptableObject assets.
+
+### Generic state machine shared by player and enemies
+`Assets/Script/Character/`
+
+One generic [`StateMachine<TState>`](Assets/Script/Character/Base/StateMachine.cs) drives both
+the player and every enemy. Animation hand-off runs through a `StatusAnimation` enum written
+by Unity Animation Events, so states react to animation phases (`OnActivate` = the hit frame)
+instead of guessing with timers. Combat behaviour is added by writing a new state subclass,
+never an `if/else` branch in `Update()`.
+
+### Procedural dungeon generation
+`Assets/Script/Map/`
+
+A DFS maze generator lays out the room graph, rooms are authored in a custom in-editor level
+tool and loaded from JSON, and door tiles are swapped at load time to match the maze topology.
+Room-clear state is tracked by a live enemy count that unlocks the doors when it hits zero.
+
+### Zero-allocation combat and dependency injection
+
+Melee hit detection uses `Physics2D.OverlapCircleNonAlloc` into a buffer pre-allocated in
+`Awake()` ([`MeleeWeapon.cs`](Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs)), enemies and
+projectiles are pooled, and cross-system services are injected via VContainer behind
+interfaces (`IObjecPoolService`, `IPlayerStatService`) instead of singletons.
+
+---
+
+## Tech stack
 
 | | |
 |---|---|
-| **Engine** | Unity 2022.3.62f3 LTS (URP, 2D Renderer) |
-| **Open** | Unity Hub → Open → this folder |
-| **Play scene** | `Assets/Scenes/Main/Test/LoadRandomMap.unity` |
-| **IDE** | `Game-RPG.sln` in Rider or Visual Studio |
-
-Key packages: Input System 1.14.0, TextMeshPro 3.0.7, 2D Feature Pack,
-Visual Scripting 1.9.4, DOTween.
-
-There are **no build, lint, or test CLI commands** — all development happens through the
-Unity Editor. Any `.cs` edit triggers auto-recompile; errors appear in the Console.
-
-### Scene wiring the dungeon needs
-
-`LoadRandomMap` will not run without all of these present in the scene:
-
-- a `MazeController` (wires `MapGridController` + `RoomGridController`)
-- a `LevelManager` with `dungeonRoomSO = Maze_Storage.asset`
-- an `EnemyManager` (pathfinding service — `EntityMovement` reads its grid on `Start`)
-- an `EnemySpawner` with `mapModel` assigned
-- `RoomGridController._dungeonRoomSO = Maze_Load_Room.asset`
-- `RoomGeneraterController._fastMovement` and `_genmap` assigned
+| **Engine** | Unity 2022.3.62f3 LTS — URP, 2D Renderer |
+| **Language** | C# — ~10k lines across 174 files |
+| **Input** | Unity Input System 1.14 |
+| **DI** | VContainer 1.19 |
+| **Tweening** | DOTween |
+| **UI** | UI Toolkit (menus) + UGUI/TextMeshPro (HUD) |
 
 ---
 
-## Controls
+## Running it
+
+```
+Unity Hub → Open → this folder      (Unity 2022.3.62f3 LTS)
+Open scene: Assets/Scenes/Main/Test/LoadRandomMap.unity
+Press Play
+```
 
 | Action | Binding |
 |--------|---------|
@@ -53,73 +114,37 @@ Unity Editor. Any `.cs` edit triggers auto-recompile; errors appear in the Conso
 
 ---
 
-## Repository map
+## Project structure
 
 ```
-Assets/Script/       All active game code — the single source of truth
-  Character/Base/      Shared hub + state machine under both Player and Entity
-  Character/Player/    Player MonoBehaviour, states, core components
+Assets/Script/
+  Character/Base/      Shared component hub + generic state machine
+  Character/Player/    Player controller, states, core components
   Character/Entity/    Enemy AI framework (mirrors the player pattern)
-  Weapons/             Weapon base, melee, ranged, AttackSO stages
-  Skill_Ability/       ActivateSkill SO lifecycle and concrete abilities
-  StatSystem/          Primary/derived stat framework, modifiers
+  Weapons/             Weapon base, melee, ranged, combo stages as SOs
+  Skill_Ability/       Hold-release ability lifecycle (ScriptableObjects)
+  StatSystem/          Primary/derived stats, modifiers, formulas
+  Pathfinding/         A*, grid builder, request manager
   Map/                 Maze generation, room grid, doors, minimap
-  Enemy/               EnemySO, EnemyManager (pathfinding), EnemySpawner
-  Pathfinding/         A*, grid, request manager
-  Poolable/            Generic object pool
-  Database-SO/Modal/   Enemy-spawn data model ("Modal" is a preserved typo)
-  LevelEdit/           Room authoring + runtime room loading
-  Manager/             EventManager static bus, AnimationEventManager
-  UI/                  UI Toolkit menus + stats panel
-  Utility/             GameConstants, helpers, extensions
-
-Assets/Data/Json/Room/   13 authored room tilemaps as JSON
-Assets/SO/               ScriptableObject assets (dungeon, stats, weapons, skills)
-Assets/Scenes/           See the Scene Map in CLAUDE.md
-
-design/          Game design documents (GDDs) and balance data
-docs/            Architecture decision records, tech debt register, engine reference
-production/      Sprints, epics, QA (bugs, triage, playtests), retrospectives
-memory/          project_state.md — current code-state snapshot
-tests/           EditMode / PlayMode / playtest — currently empty (see TD-014)
-ToolExcel/       Stat formula spreadsheets (source of truth for balance numbers)
-.claude/         Agent definitions, skills, and the coding rules in .claude/rules/
+  Enemy/               Spawning, weighted rarity selection
+  LifetimeScope/       VContainer DI setup + pooled object service
+  LevelEdit/           Custom in-editor room authoring tool
+  Manager/             Static event bus
 ```
 
----
-
-## Where to look for what
-
-| Question | File |
-|----------|------|
-| How is the code organised, and what is broken right now? | [`CLAUDE.md`](CLAUDE.md) |
-| What is actually implemented today? | [`memory/project_state.md`](memory/project_state.md) |
-| How is a system supposed to work? | [`design/gdd/`](design/gdd/) — start with [`systems-index.md`](design/gdd/systems-index.md) |
-| Why was an architectural choice made? | [`docs/architecture/`](docs/architecture/) |
-| What shortcuts are we carrying? | [`docs/tech-debt-register.md`](docs/tech-debt-register.md) |
-| What is being worked on this week? | [`production/sprint-status.yaml`](production/sprint-status.yaml) |
-| What are the coding rules? | [`.claude/rules/`](.claude/rules/) |
+Deeper technical notes, conventions, and the current bug list live in
+[`CLAUDE.md`](CLAUDE.md); design documents are in [`design/gdd/`](design/gdd/) and
+architecture decisions in [`docs/architecture/`](docs/architecture/).
 
 ---
 
-## Conventions that will bite you
+## Roadmap
 
-- **Preserve the intentional typos.** `EventManager.Resgister`, `INegativeReciver.cs`,
-  `attackDamege`, `Modal` (= Model), `ENEBLE`, `CaculateIndex`, `currrentSA`, `deplayTime`
-  are real contracts in code and in serialized `.asset` files. Renaming them breaks
-  deserialization.
-- **ScriptableObject first.** Gameplay numbers live in SO assets, never hardcoded.
-- **State machines only.** New character behaviour is a new `PlayerState` / `EntityState`
-  subclass — never an `if/else` branch in `Update()`.
-- **No new singletons.** `MazeController` and `EnemyManager` are the only sanctioned ones
-  (`LevelManager` is a known, unratified violation — TD-023).
-- **All damage flows through `INegativeReceiver.TakeDamage(int, Vector2)`.** No script may
-  mutate another entity's health directly.
+Combat, dungeon generation, room progression, enemy spawning, and room-clear detection are
+implemented and playable. Currently in progress:
 
----
-
-## Project status
-
-Combat, dungeon generation, room progression, and room-clear detection are implemented.
-The enemy damage/death chain and the player death/restart chain are **not yet working** —
-see the Known Bugs table in [`CLAUDE.md`](CLAUDE.md) for the current, source-verified list.
+- [ ] Death → game-over → restart flow
+- [ ] Player health/mana HUD
+- [ ] Build-safe room loading (move room JSON off `Application.dataPath`)
+- [ ] Between-room upgrade cards
+- [ ] EditMode unit tests for the stat formulas
