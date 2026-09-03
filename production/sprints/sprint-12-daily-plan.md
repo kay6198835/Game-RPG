@@ -15,7 +15,7 @@
 
 ---
 
-## Status Verdict: 🔴 BLOCKED (Day 4 of 5) — project still does not compile at `sprint-12` `HEAD` (BUG-064). Zero dev commits have landed on `sprint-12` since kickoff (only standup/kickoff commits exist in the branch log). The candidate WIP found Tue is now stashed again on `feature/fix-player-control` (`stash@{0}`), untouched since Mon 08-31 — nobody has picked it up. Wed 2026-09-02 standup did not run/log (gap in this file). One day of runway left before Friday wrap-up.
+## Status Verdict: 🟡 AT RISK (Day 4 of 5) — `origin/feature/fix-player-control` was merged into `sprint-12` today (`86b7ee0`, 2026-09-03 13:47) as a **fresh commit** (`6a56fe6`), not from the old stash. Re-verification against current source shows BUG-064 sub-items 1–4 and 6 now fixed; item 7 (`RangeWeapon` poolManager DI) is still open. Project likely compiles now but **has not been confirmed in the Unity Editor** — smoke gate still outstanding. One day of runway left before Friday wrap-up.
 
 ---
 
@@ -285,12 +285,71 @@ kickoff activity landed on this branch in the last ~40 hours.
 
 ---
 
+### Thu 2026-09-03 13:50 — Mid-day check-in (post-standup, autonomous)
+
+**Trigger:** `feature/fix-player-control` merged into `sprint-12` at 13:47 (`86b7ee0`, merging `6a56fe6`
+"coding") — landed ~2 minutes after this morning's 02:00 standup commit (`003fc20`). This is a **fresh
+commit on `feature/fix-player-control`**, not the two stashes noted in every prior entry — `stash@{0}`
+("wip: uncommitted changes … before standup checkout 2026-08-31") and `stash@{1}` (the `.anim` change)
+are both still sitting untouched, unpopped, unrelated to this merge.
+
+**BUG-064 re-verified line-by-line against post-merge source:**
+- ✅ (1) `EntityData.cs` — no `EntityStatsSO` reference found anywhere in `Assets/Script/`; type fully
+  removed, `StatsSO.cs` deleted, replaced by new `BaseStatsSO.cs` / `EnemyStatSO.cs`.
+- ✅ (2)/(3)/(4) `EntityFindTarget.cs` now exists (`Assets/Script/Character/Entity/CoreComponent/`) and
+  defines the class `EntityInput.cs:57`, `EntityAttack.cs:8`, `EntityMovement.cs:22`,
+  `EntityBasicState.cs:11` all reference. No dangling type.
+- ✅ `Entity.cs` — `data` field (`EntityData`) and `Data` getter are both present again;
+  `LoadEntity()`/`LoadState()`/`SetDataEntity()` all resolve against a real field, not a removed one.
+  This was the exact break the retro flagged — looks closed.
+- ✅ (6) `EnemySpawner.cs:30-32` `OnDisable` now correctly calls `UnResgister` for all three events
+  including `ON_ENEMY_DEATH` — the duplicate-subscription bug is gone.
+- ❌ (7) `RangeWeapon.cs:7` **still** declares `[SerializeField] private IObjecPoolService poolManager;`
+  with no `[Inject]`/constructor wiring anywhere in the file. Unity cannot serialize an interface field via
+  the Inspector, so this stays null at runtime regardless of merge — ranged weapon fire will silently
+  no-op (`CanAttack()` gates on `poolManager != null`). **Sole remaining BUG-064 sub-item.**
+- Also landed in the same commit, not previously tracked: `GameLifetimeScope` now registers `ItemSpawner`;
+  `IPlayerStatService` gained `GetLevel()`; new `EntityUIController.cs`. Text-level read only — not
+  exhaustively diffed against every consumer.
+
+**S12-08 (duplicate `ObjectPoolManager`) — improved, not closed:** `Assets/Script/Poolable/ObjectPoolManager.cs`
+no longer exists on disk; only `Assets/Script/LifetimeScope/Service/PoolableService/ObjectPoolManager.cs`
+remains. Single implementation now, which resolves the *duplication* — but the DI/VContainer ADR this
+item calls for (documenting the `LifetimeScope/` pattern itself) still does not exist. Downgrading
+urgency, not closing S12-08.
+
+**Unchanged (re-verified, no movement):**
+- ❌ BUG-063 / S12-02 (`Stat.cs:63-64` `[SerializeField]` under `#if UNITY_EDITOR`) — 22nd+ carry.
+- ❌ S12-05 (pre-push hook) — `.git/hooks/pre-push` still absent, 18th+ carry.
+- ❌ S12-07 (ADR-0002) — Status still `Proposed`, 14th+ carry.
+- S12-09 — still exactly 4 `BUG-NNN.md` files (BUG-052/053/063/064) of 9+ open P1s.
+
+**Owner action needed (highest leverage, in order):**
+1. Open the project in Unity Editor **from this exact `sprint-12` HEAD** (`86b7ee0`) and confirm the
+   Console is clean — this has never been done this sprint and is the only way to actually close BUG-064,
+   text-level verification is not a substitute.
+2. Run the smoke gate (`LoadRandomMap`, kill one enemy, fire the ranged weapon once) — expect the ranged
+   weapon to visibly fail here due to item 7 above; that failure is expected and pinpoints the one
+   remaining line to fix, not a regression.
+3. Wire `RangeWeapon.poolManager` via `[Inject]` (matching whatever pattern `GameLifetimeScope` already
+   uses for its other services) — this is now the single smallest item standing between the sprint and a
+   closed BUG-064.
+4. Land BUG-063 (`Stat.cs`) and the pre-push hook placeholder alongside #3 — both remain zero-blocker,
+   sub-15-minute items with no reason left to carry into Sprint 13.
+
+**Risk, updated:** the sprint's sole hard blocker went from "completely unstarted on `sprint-12`" to
+"one small DI wiring fix + an Editor confirmation" within the same day — genuine progress, but it is
+**still unconfirmed in-Editor**, and Friday is the last working day. If item 7 and the Editor check don't
+happen tomorrow, Sprint 12 still risks closing on an unverified build.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
-- **BUG-064 — P0/S1, project does not compile.** Found in Saturday's code review, still open on
-  `sprint-12` `HEAD` as of Thu 2026-09-03 — all 7 sub-items re-verified still broken. Blocks every other
-  item in this sprint except the two trivial/decision-only ones. **2026-09-03 update**: the candidate fix
-  is now stashed (`stash@{0}` on `feature/fix-player-control`), not lost, but untouched for 4+ days.
+- **BUG-064 — P0/S1, project does not compile.** Found in Saturday's code review. **2026-09-03 13:50
+  update**: `feature/fix-player-control` merged into `sprint-12` (`86b7ee0`) — sub-items 1/2/3/4/6
+  re-verified fixed against source; only sub-item 7 (`RangeWeapon.cs:7` `poolManager` needs `[Inject]`)
+  remains open. Still **not confirmed in the Unity Editor** — Console-clean + smoke gate outstanding.
   Highest-leverage single action remaining in the sprint.
 - **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 21st+ consecutive carry on a one-line fix with
   an explanatory comment already in the file. No technical blocker has ever existed for this item.
