@@ -82,7 +82,7 @@ public class StatModifierTesterEditor : Editor
 
     private void DrawLiveReadout(StatModifierTester tester)
     {
-        StatsSO stats = tester.Stats;
+        BaseStatsSO stats = tester.Stats;
         if (stats == null) return;
 
         EditorGUILayout.Space();
@@ -99,7 +99,7 @@ public class StatModifierTesterEditor : Editor
                 DrawStatLine(stats, t);
     }
 
-    private void DrawStatLine(StatsSO stats, StatType t)
+    private void DrawStatLine(BaseStatsSO stats, StatType t)
     {
         Stat stat = stats.Get(t);
         float value = stat != null ? stat.FinalValue : 0f;

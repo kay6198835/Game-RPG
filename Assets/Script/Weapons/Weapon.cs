@@ -59,7 +59,7 @@ public abstract class Weapon : InteractiveObjects
     }
 
     /// <summary>The hit frame. Melee resolves a hitbox here, ranged spawns projectiles.</summary>
-    public abstract void OnActivate();
+    public abstract void OnActivate(float damage);
 
     /// <summary>End of the active frames. Optional per weapon type.</summary>
     public virtual void OnDeactivate() { }

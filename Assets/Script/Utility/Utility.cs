@@ -214,6 +214,12 @@ public static class Utility
         return indices.GetRange(0, pickCount);
     }
 
+    /// <summary>True với xác suất percentChance (0-100). VD: RollChance(30f) → 30% true.</summary>
+    public static bool RollChance(float percentChance)
+    {
+        return Random.Range(0f, 100f) < percentChance;
+    }
+
     public static void RandomShuffle<T>(this IList<T> list)
     {
         int n = list.Count;

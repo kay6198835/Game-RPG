@@ -21,7 +21,7 @@ public class MeleeWeapon : Weapon
             + aim.AimDirection.normalized * currentStage.attackRange;
     }
 
-    public override void OnActivate()
+    public override void OnActivate(float finalDamage)
     {
         int count = Physics2D.OverlapCircleNonAlloc(
             centerAttackPosition, currentStage.attackRange, hits, stats.LayerMask);
@@ -30,7 +30,7 @@ public class MeleeWeapon : Weapon
         {
             if (hits[i].TryGetComponent(out INegativeReceiver receiver))
             {
-                receiver.TakeDamage(currentStage.attackDamege, transform.position);
+                receiver.TakeDamage(finalDamage, transform.position);
             }
         }
     }

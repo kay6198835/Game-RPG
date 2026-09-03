@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "StatsProfile", menuName = "Game/Stats Profile")]
-public class StatsSO : ScriptableObject
+
+public class BaseStatsSO : ScriptableObject
 {
     [SerializeField, Min(1)] private int level = 1;
     [SerializeField, Min(1)] private int statUnusedBonus;

@@ -29,7 +29,7 @@ public class EnemySpawner : MonoBehaviour
     {
         EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
-        EventManager.Resgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
+        EventManager.UnResgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
     public void Spawn()
     {

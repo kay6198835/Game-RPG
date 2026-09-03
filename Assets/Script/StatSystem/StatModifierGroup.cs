@@ -26,7 +26,7 @@ public class StatModifierGroup
     public IReadOnlyList<StatModifier> Modifiers => authoredModifiers;
 
     /// <summary>Gắn toàn bộ cụm vào một StatsSO, ghi nhận nguồn là source.</summary>
-    public void ApplyTo(StatsSO stats, object source)
+    public void ApplyTo(BaseStatsSO stats, object source)
     {
         if (stats == null)
         {
@@ -45,7 +45,7 @@ public class StatModifierGroup
     }
 
     /// <summary>Gỡ mọi modifier đến từ source (gồm cụm này và mọi cụm khác cùng nguồn).</summary>
-    public void RemoveFrom(StatsSO stats, object source)
+    public void RemoveFrom(BaseStatsSO stats, object source)
     {
         if (stats == null)
         {

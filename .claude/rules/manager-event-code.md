@@ -30,7 +30,7 @@ globs: ["Assets/Script/Manager/**/*.cs", "Assets/Script/GameConstants.cs"]
 
 - The real mechanism is Unity Animation Events calling methods **by name** on `Player` / `Entity`
   (`AnimationStart`, `AnimationTrigger`, `AnimationOnAction`, `AnimationOffAction`,
-  `AnimtionFinishTrigger`, `AnimationEnd`)
+  `AnimationFinishTrigger`, `AnimationEnd`)
 - Each of those does exactly one thing: `CurrentState.SetAnimationStatus(StatusAnimation.X)`
 - Never add gameplay logic directly into an animation event method — branch on `Status` inside the
   state's `LogicUpdate()` instead

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.VisualScripting;
 using UnityEngine;
 using VContainer;
 
@@ -19,6 +20,16 @@ public class EntityVitalStats : EntityCoreComponent<EntityCore>
     protected override void Start()
     {
         base.Start();
+        Reborn();
+    }
+
+    void OnEnable()
+    {
+        Reborn();
+    }
+
+    public void Reborn()
+    {
         Core.GetCoreComponent(out statHandler);
         currentStats = statHandler.GetFullStat();
     }

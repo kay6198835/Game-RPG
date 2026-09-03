@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IPlayerStatService
 {
-    [SerializeField] private StatsSO statsSO;
-    protected override void Awake()
+    [SerializeField] private BaseStatsSO statsSO;
+    public override void Setup()
     {
-        base.Awake();
-        statsSO = core.Entity.Stats;
+        base.Setup();
+        statsSO = core.Entity.Data.StatsSO;
     }
     public int GetLevel()
     {

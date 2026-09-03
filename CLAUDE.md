@@ -291,7 +291,7 @@
 
   Animation handoff uses the **`StatusAnimation` enum**, not boolean flags. Animation events on the
   Player call `AnimationStart` / `AnimationTrigger` / `AnimationOnAction` / `AnimationOffAction` /
-  `AnimtionFinishTrigger` / `AnimationEnd`, each of which calls
+  `AnimationFinishTrigger` / `AnimationEnd`, each of which calls
   `CurrentState.SetAnimationStatus(StatusAnimation.X)`. States branch on `Status` in `LogicUpdate()`.
 
   ### Enemy AI Framework

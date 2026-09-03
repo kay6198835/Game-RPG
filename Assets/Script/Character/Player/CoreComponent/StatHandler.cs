@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class StatHandler : CoreComponent<Core>, IPlayerStatService
 {
-    [SerializeField] private StatsSO statsSO;
+    [SerializeField] private BaseStatsSO statsSO;
     // Lazy-resolved on first real use, not Awake: core.Player is only set inside Core.Awake(),
     // and Unity does not guarantee Core.Awake() runs before this component's Awake().
-    private StatsSO StatsSO => statsSO ??= core.Player.Stats;
+    private BaseStatsSO StatsSO => statsSO ??= core.Player.Stats;
     public int GetLevel()
     {
         return StatsSO.Level;

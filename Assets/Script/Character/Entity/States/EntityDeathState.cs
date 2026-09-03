@@ -12,9 +12,10 @@ public class EntityDeathState : EntityBasicState
 
     public override void LogicUpdate()
     {
-        if (Status == StatusAnimation.EndRangeTrigger)
+        if (Status == StatusAnimation.OnActivate)
         {
-            EventManager.Emit(EventID.ON_ENEMY_DEATH, entity.transform.position);
+            EventManager.Emit(EventID.ON_ENEMY_DEATH, entity.gameObject);
+            Status = StatusAnimation.None;
         }
     }
 }

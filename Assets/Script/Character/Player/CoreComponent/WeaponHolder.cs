@@ -3,6 +3,7 @@ using UnityEngine;
 public class WeaponHolder : Interact
 {
     [SerializeField] private Weapon weapon;
+    VitalStatsComponent vitalStatsComponent;
 
     public Weapon Weapon { get => weapon; }
 
@@ -10,6 +11,12 @@ public class WeaponHolder : Interact
     {
         base.Awake();
         interactableMask = LayerMask.GetMask("Weapon");
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        Core.GetCoreComponent(out vitalStatsComponent);
     }
 
     public void Equid_UnEquid(Weapon weapon)
@@ -41,12 +48,22 @@ public class WeaponHolder : Interact
     public void MakeDamage()
     {
         if (weapon == null) return;
-        weapon.OnActivate();
+        weapon.OnActivate(CalculateCurrentDamage());
     }
 
     public void EndDamage()
     {
         if (weapon == null) return;
         weapon.OnDeactivate();
+    }
+
+    private float CalculateCurrentDamage()
+    {
+        float finalDamage = 0;
+        finalDamage = vitalStatsComponent.GetCurrentStatValue(StatType.PhysicalDamage)
+         + weapon.CurrentStage.attackDamage;
+        if (Utility.RollChance(vitalStatsComponent.GetCurrentStatValue(StatType.CritChance)))
+            finalDamage += vitalStatsComponent.GetCurrentStatValue(StatType.CritDamage);
+        return finalDamage;
     }
 }
