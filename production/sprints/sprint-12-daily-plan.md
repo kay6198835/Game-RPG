@@ -15,7 +15,7 @@
 
 ---
 
-## Status Verdict: 🟡 AT RISK (Day 4 of 5) — `origin/feature/fix-player-control` was merged into `sprint-12` today (`86b7ee0`, 2026-09-03 13:47) as a **fresh commit** (`6a56fe6`), not from the old stash. Re-verification against current source shows BUG-064 sub-items 1–4 and 6 now fixed; item 7 (`RangeWeapon` poolManager DI) is still open. Project likely compiles now but **has not been confirmed in the Unity Editor** — smoke gate still outstanding. One day of runway left before Friday wrap-up.
+## Status Verdict: 🔴 AT RISK — LAST DAY (Day 5 of 5) — 2026-09-03 saw a full day of commits (`ffe1976` boss framework, `f7acffc`/`2ff6c49` portfolio-prep merge, `1c0742e` full `Assets/Script/` folder restructure into `Script/System/`) but **none of them touched `RangeWeapon.cs`** — BUG-064 sub-item 7 (`poolManager` needs `[Inject]`) is re-verified still open on current `sprint-12` HEAD (`1c0742e`), exactly as flagged at yesterday's mid-day check-in. Local `sprint-12` is in sync with `origin/sprint-12` (no unpushed commits). Today is the sprint's last scheduled day per `sprint-12.md` header (2026-08-31 → 2026-09-04) — a wrap-up decision is due regardless of whether item 7 lands.
 
 ---
 
@@ -369,3 +369,74 @@ happen tomorrow, Sprint 12 still risks closing on an unverified build.
   before Friday wrap-up, or the sprint closes FAIL on the same blocker as Sprint 11.
 - **`feature/fix-player-control` stashed `.anim` change (`stash@{1}`)** — owner should still recover via
   `git stash pop` on that branch; not related to sprint-12 work. Unchanged since kickoff.
+
+---
+
+### Fri 2026-09-04 02:00 — Daily standup (autonomous, last scheduled day of sprint)
+
+**Yesterday (2026-09-03), full day, re-verified against source on `sprint-12` HEAD (`1c0742e`):**
+- `6a56fe6`→`003fc20`→`86b7ee0`→`9d6e8c1` (morning/mid-day, already logged) — BUG-064 sub-items 1–4 and 6
+  confirmed fixed; sub-item 7 flagged as sole remaining item.
+- `f7acffc` + `2ff6c49` (07:47) — a "prep repo for clean public release" portfolio commit was merged into
+  `sprint-12` (`README.md`, `CREDITS.md`, deleted `WorkAtHome.wlt` / `bash.exe.stackdump`, `Game-RPG.slnx`
+  tweak). Unrelated to any sprint-12 story or bug. Flagged as scope drift, not reverted — no destructive
+  action taken without owner sign-off.
+- `ffe1976` (09:33) — new boss framework (command-pattern base, phases, telegraphed attacks). Not a
+  sprint-12 backlog item (`sprint-12.md` Must-Haves are BUG-064 / BUG-063 / smoke gate / process gates
+  only) — net-new scope added on the sprint's second-to-last day.
+- `1c0742e` (17:29) — large mechanical restructure: `Assets/Script/{Enemy,Pathfinding,Skill_Ability,
+  StatSystem,...}` moved under `Assets/Script/System/`; new `Assets/Script/System/PlayerSystem/
+  PlayerManager.cs`; new `EnemyStatSO.cs` (empty `BaseStatsSO` subclass — read directly, no recursion,
+  does not reintroduce NEW-2). 298 files changed in the day's combined diff. **`CLAUDE.md`'s Repository
+  Layout section is now stale** against this restructure (still documents the pre-move paths) —
+  recommend `/doc-sync` once the sprint closes; out of scope for this run (`.md` files outside
+  `production/` are not writable here).
+- **BUG-064 sub-item 7 — confirmed still open**, text-verified: `RangeWeapon.cs:7` still
+  `[SerializeField] private IObjecPoolService poolManager;` with no `[Inject]`/constructor wiring anywhere
+  in the file, and no `[Inject]` attribute referencing pool service anywhere in the diff. The exact fix
+  pattern already exists in the same codebase, landed the same day: `Assets/Script/Item/ItemSpawner.cs:8-10`
+  —
+  ```
+  [SerializeField] private IObjecPoolService objecPoolService;
+  [Inject]
+  public void Construct(IObjecPoolService objecPoolService)
+  ```
+  Mirroring these 3 lines into `RangeWeapon.cs` is very likely the entire remaining fix.
+- BUG-063 (`Stat.cs`) — still open, re-verified (`Stat.cs:63` still `#if UNITY_EDITOR` guarding
+  `[SerializeField]` on `modifiers`). 23rd+ consecutive carry.
+- `.git/hooks/pre-push` — still absent. 19th+ consecutive carry.
+- Bug files on disk: 4 (`BUG-052/053/063/064.md`), all `Status: Open`. (Startup-hook banner reported "8
+  open bugs" — that figure was not reconciled against `production/qa/bugs/` in this run; flagging the
+  discrepancy rather than guessing which count is stale.)
+- `sprint-12` local ref matches `origin/sprint-12` exactly — nothing unpushed going into today.
+
+**Today's plan (last scheduled day — estimates via `/estimate` logic: complexity, dependencies, risk):**
+
+| Task | Est. | Priority | Notes |
+|------|------|----------|-------|
+| S12-01 / BUG-064 sub-item 7 — add `[Inject] Construct(IObjecPoolService)` to `RangeWeapon.cs`, mirroring `ItemSpawner.cs:8-10` | 0.1d | P0 | Low complexity, no unknowns, pattern already proven same-repo same-day. Only item standing between BUG-064 and closed |
+| Open Unity Editor on this exact `sprint-12` HEAD, confirm Console clean | 0.15d | P0 | Never done this sprint despite being named the top blocker at 3 consecutive standups/check-ins. Must happen before the sprint can close anything but FAIL |
+| Play Mode smoke gate: `LoadRandomMap`, kill one enemy, fire ranged weapon once | 0.2d | P0 | Integration-type evidence required per `test-standards.md`; depends on the two items above. Ranged weapon fire is the exact path item 7 fixes — this is also the acceptance check for it |
+| S12-02 / BUG-063 one-line fix (`Stat.cs:63`) | 0.05d | P1 | Zero blocker, 23rd+ carry — land in the same session as item 7, no reason to defer again |
+| S12-05 pre-push hook placeholder | 0.15d | P1 | Zero blocker, 19th+ carry |
+| Sprint 12 close-out (verdict, retro seed for Sprint 13) | 0.3d | P0 | Mandatory today regardless of BUG-064 outcome — sprint end date is 2026-09-04 per `sprint-12.md` |
+
+**Blockers:**
+- Same as every prior standup this sprint: no owner-in-Editor session has occurred on `sprint-12` at any
+  point in 5 sprint days. All BUG-064 verification to date is text-level. This is now a blocker on
+  *closing the sprint*, not just on one bug.
+- Two stashes on `feature/fix-player-control` (`stash@{0}` since 08-31, `stash@{1}` since kickoff) remain
+  unpopped and unreviewed.
+
+**Risks:**
+- **No runway left after today.** If sub-item 7 + Editor confirmation don't land today, Sprint 12 closes
+  FAIL on the same blocker as Sprint 11 — two consecutive sprints on one unverified P0.
+- Yesterday's net-new scope (boss framework, portfolio-release housekeeping, folder restructure) consumed
+  a full day of the sprint's last 48 hours without moving the one Must-Have item that gates sprint success.
+  Worth a retro question: was this drift visible in real time, or only in hindsight via this standup?
+- The folder restructure (298 files) is mechanical but broad; recommend the Editor Console check above
+  also serves as first confirmation it didn't silently break a reference (`.meta` GUID mismatch, missing
+  namespace, etc.) — no such break was detected by text search, but text search cannot catch everything
+  Unity's importer would.
+- `CLAUDE.md` Repository Layout is now out of date against the restructure — no functional risk today, but
+  will mislead the next session that trusts it without re-verifying paths.
