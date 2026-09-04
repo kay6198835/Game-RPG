@@ -8,7 +8,6 @@ using UnityEngine.Tilemaps;
 
 public class RoomGeneraterController : MonoBehaviour
 {
-    [SerializeField] public Player _fastMovement;
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
     // [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
     [SerializeField] private List<TileSO> _listTiles;
@@ -22,6 +21,12 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     [SerializeField] PathfindingGrid pathfindingGrid;
+    IPlayerService _playerService;
+    [Inject]
+    public void Construct(IPlayerService playerService)
+    {
+        _playerService = playerService;
+    }
     public void OnDisable()
     {
         _dungeonRoomSO.room.Clear();
@@ -53,7 +58,7 @@ public class RoomGeneraterController : MonoBehaviour
     public void OnDoneLoadRoomGrid(RoomCell _current)
     {
         this.LoadRoom(_startIndex, _current);
-        this._fastMovement.transform.SetPositionAndRotation(_current.StartDoorPosition + (Vector2)_current.transform.position, Quaternion.identity);
+        _playerService.SetPlayerPosition(_current.StartDoorPosition + (Vector2)_current.transform.position);
     }
 
     public void LoadRoom(int index, RoomCell nextRoomCell)
@@ -127,7 +132,7 @@ public class RoomGeneraterController : MonoBehaviour
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
-            pathfindingGrid.BuildGrid(Data,nextRoomCell.transform.position);
+            pathfindingGrid.BuildGrid(Data, nextRoomCell.transform.position);
         }
         else
         {
@@ -148,7 +153,7 @@ public class RoomGeneraterController : MonoBehaviour
 
             Data.tiles[tileIndex] = tileMapName;
             Data.poses[tileIndex] += Vector3Int.RoundToInt(_swapLevelData.directions[i]);
-            _genmap[layerIndex].SetTile(Data.poses[tileIndex]+ Vector3Int.RoundToInt(roomCell.transform.position), _listTiles.Find(t => t.name == tileMapName).tile);
+            _genmap[layerIndex].SetTile(Data.poses[tileIndex] + Vector3Int.RoundToInt(roomCell.transform.position), _listTiles.Find(t => t.name == tileMapName).tile);
 
             Data.tiles.Add(tileMapName);
             Data.layerIndices.Add(layerIndex);

@@ -21,7 +21,7 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        if (!entityInput.TargetTransform)
+        if (!entityInput.HasTarget)
         {
             time += Time.deltaTime;
             if (time >= 10)
@@ -31,7 +31,22 @@ public class EntityMoveState : EntityBasicState
                 return;
             }
         }
-        entityMovement.CheckMove();
+        if (entityInput.IsLockTarget)
+        {
+            if (entityFindTarget.IsNearPlayer())
+            {
+                entityMovement.FleeTarget();
+            }
+            else
+            {
+                entityMovement.ChaseToTarget();
+            }
+        }
+        else
+        {
+            entityMovement.ToRandomPosition();
+        }
+        entityMovement.MoveToNodeTarget();
         base.LogicUpdate();
     }
     public override void DoChecks()

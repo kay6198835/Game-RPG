@@ -21,7 +21,7 @@ public class EntityAttackState : EntityBasicState
         switch (Status)
         {
             case StatusAnimation.Start:
-                entityInput.SetTarget(entityInput.TargetTransform.position);
+                entityInput.SetTarget(entityInput.TargetPosition());
                 break;
             case StatusAnimation.StartRangeTrigger:
                 break;
