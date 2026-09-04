@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using VContainer;
 
 
 public class RoomGeneraterController : MonoBehaviour
@@ -187,6 +188,11 @@ public class RoomGeneraterController : MonoBehaviour
             Data.tiles[IndexLevelDataDoor[i]] = null;
         }
         _current.OpenDoors();
+    }
+
+    public void SetNextRoom(Vector2 startDoorPosition)
+    {
+        _playerService.SetPlayerPosition(startDoorPosition);
     }
 
     [System.Serializable]

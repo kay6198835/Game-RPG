@@ -55,7 +55,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
 
     public bool HasTarget =>
         entityInput != null &&
-        entityInput.IsLockTarget != null;
+        entityInput.IsLockTarget == true;
 
     public float DistanceToPlayer()
     {
@@ -76,7 +76,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
 
     public bool OutOfRange()
     {
-        var isOutOfRange = !distanceToPlayer > maxRange;
+        var isOutOfRange = distanceToPlayer > maxRange;
         return isOutOfRange;
     }
 
@@ -153,10 +153,13 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     {
         if (HasTarget) return;
 
-        range = Data.rangeCheckFieldOfView;
+        var range = Core.Entity.Data.RangeCheckFieldOfView;
         if (distanceToPlayer >= range) return;
         if (IsInFOV(entityInput.TargetPosition())) return;
-        if (CanDetectTarget()) ;
+        if (CanDetectTarget()) 
+        {
+            entityInput.SetLockTarget(true);
+        }
     }
 
     #endregion
@@ -224,7 +227,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     #region Catch Enemy Death
     private void CheckRangeCapNoti()
     {
-        float rangeCapNoti = Data.rangeCheckFieldOfView;
+        float rangeCapNoti = Core.Entity.Data.RangeCheckFieldOfView;
         if (distanceToPlayer < rangeCapNoti)
         {
             entityInput.SetLockTarget(true);

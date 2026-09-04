@@ -20,7 +20,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     [SerializeField] protected Vector2[] allDirection;
     [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected EntityFindTarget entityFindTarget;
-    [SerializeField] protected EntityFindTarget entityFindTarget;
 
     protected override void Start()
     {
@@ -64,7 +63,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         EnemyManager.Instance.RequestPath(request);
     }
 
-    private void FleeTarget()
+    public void FleeTarget()
     {
         if (!entityFindTarget.IsNearPlayer()) return;
         var fleePosition = Core.Entity.transform.position +
@@ -82,7 +81,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
 
     }
-    private void ChaseToTarget()
+    public void ChaseToTarget()
     {
         if (CheckPlayerPosition())
         {
@@ -97,7 +96,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         return distance < GameConstants.SettingStats.PADDING_NODE_VALUE ? true : false;
     }
 
-    private void MoveToNodeTarget()
+    public void MoveToNodeTarget()
     {
         if (Waypoints.Count == 0)
         {
@@ -148,7 +147,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private const int MaxSetNodeAttempts = 10;
 
-    private void ToRandomPosition()
+    public void ToRandomPosition()
     {
         if (CheckNearPostion(endPosition) || endPosition == Vector2.zero)
         {

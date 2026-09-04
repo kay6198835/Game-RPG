@@ -69,7 +69,7 @@ public class RoomGridController : BaseGrid<RoomCell>
         _current.UpdateStatusDoor(directionToNextMap);
         this.roomGeneraterController.LoadRoom(index, _current);
         _current.GetStartDoorPosition(-directionToNextMap);
-        roomGeneraterController._fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
+        roomGeneraterController.SetNextRoom(_next.StartDoorPosition);
         _next = null;
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
     }
