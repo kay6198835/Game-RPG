@@ -10,9 +10,6 @@ public class PlayerMovement : CoreComponent<Core>
         base.Awake();
         rb = GetComponentInParent<Rigidbody2D>();
     }
-    protected void Start()
-    {   
-    }
     public void SetVeclocity(Vector2 velocity)
     {
         rb.velocity = velocity;

@@ -58,7 +58,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void SendResquestPath()
     {
-        if(endPosition == Vector2.zero) return;
+        if (endPosition == Vector2.zero) return;
         PathRequest request = new PathRequest(transform.position, endPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
     }
@@ -162,7 +162,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         for (int attempt = 0; attempt < MaxSetNodeAttempts; attempt++)
         {
-            Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(0, maxRadiusSpawnPoint), Random.Range(0, maxRadiusSpawnPoint));
+            Vector2Int randomAddRangePosition = Utility.RandomPaddingDistace(0, maxRadiusSpawnPoint);
             Utility.RandomShuffle(allDirection);
             foreach (var direction in allDirection)
             {

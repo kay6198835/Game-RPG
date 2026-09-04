@@ -3,6 +3,11 @@
 ## Status
 Proposed
 
+> **⚠️ Amended 2026-08-21 — read the Amendment section at the end before acting on this ADR.**
+> The shipped `EnemyManager` does not do what the Decision below describes. The singleton
+> exception has been re-scoped to the role the class actually fills (pathfinding service), and
+> the room-combat lifecycle this ADR assigns to it lives elsewhere, uncovered by any ADR.
+
 ## Date
 2026-07-09
 
@@ -338,3 +343,79 @@ gameplay scene.
   extends to a second instance.
 - .claude/rules/engine-code.md, .claude/rules/manager-event-code.md, .claude/rules/map-code.md
   — rules this ADR formally excepts `EnemyManager` from.
+
+---
+
+## Amendment — 2026-08-21 (documentation audit, owner decision C2)
+
+**Decision: keep the code as it is; bring this ADR in line with it.** Owner instruction was to
+document reality for now and revise if the code changes later. No code was modified.
+
+### What `EnemyManager` actually is
+
+`Assets/Script/Enemy/EnemyManager.cs` is now the **pathfinding service**:
+
+```csharp
+[RequireComponent(typeof(PathRequestManager))]
+public class EnemyManager : MonoBehaviour
+{
+    public static EnemyManager Instance { get; private set; }
+    public PathfindingGrid Grid { get; private set; }
+    public void SetPathfindingGrid(PathfindingGrid grid);
+    public void RequestPath(PathRequest request);
+    public Node GetNodeByPositionWorld(Vector2 worldPosition);
+}
+```
+
+The singleton exception granted above is **re-scoped to this role**. It is still an exception to
+the project-wide "no new singletons" rule, and still applies to `EnemyManager` only.
+
+### What it does NOT own, despite the Decision assigning it
+
+`aliveCount`; the `Idle → Populating → Fighting → Cleared` lifecycle state; door locking; and the
+emission of `ON_CLEAR_ENEMY` / `ON_ROOM_CLEAR`. It subscribes to no events and emits none. The
+Architecture Diagram above is therefore a description of an intended design that was never built.
+
+### Where the room-combat lifecycle actually lives
+
+| Responsibility | Actual owner |
+|---|---|
+| Alive count, emit `ON_CLEAR_ENEMY` at zero | `RoomCell.EnemyCount` + `OnDoneSpawnEnemy()` / `OnSpawnExtraEnemy()` / `OnEnemyDeath()` |
+| Spawn selection and instantiation | `EnemySpawner` (driven by `ON_GET_SPAWN_POSITIONS`) |
+| Event routing to the current room | `RoomGridController` (six `EventID` subscriptions) |
+| Door open/close | `RoomCell.OpenDoors()` / `CloseDoor()` |
+
+**No ADR covers this split.** Three classes share one responsibility with no recorded decision —
+architectural debt of the same kind as BUG-052, recorded here rather than left implicit.
+
+### Consequences of the re-scope
+
+- **The Alternatives analysis above is partly void.** Alternative 3 (SO event channels) was
+  rejected because "`EnemyManager` both listens to events **and** directly calls `RoomCell`
+  methods". It no longer calls `RoomCell` at all, so that rejection reason no longer holds.
+  Anyone revisiting this decision must redo the Alternatives pass against the pathfinding role.
+- **A new consumer coupling exists that the Decision explicitly forbade.**
+  `EntityMovement.Start()` (`EntityMovement.cs:31`) does `grid = EnemyManager.Instance.Grid;`
+  with no null guard. The Key Interfaces section states *"Other systems must not reach into
+  `EnemyManager.Instance`"* — this is exactly that, in a per-enemy component. Practical effect:
+  every `Entity` prefab throws `NullReferenceException` in any scene without an `EnemyManager`
+  (e.g. `Test AI.unity`), with no diagnostic. Accepted for now as part of this amendment.
+- **Verification item: satisfied.** `EnemyManager.Awake()` (`EnemyManager.cs:15`) does include
+  `return` after `Destroy(gameObject)`. It did not repeat `MazeController`'s bug (TD-026 / Bug #14),
+  which remains open.
+- **Review Trigger #2 is at its threshold.** It says to stop granting per-ADR exceptions once a
+  third system needs one. Counting `MazeController`, `EnemyManager`, and the unratified
+  `LevelManager` (TD-023), that point has arguably been reached.
+
+### Status handling
+
+This amendment does **not** flip `Status` to Accepted — that is story S10-09's decision. What it
+changes is that flipping it would now ratify a document matching the code, instead of one
+describing a class that does not exist in that form.
+
+### Temporary by construction
+
+This records the state of the code on 2026-08-21. If `EnemyManager` regains the lifecycle role, or
+the pathfinding service is split out (the cleaner shape — an Inspector-wired
+`PathfindingService` would remove both the singleton and the `EntityMovement` coupling), supersede
+this amendment rather than editing it.

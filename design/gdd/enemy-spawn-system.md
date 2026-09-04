@@ -18,6 +18,12 @@ mapping keeps the `MapModel.GetRandomRoom()` shuffle-bag, no per-room identity m
 source stays `UnityEngine.Random`, unseeded; `RoomType` clarified as design-time classification only,
 not consumed by the Candidate-Pool flow. All 5 of S5-A1's open-questions are now resolved)
 
+revised: 2026-08-20 (documentation audit — third reverse-sync. The 2026-07-13 "Current
+Implementation" section was ~50% stale: EnemyModal gained [Range] + rarityTier, RoomModel lost
+selectionWeight and randomRatio, GetSpawnSet() was rewritten to candidate-pool + RarityTier,
+EnemySpawner became pooled, EnemyManager became the pathfinding service, all 13 room JSONs got
+markers, and RoomCell became the alive-count owner. Added a superseding section; kept the old
+one for history. Design intent, Open Questions and Future Architecture Direction untouched.)
 verified-by: Kiet
 supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (EncounterSO + RoomEnemySpawner)
 ---
@@ -25,7 +31,8 @@ supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (En
 # Enemy Spawn & Per-Room Management System
 
 **Status**: Approved (design) · Prototype partial — **code has diverged from the 2026-07-08 target,
-not converged on it** (see Doc-sync note + Current Implementation)
+not converged on it** (see Doc-sync note + Current Implementation). Implementation section
+re-synced 2026-08-20; design intent unchanged since 2026-07-13.
 **Implements Pillar**: Room-clear progression · "each run is a fresh challenge" (run-to-run variety)
 
 > **Architecture decision (2026-07-08):** This GDD originally adopted a data-driven **weight-budget**
@@ -50,7 +57,71 @@ not converged on it** (see Doc-sync note + Current Implementation)
 
 ---
 
-## Current Implementation (2026-07-13) — authoritative for "what is built"
+## Current Implementation — re-synced 2026-08-20 (authoritative for "what is built")
+
+> **This section supersedes the 2026-07-13 snapshot below it.** The 2026-07-13 text is kept
+> unedited for history, but roughly half of its factual claims are now wrong. Read this table
+> first; treat anything below that contradicts it as historical. Design intent, Open Questions
+> and Future Architecture Direction are **unchanged** — only "what is built" was corrected.
+
+### What changed since 2026-07-13
+
+| Claim in the 2026-07-13 section | Verified 2026-08-20 |
+|---|---|
+| `EnemyModal` fields are `prefab` + `weight`, and `weight` has **no** `[Range]` clamp | **Wrong now.** `EnemyModal` (a `[Serializable]` class nested in `RoomModel.cs:102-108`) has `Prefab`, `weight` **with `[Range(1, 100)]`**, and a third field `rarityTier` (`RarityTier` enum: Common=50, Rare=30, Epic=15, Legendary=5). The infinite-fit-loop risk from a zero weight is closed |
+| `RoomModel` has `selectionWeight` `[Range(1,100)]` and `randomRatio` `[Range(0,1)]` default 0.33 | **Both fields are gone.** `RoomModel` now declares `enemiesOfRoom`, `candidateEnemies`, `weightBudget [Range(0,500)]` and `overflowPercent [Range(0,1)]`. The "dead `selectionWeight` field" finding (D10) is therefore resolved by deletion |
+| Selection is Phase 1 (random sub-budget) + Phase 2 (fill with overflow cap), both uniform picks, using `_entries`/`_fitBuf` scratch | **Rewritten.** There is one loop, not two phases, and no `_fitBuf`. Each round: `SetListCandidate()` builds `candidateEnemies` from enemies that pass **both** an independent `RarityTier` percentage roll and `weight <= remaining`; if the pool comes up empty it retries, up to 4 times, then force-adds the whole list; one candidate is then picked uniformly and its weight subtracted. The loop runs while `weightBudget > this.weightBudget * 0.1f`. This is ADR-0003's Option C in shape |
+| `overflowPercent` bounds Phase 2 | **Never read.** The field is serialized but `GetSpawnSet()` uses a hardcoded `0.1f` literal at `RoomModel.cs:31`. A designer tuning it sees no effect |
+| `EnemySpawner` handler is `OnDoneLoadRoomGrid(object)`, spawns with `Instantiate` | **Renamed and repointed.** The handler is `OnGetSpawnPositions(object)`; the spawner also subscribes `ON_SPAWN_EXTRA_ENEMY` → `SpawnExtraEnemy(object)` (payload: a `RequestSpawnEnemy`), and spawns through `ObjectPoolManager.Spawn()` — **pooled, not `Instantiate`**. It emits `ON_DONE_SPAWN_ENEMY` with the count when done. The dead empty `Spawn()` method is still present (`EnemySpawner.cs:27`) |
+| `EnemyManager` is exactly `public static Instance` and nothing else; carries an unused `using System.Numerics` | **No longer true, but it did not become what this GDD expects.** It is now the **pathfinding service**: `[RequireComponent(typeof(PathRequestManager))]`, `SetPathfindingGrid()`, `RequestPath()`, `GetNodeByPositionWorld()`, and an `Awake()` whose duplicate guard has the correct `return`. No `System.Numerics`. It owns **no** alive-count, no room lifecycle, no door locking, and emits no events. The lifecycle ADR-0002 assigns to it is instead split across `EnemySpawner`, `RoomCell` and `RoomGridController`, none of which has an ADR |
+| Only 1 of 13 room JSONs (`NormalRoom_0.json`) authors a `Tile_Spawn_Enemy` marker | **All 13 do.** 2 markers in `NormalRoom_0.json`, 6 in each of the other twelve. The "12 marker-less rooms throw at spawn time" edge case is closed |
+| `RoomCell` has no alive-count field of any kind | **It has one, and it is the owner.** `RoomCell.EnemyCount` (`RoomCell.cs:22`) plus `OnDoneSpawnEnemy(int)`, `OnSpawnExtraEnemy()` and `OnEnemyDeath()`; at zero it emits `ON_CLEAR_ENEMY` (`RoomCell.cs:44-62`). `RoomGridController` forwards the three spawn/death events to the current cell |
+| `EventID` has 6 values; still no `ON_ENEMY_DEATH` / `ON_ROOM_CLEAR` | **20 values.** Both exist, plus `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY`, `ON_PLAYER_DEATH`, `ON_REALOAD_GAME` and six `ON_*_STATS_*_UI` events. `ON_ROOM_CLEAR` still has no producer |
+| `DungeonRoomSO.RoomFile` has no `roomData` field | **Still true** — `roomName`, `filePath`, `roomType` only. Room→preset mapping remains the `MapModel.GetRandomRoom()` shuffle-bag |
+| BUG-ES-1 / BUG-033: `GetSpawnSet()` can return `null` and neither caller guards it | **Still live**, and now precisely locatable: `EnemySpawner.cs:62` reads `if (set.Count == 0 \|\| set == null)` — it dereferences `set` **before** the null test, so a `null` return NREs on that line. `LevelManager.SpawnRoomEnemies()` has the same gap at line 252 |
+| BUG-ES-2: two parallel spawn drivers, neither via `EnemyManager` | **Still true**, unchanged |
+| RNG is unseeded `UnityEngine.Random`, so AC-A3/A4 determinism is unreachable | **Still true**, unchanged |
+
+### New findings from the 2026-08-20 audit
+
+- **ADR-0003's budget guarantee does not hold.** `SetListCandidate()`'s `retry > 4` fallback
+  (`RoomModel.cs:55-58`) does `candidateEnemies.AddRange(enemiesOfRoom)` with **no weight filter
+  and no rarity roll**, so a candidate heavier than the remaining budget can be picked and
+  `weightBudget` goes negative. The published guarantee in `docs/registry/architecture.yaml` —
+  "overspend is structurally impossible" — is therefore false. Real bound:
+  `totalSpend < B + max(weight)`.
+
+  Measured over 20 000 simulated rooms at `weightBudget = 100`:
+
+  | Enemy pool | Fallback reached | **Actually overspent** | Worst overspend |
+  |---|---|---|---|
+  | Legendary only, `weight = 20` | 100% of rooms | **0%** | +0 |
+  | Mixed, cheapest `weight = 20` | 7.7% | **4.2%** | **+80 (+80%)** |
+  | Mixed, includes `weight = 5` | 2.9% | **1.7%** | +35 (+35%) |
+
+  Reaching the fallback is **not** the same as overspending — the Legendary-only pool hits it every
+  room and never overspends, because the fallback still picks something affordable. So this is a
+  rare-but-severe defect (~2–4% of rooms, up to +80% of budget), not a common one. An earlier
+  revision of this section said "a Legendary-only pool hits that path in ~77% of rounds"; that was
+  wrong twice — the per-round probability is `0.95⁴ ≈ 81.5%` (four rolls, then the forced fallback),
+  and it conflated reaching the fallback with overspending. Corrected 2026-08-21.
+
+  **Accepted 2026-08-21** (owner decision C3): code unchanged, ADR-0003 amended to describe the real
+  behaviour. Tracked as TD-039, not scheduled. Wiring the unread `overflowPercent` into the fallback
+  would repair the invariant and give the dead field a purpose in one change if it is revisited.
+- **`GetSpawnSet()` is not the pure, unit-testable method ADR-0003 says it is.** It mutates
+  the serialized `candidateEnemies` list as a scratch buffer (`RoomModel.cs:34,46,57,66`), so
+  it dirties the asset during play, is not re-entrant, and is unsafe if two rooms share one
+  `RoomModel` — which the shuffle-bag permits once the bag refills. Making the field
+  `[NonSerialized]` fixes the asset churn without losing the zero-alloc reuse.
+- **The whole system is blocked downstream by TD-036** — enemies cannot die, so
+  `ON_ENEMY_DEATH` never fires in real play and the room-clear loop this GDD exists to serve
+  cannot complete. The only live emitter today is the debug harness
+  `Assets/Script/FastTest/FasTestEnemyDeath.cs`.
+
+---
+
+## Current Implementation (2026-07-13) — HISTORICAL, superseded by the section above
 
 > This section documents the **actual system running in the repo today**, using the project's real
 > class names. It is the primary description of this system. The 2026-07-08 idealized target

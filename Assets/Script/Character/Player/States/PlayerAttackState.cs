@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerAttackState : PlayerUseWeaponState
@@ -15,54 +13,69 @@ public class PlayerAttackState : PlayerUseWeaponState
     public override void Enter()
     {
         base.Enter();
+        Status = StatusAnimation.None;
         startAttackTime = startTime;
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
+        // The buffer gate in PlayerInputHandler.OnAttack reads statusAnimation, so it has to be
+        // open from the first frame of the swing — waiting for the AnimationTrigger event puts it
+        // 67-79% into the clip and silently drops every earlier press.
+        inputHandler.SetStatusAnimation(StatusAnimation.Start);
+        // Driving the first stage off the AnimationStart event made the bootstrap circular:
+        // Attack() installs the clip that carries the event that calls Attack().
+        weaponHolder.Attack();
     }
 
     public override void LogicUpdate()
     {
-        // if (isAnimationFinishedTrigger && inputHandler.IsAttack)
-        // {
-        //     stateMachine.ChangeState(player.AttackState);
-        // }
         switch (Status)
         {
             case StatusAnimation.Start:
+                Status = StatusAnimation.None;
+                break;
+
+            case StatusAnimation.OnActivate:
+                weaponHolder.MakeDamage();
+                Status = StatusAnimation.OffActivate;
+                break;
+
+            case StatusAnimation.OffActivate:
+                break;
+
+            case StatusAnimation.EndRangeTrigger:
+                weaponHolder.EndDamage();
+                if ((inputHandler.BufferIsAttack || inputHandler.IsAttack) && weaponHolder.CanChain())
+                {
+                    // Read the hash before Attack() swaps runtimeAnimatorController: the swap
+                    // rebinds the Animator, and querying it afterwards can report the layer's
+                    // default state instead of Attack, which would make Play() jump elsewhere.
+                    // Both stage overrides share Player.controller, so the hash stays valid.
+                    int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+                    weaponHolder.Attack();
+                    player.Anim.Play(stateHash, 0, 0f);
+                }
+                Status = StatusAnimation.None;
                 if (inputHandler.BufferIsAttack)
                 {
                     inputHandler.SetBufferAttack(false);
                 }
-                //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, true);
                 break;
-            case StatusAnimation.EndRangeTrigger:
-                if (inputHandler.BufferIsAttack || inputHandler.IsAttack)
-                {
-                    weaponHolder.Attack();
-                    int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
-                    player.Anim.Play(stateHash, 0, 0f);
-                    Status = StatusAnimation.Start;
-                }
-                else
-                {
-                    Status = StatusAnimation.None;
-                }
-                break;
+
             case StatusAnimation.None:
-                //player.Anim.SetBool(GameConstants.AnimationName.ATTACK, false);
+                break;
+            case StatusAnimation.End:
                 base.LogicUpdate();
                 break;
+
             default:
+                inputHandler.SetStatusAnimation(Status);
                 break;
         }
-
     }
-
-    public override void SetAnimationStatus(StatusAnimation statusAnimation)
+    public override void Exit()
     {
-        base.SetAnimationStatus(statusAnimation);
+        inputHandler.SetBufferAttack(false);
+        // statusAnimation has no other writer, so without this it latches at StartRangeTrigger
+        // for the rest of the session and the gate stops reflecting whether a swing is running.
+        inputHandler.SetStatusAnimation(StatusAnimation.None);
+        base.Exit();
     }
 }

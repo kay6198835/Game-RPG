@@ -46,7 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  currentHealth: 0
 --- !u!61 &5972698537148799152
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -92,6 +91,51 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.3, y: 0.3}
   m_EdgeRadius: 0
+--- !u!1 &2776395044246877996
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1152756422125806585}
+  - component: {fileID: 2748185141988574252}
+  m_Layer: 7
+  m_Name: VitalHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1152756422125806585
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2776395044246877996}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4525166674902496624}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2748185141988574252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2776395044246877996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2176de6b4454ad645861d163913eeff8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  core: {fileID: 0}
 --- !u!1 &3647546795979010557
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,6 +333,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
+  stats: {fileID: 0}
   core: {fileID: 0}
   anim: {fileID: 0}
   rigidbodyPlayer: {fileID: 0}
@@ -343,6 +388,8 @@ Transform:
   - {fileID: 8356675060062760481}
   - {fileID: 1732549513691302014}
   - {fileID: 7822495247072907963}
+  - {fileID: 2086516582107257348}
+  - {fileID: 1152756422125806585}
   m_Father: {fileID: 6345384194108746772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4030715832189692962
@@ -510,6 +557,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   core: {fileID: 0}
   rb: {fileID: 0}
+--- !u!1 &7081596654052828374
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2086516582107257348}
+  - component: {fileID: 2013578058291655279}
+  m_Layer: 7
+  m_Name: StatHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2086516582107257348
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081596654052828374}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4525166674902496624}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2013578058291655279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081596654052828374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 374fd6a4b87f1034bad351755e7aacf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  core: {fileID: 0}
+  statsSO: {fileID: 0}
 --- !u!1 &7526549872702926139
 GameObject:
   m_ObjectHideFlags: 0
@@ -589,6 +682,7 @@ MonoBehaviour:
   starTime: 0
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}
+  screenPos: {x: 0, y: 0}
   directionKeyboardVector: {x: 0, y: 0}
   angleKeyboardDirection: 0
   directionKeyboard: 0
@@ -608,6 +702,7 @@ MonoBehaviour:
   state: 0
   skill: 0
   disadvantage: 0
+  statusAnimation: 0
 --- !u!1 &9010334046371474003
 GameObject:
   m_ObjectHideFlags: 0
@@ -663,3 +758,4 @@ MonoBehaviour:
   - {fileID: 0}
   nearestObject: {fileID: 0}
   numFound: 0
+  weapon: {fileID: 0}

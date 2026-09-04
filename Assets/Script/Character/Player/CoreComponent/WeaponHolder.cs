@@ -1,46 +1,69 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WeaponHolder : Interact
 {
-    public Weapon Weapon;
+    [SerializeField] private Weapon weapon;
+    VitalStatsComponent vitalStatsComponent;
+
+    public Weapon Weapon { get => weapon; }
 
     protected override void Awake()
     {
         base.Awake();
         interactableMask = LayerMask.GetMask("Weapon");
     }
+
+    protected override void Start()
+    {
+        base.Start();
+        Core.GetCoreComponent(out vitalStatsComponent);
+    }
+
     public void Equid_UnEquid(Weapon weapon)
     {
-        if (this.Weapon == null)
-        {
-            this.Weapon = weapon;
-        }
-        else
-        {
-            // this.Weapon = null;
-        }
+        this.weapon = this.weapon == null ? weapon : null;
     }
+
     public override void Intertion()
     {
-        if (Weapon != null)
+        if (weapon != null)
         {
-            Weapon.UnEquid(this);
-
+            weapon.UnEquid(this);
+            return;
         }
-        if (Weapon == null)
-        {
-            base.Intertion();
-        }
+        base.Intertion();
     }
 
+    /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>
     public void Attack()
     {
-        if (Weapon == null) return;
-        Weapon.SetAnimation(Core.Player);
+        if (weapon == null) return;
+        weapon.OnAttackEnter(Core.Player);
     }
 
+    public bool CanAttack() => weapon != null && weapon.CanAttack();
 
+    public bool CanChain() => weapon != null && weapon.CanChain();
+
+    public void MakeDamage()
+    {
+        if (weapon == null) return;
+        weapon.OnActivate(CalculateCurrentDamage());
+    }
+
+    public void EndDamage()
+    {
+        if (weapon == null) return;
+        weapon.OnDeactivate();
+    }
+
+    private float CalculateCurrentDamage()
+    {
+        float finalDamage = 0;
+        finalDamage = vitalStatsComponent.GetCurrentStatValue(StatType.PhysicalDamage)
+         + weapon.CurrentStage.attackDamage;
+        if (Utility.RollChance(vitalStatsComponent.GetCurrentStatValue(StatType.CritChance)))
+            finalDamage += vitalStatsComponent.GetCurrentStatValue(StatType.CritDamage);
+        return finalDamage;
+    }
 }

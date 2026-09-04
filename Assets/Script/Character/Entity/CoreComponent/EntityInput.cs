@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class EntityInput : EntityCoreComponent<EntityCore>
+public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
 {
+    public Vector2 AimDirection => directionLookVector;
+
     [SerializeField] protected Vector2 spawnPoint;
     // [SerializeField] protected Entity entity;
     [SerializeField] protected Vector2 targetFowardPosition;
@@ -62,7 +64,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public void Update()
     {
         DirectionMehod();
-        //GetTargetInRange();
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
@@ -109,6 +110,15 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public void SetTarget(Vector2 targetPosition)
     {
         this.targetFowardPosition = targetPosition;
+    }
+
+    /// <summary>
+    /// Assigns the chase target. GetTargetInRange() is still disabled (NEW-1), so a component that
+    /// runs its own detection — BossCommander today — must push the result in for EntityMovement.
+    /// </summary>
+    public void SetTargetTransform(Transform target)
+    {
+        this.targetTransform = target;
     }
     public void SetDirectionRadom()
     {

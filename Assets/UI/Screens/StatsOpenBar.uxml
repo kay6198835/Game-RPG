@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <Style src="../Styles/GameUI.uss" />
+
+    <!-- picking-mode="Ignore" so the transparent bar never eats gameplay clicks. -->
+    <ui:VisualElement name="stats-open-bar" class="open-bar" picking-mode="Ignore">
+        <ui:Button name="btn-open-stats" text="Stats" class="btn btn--open" />
+    </ui:VisualElement>
+</ui:UXML>

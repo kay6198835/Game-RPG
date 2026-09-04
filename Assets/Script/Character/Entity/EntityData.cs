@@ -5,7 +5,7 @@ using UnityEngine;
 public class EntityData : ScriptableObject
 {
     [Header("Player Stats")]
-    [SerializeField] private EntityStatsSO statsSO;
+    [SerializeField] private BaseStatsSO statsSO;
     [Header("Player Component")]
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private AnimatorOverrideController aima;
@@ -28,7 +28,7 @@ public class EntityData : ScriptableObject
     public float RangeCheckAttack { get => rangeCheckAttack; }
     public float MoveDurationTime { get => moveDurationTime;}
     public WeaponSO WeaponSO { get => weaponSO;}
-    public EntityStatsSO StatsSO { get => statsSO;}
+    public BaseStatsSO StatsSO { get => statsSO;}
     private void OnValidate()
     {
         

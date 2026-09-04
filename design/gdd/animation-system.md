@@ -2,16 +2,43 @@
 
 > **Status**: In Design
 > **Author**: Kiet + Claude
-> **Last Updated**: 2026-05-19
+> **Last Updated**: 2026-08-21 (rewritten against the shipped `StatusAnimation` enum)
+
+> **✅ Rewritten against `StatusAnimation` on 2026-08-21** (owner decision C5). This document
+> previously specified a **flag-based** handoff (`isAnimationTrigger` / `isAnimationFinished`,
+> reset after one frame). Neither flag has ever existed in the codebase; the shipped mechanism is
+> the `StatusAnimation` enum set through `SetAnimationStatus()`. The owner chose to follow the
+> code, so the contract sections below now describe the enum model. Player Fantasy and Tuning
+> Knobs are unchanged.
+>
+> **A second correction in the same pass:** `AnimationEventManager` and `AnimationEventId` — which
+> earlier revisions of this document described as the core mechanism — are **dead code**.
+> `AnimationEventManager.Emit()` has zero callers anywhere in the repository, so the bus never
+> fires. See "The dead parallel bus" below.
+
 > **Implements Pillar**: Foundation — enables responsive combat timing across all character systems
 
 ## Overview
 
-The animation system is the timing bridge between Unity's Animator state machine and the gameplay logic layers. It translates animation clip events — fired at specific frames by the Unity Animator — into strongly-typed `AnimationEventId` signals that character state machines consume to execute gameplay actions (weapon damage, state exits, skill activations).
+The animation system is the timing bridge between Unity's Animator and the gameplay logic layers.
+Animation clips carry Unity **Animation Events** that call methods by name on the character
+MonoBehaviour (`Player` / `Entity`); each of those methods writes a value into the current state's
+`StatusAnimation`. States read that value in `LogicUpdate()` and act on it.
 
-All character combat timing in this project depends on this system: a melee attack deals damage exactly when the animation's hit frame fires `AttactAnimation`; a state exits exactly when the clip's final frame fires `EndAnimation`. No gameplay system polls for timing independently — all timing is driven by animation events.
+All character combat timing depends on this: a melee attack deals damage exactly when the hit frame
+sets `OnActivate`; an attack chains or exits exactly when the final frame sets `EndRangeTrigger`. No
+gameplay system polls for timing independently — all timing originates in the animation clip.
 
-The system consists of three components: `AnimationEventManager` (the static event bus), `AnimationPlayerController` (the per-character event handler), and `AnimationEventId` (the strongly-typed event enum). Animator controller swapping at runtime enables skill abilities to override the active animation set on demand.
+The system is three pieces:
+
+| Piece | Where | Role |
+|---|---|---|
+| `StatusAnimation` enum | `Character/Base/StatusAnimation.cs` | The eight values a state can be in |
+| Animation-event methods | `Player.cs:70-75`, `Entity.cs:65-68` | Called by name from the clip; each sets one value |
+| `SetAnimationStatus()` | `PlayerState` / `EntityState` | Writes `Status`; states branch on it |
+
+Animator controller swapping at runtime lets weapons and skills override the active animation set —
+`AttackSO.directionAttackAnimatorOV` per combo stage, `ActivateSkill.Animator` per skill.
 
 ## Player Fantasy
 
@@ -26,60 +53,88 @@ The animation system is invisible infrastructure: if it is well-built, players d
 ### Core Rules
 
 1. All gameplay timing is driven by animation events, never by frame counts or coroutines.
-2. Animation clips fire events by calling `AnimationEventManager.Emit(AnimationEventId, data)` via Unity Animation Event inspector entries — not from code.
-3. `AnimationEventManager` broadcasts to all registered listeners via a static delegate dictionary.
-4. Each character registers its event handlers in `OnEnable()` and unregisters in `OnDisable()` — no listener is active without a live `AnimationPlayerController`.
-5. State machines receive events via flag properties (`isAnimationTrigger`, `isAnimationFinished`) set by callbacks, then act on those flags in `LogicUpdate()`.
-6. Each flag is reset immediately after use — it is only `true` for one `LogicUpdate()` frame.
-7. Skill abilities swap `Animator.runtimeAnimatorController` to the ability's own controller on `EnterAbility()` and restore the previous controller on `ExitAbility()`.
-8. The 8-directional attack animations are provided by `AttackSO.directionAttackAnimatorOV` — a per-attack `AnimatorOverrideController` applied during `WeaponMelee.CheckCanAttack()`.
+2. Animation clips fire events through Unity's **Animation Event** feature, which invokes a method
+   **by name** on a component of the animated GameObject. The clip does not reference any manager.
+3. Each of those methods does exactly one thing: `stateMachine.CurrentState.SetAnimationStatus(X)`.
+   No gameplay logic lives in them.
+4. `Status` is **durable state, not a one-frame pulse.** It holds its value until something writes
+   a new one. A state may therefore read the same `Status` on several consecutive `LogicUpdate()`
+   calls, and must write `Status` itself if it wants to consume a value once — see
+   `PlayerAttackState.cs:20-63`, which sets `Status = OffActivate` immediately after acting on
+   `OnActivate`, and `Status = None` when the chain ends.
+5. `PlayerState.Enter()` sets `Status = Start`; `PlayerState.Exit()` sets `Status = End`. A state
+   therefore always begins from a known value and never inherits the previous state's.
+6. Skill abilities swap `Animator.runtimeAnimatorController` to the ability's own controller on
+   `EnterAbility()` and restore the previous controller on `ExitAbility()`.
+7. The 8-directional attack animations come from `AttackSO.directionAttackAnimatorOV`, applied per
+   combo stage in `Weapon.OnAttackEnter()`.
 
-**AnimationEventId contract:**
+**`StatusAnimation` contract:**
 
-| Event | Fires when | State machine action |
-|-------|-----------|----------------------|
-| `StartAnimation` | Clip begins playing | Reserved — currently unused |
-| `MoveAnimation` | Locomotion phase starts | Play movement animation |
-| `AttactAnimation` | Hit frame of attack clip | `isAnimationTrigger = true` → `Weapon.Attack()` |
-| `DoSkillAnimation` | Active frame of skill clip | `isAnimationTrigger = true` → skill `Do()` phase |
-| `EndAnimation` | Clip completes | `isAnimationFinished = true` → state exits |
+| Value | Set by (method on `Player` / `Entity`) | State machine action |
+|---|---|---|
+| `None` | states, to mean "consumed / idle" | No action; used by `PlayerAttackState` to end a chain |
+| `Start` | `AnimationStart()`, and `PlayerState.Enter()` | Clip is beginning; attack state clears its input buffer here |
+| `Animaing` | *nothing* | ⚠️ Declared in the enum, never written or read anywhere. Dead value |
+| `StartRangeTrigger` | `AnimationTrigger()` | Start of the active window |
+| `OnActivate` | `AnimationOnAction()` | **Hit frame** → `WeaponHolder.MakeDamage()` |
+| `OffActivate` | `AnimationOffAction()` | End of the active window → `WeaponHolder.EndDamage()` |
+| `EndRangeTrigger` | `AnimationFinishTrigger()` | Chain to the next stage, or fall through to exit |
+| `End` | `AnimationEnd()`, and `PlayerState.Exit()` | Clip finished; use-weapon states leave to Idle/Move |
 
-**⚠️ Bug #9 — `AnimationPlayerController.OnEnable()` line 21:**
-Currently registers `StartAnimation` twice; `EndAnimation` is never registered and never fires. Fix: change line 21 handler from `StartAnimation` to `EndAnimation`. Mirror the fix in `OnDisable()`.
+**Player vs Entity coverage.** `Player.cs:70-75` implements all six event methods.
+`Entity.cs:65-68` implements only four — it has **no** `AnimationStart()` and **no**
+`AnimationEnd()`. Enemy states therefore only ever see `Start`/`End` from `Enter()`/`Exit()`, never
+from a clip. Any enemy behaviour that needs a clip-driven start or end frame has to be added.
 
-**Correct registration table:**
+### The dead parallel bus
 
-| Line | EventId | Handler |
-|------|---------|---------|
-| 17 | `StartAnimation` | `StartAnimation()` |
-| 18 | `MoveAnimation` | `Move()` |
-| 19 | `AttactAnimation` | `Attack()` |
-| 20 | `DoSkillAnimation` | `DoSkill()` |
-| **21** | **`EndAnimation`** | **`EndAnimation()`** ← fix here |
+`AnimationEventManager` (`Manager/AnimationEventManager.cs`) is a static
+`Dictionary<AnimationEventId, Action<object>>` with `Resgister` / `UnResgister` / `Emit`. It is
+**not** used:
 
-**AnimationName constants (required — `AnimationName.cs` currently empty):**
+- `AnimationEventManager.Emit()` has **zero callers** in the entire repository. Nothing ever fires
+  the bus.
+- `AnimationPlayerController` registers five handlers to it in `OnEnable()` and unregisters them in
+  `OnDisable()` — correctly balanced, but to a bus that never fires.
+- Four of those five handlers (`StartAnimation`, `EndAnimation`, `Attack`, `DoSkill`) have **empty
+  bodies**. Only `Move()` contains anything, and it is unreachable.
+
+Bug #9 (registration on line 21 pointing at the wrong event id) is genuinely fixed, but the fix is
+close to moot given the above: correct registration on a dead bus.
+
+**Design decision needed:** either delete `AnimationEventManager` / `AnimationEventId` /
+`AnimationPlayerController`, or give them a purpose. Leaving them is actively misleading — they
+read as the system's core, which is how earlier revisions of this document described them. Not
+resolved here.
+
+### AnimationName constants
+
+`AnimationName.cs` is **not** a constants file — it is an unrelated empty `ScriptableObject` stub
+with a `[CreateAssetMenu]` attribute and should be deleted (TD-016). The real constants live in
+`GameConstants.AnimationName` and are in use (e.g. `EntityBasicState.cs:27` reads
+`GameConstants.AnimationName.Parameter.DIRECTION`). `IDLE`, `MOVE`, `ATTACK`, `EQUIP_UNEQUIP`,
+`INTERACTOR`, `ABILITY` and `TAKE_DAMAGE` all exist there. Still missing, and still required by
+this design:
 
 | Constant | Value | Used by |
 |----------|-------|---------|
-| `IDLE` | `"Idle"` | `PlayerIdleState` |
-| `MOVE` | `"Move"` | `PlayerMoveState` |
-| `ATTACK` | `"Attack"` | `PlayerAttackState` |
 | `SKILL` | `"Skill"` | `PlayerSkillWeaponState` |
-| `TAKE_DAMAGE` | `"TakeDamage"` | `PlayerTakeDamageState` |
-| `DEATH` | `"Death"` | Future death state |
+| `DEATH` | `"Death"` | `PlayerDeathState` (exists but is never constructed — BUG-044) |
 
 ---
 
 ### States and Transitions
 
-| State | Enters animation via | Exits via | Flag consumed |
+| State | Enters animation via | Exits via | Status branch |
 |-------|---------------------|-----------|---------------|
 | `PlayerIdleState` | `Animator.SetBool(animBoolName, true)` | Input change | none |
 | `PlayerMoveState` | `Animator.SetBool(animBoolName, true)` | Input change | none |
-| `PlayerAttackState` | `AnimatorOverrideController` swap in `CheckCanAttack()` | `EndAnimation` event | `isAnimationFinished` |
-| `PlayerSkillWeaponState` | `runtimeAnimatorController` swap in `EnterAbility()` | `EndAnimation` event | `isAnimationFinished` |
-| `PlayerTakeDamageState` | `Animator.SetBool(animBoolName, true)` | `EndAnimation` event | `isAnimationFinished` |
-| `EntityAttackState` | `AnimatorOverrideController` swap | `EndAnimation` event | `isAnimationFinished` |
+| `PlayerAttackState` | `AnimatorOverrideController` swap in `Weapon.OnAttackEnter()` | `Status == End` | `OnActivate` → damage; `EndRangeTrigger` → chain or `None` |
+| `PlayerSkillWeaponState` | `runtimeAnimatorController` swap in `EnterAbility()` | `Status == End` | drives `AbilityHolder.SetStateAbility()` per frame |
+| `PlayerTakeDamageState` | `Animator.SetBool(animBoolName, true)` | `Status == End` | — |
+| `EntityAttackState` | `AnimatorOverrideController` swap | `Status == End` (from `Exit()`, not a clip) | `OnActivate` → weapon `Attack()` |
+| `EntityDeathState` | death clip | never exits | `EndRangeTrigger` → emit `ON_ENEMY_DEATH` |
 
 ---
 
@@ -87,23 +142,32 @@ Currently registers `StartAnimation` twice; `EndAnimation` is never registered a
 
 | System | Consumes | Produces |
 |--------|----------|---------|
-| **Melee Combat** | `AttactAnimation` → fires `Weapon.Attack()` | Nothing |
-| **Skill System** | `DoSkillAnimation` → fires skill `Do()` phase; `runtimeAnimatorController` swapped by `AbilityHolder` | Nothing |
-| **Character States** | `EndAnimation` → all use-weapon states exit on this | `animBoolName` parameter to enter locomotion states |
-| **Weapon System** | `AttackSO.directionAttackAnimatorOV` applied during `CheckCanAttack()` | Nothing |
+| **Melee Combat** | `OnActivate` → `WeaponHolder.MakeDamage()` → `Weapon.OnActivate()` | Nothing |
+| **Skill System** | `PlayerSkillWeaponState` drives `AbilityHolder` each frame; `runtimeAnimatorController` swapped by `AbilityHolder` | Nothing |
+| **Character States** | `End` → all use-weapon states exit on this | `animBoolName` parameter to enter locomotion states |
+| **Weapon System** | `AttackSO.directionAttackAnimatorOV` applied in `Weapon.OnAttackEnter()` | Nothing |
 
 ## Formulas
 
-This system has no mathematical formulas. It defines **timing contracts** — behavioral guarantees about when events fire and how many times.
+This system has no mathematical formulas. It defines **timing contracts** — behavioural guarantees
+about what `Status` holds and who may write it.
 
 ```
-AttactAnimation fires exactly once per attack state entry.
-  → Weapon.Attack() called = 1 time per combo hit
-  → isAnimationTrigger reset immediately after consumption
+Status is DURABLE STATE, not a one-frame pulse.
+  → It keeps its value until something writes a new one.
+  → A state may read the same value on several consecutive LogicUpdate() calls.
+  → To consume a value once, the state writes Status itself:
+        PlayerAttackState: OnActivate  -> MakeDamage(), then Status = OffActivate
+        PlayerAttackState: EndRangeTrigger -> chain (Status = Start) or exit (Status = None)
 
-EndAnimation fires exactly once per clip completion.
-  → State exits on the first EndAnimation received
-  → isAnimationFinished reset immediately after consumption
+Status lifecycle per state:
+  → PlayerState.Enter() sets Status = Start
+  → PlayerState.Exit()  sets Status = End
+  → so a state never inherits the previous state's Status
+
+OnActivate fires once per attack stage.
+  → WeaponHolder.MakeDamage() called = 1 time per combo hit
+  → the state immediately writes OffActivate, so a repeated read is a no-op
 
 runtimeAnimatorController swap:
   → On EnterAbility():  controller = ability.Animator
@@ -111,31 +175,33 @@ runtimeAnimatorController swap:
   → Swap depth = 1 — no stacking; a skill cannot enter another skill mid-animation
 
 AnimatorOverrideController depth:
-  → WeaponMelee applies directionAttackAnimatorOV per attack hit (depth 1 over base)
+  → Weapon.OnAttackEnter() applies directionAttackAnimatorOV per stage (depth 1 over base)
   → AbilityHolder swaps runtimeAnimatorController entirely (replaces depth 0)
-  → These two mechanisms do not stack — a skill swap replaces the weapon override
+  → These two do not stack — a skill swap replaces the weapon override
 ```
 
 ## Edge Cases
 
 | Scenario | Correct Behaviour |
 |----------|------------------|
-| **Player takes damage mid-attack animation** | State machine transitions to `PlayerTakeDamageState` before `EndAnimation` fires — `isAnimationFinished` is never set. `PlayerTakeDamageState.Enter()` must reset both `isAnimationTrigger` and `isAnimationFinished` to `false`. |
-| **`AttactAnimation` fires but weapon is null** | `PlayerAttackState.LogicUpdate()` calls `Weapon.Attack()` — if weapon is null → NullReferenceException. Guard: check `WeaponHolder.Weapon != null` before calling. |
-| **`EndAnimation` fires twice on the same clip** | If the animator loops or a clip has a bug, `isAnimationFinished` could be set twice. Because the flag resets immediately after the first read, the second occurrence is a no-op — the state has already exited. No issue. |
+| **Player takes damage mid-attack animation** | The state machine transitions to `PlayerTakeDamageState` before the attack clip reaches its end frame. `PlayerState.Exit()` sets `Status = End` on the outgoing state and `Enter()` sets `Status = Start` on the incoming one, so no stale value carries over. This is handled by the base class — individual states need no reset code. |
+| **Hit frame fires but no weapon is equipped** | `WeaponHolder.MakeDamage()` early-returns on `weapon == null` (`WeaponHolder.cs:41-45`), so this is safe. `PlayerBasicState` also gates entry into `PlayerAttackState` on `weaponHolder.Weapon != null`. |
+| **A clip sets `OnActivate` twice** | `PlayerAttackState` writes `Status = OffActivate` in the same frame it acts, so a second `OnActivate` from the clip would re-trigger damage. Unlike the old flag model there is no automatic one-shot guard — **the state is responsible for consuming the value**. Author one `AnimationOnAction` event per clip. |
+| **`EndRangeTrigger` arrives with input buffered** | `PlayerAttackState` chains: calls `weaponHolder.Attack()`, replays the animator state from 0, sets `Status = Start`. If `CanChain()` is false it sets `Status = None` and the state falls through to exit. |
 | **Skill `ExitAbility()` does not restore controller** | Player is stuck with the skill's controller; subsequent attack animations will be wrong. `ExitAbility()` must always restore `runtimeAnimatorController` to the weapon base controller, even when the skill is interrupted. |
-| **Bug #9 — `EndAnimation` never fires** | As documented in Detailed Design: `AnimationPlayerController.OnEnable()` line 21 registers the wrong event. Consequence: every use-weapon state never exits, player is permanently stuck. This fix is mandatory before demo. |
-| **`isAnimationTrigger` still `true` when entering a new state** | If a state exits without resetting the flag, the next state receives a phantom event on its first frame. Every state `Enter()` must reset `isAnimationTrigger = false`. |
+| **Enemy clip has no start/end event** | Expected — `Entity` implements only four of the six event methods (no `AnimationStart`, no `AnimationEnd`). Enemy states see `Start`/`End` only from `Enter()`/`Exit()`. |
+| **Bug #9 — `EndAnimation` never fires** | ✅ **RESOLVED.** `AnimationPlayerController.cs:21` registers `EndAnimation` correctly. Kept for history because several other documents still cite it as open — and note it is registration on a bus that never fires (see "The dead parallel bus"). |
 
 ## Dependencies
 
 | System | Relationship | Interface |
 |--------|-------------|-----------|
-| **Event Manager** (`EventManager.cs`) | Animation system mirrors the static bus pattern but is a separate bus | `AnimationEventManager` does not route through `EventManager` |
-| **Character / Player Controller** | Downstream — `PlayerState` consumes `isAnimationTrigger` and `isAnimationFinished` flags | `AnimationPlayerController` registered per-character in `OnEnable()` |
-| **Enemy AI** | Downstream — `EntityState` uses the same flag pattern for `EntityAttackState` and `EntityTakeDamageState` | Separate registration per entity, same contract |
-| **Melee Combat / Weapon System** | Downstream — `PlayerAttackState` calls `Weapon.Attack()` on `AttactAnimation` event | `AttackSO.directionAttackAnimatorOV` is the controller override per-hit |
-| **Skill & Ability System** | Downstream — `AbilityHolder.EnterAbility()` swaps `runtimeAnimatorController` | Skill SO holds `RuntimeAnimatorController` asset reference |
+| **Character / Player Controller** | Downstream — states read `Status` in `LogicUpdate()` | `SetAnimationStatus(StatusAnimation)` on `PlayerState` / `EntityState` |
+| **Enemy AI** | Downstream — same enum, but only four of the six event methods exist on `Entity` | `Entity.cs:65-68` |
+| **Melee Combat / Weapon System** | Downstream — `OnActivate` drives `WeaponHolder.MakeDamage()` | `AttackSO.directionAttackAnimatorOV` is the per-stage controller override |
+| **Skill & Ability System** | Downstream — `AbilityHolder.EnterAbility()` swaps `runtimeAnimatorController` | Skill SO holds a `RuntimeAnimatorController` reference |
+| **Event Manager** (`EventManager.cs`) | **No dependency.** Animation status never routes through the `EventID` bus | — |
+| **`AnimationEventManager`** | ⚠️ **Dead.** A separate static dict with zero `Emit()` callers. `.claude/rules/manager-event-code.md` claims it "fires through `EventManager`" — it does not; it is its own bus, and an unused one | — |
 | **Input System** | No dependency — animation events are not input-driven | — |
 
 ## Tuning Knobs
@@ -160,15 +226,22 @@ All animation timing is configured in the Unity Animator inspector — not in co
 
 ## Acceptance Criteria
 
-- [ ] **GIVEN** player presses LMB with weapon equipped, **WHEN** the attack animation reaches the hit frame, **THEN** `Weapon.Attack()` is called exactly once and damage is applied to enemies in range
-- [ ] **GIVEN** player is in `PlayerAttackState`, **WHEN** the attack animation completes, **THEN** `EndAnimation` fires, `isAnimationFinished` becomes `true`, and the state transitions to Idle or Move within the same frame
-- [ ] **GIVEN** player uses Slash skill (E key), **WHEN** the skill animation reaches the active frame, **THEN** `DoSkillAnimation` fires and the projectile spawns correctly
-- [ ] **GIVEN** player equips a weapon with 3 attacks in the combo, **WHEN** each hit uses a different `directionAttackAnimatorOV`, **THEN** each hit plays the correct directional animation matching the mouse direction
-- [ ] **GIVEN** player uses a skill, **WHEN** the skill exits (`ExitAbility()`), **THEN** `runtimeAnimatorController` is restored to the previous controller and subsequent attacks animate correctly
-- [ ] **GIVEN** Bug #9 is fixed, **WHEN** any use-weapon state completes its animation, **THEN** `EndAnimation` fires exactly once and the state exits — no permanent state lock
-- [ ] **GIVEN** player takes damage during an attack animation, **WHEN** `PlayerTakeDamageState.Enter()` is called, **THEN** `isAnimationTrigger` and `isAnimationFinished` are both reset to `false`
-- [ ] **GIVEN** `AnimationName.cs` is populated, **WHEN** any state calls `Animator.SetBool(AnimationName.IDLE, true)`, **THEN** the correct Animator parameter is set with no magic string errors
+- [x] **GIVEN** player presses LMB with a weapon equipped, **WHEN** the attack clip reaches its hit frame, **THEN** `AnimationOnAction()` sets `Status = OnActivate` and `PlayerAttackState` calls `WeaponHolder.MakeDamage()` exactly once *(implemented — `PlayerAttackState.cs:31-34`)*
+- [x] **GIVEN** player is in `PlayerAttackState`, **WHEN** the clip's final frame fires, **THEN** `Status` reaches `End` and the state transitions to Idle or Move *(implemented via `PlayerUseWeaponState`)*
+- [x] **GIVEN** input is buffered at `EndRangeTrigger` and `CanChain()` is true, **WHEN** the trigger is read, **THEN** the next stage starts and `Status` returns to `Start` *(implemented — `PlayerAttackState.cs:39-52`)*
+- [ ] **GIVEN** player uses Slash skill (E key), **WHEN** the skill animation reaches its active frame, **THEN** the projectile spawns correctly
+- [ ] **GIVEN** player equips a weapon with 3 combo stages, **WHEN** each stage uses a different `directionAttackAnimatorOV`, **THEN** each hit plays the correct directional animation matching the mouse direction
+- [ ] **GIVEN** player uses a skill, **WHEN** the skill exits (`ExitAbility()`), **THEN** `runtimeAnimatorController` is restored and subsequent attacks animate correctly
+- [ ] **GIVEN** an enemy attack clip, **WHEN** it needs a clip-driven start or end frame, **THEN** `Entity` implements `AnimationStart()` / `AnimationEnd()` *(currently missing — only four of six methods exist)*
+- [ ] **GIVEN** `GameConstants.AnimationName` is complete (`SKILL` and `DEATH` still missing), **WHEN** any state calls `Animator.SetBool(GameConstants.AnimationName.IDLE, true)`, **THEN** the correct Animator parameter is set with no magic string errors
+- [ ] **GIVEN** the dead `AnimationEventManager` bus, **WHEN** the owner decides its fate, **THEN** it is either deleted or given a real emitter — it must not stay as unreachable code that reads like the core mechanism
 
 ## Open Questions
 
-[To be designed]
+1. **What happens to `AnimationEventManager` / `AnimationEventId` / `AnimationPlayerController`?**
+   Zero emitters, four of five handlers empty. Delete, or wire up? Raised 2026-08-21.
+2. **Should `Entity` gain `AnimationStart()` / `AnimationEnd()`** so enemy clips can drive start and
+   end frames the way player clips do? Currently enemy states only see `Start`/`End` from
+   `Enter()`/`Exit()`.
+3. **`StatusAnimation.Animaing`** is declared but never written or read. Remove, or was it intended
+   for a "clip in progress" state that was never built?
