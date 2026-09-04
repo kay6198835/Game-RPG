@@ -26,6 +26,7 @@ public class EntityBasicState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        entityInput.DirectionMehod();
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
         if (entityInput.IsTakeDamage)
         {
@@ -45,6 +46,8 @@ public class EntityBasicState : EntityState
             entity.StateMachine.ChangeState(entity.AttackState);
             return;
         }
+        entityFindTarget.DistanceToPlayer();
+        entityFindTarget.FindTargetMethod();
     }
     public override void Exit()
     {
@@ -54,6 +57,7 @@ public class EntityBasicState : EntityState
         weaponHolder = null;
         entityAttack = null;
         entityFindTarget = null;
+        entityVitalStats = null;
     }
 
 }

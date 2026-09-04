@@ -8,10 +8,12 @@ public class GameLifetimeScope : LifetimeScope
     {
         builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
         builder.RegisterComponentInHierarchy<StatHandler>().As<IPlayerStatService>();
+        builder.RegisterComponentInHierarchy<PlayerManager>().As<IPlayerService>();
 
         builder.RegisterComponentInHierarchy<EnemySpawner>();
         builder.RegisterComponentInHierarchy<StatsUIController>();
         builder.RegisterComponentInHierarchy<ItemSpawner>();
+        builder.RegisterComponentInHierarchy<RoomGeneraterController>();
         //builder.RegisterComponentInHierarchy<StatsScreenUIController>();
         //builder.RegisterComponentInHierarchy<StatPointAllocator>();
     }

@@ -15,6 +15,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     [SerializeField] protected bool isTakeDamage = false;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
+    [SerializeField] protected bool isLockTarget = false;
     [Header("Direction Look")]
     [SerializeField] protected Vector2 directionLookVector;
     [SerializeField] protected int directionLook;
@@ -41,7 +42,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public Transform TargetTransform { get => targetTransform; }
+    public Transform IsLockTarget { get => isLockTarget; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle; }
@@ -55,15 +56,18 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     #endregion
 
     private EntityFindTarget entityFind;
+    [SerializeField] private IPlayerService _playerService;
+    [Inject]
+    public void Construct(IPlayerService playerService)
+    {
+        _playerService = playerService;
+    }
     protected override void Start()
     {
         base.Start();
         Core.GetCoreComponent(out entityFind);
         this.spawnPoint = this.transform.position;
-    }
-    public void Update()
-    {
-        DirectionMehod();
+        targetTransform = _playerService.GetPlayerTransform();
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
@@ -100,9 +104,9 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         //     directionLookVector = (targetTransform.position - transform.position).normalized;
         // }
         // else
-        {
+        // {
 
-        }
+        // }
         directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
 
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
@@ -112,14 +116,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         this.targetFowardPosition = targetPosition;
     }
 
-    /// <summary>
-    /// Assigns the chase target. GetTargetInRange() is still disabled (NEW-1), so a component that
-    /// runs its own detection — BossCommander today — must push the result in for EntityMovement.
-    /// </summary>
-    public void SetTargetTransform(Transform target)
-    {
-        this.targetTransform = target;
-    }
     public void SetDirectionRadom()
     {
         directionLookAngle = Random.Range(0f, 360f);
@@ -150,5 +146,16 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     private void ChangeIsTakeDamage()
     {
         this.isTakeDamage = !this.isTakeDamage;
+    }
+
+    public void SetLockTarget(bool isLockTarget)
+    {
+        this.isLockTarget = isLockTarget;
+    }
+
+    public Vector2 TargetPosition()
+    {
+        if (!isLockTarget) return Vector2.zero;
+        return targetTransform.position;
     }
 }
