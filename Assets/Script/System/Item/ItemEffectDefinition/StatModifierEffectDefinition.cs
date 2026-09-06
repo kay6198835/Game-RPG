@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-[CreateAssetMenu]
+[CreateAssetMenu(menuName = "Item SO/Effect/StatModifier")]
 public class StatModifierEffectDefinition: ItemEffectDefinition
 {
     [SerializeField] StatModifierGroup statModifierGroup;

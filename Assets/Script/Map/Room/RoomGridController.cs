@@ -86,10 +86,6 @@ public class RoomGridController : BaseGrid<RoomCell>
         roomGeneraterController.ClearRoom(_current);
         this.OnLoadMap((Vector2)obj);
     }
-    public void OnPlayerOnDoor(object obj = null)
-    {
-        OnLoadMap((Vector2)obj);
-    }
 
     private void DeleteDoorTileMap(object obj = null)
     {

@@ -1,9 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 public class Pool : MonoBehaviour
 {
     [SerializeField] private GameObject prefab;
     [SerializeField] private Queue<PoolMember> inactiveObjects = new Queue<PoolMember>();
+    private IObjectResolver resolver;
+
+    public void SetResolver(IObjectResolver resolver)
+    {
+        this.resolver = resolver;
+    }
+
     public void Spawn(Vector2 position, Transform parent = null)
     {
         Spawn(position, Quaternion.identity, parent);
@@ -19,6 +28,7 @@ public class Pool : MonoBehaviour
         if (inactiveObjects.Count == 0)
         {
             GameObject obj = Instantiate(prefab, position, rotation, parent == null ? transform : parent);
+            resolver?.InjectGameObject(obj);
             if (!obj.TryGetComponent<PoolMember>(out PoolMember member))
             {
                 member = obj.AddComponent<PoolMember>();
@@ -40,7 +50,7 @@ public class Pool : MonoBehaviour
         var reload = inactiveObjects.Dequeue();
         reload.gameObject.SetActive(true);
         reload.gameObject.transform.SetPositionAndRotation(position, rotation);
-        reload.transform.parent = parent == null ? this.transform : parent;
+        reload.transform.SetParent(parent == null ? this.transform : parent);
         reload.SwitchIsInPool(false);
         return reload.gameObject;
     }

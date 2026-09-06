@@ -23,52 +23,38 @@ public class PlayerAttackState : PlayerUseWeaponState
         // Attack() installs the clip that carries the event that calls Attack().
         weaponHolder.Attack();
     }
-
+    public override void AnimationOnAction()
+    {
+        base.AnimationOnAction();
+        weaponHolder.MakeDamage();
+    }
+    public override void AnimationFinishTrigger()
+    {
+        base.AnimationFinishTrigger();
+        weaponHolder.EndDamage();
+        if ((inputHandler.BufferIsAttack || inputHandler.IsAttack) && weaponHolder.CanChain())
+        {
+            // Read the hash before Attack() swaps runtimeAnimatorController: the swap
+            // rebinds the Animator, and querying it afterwards can report the layer's
+            // default state instead of Attack, which would make Play() jump elsewhere.
+            // Both stage overrides share Player.controller, so the hash stays valid.
+            int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
+            weaponHolder.Attack();
+            player.Anim.Play(stateHash, 0, 0f);
+        }
+        if (inputHandler.BufferIsAttack)
+        {
+            inputHandler.SetBufferAttack(false);
+        }
+    }
+    public override void AnimationEnd()
+    {
+        base.AnimationEnd();
+        base.LogicUpdate();
+    }
     public override void LogicUpdate()
     {
-        switch (Status)
-        {
-            case StatusAnimation.Start:
-                Status = StatusAnimation.None;
-                break;
-
-            case StatusAnimation.OnActivate:
-                weaponHolder.MakeDamage();
-                Status = StatusAnimation.OffActivate;
-                break;
-
-            case StatusAnimation.OffActivate:
-                break;
-
-            case StatusAnimation.EndRangeTrigger:
-                weaponHolder.EndDamage();
-                if ((inputHandler.BufferIsAttack || inputHandler.IsAttack) && weaponHolder.CanChain())
-                {
-                    // Read the hash before Attack() swaps runtimeAnimatorController: the swap
-                    // rebinds the Animator, and querying it afterwards can report the layer's
-                    // default state instead of Attack, which would make Play() jump elsewhere.
-                    // Both stage overrides share Player.controller, so the hash stays valid.
-                    int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
-                    weaponHolder.Attack();
-                    player.Anim.Play(stateHash, 0, 0f);
-                }
-                Status = StatusAnimation.None;
-                if (inputHandler.BufferIsAttack)
-                {
-                    inputHandler.SetBufferAttack(false);
-                }
-                break;
-
-            case StatusAnimation.None:
-                break;
-            case StatusAnimation.End:
-                base.LogicUpdate();
-                break;
-
-            default:
-                inputHandler.SetStatusAnimation(Status);
-                break;
-        }
+        inputHandler.SetStatusAnimation(Status);
     }
     public override void Exit()
     {

@@ -6,6 +6,7 @@ public class ItemSpawner : MonoBehaviour
 {
     [SerializeField] private ItemController droppedItemPrefab;
     [SerializeField] private IObjecPoolService objecPoolService;
+    [SerializeField] private DepotItem depotItem;
     [Inject]
     public void Construct(IObjecPoolService objecPoolService)
     {
@@ -32,9 +33,10 @@ public class ItemSpawner : MonoBehaviour
         if (!CheckRate()) return;
         var itemObject = objecPoolService.Spawn(((GameObject)obj).transform.position, Quaternion.identity, droppedItemPrefab.gameObject);
         var itemController = itemObject.GetComponent<ItemController>();
-        itemController.SetDataItem();
+        itemController.SetDataItem(depotItem.GetRandomItem());
         itemObject.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
     }
+
 
     void CollectItem(object obj = null)
     {

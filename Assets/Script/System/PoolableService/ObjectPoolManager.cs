@@ -1,10 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
 {
     public Dictionary<GameObject, Pool> pools { get; set; } = new Dictionary<GameObject, Pool>();
+    private IObjectResolver resolver;
+
+    [Inject]
+    public void Construct(IObjectResolver resolver)
+    {
+        this.resolver = resolver;
+    }
+
     public Pool Get(GameObject prefab, Transform parent = null)
     {
         if (!pools.TryGetValue(prefab, out Pool pool))
@@ -27,7 +37,7 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
     }
     public void Release(GameObject poolObject, Transform parent = null)
     {
-        if (!poolObject.TryGetComponent<PoolMember>(out PoolMember member))
+        if (!poolObject.TryGetComponent(out PoolMember member))
             return;
 
         Pool pool = member.GetPool();
@@ -41,9 +51,10 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
     private void Register(GameObject prefab, Transform parent = null)
     {
         if (pools.TryGetValue(prefab, out Pool pool)) return;
-        GameObject poolObj = new GameObject($"{prefab.name} Pool");
-        poolObj.transform.parent = this.transform;
+        GameObject poolObj = parent == null ? new GameObject($"{prefab.name} Pool") : parent.gameObject;
+        poolObj.transform.parent = parent == null ? this.transform : parent.parent;
         pool = poolObj.AddComponent<Pool>();
+        pool.SetResolver(resolver);
         pool.Register(prefab);
         pools.Add(prefab, pool);
     }
