@@ -19,7 +19,7 @@ public class EnemySO : StatsCharacter
     [SerializeField] public GameObject projectile;
     [Header("Atributte")]
     [SerializeField] public LayerMask layerMask;
-    [SerializeField] public DepotItemPrefab depotItem;
+    [SerializeField] public DepotItem depotItem;
     private void Awake()
     {
         layerMask = LayerMask.GetMask("Player");

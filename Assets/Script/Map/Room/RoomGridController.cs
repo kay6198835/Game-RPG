@@ -69,7 +69,7 @@ public class RoomGridController : BaseGrid<RoomCell>
         _current.UpdateStatusDoor(directionToNextMap);
         this.roomGeneraterController.LoadRoom(index, _current);
         _current.GetStartDoorPosition(-directionToNextMap);
-        roomGeneraterController._fastMovement.transform.SetPositionAndRotation(_next.StartDoorPosition, Quaternion.identity);
+        roomGeneraterController.SetNextRoom(_next.StartDoorPosition);
         _next = null;
         EventManager.Emit(EventID.ON_LOAD_MAP, index);
     }
@@ -85,10 +85,6 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         roomGeneraterController.ClearRoom(_current);
         this.OnLoadMap((Vector2)obj);
-    }
-    public void OnPlayerOnDoor(object obj = null)
-    {
-        OnLoadMap((Vector2)obj);
     }
 
     private void DeleteDoorTileMap(object obj = null)

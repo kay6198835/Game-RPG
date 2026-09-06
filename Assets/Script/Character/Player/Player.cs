@@ -70,12 +70,12 @@ public class Player : BaseEntity
 
     #region Other Functions
 
-    private void AnimationStart() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.Start);
-    private void AnimationTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.StartRangeTrigger);
-    private void AnimationOnAction() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.OnActivate);
-    private void AnimationOffAction() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.OffActivate);
-    private void AnimationFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
-    private void AnimationEnd() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.End);
+    private void AnimationStart() => stateMachine.CurrentState.AnimationStart();
+    private void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
+    private void AnimationOnAction() => stateMachine.CurrentState.AnimationOnAction();
+    private void AnimationOffAction() => stateMachine.CurrentState.AnimationOffAction();
+    private void AnimationFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
+    private void AnimationEnd() => stateMachine.CurrentState.AnimationEnd();
 
 
     #endregion

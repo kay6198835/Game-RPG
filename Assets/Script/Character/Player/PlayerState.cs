@@ -58,4 +58,28 @@ public class PlayerState : IState
     {
         this.Status = statusAnimation;
     }
+    public virtual void AnimationStart()
+    {
+        Status = StatusAnimation.Start;
+    }
+    public virtual void AnimationTrigger()
+    {
+        Status = StatusAnimation.StartRangeTrigger;
+    }
+    public virtual void AnimationOnAction()
+    {
+        Status = StatusAnimation.OnActivate;
+    }
+    public virtual void AnimationOffAction()
+    {
+        Status = StatusAnimation.OffActivate;
+    }
+    public virtual void AnimationFinishTrigger()
+    {
+        Status = StatusAnimation.EndRangeTrigger;
+    }
+    public virtual void AnimationEnd()
+    {
+        Status = StatusAnimation.End;
+    }
 }

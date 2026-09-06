@@ -38,7 +38,7 @@ public class Entity : BaseEntity
         stateMachine.Initialize(idleState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
-    protected virtual void LoadEntity()
+    private void LoadEntity()
     {
         stateMachine = new EntityStateMachine();
         core = GetComponentInChildren<EntityCore>();
@@ -47,7 +47,7 @@ public class Entity : BaseEntity
         particle = GetComponentInChildren<ParticleSystem>();
         anim.runtimeAnimatorController = data.Aima;
     }
-    protected virtual void LoadState()
+    private void LoadState()
     {
         idleState = new EntityIdleState(this, stateMachine, data, "Idle");
         moveState = new EntityMoveState(this, stateMachine, data, "Move");

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-[CreateAssetMenu]
-public class CurrencyEffectDefinition : ItemEffectDefinition
+[CreateAssetMenu(menuName = "Item SO/Effect/Recovery")]
+public class RecoveryEffectDefinition : ItemEffectDefinition
 {
     [SerializeField] private int amount;
 
     public override void Apply(ResourceReceiver player)
     {
-        // player.Wallet.Add(amount);
+        // player.Health.Heal(amount);
     }
 }

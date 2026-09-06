@@ -21,7 +21,7 @@ public class EntityMoveState : EntityBasicState
     }
     public override void LogicUpdate()
     {
-        if (!entityInput.HasTarget)
+        if (!entityInput.IsLockTarget)
         {
             time += Time.deltaTime;
             if (time >= 10)

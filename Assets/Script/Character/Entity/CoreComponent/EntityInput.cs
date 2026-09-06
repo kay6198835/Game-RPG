@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using VContainer;
 
 public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
 {
@@ -42,7 +43,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public Transform IsLockTarget { get => isLockTarget; }
+    public bool IsLockTarget { get => isLockTarget; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle; }
@@ -76,28 +77,11 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         directionIsAttakedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
         AngleCalculate(directionIsAttakedVector, ref directionIsAttakedAngle, ref directionIsAttaked);
     }
-    private void GetTargetInRange()
-    {
-
-        // fix need refactor
-        if (targetTransform == null)
-        {
-            targetTransform = entityFind.FindTargetMethod(Core.Entity.Data.RangeCheckFieldOfView);
-        }
-        if (entityFind.FindTargetMethod(Core.Entity.Data.RangeCheckAttack) != null)
-        {
-            isAttack = true;
-        }
-        else
-        {
-            isAttack = false;
-        }
-    }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
         DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
-    private void DirectionMehod()
+    public void DirectionMethod()
     {
         // if (targetTransform != null)
         // {
@@ -153,7 +137,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         this.isLockTarget = isLockTarget;
     }
 
-    public Vector2 TargetPosition()
+    public Vector3 TargetPosition()
     {
         if (!isLockTarget) return Vector2.zero;
         return targetTransform.position;
