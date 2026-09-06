@@ -15,7 +15,17 @@
 
 ---
 
-## Status Verdict: 🔴 AT RISK — LAST DAY (Day 5 of 5) — 2026-09-03 saw a full day of commits (`ffe1976` boss framework, `f7acffc`/`2ff6c49` portfolio-prep merge, `1c0742e` full `Assets/Script/` folder restructure into `Script/System/`) but **none of them touched `RangeWeapon.cs`** — BUG-064 sub-item 7 (`poolManager` needs `[Inject]`) is re-verified still open on current `sprint-12` HEAD (`1c0742e`), exactly as flagged at yesterday's mid-day check-in. Local `sprint-12` is in sync with `origin/sprint-12` (no unpushed commits). Today is the sprint's last scheduled day per `sprint-12.md` header (2026-08-31 → 2026-09-04) — a wrap-up decision is due regardless of whether item 7 lands.
+## Status Verdict: 🔴 CLOSED — FAIL (2026-09-06 Saturday wrap-up) — see closure block at the top of
+`sprint-12.md` and `production/retros/retro-sprint-12-2026-09-06.md` for full detail. BUG-064 sub-item
+7 (`RangeWeapon.cs` `poolManager` DI) remained open through sprint end, unchanged since first flagged.
+No owner-in-Editor session occurred at any point in the sprint. Carryover and velocity recorded below
+for Sunday's `/weekly-kickoff`.
+
+<details><summary>Superseded Friday entry (2026-09-04)</summary>
+
+🔴 AT RISK — LAST DAY (Day 5 of 5) — 2026-09-03 saw a full day of commits (`ffe1976` boss framework, `f7acffc`/`2ff6c49` portfolio-prep merge, `1c0742e` full `Assets/Script/` folder restructure into `Script/System/`) but **none of them touched `RangeWeapon.cs`** — BUG-064 sub-item 7 (`poolManager` needs `[Inject]`) is re-verified still open on current `sprint-12` HEAD (`1c0742e`), exactly as flagged at yesterday's mid-day check-in. Local `sprint-12` is in sync with `origin/sprint-12` (no unpushed commits). Today is the sprint's last scheduled day per `sprint-12.md` header (2026-08-31 → 2026-09-04) — a wrap-up decision is due regardless of whether item 7 lands.
+
+</details>
 
 ---
 
@@ -440,3 +450,41 @@ happen tomorrow, Sprint 12 still risks closing on an unverified build.
   Unity's importer would.
 - `CLAUDE.md` Repository Layout is now out of date against the restructure — no functional risk today, but
   will mislead the next session that trusts it without re-verifying paths.
+
+---
+
+### Sat 2026-09-06 — Weekly Wrap-Up close-out (autonomous, `pm-weekly-wrapup`)
+
+**Re-verified against `sprint-12` HEAD `f3f5f08`** (merges `feature/fix-player-control` landed Fri
+night/Sat: `1835cbe`, `0686619`, `f3f5f08`, plus boss-framework revert `ff67f4d`/`4421fdc` and a
+conflict-fix commit `f84f36e`/`853fe39` on top of Friday's `1c0742e`):
+
+- **BUG-064**: sub-items 1-6 confirmed fixed (re-verified independently of Friday's standup read —
+  matches exactly). **Sub-item 7 (`RangeWeapon.cs` DI) still open**, byte-identical to Friday's finding
+  — no commit touched this file between Friday's standup and now.
+- **BUG-053**: confirmed fixed in source — `EntityNegativeReciver.cs` rewritten, routes through
+  `EntityVitalStats`. New this cycle (Friday's standup had not yet re-confirmed this against the final
+  merged state).
+- **BUG-063**: confirmed still open, `Stat.cs:63-65` unchanged. 24th+ carry.
+- **New findings this session** (not caught by any prior standup): BUG-065 (`PlayerDeathState` no
+  longer stops `PlayerMovement` — contradicts CLAUDE.md's BUG-044 claim) and BUG-066
+  (`EntityVitalStats` unguarded dictionary indexer, `KeyNotFoundException` risk on the damage chain).
+  Both filed under `production/qa/bugs/`.
+- No owner-in-Editor Play Mode session occurred at any point this sprint — confirmed absence, not
+  assumed.
+- `.git/hooks/pre-push` still absent (19th+ carry). No new bug files for S12-06/07/08/10/11 — all
+  Should-Have items remain at zero.
+
+**Sprint verdict: CLOSED — FAIL.** 0 of 5 Must-Have items fully met (2 partial, both missing Play Mode
+verification), 0 of 6 Should-Have items landed. Full detail in `sprint-12.md`'s closure block and
+`production/retros/retro-sprint-12-2026-09-06.md`.
+
+**Handoff to Sunday `/weekly-kickoff`:**
+- **Carry-over** (in priority order): BUG-064 item 7 (`RangeWeapon` DI, first commit) → one
+  owner-in-Editor smoke session (Console-clean, kill enemy, fire ranged weapon) → BUG-063 as a fully
+  isolated commit → pre-push hook placeholder → S4-05/S4-06 + ADR-0002 owner sign-off pass →
+  VContainer/Item-system ADR (escalated) → `/doc-sync` (escalated to blocking) → BUG-065, BUG-066 →
+  batch bug-file generation → first EditMode/PlayMode tests → QA plan → first playtest.
+- **Velocity**: ~0.5 of 1.0 Must-Have estimate-days landed in source (0d confirmed in Play Mode); 0 of
+  1.1 Should-Have estimate-days landed. Third consecutive sprint in the ~40-50% functional-completion
+  band, but the first with 0% of that work independently verified.

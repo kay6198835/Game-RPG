@@ -1,5 +1,42 @@
 # Sprint 12 — 2026-08-31 to 2026-09-04
 
+**Status: CLOSED — FAIL (2026-09-06 Saturday `pm-weekly-wrapup`, on-slot autonomous run).** Full
+detail: `production/retros/retro-sprint-12-2026-09-06.md` and `production/qa/bug-triage-2026-09-06.md`.
+
+**Final scorecard — 0 of 5 Must-Have tasks fully met, 2 partial, on `sprint-12` HEAD `f3f5f08`:**
+
+| Item | Final status |
+|------|--------------|
+| S12-01 (BUG-064, project does not compile) | 🟡 PARTIAL — 6 of 7 sub-items fixed (dangling `EntityStatsSO`/`Entity.Data`/`EntityFindTarget` refs, `ON_ENEMY_DEATH` payload mismatch, `Resgister`/`UnResgister` typo). Sub-item 7 (`RangeWeapon.cs` `poolManager` needs `[Inject]`) still open — ranged combat silently dead. **No Play Mode / Editor confirmation ever occurred** — the required smoke pass never ran |
+| S12-02 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | ❌ NOT MET — untouched, 24th+ consecutive carry on a one-line documented fix |
+| S12-03 (BUG-053/BUG-054, enemy health routing) | 🟡 PARTIAL — `EntityNegativeReciver.cs` fully rewritten and clean in source (routes through `EntityVitalStats`/`EntityStatsHandler`), but "confirmed against the compiling build" was never done — no Play Mode session occurred |
+| S12-04 (re-verify BUG-042/043/044/046/033/NEW-1-4) | ❌ NOT MET as a discrete pass — this wrap-up's code review substitutes partially, and surfaced a new regression (BUG-065: `PlayerDeathState` no longer stops `PlayerMovement`, contradicting CLAUDE.md's BUG-044 "FIXED" claim) |
+| S12-05 (pre-push hook placeholder) | ❌ NOT MET — `.git/hooks/pre-push` still absent, 19th+ carry |
+| QA Plan gate | ❌ Still none — 18th+ consecutive cycle |
+| S12-06 through S12-11 (Should-Have: forced decision, ADR-0002 Accept, DI ADR, batch bug files, doc-sync, first tests) | ❌ 0 of 6 landed |
+| First playtest | ❌ Not run — last log still 2026-06-12 |
+
+**What did land**: substantial, verifiable source-level progress on both of the sprint's real
+technical blockers — BUG-064 (compile break) went from fully broken to one DI-wiring line short of
+done, and BUG-053 (enemy health routing, carried 6+ cycles) is now genuinely fixed in source. Thursday's
+unplanned boss-framework scope-drift (`ffe1976`) was caught and reverted the same day (`4421fdc`,
+`ff67f4d`) rather than left to compound. Two new bugs were found and filed during this wrap-up's review
+(BUG-065, BUG-066) that no prior session had caught.
+
+**What did not land**: the sprint's single cheapest item (BUG-063) is now on its 24th+ consecutive
+carry with zero technical blocker ever identified. Zero of six Should-Have process/debt items landed.
+No owner-in-Editor Play Mode session occurred at any point in the sprint — every "fixed" claim above
+is a source read, not a confirmed running build, for the fourth+ consecutive sprint running.
+
+**Carryover into Sprint 13**: BUG-064 item 7 (`RangeWeapon` DI wiring, first commit), one owner-in-Editor
+smoke session (highest-leverage single action available), BUG-063 as a fully isolated commit, the
+pre-push hook placeholder, the S4-05/S4-06 + ADR-0002 owner sign-off pass, the DI/Item-system ADR
+(now escalated — undocumented surface roughly tripled this cycle), `/doc-sync` (escalated to blocking
+given the scale of drift after this week's 298-file restructure), BUG-065, BUG-066, batch bug-file
+generation, first EditMode/PlayMode tests, QA plan, first playtest.
+
+---
+
 **Opened:** 2026-08-30 (Sunday 22:00 `pm-weekly-kickoff`, on-slot autonomous run — no owner present).
 Branch `sprint-12`, created from `sprint-11` tip (`6348dc6`, "chore(wrapup): weekly wrap-up 2026-08-30"),
 after `git fetch origin sprint-11` confirmed the local ref matched `origin/sprint-11` exactly. `gh` CLI
