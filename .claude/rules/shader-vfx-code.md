@@ -16,7 +16,7 @@ All visual effects must be compatible with the 2D Renderer pipeline.
 - No `discard` in fragment shaders on mobile-target platforms (affects batching)
 
 ## VFX / Particle Systems
-- Particle systems must use the `Pooling/` system — never `Instantiate` at runtime
+- Particle systems must use the `Poolable/` system (`ObjectPoolManager` / `Pool` / `PoolMember`, implementing `IPoolable`) — never `Instantiate` at runtime. The old `Pooling/ObjectPooling.cs` this rule used to name was deleted; path corrected 2026-08-20
 - Maximum 500 particles per system for 2D gameplay effects
 - Stop Action must be set to `Destroy` only if not pooled; pooled systems use `Disable`
 - Sort layer must be explicitly set — never leave at default

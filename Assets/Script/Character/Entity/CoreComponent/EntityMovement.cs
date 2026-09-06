@@ -36,38 +36,38 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         base.Awake();
         rb = GetComponentInParent<Rigidbody2D>();
     }
-    public void CheckMove()
-    {
-        if (entityInput.TargetTransform)
-        {
-            if (entityFindTarget.IsNearPlayer())
-            {
-                FleeTarget();
-            }
-            else
-            {
-                ChaseToTarget();
-            }
-        }
-        else
-        {
-            ToRandomPosition();
-        }
-        MoveToNodeTarget();
-    }
+    // public void CheckMove()
+    // {
+    //     if (entityInput.IsLockTarget)
+    //     {
+    //         if (entityFindTarget.IsNearPlayer())
+    //         {
+    //             FleeTarget();
+    //         }
+    //         else
+    //         {
+    //             ChaseToTarget();
+    //         }
+    //     }
+    //     else
+    //     {
+    //         ToRandomPosition();
+    //     }
+    //     MoveToNodeTarget();
+    // }
 
     public void SendResquestPath()
     {
-        if(endPosition == Vector2.zero) return;
+        if (endPosition == Vector2.zero) return;
         PathRequest request = new PathRequest(transform.position, endPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
     }
 
-    private void FleeTarget()
+    public void FleeTarget()
     {
         if (!entityFindTarget.IsNearPlayer()) return;
         var fleePosition = Core.Entity.transform.position +
-        ((Core.Entity.transform.position - entityInput.TargetTransform.position).normalized * 3);
+        ((Core.Entity.transform.position - entityInput.TargetPosition()).normalized * 3);
         Node validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)fleePosition);
 
         if (validNode != null && validNode.Walkable)
@@ -81,11 +81,11 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
 
     }
-    private void ChaseToTarget()
+    public void ChaseToTarget()
     {
         if (CheckPlayerPosition())
         {
-            endPosition = entityInput.TargetTransform.position;
+            endPosition = entityInput.TargetPosition();
             SendResquestPath();
         }
     }
@@ -96,7 +96,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         return distance < GameConstants.SettingStats.PADDING_NODE_VALUE ? true : false;
     }
 
-    private void MoveToNodeTarget()
+    public void MoveToNodeTarget()
     {
         if (Waypoints.Count == 0)
         {
@@ -115,11 +115,11 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private bool CheckPlayerPosition()
     {
-        SearchNode node = grid.GetNodeFromWorld(entityInput.TargetTransform.position);
+        SearchNode node = grid.GetNodeFromWorld(entityInput.TargetPosition());
         if (node == null) return false;
         currentPlayerNodePosition = node.TileMapPosition;
         //player changed grid cell → need new path
-        return Vector2.Distance(entityInput.TargetTransform.position, currentPlayerNodePosition) > 0.1f;
+        return Vector2.Distance(entityInput.TargetPosition(), currentPlayerNodePosition) > 0.1f;
     }
 
     public void MoveForwardToTarget()
@@ -147,7 +147,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     private const int MaxSetNodeAttempts = 10;
 
-    private void ToRandomPosition()
+    public void ToRandomPosition()
     {
         if (CheckNearPostion(endPosition) || endPosition == Vector2.zero)
         {
@@ -162,7 +162,7 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
     {
         for (int attempt = 0; attempt < MaxSetNodeAttempts; attempt++)
         {
-            Vector2Int randomAddRangePosition = new Vector2Int(Random.Range(0, maxRadiusSpawnPoint), Random.Range(0, maxRadiusSpawnPoint));
+            Vector2Int randomAddRangePosition = Utility.RandomPaddingDistace(0, maxRadiusSpawnPoint);
             Utility.RandomShuffle(allDirection);
             foreach (var direction in allDirection)
             {

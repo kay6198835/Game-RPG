@@ -25,6 +25,9 @@ public class StatModifierTesterEditor : Editor
         if (GUILayout.Button("Add Modifier (from selected source)"))
             tester.AddModifierFromSource();
 
+        if (GUILayout.Button("Add Modifier Group (from selected source)"))
+            tester.AddGroupFromSource();
+
         if (GUILayout.Button("Remove Modifiers (this tester — all sources)"))
             tester.RemoveAllTesterSources();
 
@@ -66,18 +69,24 @@ public class StatModifierTesterEditor : Editor
 
     private void DrawPrimaryOnlyPopup(SerializedProperty prop)
     {
-        int current = Mathf.Max(0, Array.IndexOf(PrimaryTypes, (StatType)prop.intValue));
-        int selected = EditorGUILayout.Popup("Primary To Allocate", current, PrimaryNames);
-        prop.intValue = (int)PrimaryTypes[selected];
+        // Chỉ ghi khi người dùng thực sự đổi lựa chọn. Ghi vô điều kiện mỗi lần repaint sẽ
+        // âm thầm nắn giá trị hợp lệ về STR khi prop đang giữ một StatType không phải primary
+        // (IndexOf trả -1 -> kẹp về 0), và làm scene bẩn liên tục.
+        int current = Array.IndexOf(PrimaryTypes, (StatType)prop.intValue);
+
+        EditorGUI.BeginChangeCheck();
+        int selected = EditorGUILayout.Popup("Primary To Allocate", Mathf.Max(0, current), PrimaryNames);
+        if (EditorGUI.EndChangeCheck() || current < 0)
+            prop.intValue = (int)PrimaryTypes[selected];
     }
 
     private void DrawLiveReadout(StatModifierTester tester)
     {
-        StatsSO stats = tester.Stats;
+        BaseStatsSO stats = tester.Stats;
         if (stats == null) return;
 
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField($"Live Values (Level {stats.Level})", EditorStyles.boldLabel);
+        //EditorGUILayout.LabelField($"Live Values (Level {stats.Level})", EditorStyles.boldLabel);
 
         EditorGUILayout.LabelField("Primary", EditorStyles.miniBoldLabel);
         foreach (StatType t in Enum.GetValues(typeof(StatType)))
@@ -90,10 +99,10 @@ public class StatModifierTesterEditor : Editor
                 DrawStatLine(stats, t);
     }
 
-    private void DrawStatLine(StatsSO stats, StatType t)
+    private void DrawStatLine(BaseStatsSO stats, StatType t)
     {
         Stat stat = stats.Get(t);
-        float value = stat != null ? stat.Value : 0f;
+        float value = stat != null ? stat.FinalValue : 0f;
         EditorGUILayout.LabelField(t.ToString(), value.ToString("0.###"));
     }
 

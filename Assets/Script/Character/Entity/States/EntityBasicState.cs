@@ -9,6 +9,7 @@ public class EntityBasicState : EntityState
     protected EntityWeaponHolder weaponHolder;
     protected EntityAttack entityAttack;
     protected EntityFindTarget entityFindTarget;
+    protected EntityVitalStats entityVitalStats;
     public EntityBasicState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -20,14 +21,16 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out weaponHolder);
         entity.Core.GetCoreComponent(out entityAttack);
         entity.Core.GetCoreComponent(out entityFindTarget);
+        entity.Core.GetCoreComponent(out entityVitalStats);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        entityInput.DirectionMethod();
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
         if (entityInput.IsTakeDamage)
         {
-            if (entity.Data.StatsSO.Health <= 0)
+            if (entityVitalStats.GetCurrentStatValue(StatType.HP) <= 0)
             {
                 stateMachine.ChangeState(entity.DeathState);
                 return;
@@ -43,6 +46,8 @@ public class EntityBasicState : EntityState
             entity.StateMachine.ChangeState(entity.AttackState);
             return;
         }
+        entityFindTarget.DistanceToPlayer();
+        entityFindTarget.FindTargetMethod();
     }
     public override void Exit()
     {
@@ -52,6 +57,7 @@ public class EntityBasicState : EntityState
         weaponHolder = null;
         entityAttack = null;
         entityFindTarget = null;
+        entityVitalStats = null;
     }
 
 }

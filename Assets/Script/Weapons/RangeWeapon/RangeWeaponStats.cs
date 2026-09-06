@@ -1,19 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "WeaponData/RangeWeaponData")]
-
 public class RangeWeaponStats : WeaponStats
 {
-    [Header("RW Stats")]
-    public string weaponName;
+    [Header("Range")]
+    [SerializeField] private string nameWeapon;
 
-    public float firerate;
-    public float timeBtwShots;
-    public float StartTimeBtwShots;
-    void OnValidate()
-    {
-        this.Type = WeaponType.RangeWP;
-    }
+    // Holding the trigger replays the stage list instead of stopping at the last stage.
+    [SerializeField] private bool autoFire = true;
+
+    public override WeaponType Type => WeaponType.RangeWP;
+
+    public string NameWeapon { get => nameWeapon; }
+    public bool AutoFire { get => autoFire; }
 }

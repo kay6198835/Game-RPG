@@ -97,7 +97,7 @@ Skills are weapon-bound — changing weapons changes the available skills.
 
 - **Type**: `DoCast`
 - **Intended behaviour**: While RMB is held, `Cast()` loops — player is in a blocking stance
-- **On hit during block**: Incoming damage reduced by `WeaponMeleeStats.blockDamage`
+- **On hit during block**: Incoming damage reduced by `MeleeWeaponStats.blockDamage` (class renamed from `WeaponMeleeStats` during the Sprint 8-10 refactor; field still exists at `MeleeWeaponStats.cs:10`)
 - **On release**: `Do()` fires any counter-effect; `Exit()` removes the stance
 - **Current state**: `BlockAbility.Cast()` exists but contains no logic. Damage reduction
   is not applied anywhere. Needs implementation before demo.
@@ -212,7 +212,7 @@ playerStat += playerStat × (skillIncreaseAmount / 100)  [if isPercentage]
 
 | System | Role | Direction |
 |--------|------|-----------|
-| **Weapons** (`WeaponMeleeStats`) | Carries `abilityWeapon` and `skillWeapon` SO refs; wires them to `AbilityHolder` on equip via `Weapon.SetAbility()` | Weapons → Skills |
+| **Weapons** (`WeaponStats`) | Carries `AbilityWeapon` and `SkillWeapon` SO refs — corrected 2026-08-20: these moved up from `WeaponMeleeStats` to the shared `WeaponStats` base, so ranged weapons carry them too. Wired to `AbilityHolder` on equip via `Weapon.SetAbility()` | Weapons → Skills |
 | **Character** (`AbilityHolder`, `PlayerSkillWeaponState`) | `AbilityHolder` drives lifecycle each frame; `PlayerSkillWeaponState` calls `SetStateAbility()` on `AnimationTrigger` | Character → Skills |
 | **Animation** (`AnimationEventManager`) | `ability.Animator` overrides the runtime controller; `AnimationTrigger` event starts skill execution | Skills → Animation |
 | **Input** (`PlayerInputHandle`) | Provides `DirectionMouseVector`, `AngleRotationPlayer`, and `SkillState` enum to abilities | Input → Skills |
@@ -235,7 +235,7 @@ All values in ScriptableObject assets.
 | Dash speed | `dashingPower` | `DashAbility` SO | Higher = farther dash |
 | Skill cooldown | `cooldownTime` | Any `ActivateSkill` SO | Seconds between uses |
 | Max cast window | `maxCastTime` | Any `ActivateSkill` SO | How long Cast phase can run |
-| Block damage reduction | `blockDamage` | `WeaponMeleeStats` SO | Flat damage absorbed while blocking |
+| Block damage reduction | `blockDamage` | `MeleeWeaponStats` SO | Flat damage absorbed while blocking. ⚠️ **Cross-GDD conflict (audit 2026-08-20):** `weapons-system.md` (2026-08-13, newer) declares the block mechanic out of scope for the demo and `blockDamage`/`shieldEra` unused. Owner decision needed — cut or keep |
 
 ### Effects
 

@@ -120,6 +120,15 @@ After a gate resolves, record the verdict in the relevant document's status head
 For phase gates, record in `docs/architecture/architecture.md` or
 `production/session-state/active.md` as appropriate.
 
+> ⚠️ **Neither of those two files exists (verified 2026-08-21).** `docs/architecture/` holds only
+> `adr-0001..0003` and `architecture-review-2026-07-13.md` — no `architecture.md` was ever
+> authored (`/create-architecture` has not been run). `production/session-state/` exists but
+> contains only `scope-check-2026-05-26.md` and `week-2026-05-26-review.md` — no `active.md`.
+>
+> So a phase-gate verdict recorded per these instructions has nowhere to land today. The process
+> intent above is left unchanged — resolving this means either creating the two files or
+> repointing the instruction, which is an owner decision, not a documentation fix.
+
 ---
 
 ## Tier 1 — Creative Director Gates

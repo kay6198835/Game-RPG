@@ -21,10 +21,23 @@ globs: ["Assets/Script/Manager/**/*.cs", "Assets/Script/GameConstants.cs"]
 - New project-wide constants go here — not in individual MonoBehaviours
 - No magic strings for Input axis names — always use `GameConstants.*`
 
-## AnimationEventManager
-- Animation events from Unity Animator call methods on `AnimationEventManager`
-- `AnimationEventManager` fires through `EventManager` — it does NOT directly call state methods
-- Never add gameplay logic directly into animation event callback methods
+## Animation events
+
+> Corrected 2026-08-21. This section previously said "Animation events from Unity Animator call
+> methods on `AnimationEventManager`" and that it "fires through `EventManager`". Both are wrong:
+> `AnimationEventManager` is its own static dictionary, unrelated to `EventManager`, and it is
+> **dead** — `AnimationEventManager.Emit()` has zero callers anywhere in the repo.
+
+- The real mechanism is Unity Animation Events calling methods **by name** on `Player` / `Entity`
+  (`AnimationStart`, `AnimationTrigger`, `AnimationOnAction`, `AnimationOffAction`,
+  `AnimationFinishTrigger`, `AnimationEnd`)
+- Each of those does exactly one thing: `CurrentState.SetAnimationStatus(StatusAnimation.X)`
+- Never add gameplay logic directly into an animation event method — branch on `Status` inside the
+  state's `LogicUpdate()` instead
+- `Status` is durable state, not a one-frame pulse: the state that acts on a value is responsible
+  for writing a new one to consume it
+- `AnimationEventManager` / `AnimationEventId` / `AnimationPlayerController` are unreachable today.
+  Do not build on them without first resolving Open Question #1 in `design/gdd/animation-system.md`
 
 ## UIManager Completion
 - `UIManager` is currently an empty stub — implement via EventManager subscriptions

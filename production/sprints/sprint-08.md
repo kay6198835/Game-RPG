@@ -1,5 +1,50 @@
 # Sprint 8 — 2026-08-03 to 2026-08-07
 
+**Status: CLOSED — CONCERNS (2026-08-09 Sunday kickoff, autonomous close).** No `/weekly-wrapup`
+commit exists for Sat 2026-08-08 (checked: no `chore(wrapup)` commit, no `retro-sprint-08-*.md` file) —
+this kickoff run closes the sprint directly from the Fri 2026-08-07 standup state, byte-identical to
+last observed (`git log sprint-08` shows no commits after `a29895b` "daily standup 2026-08-07").
+
+**Final scorecard — 0 of 8 Must-Have tasks (S8-01–S8-07, S8-12) landed on `sprint-08` across all 5
+scheduled days:**
+
+| Item | Final status |
+|------|--------------|
+| S8-00 root-cause conversation | ❌ Never held — 5th unaddressed cycle (3 in Sprint 6-7 lineage + 3 this sprint). Escalation condition from the sprint's own risk table ("if it recurs anyway, escalate to a hard process gate") was met as of 2026-08-06 and never actioned. |
+| S8-01 / BUG-041 (player attack unwired) | ❌ OPEN — `MeleeWeapon.Attack()` still empty; `MakeDamage()` still commented out |
+| S8-02 / BUG-042 (enemy TakeDamage throws) | ❌ OPEN — `EntityCore.TakeDamage()` still `throw NotImplementedException` |
+| BUG-053 (new, merge-introduced 2026-08-06) | ❌ OPEN — `EntityNegativeReciver.cs` duplicate calls wrong hub, emits `ON_PLAYER_DEATH` on enemy death |
+| S8-03 / BUG-043 (divergent enemy attack paths) | ⚠️ PARTIAL — `EntityAttack.cs.nextAttackTime` now advances; two paths still unconsolidated |
+| S8-04 / BUG-044 (PlayerDeathState orphaned) | ❌ OPEN, untouched |
+| S8-05 / Bug #6 (8th carry, write-through HP) | ❌ Not started this sprint at all |
+| S8-06 / BUG-032 (one-line fix) | ❌ OPEN, untouched |
+| S8-07 / BUG-033 (one-line fix) | ❌ OPEN, untouched |
+| S8-12 (Play Mode verify gate) | ❌ Not reached — blocked on S8-01/02 |
+| S8-10 (ADR-0002 Accepted) | ❌ Still **Proposed** — verified directly, not flipped |
+| S8-11 (S4-05/S4-06 forced decision) | ❌ Zero movement — 8th carry this sprint, becomes 9th |
+| QA Plan | ❌ Still none — 8th consecutive cycle without one |
+| `origin/feature/enemy-control` merge | ✅ Resolved 2026-08-06 (`c5f26b1`) — brought real AI/pathfinding progress but introduced BUG-053 |
+
+**Root cause (this run's read, not a restated observation):** the sprint's only structural
+countermeasure against off-plan work was a conversation requiring the owner in the room, scheduled 6
+times total (Sprint 6, 7, and 3x within Sprint 8) and held 0 times. A conversation that depends on
+synchronous owner availability is not a countermeasure an autonomous PM cycle can force to happen —
+it needs to be replaced by something enforceable without the owner present.
+
+**Carried forward to Sprint 9 (all Must-Have items, unchanged in substance):** BUG-041, BUG-042,
+BUG-053, BUG-043 (partial), BUG-044, Bug #6/S7-11 (9th carry), BUG-032 (3rd carry), BUG-033 (6th
+carry), ADR-0002 flip (5th carry), S4-05/S4-06 decision (9th carry), QA plan (8th cycle), S8-12
+verification gate.
+
+**Process recommendation for Sprint 9 (superseding the root-cause-conversation approach):** replace
+the 6th scheduled conversation with an enforceable gate — e.g. a pre-push hook or PR check that runs
+a compile check before any merge to `sprint-09`, or a written rule that AI/pathfinding work happens
+only on a tracked, separately-scoped branch/epic rather than landing via drive-by merge. This is a
+recommendation for the owner to adopt, not something this run can enforce unilaterally.
+
+---
+
+
 **Opened:** 2026-08-02 Sunday 22:00 kickoff (autonomous scheduled run). Branch `sprint-08`, created
 from `sprint-07` tip (`7cc1f75`, includes the sprint-07 closure commit). `gh` CLI unavailable in this
 environment — draft PR (`--base sprint-07 --head sprint-08`, title `Sprint 8`) was **not**

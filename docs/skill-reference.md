@@ -1,7 +1,8 @@
 # Studio Skill Reference
 
 > Quick-lookup guide to all Claude Code skills available in this project, grouped by
-> development phase. Generated 2026-06-08 from `.claude/skills/`.
+> development phase. Generated 2026-06-08 from `.claude/skills/`; re-synced 2026-08-21
+> against the 79 skills then on disk (6 were missing, and three stale counts were corrected).
 >
 > Invoke any skill with `/skill-name [argument]`. See `production/review-schedule.md`
 > for which skills run on a recurring cadence (weekly/monthly).
@@ -40,7 +41,7 @@
 | Skill | Purpose | When to use |
 |---|---|---|
 | `/create-architecture` | Authors the master architecture document from all GDDs + engine reference | Before writing code, after GDDs are approved |
-| `/architecture-decision` | Creates one ADR (Architecture Decision Record) documenting a significant technical decision | Every major technical choice (this project currently has **0 ADRs** — flagged gap) |
+| `/architecture-decision` | Creates one ADR (Architecture Decision Record) documenting a significant technical decision | Every major technical choice (this project has **3 ADRs** as of 2026-08-21; `Pathfinding/` and `Character/Base/` are still uncovered — BUG-052) |
 | `/architecture-review` | Builds a traceability matrix mapping GDD requirements to ADRs, finds coverage gaps/conflicts | Monthly review (Part 2) |
 | `/create-control-manifest` | Produces a flat, actionable rules sheet for programmers extracted from ADRs | After architecture is complete |
 
@@ -89,13 +90,14 @@
 | `/asset-audit` | Audits assets for naming, size budget, format, orphaned references | Periodic asset pipeline quality check |
 | `/ux-design` | Section-by-section UX spec authoring for a screen/flow/HUD | Designing new UI/UX |
 | `/ux-review` | Validates a UX spec/HUD — APPROVED / NEEDS REVISION / MAJOR REVISION | Before implementing UI |
+| `/ui-screen` | Builds runnable UI Toolkit screens (UXML + USS + controller + wired scene) from a mockup, Figma description, or text flow | Implementing a screen after `/ux-review` (added 2026-08-21) |
 
 ## 8. Performance & Tech Debt
 
 | Skill | Purpose | When to use |
 |---|---|---|
 | `/perf-profile` | Structured performance profiling — bottlenecks vs. budgets, optimization recs | Monthly review (Part 3) |
-| `/tech-debt` | Scans, categorizes, prioritizes technical debt; maintains the debt register | Monthly review (Part 2) — register currently has 20 items |
+| `/tech-debt` | Scans, categorizes, prioritizes technical debt; maintains the debt register | Monthly review (Part 2) — register has **39 items** as of 2026-08-21 (28 open) |
 | `/security-audit` | Audits vulnerabilities: save tampering, cheat vectors, network exploits, data exposure | Before any public release or multiplayer launch |
 | `/soak-test` | Generates a protocol for extended play sessions — leaks, fatigue effects, edge cases | Polish/Release phase |
 
@@ -108,6 +110,11 @@
 | `/retrospective` | Generates a sprint/milestone retrospective — velocity, blockers, patterns | End of sprint/milestone |
 | `/doc-sync` | Analyzes git log + code, updates CLAUDE.md (Layout, Known Bugs, Checklist, Events) | "Update docs", "sync project documentation" |
 | `/changelog` | Auto-generates a changelog from commits, sprint data, and design docs | Need to summarize change history |
+| `/daily-standup` | Daily 10:00 standup — reads sprint plan + git commits since yesterday, updates the tracker, lists today's tasks with estimates | Every morning, or wired to a 10:00 routine |
+| `/weekly-kickoff` | Sunday 22:00 — closes last week (carry-over + velocity), auto-creates next `sprint-NN.md` + daily-plan tracker | Sunday, before the working week |
+| `/weekly-wrapup` | Saturday 22:00 — code review of the week's `.cs`, playtest log, bug triage, retro + scope-check, weekly verdict | Saturday, feeds Sunday's kickoff |
+| `/weekly-sprint [kickoff\|wrapup]` | The older combined Monday/Friday ritual — superseded in practice by the three skills above | Legacy; prefer the dated skills above |
+| `/module-quality-audit` | Monthly per-module scoring (bug density, test evidence, tech debt, code-vs-GDD drift) + re-verification flags | Monthly review — combines bug-triage, consistency-check, content-audit, tech-debt |
 
 ## 10. Release & Live-Ops
 
@@ -122,17 +129,28 @@
 
 ## 11. Team Orchestration (multi-agent, parallel coordination)
 
-| Skill | Coordinates |
-|---|---|
-| `/team-combat` | game-designer + gameplay-programmer + ai-programmer + technical-artist + sound-designer + qa-tester |
-| `/team-level` | level-designer + narrative-director + world-builder + art-director + systems-designer + qa-tester |
-| `/team-narrative` | narrative-director + writer + world-builder + level-designer |
-| `/team-audio` | audio-director + sound-designer + technical-artist + gameplay-programmer |
-| `/team-ui` | Full UX/UI pipeline: spec → visual design → implementation → review → polish |
-| `/team-qa` | qa-lead + qa-tester (see section 6) |
-| `/team-polish` | performance-analyst + technical-artist + sound-designer + qa-tester |
-| `/team-release` | release-manager + qa-lead + devops-engineer + producer |
-| `/team-live-ops` | live-ops-designer + economy-designer + analytics-engineer + community-manager + writer + narrative-director |
+> ⚠️ **Six of these nine skills cannot run as written (verified 2026-08-21).** They call
+> `subagent_type:` values that have no file in `.claude/agents/`. The agent roster is 26 agents;
+> these 13 names are not among them: `accessibility-specialist`, `analytics-engineer`,
+> `audio-director`, `community-manager`, `devops-engineer`, `economy-designer`,
+> `live-ops-designer`, `localization-lead`, `narrative-director`, `network-programmer`,
+> `security-engineer`, `world-builder`, `writer`.
+>
+> The defect is in the `SKILL.md` files, not in this table — this table mirrors them correctly.
+> Fixing it means either authoring the missing agents or rewriting those skills onto the roster
+> that exists. **Owner decision; not actioned here.**
+
+| Skill | Coordinates | Runs? |
+|---|---|---|
+| `/team-combat` | game-designer + gameplay-programmer + ai-programmer + technical-artist + sound-designer + qa-tester | ✅ |
+| `/team-qa` | qa-lead + qa-tester (see section 6) | ✅ |
+| `/team-polish` | performance-analyst + technical-artist + sound-designer + qa-tester | ✅ |
+| `/team-ui` | Full UX/UI pipeline: spec → visual design → implementation → review → polish | ⚠️ missing `accessibility-specialist` |
+| `/team-level` | level-designer + narrative-director + world-builder + art-director + systems-designer + qa-tester | ⚠️ missing 3 agents |
+| `/team-audio` | audio-director + sound-designer + technical-artist + gameplay-programmer | ⚠️ missing `audio-director` |
+| `/team-narrative` | narrative-director + writer + world-builder + level-designer | ⚠️ missing 4 agents |
+| `/team-release` | release-manager + qa-lead + devops-engineer + producer | ⚠️ missing 5 agents |
+| `/team-live-ops` | live-ops-designer + economy-designer + analytics-engineer + community-manager + writer + narrative-director | ⚠️ missing 6 agents |
 
 ## 12. Engine Setup & Skill Meta
 
@@ -144,7 +162,11 @@
 
 ---
 
-## Suggested Order for Sprint 1 (current sprint as of 2026-06-08)
+## Suggested Order for a Sprint
+
+> Written for Sprint 1 on 2026-06-08. The project is on **sprint-10** as of 2026-08-21, but the
+> ordering below still describes the intended per-story flow, so it is kept as a template rather
+> than rewritten for the current sprint.
 
 ```
 /qa-plan sprint        → define test case requirements BEFORE implementation

@@ -9,6 +9,7 @@ public class PlayerBasicState : PlayerState
     protected AbilityHolder abilityHolder;
     protected PlayerInputHandler inputHandler;
     protected PlayerMovement playerMovement;
+    protected VitalStatsComponent vitalStats;
     public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -20,6 +21,7 @@ public class PlayerBasicState : PlayerState
         player.Core.GetCoreComponent(out abilityHolder);
         player.Core.GetCoreComponent(out inputHandler);
         player.Core.GetCoreComponent(out playerMovement);
+        player.Core.GetCoreComponent(out vitalStats);
     }
     public override void LogicUpdate()
     {
@@ -42,7 +44,7 @@ public class PlayerBasicState : PlayerState
         }
         else if (weaponHolder.Weapon != null)
         {
-            if (inputHandler.IsAttack)
+            if (inputHandler.IsAttack && weaponHolder.CanAttack())
             {
                 stateMachine.ChangeState(player.AttackState);
                 return;
@@ -55,7 +57,16 @@ public class PlayerBasicState : PlayerState
         }
         if (inputHandler.IsTakeDamage)
         {
-            stateMachine.ChangeState(player.TakeDamageState);
+            if (vitalStats.GetCurrentStatValue(StatType.HP) <= 0)
+            {
+                stateMachine.ChangeState(player.DeathState);
+                return;
+            }
+            else
+            {
+                stateMachine.ChangeState(player.TakeDamageState);
+                return;
+            }
         }
     }
     public override void PhysicsUpdate()

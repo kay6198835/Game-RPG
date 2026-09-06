@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <!-- Shared stylesheet. Relative path avoids URI escaping. -->
+    <Style src="../Styles/GameUI.uss" />
+
+    <ui:VisualElement name="stats-screen" class="screen">
+        <ui:VisualElement name="stats-panel" class="panel panel--wide">
+
+            <ui:VisualElement class="stats-header">
+                <ui:Label text="STATS" class="stats-header__title" />
+                <ui:Label name="label-points" text="Points: 0" class="stats-points" />
+                <ui:Button name="btn-close" text="X" class="btn btn--icon btn--danger" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="stats-body">
+                <ui:VisualElement class="stats-column">
+                    <ui:Label text="Primary Stats" class="stats-column__title" />
+                    <ui:ScrollView name="list-primary" class="stats-list" />
+                </ui:VisualElement>
+                <ui:VisualElement class="stats-column">
+                    <ui:Label text="Derived Stats" class="stats-column__title" />
+                    <ui:ScrollView name="list-derived" class="stats-list" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="stats-footer">
+                <ui:Button name="btn-restore" text="Restore" class="btn btn--footer" />
+                <ui:Button name="btn-revert"  text="Revert"  class="btn btn--footer" />
+                <ui:Button name="btn-update"  text="Update"  class="btn btn--footer" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

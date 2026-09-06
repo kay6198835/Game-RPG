@@ -13,14 +13,9 @@ public class PlayerDeathState : PlayerDisadvantageState
     }
     public override void LogicUpdate()
     {
-        base.LogicUpdate();
-        // if (StatusAnimation.Start)
-        // {
-        //     EventManager.Emit(EventID.ON_PLAYER_DEATH);
-        // }
-        // if (StatusAnimation.End)
-        // {
-        //     EventManager.Emit(EventID.ON_REALOAD_GAME);
-        // }
+        if (Status == StatusAnimation.EndRangeTrigger)
+        {
+            EventManager.Emit(EventID.ON_PLAYER_DEATH);
+        }
     }
 }

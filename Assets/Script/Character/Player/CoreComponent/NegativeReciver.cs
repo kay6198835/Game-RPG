@@ -2,14 +2,11 @@ using UnityEngine;
 
 public class NegativeReciver : CoreComponent<Core>, INegativeReceiver
 {
-    public int currentHealth;
-    public void TakeDamage(int amoutDamage, Vector2 attackPosition)
+    public void TakeDamage(float amoutDamage, Vector2 attackPosition)
     {
-        if (currentHealth <= 0) return;
-        currentHealth -= amoutDamage;
+        Core.GetCoreComponent(out VitalStatsComponent vitalStatsComponent);
+        vitalStatsComponent.ReceiveReduction(StatType.HP, amoutDamage);
         Core.GetCoreComponent(out PlayerInputHandler input);
         input.OnTakeDamage(attackPosition);
-        if (currentHealth <= 0)
-            EventManager.Emit(EventID.ON_PLAYER_DEATH);
     }
 }

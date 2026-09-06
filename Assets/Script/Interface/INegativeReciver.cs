@@ -4,6 +4,6 @@ using UnityEngine;
 
 public interface INegativeReceiver
 {
-    void TakeDamage(int amountDamage,Vector2 attackPosition);
+    void TakeDamage(float amountDamage,Vector2 attackPosition);
 
 }

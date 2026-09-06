@@ -1,12 +1,14 @@
+using System;
 using UnityEngine;
+[System.Serializable]
 public class PlayerState : IState
 {
     //protected Core core;
 
     protected Player player;
-    protected PlayerStateMachine stateMachine;
+    [NonSerialized] protected PlayerStateMachine stateMachine;
     protected PlayerData playerData;
-    public StatusAnimation Status { get; protected set; } = StatusAnimation.None;
+    public StatusAnimation Status = StatusAnimation.None;
     protected float startTime;
     protected string animBoolName;
     //protected StateStyle stateStyle;
@@ -29,7 +31,7 @@ public class PlayerState : IState
         DoChecks();
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        this.Status = StatusAnimation.Start;
+        //this.Status = StatusAnimation.Start;
 
     }
     public virtual void Exit()
@@ -55,5 +57,29 @@ public class PlayerState : IState
     public virtual void SetAnimationStatus(StatusAnimation statusAnimation)
     {
         this.Status = statusAnimation;
+    }
+    public virtual void AnimationStart()
+    {
+        Status = StatusAnimation.Start;
+    }
+    public virtual void AnimationTrigger()
+    {
+        Status = StatusAnimation.StartRangeTrigger;
+    }
+    public virtual void AnimationOnAction()
+    {
+        Status = StatusAnimation.OnActivate;
+    }
+    public virtual void AnimationOffAction()
+    {
+        Status = StatusAnimation.OffActivate;
+    }
+    public virtual void AnimationFinishTrigger()
+    {
+        Status = StatusAnimation.EndRangeTrigger;
+    }
+    public virtual void AnimationEnd()
+    {
+        Status = StatusAnimation.End;
     }
 }

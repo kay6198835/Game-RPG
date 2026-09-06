@@ -1,15 +1,10 @@
 using UnityEngine;
 
-public class EntityCore : CoreBase, INegativeReceiver
+public class EntityCore : CoreBase
 {
     [SerializeField] protected Entity entity;
     #region Properties
     public Entity Entity { get => entity; }
-
-    public void TakeDamage(int amountDamage, Vector2 attackPosition)
-    {
-        throw new System.NotImplementedException();
-    }
     #endregion
 
     protected override void Awake()

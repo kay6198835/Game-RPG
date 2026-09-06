@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum BulletType
@@ -11,6 +9,10 @@ public enum BulletType
 public class BulletDataSO : ScriptableObject
 {
     public BulletType bullettype;
-    public float lifetime;
-    public int dmg;
+
+    [Range(0.1f, 30f)] public float lifetime = 3f;
+    [Range(0, 999)] public int dmg;
+    [Range(1f, 60f)] public float speed = 12f;
+
+    public LayerMask targetMask;
 }

@@ -2,6 +2,8 @@
 status: authored
 source: Assets/Script/StatSystem/, ToolExcel/stat_system_formula_reference.xlsx
 date: 2026-07-07
+revised: 2026-08-21 (owner ratified the plain-class StatModifierGroup shape and the field renames;
+both implementation defects the 2026-08-20 audit found are now fixed. Design intent unchanged.)
 verified-by: Kiet
 ---
 
@@ -47,7 +49,7 @@ different coefficients.
 - **Derived stats**: computed from primary stats via a per-entity formula. They are never
   authored directly — always recalculated when a primary stat or level changes.
 - **Stat groups** (governs whether `perLevel` is used):
-  - *Flat / resource* (MaxHP, MaxMana, PhysicalDamage, MagicDamage, Defense, MagicDefense,
+  - *Flat / resource* (HP, Mana, PhysicalDamage, MagicDamage, Defense, MagicDefense,
     HPRegen, ManaRegen) — **may** use `perLevel` for guaranteed vertical growth.
   - *Percentage / soft-capped* (AttackSpeed, CritChance, CritDamage, MoveSpeed, Evasion,
     LifeSteal) — **`perLevel = 0`**; flat per-level growth here compounds degenerately.
@@ -55,8 +57,45 @@ different coefficients.
 - **Enemy variety** is layered on top of the archetype formula by a **rank** tier
   (creep / elite / champion) and a separate **boss** definition. Rank and boss scaling
   parameters are maintained in the spreadsheet and the combat balance doc.
-- **Modifiers**: buffs, equipment, and effects attach as `StatModifier`s on top of the
-  computed base value; they never mutate the base.
+- **Modifiers** `[IMPLEMENTED]`: buffs, equipment, and effects attach as `StatModifier`s on top of
+  the computed base value; they never mutate the base. A bundle of modifiers (one piece of
+  equipment, one buff, one upgrade card) is authored as a `StatModifierGroup` and attached
+  or detached as a unit, keyed by **source**:
+  - `StatsSO.AddModifiersFromSource(source, modifiers)` attaches the whole bundle;
+    `StatsSO.RemoveModifiersFromSource(source)` detaches everything from that source.
+  - `source` is matched by reference identity, so it must be the **owning instance** (the equipped
+    item instance, MonoBehaviour, or ability instance) — never a value type and never the shared
+    group asset, or two copies of the same asset cannot be detached independently.
+  - Bulk operations recalculate derived stats once for the whole bundle, not once per modifier.
+  - `Stat` itself only ever adds or removes a single modifier; all iteration lives in `StatsSO`.
+
+> ✅ **Owner decision 2026-08-21 — the shipped shape is ratified.** This GDD originally specified a
+> `StatModifierGroupSO` **asset**, reusable across weapons and authored independently. What shipped
+> is `StatModifierGroup` (`Assets/Script/StatSystem/StatModifierGroup.cs`), a plain
+> `[System.Serializable]` class embedded directly in `WeaponStats` — no asset file, no cross-weapon
+> reuse. **That plain-class shape is now the decision**, consistent with the precedent ADR-0003 set
+> when it accepted the same SO→plain-class downgrade for `EnemyModal` as final. The
+> `ApplyTo(StatsSO, source)` / `RemoveFrom(StatsSO, source)` API is unchanged, so everything above
+> still describes runtime behaviour accurately.
+>
+> Field names were disambiguated in the same pass — there were three things called `modifiers`:
+> `WeaponStats.modifiers` → **`WeaponStats.StatModifiers`**, and
+> `StatModifierGroup.modifiers` → **`StatModifierGroup.authoredModifiers`**. Authored data is
+> preserved through `FormerlySerializedAs`.
+
+> ✅ **Both defects found by the 2026-08-20 audit are now fixed.**
+>
+> 1. **Runtime modifiers no longer persist.** `Stat.modifiers` used to carry `[SerializeField]`
+>    against its own doc-comment and ADR-0001; two leaked `STR +1 Flat` modifiers reached
+>    `Assets/SO/Stat/PlayerStats.asset` and `Test.asset` and were committed to git. The assets were
+>    cleaned on `sprint-10`, and the attribute was removed on 2026-08-21, so the leak cannot recur.
+>    Note the distinction that caused the confusion: `StatModifierGroup.authoredModifiers` (the
+>    bundle on `WeaponStats`) is **correctly** serialized and must stay that way — `SnS_Stat.asset`
+>    authors real data there. Only `Stat.modifiers`, the per-stat runtime list, is non-serialized.
+> 2. **Derived stats recalculate again.** `StatsSO.RecalculateDerived()` previously skipped its
+>    update when *any one* of four values matched (`||` where `&&` was needed), so derived stats
+>    stopped updating unless `isDevMode` was on. Fixed on `sprint-10`; the guard now ANDs all
+>    comparisons and `AddPrimaryPoint()` calls `RecalculateDerived()` directly.
 
 ---
 
@@ -101,7 +140,7 @@ GDD/Excel numbers map 1:1 onto its `baseConstant`, `perLevel`, and `contribution
 
 | System | Relationship |
 |--------|-------------|
-| Damage & Health | Consumes MaxHP / Defense / damage stats; damage application should apply Defense (currently `finalDamage = rawDamage` — see combat balance doc) |
+| Damage & Health | Consumes HP / Defense / damage stats; damage application should apply Defense (currently `finalDamage = rawDamage` — see combat balance doc) |
 | Character / Enemy AI | Each entity owns a `StatsSO`; enemy `Level` is intended to track dungeon floor |
 | Per-Run Upgrades | Upgrade cards add primary points / modifiers through the `StatsSO` API |
 | HUD | Subscribes to `StatsSO.OnStatChanged` to display health/mana/etc. |
@@ -129,7 +168,8 @@ mirrored into the ScriptableObject assets. The knobs are:
 
 ## Acceptance Criteria
 
-- [ ] Every derived stat recalculates when a primary stat or the level changes.
+- [x] Every derived stat recalculates when a primary stat or the level changes — fixed on
+      `sprint-10`; `AddPrimaryPoint()` now also calls `RecalculateDerived()` directly.
 - [ ] Percentage/fixed stats have `perLevel = 0`.
 - [ ] Derived formulas reference only primary stats (no derived-on-derived).
 - [ ] The coefficients in the SO assets match `ToolExcel/stat_system_formula_reference.xlsx`.
