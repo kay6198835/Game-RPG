@@ -9,8 +9,8 @@ public class Interact : CoreComponent<Core>
     [SerializeField] protected Collider2D nearestObject = new Collider2D();
     [SerializeField] protected int numFound;
 
-    public float IntertionPointRadius { get => intertionPointRadius;}
-    public LayerMask InteractableMask { get => interactableMask;}
+    public float IntertionPointRadius { get => intertionPointRadius; }
+    public LayerMask InteractableMask { get => interactableMask; }
     public Collider2D[] Colliders { get => colliders; }
     public Collider2D NearestObject { get => nearestObject; }
     public IInteractable Interactable { get => interactable; }
@@ -21,7 +21,7 @@ public class Interact : CoreComponent<Core>
     protected override void Awake()
     {
         base.Awake();
-        interactableMask = LayerMask.GetMask("Interactable");
+        if (interactableMask == 0) interactableMask = LayerMask.GetMask("Interactable");
     }
 
     protected override void Start()

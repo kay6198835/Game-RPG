@@ -63,7 +63,16 @@
                     "name": "Interactor",
                     "type": "Button",
                     "id": "489162ee-bdef-47c4-817b-8789ff348737",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ResourceReceiver",
+                    "type": "Button",
+                    "id": "68fd552a-e37c-47b6-8cbe-962be6a7e030",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -75,15 +84,6 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "Hold",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "New action",
-                    "type": "Button",
-                    "id": "f7cbe061-8878-4091-bbd2-e259ebe51e01",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
                     "initialStateCheck": false
                 }
             ],
@@ -211,12 +211,12 @@
                 },
                 {
                     "name": "",
-                    "id": "29eeb4da-20bf-4991-8711-85e4d8147a96",
-                    "path": "",
+                    "id": "a4107685-f1ea-45bd-a9e7-6f7492c6cf2e",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "New action",
+                    "action": "ResourceReceiver",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

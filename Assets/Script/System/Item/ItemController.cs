@@ -4,19 +4,19 @@ using UnityEngine;
 using UnityEngine.Serialization;
 public class ItemController : InteractiveObjects
 {
-    [SerializeField] private Sprite ItemSprite;
+    [SerializeField] private SpriteRenderer ItemSprite;
     [SerializeField] private string NameItem;
     [SerializeField] private IReadOnlyList<ItemEffectDefinition> effects;
 
     protected override void Awake()
     {
         base.Awake();
-        ItemSprite = GetComponent<Sprite>();
+        ItemSprite = GetComponent<SpriteRenderer>();
     }
 
     public void SetDataItem(ItemSO data)
     {
-        ItemSprite = data.ItemSprite;
+        ItemSprite.sprite = data.ItemSprite;
         name = data.ItemName;
         effects = data.Effects;
     }
@@ -29,10 +29,11 @@ public class ItemController : InteractiveObjects
             return false;
         }
         // Do something apply effect 
-        foreach (var item in effects)
+        foreach (var effect in effects)
         {
-            item.Apply((ResourceReceiver)interactor);
+            effect.Apply((ResourceReceiver)interactor);
         }
+        EventManager.Emit(EventID.ON_COLLECT_ITEM, gameObject);
         return true;
     }
 

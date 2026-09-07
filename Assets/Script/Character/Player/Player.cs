@@ -15,6 +15,7 @@ public class Player : BaseEntity
     [SerializeField] private PlayerIntertorState intertorState;
     [SerializeField] private PlayerTakeDamageState takeDamageState;
     [SerializeField] private PlayerDeathState deathState;
+    [SerializeField] private PlayerResourceReceiverState resourceReceiverState;
     #endregion
 
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
@@ -38,6 +39,7 @@ public class Player : BaseEntity
     public PlayerIntertorState IntertorState { get => intertorState; }
     public PlayerSkillWeaponState AbilityState { get => abilityState; }
     public PlayerTakeDamageState TakeDamageState { get => takeDamageState; }
+    public PlayerResourceReceiverState ResourceReceiverState { get => resourceReceiverState; }
     public PlayerDeathState DeathState { get => deathState; }
     public PlayerData Data { get => data; }
     public BaseStatsSO Stats { get => stats; }
@@ -56,6 +58,7 @@ public class Player : BaseEntity
         abilityState = new PlayerSkillWeaponState(this, "Ability");
         takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
         deathState = new PlayerDeathState(this, "Death");
+        resourceReceiverState = new PlayerResourceReceiverState(this, "EquidUnequid");
     }
 
     public override void Start()

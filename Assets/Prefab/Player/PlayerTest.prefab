@@ -390,6 +390,7 @@ Transform:
   - {fileID: 7822495247072907963}
   - {fileID: 2086516582107257348}
   - {fileID: 1152756422125806585}
+  - {fileID: 9204253315871573555}
   m_Father: {fileID: 6345384194108746772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4030715832189692962
@@ -452,7 +453,62 @@ MonoBehaviour:
   intertionPointRadius: 0.5
   interactableMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
+  colliders:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  nearestObject: {fileID: 0}
+  numFound: 0
+--- !u!1 &5236302367779505124
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9204253315871573555}
+  - component: {fileID: 1167138364958825262}
+  m_Layer: 7
+  m_Name: ResourceReceiver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9204253315871573555
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5236302367779505124}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4525166674902496624}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1167138364958825262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5236302367779505124}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fb8184d4f0d42944ac180fbd83c833a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  core: {fileID: 0}
+  intertionPointRadius: 0.5
+  interactableMask:
+    serializedVersion: 2
+    m_Bits: 2048
   colliders:
   - {fileID: 0}
   - {fileID: 0}
@@ -751,7 +807,7 @@ MonoBehaviour:
   intertionPointRadius: 0.5
   interactableMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   colliders:
   - {fileID: 0}
   - {fileID: 0}

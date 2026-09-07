@@ -10,6 +10,7 @@ public class PlayerBasicState : PlayerState
     protected PlayerInputHandler inputHandler;
     protected PlayerMovement playerMovement;
     protected VitalStatsComponent vitalStats;
+    protected ResourceReceiver resourceReceiver;
     public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -22,6 +23,7 @@ public class PlayerBasicState : PlayerState
         player.Core.GetCoreComponent(out inputHandler);
         player.Core.GetCoreComponent(out playerMovement);
         player.Core.GetCoreComponent(out vitalStats);
+        player.Core.GetCoreComponent(out resourceReceiver);
     }
     public override void LogicUpdate()
     {
@@ -39,6 +41,14 @@ public class PlayerBasicState : PlayerState
             if (interactor.FindInteraction())
             {
                 stateMachine.ChangeState(player.IntertorState);
+                return;
+            }
+        }
+        else if (inputHandler.IsResourceReceiver)
+        {
+            if (resourceReceiver.FindInteraction())
+            {
+                stateMachine.ChangeState(player.ResourceReceiverState);
                 return;
             }
         }
@@ -82,5 +92,7 @@ public class PlayerBasicState : PlayerState
         abilityHolder = null;
         inputHandler = null;
         playerMovement = null;
+        vitalStats = null;
+        resourceReceiver = null;
     }
 }
