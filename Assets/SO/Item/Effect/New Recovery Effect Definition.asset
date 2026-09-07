@@ -9,11 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe7649a572d1f5b449506818fb67b2ec, type: 3}
-  m_Name: New Stat Modifier Effect Definition
+  m_Script: {fileID: 11500000, guid: 51ca99a6ec51ee34784f1c822fc5f496, type: 3}
+  m_Name: New Recovery Effect Definition
   m_EditorClassIdentifier: 
-  statModifierGroup:
-    authoredModifiers:
-    - targetStat: 0
-      type: 0
-      value: 0
+  amount: 10

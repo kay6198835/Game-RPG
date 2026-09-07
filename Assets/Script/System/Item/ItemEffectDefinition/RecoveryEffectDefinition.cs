@@ -8,8 +8,8 @@ public class RecoveryEffectDefinition : ItemEffectDefinition
 {
     [SerializeField] private int amount;
 
-    public override void Apply(ResourceReceiver player)
+    public override void Apply(ResourceReceiver resourceReceiver)
     {
-        // player.Health.Heal(amount);
+        resourceReceiver.ReceverRecovery(StatType.HP,amount);
     }
 }

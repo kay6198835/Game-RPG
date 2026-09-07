@@ -149,7 +149,16 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""Interactor"",
                     ""type"": ""Button"",
                     ""id"": ""489162ee-bdef-47c4-817b-8789ff348737"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ResourceReceiver"",
+                    ""type"": ""Button"",
+                    ""id"": ""68fd552a-e37c-47b6-8cbe-962be6a7e030"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -161,15 +170,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": ""Hold"",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""New action"",
-                    ""type"": ""Button"",
-                    ""id"": ""f7cbe061-8878-4091-bbd2-e259ebe51e01"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
                     ""initialStateCheck"": false
                 }
             ],
@@ -297,12 +297,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""29eeb4da-20bf-4991-8711-85e4d8147a96"",
-                    ""path"": """",
+                    ""id"": ""a4107685-f1ea-45bd-a9e7-6f7492c6cf2e"",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""New action"",
+                    ""action"": ""ResourceReceiver"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -331,8 +331,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Control_EquipUnequip = m_Control.FindAction("Equip/Unequip", throwIfNotFound: true);
         m_Control_Dash = m_Control.FindAction("Dash", throwIfNotFound: true);
         m_Control_Interactor = m_Control.FindAction("Interactor", throwIfNotFound: true);
+        m_Control_ResourceReceiver = m_Control.FindAction("ResourceReceiver", throwIfNotFound: true);
         m_Control_SkillWeapon = m_Control.FindAction("SkillWeapon", throwIfNotFound: true);
-        m_Control_Newaction = m_Control.FindAction("New action", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -420,8 +420,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Control_EquipUnequip;
     private readonly InputAction m_Control_Dash;
     private readonly InputAction m_Control_Interactor;
+    private readonly InputAction m_Control_ResourceReceiver;
     private readonly InputAction m_Control_SkillWeapon;
-    private readonly InputAction m_Control_Newaction;
     /// <summary>
     /// Provides access to input actions defined in input action map "Control".
     /// </summary>
@@ -462,13 +462,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Interactor => m_Wrapper.m_Control_Interactor;
         /// <summary>
+        /// Provides access to the underlying input action "Control/ResourceReceiver".
+        /// </summary>
+        public InputAction @ResourceReceiver => m_Wrapper.m_Control_ResourceReceiver;
+        /// <summary>
         /// Provides access to the underlying input action "Control/SkillWeapon".
         /// </summary>
         public InputAction @SkillWeapon => m_Wrapper.m_Control_SkillWeapon;
-        /// <summary>
-        /// Provides access to the underlying input action "Control/Newaction".
-        /// </summary>
-        public InputAction @Newaction => m_Wrapper.m_Control_Newaction;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -516,12 +516,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Interactor.started += instance.OnInteractor;
             @Interactor.performed += instance.OnInteractor;
             @Interactor.canceled += instance.OnInteractor;
+            @ResourceReceiver.started += instance.OnResourceReceiver;
+            @ResourceReceiver.performed += instance.OnResourceReceiver;
+            @ResourceReceiver.canceled += instance.OnResourceReceiver;
             @SkillWeapon.started += instance.OnSkillWeapon;
             @SkillWeapon.performed += instance.OnSkillWeapon;
             @SkillWeapon.canceled += instance.OnSkillWeapon;
-            @Newaction.started += instance.OnNewaction;
-            @Newaction.performed += instance.OnNewaction;
-            @Newaction.canceled += instance.OnNewaction;
         }
 
         /// <summary>
@@ -554,12 +554,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Interactor.started -= instance.OnInteractor;
             @Interactor.performed -= instance.OnInteractor;
             @Interactor.canceled -= instance.OnInteractor;
+            @ResourceReceiver.started -= instance.OnResourceReceiver;
+            @ResourceReceiver.performed -= instance.OnResourceReceiver;
+            @ResourceReceiver.canceled -= instance.OnResourceReceiver;
             @SkillWeapon.started -= instance.OnSkillWeapon;
             @SkillWeapon.performed -= instance.OnSkillWeapon;
             @SkillWeapon.canceled -= instance.OnSkillWeapon;
-            @Newaction.started -= instance.OnNewaction;
-            @Newaction.performed -= instance.OnNewaction;
-            @Newaction.canceled -= instance.OnNewaction;
         }
 
         /// <summary>
@@ -650,18 +650,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteractor(InputAction.CallbackContext context);
         /// <summary>
+        /// Method invoked when associated input action "ResourceReceiver" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnResourceReceiver(InputAction.CallbackContext context);
+        /// <summary>
         /// Method invoked when associated input action "SkillWeapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkillWeapon(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "New action" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnNewaction(InputAction.CallbackContext context);
     }
 }

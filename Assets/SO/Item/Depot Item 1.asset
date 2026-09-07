@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6de5f18084651034f9df47422419fe6f, type: 3}
   m_Name: Depot Item 1
   m_EditorClassIdentifier: 
-  dropRatesItem:
-  - dropRate: 50
-    itemOS: {fileID: 11400000, guid: eee39d7163eb1474fb0fb8f24afd25c1, type: 2}
+  listItems:
+  - <DepotItem>k__BackingField: {fileID: 11400000, guid: a120c08771db15148b9a8a737da807fc, type: 2}
+    <RarityTier>k__BackingField: 0
+  - <DepotItem>k__BackingField: {fileID: 11400000, guid: 17e6d26574901cb4da8676635de477dc, type: 2}
+    <RarityTier>k__BackingField: 50
+  listTierValidItems:
+  - <TierRate>k__BackingField: 50
+    <RarityTier>k__BackingField: 0
+  - <TierRate>k__BackingField: 50
+    <RarityTier>k__BackingField: 50
+  rateDepotDropItem: 100

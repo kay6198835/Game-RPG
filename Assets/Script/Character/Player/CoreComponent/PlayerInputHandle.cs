@@ -54,6 +54,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     [SerializeField] private bool isTakeDamage;
     [SerializeField] private bool isEquip_Unequip = false;
     [SerializeField] private bool isInteractor = false;
+    [SerializeField] private bool isResourceReceiver = false;
 
     [Header("Enum Value")]
     [SerializeField] private SkillState state;
@@ -79,6 +80,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsEquip_Unequip { get => isEquip_Unequip; }
     public bool IsInteractor { get => isInteractor; }
+    public bool IsResourceReceiver { get => isResourceReceiver; }
     public Vector2 DirectionKeyboardVector { get => directionKeyboardVector; }
     public float AngleKeyboardDirection { get => angleKeyboardDirection; }
     public int DirectionKeyboard { get => directionKeyboard; }
@@ -133,6 +135,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 
         playerInput.Control.Interactor.started += OnInteractor;
         playerInput.Control.Interactor.canceled += OnInteractor;
+        playerInput.Control.ResourceReceiver.started += OnResourceReceiver;
+        playerInput.Control.ResourceReceiver.canceled += OnResourceReceiver;
     }
     protected void OnDisable()
     {
@@ -191,6 +195,18 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         if (context.canceled)
         {
             isInteractor = false;
+        }
+    }
+    private void OnResourceReceiver(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            isResourceReceiver = true;
+
+        }
+        if (context.canceled)
+        {
+            isResourceReceiver = false;
         }
     }
     private void OnMove(InputAction.CallbackContext context)

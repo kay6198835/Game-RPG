@@ -15,11 +15,6 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
         player.Core.GetCoreComponent(out weaponHolder);
     }
 
-    public override void Exit()
-    {
-        base.Exit();
-    }
-
     public override void LogicUpdate()
     {
         base.LogicUpdate();
