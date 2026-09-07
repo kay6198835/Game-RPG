@@ -21,10 +21,10 @@
 
 | Task | Est. | Status | Notes |
 |------|------|--------|-------|
-| S13-03 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | 0.05d | ❌ NOT DONE | 25th+ carry — land as a fully isolated commit, per triage's explicit recommendation not to bundle it |
-| S13-06 (pre-push hook placeholder) | 0.15d | ❌ NOT DONE | 19th+ carry — `exit 0` + TODO is enough to stop the silent count |
-| S13-04 (BUG-065, `PlayerDeathState` movement stop) | 0.1d | ❌ NOT DONE | Small, isolated, one-method addition |
-| S13-01 (BUG-064 item 7, `RangeWeapon.cs` DI wiring) | 0.1d | ❌ NOT DONE | Mirror `ItemSpawner.cs:8-10` exactly — this is the sprint's stated goal's last piece |
+| S13-03 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | 0.05d | ❌ NOT DONE | Re-verified against source 2026-09-08: `Assets/Script/System/StatSystem/Stat.cs:63-65` still wraps `modifiers` in `#if UNITY_EDITOR` / `[SerializeField]`. 26th+ carry |
+| S13-06 (pre-push hook placeholder) | 0.15d | ❌ NOT DONE | `.git/hooks/pre-push` confirmed absent. 20th+ carry |
+| S13-04 (BUG-065, `PlayerDeathState` movement stop) | 0.1d | ❌ NOT DONE | `PlayerDeathState.Enter()` still only calls `base.Enter()` — no `PlayerMovement` stop added |
+| S13-01 (BUG-064 item 7, `RangeWeapon.cs` DI wiring) | 0.1d | ❌ NOT DONE | `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService poolManager` — no `[Inject] Construct(...)`, unlike proven `ItemSpawner.cs:8-10` pattern |
 
 Goal: land the four cheapest, zero-technical-blocker items in the first session of the sprint, before
 opening any file that isn't directly named above — this is the fourth consecutive sprint plan to name
@@ -99,6 +99,52 @@ plan exists for the 25th+ consecutive cycle — flagged, deferred to owner per e
 handling. No owner-in-Editor Play Mode session has occurred at any point across Sprint 11 or Sprint 12 —
 carried forward as this sprint's #2 priority (S13-02), named explicitly rather than folded into another
 task's acceptance criteria, per the pattern of this exact gate slipping for 6+ consecutive sprints.
+
+---
+
+### Mon 2026-09-08 — Daily Standup (autonomous, no owner present)
+
+Checked out `sprint-13` (already current). `git log` since kickoff (2026-09-07) shows one commit,
+**`9f1258c` "done logic resource reciver item"** (2026-09-08) — 48 files changed, +1711/-1004. Content:
+new `PlayerResourceReceiverState.cs`, `DepotItem.cs` rework (+/-~150 lines), `ItemController.cs`,
+`RecoveryEffectDefinition.cs`, new `DepotItemEditor.cs` (279 lines), plus Input System binding changes
+(`PlayerInput.cs`, `.inputactions`) and the two bug-triage/retro docs from Saturday's wrap-up.
+
+🔴 **This is not any of Monday's four planned items.** None of S13-01, S13-03, S13-04, S13-06 appear in
+the diff. Re-verified all four directly against current source (not against the commit message):
+
+- ❌ **S13-03 / BUG-063** — `Assets/Script/System/StatSystem/Stat.cs:63-65` still has
+  `#if UNITY_EDITOR` / `[SerializeField]` above `modifiers`. Unchanged.
+- ❌ **S13-06** — no `.git/hooks/pre-push` file exists. Unchanged.
+- ❌ **S13-04 / BUG-065** — `PlayerDeathState.Enter()` still only calls `base.Enter()`. Unchanged.
+- ❌ **S13-01 / BUG-064 item 7** — `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService
+  poolManager`, no `[Inject] Construct(IObjecPoolService)`. Unchanged. `ItemSpawner.cs:6-10` remains the
+  provable reference pattern (`[Inject] public void Construct(IObjecPoolService objecPoolService)`).
+
+📌 **Also confirmed in passing**: the commit's file paths (`Assets/Script/System/Item/`,
+`Assets/Script/System/StatSystem/`) show the codebase has moved under `Assets/Script/System/` — CLAUDE.md's
+Repository Layout (flat `Assets/Script/StatSystem/`, `Assets/Script/Item/`) is stale against this. Directly
+corroborates S13-07 (`/doc-sync`, escalated to blocking Should-Have this cycle).
+
+This is exactly the risk named at the top of `sprint-13.md` ("Trivial/decision-avoidance items lose
+every session to larger work again") materializing on Day 1 itself, before the day's first block even
+ran. Not treated as a blocker — the resource-receiver work looks like legitimate scoped progress, just
+unplanned — but flagged since it repeats a 4-cycle-named pattern.
+
+**Today's plan (unchanged from the daily plan above — carry Monday's block forward as-is):**
+
+| Task | Est. | Risk |
+|------|------|------|
+| S13-03 (BUG-063 `[SerializeField]` removal) | 0.05d | Low — one-line change, comment already explains why |
+| S13-06 (pre-push hook placeholder) | 0.15d | Low — `exit 0` + TODO satisfies acceptance criteria |
+| S13-04 (BUG-065 movement stop) | 0.1d | Low — one `Core.GetCoreComponent` call + `.Stop()`, no deps |
+| S13-01 (BUG-064 item 7 DI wiring) | 0.1d | Low — mechanical mirror of `ItemSpawner.cs:8-10`, pattern proven same-repo |
+
+Combined ≈0.4d, comfortably inside the 4-day available capacity even after Sunday's unplanned item-system
+work. No new blockers found. **Blockers/risks carried:** no Unity CLI (blocks S13-02 automation — stays
+manual, owner-only), no `gh` CLI (draft PR still manual), no QA plan (26th+ consecutive cycle, deferred to
+owner). S13-02 (owner-in-Editor Play Mode smoke session) still has not occurred — remains the sprint's
+named #2 priority and the single highest-leverage item outstanding.
 
 ---
 
