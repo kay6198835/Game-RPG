@@ -22,9 +22,11 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Cost & Cooldown")]
     public float Cooldown = 1f;
-    public float ManaCost = 0f;
+    public List<StatCost> Cost;
 
+    [ShowIf("@ActivationType == AbilityActivationType.Hold")]
     [Header("Hold")]
+    [SerializeField]
     public float MaxHoldTime = 0f;
 
     [Header("Conditions")]
@@ -32,4 +34,10 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Effects")]
     public List<AbilityEffectDefinition> Effects = new();
+}
+
+public class StatCost
+{
+    public float cost;
+    public StatType statType;
 }

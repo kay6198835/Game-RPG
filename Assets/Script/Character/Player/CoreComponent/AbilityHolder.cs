@@ -4,86 +4,122 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class AbilityHolder : CoreComponent<Core>
+public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 {
-    [SerializeField] private ActivateSkill ability;
-    [SerializeField] private float cooldownTime;
-    [SerializeField] private float activeTime;
-    [SerializeField] private KeyCode keyCode;
-    [SerializeField] private bool canUseAbility;
-    public enum SkillState
-    {
-        Start,
-        Cast,
-        Do,
-        Exit
-    }
-    [SerializeField] private SkillState currentState;
-    public ActivateSkill Ability { get => ability; }
-    public bool CanUseAbility { get => canUseAbility; }
+    [field: SerializeField] private AbilitySystem abilitySystem { get; private set; }
 
-    [SerializeField] private PlayerInputHandler playerInputHandler;
+    private IAbilityServices services;
+    IPlayerStatService statsHandler;
+    IResourceReceiver resourceReceiver;
+    IVitalComponent vital;
+    [field: SerializeField] private List<AbilityBinding> abilityBindings = new();
 
-    protected override void Awake()
+    private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
+
+    [Inject]
+    public void Construct(IObjecPoolService pool)
     {
-        base.Awake();
-        //stateIndex = 1;
-        //stateLength = Enum.GetNames(typeof(SkillState)).Length;
+        statsHandler = Core.GetcomponentInChild<IPlayerStatService>();
+        resourceReceiver = Core.GetcomponentInChild<IResourceReceiver>();
+        vital = Core.GetcomponentInChild<IVitalComponent>();
+        services = new AbilityServices(pool, statsHandler, resourceReceiver, vital);
     }
-    protected override void Start()
+    // private void Awake()
+    // {
+
+    //     for (int i = 0; i < abilityBindings.Count; i++)
+    //     {
+    //         var binding = abilityBindings[i];
+    //         if (binding.Ability == null) continue;
+
+    //         Equip(binding.Slot, binding.Ability);
+    //     }
+    // }
+
+    // private void Update()
+    // {
+    //     float dt = Time.deltaTime;
+
+    //     foreach (var pair in _equipped)
+    //     {
+    //         pair.Value.Tick(dt);
+    //     }
+
+    //     HandleInput();
+    // }
+
+    public float GetCurrentStatValue(StatType statType)
     {
-        base.Start();
-        canUseAbility = false;
-        Core.GetCoreComponent(out playerInputHandler);
+        return vital.GetCurrentStatValue(statType);
     }
-    public void SetCanUseAbility(bool canUseAbility)
+    public void PayCost(StatType statType, float amount)
     {
-        if (this.canUseAbility == canUseAbility)
+        vital.ReceiveReduction(statType, amount);
+    }
+
+    public void Equip(AbilitySlot slot, AbilityDefinition definition)
+    {
+        if (definition == null) return;
+
+        _equipped[slot] = new AbilityInstance(definition, this);
+    }
+
+    public void Unequip(AbilitySlot slot)
+    {
+        if (_equipped.ContainsKey(slot))
         {
-            return;
+            _equipped.Remove(slot);
         }
-        this.canUseAbility = canUseAbility;
-        Core.Player.Anim.SetBool("DoAB", !this.canUseAbility);
     }
-    public void SetAblityWeapon(ActivateSkill ability)
-    {
-        if(ability == null)
-        {
-            return ;
-        }
-        this.ability = ability;
-    }
-    public void EnterAbility()
-    {
-        Core.Player.Anim.runtimeAnimatorController = ability.Animator;
-        ability.Enter(Core.Player);
-        currentState = SkillState.Start;
-    }
-    public void ExitAbility()
-    {
-        ability.Exit();
 
-    }
-    public void SetStateAbility()
+    public AbilityInstance GetAbility(AbilitySlot slot)
     {
-        switch (currentState)
+        _equipped.TryGetValue(slot, out var instance);
+        return instance;
+    }
+
+    private void HandleInput()
+    {
+        foreach (var pair in _equipped)
         {
-            case SkillState.Start:
-                ability.Activate();
-                currentState = SkillState.Cast;
-                break;
-            case SkillState.Cast:
-                ability.Cast();
-                if (playerInputHandler.State == PlayerInputHandler.SkillState.Do || ability.Type == ActivateSkill.SkillType.DoNonCast)
+            var instance = pair.Value;
+            var def = instance.Definition;
+
+            if (def == null || def.DefaultKey == KeyCode.None)
+                continue;
+
+            if (def.ActivationType == AbilityActivationType.Hold)
+            {
+                if (Input.GetKeyDown(def.DefaultKey))
                 {
-                    SetCanUseAbility(false);
-                    currentState = SkillState.Do;
+                    if (instance.CanStart())
+                    {
+                        instance.StartHold();
+                    }
                 }
-                break;
-            case SkillState.Do:
-                ability.Do();
-                currentState = SkillState.Exit;
-                break;
+
+                if (Input.GetKeyUp(def.DefaultKey))
+                {
+                    instance.TryRelease();
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(def.DefaultKey))
+                {
+                    if (instance.CanStart())
+                    {
+                        instance.TryActivateInstant();
+                    }
+                }
+            }
         }
     }
+}
+
+[System.Serializable]
+public class AbilityBinding
+{
+    public AbilitySlot Slot;
+    public AbilityDefinition Ability;
 }

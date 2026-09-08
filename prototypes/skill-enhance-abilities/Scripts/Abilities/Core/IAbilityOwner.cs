@@ -3,7 +3,6 @@ using UnityEngine;
 public interface IAbilityOwner
 {
     Transform Transform { get; }
-    // CharacterStats Stats { get; }
-    // Health Health { get; }
-    // SimpleCharacterMotor Motor { get; }
+    float GetCurrentStatValue(StatType statType);
+    void PayCost(StatType statType, float amount);
 }
