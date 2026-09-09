@@ -14,7 +14,8 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     {
         player.Core.GetCoreComponent(out abilityHolder);
         base.Enter();
-        abilityHolder.EnterAbility();
+        //fix later
+        //abilityHolder.EnterAbility();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
         //stateStyle = StateStyle.Freeze;
@@ -24,7 +25,8 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
         base.LogicUpdate();
         if (StatusAnimation.StartRangeTrigger <= Status && Status <= StatusAnimation.EndRangeTrigger)
         {
-            abilityHolder.SetStateAbility();
+            //fix later
+            //abilityHolder.SetStateAbility();
         }
     }
     public override void PhysicsUpdate()
@@ -33,7 +35,8 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     }
     public override void Exit()
     {
-        abilityHolder.ExitAbility();
+        //fix later
+        //abilityHolder.ExitAbility();
         base.Exit();
     }
 }

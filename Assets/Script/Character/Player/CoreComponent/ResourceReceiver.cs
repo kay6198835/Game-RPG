@@ -22,9 +22,9 @@ public class ResourceReceiver : Interact, INegativeReceiver, IResourceReceiver
     {
         vitalStatsComponent.ReceiverRecovery(statType, amount);
     }
-    public void BuffDebuffForDuration(StatType statType, float duration)
+    public void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
     {
-        vitalStatsComponent.BuffDebuffForDuration(statType, duration);
+        vitalStatsComponent.BuffDebuffForDuration(statModifierGroup, duration);
     }
     public void TakeDamage(float amoutDamage, Vector2 attackPosition)
     {

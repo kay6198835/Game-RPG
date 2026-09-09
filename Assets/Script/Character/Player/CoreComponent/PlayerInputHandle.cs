@@ -247,7 +247,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
             state = SkillState.Start;
             isSkill = true;
             weaponHolder.Weapon.SetAbility();
-            abilityHolder.SetCanUseAbility(true);
+            //fix later
+            //abilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {
@@ -271,7 +272,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
             state = SkillState.Start;
             isSkill = true;
             weaponHolder.Weapon.SetAbility();
-            abilityHolder.SetCanUseAbility(true);
+            //fix later
+            //abilityHolder.SetCanUseAbility(true);
         }
         else if (context.performed)
         {

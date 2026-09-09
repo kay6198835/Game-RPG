@@ -3,11 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using VContainer;
 
 public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 {
-    [field: SerializeField] private AbilitySystem abilitySystem { get; private set; }
-
     private IAbilityServices services;
     IPlayerStatService statsHandler;
     IResourceReceiver resourceReceiver;
@@ -16,12 +15,14 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
 
+    public Transform Transform => this.transform;
+
     [Inject]
     public void Construct(IObjecPoolService pool)
     {
-        statsHandler = Core.GetcomponentInChild<IPlayerStatService>();
-        resourceReceiver = Core.GetcomponentInChild<IResourceReceiver>();
-        vital = Core.GetcomponentInChild<IVitalComponent>();
+        statsHandler = Core.GetComponentInChildren<IPlayerStatService>();
+        resourceReceiver = Core.GetComponentInChildren<IResourceReceiver>();
+        vital = Core.GetComponentInChildren<IVitalComponent>();
         services = new AbilityServices(pool, statsHandler, resourceReceiver, vital);
     }
     // private void Awake()

@@ -24,9 +24,7 @@ public class AbilityDefinition : ScriptableObject
     public float Cooldown = 1f;
     public List<StatCost> Cost;
 
-    [ShowIf("@ActivationType == AbilityActivationType.Hold")]
     [Header("Hold")]
-    [SerializeField]
     public float MaxHoldTime = 0f;
 
     [Header("Conditions")]
@@ -34,6 +32,23 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Effects")]
     public List<AbilityEffectDefinition> Effects = new();
+    public float GetCostValues(StatType statType)
+    {
+        GetCostValues(statType, out float cost);
+        return cost;
+    }
+    public void GetCostValues(StatType statType, out float cost)
+    {
+        cost = 0f;
+        foreach (var statCost in Cost)
+        {
+            if (statCost.statType == statType)
+            {
+                cost = statCost.cost;
+                return;
+            }
+        }
+    }
 }
 
 public class StatCost
