@@ -32,12 +32,18 @@ this exact failure mode (trivial items losing every session to whatever larger i
 
 ### Tue 2026-09-09 — BUG-066 + the owner-in-Editor smoke gate
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S13-05 (BUG-066, `EntityVitalStats` dictionary guard) | 0.15d | `TryGetValue` on all three public methods |
-| **S13-02 — Owner-in-Editor Play Mode smoke session** | 0.2d | **Gate.** Open `LoadRandomMap`, confirm Console clean, kill one enemy, fire the ranged weapon once. This has not happened once in 6+ sprints — do not let it slip to Friday again |
+| Task | Est. | Status | Notes |
+|------|------|--------|-------|
+| S13-03 (BUG-063, `Stat.cs` `[SerializeField]` regression) | 0.05d | ❌ NOT DONE | 27th+ carry, still unfixed |
+| S13-06 (pre-push hook placeholder) | 0.15d | ❌ NOT DONE | 21st+ carry, still absent |
+| S13-04 (BUG-065, `PlayerDeathState` movement stop) | 0.1d | ❌ NOT DONE | still unfixed |
+| S13-01 (BUG-064 item 7, `RangeWeapon.cs` DI wiring) | 0.1d | ❌ NOT DONE | still unfixed |
+| S13-05 (BUG-066, `EntityVitalStats` dictionary guard) | 0.15d | ❌ NOT DONE | `TryGetValue` on all three public methods |
+| **S13-02 — Owner-in-Editor Play Mode smoke session** | 0.2d | ❌ NOT DONE | **Gate.** Open `LoadRandomMap`, confirm Console clean, kill one enemy, fire the ranged weapon once. This has not happened once in 6+ sprints — do not let it slip to Friday again |
 
-Goal: a compiling, smoke-confirmed build with actual Play Mode evidence by end of day Tuesday.
+Goal: a compiling, smoke-confirmed build with actual Play Mode evidence by end of day Tuesday. Monday's
+four items carried untouched (see standup log) — combined backlog now ≈0.75d, still inside remaining
+capacity if today opens with these six and nothing else.
 
 ### Wed 2026-09-10 — Should-Have block: doc-sync + owner sign-offs
 
@@ -148,6 +154,80 @@ named #2 priority and the single highest-leverage item outstanding.
 
 ---
 
+### Tue 2026-09-09 — Daily Standup (autonomous, no owner present)
+
+Checked out `sprint-13` (already current, clean). `git log` since Monday's standup shows two new
+commits: **`5c7afba` "fix conflict"** and **`2578f21` "Merge branch 'origin/feature/fix-player-control'
+into sprint-13"** (both 2026-09-09, before this run) — 66 files changed, +1333/-311. Content: a real
+**ability system framework** landed in production code (`Assets/Script/System/Abilities/{Core,
+Conditions,Effects,Runtime}/` — `AbilityContext`, `AbilityDefinition`, `AbilityInstance`,
+`AbilitySlot`, `HasEnoughManaCondition`, `NotDeadCondition`, `DamageInFrontEffect`,
+`LungeForwardEffect`, `PlayDebugLogEffect`, `ShootSpiritOrbEffect`, `AbilityRuntimeHelpers`,
+`SpiritDoTBehaviour`, `SpiritOrbProjectile`), replacing an older/duplicate
+`Scripts/Abilities/Core/{AbilityContext,AbilitySystem,IAbilityOwner}.cs` set (deleted, incl.
+`AbilitySystem.cs` — 107 lines removed). Also new `StatusBase.cs`, `IResourceReceiver.cs`,
+`IVitalComponent.cs`, and edits to `AbilityHolder.cs` (+155/-… lines), `ResourceReceiver.cs`,
+`VitalComponent.cs`, `PlayerInputHandle.cs`, `PlayerBasicState.cs`, `PlayerSkillWeaponState.cs`,
+`Weapon.cs`.
+
+🔴 **Again none of Monday's four planned items landed**, second day running. Re-verified all six
+directly against current source:
+
+- ❌ **S13-03 / BUG-063** — `Assets/Script/System/StatSystem/Stat.cs:63-65` still wraps `modifiers` in
+  `#if UNITY_EDITOR` / `[SerializeField]`. Unchanged. 27th+ carry.
+- ❌ **S13-06** — no `.git/hooks/pre-push` file exists. Unchanged. 21st+ carry.
+- ❌ **S13-04 / BUG-065** — [PlayerDeathState.cs:10-13](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10)
+  `Enter()` still only calls `base.Enter()`, no `PlayerMovement` stop. Unchanged.
+- ❌ **S13-01 / BUG-064 item 7** — [RangeWeapon.cs:7](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs#L7)
+  still `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`. Unchanged. Notably,
+  `EntityVitalStats.cs` (new/touched this cycle) already has `using VContainer;` at the top — DI
+  framework is live in the codebase, the RangeWeapon fix has zero remaining technical blocker.
+- ❌ **S13-05 / BUG-066** — [EntityVitalStats.cs](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs)
+  `GetCurrentStatValue` (L39), `ReceiverRecovery` (L49), `ReceiveReduction` (L61) all still index
+  `currentStats[statType]` directly, no `TryGetValue` guard. Unchanged.
+- ❌ **S13-09 / ADR-0002** — [adr-0002-enemymanager-singleton-exception.md:4](docs/architecture/adr-0002-enemymanager-singleton-exception.md#L4)
+  still `Proposed`. 14th+ carry.
+- ❌ **S13-02 — owner-in-Editor Play Mode smoke session** — cannot be run autonomously (no Unity CLI in
+  this environment); still unconfirmed across 6+ sprints. Remains the single highest-leverage item
+  outstanding — every "fixed" status in this project's bug files is source-read-only until an owner
+  runs this gate.
+
+📌 **New observation**: the repository layout is now split, not uniformly moved. `StatSystem/`,
+`Item/`, and `Abilities/` live under `Assets/Script/System/`, but `Character/`, `Weapons/`,
+`Interface/` (top-level) are still flat under `Assets/Script/`. CLAUDE.md's Repository Layout section
+describes the old fully-flat structure and is stale against both halves inconsistently. This
+strengthens the case for S13-07 (`/doc-sync`), scheduled Wed — do not run doc-sync before the
+`Character/`/`Weapons/` move (if any) finishes, or the doc will need a second pass.
+
+📌 Also observed: `Assets/Script/Interface/IAimProvider.cs` etc. and the new `Assets/Script/System/
+Abilities/` tree together suggest the "second, composition-based ability framework" that
+`prototypes/skill-enhance-abilities/` was built to validate may now be getting promoted into
+production via a different, independently-built implementation (different class names, no shared
+types with the prototype). Not able to confirm intent without the owner — flagged as a question, not
+a bug: if the prototype's hypothesis is what's being promoted, `prototypes/skill-enhance-abilities/
+README.md` should be updated to `[VALIDATED]` and cross-reference the new location; if this is an
+unrelated third implementation, that's worth knowing before more work lands on top of it.
+
+**Today's plan** (carry Monday's four + Tuesday's two, cheapest-first, per `/estimate` sizing):
+
+| Task | Est. | Risk |
+|------|------|------|
+| S13-03 (BUG-063 `[SerializeField]` removal) | 0.05d | Low — one-line change, comment already explains why |
+| S13-06 (pre-push hook placeholder) | 0.15d | Low — `exit 0` + TODO satisfies acceptance criteria |
+| S13-04 (BUG-065 movement stop) | 0.1d | Low — one `Core.GetCoreComponent` call + `.Stop()` |
+| S13-01 (BUG-064 item 7 DI wiring) | 0.1d | Low — mechanical mirror of `ItemSpawner.cs:8-10`, VContainer confirmed already in use this cycle |
+| S13-05 (BUG-066 dictionary guard) | 0.15d | Low — `TryGetValue` × 3, no deps |
+| S13-02 (owner-in-Editor smoke session) | 0.2d | **Blocked** — needs the human owner in the Unity Editor; cannot be executed by this autonomous run |
+
+Combined (excl. S13-02) ≈0.55d — comfortably inside remaining sprint capacity. **Blockers/risks
+carried:** no Unity CLI (S13-02 stays manual/owner-only — 7th+ consecutive sprint this gate has
+slipped), no `gh` CLI (draft PR still manual), no QA plan (27th+ consecutive cycle, deferred to
+owner), ADR-0002 still Proposed (14th+ carry). New risk: unplanned architecture-scale work (ability
+system merge) landed two sessions running instead of the named cheap items — same 4-cycle pattern as
+Monday, now compounding.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-064 item 7 — P0/S1, `RangeWeapon.cs` DI wiring.** Sole remaining sub-item after Sprint 12 fixed
@@ -155,16 +235,27 @@ named #2 priority and the single highest-leverage item outstanding.
 - **Owner-in-Editor Play Mode session (S13-02)** — has not happened once across Sprint 11 or Sprint 12.
   This is now the single highest-leverage action outstanding in the entire backlog; every "fixed" status
   in the project's bug files is source-read-only until this occurs.
-- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 25th+ consecutive carry on a one-line fix with
+- **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 27th+ consecutive carry on a one-line fix with
   an explanatory comment already in the file. No technical blocker has ever existed for this item.
-- **BUG-065 / BUG-066** — new this cycle, both small isolated fixes with no dependencies.
-- **S13-06 process gate** — now 19th carry, same underlying pattern since Sprint 6/9.
+- **BUG-065 / BUG-066** — both small isolated fixes with no dependencies, unchanged since introduced.
+- **S13-06 process gate** — now 21st carry, same underlying pattern since Sprint 6/9.
 - **S13-08 (S4-05/S4-06)** — 17th+ carry, zero movement any cycle. Decision-avoidance, not an estimation
   problem.
-- **S13-09 (ADR-0002 Accept)** — 13th+ carry, trivial sign-off-only change.
-- **S13-10 (VContainer/DI ADR)** — 3rd+ carry: duplication resolved, but the `LifetimeScope/` pattern
-  itself remains undocumented.
-- **S13-07 (`/doc-sync`)** — escalated to blocking-priority Should-Have; CLAUDE.md stale against roughly
-  half the codebase after last week's 298-file restructure.
+- **S13-09 (ADR-0002 Accept)** — 14th+ carry, trivial sign-off-only change.
+- **S13-10 (VContainer/DI ADR)** — 3rd+ carry: `VContainer` is now visibly in use (`EntityVitalStats.cs`
+  imports it 2026-09-09) but the `LifetimeScope/` pattern itself remains undocumented.
+- **S13-07 (`/doc-sync`)** — escalated to blocking-priority Should-Have; CLAUDE.md stale against a
+  growing, *inconsistently* split layout (`StatSystem/`, `Item/`, `Abilities/` moved under
+  `Assets/Script/System/`; `Character/`, `Weapons/`, `Interface/` still flat) — wait for the move to
+  finish before running doc-sync.
 - **S13-11 (individual `BUG-NNN.md` files)** — 7th+ cycle.
-- QA plan — 25th+ consecutive cycle with none. Flagged in `sprint-13.md`, deferred to owner.
+- **NEW — unplanned architecture-scale work landing outside the daily plan two sessions running**
+  (resource-receiver system Mon, ability-system merge Tue). Not treated as a blocker, but the pattern
+  named at sprint kickoff ("trivial items losing every session to whatever larger item is mid-flight")
+  is now compounding rather than resolving.
+- **NEW — possible duplicate ability-system effort.** `prototypes/skill-enhance-abilities/` was built
+  to validate a composition-based ability framework and is marked not-yet-decided in its README; the
+  framework merged into `Assets/Script/System/Abilities/` this cycle shares no types or class names
+  with it. Owner should confirm whether this is the same effort promoted (update the prototype
+  README to `[VALIDATED]`) or a separate implementation.
+- QA plan — 27th+ consecutive cycle with none. Flagged in `sprint-13.md`, deferred to owner.
