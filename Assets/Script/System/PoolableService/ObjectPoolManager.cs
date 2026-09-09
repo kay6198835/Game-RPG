@@ -26,10 +26,10 @@ public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
 
     public void Spawn(ObjectPoolRequest request)
     {
-        Spawn(request.Position, request.Rotation, request.Prefab, request.Parent);
+        Spawn(request.Prefab, request.Position, request.Rotation, request.Parent);
     }
 
-    public GameObject Spawn(Vector2 position, Quaternion rotation, GameObject prefab, Transform parent = null)
+    public GameObject Spawn(GameObject prefab, Vector2 position, Quaternion rotation, Transform parent = null)
     {
         var pool = Get(prefab, parent);
         if (pool == null) return null;

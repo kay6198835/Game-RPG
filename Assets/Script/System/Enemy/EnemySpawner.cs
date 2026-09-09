@@ -88,10 +88,10 @@ public class EnemySpawner : MonoBehaviour
             {
                 positionRandom = Vector2Int.RoundToInt(spawnPosition[Random.Range(0, spawnPosition.Count)]);
 
-                objectPoolManager.Spawn(positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity, entry.enemy.Prefab);
+                objectPoolManager.Spawn(entry.enemy.Prefab, positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity);
                 //check late 
                 //positionRandom = origin positionRandom or enemy spawn position
-                
+
                 //entityInput.SetSpawnPoint(positionRandom);
                 enemyCount++;
             }
@@ -104,7 +104,7 @@ public class EnemySpawner : MonoBehaviour
     public void SpawnExtraEnemy(object obj = null)
     {
         RequestSpawnEnemy spawnEnemy = (RequestSpawnEnemy)obj;
-        objectPoolManager.Spawn(spawnEnemy.positionSpawn, Quaternion.identity, spawnEnemy.prefab);
+        objectPoolManager.Spawn(spawnEnemy.prefab, spawnEnemy.positionSpawn, Quaternion.identity);
     }
 }
 

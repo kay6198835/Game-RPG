@@ -50,7 +50,7 @@ public class AbilityDefinition : ScriptableObject
         }
     }
 }
-
+[System.Serializable]
 public class StatCost
 {
     public float cost;

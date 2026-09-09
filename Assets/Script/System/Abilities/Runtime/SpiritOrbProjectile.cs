@@ -8,7 +8,8 @@ public class SpiritOrbProjectile : MonoBehaviour
     private float _damagePerTick;
     private float _duration;
     private GameObject _summonPrefab;
-
+    private IObjecPoolService _pool;
+    private Action _callbackMethod;
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -19,32 +20,35 @@ public class SpiritOrbProjectile : MonoBehaviour
     }
 
     public void Launch(Vector2 direction, float speed, float lifetime,
-                       float damagePerTick, float duration, GameObject summonPrefab)
+                       float damagePerTick, float duration, GameObject summonPrefab, IObjecPoolService pool, Action callbackMethod)
     {
         _damagePerTick = damagePerTick;
         _duration = duration;
         _summonPrefab = summonPrefab;
+        _pool = pool;
+        _callbackMethod = callbackMethod;
 
         _rb.velocity = direction * speed;
+        DespawnOneself();
+    }
 
-        Destroy(gameObject, lifetime);
+    void DespawnOneself()
+    {
+        StartCoroutine(DespawnOneselfAffterDuration());
+    }
+
+    IEnumerator DespawnOneselfAffterDuration()
+    {
+        yield return new WaitForSeconds(_duration);
+        _pool.Release(gameobject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // var health = other.GetComponent<Health>()
-        //              ?? other.GetComponentInParent<Health>();
-
-        // if (health == null || health.IsDead)
-        //     return;
-
-        // // tránh gán nhiều DoT lên cùng một mục tiêu
-        // if (health.GetComponent<SpiritDoTBehaviour>() != null)
-        //     return;
-
-        // var dot = health.gameObject.AddComponent<SpiritDoTBehaviour>();
-        // dot.Initialize(_damagePerTick, _duration, _summonPrefab);
-
-        // Destroy(gameObject);
+        if (other[i].TryGetComponent(out INegativeReceiver receiver))
+        {
+            _pool.Release(gameobject);
+            _callbackMethod?.Invoke(receiver, transform.position);
+        }
     }
 }
