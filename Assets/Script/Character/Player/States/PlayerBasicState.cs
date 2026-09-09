@@ -59,7 +59,9 @@ public class PlayerBasicState : PlayerState
                 stateMachine.ChangeState(player.AttackState);
                 return;
             }
-            else if (inputHandler.IsSkill && abilityHolder.CanUseAbility)
+            else if (inputHandler.IsSkill 
+            //&& abilityHolder.CanUseAbility
+            )
             {
                 stateMachine.ChangeState(player.AbilityState);
                 return;

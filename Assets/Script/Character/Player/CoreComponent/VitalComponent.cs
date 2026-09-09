@@ -57,7 +57,7 @@ public class VitalStatsComponent : CoreComponent<Core>
         }
     }
 
-    public void DebuffForDuration(StatModifierGroup statModifierGroup, float duration)
+    public void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
     {
         StartCoroutine(ApplyDebuffForDuration(statModifierGroup, duration));
     }

@@ -66,7 +66,8 @@ public abstract class Weapon : InteractiveObjects
 
     public virtual void SetAbility()
     {
-        abilityHolder.SetAblityWeapon(currentAbilitySO);
+        //fix later
+        //abilityHolder.SetAblityWeapon(currentAbilitySO);
     }
 
     public override bool Interact(Interact interactor)

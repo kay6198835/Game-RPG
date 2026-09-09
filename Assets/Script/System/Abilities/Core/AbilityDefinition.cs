@@ -22,7 +22,7 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Cost & Cooldown")]
     public float Cooldown = 1f;
-    public float ManaCost = 0f;
+    public List<StatCost> Cost;
 
     [Header("Hold")]
     public float MaxHoldTime = 0f;
@@ -32,4 +32,27 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Effects")]
     public List<AbilityEffectDefinition> Effects = new();
+    public float GetCostValues(StatType statType)
+    {
+        GetCostValues(statType, out float cost);
+        return cost;
+    }
+    public void GetCostValues(StatType statType, out float cost)
+    {
+        cost = 0f;
+        foreach (var statCost in Cost)
+        {
+            if (statCost.statType == statType)
+            {
+                cost = statCost.cost;
+                return;
+            }
+        }
+    }
+}
+
+public class StatCost
+{
+    public float cost;
+    public StatType statType;
 }
