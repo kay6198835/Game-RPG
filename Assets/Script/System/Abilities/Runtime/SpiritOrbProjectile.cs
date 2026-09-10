@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -9,7 +11,7 @@ public class SpiritOrbProjectile : MonoBehaviour
     private float _duration;
     private GameObject _summonPrefab;
     private IObjecPoolService _pool;
-    private Action _callbackMethod;
+    private Action<INegativeReceiver, Vector2> _callbackMethod;
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -20,7 +22,7 @@ public class SpiritOrbProjectile : MonoBehaviour
     }
 
     public void Launch(Vector2 direction, float speed, float lifetime,
-                       float damagePerTick, float duration, GameObject summonPrefab, IObjecPoolService pool, Action callbackMethod)
+                       float damagePerTick, float duration, GameObject summonPrefab, IObjecPoolService pool, Action<INegativeReceiver, Vector2> callbackMethod)
     {
         _damagePerTick = damagePerTick;
         _duration = duration;
@@ -40,14 +42,14 @@ public class SpiritOrbProjectile : MonoBehaviour
     IEnumerator DespawnOneselfAffterDuration()
     {
         yield return new WaitForSeconds(_duration);
-        _pool.Release(gameobject);
+        _pool.Release(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other[i].TryGetComponent(out INegativeReceiver receiver))
+        if (other.TryGetComponent(out INegativeReceiver receiver))
         {
-            _pool.Release(gameobject);
+            _pool.Release(gameObject);
             _callbackMethod?.Invoke(receiver, transform.position);
         }
     }

@@ -44,7 +44,7 @@ public class ShootObjectEffect : AbilityEffectDefinition
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
     }
 
-    public void SubEffect(INegativeReceiver receiver, Vector3 attackposition)
+    public void SubEffect(INegativeReceiver receiver, Vector2 attackposition)
     {
         receiver.TakeDamage(DamagePerTick, attackposition);
     }
