@@ -42,7 +42,7 @@ public class RangeWeapon : Weapon
         for (int i = 0; i < stage.ProjectileCount; i++)
         {
             float angle = stage.ProjectileCount > 1 ? startAngle + step * i : baseAngle;
-            poolManager.Spawn(firePoint.position, Quaternion.AngleAxis(angle, Vector3.forward), stage.BulletPrefab);
+            poolManager.Spawn(stage.BulletPrefab, firePoint.position, Quaternion.AngleAxis(angle, Vector3.forward));
         }
 
         nextFireTime = Time.time + stage.RecoveryTime;

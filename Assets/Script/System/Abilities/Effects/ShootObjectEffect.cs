@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Shoot Spirit Orb")]
-public class ShootSpiritOrbEffect : AbilityEffectDefinition
+public class ShootObjectEffect : AbilityEffectDefinition
 {
     [Header("Projectile")]
     public GameObject OrbPrefab;
@@ -16,6 +16,8 @@ public class ShootSpiritOrbEffect : AbilityEffectDefinition
     [Header("Summon on Death")]
     public GameObject SummonPrefab;
 
+    private AbilityContext _context;
+
     public override void Apply(AbilityContext context)
     {
         if (OrbPrefab == null || context?.Caster == null)
@@ -23,6 +25,7 @@ public class ShootSpiritOrbEffect : AbilityEffectDefinition
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab chưa được assign.");
             return;
         }
+        _context = context;
 
         Vector2 dir = new Vector2(context.Forward.x, context.Forward.y);
         if (dir.sqrMagnitude < 0.01f)
@@ -32,11 +35,17 @@ public class ShootSpiritOrbEffect : AbilityEffectDefinition
         Vector2 spawnPos = (Vector2)context.Origin + dir * SpawnOffset;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-        var obj = Object.Instantiate(OrbPrefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
+        var obj = context.Services.Pool.Spawn(OrbPrefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
         var orb = obj.GetComponent<SpiritOrbProjectile>();
         if (orb != null)
-            orb.Launch(dir, Speed, OrbLifetime, DamagePerTick, Duration, SummonPrefab);
+
+            orb.Launch(dir, Speed, OrbLifetime, DamagePerTick, Duration, SummonPrefab, context.Services.Pool, SubEffect);
         else
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
+    }
+
+    public void SubEffect(INegativeReceiver receiver, Vector3 attackposition)
+    {
+        receiver.TakeDamage(DamagePerTick, attackposition);
     }
 }

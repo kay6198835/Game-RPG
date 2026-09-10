@@ -7,7 +7,7 @@ using VContainer;
 //Multiple inheritance interface
 //Affect max stat use modifier(statHandler)
 //Affect current stats use StatType(Dictionary)
-public class VitalStatsComponent : CoreComponent<Core>
+public class VitalStatsComponent : CoreComponent<Core>, IVitalComponent
 {
     Dictionary<StatType, float> currentStats = new();
     StatHandler statHandler;

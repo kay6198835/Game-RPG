@@ -52,8 +52,9 @@ public class StatsUIController : MonoBehaviour
         var initialize = _playerStatService.GetFullViewStats();
         foreach (var stat in initialize)
         {
-            GameObject statSlotObject = objectPoolManager.Spawn(Vector2.zero, Quaternion.identity,
+            GameObject statSlotObject = objectPoolManager.Spawn(
             stat.Key.IsPrimary() ? PrimaryStatSlotPrefab.gameObject : DerivedStatSlotPrefab.gameObject,
+            Vector2.zero, Quaternion.identity,
             stat.Key.IsPrimary() ? primaryStatSlotContainer.transform : derivedStatSlotContainer.transform);
             StatSlot statSlot = statSlotObject.GetComponent<StatSlot>();
             statSlot.statViewDTO = stat.Value;
@@ -80,14 +81,14 @@ public class StatsUIController : MonoBehaviour
         {
             StatsViewDTO statsViewDTO = _playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
-            objectPoolManager.Spawn(Vector2.one, Quaternion.identity, PrimaryStatSlotPrefab.gameObject, primaryStatSlotContainer.transform);
+            objectPoolManager.Spawn(PrimaryStatSlotPrefab.gameObject, Vector2.one, Quaternion.identity, primaryStatSlotContainer.transform);
         }
 
         foreach (var statSlot in ListDerivedStat.Values)
         {
             StatsViewDTO statsViewDTO = _playerStatService.GetViewStat(statSlot.statType);
             statSlot.UpdateStatSlot(statsViewDTO);
-            objectPoolManager.Spawn(Vector2.one, Quaternion.identity, DerivedStatSlotPrefab.gameObject, derivedStatSlotContainer.transform);
+            objectPoolManager.Spawn(DerivedStatSlotPrefab.gameObject, Vector2.one, Quaternion.identity, derivedStatSlotContainer.transform);
         }
     }
     public void CloseStatsUI()

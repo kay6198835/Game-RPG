@@ -34,7 +34,7 @@ public class ItemSpawner : MonoBehaviour
         if (obj == null || depotItem == null) return;
         // Roll trượt (dải "không rơi") thì không spawn gì cả — nếu không SetDataItem sẽ nhận null và NRE.
         if (!depotItem.TryRollItem(out ItemSO rolled)) return;
-        var itemObject = objecPoolService.Spawn(((GameObject)obj).transform.position, Quaternion.identity, droppedItemPrefab.gameObject);
+        var itemObject = objecPoolService.Spawn(droppedItemPrefab.gameObject, ((GameObject)obj).transform.position, Quaternion.identity);
         var itemController = itemObject.GetComponent<ItemController>();
         itemController.SetDataItem(rolled);
         itemObject.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
