@@ -228,6 +228,76 @@ Monday, now compounding.
 
 ---
 
+### Wed 2026-09-10 — Daily Standup (autonomous, no owner present)
+
+Checked out `sprint-13` (already current, clean). `git log` since Tuesday's standup (`e293326`) shows
+two new commits: **`4e4eff5` "prototy ability effect"** (2026-09-09 16:37) and
+**`01d9c24` "Merge branch 'origin/feature/fix-player-control' into sprint-13"** (2026-09-10 09:33,
+pre-run) — 23 files changed, +1175/-132 total since `5c7afba`. Re-verified content directly against
+source rather than commit messages:
+
+- **Ability system (Effects/Runtime)**: `ShootSpiritOrbEffect.cs` renamed to `ShootObjectEffect.cs`
+  (+ `.meta`), `SpiritOrbProjectile.cs` reworked (38 lines touched), `AbilityDefinition.cs` and
+  `VitalComponent.cs` each got a 1-line change. New DI registration:
+  [GameLifetimeScope.cs](Assets/Script/System/LifetimeScope/GameLifetimeScope.cs) now calls
+  `builder.RegisterComponentInHierarchy<AbilityHolder>()`.
+- **Spawn signature reorder (not the DI fix)**: `ObjectPoolManager.Spawn(...)`,
+  `ItemSpawner.cs`, and `RangeWeapon.cs:45`'s call site were all updated to a new argument order
+  `Spawn(prefab, position, rotation, [parent])` (prefab moved first). This touched `RangeWeapon.cs`
+  but is a **call-site reorder only** — `RangeWeapon.cs:7` is still
+  `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`. **S13-01 is still not done.**
+- Yesterday's standup doc + two bug-triage/retro files were also committed in this range (already
+  accounted for in Tuesday's log).
+
+🔴 **Third day running, none of the named cheap items landed.** Re-verified all six directly against
+current source:
+
+- ❌ **S13-03 / BUG-063** — [Stat.cs:63-65](Assets/Script/System/StatSystem/Stat.cs#L63) still wraps
+  `modifiers` in `#if UNITY_EDITOR` / `[SerializeField]`. Unchanged. 28th+ carry.
+- ❌ **S13-06** — no `.git/hooks/pre-push` file exists. Unchanged. 22nd+ carry.
+- ❌ **S13-04 / BUG-065** — [PlayerDeathState.cs:10-13](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10)
+  `Enter()` still only calls `base.Enter()`, no `PlayerMovement` stop. Unchanged.
+- ❌ **S13-01 / BUG-064 item 7** — [RangeWeapon.cs:7](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs#L7)
+  still `[SerializeField] private IObjecPoolService poolManager`. Unchanged — confirmed above, the
+  file *was* touched today but only for the Spawn-signature reorder, not the DI fix.
+- ❌ **S13-05 / BUG-066** — [EntityVitalStats.cs:39-67](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs#L39)
+  — `GetCurrentStatValue`, `ReceiverRecovery`, `ReceiveReduction` all still index
+  `currentStats[statType]` directly, no `TryGetValue` guard. Unchanged.
+- ❌ **S13-09 / ADR-0002** — [adr-0002-enemymanager-singleton-exception.md:4](docs/architecture/adr-0002-enemymanager-singleton-exception.md#L4)
+  still `Proposed`. 15th+ carry.
+- ❌ **S13-02 — owner-in-Editor Play Mode smoke session** — still cannot be run autonomously (no Unity
+  CLI in this environment). Unconfirmed across 6+ sprints, still the single highest-leverage item
+  outstanding.
+- ❌ **No QA plan** for Sprint 13 — 28th+ consecutive cycle. `production/qa/qa-plan-sprint-13.md`
+  confirmed absent.
+
+📌 The daily plan scheduled today (Wed) as the Should-Have block (`doc-sync` + owner sign-offs,
+S13-07/08/09), but per the sprint's own risk register that block was contingent on the Monday/Tuesday
+Must-Have items landing first — they have not. Carrying the same cheap-items-first recommendation
+forward rather than opening the doc-sync block on top of an unlanded Must-Have backlog.
+
+**Today's plan** (carry forward, cheapest-first, unchanged rationale — three sessions running now):
+
+| Task | Est. | Risk |
+|------|------|------|
+| S13-03 (BUG-063 `[SerializeField]` removal) | 0.05d | Low — one-line change, comment already explains why |
+| S13-06 (pre-push hook placeholder) | 0.15d | Low — `exit 0` + TODO satisfies acceptance criteria |
+| S13-04 (BUG-065 movement stop) | 0.1d | Low — one `Core.GetCoreComponent` call + `.Stop()` |
+| S13-01 (BUG-064 item 7 DI wiring) | 0.1d | Low — mechanical mirror of `ItemSpawner.cs:8-10`; `GameLifetimeScope.cs` already registers components via VContainer this cycle, zero remaining technical blocker |
+| S13-05 (BUG-066 dictionary guard) | 0.15d | Low — `TryGetValue` × 3, no deps |
+| S13-09 (ADR-0002 → Accepted) | 0.1d | Low — sign-off only, 15th+ carry |
+| S13-02 (owner-in-Editor smoke session) | 0.2d | **Blocked** — needs the human owner in the Unity Editor; cannot be executed by this autonomous run |
+
+Combined (excl. S13-02) ≈0.65d — comfortably inside remaining capacity. **Blockers/risks carried:** no
+Unity CLI (S13-02 stays manual/owner-only — 8th+ consecutive sprint this gate has slipped), no `gh`
+CLI (draft PR still manual), no QA plan (28th+ consecutive cycle, deferred to owner), ADR-0002 still
+Proposed (15th+ carry). **Risk escalation:** the "trivial items lose every session" pattern named at
+sprint kickoff has now held for 3 consecutive days without exception — recommend the owner explicitly
+block calendar time for just these five items (≈0.45d total) before any further architecture-scale
+work lands, since estimation is not the blocker here.
+
+---
+
 ## Carry-Over Watch List (re-verify every standup)
 
 - **BUG-064 item 7 — P0/S1, `RangeWeapon.cs` DI wiring.** Sole remaining sub-item after Sprint 12 fixed
