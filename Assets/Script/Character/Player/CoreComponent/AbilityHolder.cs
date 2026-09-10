@@ -16,6 +16,8 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
 
     public Transform Transform => this.transform;
+    public bool IsHolding { get; private set; }
+    private AbilityInstance currentAbility;
 
     [Inject]
     public void Construct(IObjecPoolService pool)
@@ -25,29 +27,29 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         vital = Core.GetComponentInChildren<IVitalComponent>();
         services = new AbilityServices(pool, statsHandler, resourceReceiver, vital);
     }
-    // private void Awake()
-    // {
+    private void Awake()
+    {
 
-    //     for (int i = 0; i < abilityBindings.Count; i++)
-    //     {
-    //         var binding = abilityBindings[i];
-    //         if (binding.Ability == null) continue;
+        for (int i = 0; i < abilityBindings.Count; i++)
+        {
+            var binding = abilityBindings[i];
+            if (binding.Ability == null) continue;
 
-    //         Equip(binding.Slot, binding.Ability);
-    //     }
-    // }
+            Equip(binding.Slot, binding.Ability);
+        }
+    }
 
-    // private void Update()
-    // {
-    //     float dt = Time.deltaTime;
+    public void Processing()
+    {
+        float dt = Time.deltaTime;
 
-    //     foreach (var pair in _equipped)
-    //     {
-    //         pair.Value.Tick(dt);
-    //     }
+        foreach (var pair in _equipped)
+        {
+            pair.Value.Tick(dt);
+        }
 
-    //     HandleInput();
-    // }
+        HandleInput();
+    }
 
     public float GetCurrentStatValue(StatType statType)
     {
@@ -81,40 +83,53 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
     private void HandleInput()
     {
+        if (currentAbility == null) return;
+        var instance = currentAbility.Value;
+        var def = instance.Definition;
+        if (def == null || def.DefaultKey == KeyCode.None)
+            continue;
+        switch (instance.State)
+        {
+            case SkillState.Start:
+                instance.TryActivateInstant();
+                break;
+            case SkillState.Cast:
+                instance.TryCastInstant();
+                break;
+            case SkillState.Do:
+                instance.TryDoInstant();
+                break;
+            case SkillState.Exit:
+                instance.Exit();
+                currentAbilitySlot = null;
+                break;
+        }
+    }
+
+    public void Tick(float deltaTime)
+    {
         foreach (var pair in _equipped)
         {
             var instance = pair.Value;
-            var def = instance.Definition;
-
-            if (def == null || def.DefaultKey == KeyCode.None)
-                continue;
-
-            if (def.ActivationType == AbilityActivationType.Hold)
-            {
-                if (Input.GetKeyDown(def.DefaultKey))
-                {
-                    if (instance.CanStart())
-                    {
-                        instance.StartHold();
-                    }
-                }
-
-                if (Input.GetKeyUp(def.DefaultKey))
-                {
-                    instance.TryRelease();
-                }
-            }
-            else
-            {
-                if (Input.GetKeyDown(def.DefaultKey))
-                {
-                    if (instance.CanStart())
-                    {
-                        instance.TryActivateInstant();
-                    }
-                }
-            }
+            instance.Tick(deltaTime);
         }
+    }
+
+    public void GetSkill(AbilitySlot slot)
+    {
+        currentAbility = _equipped[slot];
+    }
+
+    public void StartHold()
+    {
+        IsHolding = true;
+        currentAbility.StartHold();
+    }
+
+    public void CancelHold()
+    {
+        IsHolding = false;
+        currentAbility.CancelHold();
     }
 }
 

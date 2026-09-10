@@ -22,7 +22,7 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Cost & Cooldown")]
     public float Cooldown = 1f;
-    public List<StatCost> Cost;
+    public List<StatCost> Costs;
 
     [Header("Hold")]
     public float MaxHoldTime = 0f;
@@ -40,7 +40,7 @@ public class AbilityDefinition : ScriptableObject
     public void GetCostValues(StatType statType, out float cost)
     {
         cost = 0f;
-        foreach (var statCost in Cost)
+        foreach (var statCost in Costs)
         {
             if (statCost.statType == statType)
             {
@@ -53,6 +53,15 @@ public class AbilityDefinition : ScriptableObject
 [System.Serializable]
 public class StatCost
 {
-    public float cost;
+    public float value;
     public StatType statType;
+}
+
+public enum SkillState
+{
+    None,
+    Start,
+    Cast,
+    Do,
+    Exit
 }

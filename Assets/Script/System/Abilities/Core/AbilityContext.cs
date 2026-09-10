@@ -1,5 +1,5 @@
 using UnityEngine;
-
+[System.Serializable]
 public class AbilityContext
 {
     public IAbilityOwner Caster;
