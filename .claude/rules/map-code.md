@@ -5,6 +5,12 @@ globs: ["Assets/Script/Map/**/*.cs"]
 
 # Map / Dungeon Code Standards
 
+> **Re-verified 2026-09-11** against HEAD `6d6a8e4` as part of the full doc/code re-sync.
+> All five bugs in "Known Bugs" below were checked directly in source and are **still open
+> exactly as described** — this file needed no correction. Note only that
+> `EnemyManager` now lives at `Assets/Script/System/Enemy/EnemyManager.cs` after the
+> `1c0742e` directory reorganisation.
+
 ## Singleton Discipline
 - `MazeController` is the ONLY permitted singleton in map code (`EnemyManager` is also permitted project-wide per ADR-0002, but is not a map-code class)
 - `RoomGridController`, `MapGridController`, `RoomGeneraterController`, `RoomCell`, `MapCell` and `DoorController` must use Inspector refs or `GetComponent`

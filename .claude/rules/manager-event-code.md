@@ -41,4 +41,16 @@ globs: ["Assets/Script/Manager/**/*.cs", "Assets/Script/GameConstants.cs"]
 
 ## UIManager Completion
 - `UIManager` is currently an empty stub — implement via EventManager subscriptions
-- Health bar binds to `EventID.ON_PLAYER_TAKE_DAMAGE` (or equivalent) — never polls `PlayerData` in Update
+- ⚠️ **`ON_PLAYER_TAKE_DAMAGE` does not exist and never has** (re-checked 2026-09-11 against the
+  23-value enum). Whoever builds the player health bar must add it to `EventID` first — this rule
+  has instructed binding to a non-existent value since it was written
+- The **enemy** health bar is already solved and is the pattern to copy: `EntityUIController` is
+  pushed a new ratio from `EntityNegativeReciver.TakeDamage()` — never polled
+
+## EventID Count (added 2026-09-11)
+
+`EventID` holds **23** values. Three were added between 2026-08-22 and 2026-09-07 without any doc
+update: `ON_RESET_STATS_UI_SESSION` (the `StatPointAllocator` session reset) and `ON_DROP_ITEM` /
+`ON_COLLECT_ITEM` (the Item system). `ON_ROOM_CLEAR` exists but still has no producer.
+Nothing has ever been removed from the enum — see the count history in `CLAUDE.md` before
+assuming a value was deleted.

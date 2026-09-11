@@ -8,6 +8,17 @@ verified-by: Kiet
 
 # Map & Dungeon System Design
 
+> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** No drift found — the maze generation, room
+> loading, door-state and room-progression rules below all still match the code, and every bug
+> this GDD references (start-room teleport #13, `MazeController` missing `return` #14, Editor-only
+> JSON loading #15, `RoomType` unread #16, dead door methods #17) was checked in source and is
+> **still open exactly as described**.
+>
+> One wiring change: `RoomGeneraterController` is now resolved through **VContainer**
+> (`GameLifetimeScope`), so a `GameLifetimeScope` must be present in any playable scene alongside
+> `MazeController`, `LevelManager`, `EnemyManager` and `EnemySpawner`. See ADR-0004.
+
+
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet
 > implemented. Sections marked **[BUG]** identify known defects.

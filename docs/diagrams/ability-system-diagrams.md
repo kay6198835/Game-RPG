@@ -1,32 +1,56 @@
 # Ability System — Diagrams
 
-> Source: `prototypes/skill-enhance-abilities/Scripts/` (was `Assets/Skill Enhance/Scripts/` until 2026-08-22)
-> Branch: `claude/review-skill-architecture-2df7z`
-> Date: 2026-05-20
+> Source: **`Assets/Script/System/Abilities/`** (originally `Assets/Skill Enhance/Scripts/`;
+> parked in `prototypes/skill-enhance-abilities/Scripts/` 2026-08-22; promoted into `Assets/` 2026-09-09)
+> Diagrams authored: 2026-05-20 · Status re-verified: **2026-09-11**
 
-> ⚠️ **These diagrams do NOT describe the ability system the game runs** (verified 2026-08-21).
-> They accurately describe the 17 files now in `prototypes/skill-enhance-abilities/Scripts/Abilities/`
-> — but that framework is **not wired into gameplay**:
+> ✅ **STATUS INVERTED 2026-09-11 — these diagrams now describe the ability system the PLAYER runs.**
 >
-> - `Assets/Script/` never references `AbilitySystem`, `AbilityDefinition`, `AbilitySlot` or
->   `IAbilityOwner`, and those files never reference `Player`, `EventManager`, `StatsSO` or
->   `INegativeReceiver`. The two halves share no types at all.
-> - It ships **no** SO assets, prefabs or scene wiring, so nothing can instantiate it.
-> - `DamageInFrontEffect.Apply()` is entirely commented out, and what is commented out uses 3D
->   `Physics.OverlapSphere` plus a `Damageable` type that does not exist in this project — 3D
->   conventions in a 2D game.
+> This banner previously read *"These diagrams do NOT describe the ability system the game runs"*
+> and stated that the framework *"ships no SO assets, prefabs or scene wiring, so nothing can
+> instantiate it"*. **Both statements are now false.** On 2026-09-09 (`9b8d40f`, `5c7afba`) all 17
+> files were promoted out of `prototypes/` into `Assets/Script/System/Abilities/`, and
+> `AbilityHolder` was rewritten as `: CoreComponent<Core>, IAbilityOwner` to drive them.
 >
-> **The live system is `Assets/Script/Skill_Ability/`** — `ActivateSkill` subclasses
-> (`DashAbility`, `SlashAbility`, `BlockAbility`) driven by `AbilityHolder` through the
-> `Enter → Activate → Cast → Do → Exit` lifecycle. It is inheritance-based; the one below is
-> composition-based (definition + effect + condition SOs). They are different designs, not
-> different versions of one design.
+> Verified against HEAD `6d6a8e4`:
 >
-> ✅ **Resolved 2026-08-22 (owner decision): kept, and relocated to `prototypes/`** per
-> `.claude/rules/prototype-code.md` — not adopted, not deleted. Because `prototypes/` sits outside
-> `Assets/`, Unity no longer compiles these files at all. Treat every diagram below as a
-> description of parked prototype code, not of anything the game runs. The hypothesis it was
-> testing, why it stalled, and how to pick it back up are in
+> - `AbilityHolder` holds `Dictionary<AbilitySlot, AbilityInstance>`, equips from a serialized
+>   `abilityBindings` list in `Awake()`, and ticks every instance each frame from
+>   `PlayerSkillWeaponState`.
+> - Live SO assets **do** exist: `Assets/SO/Skill/ShootSpirit/ShootSpirit.asset`,
+>   `Assets/SO/Skill/ShootSpirit/SpiritBomd.asset`,
+>   `Assets/SO/Skill/Conditions/New Has Enough Mana Condition.asset`.
+> - The framework reaches the rest of the game through `IAbilityOwner` plus injected services
+>   (`IObjecPoolService`, `IPlayerStatService`, `IVitalComponent`, `IResourceReceiver`).
+>
+> **Two frameworks now coexist, and this document covers the second one:**
+>
+> | | v1 — `System/Skill_Ability/` | v2 — `System/Abilities/` (below) |
+> |---|---|---|
+> | Model | Subclass `ActivateSkill` | Compose an `AbilityDefinition` SO |
+> | Lifecycle | `Enter → Activate → Cast → Do → Exit` | `SkillState`: `None → Start → Cast → Do → Exit` |
+> | Used by | `WeaponStats`, `AttackSO`, `Weapon`, `EntityWeapon` | **`AbilityHolder` — the player** |
+> | Design doc | `design/gdd/skill-ability-system.md` | **none — this file is the closest thing** |
+>
+> ### Read the diagrams with these deltas
+>
+> The structure below is accurate, but three details changed during promotion:
+>
+> 1. **`AbilitySystem` no longer exists as a separate driver.** Its role was absorbed into
+>    `AbilityHolder`, which implements `IAbilityOwner` directly.
+> 2. **`ShootSpiritOrbEffect` was renamed `ShootObjectEffect`** (`4e4eff5`) and generalised beyond
+>    the spirit orb.
+> 3. **`DamageInFrontEffect.Apply()` is no longer commented out**, and the 3D
+>    `Physics.OverlapSphere` / non-existent `Damageable` problem noted in the old banner had to be
+>    resolved for it to compile in `Assets/`.
+>
+> ⚠️ **The promotion did not follow `.claude/rules/prototype-code.md`'s Promotion Rules** (rewrite
+> to production standards: values into SOs, null checks added, no `Find()`). Residual
+> prototype-grade code remains — an unresolved TODO in `AbilityHolder.HandleInput()` and an
+> unguarded `currentAbility.Definition` dereference in `GetAbility()`. There is also **no ADR**
+> deciding v1's fate. Tracked as demo-checklist item 18 in `CLAUDE.md`.
+>
+> The original hypothesis, why it stalled, and the promotion record are in
 > `prototypes/skill-enhance-abilities/README.md`.
 >
 > One overstatement to note before reading §4/§5: the class diagrams show `IAbilityOwner` exposing

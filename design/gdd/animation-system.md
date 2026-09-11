@@ -1,5 +1,12 @@
 # Animation System
 
+> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** No drift found. The `StatusAnimation` handoff
+> this document was rewritten around on 2026-08-21 is unchanged, and `AnimationEventManager` is
+> still dead code (`Emit()` has zero callers), so Open Question #1 below is still open.
+> One addition: `Character/Base/StatusBase.cs` was added on 2026-09-08 (`9b8d40f`) and is not
+> described here.
+
+
 > **Status**: In Design
 > **Author**: Kiet + Claude
 > **Last Updated**: 2026-08-21 (rewritten against the shipped `StatusAnimation` enum)

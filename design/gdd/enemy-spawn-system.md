@@ -30,6 +30,24 @@ supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (En
 
 # Enemy Spawn & Per-Room Management System
 
+> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The selection algorithm, budget model and
+> `RarityTier` rules below still match `RoomModel.GetSpawnSet()` — this GDD did not drift on
+> substance. Four status corrections:
+>
+> - ✅ **BUG-033 is FIXED** — `EnemySpawner` now tests `set == null` before `.Count`.
+> - ✅ **The system is UNBLOCKED.** It was previously blocked end-to-end because enemies could not
+>   die (BUG-042 / BUG-053). Both are closed; the enemy damage/death chain works.
+> - 📁 `EnemySpawner.cs` and `EnemyManager.cs` moved to `Assets/Script/System/Enemy/` (`1c0742e`).
+> - 🔌 `EnemySpawner` is now resolved through **VContainer** (`GameLifetimeScope`), not found or
+>   Inspector-wired. See ADR-0004.
+>
+> **Still open, unchanged:** the `retry > 4` fallback in `SetListCandidate()` skips the weight
+> filter and so breaks ADR-0003's "overspend is structurally impossible" guarantee;
+> `overflowPercent` is serialized but never read (a literal `0.1f` is used); and two parallel
+> spawn drivers still exist (`EnemySpawner` event-driven + `LevelManager.SpawnRoomEnemies()`
+> Editor button, BUG-ES-2).
+
+
 **Status**: Approved (design) · Prototype partial — **code has diverged from the 2026-07-08 target,
 not converged on it** (see Doc-sync note + Current Implementation). Implementation section
 re-synced 2026-08-20; design intent unchanged since 2026-07-13.
@@ -160,7 +178,7 @@ resized only when the enemy-type count changes):
   **BUG-ES-1**, still unguarded by either caller (see Runtime drivers below).
 
 **Runtime drivers — two parallel, both still live:**
-1. **`EnemySpawner.cs`** (`Assets/Script/Enemy/`) — **no longer an empty stub.** `OnEnable`/`OnDisable`
+1. **`EnemySpawner.cs`** (`Assets/Script/System/Enemy/`) — **no longer an empty stub.** `OnEnable`/`OnDisable`
    subscribe/unsubscribe `EventID.ON_GET_SPAWN_POSITIONS` → `OnDoneLoadRoomGrid(object obj)`. That
    handler casts `obj` to `List<Vector2Int>` (the marker positions — see Tile_Spawn_Enemy below), draws
    `roomModel = mapModel.GetRandomRoom()` from the bag, then calls `SpawnRoomEnemies()`, which

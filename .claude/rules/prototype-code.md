@@ -32,3 +32,25 @@ Prototype code that gets promoted to `Assets/Script/` MUST be rewritten to produ
 
 ## Isolation
 Prototype scripts must not be referenced by production scripts in `Assets/Script/`
+
+---
+
+## Promotion Log
+
+> Added 2026-09-11. Recording promotions here is now part of the Promotion Rules above — an
+> undocumented promotion is how the ability framework ended up running in production while three
+> separate documents still described it as "never wired".
+
+### `skill-enhance-abilities` → `Assets/Script/System/Abilities/` (2026-09-09)
+
+- **Commits**: `9b8d40f`, `5c7afba`
+- **What moved**: all 17 `.cs` files. `prototypes/skill-enhance-abilities/Scripts/` now holds only
+  two orphan `.meta` files; the directory's `README.md` is kept as the record of the experiment
+- **Now in production use**: `AbilityHolder` was rewritten as `: CoreComponent<Core>, IAbilityOwner`
+  and drives this framework for the player. Live SO assets exist at `Assets/SO/Skill/ShootSpirit/`
+  and `Assets/SO/Skill/Conditions/`
+- ⚠️ **The Promotion Rules above were not applied at the time.** The promoted code still carries
+  prototype-grade traits — an unresolved TODO comment in `AbilityHolder.HandleInput()`, an unguarded
+  `currentAbility.Definition` dereference in `GetAbility()`, and no ADR deciding its relationship to
+  the v1 `ActivateSkill` framework it was meant to replace. That cleanup is outstanding and is
+  tracked as demo-checklist item 18 in `CLAUDE.md`
