@@ -12,13 +12,13 @@ public enum AbilityActivationType
 public class AbilityDefinition : ScriptableObject
 {
     [Header("Info")]
-    public string Id;
+    [SerializeField] private string id;
+    public string Id => id;
     public string DisplayName;
     public Sprite Icon;
 
     [Header("Activation")]
     public AbilityActivationType ActivationType = AbilityActivationType.Active;
-    public KeyCode DefaultKey = KeyCode.None;
 
     [Header("Cost & Cooldown")]
     public float Cooldown = 1f;
@@ -32,6 +32,20 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Effects")]
     public List<AbilityEffectDefinition> Effects = new();
+
+    [field: SerializeField] public AnimatorOverrideController AnimatorOverride { get; private set; }
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // Chỉ gán 1 lần, không ghi đè nếu đã có
+        if (string.IsNullOrEmpty(id))
+        {
+            id = System.Guid.NewGuid().ToString();
+            UnityEditor.EditorUtility.SetDirty(this);
+            DisplayName = name;
+        }
+    }
+#endif
     public float GetCostValues(StatType statType)
     {
         GetCostValues(statType, out float cost);
@@ -44,7 +58,7 @@ public class AbilityDefinition : ScriptableObject
         {
             if (statCost.statType == statType)
             {
-                cost = statCost.cost;
+                cost = statCost.value;
                 return;
             }
         }

@@ -11,25 +11,24 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     IPlayerStatService statsHandler;
     IResourceReceiver resourceReceiver;
     IVitalComponent vital;
+    IObjecPoolService objecPoolService;
     [field: SerializeField] private List<AbilityBinding> abilityBindings = new();
 
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
 
     public Transform Transform => this.transform;
-    public bool IsHolding { get; private set; }
-    private AbilityInstance currentAbility;
+    [field: SerializeField] public bool IsHolding { get; private set; }
+    [field: SerializeField] private AbilityInstance currentAbility;
+
 
     [Inject]
     public void Construct(IObjecPoolService pool)
     {
-        statsHandler = Core.GetComponentInChildren<IPlayerStatService>();
-        resourceReceiver = Core.GetComponentInChildren<IResourceReceiver>();
-        vital = Core.GetComponentInChildren<IVitalComponent>();
-        services = new AbilityServices(pool, statsHandler, resourceReceiver, vital);
+        objecPoolService = pool;
     }
-    private void Awake()
+    protected override void Awake()
     {
-
+        base.Awake();
         for (int i = 0; i < abilityBindings.Count; i++)
         {
             var binding = abilityBindings[i];
@@ -37,6 +36,14 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
             Equip(binding.Slot, binding.Ability);
         }
+    }
+    public override void Setup()
+    {
+        base.Setup();
+        statsHandler = Core.GetComponentInChildren<IPlayerStatService>();
+        resourceReceiver = Core.GetComponentInChildren<IResourceReceiver>();
+        vital = Core.GetComponentInChildren<IVitalComponent>();
+        services = new AbilityServices(objecPoolService, statsHandler, resourceReceiver, vital);
     }
 
     public void Processing()
@@ -47,7 +54,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         {
             pair.Value.Tick(dt);
         }
-
         HandleInput();
     }
 
@@ -78,16 +84,21 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     public AbilityInstance GetAbility(AbilitySlot slot)
     {
         _equipped.TryGetValue(slot, out var instance);
+        currentAbility = instance;
+        core.Player.Anim.runtimeAnimatorController = currentAbility.Definition.AnimatorOverride;
         return instance;
     }
 
+    public SkillState State => currentAbility?.State ?? SkillState.None;
+// Check logic gọi đúng vị trí, nhưng chưa xử lý logic trong các state.
+//  Cần bổ sung logic cho từng state trong phương thức HandleInput() và các phương thức liên quan.
     private void HandleInput()
     {
         if (currentAbility == null) return;
-        var instance = currentAbility.Value;
+        var instance = currentAbility;
         var def = instance.Definition;
-        if (def == null || def.DefaultKey == KeyCode.None)
-            continue;
+        if (def == null)
+            return;
         switch (instance.State)
         {
             case SkillState.Start:
@@ -101,23 +112,14 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
                 break;
             case SkillState.Exit:
                 instance.Exit();
-                currentAbilitySlot = null;
+                currentAbility = null;
                 break;
         }
     }
 
-    public void Tick(float deltaTime)
+    public void CheckChangeState(SkillState newState)
     {
-        foreach (var pair in _equipped)
-        {
-            var instance = pair.Value;
-            instance.Tick(deltaTime);
-        }
-    }
 
-    public void GetSkill(AbilitySlot slot)
-    {
-        currentAbility = _equipped[slot];
     }
 
     public void StartHold()

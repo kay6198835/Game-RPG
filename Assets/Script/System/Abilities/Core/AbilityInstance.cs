@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 
 [System.Serializable]
 public class AbilityInstance
 {
     public AbilityDefinition Definition { get; }
-    [NonSerialized] public IAbilityOwner Owner { get; }
+    public IAbilityOwner Owner { get; }
 
     public float CooldownRemaining { get; private set; }
     public bool IsHolding { get; private set; }
@@ -36,14 +37,18 @@ public class AbilityInstance
         }
     }
 
-    public void TryActivateInstant()
+    public bool TryActivateInstant()
     {
         abilityContext = BuildContext();
         if (!ValidateConditions(abilityContext))
+        {
             return false;
+        }
 
         if (!TryPayCost())
+        {
             return false;
+        }
 
         ChangeState(SkillState.Cast);
         return true;
@@ -53,7 +58,7 @@ public class AbilityInstance
         if (Definition.ActivationType == AbilityActivationType.Hold)
         {
             if (!TryPayCost())
-                return false;
+                return;
             Casting();
             if (IsHolding) return;
         }
@@ -138,15 +143,16 @@ public class AbilityInstance
 
     private bool TryPayCost()
     {
-        foreach (var statCost in Definition.Costs)
+        foreach (var condition in Definition.Conditions)
         {
-            if (Owner.GetCurrentStatValue(statCost.statType) < statCost.value)
+            if (condition == null) continue;
+            if (!condition.IsMet(abilityContext))
                 return false;
         }
 
         foreach (var statCost in Definition.Costs)
         {
-            Owner.PayCost(StatType.Mana, manaCost);
+            Owner.PayCost(statCost.statType, statCost.value);
         }
         return true;
     }

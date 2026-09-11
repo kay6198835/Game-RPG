@@ -29,7 +29,7 @@ public class PlayerBasicState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        abilityHolder.Tick(Time.deltaTime);
+        abilityHolder.Processing();
         if (inputHandler.IsEquip_Unequip)
         {
             if (weaponHolder.FindInteraction())

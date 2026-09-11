@@ -5,9 +5,9 @@ public class HasEnoughManaCondition : AbilityConditionDefinition
 {
     public override bool IsMet(AbilityContext context)
     {
-        // if (context?.Caster?.Stats == null) return false;
-        // return context.Caster.Stats.CurrentMana >= context.AbilityDefinition.ManaCost;
-
+        if (context?.Services?.Vital.GetCurrentStatValue(StatType.Mana)
+         < context.AbilityDefinition.GetCostValues(StatType.Mana))
+            return false;
         return true;
     }
 }

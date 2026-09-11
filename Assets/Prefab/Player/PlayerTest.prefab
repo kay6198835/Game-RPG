@@ -560,13 +560,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  ability: {fileID: 0}
-  cooldownTime: 0
-  activeTime: 0
-  keyCode: 0
-  canUseAbility: 0
-  currentState: 0
-  playerInputHandler: {fileID: 0}
+  abilityBindings:
+  - Slot: 0
+    Ability: {fileID: 11400000, guid: 9de99cc2a34f9d345ac7cffecd4b1b27, type: 2}
 --- !u!1 &5519547563718807823
 GameObject:
   m_ObjectHideFlags: 0
@@ -755,6 +751,7 @@ MonoBehaviour:
   isTakeDamage: 0
   isEquip_Unequip: 0
   isInteractor: 0
+  isResourceReceiver: 0
   state: 0
   skill: 0
   disadvantage: 0
