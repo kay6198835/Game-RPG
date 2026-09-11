@@ -7,6 +7,30 @@ verified-by: Kiet
 
 # Character System Design
 
+> **⚠️ Partially superseded 2026-09-11 — the health/stat model below predates the Sprint 12 refactor.**
+>
+> This GDD describes damage landing on a single health field. Since `9b8d40f` / `f3f5f08`, both
+> the player and the enemy split that into three components:
+>
+> | Concern | Player | Enemy |
+> |---|---|---|
+> | **Max** stat values (the profile) | `StatHandler : IPlayerStatService` | `EntityStatsHandler` |
+> | **Current** values (runtime dictionary) | `VitalStatsComponent : IVitalComponent` | `EntityVitalStats` |
+> | Damage entry point | `NegativeReciver`, `ResourceReceiver` | `EntityNegativeReciver` |
+>
+> Also changed and not reflected below:
+> - `INegativeReceiver.TakeDamage` takes a **`float`**, not an `int`.
+> - Mitigation is real now: `EntityNegativeReciver.DamageCalculate()` subtracts
+>   `StatType.Defense` and clamps at 0. Any damage formula in this document that omits Defense
+>   is out of date.
+> - The player state machine gained `PlayerResourceReceiverState` (item pickup); `Player.Awake()`
+>   now constructs **nine** states.
+> - `PlayerData.currentHealth` is still never written and `Reborn()` still has no caller (Bug #6),
+>   so this document's death/restart flow remains **[PLANNED]**, not `[IMPLEMENTED]`.
+>
+> The player-fantasy, input and state-machine sections below are unaffected and still accurate.
+
+
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet
 > implemented. Sections marked **[BUG]** identify known defects.
@@ -152,7 +176,7 @@ knockbackDir    = Atan2((attackPos - entityPos).x, (attackPos - entityPos).y)
 | System | Role | Direction |
 |--------|------|-----------|
 | **Weapons** (`Assets/Script/Weapons/`) | `WeaponHolder.Attack()` → `Weapon.OnAttackEnter()` on state entry; `WeaponHolder.MakeDamage()` → `Weapon.OnActivate()` on the animation hit frame | Character → Weapons |
-| **Skill/Ability** (`Assets/Script/Skill_Ability/`) | `ActivateSkill` SO provides ability lifecycle; `AbilityHolder` drives it | Character → Skills |
+| **Skill/Ability** (`Assets/Script/System/Skill_Ability/`) | `ActivateSkill` SO provides ability lifecycle; `AbilityHolder` drives it | Character → Skills |
 | **Event Manager** (`EventManager.cs`) | Corrected 2026-08-20 — `ON_PLAYER_DEATH` and `ON_ENEMY_DEATH` **now exist** (the enum has 20 values). Only `ON_PLAYER_TAKE_DAMAGE` is still absent, and `.claude/rules/ui-code.md` tells the health bar to bind to it | Character → EventManager |
 | **Animation** (`AnimationEventManager.cs`) | `AnimationTrigger` fires weapon/skill; `AnimationFinished` exits states | Character → Animation |
 | **Input** (`PlayerInputHandle.cs`, class `PlayerInputHandler`) | Provides `MoveVector`, `DirectionMouse`, `IsAttack`, `IsSkill`, `IsTakeDamage`, plus `BufferIsAttack` for combo buffering; also implements `IAimProvider` so weapons read aim direction through the interface rather than the concrete type | Input → Character |

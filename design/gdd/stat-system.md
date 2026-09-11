@@ -1,6 +1,6 @@
 ---
 status: authored
-source: Assets/Script/StatSystem/, ToolExcel/stat_system_formula_reference.xlsx
+source: Assets/Script/System/StatSystem/, ToolExcel/stat_system_formula_reference.xlsx
 date: 2026-07-07
 revised: 2026-08-21 (owner ratified the plain-class StatModifierGroup shape and the field renames;
 both implementation defects the 2026-08-20 audit found are now fixed. Design intent unchanged.)
@@ -8,6 +8,24 @@ verified-by: Kiet
 ---
 
 # Stat System Design
+
+> **⚠️ Renamed 2026-09-11 — `StatsSO` is now `BaseStatsSO`.** The class was deleted in `b0512f4`
+> and re-added as `BaseStatsSO` in `1c0742e`, with `EnemyStatSO : BaseStatsSO` for enemies.
+> **The API surface did not change** — `Get()`, `GetStat()`, `GetStatValue()`,
+> `AddModifiersFromSource()`, `RemoveModifiersFromSource()`, `AddPrimaryPoint()`,
+> `GetStatUnusedBonus()`, `OnStatChanged` and `StatsViewDTO` are all still there, so every rule,
+> formula and acceptance criterion below remains valid as written. Only the type name and the
+> file path (`Assets/Script/System/StatSystem/`) moved. See ADR-0001's 2026-09-11 amendment.
+>
+> **New since this GDD was authored, and not yet designed here:**
+> - `StatPointAllocator` — an allocation *session* (accept / revert / restore) layered over
+>   `AddPrimaryPoint()`, driving the `ON_RESET_STATS_UI_SESSION` event.
+> - `StatHandler : IPlayerStatService` and `VitalStatsComponent : IVitalComponent` — the split
+>   between **max** values (the profile) and **current** values (a runtime dictionary). This GDD
+>   describes only the profile half.
+> - ⚠️ **BUG-063 is open**: `Stat.modifiers` is re-serialized behind `#if UNITY_EDITOR`
+>   (`Stat.cs:63-65`), reopening the data-corruption bug this system already suffered once.
+
 
 **Status**: In Design
 
@@ -25,7 +43,7 @@ The stat system turns a small set of **primary stats** (STR, DEX, INT, VIT, LUK)
 full set of **derived stats** every character uses in combat (health, damage, defense,
 attack speed, crit, regen, etc.). Every character — the player and all enemies — shares the
 same data-driven formula shape; only the coefficients differ per entity. Values are authored
-in ScriptableObjects and read at runtime through `StatsSO`.
+in ScriptableObjects and read at runtime through `BaseStatsSO`.
 
 The system is **level-aware**: each derived stat may grow with the character's level through a
 dedicated `perLevel` term, on top of its primary-stat contribution.
@@ -61,21 +79,21 @@ different coefficients.
   the computed base value; they never mutate the base. A bundle of modifiers (one piece of
   equipment, one buff, one upgrade card) is authored as a `StatModifierGroup` and attached
   or detached as a unit, keyed by **source**:
-  - `StatsSO.AddModifiersFromSource(source, modifiers)` attaches the whole bundle;
-    `StatsSO.RemoveModifiersFromSource(source)` detaches everything from that source.
+  - `BaseStatsSO.AddModifiersFromSource(source, modifiers)` attaches the whole bundle;
+    `BaseStatsSO.RemoveModifiersFromSource(source)` detaches everything from that source.
   - `source` is matched by reference identity, so it must be the **owning instance** (the equipped
     item instance, MonoBehaviour, or ability instance) — never a value type and never the shared
     group asset, or two copies of the same asset cannot be detached independently.
   - Bulk operations recalculate derived stats once for the whole bundle, not once per modifier.
-  - `Stat` itself only ever adds or removes a single modifier; all iteration lives in `StatsSO`.
+  - `Stat` itself only ever adds or removes a single modifier; all iteration lives in `BaseStatsSO`.
 
 > ✅ **Owner decision 2026-08-21 — the shipped shape is ratified.** This GDD originally specified a
 > `StatModifierGroupSO` **asset**, reusable across weapons and authored independently. What shipped
-> is `StatModifierGroup` (`Assets/Script/StatSystem/StatModifierGroup.cs`), a plain
+> is `StatModifierGroup` (`Assets/Script/System/StatSystem/StatModifierGroup.cs`), a plain
 > `[System.Serializable]` class embedded directly in `WeaponStats` — no asset file, no cross-weapon
 > reuse. **That plain-class shape is now the decision**, consistent with the precedent ADR-0003 set
 > when it accepted the same SO→plain-class downgrade for `EnemyModal` as final. The
-> `ApplyTo(StatsSO, source)` / `RemoveFrom(StatsSO, source)` API is unchanged, so everything above
+> `ApplyTo(BaseStatsSO, source)` / `RemoveFrom(BaseStatsSO, source)` API is unchanged, so everything above
 > still describes runtime behaviour accurately.
 >
 > Field names were disambiguated in the same pass — there were three things called `modifiers`:
@@ -92,7 +110,7 @@ different coefficients.
 >    Note the distinction that caused the confusion: `StatModifierGroup.authoredModifiers` (the
 >    bundle on `WeaponStats`) is **correctly** serialized and must stay that way — `SnS_Stat.asset`
 >    authors real data there. Only `Stat.modifiers`, the per-stat runtime list, is non-serialized.
-> 2. **Derived stats recalculate again.** `StatsSO.RecalculateDerived()` previously skipped its
+> 2. **Derived stats recalculate again.** `BaseStatsSO.RecalculateDerived()` previously skipped its
 >    update when *any one* of four values matched (`||` where `&&` was needed), so derived stats
 >    stopped updating unless `isDevMode` was on. Fixed on `sprint-10`; the guard now ANDs all
 >    comparisons and `AddPrimaryPoint()` calls `RecalculateDerived()` directly.
@@ -119,7 +137,7 @@ derivedStat = baseConstant + level × perLevel + Σ(primaryStat × coefficient)
 > and the live emulator `design/balance/stat_system_leveled_v2.xlsx`.
 
 This formula is implemented once in code by
-[`DerivedStatFormula.Evaluate()`](../../Assets/Script/StatSystem/DerivedStatFormula.cs); the
+[`DerivedStatFormula.Evaluate()`](../../Assets/Script/System/StatSystem/DerivedStatFormula.cs); the
 GDD/Excel numbers map 1:1 onto its `baseConstant`, `perLevel`, and `contributions` fields.
 
 ---
@@ -130,7 +148,7 @@ GDD/Excel numbers map 1:1 onto its `baseConstant`, `perLevel`, and `contribution
 |----------|--------------------|
 | Percentage stat given a `perLevel > 0` | Disallowed by design — keep `perLevel = 0` (see Detailed Rules) |
 | Derived formula references another derived stat | Not allowed — contributions reference **primary** stats only, to avoid circular dependency |
-| Level set below 1 | Clamped to 1 (`StatsSO.Level` setter) |
+| Level set below 1 | Clamped to 1 (`BaseStatsSO.Level` setter) |
 | Missing `StatType` in the authored list | Backfilled to 0 on load (`EnsureInitialized`) |
 | Duplicate / null stat entries | Dropped on load, keeping the List ↔ Dictionary 1:1 invariant |
 
@@ -141,9 +159,9 @@ GDD/Excel numbers map 1:1 onto its `baseConstant`, `perLevel`, and `contribution
 | System | Relationship |
 |--------|-------------|
 | Damage & Health | Consumes HP / Defense / damage stats; damage application should apply Defense (currently `finalDamage = rawDamage` — see combat balance doc) |
-| Character / Enemy AI | Each entity owns a `StatsSO`; enemy `Level` is intended to track dungeon floor |
-| Per-Run Upgrades | Upgrade cards add primary points / modifiers through the `StatsSO` API |
-| HUD | Subscribes to `StatsSO.OnStatChanged` to display health/mana/etc. |
+| Character / Enemy AI | Each entity owns a `BaseStatsSO`; enemy `Level` is intended to track dungeon floor |
+| Per-Run Upgrades | Upgrade cards add primary points / modifiers through the `BaseStatsSO` API |
+| HUD | Subscribes to `BaseStatsSO.OnStatChanged` to display health/mana/etc. |
 
 Storage architecture (List + runtime Dictionary) is recorded in
 [ADR-0001](../../docs/architecture/adr-0001-statsystem-dual-data-structure.md).
@@ -173,4 +191,4 @@ mirrored into the ScriptableObject assets. The knobs are:
 - [ ] Percentage/fixed stats have `perLevel = 0`.
 - [ ] Derived formulas reference only primary stats (no derived-on-derived).
 - [ ] The coefficients in the SO assets match `ToolExcel/stat_system_formula_reference.xlsx`.
-- [ ] `StatsSO.Get(StatType)` returns the authored value for every stat at O(1).
+- [ ] `BaseStatsSO.Get(StatType)` returns the authored value for every stat at O(1).

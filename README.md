@@ -32,26 +32,26 @@ implementation.
 The parts of this project I would most want to talk through in an interview:
 
 ### Custom A\* pathfinding with a frame-budgeted request queue
-`Assets/Script/Pathfinding/`
+`Assets/Script/System/Pathfinding/`
 
 Rather than using Unity's NavMesh, enemy navigation runs on a hand-written A\* over a tilemap
-grid: a binary-heap [`PriorityQueue`](Assets/Script/Pathfinding/Algorithm/PriorityQueue.cs),
-an octile [`Heuristic`](Assets/Script/Pathfinding/Algorithm/Heuristic.cs) for 8-way movement,
-and a [`PathRequestManager`](Assets/Script/Pathfinding/PathRequestManager.cs) that caps
+grid: a binary-heap [`PriorityQueue`](Assets/Script/System/Pathfinding/Algorithm/PriorityQueue.cs),
+an octile [`Heuristic`](Assets/Script/System/Pathfinding/Algorithm/Heuristic.cs) for 8-way movement,
+and a [`PathRequestManager`](Assets/Script/System/Pathfinding/PathRequestManager.cs) that caps
 searches at `maxRequestsPerFrame` so a room full of enemies cannot spike the frame time.
 
 ### Data-driven derived stat system
-`Assets/Script/StatSystem/`
+`Assets/Script/System/StatSystem/`
 
 Primary stats (STR/DEX/INT/VIT/LUK) feed derived stats (HP, damage, crit…) through
-[`DerivedStatFormula`](Assets/Script/StatSystem/DerivedStatFormula.cs):
+[`DerivedStatFormula`](Assets/Script/System/StatSystem/DerivedStatFormula.cs):
 
 ```
 BaseValue = baseConstant + level × perLevel + Σ(sourceStat × coefficient)
 ```
 
 Every coefficient is authored in the Inspector, so balancing never touches code. Buffs and
-equipment apply as source-tagged [`StatModifier`](Assets/Script/StatSystem/StatModifier.cs)
+equipment apply as source-tagged [`StatModifier`](Assets/Script/System/StatSystem/StatModifier.cs)
 bundles — equipping a weapon stamps its modifiers with the weapon as the source, and
 unequipping removes exactly that source by reference. The balance numbers are modelled in
 [`ToolExcel/`](ToolExcel/) and mirrored into the ScriptableObject assets.
@@ -86,7 +86,7 @@ interfaces (`IObjecPoolService`, `IPlayerStatService`) instead of singletons.
 | | |
 |---|---|
 | **Engine** | Unity 2022.3.62f3 LTS — URP, 2D Renderer |
-| **Language** | C# — ~10k lines across 174 files |
+| **Language** | C# — ~11k lines across 194 files |
 | **Input** | Unity Input System 1.14 |
 | **DI** | VContainer 1.19 |
 | **Tweening** | DOTween |
@@ -118,18 +118,24 @@ Press Play
 
 ```
 Assets/Script/
-  Character/Base/      Shared component hub + generic state machine
-  Character/Player/    Player controller, states, core components
-  Character/Entity/    Enemy AI framework (mirrors the player pattern)
-  Weapons/             Weapon base, melee, ranged, combo stages as SOs
-  Skill_Ability/       Hold-release ability lifecycle (ScriptableObjects)
-  StatSystem/          Primary/derived stats, modifiers, formulas
-  Pathfinding/         A*, grid builder, request manager
-  Map/                 Maze generation, room grid, doors, minimap
-  Enemy/               Spawning, weighted rarity selection
-  LifetimeScope/       VContainer DI setup + pooled object service
-  LevelEdit/           Custom in-editor room authoring tool
-  Manager/             Static event bus
+  Character/Base/          Shared component hub + generic state machine
+  Character/Player/        Player controller, states, core components
+  Character/Entity/        Enemy AI framework (mirrors the player pattern)
+  Weapons/                 Weapon base, melee, ranged, combo stages as SOs
+  Map/                     Maze generation, room grid, doors, minimap
+  LevelEdit/               Custom in-editor room authoring tool
+  Manager/                 Static event bus
+  UI/                      UI Toolkit menus + stat screens
+  System/                  Cross-cutting gameplay services
+    System/Abilities/      Composition-based ability framework (definition + effects + conditions)
+    System/Skill_Ability/  Legacy inheritance-based ability lifecycle (weapon/enemy path)
+    System/StatSystem/     Primary/derived stats, modifiers, formulas
+    System/Pathfinding/    A*, grid builder, request manager
+    System/Enemy/          Spawning, weighted rarity selection, pathfinding service
+    System/Item/           Item SOs, weighted drop tables, pickup effects
+    System/PoolableService/ Generic object pool
+    System/PlayerSystem/   Player service facade
+    System/LifetimeScope/  VContainer DI composition root
 ```
 
 Deeper technical notes, conventions, and the current bug list live in

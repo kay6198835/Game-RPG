@@ -1,11 +1,36 @@
 ---
 status: reverse-documented
-source: Assets/Script/Skill_Ability/
+source: Assets/Script/System/Skill_Ability/
 date: 2026-05-19
 verified-by: Kiet
 ---
 
 # Skill & Ability System Design
+
+> **⚠️ SCOPE CHANGED 2026-09-11 — this GDD now describes only ONE of two live frameworks.**
+>
+> Everything below documents the inheritance-based **`ActivateSkill`** system
+> (`Assets/Script/System/Skill_Ability/`). On **2026-09-09** (`9b8d40f`, `5c7afba`) a second,
+> composition-based framework was promoted out of `prototypes/skill-enhance-abilities/` into
+> `Assets/Script/System/Abilities/`, and `AbilityHolder` was rewritten to drive it.
+>
+> | | Abilities v1 — this document | Abilities v2 — undesigned |
+> |---|---|---|
+> | Location | `System/Skill_Ability/` | `System/Abilities/` |
+> | Model | Subclass `ActivateSkill`, override `Cast()`/`Do()` | Compose an `AbilityDefinition` SO from effect + condition assets |
+> | Lifecycle | `Enter → Activate → Cast → Do → Exit` | `SkillState`: `None → Start → Cast → Do → Exit` |
+> | **Used by** | `WeaponStats.AbilityWeapon`/`.SkillWeapon`, `AttackSO.ability`, `Weapon`, `EntityWeapon` | **`AbilityHolder` — i.e. the PLAYER** |
+> | Live SO assets | `SO/Skill/{Dash,Slash,Block,Dual} Ability.asset` | `SO/Skill/ShootSpirit/*.asset`, `SO/Skill/Conditions/*.asset` |
+>
+> **So: the player no longer runs the system this GDD describes.** v1 remains live on the weapon
+> and enemy path, so this document is not obsolete — it is now partial.
+>
+> There is **no ADR** deciding whether v1 migrates into v2 or the two coexist permanently. Until
+> that decision exists, this GDD cannot be made authoritative again, and v2 should not be
+> retro-designed here (one system = one GDD, per `.claude/rules/design-docs.md`). Tracked as
+> demo-checklist item 18 in `CLAUDE.md`. The most accurate description of v2 today is
+> `docs/diagrams/ability-system-diagrams.md`.
+
 
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet

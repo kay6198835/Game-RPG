@@ -1,9 +1,19 @@
 # Lead Programmer Memory — Game-RPG
 
-> Rewritten 2026-08-20 by the documentation audit. The previous version listed seven
-> "active" bugs, five of which were fixed or superseded, and pointed at classes deleted in
-> June. Do not trust bug lists here over `CLAUDE.md` — that file is re-verified against
-> source; this one is a shortcut.
+> Re-synced **2026-09-11** by the full documentation/code re-synchronisation. The previous
+> rewrite (2026-08-20) had gone stale again within three sprints, for the same reason: this file
+> is a shortcut, not a verified source.
+>
+> **Do not trust the bug list below over `CLAUDE.md` and `memory/project_state.md`** — both were
+> re-verified against source at HEAD `6d6a8e4`. What changed since 2026-08-20:
+>
+> - The enemy damage/death chain WORKS. BUG-042, BUG-046, BUG-053, BUG-033, NEW-1 and NEW-2 closed.
+> - VContainer DI is in (`aa4e620`) — see ADR-0004. Cross-system deps are injected now.
+> - Seven directories moved under `Assets/Script/System/` (`1c0742e`). Old paths are dead.
+> - `StatsSO` was deleted, replaced by `BaseStatsSO` / `EnemyStatSO`. Same API surface.
+> - A second ability framework is live (`System/Abilities/`) and drives the player.
+> - BUG-063 is a REGRESSION — `Stat.modifiers` re-serialized. Top priority, one-line fix.
+> - BUG-064 sub-item 7 (`RangeWeapon` DI) is the last piece of the Sprint 12 refactor.
 
 ## Project Context
 

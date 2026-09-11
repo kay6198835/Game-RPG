@@ -76,17 +76,28 @@ interfaces:
       the plain-class shape.
 
 forbidden_patterns: []
-# NOTE 2026-08-20: this list is empty, but four patterns are forbidden by
-# .claude/rules/ and are being violated in code today. They are tracked in
-# docs/tech-debt-register.md rather than here, because this file is a derived
-# view of Accepted ADRs and none of these has an ADR:
-#   - GameObject.Find                      -> FollowPlayer.cs:24 (TD-029)
-#   - public fields on MonoBehaviour       -> NegativeReciver, EntityNegativeReciver,
-#                                             EntityAttack, StatsUIController, EnemySO
-#   - allocating Physics2D.OverlapCircle   -> EntityWeaponMelee.cs:29,
-#                                             EntityFindTarget.cs:73 (TD-005)
-#   - UI mutating gameplay state           -> StatsUIController.cs:66 calls
-#                                             statsSO.AddPrimaryPoint()
+# NOTE re-verified 2026-09-11 against HEAD 6d6a8e4 (was 2026-08-20). This list is
+# empty by design — the file is a derived view of Accepted ADRs, and none of the
+# violations below has an ADR. They are tracked in docs/tech-debt-register.md.
+#   - GameObject.Find                      -> FollowPlayer.cs:24 (TD-029).
+#                                             STILL THE ONLY ONE in Assets/Script/ —
+#                                             re-confirmed 2026-09-11, zero
+#                                             FindObjectOfType calls remain.
+#   - public fields on MonoBehaviour       -> EntityAttack, EnemySO and others.
+#                                             NegativeReciver and EntityNegativeReciver
+#                                             were rewritten in the Sprint 12 refactor
+#                                             and no longer carry public state fields.
+#   - allocating Physics2D.OverlapCircle   -> EntityFindTarget only (TD-005 re-scoped).
+#                                             EntityWeaponMelee.cs was DELETED
+#                                             (BUG-043/BUG-046 closed) — the old entry
+#                                             here pointed at a file that no longer exists.
+#   - UI mutating gameplay state           -> StatsUIController.cs:110,158,172 call
+#                                             _playerStatService.AddPrimaryPoint().
+#                                             The violation survived the DI refactor:
+#                                             it now writes through IPlayerStatService
+#                                             instead of a direct StatsSO reference,
+#                                             which changes the plumbing, not the
+#                                             ui-code.md violation.
 
 api_decisions:
   - decision: enemymanager_singleton_exception
@@ -133,10 +144,57 @@ api_decisions:
       The shipped Option A two-phase uniform-random behavior and the never-built
       2026-07-08 Option B target (injected System.Random + EnemyDatabase id-lookup
       + argmin fill). Resolves GDD Open Question #8.
-    scope: RoomModel.GetSpawnSet() selection logic — RarityTier field done (S5-A3); algorithm rewrite LANDED between 2026-07-23 and 2026-08-20 (verified: GetSpawnSet() now builds a candidate pool, rolls each candidate's RarityTier chance, picks uniformly from the passers, and retries up to 4 times before a forced fallback — Option C in shape). The earlier note "still runs Option A as of 2026-07-23" is superseded. What is NOT done: the budget guarantee (see room_enemy_selection above) and the Phase-1/Phase-2 removal was never recorded in the GDD.
+    scope: >
+      RoomModel.GetSpawnSet() selection logic — RarityTier field done (S5-A3); algorithm rewrite LANDED between 2026-07-23 and 2026-08-20 (verified: GetSpawnSet() now builds a candidate pool, rolls each candidate's RarityTier chance, picks uniformly from the passers, and retries up to 4 times before a forced fallback — Option C in shape). The earlier note "still runs Option A as of 2026-07-23" is superseded. What is NOT done: the budget guarantee (see room_enemy_selection above) and the Phase-1/Phase-2 removal was never recorded in the GDD.
     status: accepted
     status_note: >
       Accepted 2026-07-23 against the shipped EnemyModal plain-class data shape
       (see ADR-0003 Amendment) — NOT against full implementation of the
       eight-step Candidate-Pool algorithm, which remains unbuilt. Data-model
       question (S6-09) and algorithm-rewrite question are tracked separately.
+  - decision: vcontainer_dependency_injection
+    adr: ADR-0004
+    detail: >
+      VContainer 1.19.0 is the project's dependency-injection container.
+      GameLifetimeScope (Assets/Script/System/LifetimeScope/GameLifetimeScope.cs)
+      is the single scene-level composition root and must be present in any
+      playable scene. Cross-system services are registered with
+      RegisterComponentInHierarchy<T>().As<IService>() and consumed via
+      [Inject] public void Construct(...) method injection.
+      Three services are exposed behind interfaces:
+        IObjecPoolService   -> ObjectPoolManager  (note: 'Objec' typo is intentional)
+        IPlayerService      -> PlayerManager
+        IPlayerStatService  -> StatHandler
+      Six further components are registered as concrete types because the
+      container, not each other, consumes them: Player, EnemySpawner,
+      StatsUIController, ItemSpawner, RoomGeneraterController, AbilityHolder.
+      DI does NOT replace the Core hub: sibling components on one character are
+      still resolved with Core.GetCoreComponent<T>(out ...). The two mechanisms
+      have disjoint scopes — DI crosses systems, the hub stays within a character.
+      RegisterComponentInHierarchy finds but never spawns, so runtime-spawned
+      objects (pooled enemies, projectiles, items) cannot be registered; Pool.Spawn()
+      injects into each new instance instead. Two registrations are commented out
+      in Configure() for exactly this reason (StatsScreenUIController,
+      StatPointAllocator).
+      RECORDED RETROACTIVELY 2026-09-11, 20 days after the decision shipped in
+      aa4e620 (2026-08-22). During that gap .claude/rules/engine-code.md instructed
+      contributors to use a resolution mechanism the codebase had already moved
+      past. That documentation gap is the reason ADR-0004 exists.
+    scope: >
+      Cross-system service resolution only. Not a license to inject concrete
+      MonoBehaviour types, and not a license to resolve the container manually
+      (IObjectResolver.Resolve<T>() in gameplay code is service location, not DI).
+    supersedes: >
+      The implicit "GetComponent or Inspector refs everywhere else" stance in
+      .claude/rules/engine-code.md, which had no mechanism for cross-system
+      lookups and so kept producing unratified singletons (TD-023, LevelManager).
+    review_trigger:
+      - "If a per-room or per-run child LifetimeScope becomes necessary (ADR-0004 Open Question #1)"
+      - "When ADR-0002's EnemyManager singleton exception is re-evaluated (ADR-0004 Open Question #2)"
+      - "If the VContainer git-URL dependency ever fails to resolve — vendor as an embedded package"
+    status: accepted
+    status_note: >
+      Incomplete migration: RangeWeapon's DI wiring is still open as BUG-064
+      sub-item 7, the last component reaching for a service the old way.
+      Supply-chain risk: VContainer is pinned by git URL
+      (jp.hadashikick.vcontainer#1.19.0), not via the Unity package registry.
