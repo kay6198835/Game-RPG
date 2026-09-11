@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 
+[System.Serializable]
 public class AbilityInstance
 {
     public AbilityDefinition Definition { get; }
@@ -8,7 +10,8 @@ public class AbilityInstance
     public float CooldownRemaining { get; private set; }
     public bool IsHolding { get; private set; }
     public float CurrentHoldTime { get; private set; }
-
+    public SkillState State { get; private set; } = SkillState.None;
+    private AbilityContext abilityContext;
     public AbilityInstance(AbilityDefinition definition, IAbilityOwner owner)
     {
         Definition = definition;
@@ -34,20 +37,64 @@ public class AbilityInstance
         }
     }
 
+    public bool TryActivateInstant()
+    {
+        abilityContext = BuildContext();
+        if (!ValidateConditions(abilityContext))
+        {
+            return false;
+        }
+
+        if (!TryPayCost())
+        {
+            return false;
+        }
+
+        ChangeState(SkillState.Cast);
+        return true;
+    }
+    public void TryCastInstant()
+    {
+        if (Definition.ActivationType == AbilityActivationType.Hold)
+        {
+            if (!TryPayCost())
+                return;
+            Casting();
+            if (IsHolding) return;
+        }
+        ChangeState(SkillState.Do);
+    }
+    public void TryDoInstant()
+    {
+        Execute(abilityContext);
+        StartCooldown();
+        ChangeState(SkillState.Exit);
+    }
+
+    public void Exit()
+    {
+
+    }
+
+    public void Casting()
+    {
+
+    }
+
+    public void ChangeState(SkillState updateState)
+    {
+        State = updateState;
+    }
+
     public bool CanStart()
     {
         if (CooldownRemaining > 0f) return false;
         if (Owner == null) return false;
-        if (Owner.GetCurrentStatValue(StatType.HP) <= 0) return false;
-        if (Owner.GetCurrentStatValue(StatType.Mana) < Definition.GetCostValues(StatType.Mana)) return false;
         return true;
     }
 
     public void StartHold()
     {
-        if (Definition.ActivationType != AbilityActivationType.Hold)
-            return;
-
         IsHolding = true;
         CurrentHoldTime = 0f;
     }
@@ -57,44 +104,6 @@ public class AbilityInstance
         IsHolding = false;
         CurrentHoldTime = 0f;
     }
-
-    public bool TryRelease()
-    {
-        if (!IsHolding)
-            return false;
-
-        var context = BuildContext();
-        if (!ValidateConditions(context))
-            return false;
-
-        if (!TryPayCost())
-            return false;
-
-        Execute(context);
-        StartCooldown();
-
-        IsHolding = false;
-        CurrentHoldTime = 0f;
-        return true;
-    }
-
-    public bool TryActivateInstant()
-    {
-        if (Definition.ActivationType == AbilityActivationType.Hold)
-            return false;
-
-        var context = BuildContext();
-        if (!ValidateConditions(context))
-            return false;
-
-        if (!TryPayCost())
-            return false;
-
-        Execute(context);
-        StartCooldown();
-        return true;
-    }
-
     private AbilityContext BuildContext()
     {
         float holdRatio = 0f;
@@ -134,11 +143,17 @@ public class AbilityInstance
 
     private bool TryPayCost()
     {
-        Definition.GetCostValues(StatType.Mana, out float manaCost);
-        if (Owner.GetCurrentStatValue(StatType.Mana) < manaCost)
-            return false;
+        foreach (var condition in Definition.Conditions)
+        {
+            if (condition == null) continue;
+            if (!condition.IsMet(abilityContext))
+                return false;
+        }
 
-        Owner.PayCost(StatType.Mana, manaCost);
+        foreach (var statCost in Definition.Costs)
+        {
+            Owner.PayCost(statCost.statType, statCost.value);
+        }
         return true;
     }
 

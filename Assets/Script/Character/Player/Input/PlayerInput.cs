@@ -167,7 +167,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""name"": ""SkillWeapon"",
                     ""type"": ""Button"",
                     ""id"": ""d9107f69-f35f-49e8-869e-cd2af76cdf4d"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": ""Hold"",
                     ""initialStateCheck"": false
@@ -309,7 +309,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""e1def900-e854-4b1e-ba69-11c81ae7e12e"",
-                    ""path"": ""<Keyboard>/#(E)"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

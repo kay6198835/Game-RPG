@@ -1,5 +1,6 @@
+using System;
 using UnityEngine;
-
+[Serializable]
 public class AbilityContext
 {
     public IAbilityOwner Caster;
@@ -10,7 +11,7 @@ public class AbilityContext
     public float HoldTime;
     public float HoldRatio;
 
-    public AbilityInstance AbilityInstance;
+    [NonSerialized] public AbilityInstance AbilityInstance;
     public AbilityDefinition AbilityDefinition;
 
     public IAbilityServices Services;

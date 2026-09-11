@@ -57,8 +57,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     [SerializeField] private bool isResourceReceiver = false;
 
     [Header("Enum Value")]
-    [SerializeField] private SkillState state;
-    [SerializeField] private SkillType skill;
+    // [SerializeField] private SkillState state;
+    // [SerializeField] private SkillType skill;
     [SerializeField] private DisadvantageState disadvantage;
     [SerializeField] private StatusAnimation statusAnimation;
 
@@ -72,8 +72,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     public float AngleRotationPlayer { get => angleRotationPlayer; }
     public float AngleLookDirection { get => angleMouseDirection; }
     public bool IsAttack { get => isAttack; }
-    public SkillState State { get => state; }
-    public SkillType Skill { get => skill; }
+    // public SkillState State { get => state; }
+    // public SkillType Skill { get => skill; }
     public bool IsSkill { get => isSkill; }
     public PlayerInput PlayerInput { get => playerInput; }
     public bool IsDisadvantage { get => isDisadvantage; }
@@ -241,22 +241,19 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         {
             return;
         }
-        skill = SkillType.Special;
         if (context.started)
         {
-            state = SkillState.Start;
             isSkill = true;
-            weaponHolder.Weapon.SetAbility();
-            //fix later
-            //abilityHolder.SetCanUseAbility(true);
+            abilityHolder.GetAbility(AbilitySlot.Primary);
+            abilityHolder.StartHold();
         }
         else if (context.performed)
         {
-            state = SkillState.Cast;
+            //state = SkillState.Cast;
         }
         else if (context.canceled)
         {
-            state = SkillState.Do;
+            abilityHolder.CancelHold();
             isSkill = false;
         }
     }
@@ -266,24 +263,24 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         {
             return;
         }
-        skill = SkillType.Ability;
-        if (context.started)
-        {
-            state = SkillState.Start;
-            isSkill = true;
-            weaponHolder.Weapon.SetAbility();
-            //fix later
-            //abilityHolder.SetCanUseAbility(true);
-        }
-        else if (context.performed)
-        {
-            state = SkillState.Cast;
-        }
-        else if (context.canceled)
-        {
-            state = SkillState.Do;
-            isSkill = false;
-        }
+        // skill = SkillType.Ability;
+        // if (context.started)
+        // {
+        //     state = SkillState.Start;
+        //     isSkill = true;
+        //     weaponHolder.Weapon.SetAbility();
+        //     //fix later
+        //     //abilityHolder.SetCanUseAbility(true);
+        // }
+        // else if (context.performed)
+        // {
+        //     state = SkillState.Cast;
+        // }
+        // else if (context.canceled)
+        // {
+        //     state = SkillState.Do;
+        //     isSkill = false;
+        // }
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {

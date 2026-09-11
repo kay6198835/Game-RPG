@@ -24,10 +24,12 @@ public class PlayerBasicState : PlayerState
         player.Core.GetCoreComponent(out playerMovement);
         player.Core.GetCoreComponent(out vitalStats);
         player.Core.GetCoreComponent(out resourceReceiver);
+        player.Core.GetCoreComponent(out resourceReceiver);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        abilityHolder.Processing();
         if (inputHandler.IsEquip_Unequip)
         {
             if (weaponHolder.FindInteraction())
@@ -59,7 +61,7 @@ public class PlayerBasicState : PlayerState
                 stateMachine.ChangeState(player.AttackState);
                 return;
             }
-            else if (inputHandler.IsSkill 
+            else if (inputHandler.IsSkill
             //&& abilityHolder.CanUseAbility
             )
             {
