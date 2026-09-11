@@ -329,3 +329,79 @@ work lands, since estimation is not the blocker here.
   with it. Owner should confirm whether this is the same effort promoted (update the prototype
   README to `[VALIDATED]`) or a separate implementation.
 - QA plan — 27th+ consecutive cycle with none. Flagged in `sprint-13.md`, deferred to owner.
+
+---
+
+### Thu 2026-09-11 — Daily Standup (autonomous, no owner present)
+
+Checked out `sprint-13` (already current, clean). `git log` since Wed's standup baseline (`01d9c24`)
+shows two new commits: **`a4d1793` "coding"** (2026-09-10 17:19, VIETUNION\kiet.ho) and **`e1c9606`
+"coding"** (2026-09-11 13:47, Kay), plus merge **`6d6a8e4`** — 49 files changed, +653/-311. Re-verified
+content directly against source rather than commit messages:
+
+- **Ability system (skill/skill-item work)**: new `Assets/SO/Skill/ShootSpirit/{ShootSpirit,
+  SpiritBomd}.asset` + `Conditions/New Has Enough Mana Condition.asset`, new
+  `Assets/Prefab/Bullet/SpiritProjcetile.prefab` (195 lines). Reworks to `AbilityHolder.cs` (+125/-…),
+  `PlayerInputHandle.cs` (+55/-…), `AbilityInstance.cs` (+109/-…), `AbilityDefinition.cs`,
+  `PlayerSkillWeaponState.cs`, `HasEnoughManaCondition.cs`, `ShootObjectEffect.cs`,
+  `SpiritOrbProjectile.cs`. Input System binding changes (`PlayerInput.cs`, `.inputactions`).
+- 24 `Knight_SpinAttack_State{1,2,3}_dir N.anim` files tweaked (animation curve edits, small diffs).
+- `PlayerTest.prefab` updated 11 lines; `IObjecPoolService.cs` interface touched 2 lines.
+
+🔴 **Fourth day running, none of the named cheap items landed.** Re-verified all seven directly against
+current source:
+
+- ❌ **S13-03 / BUG-063** — [Stat.cs:63-66](Assets/Script/System/StatSystem/Stat.cs#L64) still wraps
+  `modifiers` in `#if UNITY_EDITOR` / `[SerializeField]`. Unchanged. 29th+ carry.
+- ❌ **S13-06** — no `.git/hooks/pre-push` file exists. Unchanged. 23rd+ carry.
+- ❌ **S13-04 / BUG-065** — [PlayerDeathState.cs:10-13](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10)
+  `Enter()` still only calls `base.Enter()`, no `PlayerMovement` stop. Unchanged.
+- ❌ **S13-01 / BUG-064 item 7** — [RangeWeapon.cs:7](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs#L7)
+  still `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`. Unchanged despite
+  `IObjecPoolService.cs` itself being touched today (a 2-line interface edit, not the DI wiring).
+- ❌ **S13-05 / BUG-066** — [EntityVitalStats.cs:35-63](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs#L35)
+  — `GetCurrentStatValue`, `ReceiverRecovery`, `ReceiveReduction` all still index
+  `currentStats[statType]` directly, no `TryGetValue` guard. Unchanged.
+- ❌ **S13-09 / ADR-0002** — [adr-0002-enemymanager-singleton-exception.md:4](docs/architecture/adr-0002-enemymanager-singleton-exception.md#L4)
+  still `Proposed`. 16th+ carry.
+- ❌ **S13-02 — owner-in-Editor Play Mode smoke session** — still cannot be run autonomously (no Unity
+  CLI in this environment). Unconfirmed across 6+ sprints, still the single highest-leverage item
+  outstanding.
+- ❌ **No QA plan** for Sprint 13 — 29th+ consecutive cycle. `production/qa/qa-plan-sprint-13.md`
+  confirmed absent.
+- ❌ **tests/EditMode, tests/PlayMode** — confirmed still empty (no files besides `.gitkeep`); S13-12
+  (first EditMode test) has no code yet.
+
+📌 Today was scheduled (per the daily plan above) as the DI-ADR + bug-file-backlog + first-test block
+(S13-10/S13-11/S13-12) — but per the sprint's own risk register, that block was contingent on the
+Must-Have backlog landing first. It has not, four days in. Not opening that block on top of an unlanded
+Must-Have backlog, same rationale as Wednesday.
+
+⚠️ **Sprint ends tomorrow (Fri 2026-09-12).** With one day of runway left and 0 of 6 Must-Have items
+landed, and the single required human action (S13-02) still unexecuted, this sprint is on the same
+trajectory as Sprint 11 and Sprint 12 (both closed FAIL on this exact gate). Combined remaining
+Must-Have work is still only ≈0.75d — the blocker has never been estimation, it has been unplanned
+architecture-scale work (resource-receiver Mon, ability-system merge Tue/Wed/Thu) claiming every
+session instead.
+
+**Today's plan** (carry forward, cheapest-first — last full day before sprint close):
+
+| Task | Est. | Risk |
+|------|------|------|
+| S13-03 (BUG-063 `[SerializeField]` removal) | 0.05d | Low — one-line change, comment already explains why |
+| S13-06 (pre-push hook placeholder) | 0.15d | Low — `exit 0` + TODO satisfies acceptance criteria |
+| S13-04 (BUG-065 movement stop) | 0.1d | Low — one `Core.GetCoreComponent` call + `.Stop()` |
+| S13-01 (BUG-064 item 7 DI wiring) | 0.1d | Low — mechanical mirror of `ItemSpawner.cs:8-10`; VContainer confirmed in active use this cycle, zero remaining technical blocker |
+| S13-05 (BUG-066 dictionary guard) | 0.15d | Low — `TryGetValue` × 3, no deps |
+| S13-09 (ADR-0002 → Accepted) | 0.1d | Low — sign-off only, 16th+ carry |
+| S13-02 (owner-in-Editor smoke session) | 0.2d | **Blocked** — needs the human owner in the Unity Editor; last chance this sprint |
+
+Combined (excl. S13-02) ≈0.65d — still fits inside a single remaining day. **Blockers/risks carried:**
+no Unity CLI (S13-02 stays manual/owner-only — 9th+ consecutive sprint this gate has slipped), no `gh`
+CLI (draft PR still manual), no QA plan (29th+ consecutive cycle, deferred to owner), ADR-0002 still
+Proposed (16th+ carry). **Risk escalation:** four consecutive days of unplanned architecture-scale work
+displacing the named cheap items — recommend the owner spend the first 30-45 minutes of Friday on
+exactly these six items before touching the ability system further, since Friday is also the last
+opportunity for S13-02 before this sprint repeats Sprint 11/12's FAIL closure.
+
+- QA plan — 29th+ consecutive cycle with none. Flagged in `sprint-13.md`, deferred to owner.
