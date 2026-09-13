@@ -1,6 +1,6 @@
 ---
 status: authored
-source: Assets/Script/Weapons/MeleeWeapon/, Assets/Script/StatSystem/
+source: Assets/Script/Weapons/MeleeWeapon/, Assets/Script/System/StatSystem/
 date: 2026-08-05
 revised: 2026-08-20 (documentation audit — Implementation Map retargeted from the deleted
 WeaponMelee.cs to Weapon.cs; the "player has no StatsSO" blocker cleared. Design unchanged.)
@@ -8,6 +8,13 @@ verified-by: Kiet
 ---
 
 # Attack Speed System Design
+
+> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The `AttackSpeed` formula and its
+> `DerivedStatFormula` coefficients are unchanged; `StatType.AttackSpeed` is still `105`.
+> Corrections: the stat profile type is now **`BaseStatsSO`** (was `StatsSO`, deleted in
+> `b0512f4`), and `Assets/Script/StatSystem/` is now `Assets/Script/System/StatSystem/`
+> (`1c0742e`). Both are renames — no formula in this document changed.
+
 
 **Status**: In Design
 
@@ -237,7 +244,7 @@ intended before implementing.
 | [`Weapon.cs:49`](../../Assets/Script/Weapons/Weapon.cs) | Replace `player.Anim.speed = 1f` with the resolved `speedMult` (was `WeaponMelee.cs:72`) |
 | [`WeaponStats.cs`](../../Assets/Script/Weapons/WeaponStats.cs) | Add `[SerializeField] protected float baseAttackSpeed = 1f` + property. It sits on the shared base, so it applies to melee and ranged alike |
 | [`AttackSO.cs:11`](../../Assets/Script/Weapons/MeleeWeapon/AttackSO.cs) | `attackRate` gains its layer-3 meaning. It already carries `[Range(0.1f, 10f)]`; tighten to `[Range(0.1f, 2f)]` per the tuning table below |
-| [`StatType.cs:25`](../../Assets/Script/StatSystem/StatType.cs) | Correct the comment from "số đòn / giây" to "% attack speed bonus" |
+| [`StatType.cs:25`](../../Assets/Script/System/StatSystem/StatType.cs) | Correct the comment from "số đòn / giây" to "% attack speed bonus" |
 | [`GameConstants.cs`](../../Assets/Script/Utility/GameConstants.cs) | Add `MIN_SPEED_MULT` / `MAX_SPEED_MULT` under `SettingStats` |
 | `Player.Stats` | Already exists (`Player.cs:21`) — read layer 2 through `player.Stats.GetStatValue(StatType.AttackSpeed)`. No new component required |
 
@@ -249,7 +256,7 @@ point allocation unless `isDevMode` is on (TD-038).
 Existing helpers to reuse — do not reimplement:
 [`Utility.DurationNextAttack()`](../../Assets/Script/Utility/Utility.cs),
 [`Utility.GetOverrideClips()`](../../Assets/Script/Utility/Utility.cs),
-[`StatsSO.GetStatValue()`](../../Assets/Script/StatSystem/StatsSO.cs).
+[`StatsSO.GetStatValue()`](../../Assets/Script/System/StatSystem/StatsSO.cs).
 
 ---
 

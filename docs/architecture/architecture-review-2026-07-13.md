@@ -1,3 +1,13 @@
+> 📅 **HISTORICAL SNAPSHOT — 2026-07-13. Not a current assessment.** (Banner added 2026-09-11.)
+> This report's CONCERNS verdict, its coverage matrix and its "8 GDDs · 3 ADRs" counts describe the
+> project as it stood on 2026-07-13. Since then: a fourth ADR was added (ADR-0004, VContainer DI),
+> ADR-0001's subject class (`StatsSO`) was deleted, seven directories moved under
+> `Assets/Script/System/` (`1c0742e`), and three further systems shipped with no architecture doc
+> (Item, Abilities v2, and DI before ADR-0004). Kept in place as the record of that review.
+> For current architecture coverage see `design/gdd/systems-index.md` and `docs/architecture/`.
+
+---
+
 # Architecture Review Report
 
 > **Date**: 2026-07-13

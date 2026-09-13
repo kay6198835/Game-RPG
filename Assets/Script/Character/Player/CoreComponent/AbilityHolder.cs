@@ -54,7 +54,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         {
             pair.Value.Tick(dt);
         }
-        HandleInput();
     }
 
     public float GetCurrentStatValue(StatType statType)
@@ -70,7 +69,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     {
         if (definition == null) return;
 
-        _equipped[slot] = new AbilityInstance(definition, this);
+        _equipped[slot] = new AbilityInstance(definition, this, services);
     }
 
     public void Unequip(AbilitySlot slot)
@@ -89,16 +88,17 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         return instance;
     }
 
-    public SkillState State => currentAbility?.State ?? SkillState.None;
-// Check logic gọi đúng vị trí, nhưng chưa xử lý logic trong các state.
-//  Cần bổ sung logic cho từng state trong phương thức HandleInput() và các phương thức liên quan.
-    private void HandleInput()
+    public SkillState State => currentAbility?.State ?? SkillState.Start;
+    // Check logic gọi đúng vị trí, nhưng chưa xử lý logic trong các state.
+    //  Cần bổ sung logic cho từng state trong phương thức HandleInput() và các phương thức liên quan.
+    public void HandleInput()
     {
         if (currentAbility == null) return;
         var instance = currentAbility;
         var def = instance.Definition;
         if (def == null)
             return;
+        Debug.Log("HandleInput: "+instance.State);
         switch (instance.State)
         {
             case SkillState.Start:
@@ -112,7 +112,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
                 break;
             case SkillState.Exit:
                 instance.Exit();
-                currentAbility = null;
                 break;
         }
     }
@@ -126,6 +125,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     {
         IsHolding = true;
         currentAbility.StartHold();
+        currentAbility.ChangeState(SkillState.Start);
     }
 
     public void CancelHold()

@@ -3,6 +3,12 @@
 ## Status
 Proposed
 
+> **⚠️ Amended 2026-09-11 — the class this ADR is written about no longer exists.**
+> Read the **Amendment (2026-09-11)** section at the end before acting on anything below.
+> In short: `StatsSO` was deleted (`b0512f4`) and replaced by `BaseStatsSO` (`1c0742e`), the
+> decision itself still holds unchanged, and the data-corruption hazard this ADR warns about
+> has **regressed** and is open as BUG-063.
+
 ## Date
 2026-07-06
 
@@ -131,3 +137,61 @@ Status. This is the reason the dual structure exists — any issue or warning as
 
 ## Related Decisions
 - Assets/Script/StatSystem/StatsSO.cs, Stat.cs (current implementation)
+
+
+---
+
+## Amendment (2026-09-11) — `StatsSO` → `BaseStatsSO`
+
+Recorded during the full documentation/code re-synchronisation. Verified against HEAD `6d6a8e4`.
+
+### What changed in the code
+
+| Before | After | Commit |
+|---|---|---|
+| `StatsSO : ScriptableObject` | `BaseStatsSO : ScriptableObject` | `b0512f4` (delete), `1c0742e` (add) |
+| `EntityStatsSO` (separate, broken — recursive `ModifiersAmor` property, NEW-2) | `EnemyStatSO : BaseStatsSO` | `b0512f4` |
+| `Assets/Script/StatSystem/` | `Assets/Script/System/StatSystem/` | `1c0742e` |
+| — | `StatPointAllocator` added (allocation session: accept / revert / restore) | `aa4e620` |
+
+### What did NOT change
+
+**The decision in this ADR stands unmodified.** `BaseStatsSO` keeps the same dual structure and the
+same public surface that the Decision section describes: `Get()`, `GetStat()`, `GetStatValue()`,
+`AddModifiersFromSource()`, `RemoveModifiersFromSource()`, `AddPrimaryPoint()`,
+`GetStatUnusedBonus()`, `OnStatChanged`, plus `StatsViewDTO`. This was a rename and a base-class
+extraction, not a redesign — everywhere this ADR says `StatsSO`, read `BaseStatsSO`.
+
+`StatModifierGroup` is likewise unchanged: still a plain `[System.Serializable]` class embedded in
+`WeaponStats`, with its `authoredModifiers` field correctly still serialized.
+
+### ⚠️ The hazard this ADR warns about has regressed
+
+The Consequences section warns that serializing runtime modifier state corrupts committed `.asset`
+files. That hazard was closed on 2026-08-21 (`f5de65a`, recorded as NEW-4 / TD-038) and has since
+been **reopened**:
+
+```csharp
+// Assets/Script/System/StatSystem/Stat.cs:63-65
+#if UNITY_EDITOR
+[SerializeField]
+#endif
+private List<StatModifier> modifiers = new List<StatModifier>();
+```
+
+The `#if UNITY_EDITOR` guard does not help: Unity serializes assets *in the Editor*, which is
+exactly where the leak happened. The incident it caused is on record — two `STR +1 Flat` modifiers
+reached `PlayerStats.asset` and `Test.asset` and were committed to git, requiring a manual cleanup
+on `sprint-10`. This is tracked as **BUG-063**, open, with a documented one-line fix, carried for
+24+ triage cycles.
+
+The extensive warning comment directly above that field in source still says "**KHÔNG BAO GIỜ thêm
+`[SerializeField]` vào field này**" ("NEVER add `[SerializeField]` to this field"). The attribute
+was added anyway. A comment was not a sufficient guard — which is itself a finding worth carrying
+into any future decision here.
+
+### Status of this ADR
+
+Still `Proposed` after 9+ weeks (TD-003). Two of the three ADRs in this project have never been
+ratified. Whether the dual structure is *accepted* or merely *tolerated* has never been decided,
+and the `Dictionary` half was never removed as the Decision anticipated.

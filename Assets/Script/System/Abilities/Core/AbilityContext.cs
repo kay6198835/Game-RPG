@@ -14,7 +14,7 @@ public class AbilityContext
     [NonSerialized] public AbilityInstance AbilityInstance;
     public AbilityDefinition AbilityDefinition;
 
-    public IAbilityServices Services;
+    [NonSerialized] public IAbilityServices Services;
 }
 
 public interface IAbilityServices

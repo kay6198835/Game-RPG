@@ -7,6 +7,16 @@ Proposed
 > The shipped `EnemyManager` does not do what the Decision below describes. The singleton
 > exception has been re-scoped to the role the class actually fills (pathfinding service), and
 > the room-combat lifecycle this ADR assigns to it lives elsewhere, uncovered by any ADR.
+>
+> **⚠️ Further amended 2026-09-11 (path + DI note).** Two facts changed under this ADR without it
+> being touched:
+> 1. `EnemyManager.cs` moved from `Assets/Script/Enemy/` to **`Assets/Script/System/Enemy/`**
+>    (`1c0742e`, 2026-09-03). Every path reference below predates that move.
+> 2. **ADR-0004 (VContainer) supersedes the premise of this exception.** This ADR argued a
+>    singleton was needed because no cross-system resolution mechanism existed. One exists now.
+>    The exception is retained — not because it is still *necessary*, but because
+>    `EntityMovement.Start()` reads `EnemyManager.Instance.Grid` on **runtime-spawned** enemies,
+>    the one case DI handles worst. See ADR-0004 Open Question #2 for the deferred re-evaluation.
 
 ## Date
 2026-07-09

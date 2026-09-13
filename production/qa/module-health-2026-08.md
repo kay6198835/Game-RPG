@@ -1,3 +1,14 @@
+> 📅 **HISTORICAL SNAPSHOT — 2026-08-03. Not a current assessment.** (Banner added 2026-09-11.)
+> Every CRITICAL verdict in the scorecard below has since been resolved: Bug #9
+> (`AnimationPlayerController`) is fixed, BUG-044 is fixed (its overstated scope became BUG-065),
+> BUG-041/BUG-032 are superseded by the `MeleeWeapon` rewrite and the deletion of
+> `EntityWeaponMelee`, and TD-008/TD-009/TD-012/TD-021 are closed. The `skill-ability-system.md`
+> "HEALTHY" verdict is also stale — a second ability framework was promoted into production on
+> 2026-09-09. Kept in place as the record of the August audit cycle.
+> For current module state see `memory/project_state.md` and `production/qa/bugs/`.
+
+---
+
 # Module Quality Audit — August 2026
 
 **Run**: 2026-08-03 (autonomous scheduled run — `pm-monthly-module-audit`, first Monday of month)

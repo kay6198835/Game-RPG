@@ -11,9 +11,19 @@ globs: ["Assets/Script/Character/Player/Core/**/*.cs", "Assets/Script/Character/
 - Core components may NOT depend on specific state implementations — only on interfaces
 
 ## Dependency Rules
-- Core.cs and EntityCore.cs are the ONLY permitted component hubs — no new singleton hubs
-- `MazeController` and `EnemyManager` (ratified exception — ADR-0002) are the only permitted global singletons — all other systems use GetComponent or Inspector refs
-- Components discover siblings via `Core.GetCoreComponent<T>()` pattern, never direct field references
+
+> Amended 2026-09-11. VContainer (`aa4e620`, 2026-08-22) introduced a third resolution
+> mechanism that this section did not acknowledge for three sprints. See ADR-0004.
+
+- Core.cs and EntityCore.cs are the ONLY permitted **component hubs** — no new singleton hubs
+- `MazeController` and `EnemyManager` (ratified exception — ADR-0002) are the only permitted global singletons
+- Components discover **siblings** via `Core.GetCoreComponent<T>()`, never direct field references
+- Components receive **cross-system services** via VContainer constructor injection
+  (`[Inject] public void Construct(IService s)`), registered in `GameLifetimeScope.Configure()`
+- `GameLifetimeScope` is a composition root, not a hub: it wires object graphs and holds no
+  gameplay state and no gameplay logic. Adding logic to it is the same violation as adding a hub
+- Every injected dependency is exposed **behind an interface** in
+  `System/LifetimeScope/Interface/` — never inject a concrete MonoBehaviour type
 
 ## Interface-First
 - New capabilities must be expressed as interfaces first (`INegativeReceiver`, `IEffectable`, `IInteractable`)

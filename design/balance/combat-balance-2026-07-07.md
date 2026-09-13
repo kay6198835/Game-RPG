@@ -1,3 +1,20 @@
+> 📅 **HISTORICAL SNAPSHOT — 2026-07-07.** (Banner added 2026-09-11.)
+> The balance numbers and progression curves below were **not** re-derived in the 2026-09-11 audit
+> and may still be valid — but two of the four source files this document cites no longer exist at
+> those paths:
+>
+> | Cited source | Status |
+> |---|---|
+> | `Assets/Script/StatSystem/DerivedStatFormula.cs` | moved → `Assets/Script/System/StatSystem/DerivedStatFormula.cs` (`1c0742e`) |
+> | `StatsSO.cs` | **deleted** (`b0512f4`) → superseded by `BaseStatsSO.cs` (same API surface) |
+> | `stat_system.xlsx` | unchanged, but `stat_system_formula_reference.xlsx` is now the source of truth per `CLAUDE.md` |
+> | `character-system.md`, `game-concept.md` | unchanged |
+>
+> Re-validate against `ToolExcel/stat_system_formula_reference.xlsx` and
+> `Assets/SO/Stat/*.asset` before using these numbers for tuning.
+
+---
+
 # Combat Balance — Player / Enemy Ranks / Boss (Levels 1–20)
 
 **Date:** 2026-07-07

@@ -7,7 +7,7 @@ using UnityEngine;
 public class SpiritOrbProjectile : MonoBehaviour
 {
     private Rigidbody2D _rb;
-    private float _damagePerTick;
+    private float _damage;
     private float _duration;
     private GameObject _summonPrefab;
     private IObjecPoolService _pool;
@@ -22,10 +22,10 @@ public class SpiritOrbProjectile : MonoBehaviour
     }
 
     public void Launch(Vector2 direction, float speed, float lifetime,
-                       float damagePerTick, float duration, GameObject summonPrefab, IObjecPoolService pool, Action<INegativeReceiver, Vector2> callbackMethod)
+                       float damage, GameObject summonPrefab, IObjecPoolService pool, Action<INegativeReceiver, Vector2> callbackMethod)
     {
-        _damagePerTick = damagePerTick;
-        _duration = duration;
+        _damage = damage;
+        _duration = lifetime;
         _summonPrefab = summonPrefab;
         _pool = pool;
         _callbackMethod = callbackMethod;

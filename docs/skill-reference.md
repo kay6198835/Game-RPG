@@ -1,8 +1,8 @@
 # Studio Skill Reference
 
 > Quick-lookup guide to all Claude Code skills available in this project, grouped by
-> development phase. Generated 2026-06-08 from `.claude/skills/`; re-synced 2026-08-21
-> against the 79 skills then on disk (6 were missing, and three stale counts were corrected).
+> development phase. Generated 2026-06-08 from `.claude/skills/`; re-synced **2026-09-11**
+> against the **80** skill files on disk. (Previous re-sync 2026-08-21 counted 79.)
 >
 > Invoke any skill with `/skill-name [argument]`. See `production/review-schedule.md`
 > for which skills run on a recurring cadence (weekly/monthly).
@@ -41,7 +41,7 @@
 | Skill | Purpose | When to use |
 |---|---|---|
 | `/create-architecture` | Authors the master architecture document from all GDDs + engine reference | Before writing code, after GDDs are approved |
-| `/architecture-decision` | Creates one ADR (Architecture Decision Record) documenting a significant technical decision | Every major technical choice (this project has **3 ADRs** as of 2026-08-21; `Pathfinding/` and `Character/Base/` are still uncovered — BUG-052) |
+| `/architecture-decision` | Creates one ADR (Architecture Decision Record) documenting a significant technical decision | Every major technical choice (this project has **4 ADRs** as of 2026-09-11 — ADR-0004 covers VContainer DI and was written 20 days *after* the decision shipped. `Pathfinding/`, `Character/Base/`, the Item system and Abilities v2 remain uncovered — BUG-052) |
 | `/architecture-review` | Builds a traceability matrix mapping GDD requirements to ADRs, finds coverage gaps/conflicts | Monthly review (Part 2) |
 | `/create-control-manifest` | Produces a flat, actionable rules sheet for programmers extracted from ADRs | After architecture is complete |
 

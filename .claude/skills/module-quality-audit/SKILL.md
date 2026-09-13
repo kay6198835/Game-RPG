@@ -8,6 +8,12 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
 
 # Module Quality Audit
 
+> **Path note (2026-09-11):** scan paths referenced by this skill were repointed after commit
+> `1c0742e` moved seven directories under `Assets/Script/System/`. If a module scan returns
+> nothing, check the path before concluding the module is unchanged — that reorganisation
+> silently hid whole modules from path-based tooling.
+
+
 Monthly health check across every system module, plus a change-impact pass that
 catches when new work silently touches a module whose design was already
 locked in. Two questions this skill exists to answer every month:
@@ -57,8 +63,8 @@ context vs. a live chat turn).
      not a flag.
 
 3. Map each module to its owning code path using `CLAUDE.md`'s Repository
-   Layout section (e.g. `skill-ability-system.md` → `Assets/Script/Skill_Ability/`,
-   `enemy-spawn-system.md` → `Assets/Script/Enemy/` + `Assets/Script/Database-SO/Modal/`).
+   Layout section (e.g. `skill-ability-system.md` → `Assets/Script/System/Skill_Ability/`,
+   `enemy-spawn-system.md` → `Assets/Script/System/Enemy/` + `Assets/Script/Database-SO/Modal/`).
    If a module has no doc-gap note already, use `CLAUDE.md`'s existing "Checking
    for Documentation Gaps" output as a cross-check.
 

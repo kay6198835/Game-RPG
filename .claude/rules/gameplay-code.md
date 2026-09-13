@@ -21,12 +21,43 @@ globs: ["Assets/Script/Character/**/*.cs", "Assets/Script/Weapons/**/*.cs", "Ass
 - Cache `GetComponent<>()` results in `Awake()` — never call in `Update()`
 
 ## Damage and Health
-- All damage flows through `INegativeReceiver.TakeDamage(int amount, Vector2 attackPosition)`
+
+> Signature corrected 2026-09-11. The parameter became `float` in the Sprint 12 stat refactor
+> (`f3f5f08`); this rule said `int` for three sprints, so code written to it would not compile.
+
+- All damage flows through `INegativeReceiver.TakeDamage(float amountDamage, Vector2 attackPosition)`
 - No MonoBehaviour may directly mutate another entity's health field
 - Health changes must go through the Core/EntityCore component hub
+- **Max vs current values are separate components.** Max comes from the stat profile
+  (`StatHandler` / `EntityStatsHandler`, backed by `BaseStatsSO`); current comes from the vitals
+  component (`VitalStatsComponent` / `EntityVitalStats`). Never read a max value where you mean
+  a current one
+- Mitigation belongs in the receiver, not the attacker — see
+  `EntityNegativeReciver.DamageCalculate()`, which subtracts `StatType.Defense` and clamps at 0
+
+## Dependency Resolution
+
+> Added 2026-09-11. VContainer was adopted in `aa4e620` (2026-08-22) and went three sprints
+> undocumented. See ADR-0004.
+
+Three mechanisms, and they are not interchangeable:
+
+| Need | Use |
+|---|---|
+| A sibling core component on the same character | `Core.GetCoreComponent<T>(out var c)` |
+| A cross-system service (pooling, player lookup, player stats) | VContainer `[Inject] public void Construct(IService s)` |
+| Scene-authored data (SO assets, tilemaps, prefab refs) | `[SerializeField] private` Inspector ref |
+
+- New services are registered in `GameLifetimeScope.Configure()` and exposed **behind an
+  interface** (`IObjecPoolService`, `IPlayerService`, `IPlayerStatService`)
+- `RegisterComponentInHierarchy<T>()` finds, never spawns — a component missing from the scene
+  throws at `Awake()`. Do not register anything that is instantiated at runtime; pooled objects
+  are injected by `Pool.Spawn()` instead
+- Do not resolve the container manually (`IObjectResolver.Resolve<T>()` in gameplay code) — that
+  is service-location, not injection
 
 ## Forbidden Patterns
-- `GameObject.Find()`, `FindObjectOfType()`, `SendMessage()` — use Inspector refs or EventManager
+- `GameObject.Find()`, `FindObjectOfType()`, `SendMessage()` — use Inspector refs, DI, or EventManager
 - `public` fields on MonoBehaviours — use `[SerializeField] private` + properties
 - Coroutines that can leak (no `StopCoroutine` pairing) — prefer state machine transitions
 

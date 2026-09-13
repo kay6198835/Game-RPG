@@ -73,7 +73,6 @@ public class StatCost
 
 public enum SkillState
 {
-    None,
     Start,
     Cast,
     Do,

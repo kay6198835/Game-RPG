@@ -7,6 +7,23 @@ verified-by: Kiet
 
 # Weapons System Design
 
+> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The weapon lifecycle, combo-stage model and
+> `AttackSO` tuning knobs below still match the code. Three corrections:
+>
+> - `INegativeReceiver.TakeDamage` now takes a **`float`**, not an `int`. Any formula below that
+>   assumes integer damage should be read as float.
+> - `EntityWeaponMelee.cs` has been **deleted** (BUG-043 / BUG-046 closed).
+>   `MeleeWeapon.OnActivate()` is the single reference implementation for melee hit detection.
+>   ⚠️ `EntityAttack.Attack()` still duplicates it and hardcodes `TakeDamage(10, …)` (BUG-043, open).
+> - `WeaponStats.AbilityWeapon` / `.SkillWeapon` still hold **`ActivateSkill`** (Abilities v1).
+>   The player's own ability slots moved to the v2 `AbilityDefinition` framework on 2026-09-09, so
+>   weapons and the player now run *different* ability systems — see the banner in
+>   `design/gdd/skill-ability-system.md`.
+>
+> ⚠️ `RangeWeapon`'s VContainer wiring is incomplete — **BUG-064 sub-item 7**, the last open piece
+> of the Sprint 12 refactor.
+
+
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet
 > implemented. Sections marked **[BUG]** identify known defects.

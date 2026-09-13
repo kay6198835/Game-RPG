@@ -11,33 +11,36 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
 
     }
 
-    // Check State hiện tại kích hoạt nhưng không thấy cập nhật trạng thái
     public override void Enter()
     {
         player.Core.GetCoreComponent(out abilityHolder);
         base.Enter();
-        //fix later
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
     }
-    public override void AnimationFinishTrigger()
+
+    public override void AnimationStart()
     {
-        base.AnimationFinishTrigger();
-        int stateHash = 0;
+        base.AnimationStart();
+    }
+
+    public override void AnimationOnAction()
+    {
+        base.AnimationOnAction();
         switch (abilityHolder.State)
         {
-            case SkillState.Start:
-                break;
             case SkillState.Cast:
                 if (!abilityHolder.IsHolding)
                 {
-                    Debug.Log("Finish Cast");
-                    stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
                     player.Anim.SetBool("DoAB", true);
-                    player.Anim.Play(stateHash, 0, 0f);
                 }
                 break;
+            case SkillState.Do:
+                player.Anim.SetBool("DoAB", false);
+                break;
         }
+        abilityHolder.HandleInput();
+        Status = StatusAnimation.OffActivate;
     }
 
     public override void AnimationEnd()
@@ -46,22 +49,24 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
         switch (abilityHolder.State)
         {
             case SkillState.Do:
-                // int stateHash = player.Anim.GetCurrentAnimatorStateInfo(0).fullPathHash;
-                // player.Anim.Play(stateHash, 0, 0f);
-                player.Anim.SetBool("DoAB", false);
                 base.LogicUpdate();
                 break;
         }
+    }
+
+    override public void LogicUpdate()
+    {
+        base.LogicUpdate();
+        abilityHolder.Processing();
     }
 
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
     }
+    
     public override void Exit()
     {
-        //fix later
-        //abilityHolder.ExitAbility();
         base.Exit();
     }
 }

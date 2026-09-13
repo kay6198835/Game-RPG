@@ -1,8 +1,17 @@
-  # CLAUDE.md
+# CLAUDE.md
 
   This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-  > **Last updated:** 2026-08-28 (commit b0512f4) — Major refactor: removed duplicate/broken enemy systems (EntityStatsSO, EntityFindTarget, EntityWeaponMelee), fixed initialization order, fixed PlayerDeathState construction, fixed null-check order in EnemySpawner. **6 bugs fixed:** BUG-042, BUG-043, BUG-044, BUG-046, BUG-033, NEW-2.
+  > **Last updated:** 2026-09-11 (HEAD `6d6a8e4`) — Full documentation/code re-synchronisation.
+  > Four structural changes that had landed with no doc update are now recorded here:
+  > (1) the whole-tree move of seven directories under `Assets/Script/System/` (`1c0742e`),
+  > (2) the adoption of **VContainer 1.19.0** dependency injection (`aa4e620`),
+  > (3) the deletion of `StatsSO` in favour of `BaseStatsSO` / `EnemyStatSO` (`b0512f4`, `1c0742e`),
+  > (4) the promotion of the `prototypes/skill-enhance-abilities` framework into
+  > `Assets/Script/System/Abilities/` (`9b8d40f`, `5c7afba`).
+  > **Bug status corrected:** BUG-053 is FIXED; BUG-044's "stops PlayerMovement" claim was false
+  > (now BUG-065); NEW-4 has REGRESSED (now BUG-063). See `docs/CHANGELOG-DOCS.md` for the full
+  > per-document trail.
 
   ## Engine Version Reference
 
@@ -21,12 +30,18 @@
   ## Unity Environment
 
   - **Unity:** 2022.3.62f3 LTS
-  - **Key packages:** Input System 1.14.0, TextMeshPro 3.0.7, 2D Feature Pack, Visual Scripting 1.9.4, DOTween
+  - **Key packages:** Input System 1.14.0, TextMeshPro 3.0.7, 2D Feature Pack 2.0.1, Visual Scripting 1.9.4, Timeline 1.7.7, **VContainer 1.19.0** (DI, git package), DOTween (Asset Store import, not in `manifest.json`)
   - **Open project:** Unity Hub → Open → `d:/Fork/Game-RPG`
   - **Main dev scene:** `Assets/Scenes/Main/Test/LoadRandomMap.unity` (the old `RandomMaze.unity` no longer exists)
   - **Play/test:** Enter Play Mode in the Unity Editor — no separate build step for development
   - **Compile check:** Any `.cs` edit triggers auto-recompile; errors appear in the Console window
   - **IDE:** Open `Game-RPG.sln` in Rider or Visual Studio for IntelliSense
+
+  > ⚠️ **A `GameLifetimeScope` must be present in any playable scene.** Since `aa4e620` the project
+  > uses VContainer: `Player`, `PlayerManager`, `StatHandler`, `EnemySpawner`, `ItemSpawner`,
+  > `ObjectPoolManager`, `RoomGeneraterController`, `StatsUIController` and `AbilityHolder` are
+  > resolved through the container. `RegisterComponentInHierarchy<T>()` only *finds* — it never
+  > spawns — so a missing component in the scene hierarchy throws at `Awake()`, not at first use.
 
   There are no standalone build, lint, or test CLI commands — all development happens through the Unity Editor.
 
@@ -34,13 +49,24 @@
 
   ## Repository Layout
 
-  > Verified against source on 2026-08-20. Filenames below are the real ones on disk — several
-  > classes were renamed during the Sprint 8–10 refactor (`NewPlayer.cs`→`Player.cs`,
-  > `WeaponMelee.cs`→`MeleeWeapon.cs`, `WeaponMeleeStats.cs`→`MeleeWeaponStats.cs`).
+  > **Re-verified against source on 2026-09-11 (HEAD `6d6a8e4`).** The tree below reflects the
+  > 77-rename reorganisation in `1c0742e` ("update folder", 2026-09-03), which moved seven
+  > top-level directories under `Assets/Script/System/`. Every path in every document that
+  > predates that commit is wrong; see `docs/CHANGELOG-DOCS.md`.
+  >
+  > | Was (docs still say this) | Is now |
+  > |---|---|
+  > | `Assets/Script/Enemy/` | `Assets/Script/System/Enemy/` |
+  > | `Assets/Script/Pathfinding/` | `Assets/Script/System/Pathfinding/` |
+  > | `Assets/Script/Poolable/` | `Assets/Script/System/PoolableService/` (renamed too) |
+  > | `Assets/Script/StatSystem/` | `Assets/Script/System/StatSystem/` |
+  > | `Assets/Script/Skill_Ability/` | `Assets/Script/System/Skill_Ability/` |
+  > | `Assets/Script/Item/` | `Assets/Script/System/Item/` |
+  > | `Assets/Script/LifetimeScope/` | `Assets/Script/System/LifetimeScope/` |
 
   ```
   Assets/
-    Script/                                     # ALL gameplay code in Assets/ — single source of truth again since 2026-08-22 (the second ability framework moved to prototypes/, see below)
+    Script/                                     # ALL gameplay code — 194 .cs files, ~11k lines
       Character/
         Base/                                   # Shared hub + state-machine layer under BOTH Player and Entity
           BaseEntity.cs                         # MonoBehaviour base: Awake/Start/Update/FixedUpdate ticks CurrentState
@@ -49,13 +75,16 @@
           StateMachine.cs                       # Generic StateMachine<TState>: Initialize / ChangeState
           IState.cs                             # Enter / Exit / LogicUpdate / PhysicsUpdate
           StatusAnimation.cs                    # Enum: None, Start, Animaing, StartRangeTrigger, OnActivate, OffActivate, EndRangeTrigger, End
+          StatusBase.cs                         # ✅ NEW (2026-09-08, `9b8d40f`) — shared status base
           DirectionResolver.cs                  # Static: Vector2 → angle → 8-direction index
           Interface/
             ICore.cs                            # AddCoreComponent / GetCoreComponent<T> / Setup
             ICoreComponent.cs                   # Marker + ICoreComponent<out T> (both currently memberless)
             ICharacter.cs                       # ⚠️ Empty, zero implementers, zero references — dead API
+        Boss/                                   # ⚠️ ORPHAN — only three `.meta` files, no `.cs`. Left behind when the
+                                                # boss feature (`ffe1976`) was reverted (`4421fdc`, `ff67f4d`). Safe to delete
         Player/
-          Player.cs                             # Player MonoBehaviour (extends BaseEntity) — creates states in Awake, exposes Core/Anim/Rigidbody/StatsSO
+          Player.cs                             # Player MonoBehaviour (extends BaseEntity) — creates 9 states in Awake; exposes Core/Anim/Rigidbody/Data/**Stats (BaseStatsSO)**
           PlayerState.cs                        # Base state: animBool, `StatusAnimation Status`, startTime, SetAnimationStatus()
           PlayerStateMachine.cs                 # `: StateMachine<PlayerState>`
           PlayerData.cs                         # SO: maxHealth, currentHealth, movementVelocities, Reborn() (⚠️ Reborn has no caller)
@@ -68,15 +97,21 @@
             PlayerInputHandle.cs                # ⚠️ file name vs class: class is `PlayerInputHandler`. New Input System; implements IAimProvider; 8-direction angles; BufferIsAttack
             PlayerMovement.cs                   # rb.velocity wrapper
             WeaponHolder.cs                     # Equip/UnEquip; Attack() / MakeDamage() / EndDamage() / CanAttack() / CanChain()
-            AbilityHolder.cs                    # Skill state machine Start→Cast→Do per frame
+            AbilityHolder.cs                    # ⚠️ REWRITTEN — now `: CoreComponent<Core>, IAbilityOwner`, drives the **Abilities v2**
+                                                # framework (`AbilityInstance` / `SkillState`), NOT `ActivateSkill`. Takes `IObjecPoolService` via `[Inject]`
+            StatHandler.cs                      # ✅ NEW — `: CoreComponent<Core>, IPlayerStatService`; read/write façade over `BaseStatsSO`
+            VitalComponent.cs                   # ✅ NEW — ⚠️ file name vs class: class is `VitalStatsComponent`. `: CoreComponent<Core>, IVitalComponent`.
+                                                # Owns CURRENT stat values in a `Dictionary<StatType, float>`; max values come from StatHandler
+            ResourceReceiver.cs                 # ✅ NEW — `: Interact, INegativeReceiver, IResourceReceiver`; item pickup / buff / recovery entry point
+            NegativeReciver.cs                  # ⚠️ REWRITTEN — now routes damage into `VitalStatsComponent.ReceiveReduction(StatType.HP, …)`.
+                                                # No longer decrements a private field, and no longer emits ON_PLAYER_DEATH (that moved to PlayerDeathState)
             Interact.cs                         # Base: OverlapCircleNonAlloc + nearest-by-mouse
             Interactor.cs                       # FindInteraction via OverlapCircle
-            NegativeReciver.cs                  # ✅ CoreComponent implementing INegativeReceiver — decrements its own `currentHealth`, emits ON_PLAYER_DEATH. ⚠️ does NOT write PlayerData.currentHealth (story S10-08)
             TalentManager.cs                    # ⚠️ file name vs class: class is `TalentManagger`. Plain MonoBehaviour, stats hardcoded in Awake (TD-018)
           Animation/
             AnimationName.cs                    # ⚠️ an empty ScriptableObject stub — the real constants live in GameConstants.AnimationName
             AnimationPlayerController.cs        # ✅ Bug #9 FIXED — OnEnable/OnDisable register all five AnimationEventIds correctly
-          States/                               # All player states (sub + super flattened)
+          States/                               # All player states (sub + super flattened) — 9 constructed in Player.Awake()
             PlayerBasicState.cs                 # Shared: attack/skill/equip/interact/damage transitions
             PlayerUseWeaponState.cs             # Freezes movement, exits on animFinish
             PlayerDisadvantageState.cs
@@ -84,52 +119,122 @@
             PlayerAttackState.cs                # StatusAnimation-driven: OnActivate → WeaponHolder.MakeDamage(); EndRangeTrigger → chain or exit
             PlayerSkillWeaponState.cs           # Drives AbilityHolder each frame
             PlayerTakeDamageState.cs
-            PlayerDeathState.cs                 # ✅ `: PlayerDisadvantageState`, now constructed in Player.Awake() (BUG-044 FIXED 2026-08-28), stops PlayerMovement on Enter()
+            PlayerDeathState.cs                 # `: PlayerDisadvantageState`, constructed in Player.Awake():58, emits ON_PLAYER_DEATH on EndRangeTrigger.
+                                                # ⚠️ Enter() no longer stops PlayerMovement — **BUG-065 OPEN**
+            PlayerResourceReceiverState.cs      # ✅ NEW (2026-09-07, `9f1258c`) — item pickup state
             PlayerEquidUnequid.cs, PlayerIntertorState.cs
             PlayerUserItemState.cs              # ⚠️ Stub — extends MonoBehaviour (wrong base class, TD-001)
           Projectile/
             Projectile.cs                       # Raycast hit → INegativeReceiver.TakeDamage()
             Spell.cs                            # Extends Projectile; also calls IEffectable.ApplyEffect()
         Entity/                                 # Enemy AI framework
-          Entity.cs                             # Enemy MonoBehaviour (extends BaseEntity): builds Idle/Move/Attack/TakeDamage/Death states
+          Entity.cs                             # Enemy MonoBehaviour (extends BaseEntity): builds Idle/Move/Attack/TakeDamage/Death states; exposes `Data` (EntityData)
           EntityData.cs                         # SO: statsSO, layerMask, animatorOV, FOV, idle/move duration, attack range, WeaponSO
           EntityStateMachine.cs, EntityState.cs
           Core/
-            EntityCore.cs                       # `: CoreBase` — ✅ no longer implements INegativeReceiver (BUG-042 FIXED 2026-08-28)
+            EntityCore.cs                       # `: CoreBase` — ✅ no longer implements INegativeReceiver (BUG-042 FIXED)
             EntityCoreComponent.cs
           CoreComponent/
-            EntityInput.cs                      # Implements IAimProvider. ✅ Removed `GetTargetInRange()` comment (NEW-1 FIXED 2026-08-28) — awaits reimplementation with null guards + NonAlloc queries
-            EntityAttack.cs                     # ⚠️ second attack implementation still exists alongside EntityWeapon (BUG-043); hardcodes TakeDamage(10, …)
-            EntityNegativeReciver.cs            # ⚠️ copy-pasted player logic on an enemy component: resolves PlayerInputHandler off EntityCore and emits ON_PLAYER_DEATH (BUG-053)
+            EntityInput.cs                      # Implements IAimProvider; OnTakeDamage(attackPosition) hook
+            EntityFindTarget.cs                 # ⚠️ STILL PRESENT (an earlier CLAUDE.md header wrongly claimed it was deleted).
+                                                # FOV + range + obstacle mask target search; consumed by EntityAttack
+            EntityAttack.cs                     # ⚠️ second attack implementation still exists alongside EntityWeapon (BUG-043 partial); hardcodes TakeDamage(10, …)
+            EntityNegativeReciver.cs            # ✅ **BUG-053 FIXED** (`f3f5f08`, verified 2026-09-06) — implements INegativeReceiver,
+                                                # applies Defense via DamageCalculate(), writes EntityVitalStats, refreshes EntityUIController.
+                                                # No PlayerInputHandler, no ON_PLAYER_DEATH
+            EntityVitalStats.cs                 # ✅ NEW — current HP/stat store. ⚠️ unguarded `currentStats[statType]` → **BUG-066 OPEN**
+            EntityStatsHandler.cs               # ✅ NEW — max-stat façade over the entity's stat SO
+            EntityUIController.cs               # ✅ NEW — per-enemy health bar driver
             EntityMovement.cs                   # Chase / flee / wander; pulls the grid from EnemyManager.Instance
-            EntityWeapon.cs, EntityWeaponHolder.cs, EntityEffectStats.cs, EntityVitalStats.cs
+            EntityWeapon.cs, EntityWeaponHolder.cs, EntityEffectStats.cs
           States/                               # All entity states (super + sub flattened)
-            EntityBasicState.cs                 # Transitions: direction, take-damage, death (reads Data.StatsSO.Health), attack check
+            EntityBasicState.cs                 # Transitions: direction, take-damage, death, attack check
             EntityIdleState.cs                  # Idle timer or target detected → MoveState
             EntityMoveState.cs                  # ✅ null-guards TargetTransform first; wall avoidance; timeout → IdleState
             EntityAttackState.cs                # Triggers weapon Attack() on anim event
             EntityTakeDamageState.cs
             EntityDeathState.cs                 # ✅ `: EntityBasicState` — emits ON_ENEMY_DEATH on EndRangeTrigger
             EntityUseWeaponState.cs, EntityDisadvantageState.cs
-        StatsCharacter.cs                       # SO base: blockDMG, maxMana, maxHealth, RuntimeAnimatorController
+        StatsCharacter.cs                       # ⚠️ Legacy SO base (blockDMG, maxMana, maxHealth). Superseded by BaseStatsSO — Player/Entity no longer use it
 
-      Enemy/                                    # Canonical Assets/Script/Enemy/ — 3 files
-        EnemySO.cs                              # Data-only SO: name, level, speedMove, FOV, rateAttack, attackRange, damage, projectile, depotItem
-        EnemyManager.cs                         # ✅ NOT a stub any more — it is now the PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). Awake() guard has the correct `return`. ADR-0002 amended 2026-08-21 to re-scope the singleton exception onto this role; the spawn lifecycle it originally described lives in RoomCell + EnemySpawner + RoomGridController and has no ADR
-        EnemySpawner.cs                         # ✅ Event-driven: ON_GET_SPAWN_POSITIONS → OnGetSpawnPositions(); ON_SPAWN_EXTRA_ENEMY → SpawnExtraEnemy(). Spawns via ObjectPoolManager, emits ON_DONE_SPAWN_ENEMY. ✅ BUG-033 FIXED (2026-08-28) — null-check now precedes .Count
+      System/                                   # ✅ NEW top-level grouping (`1c0742e`, 2026-09-03)
+        LifetimeScope/                          # ✅ NEW — VContainer composition root (ADR-0004)
+          GameLifetimeScope.cs                  # `: LifetimeScope`; RegisterComponentInHierarchy for 9 scene components
+          Interface/
+            IObjecPoolService.cs                # (typo intentional in source) pooling façade
+            IPlayerService.cs                   # player transform / position
+            IPlayerStatService.cs               # stat read/write façade (implemented by StatHandler)
+          Service/
+        Abilities/                              # ✅ **Abilities v2** — promoted from prototypes/ on 2026-09-09 (`9b8d40f`, `5c7afba`)
+          Core/
+            AbilityDefinition.cs                # SO "Game/Abilities/Ability Definition": Cooldown, List<StatCost> Costs, MaxHoldTime,
+                                                # List<AbilityConditionDefinition>, List<AbilityEffectDefinition>, AnimatorOverride.
+                                                # Also declares `AbilityActivationType`, `StatCost` and the `SkillState` enum (None/Start/Cast/Do/Exit)
+            AbilityInstance.cs                  # Per-owner runtime state: cooldown, hold time, TryActivateInstant/TryCastInstant/TryDoInstant/Exit
+            AbilityContext.cs                   # origin, forward, hold ratio
+            AbilitySlot.cs                      # Enum: Primary, Secondary, Utility, Ultimate
+            AbilityEffectDefinition.cs, AbilityConditionDefinition.cs, IAbilityOwner.cs
+          Effects/
+            DamageInFrontEffect.cs, LungeForwardEffect.cs, ShootObjectEffect.cs, PlayDebugLogEffect.cs
+          Conditions/
+            HasEnoughManaCondition.cs, NotDeadCondition.cs
+          Runtime/
+            AbilityRuntimeHelpers.cs, SpiritOrbProjectile.cs, SpiritDoTBehaviour.cs
+        Skill_Ability/                          # ⚠️ **Abilities v1 (legacy)** — still compiled and still referenced by
+                                                # WeaponStats.AbilityWeapon/SkillWeapon, AttackSO.ability, Weapon.currentAbilitySO
+                                                # and EntityWeapon. The PLAYER no longer runs this path
+          AbstractSkillSO.cs, ActivateSkill.cs
+          DashAbility.cs, SlashAbility.cs, BlockAbility.cs
+          DualAbility.cs                        # Extends ActivateSkill — all code commented out (WIP)
+          EffectSkillSO.cs (abstract), EffectSkillDuringTime.cs, EffectSkillOneTime.cs
+          InternalSkillSO.cs                    # Talent tree node SO
+          WeaponSO.cs                           # SO "Item SO/Enemy/Weapon" — extends ItemSO, holds an enemy weapon prefab
+        StatSystem/                             # RPG stat framework (GDD: design/gdd/stat-system.md; numbers: ToolExcel/stat_system_formula_reference.xlsx)
+          StatType.cs                           # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived HP/Mana/PhysicalDamage/MagicDamage/
+                                                # Defense/AttackSpeed/CritChance/CritDamage/MoveSpeed/HPRegen/ManaRegen/Evasion (100-111)
+          Stat.cs                               # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list.
+                                                # ⚠️ **BUG-063 OPEN** — `modifiers` is re-serialized behind `#if UNITY_EDITOR [SerializeField]` (Stat.cs:63-65),
+                                                # undoing the 2026-08-21 fix recorded as NEW-4
+          StatModifier.cs                       # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource())
+          StatModifierGroup.cs                  # Plain [System.Serializable] class embedded in WeaponStats (ADR-0001). Field `authoredModifiers` stays serialized
+          DerivedStatFormula.cs                 # baseConstant + level×perLevel + Σ(primary × coefficient)
+          BaseStatsSO.cs                        # ✅ **Replaces the deleted `StatsSO`** (`b0512f4` deleted it, `1c0742e` added this).
+                                                # Same API surface: Level, Get/GetStat/GetStatValue, AddModifiersFromSource /
+                                                # RemoveModifiersFromSource, AddPrimaryPoint, GetStatUnusedBonus, OnStatChanged,
+                                                # SeedAllStats, FullStatsValue, FullStatView. Also declares StatsViewDTO
+          EnemyStatSO.cs                        # `: BaseStatsSO` — enemy stat profile
+          StatPointAllocator.cs                 # ✅ NEW — stat-point allocation session (accept / revert / restore), drives ON_RESET_STATS_UI_SESSION
+          StatModifierTester.cs                 # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
+        Enemy/
+          EnemySO.cs                            # Data-only SO: name, level, speedMove, FOV, rateAttack, attackRange, damage, projectile, depotItem
+          EnemyManager.cs                       # PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld() (ADR-0002)
+          EnemySpawner.cs                       # Event-driven: ON_GET_SPAWN_POSITIONS / ON_SPAWN_EXTRA_ENEMY. Spawns via ObjectPoolManager,
+                                                # emits ON_DONE_SPAWN_ENEMY. ✅ BUG-033 FIXED. Now resolved through VContainer
+        Item/                                   # ✅ NEW system (2026-09-04 `853fe39`, 2026-09-07 `9f1258c`) — NO GDD, NO ADR
+          ItemSO.cs                             # SO "Item SO/Item": ItemSprite, ItemName, StyleItem, List<ItemEffectDefinition>, Description. (Renamed from ItemOS.cs)
+          DepotItem.cs                          # SO "Item SO/Item Depot": weighted drop table by RarityTierItem; TryRollItem(), GetRandomItemByRarity().
+                                                # Also declares DepotItemSlot, DropRateItemSlot, RarityTierItem
+          ItemController.cs, ItemSpawner.cs     # ItemSpawner takes IObjecPoolService via [Inject]
+          PrefabRandomItem.cs
+          ItemEffectDefinition/
+            ItemEffectDefinitionSO.cs, RecoveryEffectDefinition.cs, StatModifierEffectDefinition.cs, CurrencyEffectDefinition.cs
+        PlayerSystem/
+          PlayerManager.cs                      # ✅ NEW — `: MonoBehaviour, IPlayerService`; GetPlayerTransform() / SetPlayerPosition()
+        Pathfinding/                            # A* — NO GDD, NO ADR yet (BUG-052)
+          Algorithm/ AStar.cs, Heuristic.cs, PriorityQueue.cs
+          Data/ Node.cs, Path.cs, PathRequest.cs, SearchNode.cs
+          Grid/ GridBuilder.cs, PathfindingGrid.cs
+          PathRequestManager.cs, Utility/GridUtility.cs
+        PoolableService/                        # Generic object pool (was `Poolable/`)
+          ObjectPoolManager.cs                  # Implements IObjecPoolService; injects into pooled instances on Spawn
+          Pool.cs, PoolMember.cs
 
-      Pathfinding/                              # A* — NO GDD, NO ADR yet (see BUG-052)
-        Algorithm/ AStar.cs, Heuristic.cs, PriorityQueue.cs
-        Data/ Node.cs, Path.cs, PathRequest.cs, SearchNode.cs
-        Grid/ GridBuilder.cs, PathfindingGrid.cs
-        PathRequestManager.cs, Utility/GridUtility.cs
-
-      Poolable/                                 # Generic object pool — supersedes the deleted Pooling/ObjectPooling.cs
-        ObjectPoolManager.cs, Pool.cs, PoolMember.cs
+      Handler/                                  # ⚠️ ORPHAN — only `EventHandler.meta`, no `.cs`
 
       UI/                                       # NO GDD yet
         UIController.cs                         # Runtime UI Toolkit: MainMenu / Settings / Pause screens from .uxml
-        StatsUIController.cs                    # Stat panel driven by ON_*_STATS_*_UI events. ⚠️ calls statsSO.AddPrimaryPoint() — UI writing gameplay state (ui-code.md violation)
+        StatsUIController.cs                    # Stat panel driven by ON_*_STATS_*_UI events; resolved through VContainer
+        StatsScreenUIController.cs              # Full stats screen
         StatSlot.cs                             # One stat row, bound to a StatsViewDTO
 
       FastTest/
@@ -137,123 +242,123 @@
 
       Interface/
         IInteractable.cs, IEffectable.cs, IAimProvider.cs, IPoolable.cs
-        INegativeReciver.cs                     # filename keeps the old typo; interface name is INegativeReceiver — TakeDamage(int amountDamage, Vector2 attackPosition)
+        INegativeReciver.cs                     # filename keeps the old typo; interface name is INegativeReceiver —
+                                                # ⚠️ signature is `TakeDamage(**float** amountDamage, Vector2 attackPosition)` (was `int`)
+        IResourceReceiver.cs                    # ✅ NEW — ReceverModifierGroup / ReceverRecovery / BuffDebuffForDuration
+        IVitalComponent.cs                      # ✅ NEW — GetCurrentStatValue / ApplyBuffDebuff / ReceiverRecovery / ReceiveReduction / BuffDebuffForDuration
 
       Map/
-        BaseGrid.cs                             # Generic MonoBehaviour grid: AddCell, Setting, GetNext, CaculateIndex (⚠️ GetNext has no bounds check, TD-027)
-        BaseCell.cs                             # Abstract cell base: AddCell, GetGridPosition, Setting()
-        Interface/
-          IGrid.cs                              # IGrid / IGrid<T>: Columns, Rows, AddCell, Setting, GetNext
-          IGridItem.cs                          # IGridItem: AddCell, GetGridPosition
+        BaseGrid.cs                             # Generic MonoBehaviour grid (⚠️ GetNext has no bounds check, TD-027)
+        BaseCell.cs                             # Abstract cell base
+        Interface/ IGrid.cs, IGridItem.cs
         Maze/
-          MazeGenerator.cs                      # DFS; random Start cell, last-visited End cell; public Start/End
-          MazeController.cs                     # Singleton; wires MapGrid + RoomGrid; GetCellStart() / GetCellEnd()
+          MazeGenerator.cs                      # DFS; random Start cell, last-visited End cell
+          MazeController.cs                     # Singleton; ⚠️ Awake() still missing `return` after Destroy (Bug #14)
         Cell/
-          Cell.cs                               # Data class: Row, Col, Doors dict (string→STATUS_DOOR)
-          MapCell.cs                            # Minimap cell MonoBehaviour (extends BaseCell)
-          MapGridController.cs                  # ✅ Minimap grid — Move/OnLoadMap implemented, avatar tween via DOTween
+          Cell.cs, MapCell.cs
+          MapGridController.cs                  # ✅ Minimap grid — avatar tween via DOTween
         Room/
-          RoomCell.cs                           # World room cell: doors, StartDoorPosition, IsCleared, ClearRoom(), OpenDoors()/CloseDoor(), and ✅ the room-clear counter — EnemyCount, OnDoneSpawnEnemy(), OnSpawnExtraEnemy(), OnEnemyDeath() → emits ON_CLEAR_ENEMY at zero
-          RoomGridController.cs                 # ✅ Room grid event hub — listens to SIX events: ON_LOAD_MAZE_DONE, ON_CLEAR_ENEMY, ON_PLAYER_ON_DOOR, ON_ENEMY_DEATH, ON_DONE_SPAWN_ENEMY, ON_SPAWN_EXTRA_ENEMY
-          RoomGeneraterController.cs            # ✅ Tilemap loader (same GameObject, RequireComponent): Setting(), LoadRoom(), ClearRoom(), DeleteDoorTileMap(), SwapTileMap(). Parses Tile_Spawn_Enemy markers → emits ON_GET_SPAWN_POSITIONS. Builds the PathfindingGrid
-          Door/
-            DoorController.cs                   # ✅ Manages door collider; collider enabled only when Status==OPEN; emits ON_PLAYER_ON_DOOR on player touch
+          RoomCell.cs                           # World room cell + the room-clear counter (EnemyCount → ON_CLEAR_ENEMY at zero)
+          RoomGridController.cs                 # Room grid event hub — listens to SIX events
+          RoomGeneraterController.cs            # Tilemap loader; parses Tile_Spawn_Enemy markers; builds the PathfindingGrid.
+                                                # ⚠️ still loads JSON via File.ReadAllText(Application.dataPath…) (Bug #15). Resolved through VContainer
+          Door/ DoorController.cs
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
 
-      LevelEdit/                                # Editor + runtime room loading
-        LevelManager.cs                         # Singleton ⚠️ (TD-023); SaveLevel() / ImportRoomJsonFiles() / UpdateRoom() (editor); GetDungeonRoomSO() / GetRandomRooms() / GetTileSOs() / GetTilemaps() (runtime); SpawnRoomEnemies() (Editor button — the second spawn driver). Also declares `LevelData`
+      LevelEdit/
+        LevelManager.cs                         # Singleton ⚠️ (TD-023); editor save/import + runtime room queries; SpawnRoomEnemies() Editor button
 
-      StatSystem/                               # RPG stat framework (GDD: design/gdd/stat-system.md; numbers: ToolExcel/stat_system_formula_reference.xlsx)
-        StatType.cs                             # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived HP/Mana/PhysicalDamage/… (100-111)
-        Stat.cs                                 # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list. ✅ `modifiers` is a bare private field (NOT serialized) since 2026-08-21 — runtime buffs no longer leak into .asset files
-        StatModifier.cs                         # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource()). Order derived from Type
-        StatModifierGroup.cs                    # NOT a ScriptableObject — a plain [System.Serializable] class embedded in WeaponStats (ratified 2026-08-21, ADR-0001). Field is `authoredModifiers` (serialized — real designer data). ApplyTo() / RemoveFrom() by source
-        DerivedStatFormula.cs                   # baseConstant + level×perLevel + Σ(primary × coefficient)
-        StatsSO.cs                              # SO "Game/Stats Profile": Level, StatUnusedBonus, Get/GetStat/GetStatValue, AddModifiersFromSource / RemoveModifiersFromSource, RecalculateDerived(), CalculateStatUnusedBonus() (public since sprint-10), OnStatChanged. Also declares StatsViewDTO — Update() takes (baseValue, levelUpValue, equipmentValue) since sprint-10
-        StatModifierTester.cs                   # Debug MonoBehaviour driven by Assets/Editor/StatModifierTesterEditor.cs
-
-      Manager/
-        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (20 values — see Event System below)
-        AnimationEventManager.cs                # AnimationEventId enum: StartAnimation, MoveAnimation, AttactAnimation, DoSkillAnimation, EndAnimation
-        UI/UIManager.cs                         # EMPTY STUB (TD-017)
-
-      Database-SO/Modal/                        # Enemy-spawn data model; note `Modal` typo = "Model"
-        EntityModel.cs                          # Base SO: id (int, private, ID getter — OnValidate GUID-gens when 0), nameEnity
+      Database-SO/Modal/                        # note `Modal` typo = "Model"
+        EntityModel.cs                          # Base SO: id, nameEnity
         MapModel.cs                             # SO "Game/Map Model": fullRoomList + runtime _pool + GetRandomRoom() shuffle-bag
-        RoomModel.cs                            # SO "Game/Room Model": enemiesOfRoom, candidateEnemies, weightBudget[0,500], overflowPercent (⚠️ declared but never read — a literal 0.1f is used instead). GetSpawnSet() = candidate-pool + RarityTier roll + retry-fallback. Also declares EnemySpawnEntry, EnemyModal ([Serializable] class, Prefab + weight[1,100] + rarityTier) and the RarityTier enum (Common=50, Rare=30, Epic=15, Legendary=5)
+        RoomModel.cs                            # SO "Game/Room Model": GetSpawnSet() = candidate-pool + RarityTier roll + retry-fallback (ADR-0003).
+                                                # Also declares EnemySpawnEntry, EnemyModal and the RarityTier enum
 
       Weapons/
         Weapon.cs (abstract base)                # CanAttack() / CanChain() / OnAttackEnter(player) / OnActivate() / OnDeactivate() / Equid() / UnEquid()
-        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages (List<AttackSO>), AbilityWeapon, SkillWeapon, StatModifiers (StatModifierGroup — renamed from `modifiers` 2026-08-21, FormerlySerializedAs keeps the data)
+        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages, AbilityWeapon + SkillWeapon (both `ActivateSkill` = Abilities v1), StatModifiers
         WeaponType.cs                           # Enum: RangeWP, MeleeWP
         MeleeWeapon/
-          MeleeWeapon.cs                        # ✅ OnActivate() = OverlapCircleNonAlloc + INegativeReceiver.TakeDamage() (Bug #4 FIXED). maxTargetsPerSwing buffer cached in Awake
-          MeleeWeaponStats.cs                   # nameWeapon, idWeapon, shieldEra, blockDamage[0,500]
-          SwordAndShield.cs                     # Extends MeleeWeapon — empty
+          MeleeWeapon.cs                        # ✅ OnActivate() = OverlapCircleNonAlloc + INegativeReceiver.TakeDamage() — reference implementation
+          MeleeWeaponStats.cs, SwordAndShield.cs
           AttackSO.cs                           # SO "WeaponData/AttackStage/Melee": nameState, attackRange, attackDamege, attackRate, directionAttackAnimatorOV, ability
         RangeWeapon/
-          RangeWeapon.cs                        # ✅ OnActivate() spawns pooled bullets fanned across SpreadAngle; RecoveryTime cooldown
-          RangeWeaponStats.cs                   # nameWeapon, autoFire
-          RangeAttackSO.cs                      # Extends AttackSO: BulletPrefab, BulletData, ProjectileCount, SpreadAngle, RecoveryTime
-          bullet.cs, BulletDataSO.cs
+          RangeWeapon.cs                        # ✅ pooled bullets fanned across SpreadAngle; RecoveryTime cooldown. ⚠️ DI wiring is BUG-064 sub-item 7 (open)
+          RangeWeaponStats.cs, RangeAttackSO.cs, bullet.cs, BulletDataSO.cs
 
-      Skill_Ability/
-        AbstractSkillSO.cs                      # Abstract SO base: skillName, skillDescription, GenerateDescription()
-        ActivateSkill.cs                        # Base skill SO: Enter/Activate/Cast/Do/Exit lifecycle
-        DashAbility.cs, SlashAbility.cs, BlockAbility.cs
-        DualAbility.cs                          # Extends ActivateSkill — all code commented out (WIP)
-        EffectSkillSO.cs (abstract), EffectSkillDuringTime.cs, EffectSkillOneTime.cs
-        InternalSkillSO.cs                      # Talent tree node SO
-        WeaponSO.cs                             # SO "Item SO/Enemy/Weapon" — extends ItemOS, holds an enemy weapon prefab
-
-      Item/, Interact/, MainMenu/
+      Interact/, MainMenu/
+      Manager/
+        EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (**23 values** — see Event System below)
+        AnimationEventManager.cs                # ⚠️ dead — Emit() has zero callers
+        UI/UIManager.cs                         # EMPTY STUB (TD-017)
       Utility/
-        GameConstants.cs                        # AnimationName, Direction (vectors + names + both lookup dicts), Input, RouteAsset, SettingStats (GAME_SCALE=3, LENGTH_ROOM=10, PADDING_DOOR_TELE_SCALE, PADDING_NODE_VALUE), RoomTypeNames, TileName (ROOM/DOOR/FLOOR/SPAWN="Tile_Spawn_Enemy"), StatTypeName
-        Utility.cs                              # PickUniqueIndex, ToCardinalDirection, SealUnusedDoors, GetDoorWorldPosition, GetOverrideClips, DurationNextAttack
-        VectorExtensions.cs                     # Position2D() / WithZ()
-        DirectionTarget.cs, FastMovement.cs, FollowPlayer.cs (⚠️ GameObject.Find, TD-029), SpawnCharacter.cs
+        GameConstants.cs                        # AnimationName, Direction, Input, RouteAsset, SettingStats, RoomTypeNames, TileName, StatTypeName
+        Utility.cs, VectorExtensions.cs, DirectionTarget.cs, FastMovement.cs
+        FollowPlayer.cs (⚠️ GameObject.Find, TD-029), SpawnCharacter.cs
 
     SO/
-      Dungeon/
-        DungeonRoomSO.cs                        # SO: List<RoomFile> (roomName, filePath, roomType) — no `roomData` field exists
-        TileSO.cs                               # SO: tile id → TileBase mapping
-        Maze_Storage.asset                      # Full room pool (all authored rooms)
-        Maze_Load_Room.asset                    # Runtime pool (subset selected per run)
-      Stat/                                     # PlayerStats.asset, Test.asset, Enemy/{Assasin,TrashMelee,FastSwarm,RangedCaster,Tank}Stats.asset, Enemy/Boss/BossStats.asset
+      Dungeon/        DungeonRoomSO.cs, TileSO.cs, Maze_Storage.asset, Maze_Load_Room.asset
+      Stat/           PlayerStats.asset, Test.asset, Enemy/{Assasin,TrashMelee,FastSwarm,RangedCaster,Tank}Stats.asset, Enemy/Boss/BossStats.asset
+      Skill/          Block/Dash/Slash/Dual Ability.asset (v1) · **ShootSpirit/ShootSpirit.asset, ShootSpirit/SpiritBomd.asset,
+                      Conditions/New Has Enough Mana Condition.asset (v2 — proof the promoted framework IS wired)**
+      Item/           PlatiumOre 0-5.asset, Depot Item 1.asset, Comsuable/, Effect/
+      Database/       Enemy/, Map/, Room/
+      Weapons/, Room/, Player/, Spawners/
 
     Editor/
-      LevelManagerEditor.cs                     # Custom Inspector buttons for LevelManager
-      StatModifierTesterEditor.cs               # Custom Inspector buttons for StatModifierTester
+      LevelManagerEditor.cs, StatModifierTesterEditor.cs
+      DepotItemEditor.cs                        # ✅ NEW — custom Inspector for the drop table
 
-    Data/
-      Json/Room/                                # Room tilemap data: NormalRoom_0.json … NormalRoom_12.json (13 rooms).
-                                                # ALL 13 now carry Tile_Spawn_Enemy markers (2 in NormalRoom_0, 6 in each of the rest)
+    Data/Json/Room/                             # NormalRoom_0.json … NormalRoom_12.json (13 rooms), all carrying Tile_Spawn_Enemy markers
 
-    Prefab/       Player/, Weapon/, Enemy/, UI/, Particle Effect/, Item/, ...
-    Sprite/       Knight/, Enemy/, Map/, Weapons/, Items/, VFX/, UI/
-    Animation/    Player animation clips
-    AnimationController/
-    ScriptableObjects/
-    UI/Screens/   MainMenu.uxml, Settings.uxml, PauseMenu.uxml
-    Scenes/       Main/StartScene, Main/SetLevel, Main/Test/LoadRandomMap, Test/Test AI, Test/ObjectPooling, SampleScene, UISample
+    Prefab/, Sprite/, Animation/, AnimationController/, Plugins/, UI/Screens/, Scenes/
 
-  prototypes/     Prototype code — OUTSIDE Assets/, so Unity does not compile it (.claude/rules/prototype-code.md)
-    skill-enhance-abilities/                    # A second, composition-based ability framework — 17 .cs files.
-                                                # Was Assets/Skill Enhance/; moved 2026-08-22 by owner decision.
-                                                # Never wired: no SO assets, no prefabs, no scene wiring, shares no
-                                                # types with Script/Skill_Ability/, and DamageInFrontEffect.Apply()
-                                                # is fully commented out (3D Physics.OverlapSphere + a `Damageable`
-                                                # type that does not exist here). See its README.md for the
-                                                # hypothesis/result/decision and how to pick it back up;
-                                                # docs/diagrams/ability-system-diagrams.md diagrams it
+  prototypes/
+    skill-enhance-abilities/                    # ⚠️ **EMPTY of code since 2026-09-09.** `Scripts/` holds only two orphan `.meta`
+                                                # files; all 17 `.cs` were promoted to `Assets/Script/System/Abilities/`.
+                                                # Only `README.md` remains, as the record of the experiment
 
   tests/          EditMode/, PlayMode/, playtest/ — all three contain only .gitkeep (zero tests exist, TD-014)
-  ToolExcel/      stat_system.xlsx, stat_system_v1.xlsx, stat_system_formula_reference.xlsx — stat formula emulators: player / 5 creep types / boss (repo root, outside Assets/). `_formula_reference` = source of truth for per-entity base/perLevel/coefficients
+  ToolExcel/      stat_system.xlsx, stat_system_v1.xlsx, stat_system_formula_reference.xlsx
   ```
 
   ---
 
   ## Architecture
+
+  ### Dependency Injection — VContainer (`System/LifetimeScope/`)
+
+  > ✅ **Added 2026-08-22 (`aa4e620`), documented here 2026-09-11.** This is the largest
+  > architectural change in the project and went 3 sprints with no doc entry. See **ADR-0004**.
+
+  `GameLifetimeScope : LifetimeScope` is the composition root. `Configure()` registers nine
+  scene components, three of them behind interfaces:
+
+  ```csharp
+  builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
+  builder.RegisterComponentInHierarchy<Player>();
+  builder.RegisterComponentInHierarchy<PlayerManager>().As<IPlayerService>();
+  builder.RegisterComponentInHierarchy<StatHandler>().As<IPlayerStatService>();
+  builder.RegisterComponentInHierarchy<EnemySpawner>();
+  builder.RegisterComponentInHierarchy<StatsUIController>();
+  builder.RegisterComponentInHierarchy<ItemSpawner>();
+  builder.RegisterComponentInHierarchy<RoomGeneraterController>();
+  builder.RegisterComponentInHierarchy<AbilityHolder>();
+  ```
+
+  Rules that follow from this, and that supersede the older "always `GetComponent` or Inspector
+  refs" wording in `.claude/rules/engine-code.md`:
+
+  - `RegisterComponentInHierarchy<T>()` **finds, never spawns.** A component absent from the scene
+    at `Awake()` throws immediately. The Player prefab must be placed in the scene, not instantiated.
+  - **Runtime-spawned objects cannot be registered.** `EntityInput` lives on enemy prefabs spawned
+    through `ObjectPoolManager`, so it is deliberately *not* in `Configure()`; `Pool.Spawn()` injects
+    into each new instance instead. Two registrations are commented out in source for this reason
+    (`StatsScreenUIController`, `StatPointAllocator`).
+  - Injection points are `[Inject] public void Construct(...)` methods — see `AbilityHolder`,
+    `ItemSpawner`, `ObjectPoolManager`.
+  - **DI does not replace the Core hub.** Sibling core components are still resolved with
+    `Core.GetCoreComponent<T>(out …)`. DI supplies *cross-system services* only.
 
   ### Shared base layer (`Character/Base/`)
 
@@ -273,8 +378,8 @@
 
   ### Player State Machine
 
-  [Player.cs](Assets/Script/Character/Player/Player.cs) creates all states in `Awake`; the tick comes
-  from `BaseEntity`.
+  [Player.cs](Assets/Script/Character/Player/Player.cs) creates **nine** states in `Awake`; the tick
+  comes from `BaseEntity`.
 
   ```
   PlayerState (base)
@@ -282,17 +387,37 @@
       PlayerIdleState / PlayerMoveState
     PlayerUseWeaponState      — freezes movement; exits on animFinish
       PlayerAttackState       — StatusAnimation-driven; OnActivate → WeaponHolder.MakeDamage()
-      PlayerSkillWeaponState  — calls AbilityHolder.SetStateAbility()
-      PlayerEquidUnequid / PlayerIntertorState
+      PlayerSkillWeaponState  — drives AbilityHolder (Abilities v2)
+      PlayerEquidUnequid / PlayerIntertorState / PlayerResourceReceiverState
     PlayerDisadvantageState
       PlayerTakeDamageState
-      PlayerDeathState        — ⚠️ body commented out AND never constructed in Player.Awake()
+      PlayerDeathState        — emits ON_PLAYER_DEATH on EndRangeTrigger.
+                                ⚠️ Enter() does NOT stop PlayerMovement — BUG-065
   ```
 
   Animation handoff uses the **`StatusAnimation` enum**, not boolean flags. Animation events on the
   Player call `AnimationStart` / `AnimationTrigger` / `AnimationOnAction` / `AnimationOffAction` /
   `AnimationFinishTrigger` / `AnimationEnd`, each of which calls
   `CurrentState.SetAnimationStatus(StatusAnimation.X)`. States branch on `Status` in `LogicUpdate()`.
+
+  ### Player stat / vitals split
+
+  > ✅ New since 2026-09-08 (`9b8d40f`). Replaces the old "`NegativeReciver` owns a private
+  > `currentHealth` field" design that Bug #6 / story S10-08 described.
+
+  Three components now divide the work, all resolved off `Core`:
+
+  | Component | Interface | Owns |
+  |---|---|---|
+  | `StatHandler` | `IPlayerStatService` | **Max** values — a read/write façade over `BaseStatsSO` |
+  | `VitalStatsComponent` (in `VitalComponent.cs`) | `IVitalComponent` | **Current** values — `Dictionary<StatType, float>`, seeded from `StatHandler.GetFullStat()` in `Start()` |
+  | `ResourceReceiver` | `INegativeReceiver`, `IResourceReceiver` | Pickup / buff / recovery entry point |
+
+  `NegativeReciver.TakeDamage()` now delegates: `VitalStatsComponent.ReceiveReduction(StatType.HP, amount)`
+  plus `PlayerInputHandler.OnTakeDamage(attackPosition)`.
+
+  > ⚠️ `PlayerData.currentHealth` is still never written and `PlayerData.Reborn()` still has no
+  > caller — Bug #6 is narrowed, not closed. There is still no `GameManager`.
 
   ### Enemy AI Framework
 
@@ -305,41 +430,73 @@
     EntityAttackState / EntityTakeDamageState / EntityDeathState
   ```
 
-  `EntityMovement` requests paths from `EnemyManager.Instance` (A*, `Pathfinding/`).
+  The enemy mirrors the player's stat/vitals split: `EntityStatsHandler` (max) + `EntityVitalStats`
+  (current) + `EntityUIController` (health bar), with `EntityNegativeReciver` as the single
+  `INegativeReceiver` implementer.
+
+  `EntityMovement` requests paths from `EnemyManager.Instance` (A*, `System/Pathfinding/`).
   `EntityDeathState` emits `ON_ENEMY_DEATH` on `EndRangeTrigger`.
 
   **Wiring a new enemy prefab:** `Entity` + `EntityCore` (child) + the core components
-  (`EntityInput`, `EntityMovement`, `EntityFindTarget`, `EntityAttack`, `EntityWeaponHolder`,
+  (`EntityInput`, `EntityFindTarget`, `EntityMovement`, `EntityAttack`, `EntityWeaponHolder`,
+  `EntityNegativeReciver`, `EntityStatsHandler`, `EntityVitalStats`, `EntityUIController`,
   `EntityEffectStats`) as descendants of `EntityCore`. Assign an `EntityData` SO. A scene-level
   `EnemyManager` is **required** — `EntityMovement.Start()` reads `EnemyManager.Instance.Grid`.
 
-  ### Weapon-Linked Skill System
+  ### Skill / Ability — TWO frameworks now coexist
 
-  `ActivateSkill` SO lifecycle, driven by `AbilityHolder` each frame:
+  > ⚠️ **This is the single most confusing area of the codebase.** Both compile, both ship SO
+  > assets, and they share no types. Know which one you are touching.
+
+  **Abilities v2 — `System/Abilities/` — the PLAYER path.** Composition-based, promoted out of
+  `prototypes/` on 2026-09-09. Driven by `AbilityHolder : IAbilityOwner`:
+
   ```
-  Enter(player) → Activate() → Cast() [button held] → Do() [button released] → Exit()
+  AbilityDefinition (SO: Cooldown, Costs, MaxHoldTime, Conditions[], Effects[], AnimatorOverride)
+    → AbilityInstance (per-owner: cooldown + hold timers)
+      → SkillState: None → Start → Cast → Do → Exit
   ```
-  `WeaponStats` carries two SO slots: `AbilityWeapon` (RMB/Block) and `SkillWeapon` (E key), plus a
-  `StatModifierGroup StatModifiers` bundle applied to `Player.Stats` on equip.
+  Bound per `AbilitySlot` (Primary / Secondary / Utility / Ultimate) through the serialized
+  `abilityBindings` list on `AbilityHolder`. Live SO assets:
+  `Assets/SO/Skill/ShootSpirit/{ShootSpirit,SpiritBomd}.asset`,
+  `Assets/SO/Skill/Conditions/New Has Enough Mana Condition.asset`.
+
+  **Abilities v1 — `System/Skill_Ability/` — the WEAPON and ENEMY path.** Inheritance-based
+  `ActivateSkill` SO with lifecycle `Enter(player) → Activate() → Cast() → Do() → Exit()`. Still
+  referenced by `WeaponStats.AbilityWeapon` / `.SkillWeapon`, `AttackSO.ability`,
+  `Weapon.currentAbilitySO` and `EntityWeapon.currentAbilitySO`. Live SO assets:
+  `Assets/SO/Skill/{Dash,Slash,Block,Dual} Ability.asset`.
+
+  `WeaponStats` also carries a `StatModifierGroup StatModifiers` bundle applied to the player's
+  stat profile on equip.
 
   ### Damage Chain
 
+  > Signature note: `INegativeReceiver.TakeDamage(**float** amountDamage, Vector2 attackPosition)`.
+  > It was `int` until the Sprint 12 stat refactor. `.claude/rules/gameplay-code.md` and
+  > `weapon-skill-code.md` were corrected on 2026-09-11.
+
   ```
-  # Player hits enemy — ✅ WORKS end to end on the weapon side
+  # Player hits enemy — ✅ WORKS end to end
   PlayerAttackState [OnActivate] → WeaponHolder.MakeDamage() → Weapon.OnActivate()
     → MeleeWeapon: OverlapCircleNonAlloc → INegativeReceiver.TakeDamage(attackDamege, pos)
     → RangeWeapon: pooled bullets → bullet → INegativeReceiver.TakeDamage()
 
-  # Enemy receives damage — ⚠️ BLOCKED (health routing still broken)
-    → ✅ EntityCore.TakeDamage() removed (BUG-042 FIXED) — entities now use Stats SO
-    → ⚠️ EntityNegativeReciver.TakeDamage() still runs player-only logic (BUG-053)
-    → ✅ EntityWeaponMelee.cs deleted (BUG-043 + BUG-046 FIXED) — unified weapon framework
-    → EntityBasicState death check reads entity.Stats.Health — now correctly using StatsSO
+  # Enemy receives damage — ✅ UNBLOCKED (BUG-053 FIXED, f3f5f08)
+    → EntityNegativeReciver.TakeDamage(float, Vector2)
+        → DamageCalculate(): amount -= EntityStatsHandler.GetStatValue(StatType.Defense), clamped at 0
+        → EntityVitalStats.ReceiveReduction(StatType.HP, finalDamage)
+        → EntityInput.OnTakeDamage(attackPosition)
+        → EntityUIController.UpdateUIHealth(current / max)
+    → EntityBasicState death check → EntityDeathState → ON_ENEMY_DEATH
+    ⚠️ BUG-066 OPEN — EntityVitalStats indexes currentStats[statType] with no key guard
 
   # Enemy hits player — ✅ works
-  EntityAttackState → EntityWeaponMelee.Attack() (or EntityAttack.Attack(), BUG-043)
-    → INegativeReceiver.TakeDamage() → NegativeReciver decrements currentHealth
-    → emits ON_PLAYER_DEATH at zero   (⚠️ but PlayerData.currentHealth is never written — S10-08)
+  EntityAttackState → EntityWeapon.Attack() (or EntityAttack.Attack(), BUG-043 partial)
+    → INegativeReceiver.TakeDamage()
+    → NegativeReciver → VitalStatsComponent.ReceiveReduction(StatType.HP, …)
+    → PlayerDeathState emits ON_PLAYER_DEATH at zero
+    ⚠️ PlayerData.currentHealth still never written (Bug #6 / S10-08)
 
   # Projectile hits anything
   Projectile.CheckCollisions() → Raycast → INegativeReceiver.TakeDamage()
@@ -350,30 +507,30 @@
   ```
   MazeController.Awake() [singleton]
     → MazeGenerator.Generator(Rows, Cols)
-        DFS từ random start cell → Cell[rows*cols]
+        DFS from a random start cell → Cell[rows*cols]
         Start = random cell; End = last visited cell
     → SetCellData: for each Cell → MapGrid.AddCell() + RoomGrid.AddCell()
     → MapGrid.Setting() / RoomGrid.Setting()
         RoomGridController.Setting() → RoomGeneraterController.Setting():
           → GetCellStart/End → _startIndex / _endIndex
-          → LevelManager.Instance.GetDungeonRoomSO() → full pool (⚠️ singleton reach-through)
+          → LevelManager.Instance.GetDungeonRoomSO() → full pool (⚠️ singleton reach-through, TD-023)
           → Utility.PickUniqueIndex(total, mazeSize) → randomMazeRoomsIndex
-          → gán random rooms; force [_startIndex]=room[0], [_endIndex]=room[last]
+          → assign random rooms; force [_startIndex]=room[0], [_endIndex]=room[last] (⚠️ Bug #16)
           → new PathfindingGrid() → EnemyManager.Instance.SetPathfindingGrid()
     → EventManager.Emit(ON_LOAD_MAZE_DONE)
 
   RoomGridController [ON_LOAD_MAZE_DONE] → OnDoneLoadRoomGrid()
     → LoadRoom(_startIndex, _current)
-    → ⚠️ the fastMovement teleport line is COMMENTED OUT (Bug #13)
+    → ⚠️ the fastMovement teleport line is COMMENTED OUT (Bug #13, RoomGridController.cs:82)
 
   RoomGeneraterController.LoadRoom(index, roomCell):
-    → đọc JSON qua File.ReadAllText(Application.dataPath + filePath)   ⚠️ Editor-only (Bug #15)
+    → read JSON via File.ReadAllText(Application.dataPath + filePath)   ⚠️ Editor-only (Bug #15)
     → clear tilemaps
     → for each tile:
         DOOR tile && !IsCleared  → keep if the direction is in roomCell.ListDirectionDoors,
                                    else swap to a ROOM (wall) tile
         SPAWN tile && !IsCleared → append world position to spawnPositions
-    → SetTile trên _genmap[layerIdx]
+    → SetTile on _genmap[layerIdx]
     → roomCell.SetDoorPoints(DoorPoints)
     → if !IsCleared: SwapTileMap() + Emit(ON_GET_SPAWN_POSITIONS, spawnPositions)
                      + pathfindingGrid.BuildGrid(...)
@@ -381,7 +538,7 @@
 
   EnemySpawner [ON_GET_SPAWN_POSITIONS] → OnGetSpawnPositions()
     → mapModel.GetRandomRoom() → roomModel
-    → roomModel.GetSpawnSet() → List<EnemySpawnEntry>       ⚠️ can return null (BUG-033)
+    → roomModel.GetSpawnSet() → List<EnemySpawnEntry>
     → ObjectPoolManager.Spawn() per entry at a random marker position
     → Emit(ON_DONE_SPAWN_ENEMY, enemyCount)
 
@@ -396,32 +553,29 @@
     → _next = GetNext(direction); _current = _next
     → _current.UpdateStatusDoor(direction)     [no-op — dead code, Bug #17]
     → roomGeneraterController.LoadRoom(index, _current)
-    → _current.GetStartDoorPosition(-direction)
     → fastMovement.transform.position = _next.StartDoorPosition
     → Emit(ON_LOAD_MAP, index)
 
-  RoomGridController [ON_CLEAR_ENEMY] → DeleteDoorTileMap():
-    → xóa door tiles khỏi tilemap (lộ cửa ra)
-    → RoomCell.OpenDoors() → tất cả door SetStatus(OPEN)
+  RoomGridController [ON_CLEAR_ENEMY] → DeleteDoorTileMap() → RoomCell.OpenDoors()
 
   MapGridController [ON_PLAYER_ON_DOOR → Move / ON_LOAD_MAZE_DONE → OnLoadMap]
-    → ✅ avatar tween theo phòng hiện tại (DOTween); MapCell.VisitRoom() hiện cell đã thăm
+    → ✅ avatar tween to the current room (DOTween); MapCell.VisitRoom() reveals visited cells
   ```
 
   **STATUS_DOOR semantics:**
-  | Value | Tên | Ý nghĩa | Collider |
-  |-------|-----|---------|----------|
-  | 0 | `DISABLE` | Hướng này không có door trong maze | Off |
-  | 1 | `ENEBLE` | Door tồn tại, đang bị khóa | Off |
-  | 2 | `BE_OPEN` | Receiver side của passage | Off |
-  | 3 | `OPEN` | Passable — player đi qua được | **On** |
-  | 4 | `CLOSE` | Tường kín runtime | Off |
+  | Value | Name | Meaning | Collider |
+  |-------|------|---------|----------|
+  | 0 | `DISABLE` | No door in this direction in the maze | Off |
+  | 1 | `ENEBLE` | Door exists but is locked | Off |
+  | 2 | `BE_OPEN` | Receiver side of a passage | Off |
+  | 3 | `OPEN` | Passable — the player can walk through | **On** |
+  | 4 | `CLOSE` | Runtime solid wall | Off |
 
-  **Setup quan trọng (Inspector):** `RoomGridController` cần wire `_dungeonRoomSO` (= `Maze_Load_Room.asset`);
-  `RoomGeneraterController` cần `_fastMovement` and `_genmap`. The full room pool, tile list and tilemap
-  list are **pulled from `LevelManager.Instance` at runtime**, so a `LevelManager` with
-  `dungeonRoomSO = Maze_Storage.asset` must be present in the scene. An `EnemyManager` and an
-  `EnemySpawner` (with `mapModel` assigned) must also be in the scene.
+  **Inspector setup that matters:** `RoomGridController` needs `_dungeonRoomSO`
+  (= `Maze_Load_Room.asset`); `RoomGeneraterController` needs `_fastMovement` and `_genmap`. The
+  full room pool, tile list and tilemap list are **pulled from `LevelManager.Instance` at runtime**,
+  so a `LevelManager` with `dungeonRoomSO = Maze_Storage.asset` must be present. An `EnemyManager`,
+  an `EnemySpawner` (with `mapModel` assigned) and a **`GameLifetimeScope`** must also be in the scene.
 
   ### Event System
 
@@ -430,13 +584,14 @@
   EventManager.Emit(EventID.ON_PLAYER_ON_DOOR, (Vector2)direction);
   ```
 
-  `EventID` currently has **20 values** (`EventManager.cs`):
+  `EventID` currently has **23 values** (`EventManager.cs`):
 
   > **Count history — check here before assuming a value was deleted.** The 2026-08-20 audit wrote
-  > "19 values" here and in five other documents; that was a miscount, the real figure was **18**
-  > and the table below was correct all along. Corrected to 18 on 2026-08-21. Then on **2026-08-22**
-  > the StatsScreen UI work genuinely added `ON_REVERT_STATS_BY_UI` and `ON_RESTORE_STATS_BY_UI`,
-  > taking it to **20** (5 + 3 + 3 + 8 + 1). So 19→18 was a correction; 18→20 was a real change.
+  > "19 values" in six documents; that was a miscount, the real figure was **18**. Corrected to 18 on
+  > 2026-08-21. On **2026-08-22** the StatsScreen UI work added `ON_REVERT_STATS_BY_UI` and
+  > `ON_RESTORE_STATS_BY_UI` → **20**. On **2026-08-22…2026-09-07** three more were added:
+  > `ON_RESET_STATS_UI_SESSION` (StatPointAllocator session reset) and `ON_DROP_ITEM` /
+  > `ON_COLLECT_ITEM` (the new Item system) → **23**, recorded here on 2026-09-11.
   > Nothing has ever been removed.
 
   | Group | Values |
@@ -444,49 +599,66 @@
   | Room / map | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`, `ON_CLEAR_ENEMY`, `ON_ROOM_CLEAR` |
   | Spawn | `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` |
   | Life cycle | `ON_PLAYER_DEATH`, `ON_ENEMY_DEATH`, `ON_REALOAD_GAME` |
-  | Stats UI | `ON_OPEN_STATS_PLAYER_UI`, `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`, `ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`, `ON_REVERT_STATS_BY_UI`, `ON_RESTORE_STATS_BY_UI` |
+  | Stats UI | `ON_OPEN_STATS_PLAYER_UI`, `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`, `ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`, `ON_REVERT_STATS_BY_UI`, `ON_RESTORE_STATS_BY_UI`, **`ON_RESET_STATS_UI_SESSION`** |
+  | Item | **`ON_DROP_ITEM`**, **`ON_COLLECT_ITEM`** |
   | Debug | `ON_TEST` |
 
-  Still missing: **`ON_PLAYER_TAKE_DAMAGE`** — `.claude/rules/ui-code.md` tells the health bar to bind
-  to it, but the value has never existed. `ON_ROOM_CLEAR` exists in the enum but has no producer yet.
+  Still missing: **`ON_PLAYER_TAKE_DAMAGE`** — `.claude/rules/ui-code.md` tells the health bar to
+  bind to it, but the value has never existed. `ON_ROOM_CLEAR` exists in the enum but has no producer yet.
 
   ---
 
   ## Known Bugs (block demo)
 
-  > Re-verified against source 2026-08-20. IDs #1–#17 are the historical CLAUDE.md numbering;
-  > BUG-0NN IDs come from `production/qa/bugs/` and the sprint files.
+  > **Re-verified against source 2026-09-11 (HEAD `6d6a8e4`).** IDs #1–#17 are the historical
+  > CLAUDE.md numbering; BUG-0NN IDs come from `production/qa/bugs/` and the sprint files.
+  >
+  > **Three corrections this pass** — the previous table was wrong on all three:
+  > - **BUG-053** was listed OPEN. It is **FIXED** (`f3f5f08`, confirmed in `production/qa/bugs/BUG-053.md`
+  >   on 2026-09-06). This table simply never followed the bug file.
+  > - **BUG-044** claimed the fix "properly stops `PlayerMovement`". It does not —
+  >   `PlayerDeathState.Enter()` only calls `base.Enter()`. Split out as **BUG-065**.
+  > - **NEW-4** claimed `Stat.modifiers` no longer carries `[SerializeField]`. It does again,
+  >   behind `#if UNITY_EDITOR` (`Stat.cs:63-65`). Regression tracked as **BUG-063**.
 
   | # | Severity | Status | Description | Location |
   |---|----------|--------|-------------|----------|
-  | 1 | COMPILE | ✅ SUPERSEDED | `RoomMapController` — class đã bị xóa, thay bởi `RoomGridController` (2026-06-04) | — |
-  | 2 | COMPILE | ✅ SUPERSEDED | `MainMapController` — class đã bị xóa, logic chuyển vào `RoomGridController` (2026-06-04) | — |
-  | 3 | LOGIC | ✅ SUPERSEDED | `MainMapController.Start()` — class không còn tồn tại (2026-06-04) | — |
-  | 4 | LOGIC | ✅ FIXED | Player melee damage — `MeleeWeapon.OnActivate()` now does `OverlapCircleNonAlloc` + `INegativeReceiver.TakeDamage()` | [MeleeWeapon.cs:26](Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs#L26) |
-  | 5 | LOGIC | ✅ SUPERSEDED | `EntityMoveState` rewritten — `LogicUpdate()` now null-guards `entityInput.TargetTransform` first | [EntityMoveState.cs:24](Assets/Script/Character/Entity/States/EntityMoveState.cs#L24) |
-  | 6 | LOGIC | ⚠️ PARTIAL | `NegativeReciver.TakeDamage()` is implemented and emits `ON_PLAYER_DEATH`, but it writes its own `currentHealth` field — `PlayerData.currentHealth` is never touched, `PlayerData.Reborn()` has no caller, and no `GameManager` exists (story S10-08) | [NegativeReciver.cs:6](Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs#L6) |
-  | 7 | LOGIC | ✅ FIXED | `EntityDeathState` now extends `EntityBasicState` and emits `ON_ENEMY_DEATH` | [EntityDeathState.cs:1](Assets/Script/Character/Entity/States/EntityDeathState.cs#L1) |
-  | 8 | LOGIC | ✅ FIXED | `EntityBasicState.LogicUpdate()` transitions to `entity.DeathState` when `Data.StatsSO.Health <= 0` | [EntityBasicState.cs:30](Assets/Script/Character/Entity/States/EntityBasicState.cs#L30) |
-  | 9 | LOGIC | ✅ FIXED | `AnimationPlayerController` registers all five `AnimationEventId`s correctly, `EndAnimation` included | [AnimationPlayerController.cs:21](Assets/Script/Character/Player/Animation/AnimationPlayerController.cs#L21) |
-  | 10 | BUILD | ✅ FIXED | No `using UnityEditor` remains in `Assets/Script/` runtime code | [EventManager.cs](Assets/Script/Manager/EventManager.cs) |
-  | 11 | LOGIC | ✅ FIXED | `MapGridController` — minimap avatar tween works (DOTween) | [MapGridController.cs](Assets/Script/Map/Cell/MapGridController.cs) |
-  | 12 | ARCH | ⚠️ OPEN | `LevelManager` dùng singleton (`public static Instance`, a bare field) — vi phạm "no new singletons"; `RoomGeneraterController.Setting()` reaches through it | [LevelManager.cs:10](Assets/Script/LevelEdit/LevelManager.cs#L10) |
-  | 13 | LOGIC | ⚠️ OPEN | Player không được teleport vào phòng start — dòng teleport bị comment; `RoomGeneraterController.OnDoneLoadRoomGrid()` (có teleport) không được gọi từ đâu | [RoomGridController.cs:82](Assets/Script/Map/Room/RoomGridController.cs#L82) |
-  | 14 | LOGIC | ⚠️ OPEN | `MazeController.Awake()` thiếu `return` sau `Destroy(gameObject)` — instance trùng vẫn ghi đè `Instance` và chạy generator lần nữa | [MazeController.cs:17](Assets/Script/Map/Maze/MazeController.cs#L17) |
-  | 15 | BUILD | ⚠️ OPEN | Room JSON load qua `File.ReadAllText(Application.dataPath + filePath)` — chỉ chạy trong Editor; `Assets/Data/Json/` không được đóng gói vào Player build (cùng pattern trong `LevelManager.cs`) | [RoomGeneraterController.cs:63](Assets/Script/Map/Room/RoomGeneraterController.cs#L63) |
-  | 16 | LOGIC | ⚠️ OPEN | `RoomType` enum không được đọc ở runtime — start/end room ép theo vị trí list `room[0]`/`room[last]`; vỡ ngầm nếu `Maze_Storage.asset` bị sắp xếp lại | [RoomGeneraterController.cs:47](Assets/Script/Map/Room/RoomGeneraterController.cs#L47) |
-  | 17 | ARCH | ⚠️ OPEN | Dead code gây hiểu nhầm: `DoorController.OpenDoor()`/`CheckCanBeOpened()` và `RoomCell.UpdateStatusDoor()` là no-op; cơ chế thật là `OpenDoors()`/`CloseDoor()` | [DoorController.cs:29](Assets/Script/Map/Room/Door/DoorController.cs#L29) |
-  | BUG-042 | LOGIC | ✅ FIXED | `EntityCore.TakeDamage()` thrown `NotImplementedException` — removed; entities now route health through `Stats` SO directly (2026-08-28) | [EntityCore.cs:1](Assets/Script/Character/Entity/Core/EntityCore.cs#L1) |
-  | BUG-053 | LOGIC | ⚠️ OPEN | `EntityNegativeReciver` runs player-only logic on an enemy: resolves `PlayerInputHandler` off `EntityCore` (→ NRE) and emits `ON_PLAYER_DEATH` when an **enemy** dies | [EntityNegativeReciver.cs:10](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs#L10) |
-  | BUG-043 | ARCH | ✅ FIXED | Two divergent enemy attack paths — `EntityWeaponMelee.cs` deleted (2026-08-28); all weapons now use unified `Weapon` framework via `EntityWeapon` base | [EntityWeapon.cs](Assets/Script/Character/Entity/EntityWeapon.cs) |
-  | BUG-044 | LOGIC | ✅ FIXED | `PlayerDeathState` never constructed in `Player.Awake()` — now instantiated in line 58 and properly stops `PlayerMovement` (not EntityMovement) in `Enter()` (2026-08-28) | [Player.cs:58](Assets/Script/Character/Player/Player.cs#L58) |
-  | BUG-046 | PERF | ✅ FIXED | `EntityWeaponMelee.Attack()` used allocating `Physics2D.OverlapCircle` — deleted entire class (2026-08-28); all melee now via `MeleeWeapon` reference implementation | — |
-  | BUG-033 | LOGIC | ✅ FIXED | `EnemySpawner.SpawnRoomEnemies()` — null-check order fixed; now checks `set == null` before `.Count` (2026-08-28) | [EnemySpawner.cs:74](Assets/Script/Enemy/EnemySpawner.cs#L74) |
-  | BUG-052 | DOC | ⚠️ OPEN | `Character/Base/`, `Pathfinding/`, `Poolable/` are live subsystems with no ADR. Layout above now lists them; the ADR decision is still owed | — |
-  | NEW-1 | LOGIC | ✅ FIXED | `EntityInput.Update()` had `//GetTargetInRange();` commented out — now removed. Target detection awaits reimplementation with null guards + NonAlloc queries (2026-08-28) | [EntityInput.cs:64](Assets/Script/Character/Entity/CoreComponent/EntityInput.cs#L64) |
-  | NEW-2 | LOGIC | ✅ FIXED | `EntityStatsSO.ModifiersAmor` getter/setter recursion → `StackOverflowException` — entire `EntityStatsSO.cs` deleted (2026-08-28); entities now use shared `Stats` SO + `EntityStatsHandler` pattern | — |
-  | NEW-3 | LOGIC | ✅ FIXED | `StatsSO.RecalculateDerived()` skip-guard used `\|\|` where it needed `&&`. Fixed on `sprint-10` — the guard now ANDs all four comparisons, and `AddPrimaryPoint()` calls `RecalculateDerived()` directly. (Harmless leftover: `FinalValue` is compared twice) | [StatsSO.cs:274](Assets/Script/StatSystem/StatsSO.cs#L274) |
-  | NEW-4 | DATA | ✅ FIXED | `Stat.modifiers` no longer carries `[SerializeField]`, so runtime buffs are not written into `.asset` files any more. A warning comment above the field records the past leak (`STR +1 Flat` reached `PlayerStats.asset` / `Test.asset` and was committed) and the distinction from `StatModifierGroup.authoredModifiers`, which **must stay serialized** — `SnS_Stat.asset` holds real authored data there | [Stat.cs:49-62](Assets/Script/StatSystem/Stat.cs#L49) |
+  | 1–3 | COMPILE | ✅ SUPERSEDED | `RoomMapController` / `MainMapController` deleted 2026-06-04, replaced by `RoomGridController` | — |
+  | 4 | LOGIC | ✅ FIXED | Player melee damage — `MeleeWeapon.OnActivate()` does `OverlapCircleNonAlloc` + `INegativeReceiver.TakeDamage()` | [MeleeWeapon.cs](Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs) |
+  | 5 | LOGIC | ✅ SUPERSEDED | `EntityMoveState.LogicUpdate()` now null-guards `entityInput.TargetTransform` first | [EntityMoveState.cs](Assets/Script/Character/Entity/States/EntityMoveState.cs) |
+  | 6 | LOGIC | ⚠️ PARTIAL (narrowed) | Player health now routes correctly through `VitalStatsComponent`, so the "two disconnected stores" half is closed. Still open: `PlayerData.currentHealth` is never written, `PlayerData.Reborn()` has no caller, and no `GameManager` exists to reload `StartScene` (story S10-08) | [NegativeReciver.cs](Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs) |
+  | 7 | LOGIC | ✅ FIXED | `EntityDeathState : EntityBasicState`, emits `ON_ENEMY_DEATH` | [EntityDeathState.cs](Assets/Script/Character/Entity/States/EntityDeathState.cs) |
+  | 8 | LOGIC | ✅ FIXED | `EntityBasicState.LogicUpdate()` transitions to `DeathState` at zero health | [EntityBasicState.cs](Assets/Script/Character/Entity/States/EntityBasicState.cs) |
+  | 9 | LOGIC | ✅ FIXED | `AnimationPlayerController` registers all five `AnimationEventId`s | [AnimationPlayerController.cs](Assets/Script/Character/Player/Animation/AnimationPlayerController.cs) |
+  | 10 | BUILD | ✅ FIXED | No unguarded `using UnityEditor` in `Assets/Script/` runtime code | [EventManager.cs](Assets/Script/Manager/EventManager.cs) |
+  | 11 | LOGIC | ✅ FIXED | Minimap avatar tween works (DOTween) | [MapGridController.cs](Assets/Script/Map/Cell/MapGridController.cs) |
+  | 12 | ARCH | ⚠️ OPEN | `LevelManager` uses a bare `public static Instance` field — violates "no new singletons"; `RoomGeneraterController.Setting()` reaches through it (TD-023) | [LevelManager.cs:10](Assets/Script/LevelEdit/LevelManager.cs#L10) |
+  | 13 | LOGIC | ⚠️ OPEN | Player is not teleported into the start room — the teleport line is commented out; `RoomGeneraterController.OnDoneLoadRoomGrid()` has no caller | [RoomGridController.cs:82](Assets/Script/Map/Room/RoomGridController.cs#L82) |
+  | 14 | LOGIC | ⚠️ OPEN | `MazeController.Awake()` missing `return` after `Destroy(gameObject)` — a duplicate still overwrites `Instance` and re-runs the generator. `EnemyManager.Awake()` has the correct shape to copy | [MazeController.cs:17](Assets/Script/Map/Maze/MazeController.cs#L17) |
+  | 15 | BUILD | ⚠️ OPEN | Room JSON via `File.ReadAllText(Application.dataPath + filePath)` — Editor-only; `Assets/Data/Json/` is not packaged into a Player build | [RoomGeneraterController.cs:69](Assets/Script/Map/Room/RoomGeneraterController.cs#L69) |
+  | 16 | LOGIC | ⚠️ OPEN | `RoomType` never read at runtime — start/end rooms forced by list position `room[0]`/`room[last]`; reordering `Maze_Storage.asset` breaks selection silently | [RoomGeneraterController.cs:47](Assets/Script/Map/Room/RoomGeneraterController.cs#L47) |
+  | 17 | ARCH | ⚠️ OPEN | Dead code that reads as live gating: `DoorController.OpenDoor()` / `CheckCanBeOpened()` and `RoomCell.UpdateStatusDoor()` are no-ops. The real mechanism is `OpenDoors()` / `CloseDoor()` | [DoorController.cs:29](Assets/Script/Map/Room/Door/DoorController.cs#L29) |
+  | BUG-042 | LOGIC | ✅ FIXED | `EntityCore.TakeDamage()` threw `NotImplementedException` — method removed; entities route health through the stat/vitals split | [EntityCore.cs](Assets/Script/Character/Entity/Core/EntityCore.cs) |
+  | BUG-043 | ARCH | ⚠️ PARTIAL | `EntityWeaponMelee.cs` deleted, so the worst duplicate is gone. But `EntityAttack.Attack()` still exists alongside `EntityWeapon` and still hardcodes `TakeDamage(10, …)` | [EntityAttack.cs:33](Assets/Script/Character/Entity/CoreComponent/EntityAttack.cs#L33) |
+  | BUG-044 | LOGIC | ✅ FIXED (scope corrected) | `PlayerDeathState` **is** constructed in `Player.Awake()`. The earlier "and stops PlayerMovement" claim was false → see BUG-065 | [Player.cs:58](Assets/Script/Character/Player/Player.cs#L58) |
+  | BUG-046 | PERF | ✅ FIXED | Allocating `Physics2D.OverlapCircle` in `EntityWeaponMelee.Attack()` — class deleted; melee goes through `MeleeWeapon` | — |
+  | BUG-033 | LOGIC | ✅ FIXED | `EnemySpawner` null-check order — now tests `set == null` before `.Count` | [EnemySpawner.cs](Assets/Script/System/Enemy/EnemySpawner.cs) |
+  | BUG-052 | DOC | ⚠️ OPEN (widened) | Live subsystems with no ADR. Originally `Character/Base/`, `Pathfinding/`, `Poolable/`. **Now also**: the Item system, Abilities v2, and the UI layer. VContainer was in this set until ADR-0004 landed on 2026-09-11 | — |
+  | BUG-053 | LOGIC | ✅ **FIXED** | `EntityNegativeReciver` ran player-only logic on an enemy. Rewritten in the Sprint 12 entity/stat refactor: Defense-aware `DamageCalculate()` → `EntityVitalStats` → `EntityUIController`. No `PlayerInputHandler`, no `ON_PLAYER_DEATH` | [EntityNegativeReciver.cs](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs) |
+  | BUG-063 | DATA | ⚠️ **OPEN (regression)** | `Stat.modifiers` re-serialized via `#if UNITY_EDITOR` + `[SerializeField]` — reopens the data-corruption bug that `f5de65a` closed. Runtime buffs can again be written into committed `.asset` files. One-line fix, carried 24+ cycles | [Stat.cs:63-65](Assets/Script/System/StatSystem/Stat.cs#L63) |
+  | BUG-064 | BUILD | ⚠️ PARTIAL | Entity refactor deleted types without sweeping callers. Sub-items 1–6 fixed; **sub-item 7 (`RangeWeapon` DI wiring) still open** | [RangeWeapon.cs](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs) |
+  | BUG-065 | LOGIC | ⚠️ OPEN | `PlayerDeathState.Enter()` only calls `base.Enter()` — the player keeps sliding during the death animation | [PlayerDeathState.cs:10](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10) |
+  | BUG-066 | LOGIC | ⚠️ OPEN | `EntityVitalStats` indexes `currentStats[statType]` with no key-existence guard → `KeyNotFoundException` for any `StatType` missing from an entity's profile | [EntityVitalStats.cs](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs) |
+  | NEW-1 | LOGIC | ✅ FIXED | `EntityInput` target detection restored; `EntityFindTarget` performs FOV + range + obstacle checks | [EntityFindTarget.cs](Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs) |
+  | NEW-2 | LOGIC | ✅ FIXED | `EntityStatsSO.ModifiersAmor` getter/setter recursion → `StackOverflowException`; entire `EntityStatsSO.cs` deleted, entities use `EnemyStatSO : BaseStatsSO` | — |
+  | NEW-3 | LOGIC | ✅ FIXED | `RecalculateDerived()` skip-guard used `\|\|` where it needed `&&` — fixed on `sprint-10`, carried into `BaseStatsSO` | [BaseStatsSO.cs](Assets/Script/System/StatSystem/BaseStatsSO.cs) |
+  | NEW-4 | DATA | ❌ **REGRESSED → BUG-063** | Previously "FIXED — `Stat.modifiers` no longer serialized". No longer true; see BUG-063 | [Stat.cs:63-65](Assets/Script/System/StatSystem/Stat.cs#L63) |
+
+  ### Orphan directories (cleanup, not bugs)
+
+  `Assets/Script/Character/Boss/` and `Assets/Script/Handler/` contain only `.meta` files and no
+  `.cs`. They are the residue of the boss feature that was added in `ffe1976` and reverted in
+  `4421fdc` / `ff67f4d`. No document recorded that revert until now.
 
   ---
 
@@ -494,33 +666,38 @@
 
   - **No comments** unless the WHY is non-obvious (hidden constraint, workaround, surprising invariant).
   - **ScriptableObject-first**: game data (abilities, enemies, weapons, items) lives in SO assets, not hardcoded values.
-  - **No new singletons** — `MazeController` and `EnemyManager` (ratified exception, ADR-0002) are the only permitted singletons; `LevelManager` is a standing unratified violation (TD-023). Use `GetComponent` or Inspector refs everywhere else.
+  - **No new singletons** — `MazeController` and `EnemyManager` (ratified exception, ADR-0002) are the only permitted singletons; `LevelManager` is a standing unratified violation (TD-023). Cross-system services now go through **VContainer** (ADR-0004); sibling components still use `Core.GetCoreComponent<T>()`.
   - **State machine for all characters**: new behaviour = new `PlayerState` / `EntityState` subclass, never inline `if/else` in `Update`.
-  - **Weapon skills**: subclass `ActivateSkill` and override `Do()` (one-shot) or `Cast()`+`Do()` (hold-release).
+  - **Skills**: new *player* abilities are authored as `AbilityDefinition` SO assets composed from effects + conditions (Abilities v2). Do **not** add new `ActivateSkill` subclasses — v1 is in maintenance for the weapon/enemy path only.
+  - **Damage**: `INegativeReceiver.TakeDamage(float amountDamage, Vector2 attackPosition)` — note `float`, not `int`.
   - **Layer masks** must be set in Inspector; never hardcode layer indices.
-  - **Preserve intentional typos** — `Resgister`, `INegativeReciver.cs`, `attackDamege`, `Modal`, `ENEBLE`, `CaculateIndex`, `currrentSA`, `deplayTime` are real contracts in code and in serialized assets.
+  - **Preserve intentional typos** — `Resgister`, `INegativeReciver.cs`, `attackDamege`, `Modal`, `ENEBLE`, `CaculateIndex`, `currrentSA`, `deplayTime`, `IObjecPoolService`, `amoutDamage` are real contracts in code and in serialized assets.
+  - **Known file/class name mismatches** (do not "fix" casually — prefab and scene references depend on the file name): `PlayerInputHandle.cs` → `PlayerInputHandler`, `TalentManager.cs` → `TalentManagger`, `VitalComponent.cs` → `VitalStatsComponent`, `CoreCompoment.cs` → `CoreComponent<T>`.
 
   ---
 
   ## Demo Completion Checklist
 
   1. ~~**Fix map compile errors**~~ ✅ Done — bugs 1-3 SUPERSEDED.
-  2. ~~**Dungeon navigation + random room load**~~ ✅ Done — random DFS start/end; random room pool; JSON load + door tile swap; teleport via `fastMovement`.
-  3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` saves/loads room tilemaps as JSON; `LevelManagerEditor` custom Inspector.
+  2. ~~**Dungeon navigation + random room load**~~ ✅ Done.
+  3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` + `LevelManagerEditor`.
   4. ~~**Fix EventManager build break**~~ ✅ Done (Bug #10).
-  5. ~~**Fix player melee damage**~~ ✅ Done (Bug #4) — `MeleeWeapon.OnActivate()`.
-  6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` now constructed in `Player.Awake()` (BUG-044 FIXED). Still needs: `NegativeReciver` to write `PlayerData.currentHealth`; a `GameManager` to subscribe, call `PlayerData.Reborn()` and reload `StartScene`.
-  7. ~~**Deploy enemy** (Bugs #5, #7, #8)~~ ✅ Done — all three sub-tasks landed.
-  8. ~~**Room clear condition**~~ ✅ Done — `RoomCell.EnemyCount` counts spawns/deaths and emits `ON_CLEAR_ENEMY`; `RoomGridController` opens the doors.
-  9. **HUD** ⚠️ — `UIManager` is still an empty stub. A stats panel (`UI/StatsUIController.cs`) and UI Toolkit menus (`UI/UIController.cs`) exist but neither has a GDD, and health/mana are not displayed anywhere.
-  10. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards, apply through `StatsSO.AddModifiersFromSource()`.
+  5. ~~**Fix player melee damage**~~ ✅ Done (Bug #4).
+  6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` constructed and emitting `ON_PLAYER_DEATH`; ✅ health routes through `VitalStatsComponent`. Still needs: write `PlayerData.currentHealth`, a `GameManager` to subscribe + call `Reborn()` + reload `StartScene`, and **BUG-065** (stop `PlayerMovement` on death).
+  7. ~~**Deploy enemy** (Bugs #5, #7, #8)~~ ✅ Done.
+  8. ~~**Room clear condition**~~ ✅ Done — `RoomCell.EnemyCount` → `ON_CLEAR_ENEMY`.
+  9. **HUD** ⚠️ — `UIManager` is still an empty stub. `StatsUIController`, `StatsScreenUIController` and UI Toolkit menus exist but have no GDD; the **player** health/mana bar is still displayed nowhere (enemies now have one via `EntityUIController`).
+  10. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards, apply through `BaseStatsSO.AddModifiersFromSource()`. `StatPointAllocator` provides the allocation-session mechanics.
   11. ~~**Fix AnimationPlayerController**~~ ✅ Done (Bug #9).
-  12. ~~**Combo attack**~~ ✅ Done — stage list on `WeaponStats.AttackStages`; `Weapon.OnAttackEnter()` advances the index modulo `StageCount`; damage now lands.
-  13. **Fix start-room teleport** ⚠️ (Bug #13) — re-enable the teleport in `RoomGridController.OnDoneLoadRoomGrid()` or call `RoomGeneraterController.OnDoneLoadRoomGrid()`.
-  14. **Build-safe room JSON loading** ⚠️ (Bug #15) — replace `File.ReadAllText(Application.dataPath…)` with `TextAsset` refs on `DungeonRoomSO` or StreamingAssets.
-  15. **Enemy spawn system** ⚠️ — GDD `design/gdd/enemy-spawn-system.md` + ADR-0002/0003. **Built:** `EntityModel`/`MapModel`/`RoomModel` + `GetSpawnSet()` (candidate-pool + `RarityTier` roll), `EnemySpawner` (event-driven, pooled), `Tile_Spawn_Enemy` markers in all 13 room JSONs, `RoomCell` alive-count, `ON_ENEMY_DEATH`/`ON_CLEAR_ENEMY` wired. **Fixed (2026-08-28):** ✅ BUG-033 null-guard. **Open:** BUG-ES-2 two parallel spawn drivers (`EnemySpawner` + `LevelManager.SpawnRoomEnemies()` Editor button); `EnemyManager` does **not** own the spawn lifecycle ADR-0002 assigns it; `overflowPercent` declared but unread; the `retry > 4` fallback in `SetListCandidate()` breaks ADR-0003's budget guarantee. Blocked by BUG-053 (enemies cannot die).
-  16. **Enemy targeting** ⚠️ (NEW-1) — ✅ Comment removed (2026-08-28). Still needs: re-enable `EntityInput.GetTargetInRange()` with a null guard and NonAlloc queries. Nothing in enemy AI works until this lands.
-  17. **Enemy damage/death chain** ⚠️ (BUG-053, story S10-01) — ✅ BUG-042 + BUG-043 + BUG-046 + NEW-2 FIXED (2026-08-28). Still needs: fix `EntityNegativeReciver` to route enemy health through `Stats` SO instead of player-only logic; delete duplicate attack implementations.
+  12. ~~**Combo attack**~~ ✅ Done — `WeaponStats.AttackStages` + `Weapon.OnAttackEnter()`.
+  13. **Fix start-room teleport** ⚠️ (Bug #13).
+  14. **Build-safe room JSON loading** ⚠️ (Bug #15) — replace `File.ReadAllText(Application.dataPath…)` with `TextAsset` refs or StreamingAssets.
+  15. **Enemy spawn system** ⚠️ — GDD + ADR-0002/0003 exist. ✅ BUG-033 fixed; ✅ unblocked now that BUG-053 is closed. **Open:** BUG-ES-2 (two parallel spawn drivers), `overflowPercent` declared but never read, and the `retry > 4` fallback in `SetListCandidate()` that breaks ADR-0003's budget guarantee.
+  16. ~~**Enemy targeting**~~ ✅ Done (NEW-1) — `EntityFindTarget` performs FOV + range + obstacle checks.
+  17. ~~**Enemy damage/death chain**~~ ✅ Done (BUG-042/043/046/053, NEW-2) — one `INegativeReceiver` per side, Defense applied, health bar updated. ⚠️ Residual: BUG-066 key guard, BUG-043 `EntityAttack` duplicate.
+  18. **Reconcile the two ability frameworks** ⚠️ NEW — decide whether `ActivateSkill` (v1) migrates to `AbilityDefinition` (v2) or stays as the weapon/enemy path permanently. Needs an ADR; blocks `design/gdd/skill-ability-system.md` from being authoritative again.
+  19. **Fix BUG-063** ⚠️ NEW — one-line removal of the `#if UNITY_EDITOR [SerializeField]` on `Stat.modifiers`, before more runtime buffs are committed into `.asset` files.
+  20. **Zero tests** ⚠️ (TD-014) — `tests/EditMode/`, `tests/PlayMode/` still contain only `.gitkeep`.
 
   ---
 
@@ -529,6 +706,9 @@
   `EnemySO` (spawning/drop data): name, level, speedMove, fieldOfViewRange, rateAttack, attackRange, damage, powerShoot, projectile, layerMask, depotItem. ⚠️ Not consumed by `Entity` (TD-030).
 
   `EntityData` SO (AI runtime): statsSO, layerMask, aima (AnimatorOverrideController), rangeCheckFieldOfView, idleDurationTime, moveDurationTime, movementVelocities, rangeCheckAttack, weaponSO.
+
+  `EnemyStatSO : BaseStatsSO` — the stat profile an entity's `EntityStatsHandler` reads.
+  Assets: `Assets/SO/Stat/Enemy/{Assasin,TrashMelee,FastSwarm,RangedCaster,Tank}Stats.asset` + `Enemy/Boss/BossStats.asset`.
 
   `EnemyModal` (spawn metadata, nested in `RoomModel.cs`): Prefab, weight `[Range(1,100)]`, rarityTier.
 

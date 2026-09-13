@@ -1,3 +1,24 @@
+> ⚠️ **DEPRECATED — 2026-09-11.**
+> **Reason:** every class this review is written about has since been deleted or rewritten, so its
+> findings can no longer be acted on and its verdict is misleading if read as current.
+> - `WeaponMelee.Attack()` — section A's entire subject — was renamed `MeleeWeapon.cs` and the hit
+>   frame moved from `Attack()` to `OnActivate()`; it is now the project's *reference*
+>   implementation (`.claude/rules/weapon-skill-code.md`), the opposite of this review's finding.
+> - `EntityWeaponMelee.cs` — section B's subject — was **deleted** (BUG-043 / BUG-046 closed).
+> - The header line *"Both melee directions currently deal no reliable damage"* and the count
+>   *"0 of 16 issues fixed"* were true at HEAD `7995066` on 2026-07-30 and are false today.
+> - The damage contract changed from `TakeDamage(int, …)` to `TakeDamage(float, …)`.
+>
+> **Archived, not deleted:** this is the record of what the melee code looked like on 2026-07-30
+> and of the reasoning that drove the rewrite. Nothing below has been edited.
+>
+> **Superseded by:** `CLAUDE.md` → Damage Chain · `.claude/rules/weapon-skill-code.md` ·
+> `design/gdd/weapons-system.md` · open bugs in `production/qa/bugs/`.
+>
+> *Moved here from `docs/reviews/melee-combat-review.md` — see `docs/CHANGELOG-DOCS.md`.*
+
+---
+
 # Melee Combat Code Review — Summary
 
 **Branch:** `claude/melee-attack-damage-review-urd4l0`
