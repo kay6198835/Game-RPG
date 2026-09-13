@@ -6,16 +6,17 @@ public class AbilityInstance
 {
     public AbilityDefinition Definition { get; }
     public IAbilityOwner Owner { get; }
-
+    public IAbilityServices Services { get; }
     public float CooldownRemaining { get; private set; }
     public bool IsHolding { get; private set; }
     public float CurrentHoldTime { get; private set; }
-    public SkillState State { get; private set; } = SkillState.None;
+    public SkillState State { get; private set; } = SkillState.Start;
     private AbilityContext abilityContext;
-    public AbilityInstance(AbilityDefinition definition, IAbilityOwner owner)
+    public AbilityInstance(AbilityDefinition definition, IAbilityOwner owner, IAbilityServices abilityServices)
     {
         Definition = definition;
         Owner = owner;
+        Services = abilityServices;
     }
 
     public void Tick(float deltaTime)
@@ -57,28 +58,36 @@ public class AbilityInstance
     {
         if (Definition.ActivationType == AbilityActivationType.Hold)
         {
-            if (!TryPayCost())
-                return;
             Casting();
+            Debug.Log("TryCastInstant");
             if (IsHolding) return;
         }
+        Debug.Log("Change to Do State");
         ChangeState(SkillState.Do);
     }
     public void TryDoInstant()
     {
         Execute(abilityContext);
         StartCooldown();
-        ChangeState(SkillState.Exit);
+        //ChangeState(SkillState.Exit);
     }
 
     public void Exit()
     {
-
+        //ChangeState(SkillState.Start);
     }
 
     public void Casting()
     {
-
+        foreach (var effect in Definition.Effects)
+        {
+            if (effect == null) continue;
+            if (effect.Casting(abilityContext))
+            {
+                if (!TryPayCost())
+                    return;
+            }
+        }
     }
 
     public void ChangeState(SkillState updateState)
@@ -121,7 +130,8 @@ public class AbilityInstance
             HoldTime = CurrentHoldTime,
             HoldRatio = holdRatio,
             AbilityDefinition = Definition,
-            AbilityInstance = this
+            AbilityInstance = this,
+            Services = Services
         };
     }
 

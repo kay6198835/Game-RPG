@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Shoot Spirit Orb")]
@@ -8,16 +9,21 @@ public class ShootObjectEffect : AbilityEffectDefinition
     public float Speed = 10f;
     public float SpawnOffset = 0.8f;
     public float OrbLifetime = 8f;
-
-    [Header("DoT")]
-    public float DamagePerTick = 25f;
+    public float BaseDamage = 10f;
+    public float FinalDamage => BaseDamage + SubDamage;
+    [Header("Sub stats")]
     public float Duration = 5f;
-
-    [Header("Summon on Death")]
-    public GameObject SummonPrefab;
-
+    public float DamagePerTick = 25f;
+    public float CurrentTickTime = 0f;
+    public int TickCountMax = 5;
+    public int CurrentTickCount = 0;
+    public float SubDamage = 0;
     private AbilityContext _context;
 
+    public void OnEnable()
+    {
+        ReloadEffect();
+    }
     public override void Apply(AbilityContext context)
     {
         if (OrbPrefab == null || context?.Caster == null)
@@ -38,14 +44,45 @@ public class ShootObjectEffect : AbilityEffectDefinition
         var obj = context.Services.Pool.Spawn(OrbPrefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
         var orb = obj.GetComponent<SpiritOrbProjectile>();
         if (orb != null)
-
-            orb.Launch(dir, Speed, OrbLifetime, DamagePerTick, Duration, SummonPrefab, context.Services.Pool, SubEffect);
+            orb.Launch(dir, Speed, OrbLifetime, FinalDamage, OrbPrefab, context.Services.Pool, TakeDamage);
         else
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
+        ReloadEffect();
     }
 
-    public void SubEffect(INegativeReceiver receiver, Vector2 attackposition)
+    public void TakeDamage(INegativeReceiver receiver, Vector2 attackposition)
     {
-        receiver.TakeDamage(DamagePerTick, attackposition);
+        receiver.TakeDamage(FinalDamage, attackposition);
+    }
+
+    public override bool Casting(AbilityContext context)
+    {
+        if (!base.Casting(context)) return false;
+        foreach (var condition in SubConditions)
+        {
+            if (condition.IsMet(context)) continue;
+            return false;
+        }
+
+
+        CurrentTickTime += Time.deltaTime;
+        if (CurrentTickTime < Duration)
+        {
+            return false;
+        }
+        CurrentTickCount++;
+        CurrentTickTime = 0f;
+        if (CurrentTickCount > TickCountMax)
+        {
+            CurrentTickCount = TickCountMax;
+        }
+        SubDamage = CurrentTickCount * DamagePerTick;
+        return true;
+    }
+    private void ReloadEffect()
+    {
+        SubDamage = 0;
+        CurrentTickCount = 0;
+        CurrentTickTime = 0;
     }
 }

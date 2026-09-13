@@ -12,10 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9ac7c011812d042ac992007bc0cf48, type: 3}
   m_Name: ShootSpirit
   m_EditorClassIdentifier: 
-  OrbPrefab: {fileID: 0}
+  SubConditions:
+  - {fileID: 11400000, guid: 02cbacd1d0342774abb852a2ed63f9b4, type: 2}
+  SubEffects: []
+  OrbPrefab: {fileID: 6457692323656992054, guid: d7578f829fa406e42b6f8d7d9bd92749, type: 3}
   Speed: 10
   SpawnOffset: 0.8
   OrbLifetime: 8
+  BaseDamage: 10
+  Duration: 2
   DamagePerTick: 25
-  Duration: 5
-  SummonPrefab: {fileID: 6457692323656992054, guid: d7578f829fa406e42b6f8d7d9bd92749, type: 3}
+  CurrentTickTime: 0
+  TickCountMax: 5
+  CurrentTickCount: 0
+  SubDamage: 0
