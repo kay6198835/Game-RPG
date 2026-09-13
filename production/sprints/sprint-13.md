@@ -1,5 +1,51 @@
 # Sprint 13 — 2026-09-08 to 2026-09-12
 
+**Status: CLOSED — FAIL (2026-09-13 Saturday `pm-weekly-wrapup`, on-slot autonomous run).** Full
+detail: `production/retros/retro-sprint-13-2026-09-13.md` and `production/qa/bug-triage-2026-09-13.md`.
+
+**Final scorecard — 0 of 6 Must-Have tasks met, 0 partial, verified against source at `sprint-13` HEAD `0622b07`:**
+
+| Item | Final status |
+|------|--------------|
+| S13-01 (BUG-064 item 7, `RangeWeapon.cs` DI wiring) | ❌ NOT MET — `poolManager` still `[SerializeField]`, no `[Inject]`, byte-for-byte unchanged from sprint open |
+| S13-02 (owner-in-Editor Play Mode smoke session) | ❌ NOT MET — no session occurred, 5th consecutive sprint with this gap |
+| S13-03 (BUG-063, `Stat.cs:63-65` `[SerializeField]` regression) | ❌ NOT MET — untouched, 25th+ consecutive carry |
+| S13-04 (BUG-065, `PlayerDeathState` movement stop) | ❌ NOT MET — `Enter()` still only calls `base.Enter()` |
+| S13-05 (BUG-066, `EntityVitalStats` unguarded indexer) | ❌ NOT MET — untouched; a twin bug (BUG-070) now exists on the player-side `VitalStatsComponent` too |
+| S13-06 (pre-push hook placeholder) | ❌ NOT MET — `.git/hooks/pre-push` still absent, 20th+ carry |
+| QA Plan gate | ❌ Still none — 26th+ consecutive cycle |
+| S13-07 through S13-12 (Should-Have) | 🟡 2 of 6 landed — S13-07 (`/doc-sync`) and S13-10 (ADR-0004, VContainer DI, Accepted). S13-08/09/11/12 not met |
+| First playtest | ❌ Not run — last log still 2026-06-12 |
+
+**What did land**: `/doc-sync` finally landed after losing its session two sprints running — CLAUDE.md
+is now current against the 298-file restructure. ADR-0004 (VContainer DI) was filed and Accepted,
+closing the largest previously-undocumented architectural surface. The Abilities v2 framework
+(promoted from `prototypes/` in a prior sprint) was completed in source — a real, if unplanned, piece
+of architectural progress.
+
+**What did not land**: all six Must-Have bug-fix/process tasks — the cheapest, most isolated items in
+the entire backlog, explicitly scoped that way after two prior retros recommended removing them from
+competition with larger work. That mitigation failed a third time. The unplanned Abilities v2 /
+Item-system work that displaced the sprint plan shipped with **4 new bugs of its own**
+(BUG-067 heal/damage swap — a live regression on the new item-pickup path; BUG-068 unguarded null
+dereference on ability activation; BUG-069 cooldown enforcement never wired; BUG-070 an unguarded
+dictionary indexer mirroring the still-open BUG-066), none caught before this wrap-up's code review,
+5 days after the work shipped.
+
+**Velocity**: Must-Have completion rate is 0% for the third sprint running on a declining trend —
+Sprint 11 landed ~40-50% functionally, Sprint 12 ~40-50% functionally (0% verified), Sprint 13 0%
+on both axes. Open bug count grew net +4 this cycle (5 open → 9 open), the sharpest single-cycle
+growth on record, entirely from one unreviewed, unplanned subsystem.
+
+**Carryover into Sprint 14**: BUG-067 and BUG-068 (both new, both threaten the still-unrun Play Mode
+smoke session directly — fix first), BUG-064 item 7, BUG-063, BUG-065, BUG-066 (bundle with new twin
+BUG-070), the pre-push hook placeholder, one owner-in-Editor smoke session (5th consecutive ask), the
+S4-05/S4-06 + ADR-0002 owner sign-off pass, batch bug-file generation (S13-11), first EditMode test
+(S13-12, natural pairing with BUG-066/BUG-070), a decision on whether off-plan feature work needs a
+same-day review gate, QA plan, first playtest.
+
+---
+
 **Opened:** 2026-09-07 (Sunday 22:00 `pm-weekly-kickoff`, on-slot autonomous run — no owner present).
 Branch `sprint-13`, created from `sprint-12` tip (`3f6abeb`, "chore(wrapup): weekly wrap-up 2026-09-06").
 A stale local `sprint-13` branch already existed (pointing at an older ancestor, `1835cbe`, with zero
