@@ -42,7 +42,7 @@ public class ShootObjectEffect : AbilityEffectDefinition
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
         var obj = context.Services.Pool.Spawn(OrbPrefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
-        var orb = obj.GetComponent<SpiritOrbProjectile>();
+        var orb = GetSpiritOrbProjectile(obj);
         if (orb != null)
             orb.Launch(dir, Speed, OrbLifetime, FinalDamage, OrbPrefab, context.Services.Pool, TakeDamage);
         else
@@ -84,5 +84,13 @@ public class ShootObjectEffect : AbilityEffectDefinition
         SubDamage = 0;
         CurrentTickCount = 0;
         CurrentTickTime = 0;
+    }
+
+    private SpiritOrbProjectile GetSpiritOrbProjectile(GameObject obj)
+    {
+        if (!obj.TryGetComponent<SpiritOrbProjectile>(out var spiritOrbProjectile))
+            spiritOrbProjectile = obj.AddComponent<SpiritOrbProjectile>();
+
+        return spiritOrbProjectile;
     }
 }

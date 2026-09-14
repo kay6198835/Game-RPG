@@ -68,4 +68,9 @@ public class VitalStatsComponent : CoreComponent<Core>, IVitalComponent
         yield return new WaitForSeconds(duration);
         statModifierGroup.Remmove(statHandler.RemoveModifiersFromSource, this);
     }
+
+    private void ReloadCurrentData()
+    {
+        
+    }
 }

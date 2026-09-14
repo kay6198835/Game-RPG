@@ -7,18 +7,18 @@ using VContainer;
 
 public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 {
-    private IAbilityServices services;
+    IAbilityServices services;
     IPlayerStatService statsHandler;
     IResourceReceiver resourceReceiver;
     IVitalComponent vital;
     IObjecPoolService objecPoolService;
+    PlayerInputHandler playerInputHandler;
     [field: SerializeField] private List<AbilityBinding> abilityBindings = new();
-
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
-
     public Transform Transform => this.transform;
     [field: SerializeField] public bool IsHolding { get; private set; }
     [field: SerializeField] private AbilityInstance currentAbility;
+    public SkillState State => currentAbility?.State ?? SkillState.Start;
 
 
     [Inject]
@@ -43,6 +43,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         statsHandler = Core.GetComponentInChildren<IPlayerStatService>();
         resourceReceiver = Core.GetComponentInChildren<IResourceReceiver>();
         vital = Core.GetComponentInChildren<IVitalComponent>();
+        PlayerInputHandler = Core.GetCoreComponent(out playerInputHandler);
         services = new AbilityServices(objecPoolService, statsHandler, resourceReceiver, vital);
     }
 
@@ -63,6 +64,10 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     public void PayCost(StatType statType, float amount)
     {
         vital.ReceiveReduction(statType, amount);
+    }
+    public Vector2 DirectorForward()
+    {
+        return playerInputHandler.DirectionMouseVector;
     }
 
     public void Equip(AbilitySlot slot, AbilityDefinition definition)
@@ -88,9 +93,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         return instance;
     }
 
-    public SkillState State => currentAbility?.State ?? SkillState.Start;
-    // Check logic gọi đúng vị trí, nhưng chưa xử lý logic trong các state.
-    //  Cần bổ sung logic cho từng state trong phương thức HandleInput() và các phương thức liên quan.
     public void HandleInput()
     {
         if (currentAbility == null) return;
@@ -98,7 +100,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         var def = instance.Definition;
         if (def == null)
             return;
-        Debug.Log("HandleInput: "+instance.State);
+        Debug.Log("HandleInput: " + instance.State);
         switch (instance.State)
         {
             case SkillState.Start:
