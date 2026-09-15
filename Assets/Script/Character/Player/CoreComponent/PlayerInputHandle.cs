@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -235,6 +236,12 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
             isAttack = false;
         }
     }
+
+    void ResetFlagSkill()
+    {
+        isSkill = false;
+        abilityHolder.CancelHold();
+    }
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
         if (weaponHolder.Weapon == null)
@@ -243,23 +250,30 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         }
         if (context.started)
         {
-            isSkill = true;
+            if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
             if (abilityHolder.TryDoAbility(AbilitySlot.Primary))
             {
                 abilityHolder.StartHold();
-            }
-            //abilityHolder.GetAbility(AbilitySlot.Primary);
+                isSkill = true;
+                if (abilityHolder.CurrentActivationType == AbilityActivationType.Active)
+                {
+                    CancelInvoke(nameof(ResetFlagSkill));
+                    Invoke(nameof(ResetFlagSkill), Time.deltaTime);
+                }
 
+            }
         }
         else if (context.performed)
         {
-            //state = SkillState.Cast;
+
         }
         else if (context.canceled)
         {
+            if (!isSkill) return;
             abilityHolder.CancelHold();
             isSkill = false;
         }
+        Debug.Log("OnSkillWeapon " + context);
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {

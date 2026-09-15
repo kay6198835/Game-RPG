@@ -71,7 +71,7 @@ public class StatCost
     public StatType statType;
 }
 
-public enum SkillState
+public enum AbilityState
 {
     Start,
     Cast,

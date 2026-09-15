@@ -6,12 +6,16 @@ public abstract class AbilityEffectDefinition : ScriptableObject
 {
     public string AbilityName = "";
     public List<AbilityConditionDefinition> SubConditions;
-    public List<AbilityEffectDefinition> SubEffects;
     public abstract void Apply(AbilityContext context);
     public virtual bool Casting(AbilityContext context)
     {
-        if (SubConditions == null || SubConditions.Count == 0)
-            return false;
+        if (SubConditions.Count > 0)
+        {
+            foreach (var condition in SubConditions)
+            {
+                if (!condition.IsMet(context)) return false;
+            }
+        }
         return true;
     }
 
