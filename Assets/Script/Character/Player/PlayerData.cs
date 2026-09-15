@@ -3,29 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-[CreateAssetMenu(fileName ="newPLayerData",menuName ="Data/PLayer Data/Base Data")]
+[CreateAssetMenu(fileName = "newPLayerData", menuName = "Data/PLayer Data/Base Data")]
 public class PlayerData : ScriptableObject
 {
-    [SerializeField] private float maxHealth;
-    [SerializeField] public float currentHealth;
-    public float MaxHealth { get => maxHealth; }
-
-    [Header("Move State")]
-    public float movementVelocities;
-
-    private void Reset()
-    {
-        Reborn();
-    }
-    public void Reborn()
-    {
-        maxHealth = 100;
-        currentHealth = maxHealth;
-        movementVelocities = 10f;
-    }
-
-    private string GetDebuggerDisplay()
-    {
-        return ToString();
-    }
+    [SerializeField] private BaseStatsSO stats;
+    public BaseStatsSO Stats { get => stats; }
+    [field: SerializeField] public List<AbilityBinding> AbilityBindings { get; private set; } = new();
 }

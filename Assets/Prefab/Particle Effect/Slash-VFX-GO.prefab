@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 6595896369768152298}
   - component: {fileID: 664644932343296462}
   - component: {fileID: 8587219888214358558}
-  - component: {fileID: 3662135701393784649}
+  - component: {fileID: 12571246044482450}
+  - component: {fileID: -5491633333990490548}
   m_Layer: 0
   m_Name: Slash-VFX-GO
   m_TagString: Untagged
@@ -113,7 +114,42 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &3662135701393784649
+--- !u!58 &12571246044482450
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5687771613966579850}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.2133142, y: 0.0042397827}
+  serializedVersion: 2
+  m_Radius: 0.22999999
+--- !u!114 &-5491633333990490548
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,13 +158,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 5687771613966579850}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8ecc39694900fc4da739721a9163aee, type: 3}
+  m_Script: {fileID: 11500000, guid: f1f8b38ca6cb89341b627cbd79fc8483, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
-  damage: 4
-  projectileLifeTime: 4
-  collisionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  rigidbodyProjectile: {fileID: 8587219888214358558}

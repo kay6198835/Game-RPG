@@ -7,18 +7,18 @@ using VContainer;
 
 public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 {
-    private IAbilityServices services;
+    IAbilityServices services;
     IPlayerStatService statsHandler;
     IResourceReceiver resourceReceiver;
     IVitalComponent vital;
     IObjecPoolService objecPoolService;
+    PlayerInputHandler playerInputHandler;
     [field: SerializeField] private List<AbilityBinding> abilityBindings = new();
-
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
-
     public Transform Transform => this.transform;
     [field: SerializeField] public bool IsHolding { get; private set; }
     [field: SerializeField] private AbilityInstance currentAbility;
+    public SkillState State => currentAbility?.State ?? SkillState.Start;
 
 
     [Inject]
@@ -26,9 +26,10 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     {
         objecPoolService = pool;
     }
-    protected override void Awake()
+    protected override void Start()
     {
-        base.Awake();
+        base.Start();
+        abilityBindings = core.Player.Data.AbilityBindings;
         for (int i = 0; i < abilityBindings.Count; i++)
         {
             var binding = abilityBindings[i];
@@ -36,6 +37,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
             Equip(binding.Slot, binding.Ability);
         }
+        Core.GetCoreComponent(out playerInputHandler);
     }
     public override void Setup()
     {
@@ -64,6 +66,10 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     {
         vital.ReceiveReduction(statType, amount);
     }
+    public Vector2 DirectorForward()
+    {
+        return playerInputHandler.DirectionMouseVector;
+    }
 
     public void Equip(AbilitySlot slot, AbilityDefinition definition)
     {
@@ -87,10 +93,24 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         core.Player.Anim.runtimeAnimatorController = currentAbility.Definition.AnimatorOverride;
         return instance;
     }
+    public bool TryDoAbility(AbilitySlot slot)
+    {
+        if (!_equipped.TryGetValue(slot, out var instance))
+        {
+            return false;
+        }
+        currentAbility = instance;
+        currentAbility.SetupContext();
+        foreach (var condition in currentAbility.Definition.Conditions)
+        {
+            if (!condition.IsMet(currentAbility.AbilityContext)) return false;
+        }
+        core.Player.Anim.runtimeAnimatorController = currentAbility.Definition.AnimatorOverride;
 
-    public SkillState State => currentAbility?.State ?? SkillState.Start;
-    // Check logic gọi đúng vị trí, nhưng chưa xử lý logic trong các state.
-    //  Cần bổ sung logic cho từng state trong phương thức HandleInput() và các phương thức liên quan.
+        return true;
+    }
+
+
     public void HandleInput()
     {
         if (currentAbility == null) return;
@@ -98,7 +118,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         var def = instance.Definition;
         if (def == null)
             return;
-        Debug.Log("HandleInput: "+instance.State);
         switch (instance.State)
         {
             case SkillState.Start:
@@ -114,11 +133,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
                 instance.Exit();
                 break;
         }
-    }
-
-    public void CheckChangeState(SkillState newState)
-    {
-
     }
 
     public void StartHold()

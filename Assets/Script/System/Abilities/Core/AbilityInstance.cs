@@ -11,7 +11,7 @@ public class AbilityInstance
     public bool IsHolding { get; private set; }
     public float CurrentHoldTime { get; private set; }
     public SkillState State { get; private set; } = SkillState.Start;
-    private AbilityContext abilityContext;
+    [field: SerializeField] public AbilityContext AbilityContext;
     public AbilityInstance(AbilityDefinition definition, IAbilityOwner owner, IAbilityServices abilityServices)
     {
         Definition = definition;
@@ -40,8 +40,7 @@ public class AbilityInstance
 
     public bool TryActivateInstant()
     {
-        abilityContext = BuildContext();
-        if (!ValidateConditions(abilityContext))
+        if (!ValidateConditions(AbilityContext))
         {
             return false;
         }
@@ -67,9 +66,9 @@ public class AbilityInstance
     }
     public void TryDoInstant()
     {
-        Execute(abilityContext);
+        Execute(AbilityContext);
         StartCooldown();
-        //ChangeState(SkillState.Exit);
+        ChangeState(SkillState.Exit);
     }
 
     public void Exit()
@@ -82,7 +81,7 @@ public class AbilityInstance
         foreach (var effect in Definition.Effects)
         {
             if (effect == null) continue;
-            if (effect.Casting(abilityContext))
+            if (effect.Casting(AbilityContext))
             {
                 if (!TryPayCost())
                     return;
@@ -107,6 +106,10 @@ public class AbilityInstance
         IsHolding = true;
         CurrentHoldTime = 0f;
     }
+    public void SetupContext()
+    {
+        AbilityContext = BuildContext();
+    }
 
     public void CancelHold()
     {
@@ -125,7 +128,7 @@ public class AbilityInstance
         {
             Caster = Owner,
             Origin = Owner.Transform.position,
-            Forward = Owner.Transform.forward,
+            Forward = Owner.DirectorForward(),
             TargetPoint = Owner.Transform.position + Owner.Transform.forward * 2f,
             HoldTime = CurrentHoldTime,
             HoldRatio = holdRatio,
@@ -156,7 +159,7 @@ public class AbilityInstance
         foreach (var condition in Definition.Conditions)
         {
             if (condition == null) continue;
-            if (!condition.IsMet(abilityContext))
+            if (!condition.IsMet(AbilityContext))
                 return false;
         }
 

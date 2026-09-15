@@ -35,6 +35,7 @@ public class VitalStatsComponent : CoreComponent<Core>, IVitalComponent
 
     public void ReceiverRecovery(StatType statType, float amount)
     {
+        if (statType.IsPrimary()) return;
         if (currentStats[statType] + amount >= statHandler.GetStatValue(statType))
         {
             currentStats[statType] = statHandler.GetStatValue(statType);
@@ -47,6 +48,7 @@ public class VitalStatsComponent : CoreComponent<Core>, IVitalComponent
 
     public void ReceiveReduction(StatType statType, float amount)
     {
+        if (statType.IsPrimary()) return;
         if (currentStats[statType] - amount <= 0)
         {
             currentStats[statType] = 0;
@@ -67,5 +69,10 @@ public class VitalStatsComponent : CoreComponent<Core>, IVitalComponent
         statModifierGroup.Apply(statHandler.AddModifiersFromSource, this);
         yield return new WaitForSeconds(duration);
         statModifierGroup.Remmove(statHandler.RemoveModifiersFromSource, this);
+    }
+
+    private void ReloadCurrentData()
+    {
+
     }
 }

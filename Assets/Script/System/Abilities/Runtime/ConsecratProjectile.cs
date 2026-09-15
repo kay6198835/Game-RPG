@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class SpiritOrbProjectile : SpawnMono
+public class ConsecratProjectile : SpawnMono
 {
     protected override void Awake()
     {
