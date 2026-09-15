@@ -18,8 +18,8 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     public Transform Transform => this.transform;
     [field: SerializeField] public bool IsHolding { get; private set; }
     [field: SerializeField] private AbilityInstance currentAbility;
-    public SkillState State => currentAbility?.State ?? SkillState.Start;
-
+    public AbilityState CurrentAbilityState => currentAbility?.State ?? AbilityState.Start;
+    public AbilityActivationType CurrentActivationType => currentAbility.Definition.ActivationType;
 
     [Inject]
     public void Construct(IObjecPoolService pool)
@@ -100,6 +100,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
             return false;
         }
         currentAbility = instance;
+        if (!currentAbility.CanStart()) return false;
         currentAbility.SetupContext();
         foreach (var condition in currentAbility.Definition.Conditions)
         {
@@ -120,16 +121,16 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
             return;
         switch (instance.State)
         {
-            case SkillState.Start:
+            case AbilityState.Start:
                 instance.TryActivateInstant();
                 break;
-            case SkillState.Cast:
+            case AbilityState.Cast:
                 instance.TryCastInstant();
                 break;
-            case SkillState.Do:
+            case AbilityState.Do:
                 instance.TryDoInstant();
                 break;
-            case SkillState.Exit:
+            case AbilityState.Exit:
                 instance.Exit();
                 break;
         }
@@ -139,7 +140,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     {
         IsHolding = true;
         currentAbility.StartHold();
-        currentAbility.ChangeState(SkillState.Start);
+        currentAbility.ChangeState(AbilityState.Start);
     }
 
     public void CancelHold()

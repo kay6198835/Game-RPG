@@ -27,15 +27,15 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void AnimationOnAction()
     {
         base.AnimationOnAction();
-        switch (abilityHolder.State)
+        switch (abilityHolder.CurrentAbilityState)
         {
-            case SkillState.Cast:
+            case AbilityState.Cast:
                 if (!abilityHolder.IsHolding)
                 {
                     player.Anim.SetBool("DoAB", true);
                 }
                 break;
-            case SkillState.Do:
+            case AbilityState.Do:
                 player.Anim.SetBool("DoAB", false);
                 break;
         }
@@ -46,9 +46,12 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void AnimationEnd()
     {
         base.AnimationEnd();
-        switch (abilityHolder.State)
+        switch (abilityHolder.CurrentAbilityState)
         {
-            case SkillState.Do:
+            case AbilityState.Do:
+                //base.LogicUpdate();
+                break;
+            case AbilityState.Exit:
                 base.LogicUpdate();
                 break;
         }
@@ -64,7 +67,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     {
         base.PhysicsUpdate();
     }
-    
+
     public override void Exit()
     {
         base.Exit();

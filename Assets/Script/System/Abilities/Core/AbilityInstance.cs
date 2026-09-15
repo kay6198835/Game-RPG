@@ -10,7 +10,7 @@ public class AbilityInstance
     public float CooldownRemaining { get; private set; }
     public bool IsHolding { get; private set; }
     public float CurrentHoldTime { get; private set; }
-    public SkillState State { get; private set; } = SkillState.Start;
+    public AbilityState State { get; private set; } = AbilityState.Start;
     [field: SerializeField] public AbilityContext AbilityContext;
     public AbilityInstance(AbilityDefinition definition, IAbilityOwner owner, IAbilityServices abilityServices)
     {
@@ -50,7 +50,7 @@ public class AbilityInstance
             return false;
         }
 
-        ChangeState(SkillState.Cast);
+        ChangeState(AbilityState.Cast);
         return true;
     }
     public void TryCastInstant()
@@ -62,13 +62,13 @@ public class AbilityInstance
             if (IsHolding) return;
         }
         Debug.Log("Change to Do State");
-        ChangeState(SkillState.Do);
+        ChangeState(AbilityState.Do);
     }
     public void TryDoInstant()
     {
         Execute(AbilityContext);
         StartCooldown();
-        ChangeState(SkillState.Exit);
+        ChangeState(AbilityState.Exit);
     }
 
     public void Exit()
@@ -89,7 +89,7 @@ public class AbilityInstance
         }
     }
 
-    public void ChangeState(SkillState updateState)
+    public void ChangeState(AbilityState updateState)
     {
         State = updateState;
     }
