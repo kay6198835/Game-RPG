@@ -56,7 +56,7 @@ public sealed class StatModifier
         this.type = type;
         this.source = source;
     }
-
+    public void SetType (ModifierType updateType) => type = updateType;
     /// <summary>Bản sao cùng dữ liệu nhưng đóng dấu nguồn mới (dùng khi apply một asset dùng chung).</summary>
     public StatModifier WithSource(object newSource) => new StatModifier(targetStat, value, type, newSource);
 }

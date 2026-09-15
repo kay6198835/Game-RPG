@@ -26,9 +26,10 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     {
         objecPoolService = pool;
     }
-    protected override void Awake()
+    protected override void Start()
     {
-        base.Awake();
+        base.Start();
+        abilityBindings = core.Player.Data.AbilityBindings;
         for (int i = 0; i < abilityBindings.Count; i++)
         {
             var binding = abilityBindings[i];
@@ -36,6 +37,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
             Equip(binding.Slot, binding.Ability);
         }
+        Core.GetCoreComponent(out playerInputHandler);
     }
     public override void Setup()
     {
@@ -43,7 +45,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         statsHandler = Core.GetComponentInChildren<IPlayerStatService>();
         resourceReceiver = Core.GetComponentInChildren<IResourceReceiver>();
         vital = Core.GetComponentInChildren<IVitalComponent>();
-        PlayerInputHandler = Core.GetCoreComponent(out playerInputHandler);
         services = new AbilityServices(objecPoolService, statsHandler, resourceReceiver, vital);
     }
 
@@ -92,6 +93,23 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         core.Player.Anim.runtimeAnimatorController = currentAbility.Definition.AnimatorOverride;
         return instance;
     }
+    public bool TryDoAbility(AbilitySlot slot)
+    {
+        if (!_equipped.TryGetValue(slot, out var instance))
+        {
+            return false;
+        }
+        currentAbility = instance;
+        currentAbility.SetupContext();
+        foreach (var condition in currentAbility.Definition.Conditions)
+        {
+            if (!condition.IsMet(currentAbility.AbilityContext)) return false;
+        }
+        core.Player.Anim.runtimeAnimatorController = currentAbility.Definition.AnimatorOverride;
+
+        return true;
+    }
+
 
     public void HandleInput()
     {
@@ -100,7 +118,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         var def = instance.Definition;
         if (def == null)
             return;
-        Debug.Log("HandleInput: " + instance.State);
         switch (instance.State)
         {
             case SkillState.Start:
@@ -116,11 +133,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
                 instance.Exit();
                 break;
         }
-    }
-
-    public void CheckChangeState(SkillState newState)
-    {
-
     }
 
     public void StartHold()

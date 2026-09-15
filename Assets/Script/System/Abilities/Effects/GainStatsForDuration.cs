@@ -8,7 +8,7 @@ public class GainStatsForDuration : AbilityEffectDefinition
     public float duration;
     public override void Apply(AbilityContext context)
     {
-        context.Services.Vital.ApplyDebuffForDuration(statModifierGroup, duration);
+        context.Services.Vital.BuffDebuffForDuration(statModifierGroup, duration);
     }
 }
 

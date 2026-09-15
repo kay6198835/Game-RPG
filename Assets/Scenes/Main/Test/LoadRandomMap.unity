@@ -753,9 +753,45 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[1].Slot
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[2].Slot
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[3].Slot
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[0].Ability
+      value: 
+      objectReference: {fileID: 11400000, guid: aed2ad9224a6b3d4db556a88faba6e38, type: 2}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[1].Ability
+      value: 
+      objectReference: {fileID: 11400000, guid: 58f72a51482429c41b8065fa874b46d9, type: 2}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[2].Ability
+      value: 
+      objectReference: {fileID: 11400000, guid: a3c7ab07869879449b26abc4aac66f1b, type: 2}
+    - target: {fileID: 1288617972275806830, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: abilityBindings.Array.data[3].Ability
+      value: 
+      objectReference: {fileID: 11400000, guid: 863889af46fdcfe4c8f149be03c18097, type: 2}
     - target: {fileID: 3647546795979010557, guid: 938076a10c1383145b88d823a887807e, type: 3}
       propertyPath: m_Name
       value: PlayerTest
+      objectReference: {fileID: 0}
+    - target: {fileID: 3647546795979010557, guid: 938076a10c1383145b88d823a887807e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6345384194108746772, guid: 938076a10c1383145b88d823a887807e, type: 3}
       propertyPath: m_LocalPosition.x

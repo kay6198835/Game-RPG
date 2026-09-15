@@ -20,7 +20,7 @@ public class Player : BaseEntity
 
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
     [SerializeField] private PlayerData data;
-    [SerializeField] private BaseStatsSO stats;
+    // [SerializeField] private BaseStatsSO stats;
     [SerializeField] private Core core;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
@@ -42,7 +42,7 @@ public class Player : BaseEntity
     public PlayerResourceReceiverState ResourceReceiverState { get => resourceReceiverState; }
     public PlayerDeathState DeathState { get => deathState; }
     public PlayerData Data { get => data; }
-    public BaseStatsSO Stats { get => stats; }
+    // public BaseStatsSO Stats { get => stats; }
 
     #endregion
 

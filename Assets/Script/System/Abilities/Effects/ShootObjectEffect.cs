@@ -1,14 +1,14 @@
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Game/Abilities/Effects/Shoot Spirit Orb")]
+[CreateAssetMenu(menuName = "Game/Abilities/Effects/Shoot Object Effect")]
 public class ShootObjectEffect : AbilityEffectDefinition
 {
     [Header("Projectile")]
-    public GameObject OrbPrefab;
+    public GameObject Prefab;
     public float Speed = 10f;
     public float SpawnOffset = 0.8f;
-    public float OrbLifetime = 8f;
+    public float Lifetime = 8f;
     public float BaseDamage = 10f;
     public float FinalDamage => BaseDamage + SubDamage;
     [Header("Sub stats")]
@@ -19,14 +19,13 @@ public class ShootObjectEffect : AbilityEffectDefinition
     public int CurrentTickCount = 0;
     public float SubDamage = 0;
     private AbilityContext _context;
-
     public void OnEnable()
     {
         ReloadEffect();
     }
     public override void Apply(AbilityContext context)
     {
-        if (OrbPrefab == null || context?.Caster == null)
+        if (Prefab == null || context?.Caster == null)
         {
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab chưa được assign.");
             return;
@@ -41,10 +40,10 @@ public class ShootObjectEffect : AbilityEffectDefinition
         Vector2 spawnPos = (Vector2)context.Origin + dir * SpawnOffset;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-        var obj = context.Services.Pool.Spawn(OrbPrefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
-        var orb = GetSpiritOrbProjectile(obj);
+        var obj = context.Services.Pool.Spawn(Prefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
+        var orb = GetSriptEffect(obj);
         if (orb != null)
-            orb.Launch(dir, Speed, OrbLifetime, FinalDamage, OrbPrefab, context.Services.Pool, TakeDamage);
+            orb.Launch(dir, Speed, Lifetime, FinalDamage, context.Services.Pool, TakeDamage);
         else
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
         ReloadEffect();
@@ -86,11 +85,10 @@ public class ShootObjectEffect : AbilityEffectDefinition
         CurrentTickTime = 0;
     }
 
-    private SpiritOrbProjectile GetSpiritOrbProjectile(GameObject obj)
+    private SpawnMono GetSriptEffect(GameObject obj)
     {
-        if (!obj.TryGetComponent<SpiritOrbProjectile>(out var spiritOrbProjectile))
-            spiritOrbProjectile = obj.AddComponent<SpiritOrbProjectile>();
-
-        return spiritOrbProjectile;
+        if (!obj.TryGetComponent<SpawnMono>(out var effectScript))
+            effectScript = obj.AddComponent<SpawnMono>();
+        return effectScript;
     }
 }

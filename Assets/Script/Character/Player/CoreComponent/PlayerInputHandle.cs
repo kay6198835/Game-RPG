@@ -244,8 +244,12 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         if (context.started)
         {
             isSkill = true;
-            abilityHolder.GetAbility(AbilitySlot.Primary);
-            abilityHolder.StartHold();
+            if (abilityHolder.TryDoAbility(AbilitySlot.Primary))
+            {
+                abilityHolder.StartHold();
+            }
+            //abilityHolder.GetAbility(AbilitySlot.Primary);
+
         }
         else if (context.performed)
         {
