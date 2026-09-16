@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Shoot Object Effect")]
@@ -39,7 +38,7 @@ public class ShootObjectEffect : AbilityEffectDefinition
         Vector2 spawnPos = (Vector2)context.Origin + dir * SpawnOffset;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         
-        var obj = context.Services.Pool.Spawn(Prefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
+        var obj = context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));
         var orb = obj.GetComponent<SpawnMono>();
         if (orb != null)
             orb.Launch(dir, Speed, Lifetime, FinalDamage, context.Services.Pool, TakeDamage);

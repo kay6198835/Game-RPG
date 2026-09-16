@@ -11,10 +11,10 @@ public class RecoveryReductionPerTimeForDuration : StatsEffectBase
         switch (impactType)
         {
             case StatImpactType.Recovery:
-                context.Services.Vital.RecoveryPerTimerForDuration(statType, impactValue, perTime, duration);
+                context.Services.Vital.RecoveryPerTimeForDuration(statType, impactValue, perTime, duration);
                 break;
             case StatImpactType.Reduction:
-                context.Services.Vital.ReductionPerTimerForDuration(statType, impactValue, perTime, duration);
+                context.Services.Vital.ReductionPerTimeForDuration(statType, impactValue, perTime, duration);
                 break;
         }
     }

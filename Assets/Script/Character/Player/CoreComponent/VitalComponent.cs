@@ -60,36 +60,40 @@ public class VitalStatsComponent : CoreComponent<Core>, IVitalComponent
     }
 
     #region Reduction/Recovery per timer for duration
-    public void ReductionPerTimerForDuration(StatType statType, float amount, float perTime, int duration)
+    public void ReductionPerTimeForDuration(StatType statType, float amount, float perTime, float duration)
     {
         var count = duration / perTime;
         if (duration % perTime > 0) count++;
-        ReductionPerTimeForDuration(statType, amount, perTime, duration);
+        ReductionPerTime(statType, amount, perTime, duration);
     }
 
-    public void RecoveryPerTimerForDuration(StatType statType, float amount, float perTime, int duration)
+    public void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float duration)
     {
         var count = duration / perTime;
         if (duration % perTime > 0) count++;
-        RecoveryPerTimeForDuration(statType, amount, perTime, duration);
+        RecoveryPerTime(statType, amount, perTime, duration);
     }
 
-    IEnumerator RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, int timeCount)
+    IEnumerator RecoveryPerTime(StatType statType, float amount, float perTime, float timeCount)
     {
         Recovery(statType, amount);
         timeCount--;
-        if (timeCount <= 0) return;
-        yield return new WaitForSeconds(perTime);
-        RecoveryPerTimeForDuration(timeCount);
+        if (timeCount > 0)
+        {
+            yield return new WaitForSeconds(perTime);
+            RecoveryPerTimeForDuration(statType, amount, perTime, timeCount);
+        }
     }
 
-    IEnumerator ReductionPerTimeForDuration(StatType statType, float amount, float perTime, int timeCount)
+    IEnumerator ReductionPerTime(StatType statType, float amount, float perTime, float timeCount)
     {
         Reduction(statType, amount);
         timeCount--;
-        if (timeCount <= 0) return;
-        yield return new WaitForSeconds(perTime);
-        ReductionPerTimeForDuration(timeCount);
+        if (timeCount > 0)
+        {
+            yield return new WaitForSeconds(perTime);
+            ReductionPerTimeForDuration(statType, amount, perTime, timeCount);
+        }
     }
     #endregion
 
