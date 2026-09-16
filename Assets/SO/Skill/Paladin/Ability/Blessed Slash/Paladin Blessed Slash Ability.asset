@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 39d6bd5f01056914cb578b97e53e17f7, type: 3}
-  m_Name: Blessed Slash
+  m_Name: Paladin Blessed Slash Ability
   m_EditorClassIdentifier: 
-  id: 7fdc826c-55aa-4119-bf17-70c9618192ef
-  DisplayName: Blessed Slash
+  id: 942fc0e0-9134-4ccb-8e0a-456a6b44dc5d
+  DisplayName: Paladin Blessed Slash Ability
   Icon: {fileID: 0}
   ActivationType: 1
   Cooldown: 1
@@ -25,4 +25,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02cbacd1d0342774abb852a2ed63f9b4, type: 2}
   Effects:
   - {fileID: 11400000, guid: 376e7f80b02d7be4895237dbc74f8d4e, type: 2}
+  - {fileID: 11400000, guid: 9a86c3e7306406e40a7bf55c3e1d4543, type: 2}
   <AnimatorOverride>k__BackingField: {fileID: 22100000, guid: 9428df7c367903548af11fc7419fc914, type: 2}

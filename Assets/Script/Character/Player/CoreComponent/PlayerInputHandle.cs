@@ -251,7 +251,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         if (context.started)
         {
             if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
-            if (abilityHolder.TryDoAbility(AbilitySlot.Primary))
+            if (abilityHolder.TryDoAbility(AbilitySlot.Utility))
             {
                 abilityHolder.StartHold();
                 isSkill = true;
@@ -273,7 +273,6 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
             abilityHolder.CancelHold();
             isSkill = false;
         }
-        Debug.Log("OnSkillWeapon " + context);
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {

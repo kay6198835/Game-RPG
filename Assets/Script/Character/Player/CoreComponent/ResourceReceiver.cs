@@ -14,13 +14,13 @@ public class ResourceReceiver : Interact, INegativeReceiver, IResourceReceiver
         vitalStatsComponent.ApplyBuffDebuff(statModifierGroup);
     }
 
-    public void ReceverRecovery(StatType statType, float amount)
+    public void Recovery(StatType statType, float amount)
     {
-        vitalStatsComponent.Reduction(statType, amount);
+        vitalStatsComponent.Recovery(statType, amount);
     }
     public void Reduction(StatType statType, float amount)
     {
-        vitalStatsComponent.Recovery(statType, amount);
+        vitalStatsComponent.Reduction(statType, amount);
     }
     public void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
     {

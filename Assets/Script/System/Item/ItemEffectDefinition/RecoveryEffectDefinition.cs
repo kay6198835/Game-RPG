@@ -10,6 +10,6 @@ public class RecoveryEffectDefinition : ItemEffectDefinition
 
     public override void Apply(ResourceReceiver resourceReceiver)
     {
-        resourceReceiver.ReceverRecovery(StatType.HP,amount);
+        resourceReceiver.Recovery(StatType.HP,amount);
     }
 }

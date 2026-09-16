@@ -58,10 +58,8 @@ public class AbilityInstance
         if (Definition.ActivationType == AbilityActivationType.Hold)
         {
             Casting();
-            Debug.Log("TryCastInstant");
             if (IsHolding) return;
         }
-        Debug.Log("Change to Do State");
         ChangeState(AbilityState.Do);
     }
     public void TryDoInstant()
