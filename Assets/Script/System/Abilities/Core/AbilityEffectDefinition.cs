@@ -24,3 +24,9 @@ public abstract class AbilityEffectDefinition : ScriptableObject
         if (string.IsNullOrEmpty(AbilityName)) AbilityName = name;
     }
 }
+
+public enum StatImpactType
+{
+    Recovery,
+    Reduction
+}

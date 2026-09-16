@@ -64,7 +64,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     }
     public void PayCost(StatType statType, float amount)
     {
-        vital.ReceiveReduction(statType, amount);
+        vital.Reduction(statType, amount);
     }
     public Vector2 DirectorForward()
     {

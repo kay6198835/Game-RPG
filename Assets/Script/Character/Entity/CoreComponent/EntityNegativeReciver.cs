@@ -19,7 +19,7 @@ public class EntityNegativeReciver : EntityCoreComponent<EntityCore>, INegativeR
     {
         float finalDamage = DamageCalculate(amoutDamage);
         if (finalDamage <= 0) return;
-        entityVitalStats.ReceiveReduction(StatType.HP, finalDamage);
+        entityVitalStats.Reduction(StatType.HP, finalDamage);
         entityInput.OnTakeDamage(attackPosition);
         entityUIController.UpdateUIHealth(UpdateUIHealth());
     }
