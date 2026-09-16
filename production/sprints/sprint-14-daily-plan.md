@@ -105,11 +105,25 @@ session appears to be continuing work on that branch outside the sprint-14 gate 
 
 ### Thu 2026-09-17 — Architecture decision + test + cooldown fix
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S14-12 (TD-040 ADR — Abilities v1/v2 convergence) | 0.3d | Widened scope of BUG-052 this cycle — a 4th sprint of v2 work must not ship with this still open |
-| S14-13 (first EditMode test, vitals guard) | 0.3d | Pairs with S14-06 |
-| S14-14 (BUG-069 cooldown wiring) | 0.15d | Every ability currently spammable |
+| Task | Est. | Status | Notes |
+|------|------|--------|-------|
+| S14-01 (BUG-067) | 0.05d | ⚠️ APPARENTLY FIXED (incidental, unverified) | `1f61753` (off-plan, `feature/fix-player-control`, merged `4f31cb6` this morning) renamed + correctly paired `Recovery`/`Reduction` — see BUG-067.md Resolution Note. Not a gate commit, no review, no test, no Play Mode confirm |
+| S14-02 (BUG-068) | 0.05d | ❌ NOT DONE | `AbilityHolder.cs:89-93` `GetAbility()` still does `TryGetValue` then immediately dereferences `currentAbility.Definition.AnimatorOverride` unguarded. Unchanged |
+| S14-03 (BUG-063) | 0.05d | ❌ NOT DONE | `Stat.cs:63-66` still wraps `modifiers` in `#if UNITY_EDITOR [SerializeField]`. Unchanged |
+| S14-04 (BUG-064 item 7) | 0.1d | ❌ NOT DONE | `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`. Unchanged |
+| S14-05 (BUG-065) | 0.1d | ❌ NOT DONE | `PlayerDeathState.cs:10-13` `Enter()` still only calls `base.Enter()`. Unchanged |
+| S14-06 (BUG-066 + BUG-070) | 0.2d | ❌ NOT DONE | `EntityVitalStats.cs` (lines 39,49,61,67) and `VitalComponent.cs` both still raw-index `currentStats[statType]`, no guard. Unchanged |
+| S14-12 (TD-040 ADR — Abilities v1/v2 convergence) | 0.3d | ❌ NOT DONE | No file under `docs/architecture/` for TD-040. Widened scope of BUG-052 this cycle — a 4th sprint of v2 work must not ship with this still open |
+| S14-13 (first EditMode test, vitals guard) | 0.3d | ❌ NOT DONE | `tests/EditMode/` still `.gitkeep`-only. Pairs with S14-06 |
+| S14-14 (BUG-069 cooldown wiring) | 0.15d | ❌ NOT DONE | Not checked in source this pass — carried |
+
+**Gate result: 1/6 (best case) — 4th consecutive day the hard gate has not held through intentional
+work; the one item that now reads fixed (BUG-067) landed as a side effect of unrelated, unreviewed,
+untested off-plan work, not the gate itself.** This is now the mitigation's 5th failure out of 5 days
+this sprint if BUG-067 is not counted as a genuine gate pass (it wasn't attempted as one). Only one day
+of capacity remains (Fri). Per the Sprint 13 retro's own escalation rule (restated at Wed's standup):
+remaining capacity should go to forcing S14-02 through S14-06 directly rather than any Should-Have or
+Nice-to-Have item.
 
 ### Fri 2026-09-18 — Stretch + wrap prep
 
@@ -122,6 +136,65 @@ session appears to be continuing work on that branch outside the sprint-14 gate 
 ---
 
 ## Standup Log
+
+### Thu 2026-09-17 — Daily Standup (autonomous, no owner present)
+
+Checked the six-item hard gate first, per its own rule, before reviewing anything else. Result:
+**1/6 arguably landed, but not as a gate pass** — 5 still open, verified directly against source
+(not commit messages):
+
+- ⚠️ S14-01/BUG-067 — **now reads fixed in source.** `ResourceReceiver.Recovery()` /
+  `.Reduction()` correctly call `VitalStatsComponent.Recovery()` / `.Reduction()` (heal increases,
+  damage decreases); `RecoveryEffectDefinition.Apply()` confirmed calling the recovery path. The fix
+  landed via `1f61753` ("Update logic SO effect stats impact", Wed 22:55, off-plan on
+  `origin/feature/fix-player-control`, merged into `sprint-14` at `4f31cb6` this morning) while
+  renaming the interface methods for unrelated reasons — not a targeted S14-01 commit. No same-day
+  review, no EditMode test, no Play Mode confirmation. Full detail logged in
+  `production/qa/bugs/BUG-067.md`'s new Resolution Note; left as "apparently fixed, unverified"
+  rather than closed
+- ❌ S14-02/BUG-068 — `AbilityHolder.cs:89-93` `GetAbility()` still does `TryGetValue` then
+  immediately dereferences `currentAbility.Definition.AnimatorOverride` with no null-guard.
+  Unchanged
+- ❌ S14-03/BUG-063 — `Stat.cs:63-66` still wraps `modifiers` in `#if UNITY_EDITOR [SerializeField]`,
+  still directly contradicting its own explanatory comment. Unchanged. 28th+ consecutive carry
+- ❌ S14-04/BUG-064 item 7 — `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService
+  poolManager`, no `[Inject]`. Unchanged
+- ❌ S14-05/BUG-065 — `PlayerDeathState.cs` `Enter()` still only calls `base.Enter()`. Unchanged
+- ❌ S14-06/BUG-066+070 — `EntityVitalStats.cs` and `VitalComponent.cs` both still raw-index
+  `currentStats[statType]` with no `TryGetValue` guard. Unchanged
+
+New commits on `sprint-14` since Wed's standup: `1a3947a` "fix conflict" (already flagged Wed as an
+in-progress uncommitted change on the parallel branch), `1f61753` (see above), a merge (`a36f266`),
+`e02bf3b` "add lightning - rune circle animation, done blessing ability" (VFX/animation assets +
+ability SO renames — `Blessed Slash`, `Blessing`, buff/debuff and recovery/reduction effect asset
+renames — plus a `LoadRandomMap.unity` scene change), and a second merge (`4f31cb6`). All four
+non-merge commits are on `origin/feature/fix-player-control`, the same branch flagged every prior
+standup this sprint as containing none of the six gated fixes and no player-control work despite its
+name. This is now the **5th consecutive day** (Mon–Thu) the hard gate introduced Sunday specifically
+to break the Sprint 11–13 pattern has not held through intentional, reviewed work.
+
+**Escalation, per the Sprint 13 retro's own rule and Wed's standup note:** two days of the mitigation
+window are gone; one remains (Fri). Recommending Friday's session (owner or autonomous) spend its
+entire budget forcing S14-02 through S14-06 through directly as isolated commits — each is
+sub-0.2d, zero-dependency, and fully diagnosed with exact file/line locations already recorded three
+standups running — rather than attempting S14-12/13/14 (Should-Have) or any further off-plan work.
+If S14-02–06 still do not land Friday, Sprint 14 closes with the hard-gate mitigation itself having
+failed 5/5 days, which the retro should treat as evidence the mitigation's design (not the fixes'
+difficulty) is the problem — e.g., the fixes need to be forced as the literal first tool calls of a
+session with no other work permitted until they land, rather than "checked first, then whatever
+happens happens."
+
+Also re-verified: ADR-0002 (S14-11) still reads `Status: Proposed` — 16th+ carry. No
+`docs/architecture/` file exists for TD-040 (S14-12). `.git/hooks/pre-push` still absent (S14-09) —
+23rd+ carry. `tests/EditMode/` still `.gitkeep`-only (S14-13/TD-014). No owner-in-Editor Play Mode
+session has occurred (S14-07) — would be the 7th consecutive sprint ask if it slips again; only one
+day of capacity remains to attempt it, and it depends on S14-02/04 which are still open. QA plan:
+still missing, 29th+ consecutive cycle.
+
+Today's plan: force S14-02 through S14-06 as literal next commits (5th attempt this sprint); if they
+land, attempt S14-07 same day.
+
+---
 
 ### Wed 2026-09-16 — Daily Standup (autonomous, no owner present)
 
@@ -246,7 +319,8 @@ is trying a mechanical check instead of a fourth note.
 
 ## Carry-Over Watch List (re-verify every standup)
 
-- **BUG-067 / BUG-068 — both S1, both live and player-reachable, still open as of 2026-09-15.** Fix
+- **BUG-067 — ⚠️ apparently fixed in source as of 2026-09-17 (incidental, unverified — see
+  `production/qa/bugs/BUG-067.md`).** BUG-068 — still open, S1, live and player-reachable. Fix
   before anything else — both threaten the Play Mode smoke session (S14-07) directly.
 - **BUG-063 (`Stat.cs` `[SerializeField]` regression)** — 27th+ consecutive carry on a one-line fix with
   an explanatory comment already in the file. No technical blocker has ever existed for this item.
