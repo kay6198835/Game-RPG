@@ -78,12 +78,30 @@ would have required one).
 Goal: land the six-item gate today since Monday did not — nothing else on today's plan should be
 attempted before it, matching Monday's own hard-gate rule now applied a day late.
 
-### Wed 2026-09-16 — Owner sign-off batch
+### Wed 2026-09-16 — RE-SEQUENCED AGAIN: retry the six-item gate first (Tuesday's gate did not hold either)
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S14-10 (S4-05/S4-06 forced decision) | 0.1d | 19th+ carry |
-| S14-11 (ADR-0002 → Accepted) | 0.1d | 15th+ carry, trivial sign-off |
+| Task | Est. | Status | Notes |
+|------|------|--------|-------|
+| S14-01 (BUG-067) | 0.05d | ❌ NOT DONE | Re-verified 2026-09-16: `ResourceReceiver.cs:17-23` still swapped. Unchanged |
+| S14-02 (BUG-068) | 0.05d | ❌ NOT DONE | `AbilityHolder.cs:89-95` still dereferences `currentAbility.Definition.AnimatorOverride` with no null-guard after a `TryGetValue` miss. Unchanged (Tuesday's `9d9169a` touched this file but not this bug) |
+| S14-03 (BUG-063) | 0.05d | ❌ NOT DONE | `Stat.cs:63-66` still wraps `modifiers` in `#if UNITY_EDITOR [SerializeField]`. Unchanged |
+| S14-04 (BUG-064 item 7) | 0.1d | ❌ NOT DONE | `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`. Unchanged |
+| S14-05 (BUG-065) | 0.1d | ❌ NOT DONE | `PlayerDeathState.cs:10-13` `Enter()` still only calls `base.Enter()`. Unchanged |
+| S14-06 (BUG-066 + BUG-070) | 0.2d | ❌ NOT DONE | `EntityVitalStats.cs` and `VitalComponent.cs` both still raw-index `currentStats[statType]` (7 sites each, no `TryGetValue`). Unchanged |
+
+**Gate result: 0/6 — 3rd consecutive day the gate has not held, 5th consecutive sprint (11→14, twice
+within 14) of this exact pattern.** Tuesday 22:08 landed `9d9169a` "Clearn ability system hold and
+activate" instead — touches `AbilityHolder.cs`, `PlayerInputHandle.cs`, `PlayerSkillWeaponState.cs`,
+`AbilityDefinition.cs`, `AbilityEffectDefinition.cs`, `AbilityInstance.cs` (48+/26− lines), merged via
+`922030a` from the same `origin/feature/fix-player-control` branch that still contains no
+player-control fix and none of the six gated bug fixes. No same-day `/code-review` ran on it — S14-08
+(the decision meant to require this) is now its 3rd cycle open with zero movement. Note: at the time
+of this standup, `origin/feature/fix-player-control` had two more live commits not yet merged into
+`sprint-14` (`1f61753` "Update logic SO effect stats impact", `1a3947a` "fix conflict") — an active
+session appears to be continuing work on that branch outside the sprint-14 gate entirely.
+
+| S14-10 (S4-05/S4-06 forced decision) | 0.1d | ⬜ NOT STARTED | 19th+ carry — deferred behind gate retry |
+| S14-11 (ADR-0002 → Accepted) | 0.1d | ⬜ NOT STARTED | Re-verified: `docs/architecture/adr-0002-enemymanager-singleton-exception.md:4` still reads `Proposed`. 15th+ carry — deferred behind gate retry |
 
 ### Thu 2026-09-17 — Architecture decision + test + cooldown fix
 
@@ -104,6 +122,55 @@ attempted before it, matching Monday's own hard-gate rule now applied a day late
 ---
 
 ## Standup Log
+
+### Wed 2026-09-16 — Daily Standup (autonomous, no owner present)
+
+Checked the six-item hard gate first, per its own rule, before reviewing anything else — **0/6
+landed, 3rd consecutive day.** Verified each item directly against current `sprint-14` source:
+
+- ❌ S14-01/BUG-067 — `ResourceReceiver.cs:17-23` still has recovery/reduction calls swapped
+- ❌ S14-02/BUG-068 — `AbilityHolder.cs:89-95` still dereferences `currentAbility.Definition`
+  unguarded (Tuesday's commit edited this file for unrelated hold/activate cleanup, not this bug)
+- ❌ S14-03/BUG-063 — `Stat.cs:63-66` still serializes `modifiers` under `#if UNITY_EDITOR`
+- ❌ S14-04/BUG-064 item 7 — `RangeWeapon.cs:7` still Inspector-serialized, not DI-wired
+- ❌ S14-05/BUG-065 — `PlayerDeathState.cs` `Enter()` still only calls `base.Enter()`
+- ❌ S14-06/BUG-066+070 — `EntityVitalStats.cs` / `VitalComponent.cs` both still raw-index
+  `currentStats[statType]`, 7 sites each, no guard
+
+Only new commit on `sprint-14` since yesterday's standup: `9d9169a` "Clearn ability system hold and
+activate" (22:08 Tue, merged via `922030a`) — ability-hold/activate cleanup across `AbilityHolder.cs`,
+`PlayerInputHandle.cs`, `PlayerSkillWeaponState.cs`, `AbilityDefinition.cs`,
+`AbilityEffectDefinition.cs`, `AbilityInstance.cs`. Off-plan relative to the gate, same as Monday and
+Tuesday's landings; no same-day code review recorded.
+
+**Process note:** during this standup's git inspection, the working directory was briefly on a
+different local branch (`origin/feature/fix-player-control`) with live uncommitted changes to
+`VitalComponent.cs` / `IVitalComponent.cs` / two Ability effect files — evidence of an actively
+running session (not this one) continuing work outside `sprint-14`. No files were touched by this
+standup; the checkout to `sprint-14` was retried only after that branch's tree went clean on its own
+(commit `1a3947a` "fix conflict" landed mid-check). Flagging because it means Abilities v2 work is
+being actively extended on a third branch (`origin/feature/fix-player-control`) concurrently with
+both `sprint-14`'s stalled gate and the still-open S14-08/S14-12 decisions about exactly this kind of
+parallel, unreviewed ability-system work.
+
+Also re-verified the two Should-Have sign-off items originally scheduled for today: S14-11
+(`ADR-0002` → Accepted) still reads `Proposed` at line 4 — 15th+ carry, no technical blocker. Pre-push
+hook (S14-09) still absent (`.git/hooks/pre-push` does not exist) — 22nd+ carry. No `docs/architecture/`
+file exists yet for TD-040 (S14-12). Deferred both S14-10/S14-11 behind another gate retry, consistent
+with the sprint's own hard-gate rule.
+
+**This is now a 4-for-5 failure of the hard-gate mitigation itself** (introduced Sunday specifically
+to break the Sprint 11-13 pattern; held on 0 of 3 days so far this sprint). Two days of capacity
+remain (Thu, Fri). Escalating per the Sprint 13 retro's own recommendation: if S14-01–06 do not land
+Thursday, Friday should not be spent on Should-Have items — it should be spent forcing the six fixes
+through directly, since every "schedule it first" and "re-sequence tomorrow" mitigation tried this
+sprint (and the two before it) has failed identically.
+
+Today's plan: retry S14-01 through S14-06 as literal first commits (4th attempt); if they land, proceed
+to S14-07 (owner Play Mode session, 7th consecutive sprint ask) same day. QA plan: still missing, 28th+
+cycle.
+
+---
 
 ### Tue 2026-09-15 — Daily Standup (autonomous, no owner present)
 
