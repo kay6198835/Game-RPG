@@ -10,10 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c343067de33184e9bfce550a8e4826, type: 3}
-  m_Name: Gain For Time Effect
+  m_Name: Paladin Buff - Debuff Stat Effect
   m_EditorClassIdentifier: 
-  AbilityName: Gain For Time Effect
+  AbilityName: Paladin Blessing Recovery Stat Effect
   SubConditions: []
   statModifierGroup:
-    authoredModifiers: []
-  duration: 0
+    authoredModifiers:
+    - targetStat: 102
+      type: 100
+      value: 30
+    - targetStat: 104
+      type: 100
+      value: 25
+  duration: 3
