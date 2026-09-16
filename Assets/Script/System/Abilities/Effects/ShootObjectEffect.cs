@@ -1,11 +1,10 @@
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Shoot Object Effect")]
 public class ShootObjectEffect : AbilityEffectDefinition
 {
     [Header("Projectile")]
-    public GameObject Prefab;
+    public SpawnMono Prefab;
     public float Speed = 10f;
     public float SpawnOffset = 0.8f;
     public float Lifetime = 8f;
@@ -36,12 +35,11 @@ public class ShootObjectEffect : AbilityEffectDefinition
         if (dir.sqrMagnitude < 0.01f)
             dir = Vector2.right;
         dir.Normalize();
-
         Vector2 spawnPos = (Vector2)context.Origin + dir * SpawnOffset;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-
-        var obj = context.Services.Pool.Spawn(Prefab, spawnPos, Quaternion.Euler(0f, 0f, angle));
-        var orb = GetSriptEffect(obj);
+        
+        var obj = context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));
+        var orb = obj.GetComponent<SpawnMono>();
         if (orb != null)
             orb.Launch(dir, Speed, Lifetime, FinalDamage, context.Services.Pool, TakeDamage);
         else
@@ -83,12 +81,5 @@ public class ShootObjectEffect : AbilityEffectDefinition
         SubDamage = 0;
         CurrentTickCount = 0;
         CurrentTickTime = 0;
-    }
-
-    private SpawnMono GetSriptEffect(GameObject obj)
-    {
-        if (!obj.TryGetComponent<SpawnMono>(out var effectScript))
-            effectScript = obj.AddComponent<SpawnMono>();
-        return effectScript;
     }
 }

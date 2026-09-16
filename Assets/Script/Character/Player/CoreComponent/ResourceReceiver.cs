@@ -16,11 +16,11 @@ public class ResourceReceiver : Interact, INegativeReceiver, IResourceReceiver
 
     public void ReceverRecovery(StatType statType, float amount)
     {
-        vitalStatsComponent.ReceiveReduction(statType, amount);
+        vitalStatsComponent.Reduction(statType, amount);
     }
-    public void ReceiveReduction(StatType statType, float amount)
+    public void Reduction(StatType statType, float amount)
     {
-        vitalStatsComponent.ReceiverRecovery(statType, amount);
+        vitalStatsComponent.Recovery(statType, amount);
     }
     public void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
     {
@@ -29,7 +29,7 @@ public class ResourceReceiver : Interact, INegativeReceiver, IResourceReceiver
     public void TakeDamage(float amoutDamage, Vector2 attackPosition)
     {
         Core.GetCoreComponent(out VitalStatsComponent vitalStatsComponent);
-        vitalStatsComponent.ReceiveReduction(StatType.HP, amoutDamage);
+        vitalStatsComponent.Reduction(StatType.HP, amoutDamage);
         Core.GetCoreComponent(out PlayerInputHandler input);
         input.OnTakeDamage(attackPosition);
     }

@@ -44,7 +44,7 @@ public class EntityVitalStats : EntityCoreComponent<EntityCore>
         statModifierGroup.Apply(statHandler.AddModifiersFromSource, this);
     }
 
-    public void ReceiverRecovery(StatType statType, float amount)
+    public void Recovery(StatType statType, float amount)
     {
         if (currentStats[statType] + amount >= statHandler.GetStatValue(statType))
         {
@@ -56,7 +56,7 @@ public class EntityVitalStats : EntityCoreComponent<EntityCore>
         }
     }
 
-    public void ReceiveReduction(StatType statType, float amount)
+    public void Reduction(StatType statType, float amount)
     {
         if (currentStats[statType] - amount <= 0)
         {
