@@ -9,77 +9,42 @@ public class ShootObjectEffect : AbilityEffectDefinition
     public float SpawnOffset = 0.8f;
     public float Lifetime = 8f;
     public float BaseDamage = 10f;
-    public float FinalDamage => BaseDamage + SubDamage;
-    [Header("Sub stats")]
-    public float Duration = 5f;
-    public float DamagePerTick = 25f;
-    public float CurrentTickTime = 0f;
-    public int TickCountMax = 5;
-    public int CurrentTickCount = 0;
-    public float SubDamage = 0;
-    private AbilityContext _context;
-    public void OnEnable()
-    {
-        ReloadEffect();
-    }
+
     public override void Apply(AbilityContext context)
     {
         if (Prefab == null || context?.Caster == null)
         {
-            Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab chưa được assign.");
+            Debug.LogWarning($"[{name}] Prefab chưa được assign.");
             return;
         }
-        _context = context;
+        if (context.Services?.Pool == null) return;
+
+        var power = ResolvePower(context, BaseDamage);
 
         Vector2 dir = new Vector2(context.Forward.x, context.Forward.y);
         if (dir.sqrMagnitude < 0.01f)
             dir = Vector2.right;
         dir.Normalize();
+
         Vector2 spawnPos = (Vector2)context.Origin + dir * SpawnOffset;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        
+
         var obj = context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));
+        if (obj == null) return;
+
+        if (!Mathf.Approximately(power.SizeMultiplier, 1f))
+            obj.transform.localScale = Vector3.one * power.SizeMultiplier;
+
         var orb = obj.GetComponent<SpawnMono>();
-        if (orb != null)
-            orb.Launch(dir, Speed, Lifetime, FinalDamage, context.Services.Pool, TakeDamage);
-        else
-            Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
-        ReloadEffect();
-    }
-
-    public void TakeDamage(INegativeReceiver receiver, Vector2 attackposition)
-    {
-        receiver.TakeDamage(FinalDamage, attackposition);
-    }
-
-    public override bool Casting(AbilityContext context)
-    {
-        if (!base.Casting(context)) return false;
-        foreach (var condition in SubConditions)
+        if (orb == null)
         {
-            if (condition.IsMet(context)) continue;
-            return false;
+            Debug.LogWarning($"[{name}] Prefab thiếu component SpawnMono.");
+            return;
         }
 
-
-        CurrentTickTime += Time.deltaTime;
-        if (CurrentTickTime < Duration)
-        {
-            return false;
-        }
-        CurrentTickCount++;
-        CurrentTickTime = 0f;
-        if (CurrentTickCount > TickCountMax)
-        {
-            CurrentTickCount = TickCountMax;
-        }
-        SubDamage = CurrentTickCount * DamagePerTick;
-        return true;
-    }
-    private void ReloadEffect()
-    {
-        SubDamage = 0;
-        CurrentTickCount = 0;
-        CurrentTickTime = 0;
+        // Captured, not read back off this asset: two projectiles in flight must not share one damage value.
+        float damage = power.Damage;
+        orb.Launch(dir, Speed * power.SpeedMultiplier, Lifetime, damage, context.Services.Pool,
+            (receiver, attackPosition) => receiver.TakeDamage(damage, attackPosition));
     }
 }
