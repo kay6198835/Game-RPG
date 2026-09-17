@@ -36,22 +36,6 @@ public class AbilityInstance
                 CurrentHoldTime = Mathf.Min(CurrentHoldTime, Definition.MaxHoldTime);
             }
         }
-
-        RefreshHoldContext();
-    }
-
-    public float HoldRatio => AbilityRuntimeHelpers.SafeRatio(CurrentHoldTime, Definition.MaxHoldTime);
-
-    // Context is built once per cast, so charge-scaling effects only see a live hold value
-    // if it is pushed back into the context every tick.
-    private void RefreshHoldContext()
-    {
-        if (AbilityContext == null) return;
-
-        AbilityContext.HoldTime = CurrentHoldTime;
-        AbilityContext.HoldRatio = HoldRatio;
-        AbilityContext.Origin = Owner.Transform.position;
-        AbilityContext.Forward = Owner.DirectorForward();
     }
 
     public bool TryActivateInstant()
@@ -125,16 +109,18 @@ public class AbilityInstance
         AbilityContext = BuildContext();
     }
 
-    // Release, not abort: CurrentHoldTime must survive until TryDoInstant() runs, otherwise
-    // charge-scaling effects always read HoldRatio == 0. StartHold() is what resets it.
     public void CancelHold()
     {
         IsHolding = false;
-        RefreshHoldContext();
+        CurrentHoldTime = 0f;
     }
     private AbilityContext BuildContext()
     {
-        float holdRatio = HoldRatio;
+        float holdRatio = 0f;
+        if (Definition.MaxHoldTime > 0f)
+        {
+            holdRatio = Mathf.Clamp01(CurrentHoldTime / Definition.MaxHoldTime);
+        }
 
         return new AbilityContext
         {
