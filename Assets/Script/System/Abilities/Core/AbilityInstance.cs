@@ -40,9 +40,7 @@ public class AbilityInstance
         RefreshHoldContext();
     }
 
-    public float HoldRatio => Definition.MaxHoldTime <= 0f
-        ? 0f
-        : Mathf.Clamp01(CurrentHoldTime / Definition.MaxHoldTime);
+    public float HoldRatio => AbilityRuntimeHelpers.SafeRatio(CurrentHoldTime, Definition.MaxHoldTime);
 
     // Context is built once per cast, so charge-scaling effects only see a live hold value
     // if it is pushed back into the context every tick.
