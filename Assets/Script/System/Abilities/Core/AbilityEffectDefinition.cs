@@ -6,6 +6,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
 {
     public string AbilityName = "";
     public List<AbilityConditionDefinition> SubConditions;
+    public List<AbilityEffectDefinition> SubEffects;
     public abstract void Apply(AbilityContext context);
     public virtual bool Casting(AbilityContext context)
     {
@@ -18,6 +19,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
         }
         return true;
     }
+    
 
     public void OnValidate()
     {

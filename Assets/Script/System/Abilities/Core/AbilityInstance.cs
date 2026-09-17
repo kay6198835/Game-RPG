@@ -127,7 +127,7 @@ public class AbilityInstance
             Caster = Owner,
             Origin = Owner.Transform.position,
             Forward = Owner.DirectorForward(),
-            TargetPoint = Owner.Transform.position + Owner.Transform.forward * 2f,
+            TargetPoint = Owner.TargetPosition(),
             HoldTime = CurrentHoldTime,
             HoldRatio = holdRatio,
             AbilityDefinition = Definition,
