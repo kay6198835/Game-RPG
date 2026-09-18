@@ -1,7 +1,9 @@
+using System;
+using System.Collections;
+using UnityEngine;
+
 public interface ISpawn
 {
-    void Launch(Vector2 target, float speed, float lifetime,
-                AbilityContext context, Action<object[]> execute);
-    void DespawnOneSelf();
-    IEnumerator DespawnOneselfAffterDuration();
+    void Launch(Vector2 target, float lifetime,
+                AbilityContext context, Action<AbilityContext> execute);
 }

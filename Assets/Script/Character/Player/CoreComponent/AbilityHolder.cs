@@ -72,7 +72,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     }
     public Vector2 TargetPosition()
     {
-        return playerInputHandler.DirectionMouseVector;
+        return playerInputHandler.MouseVector;
     }
 
     public void Equip(AbilitySlot slot, AbilityDefinition definition)

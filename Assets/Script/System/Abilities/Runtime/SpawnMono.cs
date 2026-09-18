@@ -6,27 +6,27 @@ public class SpawnMono : MonoBehaviour, ISpawn
 {
     protected float _duration;
     protected AbilityContext _context;
-    protected Action<object[]> _callback;
+    protected Action<AbilityContext> _callback;
     public virtual void Launch(Vector2 target, float lifetime,
-                             AbilityContext context)
+                             AbilityContext context, Action<AbilityContext> currentContext)
     {
         _duration = lifetime;
         _context = context;
-        _callback = execute;
+        _callback = currentContext;
         if (_duration > 0)
         {
             StartCoroutine(DespawnOneselfAffterDuration());
         }
 
     }
-    protected virtual void DespawnOneSelf()
+    public virtual void DespawnOneSelf()
     {
-        _pool.Release(gameObject);
+        _context.Services.Pool.Release(gameObject);
     }
 
     protected virtual IEnumerator DespawnOneselfAffterDuration()
     {
         yield return new WaitForSeconds(_duration);
-        _pool.Release(gameObject);
+        _context.Services.Pool.Release(gameObject);
     }
 }
