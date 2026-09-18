@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 public class LightningController : SpawnSummonBase
 {
@@ -9,8 +10,11 @@ public class LightningController : SpawnSummonBase
         randomIndex = 0;
         animator.SetInteger("Index", randomIndex);
     }
-
-    protected override void Execute()
+    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> currentContext)
+    {
+        base.Launch(lifetime, context, currentContext);
+    }
+    public override void Execute()
     {
         // get colider in a range
         // get INegative

@@ -15,7 +15,7 @@ public class SpawnSummonEffect : SpawnEffectBase
     //Callback
     protected override void Execute(AbilityContext currentContext)
     {
-        var obj = _context.Services.Pool.Spawn(summonPrefab.gameobject, _context.TargetPoint, Quaternion.identity);
+        var obj = _context.Services.Pool.Spawn(summonPrefab.gameObject, _context.TargetPoint, Quaternion.identity);
         var controller = obj.GetComponent<SpawnSummonBase>();
         controller.Launch(Lifetime, _context, SummonExecute);
     }

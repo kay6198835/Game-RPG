@@ -4,6 +4,6 @@ using UnityEngine;
 
 public interface ISpawn
 {
-    void Launch(Vector2 target, float lifetime,
+    void Launch(float lifetime,
                 AbilityContext context, Action<AbilityContext> execute);
 }

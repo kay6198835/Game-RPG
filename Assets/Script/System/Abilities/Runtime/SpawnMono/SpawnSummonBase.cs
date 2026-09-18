@@ -5,7 +5,7 @@ public class SpawnSummonBase : SpawnMono
     protected Animator animator;
     protected virtual void Awake()
     {
-        animator.GetComponent<Animator>();
+        animator = GetComponent<Animator>();
     }
 
     protected virtual void OnEnable()

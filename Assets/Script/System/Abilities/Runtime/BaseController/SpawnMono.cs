@@ -7,7 +7,7 @@ public class SpawnMono : MonoBehaviour, ISpawn
     protected float _duration;
     protected AbilityContext _context;
     protected Action<AbilityContext> _callback;
-    public virtual void Launch(Vector2 target, float lifetime,
+    public virtual void Launch(float lifetime,
                              AbilityContext context, Action<AbilityContext> currentContext)
     {
         _duration = lifetime;
