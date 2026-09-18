@@ -23,6 +23,7 @@ public interface IAbilityServices
     IPlayerStatService Stats { get; }
     IResourceReceiver ResourceReceiver { get; }
     IVitalComponent Vital { get; }
+    public INegativeReceiver NegativeReceiver { get; set; }
 }
 
 public sealed class AbilityServices : IAbilityServices
@@ -31,10 +32,17 @@ public sealed class AbilityServices : IAbilityServices
     public IPlayerStatService Stats { get; }
     public IResourceReceiver ResourceReceiver { get; }
     public IVitalComponent Vital { get; }
+    public INegativeReceiver NegativeReceiver { get; set; }
 
-    public AbilityServices(IObjecPoolService pool, IPlayerStatService stats,
-     IResourceReceiver resourceReceiver, IVitalComponent vital)
+    public AbilityServices(
+        IObjecPoolService pool,
+        IPlayerStatService stats,
+        IResourceReceiver resourceReceiver,
+        IVitalComponent vital)
     {
-        Pool = pool; Stats = stats; ResourceReceiver = resourceReceiver; Vital = vital;
+        Pool = pool;
+        Stats = stats;
+        ResourceReceiver = resourceReceiver;
+        Vital = vital;
     }
 }

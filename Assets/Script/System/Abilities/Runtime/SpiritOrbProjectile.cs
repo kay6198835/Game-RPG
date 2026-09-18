@@ -4,8 +4,4 @@ using UnityEngine;
 
 public class SpiritOrbProjectile : SpawnMono
 {
-    protected override void Awake()
-    {
-        base.Awake();
-    }
 }

@@ -9,20 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac9ac7c011812d042ac992007bc0cf48, type: 3}
+  m_Script: {fileID: 11500000, guid: e3551c5d68af9dd4dbd570c6d2682e46, type: 3}
   m_Name: Paladin Spawn Consecrat Effect
   m_EditorClassIdentifier: 
   AbilityName: Paladin Spawn Consecrat Effect
   SubConditions: []
   SubEffects: []
-  OrbPrefab: {fileID: 0}
-  Speed: 10
+  Prefab: {fileID: 5100257110027727187, guid: d34555be92d2a04429095bfd23e184a9, type: 3}
   SpawnOffset: 0.8
-  Lifetime: 8
-  BaseDamage: 10
-  Duration: 5
-  DamagePerTick: 25
-  CurrentTickTime: 0
-  TickCountMax: 5
-  CurrentTickCount: 0
-  SubDamage: 0
+  Lifetime: 0
+  summonPrefab: {fileID: 2248560499504618501, guid: f61a428b3c1e2da408aae132570cb765, type: 3}

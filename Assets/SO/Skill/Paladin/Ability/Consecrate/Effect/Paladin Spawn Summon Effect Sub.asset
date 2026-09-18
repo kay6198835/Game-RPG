@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bff5defe3cd80a48a60df64120a7161, type: 3}
-  m_Name: Paladin Spawn Slash Effect
+  m_Script: {fileID: 11500000, guid: e3551c5d68af9dd4dbd570c6d2682e46, type: 3}
+  m_Name: Paladin Spawn Summon Effect Sub
   m_EditorClassIdentifier: 
-  AbilityName: Paladin Spawn Slash Effect
+  AbilityName: 
   SubConditions: []
   SubEffects: []
-  Prefab: {fileID: -5491633333990490548, guid: 5f61048ea1081024c8fc9fdf9cce9e3f, type: 3}
+  Prefab: {fileID: 0}
   SpawnOffset: 0.8
   Lifetime: 8
-  damage: 30
+  summonPrefab: {fileID: 0}
