@@ -127,15 +127,86 @@ Nice-to-Have item.
 
 ### Fri 2026-09-18 — Stretch + wrap prep
 
-| Task | Est. | Notes |
-|------|------|-------|
-| S14-N2 (re-verify older bug set against the S14-07 smoke session) | 0.2d | Only if S14-07 landed Tuesday as planned |
-| S14-N1 (first playtest) | — | Only if S14-07 confirmed stable — last log 2026-06-12 |
-| Friday wrap-up prep | — | Feeds into Sat 22:00 `/weekly-wrapup` |
+| Task | Est. | Status | Notes |
+|------|------|--------|-------|
+| S14-02 (BUG-068) | 0.05d | ❌ NOT DONE | Re-verified: `AbilityHolder.cs:97` `GetAbility()` still dereferences `currentAbility.Definition.AnimatorOverride` unguarded after a `TryGetValue` miss. Unchanged. Final sprint day — carries to Sprint 15 |
+| S14-03 (BUG-063) | 0.05d | ❌ NOT DONE | `Stat.cs:63-66` still wraps `modifiers` in `#if UNITY_EDITOR [SerializeField]`. Unchanged. 29th+ consecutive carry |
+| S14-04 (BUG-064 item 7) | 0.1d | ❌ NOT DONE | `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`. Unchanged |
+| S14-05 (BUG-065) | 0.1d | ❌ NOT DONE | `PlayerDeathState.cs:10-13` `Enter()` still only calls `base.Enter()`. Unchanged |
+| S14-06 (BUG-066 + BUG-070) | 0.2d | ❌ NOT DONE | `EntityVitalStats.cs` (lines 39,49,51,55,61,63,67) and `VitalComponent.cs` (lines 28,39,41,45,52,54,58) both still raw-index `currentStats[statType]`, no guard. Unchanged |
+| S14-N2 (re-verify older bug set against the S14-07 smoke session) | 0.2d | ⬜ SKIPPED | S14-07 never landed this sprint — precondition not met |
+| S14-N1 (first playtest) | — | ⬜ SKIPPED | S14-07 never landed this sprint — precondition not met |
+| Friday wrap-up prep | — | ✅ this standup | Feeds into Sat 22:00 `/weekly-wrapup` |
 
 ---
 
 ## Standup Log
+
+### Fri 2026-09-18 — Daily Standup (autonomous, no owner present) — final sprint day
+
+Checked the six-item hard gate first, per its own rule. Result: **still 1/6 (BUG-067 only,
+incidental, unchanged since Thursday) — 6th consecutive day (Mon–Fri) the gate has not held.**
+Verified each item directly against current `sprint-14` source (branch checked out clean, only
+the 4 pre-existing uncommitted asset changes carried from `origin/feature/fix-player-control`):
+
+- ✅ S14-01/BUG-067 — still reads fixed: `ResourceReceiver.cs:17-23` `Recovery()`/`Reduction()`
+  correctly call the matching `VitalStatsComponent` methods. Unchanged since Thursday, still no
+  dedicated commit (lần đầu land — landed as side effect / incidental), no test (kiểm thử), no
+  Play Mode confirm
+- ❌ S14-02/BUG-068 — `AbilityHolder.cs:97` `GetAbility()` still dereferences
+  `currentAbility.Definition.AnimatorOverride` right after a `TryGetValue` that can miss (return
+  `null`). Unchanged
+- ❌ S14-03/BUG-063 — `Stat.cs:63-66` still wraps `modifiers` in `#if UNITY_EDITOR [SerializeField]`.
+  Unchanged. 29th+ consecutive carry
+- ❌ S14-04/BUG-064 item 7 — `RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService
+  poolManager`, no `[Inject]`. Unchanged
+- ❌ S14-05/BUG-065 — `PlayerDeathState.cs` `Enter()` still only calls `base.Enter()`. Unchanged
+- ❌ S14-06/BUG-066+070 — `EntityVitalStats.cs` and `VitalComponent.cs` both still raw-index
+  `currentStats[statType]` (7 sites each), no `TryGetValue` guard. Unchanged
+
+**New commits on `sprint-14` since Thursday's standup** (`4f31cb6..HEAD`, 7 non-merge/merge
+commits): `5b74575` feat(abilities) charge-scaling effects → `1de8ed6` fix(abilities) inline
+hold-ratio math → **both reverted** by `de98173` and `48a1060` (net zero — off-plan feature added
+and rolled back same window, not a gate item), `8295539` update spawn effect, `bbc2b8c` "fixing"
+(42-file refactor: ability spawn-effect system split into `SpawnEffectBase` /
+`SpawnProjectileEffect` / `SpawnSummonEffect` base classes plus new `LightningController.cs` /
+`RuneCircleController.cs` runtime and matching VFX prefabs/controllers for the Paladin kit), and
+a merge (`2ea57f3`). None of the seven touch any of the six gate files. Off-plan pattern continues
+identically to every prior day this sprint — all work landed on `origin/feature/fix-player-control`
+again, a branch name that still matches none of its actual content.
+
+**One incidental positive finding**: BUG-069 (ability cooldown never enforced, S14-14) now appears
+**fixed** — `PlayerInputHandle.cs:254` gates `StartHold()` behind
+`abilityHolder.TryDoAbility(AbilitySlot.Utility)`, and `AbilityHolder.TryDoAbility()`
+(`AbilityHolder.cs:107`) now calls `currentAbility.CanStart()` (the cooldown check) before
+allowing activation — this callsite did not exist as of the 2026-09-13 bug report. Not verified
+in Play Mode, no test, no same-day review — flagging as "apparently fixed" only, same caveat class
+as BUG-067. `production/qa/bugs/BUG-069.md` needs a Resolution Note before closing.
+
+Also re-verified: ADR-0002 still `Status: Proposed` (17th+ carry). `.git/hooks/pre-push` still
+absent (24th+ carry). No `docs/architecture/` file for TD-040 (S14-12) — now a live risk since
+today's `bbc2b8c` further extends Abilities v2 (spawn-effect base-class split) with the v1/v2
+convergence decision still unmade. `tests/EditMode/` still `.gitkeep`-only (S14-13/TD-014, 30th+
+cycle). No owner-in-Editor Play Mode session occurred at any point this sprint (S14-07) — 8th
+consecutive sprint this has not happened; per the Sprint 13 retro's own rule this should now be
+recorded as an accepted-risk decision rather than re-scheduled a 9th time. QA plan: still missing,
+30th+ consecutive cycle.
+
+**Sprint 14 close-out signal for tomorrow's `/weekly-wrapup` (Sat 22:00):** the six-item hard gate
+— introduced Sunday specifically to break the Sprint 11–13 pattern — held on 0 of 5 days as an
+intentional, targeted gate pass; the one item now reading fixed (BUG-067) and the one incidental
+find (BUG-069) both landed as side effects of unrelated off-plan ability-system work, not as gate
+commits. This is evidence for the retro's mitigation-design question raised Thursday: "checked
+first, then whatever happens happens" has now failed 5/5 days in a row it was tried. Five of the
+six original bugs (BUG-068, BUG-063, BUG-064 item 7, BUG-065, BUG-066/070) carry into whatever
+sprint follows unchanged.
+
+Today's plan (autonomous, no further owner session expected before wrap-up): none — this run is
+report-only per its constraints (no `.cs`/asset edits). Recommend Saturday's wrap-up open with
+S14-02 through S14-06 as Sprint 15's literal first commits, gated harder than a checklist (e.g. no
+other diff accepted until they land), consistent with Thursday's escalation note.
+
+---
 
 ### Thu 2026-09-17 — Daily Standup (autonomous, no owner present)
 
