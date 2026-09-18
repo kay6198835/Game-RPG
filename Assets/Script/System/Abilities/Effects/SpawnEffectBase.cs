@@ -25,7 +25,7 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
         var obj = _context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));
         var orb = obj.GetComponent<SpawnMono>();
         if (orb != null)
-            orb.Launch(dir, Lifetime, _context, Execute);
+            orb.Launch(Lifetime, _context, Execute);
         else
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
     }
@@ -33,7 +33,6 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
     protected abstract Vector2 SpawnPos();
     protected abstract float Angle();
     protected abstract void Execute(AbilityContext currentContext);
-
     public override bool Casting(AbilityContext context)
     {
         if (!base.Casting(context)) return false;

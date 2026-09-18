@@ -9,10 +9,13 @@ public class LightningController : SpawnSummonBase
         randomIndex = 0;
         animator.SetInteger("Index", randomIndex);
     }
-    public override void Execute()
+
+    protected override void Execute()
     {
-        // set INegative
-        //
+        // get colider in a range
+        // get INegative
+        // foreach INegative _callback.Invoke(_context);
+
         base.Execute();
     }
 }

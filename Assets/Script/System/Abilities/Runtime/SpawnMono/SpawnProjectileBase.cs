@@ -19,11 +19,11 @@ public class SpawnProjectileBase : SpawnMono
         _col = GetComponent<CircleCollider2D>();
         _col.isTrigger = true;
     }
-    public override void Launch(Vector2 dir, float lifetime,
+    public override void Launch(float lifetime,
                              AbilityContext context, Action<AbilityContext> execute)
     {
-        base.Launch(dir, lifetime, context, execute);
-        _rb.velocity = dir * speed;
+        base.Launch(lifetime, context, execute);
+        _rb.velocity = context.Forward * speed;
     }
 
     private void OnTriggerEnter(Collider other)

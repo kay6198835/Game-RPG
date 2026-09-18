@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Spawn Projectile Effect")]
 public class SpawnProjectileEffect : SpawnEffectBase
 {
-    [SerializeField] private float damage = 30;
+    [SerializeField] protected float baseDamage = 30;
     public override void Apply(AbilityContext context)
     {
         base.Apply(context);
@@ -23,7 +23,7 @@ public class SpawnProjectileEffect : SpawnEffectBase
         var negativeReceiver = currentContext.Services.NegativeReceiver;
         if (negativeReceiver != null)
         {
-            negativeReceiver.TakeDamage(damage, currentContext.Origin);
+            negativeReceiver.TakeDamage(baseDamage, currentContext.Origin);
         }
     }
 
