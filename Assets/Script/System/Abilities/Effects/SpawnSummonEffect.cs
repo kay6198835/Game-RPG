@@ -11,13 +11,23 @@ public class SpawnSummonEffect : SpawnEffectBase
     {
         return 0;
     }
+    public override void Apply(AbilityContext context)
+    {
+        var obj = context.Services.Pool.Spawn(summonPrefab.gameObject, context.TargetPoint, Quaternion.identity);
+        var controller = obj.GetComponent<SpawnSummonBase>();
+        controller.Launch(Lifetime, context, SummonExecute);
+    }
+    public override bool Casting(AbilityContext context)
+    {
+        if (!base.Casting(context)) return true;
+        base.Apply(context);
+        return false;
+    }
 
     //Callback
     protected override void Execute(AbilityContext currentContext)
     {
-        var obj = _context.Services.Pool.Spawn(summonPrefab.gameObject, _context.TargetPoint, Quaternion.identity);
-        var controller = obj.GetComponent<SpawnSummonBase>();
-        controller.Launch(Lifetime, _context, SummonExecute);
+        //Do nothing
     }
 
     protected virtual void SummonExecute(AbilityContext currentContext)

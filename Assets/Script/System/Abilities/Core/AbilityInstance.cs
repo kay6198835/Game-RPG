@@ -55,9 +55,9 @@ public class AbilityInstance
     }
     public void TryCastInstant()
     {
+        Casting();
         if (Definition.ActivationType == AbilityActivationType.Hold)
         {
-            Casting();
             if (IsHolding) return;
         }
         ChangeState(AbilityState.Do);
