@@ -1,5 +1,32 @@
 # Sprint 14 — 2026-09-14 to 2026-09-18
 
+**Status: CLOSED — FAIL (2026-09-19 Saturday `pm-weekly-wrapup`, autonomous).** Full detail:
+`production/retros/retro-sprint-14-2026-09-19.md`, `production/qa/bug-triage-2026-09-19.md`.
+Verified against source at HEAD `17ac9af`.
+
+| Item | Final status |
+|------|--------------|
+| S14-01 BUG-067 | APPARENTLY FIXED (incidental via interface rename; unverified, no Play Mode) |
+| S14-02 BUG-068 | NOT MET; downgraded S3 — `GetAbility()` now has zero callers |
+| S14-03 BUG-063 | NOT MET (29th+ carry) |
+| S14-04 BUG-064 item 7 | NOT MET |
+| S14-05 BUG-065 | NOT MET |
+| S14-06 BUG-066 + BUG-070 | NOT MET |
+| S14-07 Play Mode smoke | NOT MET (8th sprint) — record as accepted risk |
+| S14-08 review-gate decision | NOT MET |
+| S14-09 pre-push hook | NOT MET (25th+) |
+| S14-10..S14-13 | NOT MET |
+| S14-14 BUG-069 | APPARENTLY FIXED (incidental; `TryDoAbility` calls `CanStart()`), unverified |
+| QA plan | none (31st+ cycle) |
+
+**Velocity:** Must-Have 0 of 9 delivered as planned (~0.05d incidental of 0.9d). Off-plan: Paladin kit +
+spawn-effect refactor (46 `.cs` files, +570/-438). 4 new bugs (BUG-071..074).
+
+**Carry-over to Sprint 15:** BUG-063, BUG-064 item 7, BUG-065, BUG-066+070, BUG-073, BUG-071, BUG-072,
+S14-07 (accepted-risk decision), S14-08, S14-09, S14-10/11, S14-12, S14-13, verify BUG-067/069, QA plan.
+
+---
+
 **Opened:** 2026-09-13 (Sunday 22:00 `pm-weekly-kickoff`, on-slot autonomous run — no owner present).
 Branch `sprint-14`, created from `sprint-13` tip (`c4be3c7`, "Merge branch 'origin/feature/fix-player-control'
 into sprint-13"). `gh` CLI unavailable in this environment (`gh: command not found`) — draft PR

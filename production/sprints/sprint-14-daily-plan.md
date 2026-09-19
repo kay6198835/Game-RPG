@@ -142,6 +142,16 @@ Nice-to-Have item.
 
 ## Standup Log
 
+### Sat 2026-09-19 22:00 — Weekly Wrap-up (autonomous)
+
+**Sprint 14 verdict: FAIL.** Hard gate 0/5 days as an intentional pass; BUG-067 and BUG-069 fixed
+incidentally (unverified). 46 `.cs` changed, 4 new bugs (BUG-071..074), BUG-068 downgraded to S3. Details:
+`retros/retro-sprint-14-2026-09-19.md`, `qa/bug-triage-2026-09-19.md`. Playtest skipped (no log this week).
+Carry-over and velocity recorded in the `sprint-14.md` closure block. Sunday kickoff should open Sprint 15
+with BUG-063/064-7/065/066+070/073 as the opening block.
+
+---
+
 ### Sat 2026-09-19 — Daily Standup (autonomous, no owner present) — post-sprint
 
 Sprint 14 window closed Fri 2026-09-18; this run is a carry-over check for Sprint 15 planning. Gate
