@@ -31,7 +31,7 @@ public class RoomModel : EntityModel
         while (weightBudget > this.weightBudget * 0.1f)
         {
 
-            SetListCandidate(1,ref weightBudget);
+            SetListCandidate(1, ref weightBudget);
             ranDomChosen = candidateEnemies[Random.Range(0, candidateEnemies.Count)];
             for (int i = 0; i < n; i++)
             {
@@ -104,10 +104,10 @@ public class EnemyModal
 {
     public GameObject Prefab;
     [Range(1, 100)] public int weight;
-    public RarityTier rarityTier;
+    public RarityTierEnemy rarityTier;
 }
 [System.Serializable]
-public enum RarityTier
+public enum RarityTierEnemy
 {
     Common = 50,
     Rare = 30,

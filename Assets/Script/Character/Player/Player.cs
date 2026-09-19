@@ -14,10 +14,13 @@ public class Player : BaseEntity
     [SerializeField] private PlayerEquidUnequid equidUnequidState;
     [SerializeField] private PlayerIntertorState intertorState;
     [SerializeField] private PlayerTakeDamageState takeDamageState;
+    [SerializeField] private PlayerDeathState deathState;
+    [SerializeField] private PlayerResourceReceiverState resourceReceiverState;
     #endregion
 
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
     [SerializeField] private PlayerData data;
+    // [SerializeField] private BaseStatsSO stats;
     [SerializeField] private Core core;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
@@ -36,7 +39,10 @@ public class Player : BaseEntity
     public PlayerIntertorState IntertorState { get => intertorState; }
     public PlayerSkillWeaponState AbilityState { get => abilityState; }
     public PlayerTakeDamageState TakeDamageState { get => takeDamageState; }
+    public PlayerResourceReceiverState ResourceReceiverState { get => resourceReceiverState; }
+    public PlayerDeathState DeathState { get => deathState; }
     public PlayerData Data { get => data; }
+    // public BaseStatsSO Stats { get => stats; }
 
     #endregion
 
@@ -51,6 +57,8 @@ public class Player : BaseEntity
         intertorState = new PlayerIntertorState(this, "Interactor");
         abilityState = new PlayerSkillWeaponState(this, "Ability");
         takeDamageState = new PlayerTakeDamageState(this, "TakeDamage");
+        deathState = new PlayerDeathState(this, "Death");
+        resourceReceiverState = new PlayerResourceReceiverState(this, "EquidUnequid");
     }
 
     public override void Start()
@@ -65,10 +73,12 @@ public class Player : BaseEntity
 
     #region Other Functions
 
-    private void AnimationTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.StartRangeTrigger);
-    private void AnimationOnAction() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.OnActivate);
-    private void AnimationOffAction() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.OffActivate);
-    private void AnimtionFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
+    private void AnimationStart() => stateMachine.CurrentState.AnimationStart();
+    private void AnimationTrigger() => stateMachine.CurrentState.AnimationTrigger();
+    private void AnimationOnAction() => stateMachine.CurrentState.AnimationOnAction();
+    private void AnimationOffAction() => stateMachine.CurrentState.AnimationOffAction();
+    private void AnimationFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
+    private void AnimationEnd() => stateMachine.CurrentState.AnimationEnd();
 
 
     #endregion

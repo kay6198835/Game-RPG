@@ -1,42 +1,76 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class bullet : MonoBehaviour
+[RequireComponent(typeof(Rigidbody2D))]
+public class bullet : MonoBehaviour, IPoolable
 {
     [field: SerializeField] public BulletDataSO BulletSO { get; private set; }
+    [SerializeField] private LayerMask blockMask;
 
-    private void Start()
+    private Rigidbody2D body;
+    private PoolMember poolMember;
+    private float despawnTime;
+
+    private void Awake()
     {
-        Invoke("DestroyBullet", BulletSO.lifetime);
+        body = GetComponent<Rigidbody2D>();
+    }
+
+    private void OnEnable()
+    {
+        OnSpawn();
+    }
+
+    public void OnSpawn()
+    {
+        despawnTime = Time.time + BulletSO.lifetime;
+        body.velocity = transform.right * BulletSO.speed;
+    }
+
+    public void OnDespawn()
+    {
+        body.velocity = Vector2.zero;
+    }
+
+    private void Update()
+    {
+        if (Time.time >= despawnTime)
+        {
+            Despawn();
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("BlockObject"))
-            DestroyBullet();
+        GameObject other = collision.gameObject;
 
-        if (BulletSO.bullettype == BulletType.PlayerBullet)
+        if (IsInMask(blockMask, other.layer))
         {
-            if (collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))
-            {
-                DestroyBullet();
-            }
+            Despawn();
+            return;
         }
-        else if (BulletSO.bullettype == BulletType.EnemyBullet)
+
+        if (!IsInMask(BulletSO.targetMask, other.layer)) return;
+
+        INegativeReceiver receiver = other.GetComponentInChildren<INegativeReceiver>();
+        if (receiver != null)
         {
-            if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
-            {
-                //collision.gameObject.GetComponent<Player>().TakeDamage(BulletSO.dmg, gameObject);
-                DestroyBullet();
-            }
+            receiver.TakeDamage(BulletSO.dmg, transform.position);
         }
-        //DestroyBullet();
+        Despawn();
     }
 
-    void DestroyBullet()
+    private static bool IsInMask(LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;
+
+    private void Despawn()
     {
-        Destroy(gameObject);
-    }
+        OnDespawn();
 
+        // Pool attaches PoolMember on first spawn; a bullet placed in a scene by hand has none.
+        if (poolMember == null && !TryGetComponent(out poolMember))
+        {
+            Destroy(gameObject);
+            return;
+        }
+        poolMember.GetPool().Release(gameObject);
+    }
 }

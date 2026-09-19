@@ -16,7 +16,7 @@ public class PlayerMoveState : PlayerBasicState
     public override void LogicUpdate()
     {
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
-        playerMovement.SetVeclocity(inputHandler.MoveVector * playerData.movementVelocities);
+        playerMovement.SetVeclocity(inputHandler.MoveVector * vitalStats.GetCurrentStatValue(StatType.MoveSpeed));
         if (inputHandler.MoveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);

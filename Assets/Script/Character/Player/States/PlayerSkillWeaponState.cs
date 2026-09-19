@@ -10,30 +10,66 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     {
 
     }
+
     public override void Enter()
     {
         player.Core.GetCoreComponent(out abilityHolder);
         base.Enter();
-        abilityHolder.EnterAbility();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
-        //stateStyle = StateStyle.Freeze;
     }
-    public override void LogicUpdate()
+
+    public override void AnimationStart()
     {
-        base.LogicUpdate();
-        if (StatusAnimation.StartRangeTrigger <= Status && Status <= StatusAnimation.EndRangeTrigger)
+        base.AnimationStart();
+    }
+
+    public override void AnimationOnAction()
+    {
+        base.AnimationOnAction();
+        switch (abilityHolder.CurrentAbilityState)
         {
-            abilityHolder.SetStateAbility();
+            case AbilityState.Cast:
+                if (!abilityHolder.IsHolding)
+                {
+                    player.Anim.SetBool("DoAB", true);
+                }
+                break;
+            case AbilityState.Do:
+                player.Anim.SetBool("DoAB", false);
+                break;
+        }
+        abilityHolder.HandleInput();
+        Status = StatusAnimation.OffActivate;
+    }
+
+    public override void AnimationEnd()
+    {
+        base.AnimationEnd();
+        switch (abilityHolder.CurrentAbilityState)
+        {
+            case AbilityState.Do:
+                //base.LogicUpdate();
+                break;
+            case AbilityState.Exit:
+                base.LogicUpdate();
+                break;
         }
     }
+
+    override public void LogicUpdate()
+    {
+        base.LogicUpdate();
+        abilityHolder.Processing();
+    }
+
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
     }
+
     public override void Exit()
     {
-        abilityHolder.ExitAbility();
         base.Exit();
     }
 }

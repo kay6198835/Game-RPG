@@ -6,27 +6,56 @@
 
 state_ownership:
   - state: enemy_room_alive_count
-    owner: EnemyManager
+    owner: RoomCell
     adr: ADR-0002
-    interface: "EnemyManager.Instance (read-only aliveCount during Fighting state)"
+    adr_status: amended_2026-08-21
+    interface: "RoomCell.EnemyCount (int, private set); RoomCell.OnDoneSpawnEnemy(int) / OnSpawnExtraEnemy() / OnEnemyDeath()"
     note: >
-      Reset explicitly by the ON_LOAD_MAP handler each room transition —
-      Awake() fires once per dungeon run, not once per room (see ADR-0002
-      Decision correction).
+      CORRECTED 2026-08-20 by documentation audit; ADR-0002 amended 2026-08-21 to match.
+      ADR-0002's original Decision assigned this state to
+      EnemyManager, but the shipped owner is RoomCell (RoomCell.cs:22,44-62).
+      RoomGridController forwards ON_DONE_SPAWN_ENEMY / ON_SPAWN_EXTRA_ENEMY /
+      ON_ENEMY_DEATH to the current cell, and RoomCell emits ON_CLEAR_ENEMY when the
+      count reaches zero. EnemyManager holds no alive-count field of any kind — it
+      became the pathfinding service instead (see api_decisions below). ADR-0002's
+      2026-08-21 amendment records this ownership split, so this row is authoritative
+      again. The split across RoomCell / EnemySpawner / RoomGridController is itself
+      covered by no ADR — recorded as owed architectural debt in that amendment.
 
 interfaces:
   - contract: room_enemy_selection
     adr: ADR-0003
     signature: "RoomModel.GetSpawnSet() -> List<EnemySpawnEntry> { enemy, count }"
+    guarantee_status: violated_by_implementation_accepted_2026-08-21
     detail: >
-      Budget-bounded Candidate-Pool fill loop. Guarantees: totalSpend <= B
-      (Room Budget) always — overspend is structurally impossible because a
-      candidate must satisfy weight <= remaining (no overflow cap); the loop
-      terminates in at most B iterations; each pick round terminates in at
-      most 5 roll attempts (retryCount capped at 4 + 1 forced fallback).
+      Budget-bounded Candidate-Pool fill loop. Intended guarantees: totalSpend <= B
+      (Room Budget) always — overspend structurally impossible because a candidate
+      must satisfy weight <= remaining (no overflow cap); the loop terminates in at
+      most B iterations; each pick round terminates in at most 5 roll attempts
+      (retryCount capped at 4 + 1 forced fallback).
+      VERIFIED 2026-08-20 — implementation status per guarantee:
+        - loop termination: HOLDS (weight >= 1 is enforced by [Range(1,100)]).
+        - 5 roll attempts per round: HOLDS (RoomModel.cs:55).
+        - totalSpend <= B: DOES NOT HOLD. RoomModel.SetListCandidate() at
+          RoomModel.cs:55-58 does `if (retry > 4) { candidateEnemies.AddRange(
+          enemiesOfRoom); return; }` with no weight filter -- and no rarity roll
+          either -- so a candidate heavier than the remaining budget can be picked
+          and weightBudget goes negative. Real bound: totalSpend < B + max(weight).
+          Measured over 20000 simulated rooms at B=100: a mixed pool whose cheapest
+          weight is 20 overspends in ~4% of rooms, worst case +80 (+80% of budget).
+          Reaching the fallback is NOT the same as overspending -- a Legendary-only
+          pool reaches it in every room yet never overspends. Per-round fallback
+          probability is 0.95^4 ~= 81.5% (four rolls, then the forced fallback);
+          an earlier note here said ~77% of rounds, which was wrong on both the
+          exponent and the metric. ACCEPTED 2026-08-21 (owner decision C3) and
+          documented in the ADR-0003 amendment; tracked as TD-039, not scheduled.
+      Also note the serialized `overflowPercent` field on RoomModel is never read —
+      GetSpawnSet() uses a hardcoded 0.1f literal instead (RoomModel.cs:31).
       Pure method on the RoomModel SO — deliberately NOT on the EnemyManager
-      singleton (ADR-0002) so it stays unit-testable. Signature unchanged from
-      the shipped Option A implementation; only the internal algorithm changes.
+      singleton (ADR-0002) so it stays unit-testable. NOTE: it is not currently pure —
+      it mutates the serialized `candidateEnemies` list as a scratch buffer, which
+      makes it non-reentrant and unsafe if two rooms share a RoomModel (which
+      MapModel.GetRandomRoom()'s shuffle-bag allows once the bag refills).
   - contract: enemymodal_spawn_metadata
     adr: ADR-0003
     signature: "EnemyModal { GameObject Prefab; int weight; RarityTier rarityTier; } — plain [System.Serializable] class nested in RoomModel.cs, NOT a ScriptableObject, does not extend EntityModel"
@@ -47,6 +76,28 @@ interfaces:
       the plain-class shape.
 
 forbidden_patterns: []
+# NOTE re-verified 2026-09-11 against HEAD 6d6a8e4 (was 2026-08-20). This list is
+# empty by design — the file is a derived view of Accepted ADRs, and none of the
+# violations below has an ADR. They are tracked in docs/tech-debt-register.md.
+#   - GameObject.Find                      -> FollowPlayer.cs:24 (TD-029).
+#                                             STILL THE ONLY ONE in Assets/Script/ —
+#                                             re-confirmed 2026-09-11, zero
+#                                             FindObjectOfType calls remain.
+#   - public fields on MonoBehaviour       -> EntityAttack, EnemySO and others.
+#                                             NegativeReciver and EntityNegativeReciver
+#                                             were rewritten in the Sprint 12 refactor
+#                                             and no longer carry public state fields.
+#   - allocating Physics2D.OverlapCircle   -> EntityFindTarget only (TD-005 re-scoped).
+#                                             EntityWeaponMelee.cs was DELETED
+#                                             (BUG-043/BUG-046 closed) — the old entry
+#                                             here pointed at a file that no longer exists.
+#   - UI mutating gameplay state           -> StatsUIController.cs:110,158,172 call
+#                                             _playerStatService.AddPrimaryPoint().
+#                                             The violation survived the DI refactor:
+#                                             it now writes through IPlayerStatService
+#                                             instead of a direct StatsSO reference,
+#                                             which changes the plumbing, not the
+#                                             ui-code.md violation.
 
 api_decisions:
   - decision: enemymanager_singleton_exception
@@ -57,6 +108,21 @@ api_decisions:
       project-wide "no new singletons beyond MazeController" rule
       (technical-preferences.md, .claude/rules/engine-code.md,
       .claude/rules/manager-event-code.md).
+      SCOPE DRIFT 2026-08-20 — the shipped EnemyManager does NOT do what ADR-0002
+      describes. It is now the pathfinding service: [RequireComponent(PathRequestManager)],
+      SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld(). It owns no
+      aliveCount, no room lifecycle, no door locking and no ON_CLEAR_ENEMY emission —
+      that work is split across EnemySpawner, RoomCell and RoomGridController, none of
+      which is covered by any ADR. The singleton exception is therefore currently
+      un-anchored: the class it names exists, but for a different reason than the one
+      that was ratified. RESOLVED 2026-08-21 (owner decision C2): the code stays as is and
+      ADR-0002 was amended to re-scope the exception onto the pathfinding role. The
+      EntityMovement.Start() coupling (EntityMovement.cs:31, `grid = EnemyManager.Instance.Grid`,
+      no null guard -> Entity prefabs NullRef in any scene without an EnemyManager) is recorded
+      in that amendment as an accepted consequence. S10-09 can now flip Status honestly.
+      The ADR's own Verification item IS satisfied: EnemyManager.Awake() has the
+      `return` after Destroy(gameObject) that MazeController still lacks
+      (EnemyManager.cs:15 vs MazeController.cs:17-20 / TD-026).
     scope: EnemyManager only — not a general license for new singletons.
     review_trigger:
       - "Sprint 6 code-review gate when EnemyManager is implemented"
@@ -78,10 +144,57 @@ api_decisions:
       The shipped Option A two-phase uniform-random behavior and the never-built
       2026-07-08 Option B target (injected System.Random + EnemyDatabase id-lookup
       + argmin fill). Resolves GDD Open Question #8.
-    scope: RoomModel.GetSpawnSet() selection logic — implementation target for S5-A3 (RarityTier field, done) + Sprint 6 (algorithm rewrite, still open — GetSpawnSet() still runs Option A as of 2026-07-23).
+    scope: >
+      RoomModel.GetSpawnSet() selection logic — RarityTier field done (S5-A3); algorithm rewrite LANDED between 2026-07-23 and 2026-08-20 (verified: GetSpawnSet() now builds a candidate pool, rolls each candidate's RarityTier chance, picks uniformly from the passers, and retries up to 4 times before a forced fallback — Option C in shape). The earlier note "still runs Option A as of 2026-07-23" is superseded. What is NOT done: the budget guarantee (see room_enemy_selection above) and the Phase-1/Phase-2 removal was never recorded in the GDD.
     status: accepted
     status_note: >
       Accepted 2026-07-23 against the shipped EnemyModal plain-class data shape
       (see ADR-0003 Amendment) — NOT against full implementation of the
       eight-step Candidate-Pool algorithm, which remains unbuilt. Data-model
       question (S6-09) and algorithm-rewrite question are tracked separately.
+  - decision: vcontainer_dependency_injection
+    adr: ADR-0004
+    detail: >
+      VContainer 1.19.0 is the project's dependency-injection container.
+      GameLifetimeScope (Assets/Script/System/LifetimeScope/GameLifetimeScope.cs)
+      is the single scene-level composition root and must be present in any
+      playable scene. Cross-system services are registered with
+      RegisterComponentInHierarchy<T>().As<IService>() and consumed via
+      [Inject] public void Construct(...) method injection.
+      Three services are exposed behind interfaces:
+        IObjecPoolService   -> ObjectPoolManager  (note: 'Objec' typo is intentional)
+        IPlayerService      -> PlayerManager
+        IPlayerStatService  -> StatHandler
+      Six further components are registered as concrete types because the
+      container, not each other, consumes them: Player, EnemySpawner,
+      StatsUIController, ItemSpawner, RoomGeneraterController, AbilityHolder.
+      DI does NOT replace the Core hub: sibling components on one character are
+      still resolved with Core.GetCoreComponent<T>(out ...). The two mechanisms
+      have disjoint scopes — DI crosses systems, the hub stays within a character.
+      RegisterComponentInHierarchy finds but never spawns, so runtime-spawned
+      objects (pooled enemies, projectiles, items) cannot be registered; Pool.Spawn()
+      injects into each new instance instead. Two registrations are commented out
+      in Configure() for exactly this reason (StatsScreenUIController,
+      StatPointAllocator).
+      RECORDED RETROACTIVELY 2026-09-11, 20 days after the decision shipped in
+      aa4e620 (2026-08-22). During that gap .claude/rules/engine-code.md instructed
+      contributors to use a resolution mechanism the codebase had already moved
+      past. That documentation gap is the reason ADR-0004 exists.
+    scope: >
+      Cross-system service resolution only. Not a license to inject concrete
+      MonoBehaviour types, and not a license to resolve the container manually
+      (IObjectResolver.Resolve<T>() in gameplay code is service location, not DI).
+    supersedes: >
+      The implicit "GetComponent or Inspector refs everywhere else" stance in
+      .claude/rules/engine-code.md, which had no mechanism for cross-system
+      lookups and so kept producing unratified singletons (TD-023, LevelManager).
+    review_trigger:
+      - "If a per-room or per-run child LifetimeScope becomes necessary (ADR-0004 Open Question #1)"
+      - "When ADR-0002's EnemyManager singleton exception is re-evaluated (ADR-0004 Open Question #2)"
+      - "If the VContainer git-URL dependency ever fails to resolve — vendor as an embedded package"
+    status: accepted
+    status_note: >
+      Incomplete migration: RangeWeapon's DI wiring is still open as BUG-064
+      sub-item 7, the last component reaching for a service the old way.
+      Supply-chain risk: VContainer is pinned by git URL
+      (jp.hadashikick.vcontainer#1.19.0), not via the Unity package registry.

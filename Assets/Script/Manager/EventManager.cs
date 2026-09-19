@@ -50,5 +50,18 @@ public enum EventID
     ON_TEST,
     ON_ENEMY_DEATH,
     ON_ROOM_CLEAR,
+    ON_OPEN_STATS_PLAYER_UI,
+    ON_CLOSE_STATS_PLAYER_UI,
+    ON_INCREASE_STATS_BY_UI,
+    ON_DECREASE_STATS_BY_UI,
+    ON_CHANGE_STATS_BY_UI_RUN_TIME,
+    ON_UPDATE_STATS_BY_UI,
+    ON_REVERT_STATS_BY_UI,
+    ON_RESTORE_STATS_BY_UI,
+    // Allocator -> stats UI: the allocation session was wiped (accept / revert / restore).
+    // The view must clear its per-row click counters and re-read StatsSO.StatUnusedBonus.
+    ON_RESET_STATS_UI_SESSION,
+    ON_DROP_ITEM,
+    ON_COLLECT_ITEM,
 }
 

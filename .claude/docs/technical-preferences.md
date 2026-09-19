@@ -17,13 +17,13 @@
 
 ## Naming Conventions
 
-- **Classes**: `PascalCase` — `PlayerAttackState`, `EntityWeaponMelee`
+- **Classes**: `PascalCase` — `PlayerAttackState`, `MeleeWeapon`, `RoomGridController`
 - **Private fields**: `_camelCase` (or `camelCase` for serialized legacy fields — match existing)
 - **Public properties**: `PascalCase`
 - **Constants**: `UPPER_SNAKE_CASE` in `GameConstants.cs`
 - **ScriptableObject assets**: `PascalCase` — `BatEntityData`, `SwordAttackSO`
 - **Prefab assets**: `PascalCase` — `EnemyBat`, `RoomBasic`
-- **Scene files**: `PascalCase` — `RandomMaze`, `StartScene`
+- **Scene files**: `PascalCase` — `StartScene`, `LoadRandomMap`, `SetLevel`. (Corrected 2026-08-20: `RandomMaze` no longer exists. `Test AI.unity` predates this rule and breaks it.)
 
 ## Performance Budgets
 
@@ -37,7 +37,10 @@
 ## Testing
 
 - **Framework**: Unity Test Framework (EditMode + PlayMode)
-- **Test location**: `tests/EditMode/`, `tests/PlayMode/`
+- **Test location**: `tests/EditMode/`, `tests/PlayMode/` — this is the authoritative layout,
+  matching `.claude/rules/test-standards.md` and the directories that exist on disk.
+  `.claude/docs/coding-standards.md` still says `tests/unit/` and `tests/integration/`; that is
+  a known conflict awaiting an owner decision, flagged 2026-08-20
 - **Minimum Coverage**: Core damage chain + state transitions (blocking gate)
 - **Required Tests**: Damage formula, player death, room clear trigger
 
@@ -47,7 +50,7 @@
 - `new` allocations in `Update()`, `LogicUpdate()`, `PhysicsUpdate()`
 - `Resources.Load()` — use direct references or Addressables for future growth
 - Hardcoded layer indices — always use LayerMask set in Inspector
-- New singletons beyond `MazeController`
+- New singletons beyond `MazeController` and `EnemyManager` (ratified exception, ADR-0002 — but see the scope-drift note in `docs/registry/architecture.yaml`). `LevelManager` is a standing unratified violation (TD-023)
 - `public` fields on MonoBehaviours — use `[SerializeField] private`
 
 ## Allowed Libraries / Addons

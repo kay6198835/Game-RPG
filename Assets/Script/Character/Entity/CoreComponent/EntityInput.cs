@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using VContainer;
 
-public class EntityInput : EntityCoreComponent<EntityCore>
+public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
 {
+    public Vector2 AimDirection => directionLookVector;
+
     [SerializeField] protected Vector2 spawnPoint;
     // [SerializeField] protected Entity entity;
     [SerializeField] protected Vector2 targetFowardPosition;
@@ -13,6 +16,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     [SerializeField] protected bool isTakeDamage = false;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
+    [SerializeField] protected bool isLockTarget = false;
     [Header("Direction Look")]
     [SerializeField] protected Vector2 directionLookVector;
     [SerializeField] protected int directionLook;
@@ -39,7 +43,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsAttack { get => isAttack; }
     public bool IsSkill { get => isSkill; }
-    public Transform TargetTransform { get => targetTransform; }
+    public bool IsLockTarget { get => isLockTarget; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle; }
@@ -53,16 +57,18 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     #endregion
 
     private EntityFindTarget entityFind;
+    [SerializeField] private IPlayerService _playerService;
+    [Inject]
+    public void Construct(IPlayerService playerService)
+    {
+        _playerService = playerService;
+    }
     protected override void Start()
     {
         base.Start();
         Core.GetCoreComponent(out entityFind);
         this.spawnPoint = this.transform.position;
-    }
-    public void Update()
-    {
-        DirectionMehod();
-        //GetTargetInRange();
+        targetTransform = _playerService.GetPlayerTransform();
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
@@ -71,37 +77,20 @@ public class EntityInput : EntityCoreComponent<EntityCore>
         directionIsAttakedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
         AngleCalculate(directionIsAttakedVector, ref directionIsAttakedAngle, ref directionIsAttaked);
     }
-    private void GetTargetInRange()
-    {
-
-        // fix need refactor
-        if (targetTransform == null)
-        {
-            targetTransform = entityFind.FindTargetMethod(Core.Entity.Data.RangeCheckFieldOfView);
-        }
-        if (entityFind.FindTargetMethod(Core.Entity.Data.RangeCheckAttack) != null)
-        {
-            isAttack = true;
-        }
-        else
-        {
-            isAttack = false;
-        }
-    }
     private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
     {
         DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
-    private void DirectionMehod()
+    public void DirectionMethod()
     {
         // if (targetTransform != null)
         // {
         //     directionLookVector = (targetTransform.position - transform.position).normalized;
         // }
         // else
-        {
+        // {
 
-        }
+        // }
         directionLookVector = (targetFowardPosition - (Vector2)transform.position).normalized;
 
         AngleCalculate(directionLookVector, ref directionLookAngle, ref directionLook);
@@ -110,6 +99,7 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     {
         this.targetFowardPosition = targetPosition;
     }
+
     public void SetDirectionRadom()
     {
         directionLookAngle = Random.Range(0f, 360f);
@@ -140,5 +130,16 @@ public class EntityInput : EntityCoreComponent<EntityCore>
     private void ChangeIsTakeDamage()
     {
         this.isTakeDamage = !this.isTakeDamage;
+    }
+
+    public void SetLockTarget(bool isLockTarget)
+    {
+        this.isLockTarget = isLockTarget;
+    }
+
+    public Vector3 TargetPosition()
+    {
+        if (!isLockTarget) return Vector2.zero;
+        return targetTransform.position;
     }
 }

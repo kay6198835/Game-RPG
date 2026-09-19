@@ -1,8 +1,11 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : CoreComponent<Core>
+public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 {
+    public Vector2 AimDirection => directionMouseVector;
+
     #region Attribute
     public float starTime;
     public enum SkillState
@@ -24,6 +27,7 @@ public class PlayerInputHandler : CoreComponent<Core>
 
     [SerializeField] private Vector2 moveVector;
     [SerializeField] private Vector2 mouseVector;
+    [SerializeField] private Vector2 screenPos;
 
     [Header("Direction by Keyboard")]
     [SerializeField] private Vector2 directionKeyboardVector;
@@ -51,11 +55,15 @@ public class PlayerInputHandler : CoreComponent<Core>
     [SerializeField] private bool isTakeDamage;
     [SerializeField] private bool isEquip_Unequip = false;
     [SerializeField] private bool isInteractor = false;
+    [SerializeField] private bool isResourceReceiver = false;
 
     [Header("Enum Value")]
-    [SerializeField] private SkillState state;
-    [SerializeField] private SkillType skill;
+    // [SerializeField] private SkillState state;
+    // [SerializeField] private SkillType skill;
     [SerializeField] private DisadvantageState disadvantage;
+    [SerializeField] private StatusAnimation statusAnimation;
+
+    private Camera mainCamera;
 
     #region Get value 
     public Vector2 MoveVector { get => moveVector; }
@@ -65,14 +73,15 @@ public class PlayerInputHandler : CoreComponent<Core>
     public float AngleRotationPlayer { get => angleRotationPlayer; }
     public float AngleLookDirection { get => angleMouseDirection; }
     public bool IsAttack { get => isAttack; }
-    public SkillState State { get => state; }
-    public SkillType Skill { get => skill; }
+    // public SkillState State { get => state; }
+    // public SkillType Skill { get => skill; }
     public bool IsSkill { get => isSkill; }
     public PlayerInput PlayerInput { get => playerInput; }
     public bool IsDisadvantage { get => isDisadvantage; }
     public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsEquip_Unequip { get => isEquip_Unequip; }
     public bool IsInteractor { get => isInteractor; }
+    public bool IsResourceReceiver { get => isResourceReceiver; }
     public Vector2 DirectionKeyboardVector { get => directionKeyboardVector; }
     public float AngleKeyboardDirection { get => angleKeyboardDirection; }
     public int DirectionKeyboard { get => directionKeyboard; }
@@ -89,12 +98,15 @@ public class PlayerInputHandler : CoreComponent<Core>
     {
         base.Awake();
         playerInput = new PlayerInput();
+
     }
     protected override void Start()
     {
         base.Start();
         Core.GetCoreComponent(out weaponHolder);
         Core.GetCoreComponent(out abilityHolder);
+        mainCamera = Camera.main;
+
 
     }
     #region OnMethod
@@ -124,6 +136,8 @@ public class PlayerInputHandler : CoreComponent<Core>
 
         playerInput.Control.Interactor.started += OnInteractor;
         playerInput.Control.Interactor.canceled += OnInteractor;
+        playerInput.Control.ResourceReceiver.started += OnResourceReceiver;
+        playerInput.Control.ResourceReceiver.canceled += OnResourceReceiver;
     }
     protected void OnDisable()
     {
@@ -155,7 +169,7 @@ public class PlayerInputHandler : CoreComponent<Core>
     }
     private void OnDirection(InputAction.CallbackContext context)
     {
-        mouseVector = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseVector = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         directionMouseVector = (mouseVector - (Vector2)this.transform.position).normalized;
         AngleCalculate(directionMouseVector, ref angleMouseDirection, ref directionMouse);
         this.angleRotationPlayer = Vector2.SignedAngle(transform.right, directionMouseVector);
@@ -184,6 +198,18 @@ public class PlayerInputHandler : CoreComponent<Core>
             isInteractor = false;
         }
     }
+    private void OnResourceReceiver(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            isResourceReceiver = true;
+
+        }
+        if (context.canceled)
+        {
+            isResourceReceiver = false;
+        }
+    }
     private void OnMove(InputAction.CallbackContext context)
     {
         moveVector = context.ReadValue<Vector2>();
@@ -193,14 +219,14 @@ public class PlayerInputHandler : CoreComponent<Core>
     {
         if (weaponHolder.Weapon == null) return;
 
-        if (context.started && !BufferIsAttack)
+        if (context.started)
         {
-            if (StatusAnimation.StartRangeTrigger <= Core.Player.stateMachine.CurrentState.Status
-            && Core.Player.stateMachine.CurrentState.Status <= StatusAnimation.EndRangeTrigger)
+            if (StatusAnimation.StartRangeTrigger <= statusAnimation
+            && statusAnimation < StatusAnimation.EndRangeTrigger && core.Player.stateMachine.CurrentState is PlayerAttackState)
             {
                 SetBufferAttack(true);
             }
-            else if (weaponHolder.Weapon.CheckCanAttack())
+            else if (weaponHolder.Weapon.CanAttack())
             {
                 isAttack = true;
             }
@@ -210,27 +236,41 @@ public class PlayerInputHandler : CoreComponent<Core>
             isAttack = false;
         }
     }
+
+    void ResetFlagSkill()
+    {
+        isSkill = false;
+        abilityHolder.CancelHold();
+    }
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
         if (weaponHolder.Weapon == null)
         {
             return;
         }
-        skill = SkillType.Special;
         if (context.started)
         {
-            state = SkillState.Start;
-            isSkill = true;
-            weaponHolder.Weapon.SetAbility();
-            abilityHolder.SetCanUseAbility(true);
+            if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
+            if (abilityHolder.TryDoAbility(AbilitySlot.Utility))
+            {
+                abilityHolder.StartHold();
+                isSkill = true;
+                if (abilityHolder.CurrentActivationType == AbilityActivationType.Active)
+                {
+                    CancelInvoke(nameof(ResetFlagSkill));
+                    Invoke(nameof(ResetFlagSkill), Time.deltaTime);
+                }
+
+            }
         }
         else if (context.performed)
         {
-            state = SkillState.Cast;
+
         }
         else if (context.canceled)
         {
-            state = SkillState.Do;
+            if (!isSkill) return;
+            abilityHolder.CancelHold();
             isSkill = false;
         }
     }
@@ -240,23 +280,24 @@ public class PlayerInputHandler : CoreComponent<Core>
         {
             return;
         }
-        skill = SkillType.Ability;
-        if (context.started)
-        {
-            state = SkillState.Start;
-            isSkill = true;
-            weaponHolder.Weapon.SetAbility();
-            abilityHolder.SetCanUseAbility(true);
-        }
-        else if (context.performed)
-        {
-            state = SkillState.Cast;
-        }
-        else if (context.canceled)
-        {
-            state = SkillState.Do;
-            isSkill = false;
-        }
+        // skill = SkillType.Ability;
+        // if (context.started)
+        // {
+        //     state = SkillState.Start;
+        //     isSkill = true;
+        //     weaponHolder.Weapon.SetAbility();
+        //     //fix later
+        //     //abilityHolder.SetCanUseAbility(true);
+        // }
+        // else if (context.performed)
+        // {
+        //     state = SkillState.Cast;
+        // }
+        // else if (context.canceled)
+        // {
+        //     state = SkillState.Do;
+        //     isSkill = false;
+        // }
     }
     public void OnTakeDamage(Vector2 attackPosition)
     {
@@ -306,6 +347,10 @@ public class PlayerInputHandler : CoreComponent<Core>
     public void SetBufferAttack(bool bufferIsAttack)
     {
         this.BufferIsAttack = bufferIsAttack;
+    }
+    public void SetStatusAnimation(StatusAnimation statusAnimation)
+    {
+        this.statusAnimation = statusAnimation;
     }
     #endregion
 

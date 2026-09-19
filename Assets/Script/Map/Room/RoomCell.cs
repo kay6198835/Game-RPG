@@ -58,6 +58,7 @@ public class RoomCell : BaseCell
         {
             Debug.Log($"[{nameof(RoomCell)}] Room {name} cleared.");
             EventManager.Emit(EventID.ON_CLEAR_ENEMY);
+            IsCleared = true;
         }
     }
 
@@ -150,7 +151,6 @@ public class RoomCell : BaseCell
         this.DoorPoints.AddRange(points);
         this.Data.CopyData(levelData);
         this.IndexLevelDataDoor.AddRange(indexLevelDataDoor);
-        this.IsCleared = true;
         CloseDoor();
     }
 

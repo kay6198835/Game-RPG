@@ -132,6 +132,13 @@ Two new systems landed as post-sprint work on sprint-03 (merged from parallel br
 
 **Integration path needed in Sprint 4**: decide whether to adopt `Skill Enhance` as replacement for `ActivateSkill` pipeline or keep both. Decision should be an Architecture Decision Record (ADR).
 
+> **Resolved 2026-08-22** (appended by documentation audit; original text above unchanged). The
+> decision asked for here went unmade for seven weeks. Owner decision: **keep, do not adopt** — the
+> framework was moved out of `Assets/` to `prototypes/skill-enhance-abilities/`, so Unity no longer
+> compiles it and `ActivateSkill` remains the only ability pipeline. No ADR was written: with the
+> code parked outside the build there is no live architectural choice left to record. Rationale and
+> revival steps are in that directory's `README.md`.
+
 ---
 
 ## Trend Analysis

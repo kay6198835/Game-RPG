@@ -9,6 +9,8 @@ public class PlayerBasicState : PlayerState
     protected AbilityHolder abilityHolder;
     protected PlayerInputHandler inputHandler;
     protected PlayerMovement playerMovement;
+    protected VitalStatsComponent vitalStats;
+    protected ResourceReceiver resourceReceiver;
     public PlayerBasicState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -20,10 +22,14 @@ public class PlayerBasicState : PlayerState
         player.Core.GetCoreComponent(out abilityHolder);
         player.Core.GetCoreComponent(out inputHandler);
         player.Core.GetCoreComponent(out playerMovement);
+        player.Core.GetCoreComponent(out vitalStats);
+        player.Core.GetCoreComponent(out resourceReceiver);
+        player.Core.GetCoreComponent(out resourceReceiver);
     }
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        abilityHolder.Processing();
         if (inputHandler.IsEquip_Unequip)
         {
             if (weaponHolder.FindInteraction())
@@ -40,14 +46,24 @@ public class PlayerBasicState : PlayerState
                 return;
             }
         }
+        else if (inputHandler.IsResourceReceiver)
+        {
+            if (resourceReceiver.FindInteraction())
+            {
+                stateMachine.ChangeState(player.ResourceReceiverState);
+                return;
+            }
+        }
         else if (weaponHolder.Weapon != null)
         {
-            if (inputHandler.IsAttack)
+            if (inputHandler.IsAttack && weaponHolder.CanAttack())
             {
                 stateMachine.ChangeState(player.AttackState);
                 return;
             }
-            else if (inputHandler.IsSkill && abilityHolder.CanUseAbility)
+            else if (inputHandler.IsSkill
+            //&& abilityHolder.CanUseAbility
+            )
             {
                 stateMachine.ChangeState(player.AbilityState);
                 return;
@@ -55,7 +71,16 @@ public class PlayerBasicState : PlayerState
         }
         if (inputHandler.IsTakeDamage)
         {
-            stateMachine.ChangeState(player.TakeDamageState);
+            if (vitalStats.GetCurrentStatValue(StatType.HP) <= 0)
+            {
+                stateMachine.ChangeState(player.DeathState);
+                return;
+            }
+            else
+            {
+                stateMachine.ChangeState(player.TakeDamageState);
+                return;
+            }
         }
     }
     public override void PhysicsUpdate()
@@ -71,5 +96,7 @@ public class PlayerBasicState : PlayerState
         abilityHolder = null;
         inputHandler = null;
         playerMovement = null;
+        vitalStats = null;
+        resourceReceiver = null;
     }
 }

@@ -1,11 +1,36 @@
 ---
 status: reverse-documented
-source: Assets/Script/Skill_Ability/
+source: Assets/Script/System/Skill_Ability/
 date: 2026-05-19
 verified-by: Kiet
 ---
 
 # Skill & Ability System Design
+
+> **⚠️ SCOPE CHANGED 2026-09-11 — this GDD now describes only ONE of two live frameworks.**
+>
+> Everything below documents the inheritance-based **`ActivateSkill`** system
+> (`Assets/Script/System/Skill_Ability/`). On **2026-09-09** (`9b8d40f`, `5c7afba`) a second,
+> composition-based framework was promoted out of `prototypes/skill-enhance-abilities/` into
+> `Assets/Script/System/Abilities/`, and `AbilityHolder` was rewritten to drive it.
+>
+> | | Abilities v1 — this document | Abilities v2 — undesigned |
+> |---|---|---|
+> | Location | `System/Skill_Ability/` | `System/Abilities/` |
+> | Model | Subclass `ActivateSkill`, override `Cast()`/`Do()` | Compose an `AbilityDefinition` SO from effect + condition assets |
+> | Lifecycle | `Enter → Activate → Cast → Do → Exit` | `SkillState`: `None → Start → Cast → Do → Exit` |
+> | **Used by** | `WeaponStats.AbilityWeapon`/`.SkillWeapon`, `AttackSO.ability`, `Weapon`, `EntityWeapon` | **`AbilityHolder` — i.e. the PLAYER** |
+> | Live SO assets | `SO/Skill/{Dash,Slash,Block,Dual} Ability.asset` | `SO/Skill/ShootSpirit/*.asset`, `SO/Skill/Conditions/*.asset` |
+>
+> **So: the player no longer runs the system this GDD describes.** v1 remains live on the weapon
+> and enemy path, so this document is not obsolete — it is now partial.
+>
+> There is **no ADR** deciding whether v1 migrates into v2 or the two coexist permanently. Until
+> that decision exists, this GDD cannot be made authoritative again, and v2 should not be
+> retro-designed here (one system = one GDD, per `.claude/rules/design-docs.md`). Tracked as
+> demo-checklist item 18 in `CLAUDE.md`. The most accurate description of v2 today is
+> `docs/diagrams/ability-system-diagrams.md`.
+
 
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
 > and clarified design intent. Sections marked **[GAP]** describe intended design not yet
@@ -97,7 +122,7 @@ Skills are weapon-bound — changing weapons changes the available skills.
 
 - **Type**: `DoCast`
 - **Intended behaviour**: While RMB is held, `Cast()` loops — player is in a blocking stance
-- **On hit during block**: Incoming damage reduced by `WeaponMeleeStats.blockDamage`
+- **On hit during block**: Incoming damage reduced by `MeleeWeaponStats.blockDamage` (class renamed from `WeaponMeleeStats` during the Sprint 8-10 refactor; field still exists at `MeleeWeaponStats.cs:10`)
 - **On release**: `Do()` fires any counter-effect; `Exit()` removes the stance
 - **Current state**: `BlockAbility.Cast()` exists but contains no logic. Damage reduction
   is not applied anywhere. Needs implementation before demo.
@@ -212,7 +237,7 @@ playerStat += playerStat × (skillIncreaseAmount / 100)  [if isPercentage]
 
 | System | Role | Direction |
 |--------|------|-----------|
-| **Weapons** (`WeaponMeleeStats`) | Carries `abilityWeapon` and `skillWeapon` SO refs; wires them to `AbilityHolder` on equip via `Weapon.SetAbility()` | Weapons → Skills |
+| **Weapons** (`WeaponStats`) | Carries `AbilityWeapon` and `SkillWeapon` SO refs — corrected 2026-08-20: these moved up from `WeaponMeleeStats` to the shared `WeaponStats` base, so ranged weapons carry them too. Wired to `AbilityHolder` on equip via `Weapon.SetAbility()` | Weapons → Skills |
 | **Character** (`AbilityHolder`, `PlayerSkillWeaponState`) | `AbilityHolder` drives lifecycle each frame; `PlayerSkillWeaponState` calls `SetStateAbility()` on `AnimationTrigger` | Character → Skills |
 | **Animation** (`AnimationEventManager`) | `ability.Animator` overrides the runtime controller; `AnimationTrigger` event starts skill execution | Skills → Animation |
 | **Input** (`PlayerInputHandle`) | Provides `DirectionMouseVector`, `AngleRotationPlayer`, and `SkillState` enum to abilities | Input → Skills |
@@ -235,7 +260,7 @@ All values in ScriptableObject assets.
 | Dash speed | `dashingPower` | `DashAbility` SO | Higher = farther dash |
 | Skill cooldown | `cooldownTime` | Any `ActivateSkill` SO | Seconds between uses |
 | Max cast window | `maxCastTime` | Any `ActivateSkill` SO | How long Cast phase can run |
-| Block damage reduction | `blockDamage` | `WeaponMeleeStats` SO | Flat damage absorbed while blocking |
+| Block damage reduction | `blockDamage` | `MeleeWeaponStats` SO | Flat damage absorbed while blocking. ⚠️ **Cross-GDD conflict (audit 2026-08-20):** `weapons-system.md` (2026-08-13, newer) declares the block mechanic out of scope for the demo and `blockDamage`/`shieldEra` unused. Owner decision needed — cut or keep |
 
 ### Effects
 

@@ -17,13 +17,13 @@ public class MapGridController : BaseGrid<MapCell>
     }
     public void OnEnable()
     {
-        EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, Move);
+        //EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, Move);
         EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnLoadMap);
     }
 
     public void OnDisable()
     {
-        EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, Move);
+        //EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, Move);
         EventManager.UnResgister(EventID.ON_LOAD_MAZE_DONE, OnLoadMap);
     }
 

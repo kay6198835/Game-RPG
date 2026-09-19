@@ -1,7 +1,11 @@
 # ADR-0003: Enemy Spawn Selection Algorithm — Room Budget + Candidate Pool + RarityTier (Option C)
 
 ## Status
-Accepted (2026-07-23 — see Amendment section below; Data Model amended to match shipped code, algorithm/selection-flow unchanged from original)
+Accepted
+
+> **⚠️ Amended 2026-08-21 — the budget guarantee below does not hold in the shipped code.**
+> See the Amendment section at the end before relying on `totalSpend <= B`.
+ (2026-07-23 — see Amendment section below; Data Model amended to match shipped code, algorithm/selection-flow unchanged from original)
 
 ## Date
 2026-07-13
@@ -274,3 +278,89 @@ axis)**:
 - **design/gdd/enemy-spawn-system.md** — Open Question #8 (resolved by this ADR); "Option C — Formal Specification (CHOSEN 2026-07-13)" and its "Current Implementation (as of 2026-07-23)" follow-up note (added alongside this Amendment); Open Q#2 (RNG source, resolved: stays `UnityEngine.Random`); Open Q#4 (room→preset shuffle-bag, resolved separately); Open Q#5 (weight↔tier, partially addressed by `RarityTier`).
 - **design/gdd/map-system.md** — the earlier `EncounterSO` + `RoomEnemySpawner` spawn plan this system superseded (2026-07-02).
 - **.claude/rules/engine-code.md** (Zero-Alloc Hot Paths), **.claude/rules/scriptableobject-data.md** (this ADR's Amendment is a documented, intentional exception to "all gameplay config in SO assets" — not a silent violation), **.claude/rules/gameplay-code.md** — the standards this decision honors (or explicitly, recordedly, deviates from).
+
+---
+
+## Amendment — 2026-08-21 (documentation audit, owner decision C3)
+
+**Decision: keep the code as it is; bring this ADR in line with it.** Owner instruction was to
+document reality for now and revise if the code changes later. No code was modified.
+
+### The published guarantee is false
+
+This ADR (and `docs/registry/architecture.yaml`) state:
+
+> *"totalSpend <= B (Room Budget) always — overspend is structurally impossible because a
+> candidate must satisfy `weight <= remaining` (no overflow cap)"*
+
+That guarantee rests on the `enemy.weight <= weightBudget` test inside `SetListCandidate()`. The
+`retry > 4` fallback bypasses that line entirely:
+
+```csharp
+private void SetListCandidate(int retry, ref int weightBudget)
+{
+    if (retry > 4) { candidateEnemies.AddRange(enemiesOfRoom); return; }   // no weight filter,
+                                                                          // no rarity roll either
+    foreach (var enemy in enemiesOfRoom)
+        if (Random.Range(0f, 100f) <= (int)enemy.rarityTier && enemy.weight <= weightBudget)
+            candidateEnemies.Add(enemy);
+    if (candidateEnemies.Count == 0) SetListCandidate(++retry, ref weightBudget);
+}
+```
+
+`GetSpawnSet()` then subtracts the chosen weight unconditionally, so `weightBudget` can go
+negative. Note the fallback drops **both** filters — the rarity roll as well as the weight test —
+which is a second deviation this ADR never described.
+
+### What actually holds
+
+| Guarantee | Status |
+|---|---|
+| Loop terminates in at most B iterations | **Holds** — `weight >= 1` is enforced by `[Range(1, 100)]` |
+| At most 5 roll attempts per pick round | **Holds** — passes run at `retry` 1–4, then the forced fallback at 5 |
+| `totalSpend <= B` | **Does not hold.** Real bound is `totalSpend < B + max(weight)` |
+
+### Measured behaviour
+
+Simulated against the real algorithm, 20 000 rooms per scenario, `weightBudget = 100`:
+
+| Enemy pool | Fallback reached | **Actually overspent** | Worst overspend |
+|---|---|---|---|
+| Legendary only, `weight = 20` | 100% of rooms | **0%** | +0 |
+| Mixed, cheapest `weight = 20` | 7.7% | **4.2%** | **+80 (+80% of budget)** |
+| Mixed, includes `weight = 5` | 2.9% | **1.7%** | +35 (+35%) |
+
+Two things this corrects in earlier audit notes:
+
+1. **Reaching the fallback ≠ overspending.** The Legendary-only row hits the fallback in every
+   room yet never overspends, because the fallback still picks an affordable enemy.
+2. **The per-round fallback probability is `0.95⁴ ≈ 81.5%`, not ~77%.** `SetListCandidate(1)`
+   runs passes at `retry` 1, 2, 3, 4 and only then falls back at 5 — four rolls, not five. The
+   "~77% of rounds" figure recorded on 2026-08-20 was wrong on both the exponent and the metric.
+
+So this is a **rare-but-severe** defect (~2–4% of rooms, up to +80% of budget), not a
+common-but-mild one. That is the worst shape for a balance bug: `weightBudget` behaves for most
+rooms, then occasionally ships one at nearly double the intended threat, with no log and nothing
+to grep for.
+
+### Two further deviations from this ADR's own text
+
+- **`GetSpawnSet()` is not the pure, unit-testable method this ADR claims.** It mutates the
+  serialized `candidateEnemies` field as a scratch buffer (`RoomModel.cs:34,46,57,66`), so it
+  dirties the asset during play, is not re-entrant, and is unsafe if two rooms ever share one
+  `RoomModel` — which `MapModel.GetRandomRoom()`'s shuffle-bag permits once the bag refills.
+  Making that field `[NonSerialized]` would fix the asset churn without losing the zero-alloc reuse.
+- **`overflowPercent` is dead.** It is serialized on `RoomModel` with `[Range(0,1)]` and never
+  read; `RoomModel.cs:31` hardcodes `0.1f` for the loop threshold. A designer tuning it observes
+  no effect.
+
+### If this is revisited
+
+The cheapest fix that restores the invariant is to filter the fallback by
+`weight <= weightBudget` and return an empty list when nothing fits. The more useful fix is to
+bound the overspend with the already-declared `overflowPercent` — that repairs the invariant *and*
+gives the dead field a purpose, at the cost of amending the guarantee to
+`totalSpend <= B x (1 + overflowPercent)`.
+
+Not scheduled. Revisit if playtests report rooms that feel unfairly hard — this is the first
+suspect. Recorded as TD-039.
