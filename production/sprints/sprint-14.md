@@ -1,6 +1,6 @@
 # Sprint 14 — 2026-09-14 to 2026-09-18
 
-**Status: CLOSED — FAIL (2026-09-19 Saturday `pm-weekly-wrapup`, autonomous).** Full detail:
+**Status: COMPLETE (closed) — FAIL. Finalized 2026-09-20 at Sunday `pm-weekly-kickoff`; carry-over below handed to `sprint-15.md`. Closed by (2026-09-19 Saturday `pm-weekly-wrapup`, autonomous).** Full detail:
 `production/retros/retro-sprint-14-2026-09-19.md`, `production/qa/bug-triage-2026-09-19.md`.
 Verified against source at HEAD `17ac9af`.
 
