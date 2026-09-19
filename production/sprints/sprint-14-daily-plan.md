@@ -142,6 +142,44 @@ Nice-to-Have item.
 
 ## Standup Log
 
+### Sat 2026-09-19 — Daily Standup (autonomous, no owner present) — post-sprint
+
+Sprint 14 window closed Fri 2026-09-18; this run is a carry-over check for Sprint 15 planning. Gate
+re-verified against source on `sprint-14` (HEAD `5a9d0c3`): **still 1/6 (BUG-067 only, incidental).**
+
+- ✅ S14-01/BUG-067 — unchanged, still reads fixed (incidental, unverified)
+- ❌ S14-02/BUG-068 — `AbilityHolder.cs:93-99` `GetAbility()` still dereferences
+  `currentAbility.Definition.AnimatorOverride` after a `TryGetValue` that can miss. Unchanged
+- ❌ S14-03/BUG-063 — `Stat.cs:63-66` still `#if UNITY_EDITOR [SerializeField]`. Unchanged
+- ❌ S14-04/BUG-064 item 7 — `RangeWeapon.cs:7` still no `[Inject]`. Unchanged
+- ❌ S14-05/BUG-065 — `PlayerDeathState.Enter()` still only `base.Enter()`. Unchanged
+- ❌ S14-06/BUG-066+070 — `EntityVitalStats.cs` still raw-indexes `currentStats[...]` (7 sites). Unchanged
+
+**New commits since Fri standup** (`62b5fbd..HEAD`): `1d690fb` "coding", `fdc08d9` "done prototy paladin
+consecrat ability", `7cceda2` "done paladin consecrate ability", merge `5a9d0c3` — all off-plan, all from
+`origin/feature/fix-player-control`. Content: Paladin Consecrate finished (spawn-effect refactor into
+`SpawnMono/` + `BaseController/` folders, `LightningController` / `RuneCircleController` tweaks,
+`AbilityInstance.cs` 1-line change, `SpawnSummonEffect.cs` +26 lines) plus ~230 asset files (paladin
+idle 8-dir sprites + NormalMaps, Consecrate animations, `Paladin Consecrate.overrideController`, Lightning
+VFX re-imports). 12 `.cs` files, +61/−42. None touch a gate file. No code review, no test.
+
+Assessment: Paladin kit (Avatar of Light, Blessed Slash, Blessing, Consecrate) is now feature-complete as
+off-plan work — the sprint's real deliverable, never planned or reviewed. Large binary asset batch
+(~230 files, PNG + NormalMaps) landed in one merge: repo-size / LFS risk worth a decision.
+
+Still open: ADR-0002 `Proposed` (18th+ carry), no pre-push hook (25th+), no TD-040 ADR (S14-12), no
+EditMode tests (S14-13), no S14-07 Play Mode session (record as accepted risk), BUG-069 apparently
+fixed but lacks a Resolution Note. QA plan missing (31st+).
+
+Today's plan (report-only run; no `.cs`/asset edits allowed): none executable. Recommendation for the
+Sat 22:00 wrap-up / Sun kickoff: Sprint 15 opens with S14-02..06 (0.5d total) as literal first commits;
+write BUG-069 Resolution Note (0.05d); flip ADR-0002 to Accepted (0.1d, sign-off only).
+
+Blockers: none technical — process only (gate design). Risks: unreviewed Paladin runtime code on
+Abilities v2 with BUG-068 NRE still live on unbound slots; large binary assets bloating the repo.
+
+---
+
 ### Fri 2026-09-18 — Daily Standup (autonomous, no owner present) — final sprint day
 
 Checked the six-item hard gate first, per its own rule. Result: **still 1/6 (BUG-067 only,
