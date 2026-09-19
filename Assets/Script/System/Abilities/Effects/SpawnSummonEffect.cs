@@ -4,17 +4,40 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Spawn Summon Effect")]
 public class SpawnSummonEffect : SpawnEffectBase
 {
-    // thay summonPrefab thành 1 script gì đó để có thể control
-    [SerializeField] protected GameObject summonPrefab;
+    [SerializeField] protected SpawnSummonBase summonPrefab;
+    [SerializeField] protected float baseDamage = 30;
 
     protected override float Angle()
     {
         return 0;
     }
+    public override void Apply(AbilityContext context)
+    {
+        var obj = context.Services.Pool.Spawn(summonPrefab.gameObject, context.TargetPoint, Quaternion.identity);
+        var controller = obj.GetComponent<SpawnSummonBase>();
+        controller.Launch(Lifetime, context, SummonExecute);
+    }
+    public override bool Casting(AbilityContext context)
+    {
+        if (!base.Casting(context)) return true;
+        base.Apply(context);
+        return false;
+    }
 
+    //Callback
     protected override void Execute(AbilityContext currentContext)
     {
-        _context.Services.Pool.Spawn(summonPrefab,_context.TargetPoint,Quaternion.identity);
+        //Do nothing
+    }
+
+    protected virtual void SummonExecute(AbilityContext currentContext)
+    {
+        var negativeReceiver = currentContext.Services.NegativeReceiver;
+        if (negativeReceiver != null)
+        {
+            var finalDamage = baseDamage + currentContext.Services.Vital.GetCurrentStatValue(StatType.PhysicalDamage);
+            negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
+        }
     }
 
     protected override Vector2 SpawnPos()
