@@ -2,7 +2,20 @@
 
   This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-  > **Last updated:** 2026-09-11 (HEAD `6d6a8e4`) — Full documentation/code re-synchronisation.
+  > **Last updated:** 2026-09-21 (HEAD `15242e6`, branch `origin/feature/fix-player-control`) —
+  > **Abilities v2 re-synchronisation.** The Abilities effect and runtime layers were replaced
+  > wholesale during sprints 13-14 (`8295539` … `7cceda2`) with no doc update. Recorded here now:
+  > (a) the `SkillState` enum is **`AbilityState`** and has no `None` member — six documents carried
+  > the old name; (b) `DamageInFrontEffect` / `LungeForwardEffect` / `ShootObjectEffect` /
+  > `PlayDebugLogEffect` / `AbilityRuntimeHelpers` / `SpiritOrbProjectile` / `SpiritDoTBehaviour` are
+  > **deleted**, replaced by the `SpawnEffectBase` + `StatsEffectBase` hierarchies and the
+  > `Runtime/SpawnMono/` controller layer; (c) `IAbilityServices` / `AbilityServices` is new and
+  > undocumented anywhere before today; (d) v2's live content is now the **Paladin ability set**;
+  > (e) the **Paladin sprite direction indices were renumbered** to the project's
+  > `DirectionResolver` convention (dir 0 = down-left, clockwise). Five new bugs filed:
+  > BUG-075…BUG-079. `docs/diagrams/ability-system-diagrams.md` §1–§3 rewritten from source.
+  >
+  > **Previous entry — 2026-09-11 (HEAD `6d6a8e4`)** — Full documentation/code re-synchronisation.
   > Four structural changes that had landed with no doc update are now recorded here:
   > (1) the whole-tree move of seven directories under `Assets/Script/System/` (`1c0742e`),
   > (2) the adoption of **VContainer 1.19.0** dependency injection (`aa4e620`),
@@ -98,7 +111,8 @@
             PlayerMovement.cs                   # rb.velocity wrapper
             WeaponHolder.cs                     # Equip/UnEquip; Attack() / MakeDamage() / EndDamage() / CanAttack() / CanChain()
             AbilityHolder.cs                    # ⚠️ REWRITTEN — now `: CoreComponent<Core>, IAbilityOwner`, drives the **Abilities v2**
-                                                # framework (`AbilityInstance` / `SkillState`), NOT `ActivateSkill`. Takes `IObjecPoolService` via `[Inject]`
+                                                # framework (`AbilityInstance` / `AbilityState`), NOT `ActivateSkill`. Takes `IObjecPoolService` via `[Inject]`;
+                                                # builds `AbilityServices` in Setup(); `abilityBindings` is OVERWRITTEN in Start() from `Player.Data.AbilityBindings`
             StatHandler.cs                      # ✅ NEW — `: CoreComponent<Core>, IPlayerStatService`; read/write façade over `BaseStatsSO`
             VitalComponent.cs                   # ✅ NEW — ⚠️ file name vs class: class is `VitalStatsComponent`. `: CoreComponent<Core>, IVitalComponent`.
                                                 # Owns CURRENT stat values in a `Dictionary<StatType, float>`; max values come from StatHandler
@@ -165,21 +179,43 @@
             IPlayerService.cs                   # player transform / position
             IPlayerStatService.cs               # stat read/write façade (implemented by StatHandler)
           Service/
-        Abilities/                              # ✅ **Abilities v2** — promoted from prototypes/ on 2026-09-09 (`9b8d40f`, `5c7afba`)
+        Abilities/                              # ✅ **Abilities v2** — promoted from prototypes/ on 2026-09-09 (`9b8d40f`, `5c7afba`).
+                                                # ⚠️ **Effects/ and Runtime/ were replaced wholesale during sprints 13-14** (`8295539`…`7cceda2`).
+                                                # Re-listed 2026-09-21 against HEAD `15242e6`
           Core/
-            AbilityDefinition.cs                # SO "Game/Abilities/Ability Definition": Cooldown, List<StatCost> Costs, MaxHoldTime,
-                                                # List<AbilityConditionDefinition>, List<AbilityEffectDefinition>, AnimatorOverride.
-                                                # Also declares `AbilityActivationType`, `StatCost` and the `SkillState` enum (None/Start/Cast/Do/Exit)
-            AbilityInstance.cs                  # Per-owner runtime state: cooldown, hold time, TryActivateInstant/TryCastInstant/TryDoInstant/Exit
-            AbilityContext.cs                   # origin, forward, hold ratio
+            AbilityDefinition.cs                # SO "Game/Abilities/Ability Definition": Id, DisplayName, Icon, ActivationType,
+                                                # Cooldown, List<StatCost> Costs, MaxHoldTime, Conditions[], Effects[], AnimatorOverride.
+                                                # Also declares `AbilityActivationType`, `StatCost`, `GetCostValues()` and the
+                                                # **`AbilityState`** enum (Start/Cast/Do/Exit) — ⚠️ renamed from `SkillState`, `None` removed
+            AbilityInstance.cs                  # Per-owner runtime state: cooldown, hold time, TryActivateInstant/TryCastInstant/TryDoInstant/Exit.
+                                                # ⚠️ Exit() body commented out (BUG-079); TryPayCost() re-charged per effect (BUG-076)
+            AbilityContext.cs                   # Caster/Origin/Forward/TargetPoint/HoldTime/HoldRatio/Services.
+                                                # ✅ Also declares `IAbilityServices` + `AbilityServices` (Pool/Stats/ResourceReceiver/Vital/NegativeReceiver)
             AbilitySlot.cs                      # Enum: Primary, Secondary, Utility, Ultimate
-            AbilityEffectDefinition.cs, AbilityConditionDefinition.cs, IAbilityOwner.cs
-          Effects/
-            DamageInFrontEffect.cs, LungeForwardEffect.cs, ShootObjectEffect.cs, PlayDebugLogEffect.cs
+            AbilityEffectDefinition.cs          # Abstract SO: AbilityName, SubConditions, SubEffects, Apply(), virtual Casting().
+                                                # Also declares `StatImpactType` (Recovery/Reduction)
+            AbilityConditionDefinition.cs, IAbilityOwner.cs
+          Effects/                              # ⚠️ ALL FOUR previous effects deleted (DamageInFront/LungeForward/ShootObject/PlayDebugLog)
+            SpawnEffectBase.cs                  # Abstract: Prefab (SpawnMono), SpawnOffset, Lifetime; pools + Launch()es the object
+            SpawnProjectileEffect.cs            # `: SpawnEffectBase` — baseDamage; angle from context.Forward
+            SpawnSummonEffect.cs                # `: SpawnEffectBase` — summonPrefab; spawns at TargetPoint.
+                                                # ⚠️ Casting() return inverted + double spawn (BUG-078)
+            StatEffectBase.cs                   # ⚠️ file/class mismatch: class is `StatsEffectBase`. Groups a StatModifierGroup by StatType
+            RecoveryReductionStatsEffect.cs     # `: StatsEffectBase` — instant Vital.Recovery / .Reduction
+            RecoveryReductionPerTimeForDuration.cs  # `: StatsEffectBase` — HoT/DoT. ⚠️ coroutine never started (BUG-071)
+            BuffDebuffStatsForDuration.cs       # `: AbilityEffectDefinition` — timed StatModifierGroup via IVitalComponent
           Conditions/
-            HasEnoughManaCondition.cs, NotDeadCondition.cs
-          Runtime/
-            AbilityRuntimeHelpers.cs, SpiritOrbProjectile.cs, SpiritDoTBehaviour.cs
+            HasEnoughManaCondition.cs           # ⚠️ writes runtime values into serialized public SO fields (BUG-077)
+            NotDeadCondition.cs                 # ⚠️ body commented out — always returns true
+          Runtime/                              # ⚠️ AbilityRuntimeHelpers / SpiritOrbProjectile / SpiritDoTBehaviour all DELETED
+            BaseController/SpawnMono.cs         # `: MonoBehaviour, ISpawn` — Launch(lifetime, ctx, callback) + despawn coroutine
+            SpawnMono/Interface/ISpawn.cs
+            SpawnMono/SpawnProjectileBase.cs    # `: SpawnMono` — Rigidbody2D + CircleCollider2D, speed.
+                                                # ⚠️ uses the 3D `OnTriggerEnter(Collider)` — never fires (BUG-075)
+            SpawnMono/SpawnSummonBase.cs        # `: SpawnMono` — Animator; Execute() invoked by a Unity Animation Event
+            SpawnMono/SlashProjectile.cs        # `: SpawnProjectileBase` (Paladin Blessed Slash)
+            SpawnMono/LightningController.cs    # `: SpawnSummonBase` — random Animator "Index" 0-9. ⚠️ target query is a TODO comment (BUG-072)
+            SpawnMono/RuneCircleController.cs   # `: SpawnSummonBase` — empty body
         Skill_Ability/                          # ⚠️ **Abilities v1 (legacy)** — still compiled and still referenced by
                                                 # WeaponStats.AbilityWeapon/SkillWeapon, AttackSO.ability, Weapon.currentAbilitySO
                                                 # and EntityWeapon. The PLAYER no longer runs this path
@@ -299,8 +335,11 @@
     SO/
       Dungeon/        DungeonRoomSO.cs, TileSO.cs, Maze_Storage.asset, Maze_Load_Room.asset
       Stat/           PlayerStats.asset, Test.asset, Enemy/{Assasin,TrashMelee,FastSwarm,RangedCaster,Tank}Stats.asset, Enemy/Boss/BossStats.asset
-      Skill/          Block/Dash/Slash/Dual Ability.asset (v1) · **ShootSpirit/ShootSpirit.asset, ShootSpirit/SpiritBomd.asset,
-                      Conditions/New Has Enough Mana Condition.asset (v2 — proof the promoted framework IS wired)**
+      Skill/          Block/Dash/Slash/Dual Ability.asset (v1) · Enemy - Knight.asset ·
+                      **Paladin/Ability/{Consecrate,Blessed Slash,Blessing,Avatar of Light}/ + their Effect/ subfolders
+                      (v2 — the current live content, added sprints 13-14)** ·
+                      ShootSpirit/{ShootSpirit,SpiritBomd}.asset (v2, ⚠️ missing-script refs — BUG-073) ·
+                      Conditions/Has Enough Mana Condition.asset
       Item/           PlatiumOre 0-5.asset, Depot Item 1.asset, Comsuable/, Effect/
       Database/       Enemy/, Map/, Room/
       Weapons/, Room/, Player/, Spawners/
@@ -452,14 +491,43 @@
   `prototypes/` on 2026-09-09. Driven by `AbilityHolder : IAbilityOwner`:
 
   ```
-  AbilityDefinition (SO: Cooldown, Costs, MaxHoldTime, Conditions[], Effects[], AnimatorOverride)
-    → AbilityInstance (per-owner: cooldown + hold timers)
-      → SkillState: None → Start → Cast → Do → Exit
+  AbilityDefinition (SO: ActivationType, Cooldown, Costs, MaxHoldTime, Conditions[], Effects[], AnimatorOverride)
+    → AbilityInstance (per-owner: cooldown + hold timers + AbilityContext)
+      → AbilityState: Start → Cast → Do → Exit          (enum lives in AbilityDefinition.cs)
+    → AbilityContext (Caster, Origin, Forward, TargetPoint, HoldTime, HoldRatio, Services)
+      → IAbilityServices: Pool / Stats / ResourceReceiver / Vital / NegativeReceiver
   ```
-  Bound per `AbilitySlot` (Primary / Secondary / Utility / Ultimate) through the serialized
-  `abilityBindings` list on `AbilityHolder`. Live SO assets:
-  `Assets/SO/Skill/ShootSpirit/{ShootSpirit,SpiritBomd}.asset`,
-  `Assets/SO/Skill/Conditions/New Has Enough Mana Condition.asset`.
+
+  > ⚠️ **Renamed 2026-09-21 in docs:** the enum is `AbilityState`, **not** `SkillState`, and there is
+  > no `None` member. Six documents carried the old name for two sprints.
+
+  Bound per `AbilitySlot` (Primary / Secondary / Utility / Ultimate). ⚠️ The serialized
+  `abilityBindings` list on `AbilityHolder` is **overwritten in `Start()`** from
+  `Player.Data.AbilityBindings` — author bindings on the `PlayerData` SO.
+
+  **Effect hierarchy (rebuilt in sprints 13-14):**
+
+  | Base | Concrete | Applies through |
+  |---|---|---|
+  | `SpawnEffectBase` | `SpawnProjectileEffect`, `SpawnSummonEffect` | `Services.Pool.Spawn()` → `SpawnMono.Launch()` |
+  | `StatsEffectBase` (in `StatEffectBase.cs`) | `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration` | `IVitalComponent` |
+  | `AbilityEffectDefinition` direct | `BuffDebuffStatsForDuration` | `IVitalComponent.BuffDebuffForDuration()` |
+
+  Spawned runtime objects: `SpawnMono` → `SpawnProjectileBase` (`SlashProjectile`) and
+  `SpawnSummonBase` (`LightningController`, `RuneCircleController`). A summon fires its payload from
+  a Unity Animation Event calling `Execute()`; a projectile fires from its trigger callback.
+
+  Live SO assets: **`Assets/SO/Skill/Paladin/Ability/{Consecrate,Blessed Slash,Blessing,Avatar of Light}/`**
+  (the current content), plus the older `Assets/SO/Skill/ShootSpirit/{ShootSpirit,SpiritBomd}.asset`
+  and `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` — ⚠️ the ShootSpirit assets now
+  reference deleted scripts (BUG-073).
+
+  > 🐞 **v2 is not healthy.** Open at HEAD `15242e6`: BUG-068 (NRE on unbound slot), BUG-069
+  > (cooldown never enforced), BUG-071 (HoT/DoT coroutine never started), BUG-072 (summon has no
+  > target resolution), BUG-073 (assets reference deleted scripts), BUG-074 (stat effect formula),
+  > BUG-075 (projectile uses 3D `OnTriggerEnter` — never fires), BUG-076 (cost charged once per
+  > effect), BUG-077 (condition SO serializes runtime state), BUG-078 (`SpawnSummonEffect.Casting()`
+  > inverted + double spawn), BUG-079 (`AbilityInstance.Exit()` is a no-op, state stuck).
 
   **Abilities v1 — `System/Skill_Ability/` — the WEAPON and ENEMY path.** Inheritance-based
   `ActivateSkill` SO with lifecycle `Enter(player) → Activate() → Cast() → Do() → Exit()`. Still
@@ -649,6 +717,19 @@
   | BUG-064 | BUILD | ⚠️ PARTIAL | Entity refactor deleted types without sweeping callers. Sub-items 1–6 fixed; **sub-item 7 (`RangeWeapon` DI wiring) still open** | [RangeWeapon.cs](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs) |
   | BUG-065 | LOGIC | ⚠️ OPEN | `PlayerDeathState.Enter()` only calls `base.Enter()` — the player keeps sliding during the death animation | [PlayerDeathState.cs:10](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10) |
   | BUG-066 | LOGIC | ⚠️ OPEN | `EntityVitalStats` indexes `currentStats[statType]` with no key-existence guard → `KeyNotFoundException` for any `StatType` missing from an entity's profile | [EntityVitalStats.cs](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs) |
+  | BUG-067 | LOGIC | ⚠️ Apparently fixed (unverified) | `ResourceReceiver` heal/damage calls swapped — picking up a healing item damaged the player | [ResourceReceiver.cs](Assets/Script/Character/Player/CoreComponent/ResourceReceiver.cs) |
+  | BUG-068 | LOGIC | ⚠️ OPEN | `AbilityHolder.GetAbility()` dereferences `currentAbility.Definition` with no null check → NRE on any unbound `AbilitySlot` | [AbilityHolder.cs:97](Assets/Script/Character/Player/CoreComponent/AbilityHolder.cs#L97) |
+  | BUG-069 | LOGIC | ⚠️ OPEN | `AbilityInstance.CanStart()` cooldown gate has no enforcing caller — abilities can be spammed | [AbilityInstance.cs:95](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L95) |
+  | BUG-070 | LOGIC | ⚠️ OPEN | `VitalStatsComponent` indexes `currentStats[statType]` unguarded — player-side twin of BUG-066 | [VitalComponent.cs](Assets/Script/Character/Player/CoreComponent/VitalComponent.cs) |
+  | BUG-071 | LOGIC | ⚠️ OPEN | `VitalStatsComponent.RecoveryPerTimeForDuration` / `ReductionPerTimeForDuration` create a coroutine but never `StartCoroutine` it — every HoT/DoT effect is a silent no-op | [VitalComponent.cs](Assets/Script/Character/Player/CoreComponent/VitalComponent.cs) |
+  | BUG-072 | LOGIC | ⚠️ OPEN | `SpawnSummonEffect.SummonExecute` has no target resolution — reads the shared `Services.NegativeReceiver`, which is null or stale. `LightningController.Execute()` target query is still a TODO comment | [LightningController.cs:12](Assets/Script/System/Abilities/Runtime/SpawnMono/LightningController.cs#L12) |
+  | BUG-073 | BUILD | ⚠️ OPEN | `ShootSpirit.asset` / `SpiritProjcetile.prefab` reference scripts deleted in the sprint-13/14 effect rewrite — missing-script refs on live assets | [ShootSpirit.asset](Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset) |
+  | BUG-074 | LOGIC | ⚠️ OPEN | `StatsEffectBase.Apply` passes the modifier RESULT as the recovery/reduction amount instead of the delta — a "heal 20%" effect heals 120% of current | [StatEffectBase.cs:27](Assets/Script/System/Abilities/Effects/StatEffectBase.cs#L27) |
+  | BUG-075 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | `SpawnProjectileBase` declares the **3D** `OnTriggerEnter(Collider)` in a 2D project — Unity never dispatches it, so every projectile ability deals zero damage | [SpawnProjectileBase.cs:29](Assets/Script/System/Abilities/Runtime/SpawnMono/SpawnProjectileBase.cs#L29) |
+  | BUG-076 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | Ability cost paid once in `TryActivateInstant()` and then again per effect inside `Casting()` — a 3-effect ability charges its full `Costs` four times | [AbilityInstance.cs:84](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L84) |
+  | BUG-077 | DATA | ⚠️ **OPEN (new 2026-09-21)** | `HasEnoughManaCondition.currentMana` / `.costMana` are public serialized fields written every `IsMet()` — runtime state committed into `Has Enough Mana Condition.asset`. Same class as BUG-063 | [HasEnoughManaCondition.cs:6](Assets/Script/System/Abilities/Conditions/HasEnoughManaCondition.cs#L6) |
+  | BUG-078 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | `SpawnSummonEffect.Casting()` returns its gate inverted (charges cost on failure) and spawns the summon in both `Casting()` and `Apply()` | [SpawnSummonEffect.cs:20](Assets/Script/System/Abilities/Effects/SpawnSummonEffect.cs#L20) |
+  | BUG-079 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | `AbilityInstance.Exit()` body is commented out — `State` never returns to `Start`, so an `Active` ability is castable once per scene load | [AbilityInstance.cs:72](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L72) |
   | NEW-1 | LOGIC | ✅ FIXED | `EntityInput` target detection restored; `EntityFindTarget` performs FOV + range + obstacle checks | [EntityFindTarget.cs](Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs) |
   | NEW-2 | LOGIC | ✅ FIXED | `EntityStatsSO.ModifiersAmor` getter/setter recursion → `StackOverflowException`; entire `EntityStatsSO.cs` deleted, entities use `EnemyStatSO : BaseStatsSO` | — |
   | NEW-3 | LOGIC | ✅ FIXED | `RecalculateDerived()` skip-guard used `\|\|` where it needed `&&` — fixed on `sprint-10`, carried into `BaseStatsSO` | [BaseStatsSO.cs](Assets/Script/System/StatSystem/BaseStatsSO.cs) |
@@ -698,6 +779,16 @@
   18. **Reconcile the two ability frameworks** ⚠️ NEW — decide whether `ActivateSkill` (v1) migrates to `AbilityDefinition` (v2) or stays as the weapon/enemy path permanently. Needs an ADR; blocks `design/gdd/skill-ability-system.md` from being authoritative again.
   19. **Fix BUG-063** ⚠️ NEW — one-line removal of the `#if UNITY_EDITOR [SerializeField]` on `Stat.modifiers`, before more runtime buffs are committed into `.asset` files.
   20. **Zero tests** ⚠️ (TD-014) — `tests/EditMode/`, `tests/PlayMode/` still contain only `.gitkeep`.
+  21. **Make Abilities v2 actually work** ⚠️ NEW (2026-09-21) — v2 is the player's only ability path and
+      eleven defects are open against it. Minimum bar for the demo: BUG-075 (projectile trigger is the
+      3D signature — no projectile ability deals damage), BUG-076 (cost charged once per effect),
+      BUG-079 (`Exit()` no-op — an `Active` ability fires once per scene load), BUG-077 (condition SO
+      writes runtime state into a committed asset). BUG-072 + BUG-078 gate the Paladin Consecrate
+      summon. **A GDD for v2 is the real blocker** — `Casting()`'s contract, the cost model and the
+      cooldown model are all undefined, so BUG-076/BUG-078 cannot be fixed without a design decision.
+  22. **Author the remaining Paladin ability animations** ⚠️ NEW (2026-09-21) — Consecrate now has all
+      8 directions × 3 states wired into `Paladin Consecrate.overrideController`. Blessed Slash,
+      Blessing and Avatar of Light still have no per-direction clips.
 
   ---
 

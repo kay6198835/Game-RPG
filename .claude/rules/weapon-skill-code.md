@@ -36,15 +36,49 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 
 ### Abilities v2 — `System/Abilities/` — the PLAYER path (author new player abilities here)
 
+> Corrected 2026-09-21 against HEAD `15242e6`. The enum is **`AbilityState`**, not `SkillState`
+> (renamed when the framework left `prototypes/`), and it has **no `None` member`**. The effect
+> layer this section described (`ShootObjectEffect`, `DamageInFrontEffect`, `LungeForwardEffect`)
+> was deleted and replaced by the `SpawnEffectBase` / `StatsEffectBase` hierarchies.
+
 - An ability is a **`AbilityDefinition` SO asset**, composed from a list of
   `AbilityEffectDefinition` + a list of `AbilityConditionDefinition` — not a subclass
-- Runtime state lives in `AbilityInstance` (cooldown, hold time); phases are the `SkillState`
-  enum: `None → Start → Cast → Do → Exit`
-- Bound per `AbilitySlot` (Primary / Secondary / Utility / Ultimate) via `AbilityHolder.abilityBindings`
+- Runtime state lives in `AbilityInstance` (cooldown, hold time); phases are the **`AbilityState`**
+  enum: `Start → Cast → Do → Exit` (declared in `AbilityDefinition.cs`, not its own file)
+- Bound per `AbilitySlot` (Primary / Secondary / Utility / Ultimate) via `AbilityHolder.abilityBindings`,
+  which is **overwritten in `Start()`** from `Player.Data.AbilityBindings` — author the bindings on the
+  `PlayerData` SO, not on the component
 - `AbilityHolder : IAbilityOwner` drives it every frame from `PlayerSkillWeaponState` — do not
   call `TryActivateInstant()` / `TryCastInstant()` / `TryDoInstant()` from a state class directly
 - New behaviour = a new `AbilityEffectDefinition` subclass, reusable across abilities. Costs go in
   `AbilityDefinition.Costs` (`List<StatCost>`), never hardcoded
+
+**The two effect hierarchies — pick the right base:**
+
+| Base | Use for | Concrete subclasses |
+|---|---|---|
+| `SpawnEffectBase` | anything that instantiates a pooled world object | `SpawnProjectileEffect`, `SpawnSummonEffect` |
+| `StatsEffectBase` | anything that reads a `StatModifierGroup` and applies it via `IVitalComponent` | `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration` |
+| `AbilityEffectDefinition` direct | a one-off that fits neither | `BuffDebuffStatsForDuration` |
+
+- Spawned objects extend **`SpawnMono`** (`Runtime/BaseController/`), then `SpawnProjectileBase` or
+  `SpawnSummonBase` (`Runtime/SpawnMono/`). A summon fires its payload from a Unity Animation Event
+  calling `Execute()`; a projectile fires from its trigger callback
+- Spawning goes through `context.Services.Pool.Spawn(...)` — never `Instantiate`
+- Cross-system access inside an effect goes through `AbilityContext.Services` (`IAbilityServices`:
+  `Pool`, `Stats`, `ResourceReceiver`, `Vital`, `NegativeReceiver`). Do not reach for a singleton or
+  `FindObjectOfType` from an effect asset
+
+**Rules that exist because of open bugs — do not copy the surrounding code:**
+
+- Effect and condition `ScriptableObject`s are **shared, single-instance assets**. Never store
+  per-cast state in a field on one. `SpawnEffectBase._context` / `.dir` (BUG-079) and
+  `HasEnoughManaCondition.currentMana` / `.costMana` (BUG-077) both violate this; the second one
+  serializes runtime values into a committed `.asset`
+- `AbilityEffectDefinition.Casting()`'s return value has **no settled contract** (BUG-076, BUG-078).
+  Until an ADR or GDD defines it, do not add a new override of `Casting()`
+- 2D trigger callbacks are `OnTriggerEnter2D(Collider2D)`. `SpawnProjectileBase` uses the 3D
+  signature and therefore never fires (BUG-075)
 
 ### Abilities v1 — `System/Skill_Ability/` — the WEAPON and ENEMY path (maintenance only)
 
