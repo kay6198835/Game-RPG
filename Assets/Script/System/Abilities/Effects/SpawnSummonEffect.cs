@@ -19,9 +19,9 @@ public class SpawnSummonEffect : SpawnEffectBase
     }
     public override bool Casting(AbilityContext context)
     {
-        if (!base.Casting(context)) return true;
+        if (!base.Casting(context)) return false;
         base.Apply(context);
-        return false;
+        return true;
     }
 
     //Callback

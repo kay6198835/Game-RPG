@@ -81,7 +81,8 @@ public class AbilityInstance
             if (effect == null) continue;
             if (effect.Casting(AbilityContext))
             {
-                if (!TryPayCost())
+                if (Definition.ActivationType == AbilityActivationType.Active) return;
+                if (!TryPayEffectCost())
                     return;
             }
         }
@@ -150,6 +151,16 @@ public class AbilityInstance
         }
 
         return true;
+    }
+
+    private bool TryPayEffectCost(AbilityEffectDefinition effectDefinition)
+    {
+        if (effectDefinition.Costs.Count == 0) return true;
+        foreach (var statCost in effectDefinition.Costs)
+        {
+            Owner.PayCost(statCost.statType, statCost.value);
+        }
+        
     }
 
     private bool TryPayCost()
