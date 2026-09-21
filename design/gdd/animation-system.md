@@ -1,6 +1,10 @@
 # Animation System
 
-> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** No drift found. The `StatusAnimation` handoff
+> **Re-verified 2026-09-21 against HEAD `15242e6`.** The `StatusAnimation` handoff is unchanged.
+> Added this pass: the **8-direction index convention** (see Formulas) — previously undocumented,
+> which is how the Paladin sprite set came in numbered against a different convention.
+>
+> **Previous entry — 2026-09-11 (HEAD `6d6a8e4`).** No drift found. The `StatusAnimation` handoff
 > this document was rewritten around on 2026-08-21 is unchanged, and `AnimationEventManager` is
 > still dead code (`Emit()` has zero callers), so Open Question #1 below is still open.
 > One addition: `Character/Base/StatusBase.cs` was added on 2026-09-08 (`9b8d40f`) and is not
@@ -186,6 +190,48 @@ AnimatorOverrideController depth:
   → AbilityHolder swaps runtimeAnimatorController entirely (replaces depth 0)
   → These two do not stack — a skill swap replaces the weapon override
 ```
+
+### 8-direction index convention [ADDED 2026-09-21]
+
+> This was never written down anywhere, and a new sprite set was imported against a different
+> convention as a result. It is now a hard contract for every directional clip set in the project.
+
+The single source of truth is `DirectionResolver.Calculate()`
+(`Assets/Script/Character/Base/DirectionResolver.cs`):
+
+```
+angle     = Atan2(direction.x, direction.y) * Rad2Deg + 180
+direction = ToDirectionIndex(angle)        // 45° buckets, first bucket centred on 45°
+```
+
+which yields, in screen space:
+
+| Index | Compass | Screen direction |
+|---|---|---|
+| **0** | SW | **down-left** ← the anchor |
+| 1 | W | left |
+| 2 | NW | up-left |
+| 3 | N | up |
+| 4 | NE | up-right |
+| 5 | E | right |
+| 6 | SE | down-right |
+| 7 | S | down |
+
+**Index 0 is down-left and the sequence runs clockwise on screen.**
+
+Every directional asset must follow it:
+
+- sprite sheets — `Kinght/KnightSnS/<Action>/Direction_N.png`, `Paladin/Sprites/paladin_<action>_8dir/paladin_<action>_dirN.png`
+- clips — `Knight_<Action>_State<S>_dir N.anim`
+- Animator states in any 8-direction controller, and the `direction` parameter thresholds that
+  select them
+
+**Precedent, 2026-09-21:** the imported Paladin `cast` and `idle` sets were numbered
+`dir0 = N` running counter-clockwise (N, NW, W, SW, S, SE, E, NE). They were renumbered to the table
+above — files, internal sprite names, generated `.anim` / `.mat`, and both the state names and the
+`direction` thresholds in `paladin_8dir_controller`. Unity references are GUID-based, so the rename
+carried content with it and no reference broke. When importing any future rendered sprite set, check
+the facing of the frame you believe is index 0 **before** wiring clips.
 
 ## Edge Cases
 

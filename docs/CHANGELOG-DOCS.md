@@ -17,6 +17,93 @@ which code change caused it.
 
 ---
 
+## 2026-09-21 — Abilities v2 re-synchronisation + Paladin direction renumber
+
+**Cause.** Branch `origin/feature/fix-player-control`, HEAD `15242e6`. Between `8295539`
+("update spawn effect", 2026-09-17) and `7cceda2` ("done paladin consecrate ability", 2026-09-19)
+the Abilities v2 **effect layer and runtime layer were replaced wholesale**, and the Paladin sprite
+set was imported. No documentation entry accompanied either. Verified by direct source read of all
+23 files under `Assets/Script/System/Abilities/`, plus image inspection of the Paladin sprite sheets
+against `paladin_8dir_controller` state names.
+
+### What the code did that no document recorded
+
+| Change | Evidence |
+|---|---|
+| `SkillState` enum renamed **`AbilityState`**, `None` member removed | `AbilityDefinition.cs:74-80` |
+| `DamageInFrontEffect`, `LungeForwardEffect`, `ShootObjectEffect`, `PlayDebugLogEffect` deleted | `Effects/` now holds seven different files |
+| `AbilityRuntimeHelpers`, `SpiritOrbProjectile`, `SpiritDoTBehaviour` deleted | `Runtime/` restructured into `BaseController/` + `SpawnMono/` |
+| New `SpawnEffectBase` → `SpawnProjectileEffect` / `SpawnSummonEffect` | `Effects/SpawnEffectBase.cs` |
+| New `StatsEffectBase` → `RecoveryReductionStatsEffect` / `RecoveryReductionPerTimeForDuration`; new `BuffDebuffStatsForDuration` | `Effects/StatEffectBase.cs` (⚠️ file/class name mismatch) |
+| New runtime layer `SpawnMono` → `SpawnProjectileBase` / `SpawnSummonBase` → `SlashProjectile`, `LightningController`, `RuneCircleController` | `Runtime/` |
+| **New and never documented anywhere**: `IAbilityServices` / `AbilityServices` — the service bundle carried on every `AbilityContext` | `AbilityContext.cs:20-47` |
+| `AbilityEffectDefinition` gained `SubConditions`, `SubEffects` and the `Casting()` hook | `AbilityEffectDefinition.cs` |
+| v2's live content became the **Paladin ability set** (Consecrate, Blessed Slash, Blessing, Avatar of Light) | `Assets/SO/Skill/Paladin/Ability/` |
+| Paladin sprite sets imported numbered `dir0 = N`, counter-clockwise — against `DirectionResolver` | `Assets/Sprite/Paladin/Sprites/` |
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | Header entry for this pass. `System/Abilities/` subtree re-listed file-by-file against source. `AbilityHolder` row corrected (`AbilityState`, `AbilityServices`, `abilityBindings` overwritten in `Start()`). "Skill / Ability — TWO frameworks" section rewritten: lifecycle box, effect-hierarchy table, runtime layer, live asset paths, open-defect list. `SO/Skill/` inventory corrected. Thirteen rows added to Known Bugs (BUG-067…BUG-079). Demo checklist items 21 and 22 added. |
+| `docs/diagrams/ability-system-diagrams.md` | **§1–§3 rewritten from source.** The 2026-09-11 pass corrected this file's status banner but left the diagrams describing the deleted Spirit Orb prototype. New architecture flowchart, activation sequence and lifecycle state diagram, each annotated with the open bug that breaks that step. §4–§5 kept and explicitly marked HISTORICAL. Deletion table added at the top. |
+| `.claude/rules/weapon-skill-code.md` | Abilities v2 section: `SkillState` → `AbilityState`; effect-hierarchy table added; `abilityBindings` authoring location corrected; `IAbilityServices` documented; three new prohibitions added (no per-cast state on an effect/condition SO, no new `Casting()` override until its contract is defined, 2D trigger callbacks are `OnTriggerEnter2D`). |
+| `design/gdd/skill-ability-system.md` | v1/v2 comparison table: lifecycle corrected to `AbilityState: Start → Cast → Do → Exit`; live v2 assets updated to the Paladin set. Cross-system table: the "`PlayerInputHandle` provides a `SkillState` enum" row was wrong and is corrected. |
+| `design/gdd/animation-system.md` | **New section "8-direction index convention"** under Formulas — the `DirectionResolver` index table (0 = down-left, clockwise), the asset classes it binds, and the Paladin renumber precedent. This convention had never been written down, which is how the Paladin set was imported against a different one. Header re-verification banner updated. |
+| `production/qa/bugs/BUG-075.md` … `BUG-079.md` | New. See below. |
+
+### Bugs filed this pass
+
+| ID | Severity | Summary |
+|---|---|---|
+| BUG-075 | S1 | `SpawnProjectileBase` uses the 3D `OnTriggerEnter(Collider)` signature in a 2D project — Unity never dispatches it, so every projectile ability deals zero damage |
+| BUG-076 | S1 | Ability cost paid in `TryActivateInstant()` **and** again per effect inside `Casting()` — a 3-effect ability charges its full `Costs` four times per cast |
+| BUG-077 | S1 | `HasEnoughManaCondition.currentMana` / `.costMana` are public serialized fields written on every `IsMet()` — runtime state committed into a `.asset`, same class as BUG-063 |
+| BUG-078 | S1 | `SpawnSummonEffect.Casting()` returns its gate inverted (charges cost on the failure path) and spawns the summon in both `Casting()` and `Apply()` |
+| BUG-079 | S2 | `AbilityInstance.Exit()` body is commented out — `State` never returns to `Start`, so an `Active` ability is castable once per scene load. Also collects three minor findings not separately filed |
+
+Per the owner's decision on 2026-09-21, **no ability code was changed in this pass** — BUG-076 and
+BUG-078 in particular cannot be fixed without first defining what `AbilityEffectDefinition.Casting()`
+is for, and v2 still has no GDD (BUG-052, demo-checklist item 18).
+
+### Asset change: Paladin direction renumber
+
+`DirectionResolver.Calculate()` yields index 0 = **down-left (SW)**, running clockwise. The Knight
+sprite sets already follow it (verified by rendering `KnightSnS/Block/Direction_0..7.png`). The
+imported Paladin `cast` and `idle` sets were numbered `dir0 = N`, counter-clockwise — confirmed both
+by rendering the sheets and by the compass suffixes on `paladin_8dir_controller`'s own state names
+(`a1_cast_dir0_n`, `a1_cast_dir1_nw`, …).
+
+Renumbered with the involution `0↔3, 1↔2, 4↔7, 5↔6`, applied to:
+
+- 32 PNGs (`paladin_{cast,idle}_dirN.png` + `_NormalMap.png`) and their `.meta`
+- the sprite names and `nameFileIdTable` keys inside every `.png.meta`
+- 16 generated `.anim` and 16 `.mat` (files, and `m_Name` inside)
+- `paladin_8dir_controller`: 16 state names **and** the 16 `direction` parameter thresholds that
+  select them, so state and condition moved together
+
+Unity references are GUID-based, so content followed each file through the rename and nothing broke.
+Confirmed afterwards: `paladin_cast_dir0.png` is the SW sheet, `a1_cast_dir0_sw` is reached by
+`direction == 0`, and the three pre-existing `Knight_Consecrate_State*_dir 0` clips (which already
+pointed at the SW sheet by GUID) still resolve to it.
+
+### Asset change: Consecrate directional clips
+
+`Paladin Consecrate.overrideController` previously overrode only three clips — `dir 0` of
+`Knight_SpinAttack_State1/2/3`. Generated the remaining 21 clips (`dir 1`…`dir 7` × 3 states) by
+remapping each frame of the `dir 0` clips onto the corresponding sheet by **sprite ordinal**, so the
+frame ranges, sample rate and Animation Events are identical across all eight directions:
+
+| State | Sheet frames | Animation events |
+|---|---|---|
+| State1 (wind-up) | 0–30 | `AnimationStart` @0, `AnimationOnAction` @0.4167, `AnimationFinishTrigger` @0.625 |
+| State2 (hold loop) | 29–30 | inherited from `dir 0` |
+| State3 (release) | 31–88 | inherited from `dir 0` |
+
+All 24 entries are now wired in the override controller.
+
+---
+
 ## 2026-09-11 — Full documentation/code re-synchronisation
 
 **Scope:** all living documentation. **Verified against:** HEAD `6d6a8e4`, branch
