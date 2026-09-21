@@ -57,6 +57,31 @@ Combined 0.45d. Rule: no feature merge into `sprint-15` until all four are commi
 
 ## Standup Log
 
+### Mon 2026-09-21 - Daily Standup (autonomous, no owner present)
+
+Branch `sprint-15` (HEAD `d08a7d1`). Zero commits since the Sunday kickoff; working tree clean. The
+weekend window (Sat 18:44 -> Mon) had no code activity.
+
+**Opening Block re-verified against source: 0/4.**
+- S15-01 BUG-063 - `Stat.cs:63-65` still `#if UNITY_EDITOR [SerializeField]` - NOT STARTED
+- S15-02 BUG-064 item 7 - `RangeWeapon.cs` still no `[Inject]` - NOT STARTED
+- S15-03 BUG-065 - `PlayerDeathState.Enter()` still only `base.Enter()` - NOT STARTED
+- S15-04 BUG-066+070 - no `TryGetValue` in `EntityVitalStats.cs` or `VitalComponent.cs` - NOT STARTED
+
+**Today (Mon), estimates:**
+
+| Task | Est. | Complexity / Risk |
+|------|------|-------------------|
+| S15-01, S15-02, S15-03 (3 isolated commits) | 0.25d | Low; pattern exists (`ItemSpawner.cs:8-10`) |
+| S15-04 guard both vitals components | 0.2d | Low-Med; 2 files, ~7 sites |
+| S15-06 / S15-07 written decisions | 0.2d | Owner-dependent |
+
+Blockers: none technical; S15-06/07 need owner sign-off. Risks: opening block loses to feature work a 5th
+time; `feature/fix-player-control` remains the source of off-plan merges; ~230 binary assets merged last
+week (size/LFS decision pending, S15-N3); `gh` unavailable so the sprint-15 draft PR is still not created.
+
+---
+
 _(appended by `/daily-standup`)_
 
 ## Carry-over Watchlist
