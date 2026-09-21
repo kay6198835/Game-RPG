@@ -27,18 +27,23 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void AnimationOnAction()
     {
         base.AnimationOnAction();
-        switch (abilityHolder.CurrentAbilityState)
+        if (abilityHolder.CurrentAbilityState == AbilityState.Cast)
         {
-            case AbilityState.Cast:
-                if (!abilityHolder.IsHolding)
-                {
-                    player.Anim.SetBool("DoAB", true);
-                }
-                break;
-            case AbilityState.Do:
+            if (abilityHolder.IsHolding)
+            {
                 player.Anim.SetBool("DoAB", false);
-                break;
+            }
+            else
+            {
+                player.Anim.SetBool("DoAB", true);
+            }
         }
+        else
+        {
+
+            player.Anim.SetBool("DoAB", true);
+        }
+
         abilityHolder.HandleInput();
         Status = StatusAnimation.OffActivate;
     }

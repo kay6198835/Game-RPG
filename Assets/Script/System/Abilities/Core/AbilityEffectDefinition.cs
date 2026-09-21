@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class AbilityEffectDefinition : ScriptableObject
@@ -18,6 +17,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
                 if (!condition.IsMet(context)) return false;
             }
         }
+        if (!CheckPayCostValid(context)) return false;
         return true;
     }
 
