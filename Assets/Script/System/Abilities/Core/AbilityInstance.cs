@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -81,8 +82,7 @@ public class AbilityInstance
             if (effect == null) continue;
             if (effect.Casting(AbilityContext))
             {
-                if (!TryPayCost())
-                    return;
+                TryPayEffectCost(effect.Costs);
             }
         }
     }
@@ -150,6 +150,15 @@ public class AbilityInstance
         }
 
         return true;
+    }
+
+    private void TryPayEffectCost(List<StatCost> statCosts)
+    {
+        if (statCosts.Count == 0) return;
+        foreach (var statCost in statCosts)
+        {
+            Owner.PayCost(statCost.statType, statCost.value);
+        }
     }
 
     private bool TryPayCost()

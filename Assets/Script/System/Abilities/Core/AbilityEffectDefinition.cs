@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class AbilityEffectDefinition : ScriptableObject
@@ -7,6 +6,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
     public string AbilityName = "";
     public List<AbilityConditionDefinition> SubConditions;
     public List<AbilityEffectDefinition> SubEffects;
+    public List<StatCost> Costs;
     public abstract void Apply(AbilityContext context);
     public virtual bool Casting(AbilityContext context)
     {
@@ -17,9 +17,19 @@ public abstract class AbilityEffectDefinition : ScriptableObject
                 if (!condition.IsMet(context)) return false;
             }
         }
+        if (!CheckPayCostValid(context)) return false;
         return true;
     }
-    
+
+    protected virtual bool CheckPayCostValid(AbilityContext context)
+    {
+        if (Costs.Count == 0 || Costs == null) return true;
+        foreach (var cost in Costs)
+        {
+            if (cost.value > context.Services.Vital.GetCurrentStatValue(cost.statType)) return false;
+        }
+        return true;
+    }
 
     public void OnValidate()
     {
