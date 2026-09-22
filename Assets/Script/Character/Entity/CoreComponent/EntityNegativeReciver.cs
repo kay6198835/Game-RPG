@@ -7,6 +7,7 @@ public class EntityNegativeReciver : EntityCoreComponent<EntityCore>, INegativeR
     private EntityStatsHandler entityStatsHandler;
     private EntityUIController entityUIController;
     private EntityInput entityInput;
+    private EntityMovement entityMovement;
     protected override void Start()
     {
         base.Start();
@@ -14,6 +15,7 @@ public class EntityNegativeReciver : EntityCoreComponent<EntityCore>, INegativeR
         Core.GetCoreComponent(out entityStatsHandler);
         Core.GetCoreComponent(out entityUIController);
         Core.GetCoreComponent(out entityInput);
+        Core.GetCoreComponent(out entityMovement);
     }
     public void TakeDamage(float amoutDamage, Vector2 attackPosition)
     {
@@ -22,6 +24,7 @@ public class EntityNegativeReciver : EntityCoreComponent<EntityCore>, INegativeR
         entityVitalStats.Reduction(StatType.HP, finalDamage);
         entityInput.OnTakeDamage(attackPosition);
         entityUIController.UpdateUIHealth(UpdateUIHealth());
+        entityMovement.SetPositionToCheck(attackPosition);
     }
 
     public float UpdateUIHealth()

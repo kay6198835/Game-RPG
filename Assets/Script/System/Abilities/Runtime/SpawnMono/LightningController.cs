@@ -14,7 +14,7 @@ public class LightningController : SpawnSummonBase
         // get colider in a range
         // get INegative
         // foreach INegative _callback.Invoke(_context);
-
+        
         base.Execute();
     }
 }

@@ -158,6 +158,12 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         }
     }
 
+    public void SetPositionToCheck(Vector2 endPosition)
+    {
+        var rangeToCheck = Random.range(0, 100)/100;
+        this.endPosition = Vector3.Lerp(trasnform.postion, endPosition, rangeToCheck);
+    }
+
     private Node SetNodeRandom(Vector2 orginPosition)
     {
         for (int attempt = 0; attempt < MaxSetNodeAttempts; attempt++)
