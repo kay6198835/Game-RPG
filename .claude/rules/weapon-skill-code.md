@@ -49,7 +49,11 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
   which is **overwritten in `Start()`** from `Player.Data.AbilityBindings` — author the bindings on the
   `PlayerData` SO, not on the component
 - `AbilityHolder : IAbilityOwner` drives it every frame from `PlayerSkillWeaponState` — do not
-  call `TryActivateInstant()` / `TryCastInstant()` / `TryDoInstant()` from a state class directly
+  call `ActivateInstant()` / `CastInstant()` / `DoInstant()` from a state class directly.
+  ⚠️ **Renamed in `2a83469`** (2026-09-22): the three lost their `Try` prefix and their `bool`
+  returns, because gating moved up to `AbilityInstance.CanStart()` → `AbilityDefinition.TryStart()`.
+  `CanStart()` is the only thing that may refuse an activation; the three dispatch methods assume
+  it already passed. Call `AbilityHolder.TryDoAbility(slot)`, never a dispatch method directly
 - New behaviour = a new `AbilityEffectDefinition` subclass, reusable across abilities. Costs go in
   `AbilityDefinition.Costs` (`List<StatCost>`), never hardcoded
 
@@ -71,8 +75,12 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 
 **Rules that exist because of open bugs — do not copy the surrounding code:**
 
-> Re-verified against source 2026-09-22 (HEAD `d17fcc5`). Two bug IDs cited below were wrong and are
-> corrected; four rules are added.
+> Re-verified against source 2026-09-22 (HEAD `2a83469`, post-fetch). ⚠️ **The project does not
+> compile at this HEAD (BUG-088)** — unrelated file, but nothing below can be checked in the Editor
+> until it is fixed. Three renames and three closures landed in `2a83469` and are folded in below.
+>
+> *Previous revision, 2026-09-22 against HEAD `d17fcc5`: two bug IDs cited were wrong and were
+> corrected; four rules were added.*
 
 - **The spawn-damage contract is set-then-invoke, and it is deliberate.** A spawned object that
   detects a hit assigns `ctx.Services.NegativeReceiver` and *then* calls `_callback.Invoke(ctx)`;
@@ -85,16 +93,22 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
   without ever running its overlap query, which is still three comment lines (**BUG-072**). Fixing
   either one restores that path on its own
 - Effect and condition `ScriptableObject`s are **shared, single-instance assets**. Never store
-  per-cast state in a field on one. `HasEnoughManaCondition.currentMana` / `.costMana` (BUG-077)
-  violates this and serializes runtime values into a committed `.asset` — do not copy it.
+  per-cast state in a field on one. The violation this rule was written against —
+  `HasEnoughManaCondition.currentMana` / `.costMana` (BUG-077) — was ✅ **fixed in `2a83469` by
+  deleting the class**; `Assets/Script/System/Abilities/Conditions/` is now empty. The rule stands
+  regardless: `Stat.modifiers` (BUG-063) is the same defect and is still open.
   `SpawnEffectBase._context` / `.dir` are the same shape; they are load-bearing today, because
-  `SpawnSummonEffect.Apply()` relies on `Casting()` having set `_context` for it. That coupling is
+  `SpawnSummonEffect.Apply()` relies on `TryCast()` having set `_context` for it. That coupling is
   intentional given `Cast` always precedes `Do` — leave it alone unless you are redesigning the
-  effect base, and do not "simplify" `Casting()` without setting `_context` in `Apply()`
-- `AbilityEffectDefinition.Casting()` **is a gate**: it returns `false` to refuse the cast, and the
-  base implementation already tests `SubConditions` and calls `CheckPayCostValid()` before the
-  per-effect cost is paid (`AbilityEffectDefinition.cs:11-22`, `AbilityInstance.cs:83-86`). It is
-  slated to be renamed `TryCasting()` for exactly that reason. ⚠️ `Casting()` and `Apply()` run at
+  effect base, and do not "simplify" `TryCast()` without setting `_context` in `Apply()`
+- `AbilityEffectDefinition.TryCast()` **is a gate**: it returns `false` to refuse the cast, and the
+  base implementation tests `SubConditions` and calls `CheckPayCostValid()` before the per-effect
+  cost is paid (`AbilityEffectDefinition.cs:11-22`, `AbilityInstance.cs:73-76`). ✅ It was renamed
+  from `Casting()` in `2a83469` (2026-09-22) for exactly that reason — use the new name.
+  ⚠️ **But a `false` return does not currently stop the cast (BUG-089).** `AbilityInstance.Casting()`
+  responds to a refusal by calling `CancelHold()` and nothing else, and `CastInstant():54` then
+  advances to `Do` anyway, so `Execute()` applies the refused effect. Write the gate correctly;
+  do not rely on it being honoured until BUG-089 is fixed. ⚠️ `TryCast()` and `Apply()` run at
   **different `AbilityState` phases of the same cast** (`Cast` and `Do`), so an effect that acts in
   both acts twice — **by design** for a two-object effect such as Consecrate (Cast-phase telegraph
   from `Prefab`, Do-phase payload from `summonPrefab`), and a bug otherwise. Know which you are
@@ -107,15 +121,21 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
   snapshotted by `BuildContext()` before `StartHold()` zeroes the counter, and nothing rebuilds the
   context. Do not write a charge-scaling effect against them until that is fixed
 - Cost is paid from **two disjoint lists** since `73ab8e7`: `AbilityDefinition.Costs` once at
-  activation, and per-effect `AbilityEffectDefinition.Costs` inside `Casting()`. The two are billed
-  differently on purpose — a `Hold` ability re-enters `TryCastInstant()` while held, so a per-effect
+  activation, and per-effect `AbilityEffectDefinition.Costs` inside `TryCast()`. The two are billed
+  differently on purpose — a `Hold` ability re-enters `CastInstant()` while held, so a per-effect
   cost is a **channelled** cost that keeps draining. Put a one-off cost in `AbilityDefinition.Costs`
-- ⚠️ **Ability-scope costs are not affordability-checked** (BUG-076 b′). `TryPayCost()`
-  (`AbilityInstance.cs:164-178`) pays unconditionally, and the only gate is
-  `HasEnoughManaCondition`, which reads `StatType.Mana` and nothing else. Avatar of Light costs
-  40 Mana **+ 50 HP**; the HP half is validated by nothing, and `Reduction()` clamps at zero, so the
-  cast drains the player to 0 HP instead of being refused. Do not author a non-Mana ability-scope
-  cost until this is fixed. The effect-scope list does **not** have this problem
+- ✅ **Ability-scope costs ARE affordability-checked, as of `2a83469`** (BUG-076 b′ fixed). The gate
+  is `AbilityDefinition.TryStart()` (`:50-64`), reached from `AbilityInstance.CanStart():94` and
+  through `AbilityHolder.TryDoAbility():107` — **before** any state change or payment. It reads each
+  cost’s own `statType` through `IVitalComponent`, so it is generic: a non-Mana cost such as Avatar
+  of Light’s 50 HP is now validated. `TryPayCost()` and `ValidateConditions()` are deleted; payment
+  is `PayCost(Definition.Costs)` inside `ActivateInstant():44`, reachable only after the gate passed.
+  **Author ability-scope costs in `AbilityDefinition.Costs` and let `TryStart()` gate them — do not
+  write a per-stat condition class for it.** That is what `HasEnoughManaCondition` was, and it was
+  deleted
+- ⚠️ `TryStart()` does **not** guard null elements in `Conditions` (BUG-091), unlike the `Effects`
+  walks either side of it. A missing-script entry in a `Conditions` list throws there. Check the
+  list in the Inspector before binding an ability whose assets you did not author
 
 ### Abilities v1 — `System/Skill_Ability/` — the WEAPON and ENEMY path (maintenance only)
 

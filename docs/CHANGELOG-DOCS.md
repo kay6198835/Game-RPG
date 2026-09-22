@@ -17,6 +17,267 @@ which code change caused it.
 
 ---
 
+## 2026-09-22 (fifth pass, same day) — Owner review round 2: BUG-072 proposal applied, BUG-089 and BUG-091 item 1 restated
+
+**Cause.** Three responses from the owner: approval of the BUG-072 buffer proposal, a request for a
+clearer explanation of BUG-089, and a challenge to BUG-091 item 1 (*"mục 1 t trả return mà"*).
+`git fetch --all` was re-run first — **remote unchanged at `2a83469`**; all `.cs` edits remain local
+and uncommitted.
+
+### Code changed — `LightningController.cs`, with owner approval
+
+```diff
+-    [SerializeField] private float radius;
+-    [SerializeField] private Collider2D[] _buffer;
+-    [SerializeField] private LayerMask layerMask;
++    [SerializeField] private float radius = 2f;
++    [SerializeField] private LayerMask layerMask;
++    [SerializeField] private int maxTargets = 16;
+     [SerializeField] private int randomIndex;
++    private Collider2D[] _buffer;
++
++    protected override void Awake()
++    {
++        base.Awake();
++        _buffer = new Collider2D[maxTargets];
++    }
+```
+
+`Execute()` untouched — its shape was already correct. A serialized `Collider2D[]` is given
+**length 0** by Unity, and `OverlapCircleNonAlloc` writes at most `results.Length` hits, so the query
+was returning `0` on every call, silently. Allocating in `Awake()` also satisfies
+`.claude/rules/engine-code.md`. `base.Awake()` is mandatory — `SpawnSummonBase.Awake()` is what
+caches `animator`, which `Launch()` uses on the next frame.
+
+The owner subsequently tuned `maxTargets` from `16` to `4`. Recorded, not changed: it caps how many
+enemies one Consecrate strike can damage, which is a balance decision, and the field exists precisely
+so that number is visible and editable.
+
+⚠️ **BUG-072 does not close yet.** `layerMask` ships as `0` = *Nothing* and has no safe code default
+(a literal would be a hardcoded layer index, forbidden by `engine-code.md` and `ai-code.md`), so it
+must be set on `Lightning.prefab`. Confirm the fix by an enemy losing HP, not by a clean Console —
+every failure mode in this bug has been silent.
+
+### BUG-091 item 1 — the early return covers one case out of four
+
+The owner is right that the guard returns. It is joined by `&&`, so it returns **only when both lists
+are empty**:
+
+| `Conditions` | `Costs` | `LEFT && RIGHT` | returns early? | what runs next |
+|---|---|---|---|---|
+| empty/null | empty/null | `true` | yes | — |
+| 2 entries | 2 entries | `false` | no | both loops fine |
+| **null** | **2 entries** | `false` | **no** | `foreach (… in Conditions)` → **NRE** |
+| **2 entries** | **null** | `false` | **no** | `foreach (… in Costs)` → **NRE** |
+
+The guard protects the case that needs no protection — an empty list iterates zero times and throws
+nothing anyway — and skips the two that do. Fix recorded: one `if (list != null)` per loop, with the
+combined early return deleted. A **fifth site** was found in the same file: `GetCostValues()`
+(`:74-77`) walks `Costs` with neither a list guard nor an element guard.
+
+### BUG-089 — restated as one worked example
+
+Effect A costs 20 Mana (a per-effect `Costs` entry), player has 10. At `Cast`: `A.TryCast()` returns
+`false`, so `PayCost(A.Costs)` is skipped — A is **not** charged — and `CancelHold()` runs. `:54`
+then advances to `Do`, where `Execute():147` calls `A.Apply()` with no check of any kind.
+**Refusing an effect currently makes it free, not blocked.**
+
+Left as a question rather than a defect claim, because one reading makes it intentional: `TryCast()`
+gates only the `Cast` phase, and `Apply()` is the ability resolving — which is exactly the Consecrate
+telegraph/payload shape. Owner picks one: write that rule into `.claude/rules/weapon-skill-code.md`,
+or give `Execute()` a record of which effects refused. Dormant either way — every live effect asset
+has `SubConditions: []` and no serialized `Costs`, so `TryCast()` cannot return `false` today.
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `production/qa/bugs/BUG-072.md` | `## Proposal applied` appended: the diff, a before/after table with the reason for each change, the `base.Awake()` warning, and the remaining Inspector step spelled out. Status line rewritten |
+| `production/qa/bugs/BUG-089.md` | `## Restated plainly` appended: the 20-Mana worked example step by step, the two readings in a decision table, and the per-asset audit proving it dormant |
+| `production/qa/bugs/BUG-091.md` | `## Owner review round 2` appended: the four-row truth table for the `&&` guard, the per-list fix, the newly found `GetCostValues()` site, and a six-row status table for the bug's items |
+| `CLAUDE.md` | BUG-072, BUG-089 and BUG-091 rows rewritten to match |
+
+
+### Round 3, minutes later — BUG-082 and BUG-091 closed by the owner
+
+Three more edits landed in the working tree while this entry was being written:
+
+- `AbilityDefinition.cs:25` — `public List<StatCost> Costs = new();`
+- `AbilityDefinition.cs:67-75` — `CheckPayCostValid()` **deleted** (zero callers, body already
+  inlined into `TryStart()`)
+- `AbilityEffectDefinition.cs:26` — operands swapped to `Costs == null || Costs.Count == 0`
+
+**BUG-082 is FIXED** — both sites gone, one swapped and one deleted.
+**BUG-091 is FIXED** — four of its six items fixed outright, and the `= new()` makes the other two
+(the `&&` early return, and `GetCostValues()` walking `Costs` unguarded) **unreachable**: all three
+lists on `AbilityDefinition` now carry initialisers, so no loop on that class can meet a null. What
+is left is cosmetic — the `&&` block at `:52-55` is now redundant and reads as a null guard it no
+longer needs to be. Recorded as a tidy-up, explicitly not recommended for sprint time.
+
+One adjacent site found while verifying and **not** folded into either bug:
+`AbilityEffectDefinition.SubConditions` (`:7`) has no `= new()` and is dereferenced at `:13`
+(`if (SubConditions.Count > 0)`). Same shape, other class, one character.
+
+The owner also tuned `LightningController.maxTargets` from `16` to `4` — a balance decision,
+recorded and not changed.
+
+### Constraint check
+
+Two `.cs` files changed across passes four and five, both at explicit owner request:
+`SpawnProjectileBase.cs` (BUG-075, one word) and `LightningController.cs` (BUG-072, buffer
+allocation). `EntityMovement.cs` and `AbilityDefinition.cs` are the owner's own uncommitted work and
+were not touched. No commit, no push.
+
+---
+
+
+## 2026-09-22 (fourth pass, same day) — Owner review of the post-fetch findings; BUG-075 fixed in code
+
+**Cause.** The post-fetch findings from the entry below were put to the owner. Four were challenged
+or decided, one fix was requested, and four uncommitted `.cs` edits had appeared in the working tree
+since that entry was written. `git fetch --all` was re-run first: **the remote is unchanged at
+`2a83469`** — every edit described here is local and uncommitted.
+
+This is the first pass in this series that changed a `.cs` file, and it did so at explicit owner
+request. That request supersedes the "no `.cs` edits" constraint for this one file only.
+
+### Code changed — one file, at owner request
+
+`Assets/Script/System/Abilities/Runtime/SpawnMono/SpawnProjectileBase.cs:29`
+
+```diff
+-    private void OnTriggerEnter(Collider other)
++    private void OnTriggerEnter2D(Collider2D other)
+```
+
+**BUG-075 → FIXED.** One word, no other change. The body (`:31-33`) was already correct and is the
+reference implementation of the set-then-invoke contract; it had simply never been dispatched to.
+No null guard was added, deliberately: `TryGetComponent` leaves the receiver null for a non-receiver
+collider, and the effect's `if (negativeReceiver != null)` guard is what handles that.
+
+Two things the fix exposes, recorded in `BUG-075.md` but not filed as bugs: the projectile does not
+despawn on hit and so re-triggers on everything it passes through, and it carries no layer mask.
+
+### Owner decisions and corrections
+
+| Item | Owner position | Verified outcome |
+|---|---|---|
+| **BUG-088** — build break | *"t đâu thấy có issue gì"* | **Half right.** `Random.range` → `Random.Range`, `trasnform.postion` → `transform.position`, `Vector3.Lerp` → `Vector2.Lerp` are all fixed in the working tree and the project compiles, which is why nothing is visible. ❌ **`Random.Range(10, 100)/100` is still integer division.** Both operands are `int`, the largest numerator is 99, and `99 / 100 == 0` — so `rangeToCheck` is `0` on every call, `Vector2.Lerp(a, b, 0)` returns `a`, and the method assigns the entity its own position. The feature is dead and reports nothing. Fix: `/ 100f`. **S1 → S3 once the build fix is committed** |
+| **BUG-089** — refused `TryCast()` | *"không return nữa đây là method void"*, *"casting đã chuyển sang void"* | **Accepted; claim re-framed and fix sketch withdrawn.** With `Casting()` `void`, `CancelHold()` reads as the channel terminator for a `Hold` ability and `CastInstant():52` is then correct — that half of the original finding is wrong and is withdrawn. What remains is a question, not an assertion: `Execute():139-148` calls `Apply()` on every effect unconditionally, so an effect that refused at `Cast` still fires at `Do`, and pays nothing. **Dormant** — audited every `.asset` under `Assets/SO/Skill/`: every live Paladin effect has `SubConditions: []` and no serialized `Costs`, so `TryCast()` cannot return `false` today. **S2 → S3** |
+| **BUG-090** — orphaned condition asset | *"đã xóa script đó"* | **Correct, and that is the premise of the bug, not a refutation.** The **script** `HasEnoughManaCondition.cs` was deleted (BUG-077, correctly closed). The **asset** `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` is still on disk — re-verified by `ls` and by `git status` showing no deletion — and its `m_Script` guid `6f896bb2…` now resolves to 0 files. `ShootSpirit.asset` and `SpiritBomd.asset` still reference it. **Open, unchanged** |
+| **BUG-063** — `[SerializeField]` on `Stat.modifiers` | keep through development, remove at demo prep | **Recorded as ACCEPTED (deferred).** This is a deliberate trade and it supersedes the "one-line fix, no blocker, carried 29+ cycles" framing in this file and in `CLAUDE.md`. The cost is documented alongside it: Play Mode in the Editor *is* `UNITY_EDITOR`, the leak is silent, and it has already reached git once. Mitigation recorded: check `git status` for a dirty `Assets/SO/Stat/*.asset` after any Play Mode session. Re-evaluation triggers listed |
+| **BUG-082 / BUG-091** — *"tại sao phải đảo toán hạng"* | question | **Answered in `BUG-091.md`.** `\|\|` evaluates left to right and evaluates the right operand only when the left is `false`. In `Costs.Count == 0 \|\| Costs == null`, `.Count` runs first, so when `Costs` is null it throws before the null test is ever reached: the guard is unreachable in the only case it exists for. Swapping works because `Costs == null` is safe on a null reference and short-circuits before `.Count`. Latent, not live — Unity's serializer materialises an empty list on asset load |
+
+### Owner fixes found in the working tree (uncommitted, not by this pass)
+
+| File | Change | Effect |
+|---|---|---|
+| `EntityMovement.cs` | three identifier/type fixes | **BUG-088 partial** — builds again; integer division survives |
+| `AbilityDefinition.cs` | `if (condition == null) continue;` and `if (cost == null) continue;` added to `TryStart()` | **BUG-091 defect 2 closed.** `StatCost` is a `class` (`:98`) so `cost == null` is valid. Also absorbs BUG-090's one live consequence |
+| `LightningController.cs` | overlap query implemented — `OverlapCircleNonAlloc`, assign receiver, `base.Execute()` per target | **BUG-072 partial.** Shape is correct. ⚠️ `_buffer` is a serialized `Collider2D[]` that nothing allocates, so Unity gives it **length 0** and `OverlapCircleNonAlloc` returns `0` every call, silently. `radius` and `layerMask` also default to `0` / *Nothing*, and none of the three fields exist yet in `Lightning.prefab:119-122`. Recommended: allocate in an `Awake()` override that calls `base.Awake()` (which caches the Animator) |
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `production/qa/bugs/BUG-075.md` | `## FIXED — 2026-09-22, at owner request` appended with the diff, the reason no null guard was added, and the two exposed follow-ups. Status line rewritten, previous one kept inline |
+| `production/qa/bugs/BUG-063.md` | `## Owner decision — ACCEPTED for the development phase` appended: the decision, what the acceptance costs, three mitigations, and the re-evaluation triggers |
+| `production/qa/bugs/BUG-088.md` | `## Owner review` appended: which defects are fixed, then integer division demonstrated with a value table and a two-line proof. Severity path S1 → S3 stated |
+| `production/qa/bugs/BUG-089.md` | `## Owner review` appended: `void` design accepted, `Hold`-path claim and `bool`-return sketch withdrawn, the remaining item restated as a design question, and the per-asset audit proving it dormant |
+| `production/qa/bugs/BUG-090.md` | `## Owner review` appended: the script/asset distinction in a two-row table, with the `ls` and `grep` output re-run after the review |
+| `production/qa/bugs/BUG-091.md` | `## Owner review` appended: the operand-order answer in full, the owner's element guards recorded as closing defect 2, and a four-row table of what is still open |
+| `production/qa/bugs/BUG-072.md` | `## Owner fix` appended: the implementation recorded as correct in shape, then the three zero-defaulting fields, with the `Awake()` override sketch and the `base.Awake()` warning |
+| `CLAUDE.md` | Header block extended with the four working-tree edits and the two decisions. Rows rewritten for BUG-063 (ACCEPTED), BUG-072 (PARTIAL), BUG-075 (FIXED), BUG-088 (PARTIAL), BUG-089 (S3, re-framed), BUG-091 (PARTIAL) — each keeping its original text after "*Original entry:*" |
+
+### Constraint check
+
+One `.cs` file changed, at explicit owner request: `SpawnProjectileBase.cs`, one word. The three
+other modified `.cs` files are the owner's own uncommitted work and were not touched. No commit, no
+push.
+
+---
+
+
+## 2026-09-22 (third pass, same day) — Post-fetch re-verification against HEAD `2a83469`
+
+**Cause.** `git fetch` brought two commits that landed after both of the day's earlier passes:
+`723fab1` ("coding") and `2a83469` ("coding"). Both were re-read against source. Every statement
+below cites the file and line it was read from. No `.cs` file was modified in this pass.
+
+The two earlier entries for 2026-09-22 are left intact above, including the claims this entry
+supersedes, so the drift stays auditable.
+
+### Headline: the project does not compile at HEAD
+
+`723fab1` added `EntityMovement.SetPositionToCheck()` (`EntityMovement.cs:161-165`) containing two
+identifiers that do not exist — `Random.range` (the member is `Random.Range`) and
+`trasnform.postion`. `Assembly-CSharp` fails with CS0117 and CS0103.
+
+Consequence for this register: **no bug in it can be verified in the Editor until that is fixed.**
+Everything recorded in this pass is static analysis. Filed as **BUG-088** (S1, Priority 1), with the
+systemic cause filed as **TD-048** — there is no CI, no compiling pre-push hook, and no `.asmdef`,
+so nothing in the pipeline compiles this project except a human opening Unity.
+
+Two further defects live in the same five lines and are invisible until it builds:
+`Random.Range(0, 100)` binds the `int` overload, so `/100` is integer division and the value is
+always `0`, making `Vector3.Lerp` return the entity's own position; and a `Vector3` result is
+assigned into a `Vector2` field, against `.claude/rules/gameplay-code.md`.
+
+### Three bugs closed by `2a83469`
+
+| Bug | Evidence |
+|---|---|
+| **BUG-076** (all four sub-items) | `AbilityDefinition.TryStart()` (`:50-64`) is a single gate that walks `Conditions` once and then compares each `Costs` entry against `abilityContext.Services.Vital.GetCurrentStatValue(cost.statType)` — generic over `StatType`, so Avatar of Light's 50 HP cost is validated where the Mana-only condition could not see it. That closes **(b′)**. `ValidateConditions()`, `TryPayCost()` and the `AbilityHolder.cs:109-112` walk are all deleted, leaving one walk — that closes **(c)**. (a) was already by design, (b) already withdrawn |
+| **BUG-077** | `HasEnoughManaCondition.cs` and its `.meta` deleted. All four Paladin ability assets rewritten from a one-entry `Conditions` list to `Conditions: []`. No code path writes runtime values into a committed condition asset any more |
+| **BUG-085** | `NotDeadCondition.cs` and its `.meta` deleted. `Assets/Script/System/Abilities/Conditions/` is now empty, so the `[CreateAssetMenu]` hazard — a designer authoring a silent no-op gate — is gone with it |
+
+`Casting()` was also renamed `TryCast()` (`AbilityEffectDefinition.cs:11`), exactly as the owner said
+it would be in the review recorded in the entry above.
+
+### Four bugs filed
+
+| ID | Sev | Summary |
+|---|---|---|
+| **BUG-088** | S1 | `EntityMovement.SetPositionToCheck()` does not compile. Blocks everything. Also: integer division makes the method a no-op once fixed, and `EntityNegativeReciver.cs:27` dereferences a `GetCoreComponent` result unguarded on the live damage path |
+| **BUG-089** | S2 | A refused `TryCast()` does not stop the cast. `Casting():79` responds to a refusal by calling `CancelHold()` — which clears `IsHolding`, the very flag `CastInstant():52` tests — so the ability skips its hold check, falls through to `ChangeState(Do)`, and `Execute()` applies the refused effect with no gate and starts the cooldown. Also desynchronises `AbilityInstance.IsHolding` from `AbilityHolder.IsHolding` |
+| **BUG-090** | S3 | `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` survived the deletion of its script. Its `m_Script` guid `6f896bb258601fc4cb5fc183399618ea` resolves to 0 `.meta` files; `ShootSpirit.asset` and `SpiritBomd.asset` still reference it, and both are reachable from `PlayerTest.prefab` |
+| **BUG-091** | S3 | `AbilityDefinition.TryStart()` lost the `if (condition == null) continue` guard the deleted `ValidateConditions()` had — which is what BUG-090's asset would trigger; its `&&` early-return lets a null `Costs` or `Conditions` reach a `foreach`; and `CheckPayCostValid()` (`:67-75`) was added with zero callers, reproducing BUG-082's null-check-after-dereference verbatim in a second file |
+
+BUG-089 and BUG-091 are grouped as **TD-049** — one commit, one review pass closes all three loose
+ends.
+
+### Verified unchanged
+
+`LightningController.cs` was touched by `723fab1`, but the change is one trailing-space line; the
+overlap query is still three comment lines, so **BUG-072** stands exactly as the owner review scoped
+it. Also re-read and unchanged: BUG-063 (`Stat.cs:63-66`), BUG-068 (`GetAbility()` still zero
+callers), BUG-071, BUG-073 (plus a second broken reference, see BUG-090), BUG-074, BUG-075
+(`OnTriggerEnter(Collider)` still 3D at `:29`), BUG-079, BUG-080, BUG-082, BUG-083, BUG-084
+(`find Assets -name "*.asmdef"` still returns 0), BUG-086, BUG-087.
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `production/qa/bugs/BUG-088.md` … `BUG-091.md` | **New.** Full evidence, reproduction, fix sketch and cross-references for each |
+| `production/qa/bugs/BUG-076.md` | `## Re-verification — 2026-09-22 (post-fetch …)` appended: the `TryStart()` gate quoted, the three-walk table showing each site deleted, Status → **FIXED**. The owner-review section above it is untouched |
+| `production/qa/bugs/BUG-077.md`, `BUG-085.md` | Same heading appended, deletion evidence quoted, Status → **FIXED**; BUG-077 points at BUG-090 and BUG-091 as the residuals it did *not* close |
+| `production/qa/bugs/BUG-072.md` | Appended: `723fab1`'s change to the file is whitespace only; scope unchanged; note that it cannot be tested until BUG-088 lands |
+| `production/qa/bugs/BUG-082.md` | Appended: the defect now exists at **two** sites, the second added by `2a83469`; BUG-091 recommends deleting rather than fixing the new one |
+| `production/qa/bugs/BUG-068.md`, `BUG-073.md`, `BUG-079.md`, `BUG-083.md` | Appended dated re-verification blocks. BUG-073 gains a second missing-script reference; BUG-079 gains a note that BUG-089's fix sketch routes through `Exit()` and so inherits it |
+| `CLAUDE.md` | New dated header block at the top, with the compile break first; the previous header demoted to "Previous entry" intact. BUG-076/077/085 rows rewritten as FIXED with their original text preserved after "*Original entry:*"; four new rows BUG-088…BUG-091; the "v2 does not currently work" block and the repo-layout annotations for `AbilityInstance` / `AbilityContext` / `AbilityEffectDefinition` / `Conditions/` updated; demo-checklist item 21 re-ordered behind BUG-088 with the old ordering kept beneath it |
+| `docs/tech-debt-register.md` | **TD-048** (no compile gate anywhere — the root cause of BUG-088) and **TD-049** (the three loose ends from `2a83469`) added. Nothing removed |
+| `docs/diagrams/ability-system-diagrams.md` | **§1–§8 left unedited.** New **§9** appended: what the two commits did, the build break, a redrawn activation-path diagram showing the single `TryStart()` gate and BUG-089's fall-through, a corrections table against §6/§8, revised strengths/weaknesses, and a revised fix order with BUG-088 as step 0. Navigation block at the top updated to point at §9 first |
+| `.claude/rules/weapon-skill-code.md` | Rewritten where it now reads false: `Casting()` → `TryCast()` throughout, the three dispatch methods renamed, the ability-scope-cost warning replaced with the shipped `TryStart()` gate and the instruction to author costs in `AbilityDefinition.Costs` rather than a per-stat condition class, the shared-`ScriptableObject` rule updated to note its example was deleted (while the rule stands for `Stat.modifiers`), and two new warnings added for BUG-089 and BUG-091 |
+
+### Constraint check
+
+`git diff --stat -- '*.cs'` is empty. No `.cs` file was modified, no commit was made, no push. The
+working tree contains documentation changes only.
+
+---
+
+
 ## 2026-09-22 (later same day) — Owner review: three findings corrected or retracted
 
 **Cause.** The findings from the re-verification pass earlier the same day were put to the owner.

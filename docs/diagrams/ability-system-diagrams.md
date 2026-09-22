@@ -65,6 +65,9 @@
 >   two were wrong and one was misattributed. §6 and §7 are left unedited and §8 carries the
 >   corrections, so both the claim and its rebuttal stay on the record. **Read §8 before acting on
 >   anything in §6 or §7.**
+> - **§9 — Post-fetch re-verification (same day, HEAD `2a83469`)**: two commits landed after §8 was
+>   written. They fixed BUG-076, BUG-077 and BUG-085, renamed `Casting()` to `TryCast()`, and broke
+>   the build (BUG-088). **§9 supersedes §6, §7 and §8 wherever they disagree — read it first.**
 >
 > Headline change since §1–§3 were written: **BUG-069 is FIXED** (cooldown is enforced), **BUG-078's
 > inverted return is FIXED**, **BUG-076 is re-scoped** (the double-charge is gone; three different
@@ -1072,5 +1075,134 @@ Step 1 in the previous version of this list was "settle two contracts on paper".
 survives: the spawn contract is settled (it is set-then-invoke, documented in
 `.claude/rules/weapon-skill-code.md` as of this pass). The remaining design question is narrower —
 whether `Casting()` overrides may have side effects, and how a channelled cost should be metered
-(per dispatch is frame-order dependent; per second would not be). Both belong in the Abilities v2
+(per dispatch vs per second — ✏️ **corrected 2026-09-22: the dispatch is NOT frame-order dependent.** `AbilityHolder.HandleInput()` is called from `PlayerSkillWeaponState.AnimationOnAction()` (`:47`), a Unity Animation Event routed through `Player.cs:78` — so the rate is set by the hold animation’s length and is frame-rate independent. What is undefined is whether a per-effect cost is bought once or sustained per loop). Both belong in the Abilities v2
 GDD, and neither blocks steps 1–5.
+
+---
+
+## 9. Post-fetch re-verification — 2026-09-22, HEAD `2a83469`
+
+> **§1–§8 above are left unedited**, as §6/§7 were when §8 corrected them. Two commits landed after
+> §8 was written — `723fab1` and `2a83469`, both titled "coding" — and change enough of the v2 core
+> that §6 and §8 are partly out of date. This section carries the delta. **Read §9 before acting on
+> anything in §6, §7 or §8.**
+
+### 9.1 What the two commits did
+
+| Commit | Files | Net effect |
+|---|---|---|
+| `723fab1` | `EntityMovement.cs`, `EntityNegativeReciver.cs`, `LightningController.cs` | Enemy knockback-target feature, **and a build break**. The `LightningController` change is whitespace only |
+| `2a83469` | 9 `.cs` (2 deleted), 4 `.asset` | The v2 gating rewrite: one gate instead of three walks, `Casting()` renamed `TryCast()`, two condition classes deleted |
+
+### 9.2 The project does not compile — BUG-088
+
+`EntityMovement.cs:161-165`, added by `723fab1`:
+
+```csharp
+public void SetPositionToCheck(Vector2 endPosition)
+{
+    var rangeToCheck = Random.range(0, 100)/100;                       // CS0117 — it is Random.Range
+    this.endPosition = Vector3.Lerp(trasnform.postion, endPosition, rangeToCheck);  // CS0103, twice
+}
+```
+
+`Assembly-CSharp` fails, so **everything in this document is static analysis until BUG-088 is
+fixed** — no Play Mode, no Test Runner, no confirmation of any fix in §9.3.
+
+Two further defects in the same five lines, both invisible until it compiles: `Random.Range(0, 100)`
+picks the `int` overload, so `/100` is integer division and `rangeToCheck` is always `0`, making
+`Lerp` return the entity's own position; and `Vector3.Lerp` assigned into a `Vector2` field violates
+the project's Vector2 convention.
+
+### 9.3 The v2 activation path, redrawn
+
+`2a83469` replaced the three-walk shape that §6.2 (c) described. This is the current path:
+
+```mermaid
+flowchart TD
+    IN["PlayerInputHandle.cs:254 — TryDoAbility(AbilitySlot.Utility)"]
+    TDA["AbilityHolder.TryDoAbility() :100-111<br/>the local condition walk that used to be here is DELETED"]
+    CS["AbilityInstance.CanStart() :89-96<br/>cooldown? owner?<br/>BuildContext()<br/>Definition.TryStart(ctx)"]
+    TS["AbilityDefinition.TryStart() :50-64 — THE ONLY GATE<br/>walk Conditions once<br/>walk Costs once: cost.value greater than Vital.GetCurrentStatValue(cost.statType)?<br/>generic over StatType, so HP costs are checked now"]
+    SH["AbilityHolder.StartHold() :138-143<br/>IsHolding = true; instance.StartHold(); ChangeState(Start)"]
+
+    A["state Start — ActivateInstant() :42-46<br/>PayCost(Definition.Costs), unconditional;<br/>safe only because TryStart already passed"]
+    C["state Cast — CastInstant() :47-55<br/>Casting() then ChangeState(Do)"]
+    D["state Do — DoInstant() :56-61<br/>Execute(): every effect.Apply(), ungated<br/>StartCooldown(); ChangeState(Exit)"]
+    E["state Exit — Exit() :63-66<br/>body still commented out (BUG-079)"]
+
+    IN --> TDA --> CS --> TS
+    TS -->|true| SH --> A --> C --> D --> E
+
+    CAST["Casting() :68-82<br/>foreach effect: effect.TryCast(ctx)?"]
+    PAY["true: PayCost(effect.Costs)"]
+    REF["false: CancelHold(), and nothing else"]
+    C --> CAST
+    CAST --> PAY
+    CAST --> REF
+    REF -.->|"falls through to :54 anyway"| D
+
+    style TS fill:#1f5c2e,color:#fff
+    style REF fill:#7a1f1f,color:#fff
+    style E fill:#5c4a1f,color:#fff
+```
+
+The green node is what §6.2 (b′) asked for and did not have. The red node is **BUG-089**: the
+refusal path clears `IsHolding`, which is the exact flag `CastInstant():52` tests, so a refusal makes
+the ability skip its own hold check and advance to `Do` — where `Execute()` applies the effect that
+just refused, with no gate, and starts the cooldown.
+
+### 9.4 Corrections to §6 and §8
+
+| Earlier statement | Where | Status at `2a83469` |
+|---|---|---|
+| "conditions walked 3× per activation" | §6.2 (c), §8.1 | **Fixed.** `ValidateConditions()` and `TryPayCost()` deleted, `AbilityHolder`'s walk deleted. One walk remains, in `TryStart()`. `grep -rn "IsMet(" Assets/Script --include=*.cs` returns a single call site |
+| "ability-scope costs have no affordability gate; Avatar of Light's 50 HP is unvalidated" | §8.1, §8.4 (#5) | **Fixed.** `TryStart():60-63` compares each cost against `Vital.GetCurrentStatValue(cost.statType)`, so every stat is covered, not just Mana |
+| "`HasEnoughManaCondition` writes runtime state into a committed asset" | §7.2 (#3) | **Fixed by deletion.** The class and its `.meta` are gone; all four Paladin assets now read `Conditions: []`. `Assets/Script/System/Abilities/Conditions/` is empty |
+| "`Casting()` is slated to be renamed `TryCasting()`" | §8.4 (#2) | **Renamed** — to `TryCast()`, not `TryCasting()`. Use the shipped name |
+| "the two failures are ordinary unimplemented or mistyped code" | §8.4 (#1) | Still true, and still the whole story for damage: BUG-075's 3D signature and BUG-072's comment-only overlap query are both untouched at HEAD |
+| "no ranked architectural defect" | §8.4 (#1) | Still true. BUG-089 is a missing early return, not a design flaw |
+
+### 9.5 Strengths and weaknesses — revised again
+
+**§7.1 gains one.** *There is now a single, generic activation gate.* `TryStart()` is one method, on
+the definition, reading costs by their own `StatType` through `IVitalComponent`. It replaced three
+walks in two files plus a per-stat condition class. A designer adding a Stamina cost gets it checked
+for free, with no new asset and no new class — which is exactly what the condition-class approach
+could not do.
+
+**§7.2 loses two and gains one.**
+
+- Weakness #3 (shared-`ScriptableObject` per-cast state) is now **half closed**: the condition half
+  was deleted. `SpawnEffectBase._context` / `.dir` remain, and remain load-bearing rather than wrong.
+- Weakness #5 (payment not transactional) is **closed**: `TryStart()` is the gate it was asking for.
+- **New weakness: refusal is not modelled.** `TryCast()` returns `bool`, `Casting()` discards it,
+  `CastInstant()` has no way to know a refusal happened, and `ActivateInstant()` / `DoInstant()` have
+  no return at all. The type signatures cannot express "this cast was refused", so the one place that
+  tries to (`CancelHold()`) communicates through a mutable flag that means something else. That is
+  BUG-089's root, and it is one method signature away from being fixed.
+
+**§7.3 verdict, revised again.** §8 said "a sound design with a normal defect list". That is more
+true now, not less: two of the five listed weaknesses closed in one commit, and what remains is four
+unimplemented or mistyped things plus a build break. The v2 framework is in better shape than any
+document before §8 claimed. What the project does not have is any way to *notice* a build break,
+which is the real lesson of this pass — see TD-048.
+
+### 9.6 Fix order — revised
+
+Supersedes §8.4's list. Step 0 is new and non-negotiable; steps 1–2 are unchanged; the rest are new
+or re-ordered because BUG-076, BUG-077, BUG-078 and BUG-085 are all closed.
+
+| # | Item | Why here |
+|---|---|---|
+| **0** | **BUG-088** — two typos, one integer division, one null guard | Nothing compiles. Every other step is unverifiable until this lands |
+| 1 | **BUG-075** — `OnTriggerEnter2D(Collider2D)` | One word. Restores projectile damage on its own, independent of everything below |
+| 2 | **BUG-072** — implement `LightningController.Execute()`'s overlap query | Restores summon damage, independent of step 1 |
+| 3 | **BUG-089** — make a refused `TryCast()` stop the cast | The gate exists now; this is what stops it being bypassed. Needs one design call: all-or-nothing vs per-effect refusal |
+| 4 | **BUG-063** — remove `#if UNITY_EDITOR [SerializeField]` from `Stat.modifiers` | The last asset-write leak, now that BUG-077 is closed. 29+ cycles, one line |
+| 5 | **BUG-082 + BUG-091** — swap the two null-check operands, delete the dead `CheckPayCostValid()`, restore the null-element guard, add `= new()` to `Costs` | One file each, all latent, all cheap. Bundle |
+| 6 | BUG-071, BUG-074, BUG-083, BUG-079, and unhardcoding `AbilitySlot.Utility` | Remaining correctness work |
+
+The design questions from §8.4 are unchanged and still do not block steps 0–6: whether a `TryCast()`
+override may have side effects (Consecrate says yes and is correct to), and whether a channelled cost
+meters per dispatch or per second. Both belong in the Abilities v2 GDD.
