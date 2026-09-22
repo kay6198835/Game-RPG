@@ -71,14 +71,51 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 
 **Rules that exist because of open bugs — do not copy the surrounding code:**
 
+> Re-verified against source 2026-09-22 (HEAD `d17fcc5`). Two bug IDs cited below were wrong and are
+> corrected; four rules are added.
+
+- **The spawn-damage contract is set-then-invoke, and it is deliberate.** A spawned object that
+  detects a hit assigns `ctx.Services.NegativeReceiver` and *then* calls `_callback.Invoke(ctx)`;
+  the effect's `if (negativeReceiver != null)` guard means "act if a receiver was supplied, skip if
+  not". `SpawnProjectileBase.cs:31-33` is the reference implementation — copy that shape. For a
+  multi-target summon, assign and invoke **once per target** inside the loop
+- ⚠️ **No Abilities v2 effect deals damage at HEAD**, from two independent gaps in that contract,
+  neither of them architectural: the projectile never runs its assign+invoke because it declares the
+  3D trigger signature (**BUG-075**), and `LightningController.Execute()` invokes the callback
+  without ever running its overlap query, which is still three comment lines (**BUG-072**). Fixing
+  either one restores that path on its own
 - Effect and condition `ScriptableObject`s are **shared, single-instance assets**. Never store
-  per-cast state in a field on one. `SpawnEffectBase._context` / `.dir` (BUG-079) and
-  `HasEnoughManaCondition.currentMana` / `.costMana` (BUG-077) both violate this; the second one
-  serializes runtime values into a committed `.asset`
-- `AbilityEffectDefinition.Casting()`'s return value has **no settled contract** (BUG-076, BUG-078).
-  Until an ADR or GDD defines it, do not add a new override of `Casting()`
+  per-cast state in a field on one. `HasEnoughManaCondition.currentMana` / `.costMana` (BUG-077)
+  violates this and serializes runtime values into a committed `.asset` — do not copy it.
+  `SpawnEffectBase._context` / `.dir` are the same shape; they are load-bearing today, because
+  `SpawnSummonEffect.Apply()` relies on `Casting()` having set `_context` for it. That coupling is
+  intentional given `Cast` always precedes `Do` — leave it alone unless you are redesigning the
+  effect base, and do not "simplify" `Casting()` without setting `_context` in `Apply()`
+- `AbilityEffectDefinition.Casting()` **is a gate**: it returns `false` to refuse the cast, and the
+  base implementation already tests `SubConditions` and calls `CheckPayCostValid()` before the
+  per-effect cost is paid (`AbilityEffectDefinition.cs:11-22`, `AbilityInstance.cs:83-86`). It is
+  slated to be renamed `TryCasting()` for exactly that reason. ⚠️ `Casting()` and `Apply()` run at
+  **different `AbilityState` phases of the same cast** (`Cast` and `Do`), so an effect that acts in
+  both acts twice — **by design** for a two-object effect such as Consecrate (Cast-phase telegraph
+  from `Prefab`, Do-phase payload from `summonPrefab`), and a bug otherwise. Know which you are
+  writing
 - 2D trigger callbacks are `OnTriggerEnter2D(Collider2D)`. `SpawnProjectileBase` uses the 3D
-  signature and therefore never fires (BUG-075)
+  signature and therefore never fires (BUG-075). ⚠️ The 3D form **compiles clean with no warning** —
+  `UnityEngine.Collider` exists in every Unity project. Verify a new trigger handler with a
+  `Debug.Log`, not by checking the Console for errors
+- `AbilityContext.HoldTime` / `.HoldRatio` are **always `0f`** (BUG-083): they are plain fields
+  snapshotted by `BuildContext()` before `StartHold()` zeroes the counter, and nothing rebuilds the
+  context. Do not write a charge-scaling effect against them until that is fixed
+- Cost is paid from **two disjoint lists** since `73ab8e7`: `AbilityDefinition.Costs` once at
+  activation, and per-effect `AbilityEffectDefinition.Costs` inside `Casting()`. The two are billed
+  differently on purpose — a `Hold` ability re-enters `TryCastInstant()` while held, so a per-effect
+  cost is a **channelled** cost that keeps draining. Put a one-off cost in `AbilityDefinition.Costs`
+- ⚠️ **Ability-scope costs are not affordability-checked** (BUG-076 b′). `TryPayCost()`
+  (`AbilityInstance.cs:164-178`) pays unconditionally, and the only gate is
+  `HasEnoughManaCondition`, which reads `StatType.Mana` and nothing else. Avatar of Light costs
+  40 Mana **+ 50 HP**; the HP half is validated by nothing, and `Reduction()` clamps at zero, so the
+  cast drains the player to 0 HP instead of being refused. Do not author a non-Mana ability-scope
+  cost until this is fixed. The effect-scope list does **not** have this problem
 
 ### Abilities v1 — `System/Skill_Ability/` — the WEAPON and ENEMY path (maintenance only)
 

@@ -17,6 +17,163 @@ which code change caused it.
 
 ---
 
+## 2026-09-22 (later same day) — Owner review: three findings corrected or retracted
+
+**Cause.** The findings from the re-verification pass earlier the same day were put to the owner.
+Three were challenged. Each was re-checked against source and against the live `.asset` files; two
+were wrong, one was misattributed. This entry records the corrections and, per the log's own
+convention, **nothing from the earlier entry was deleted** — the claim and its rebuttal both stay on
+the record.
+
+### What changed
+
+| Finding | Owner's position | Verified outcome |
+|---|---|---|
+| **BUG-072** — framed as an architectural defect: "`Action<AbilityContext>` cannot carry a hit target, so per-hit state is smuggled through a shared mutable field" | `SummonExecute` is a callback invoked elsewhere, after the caller has set `Services.NegativeReceiver`; the `!= null` guard is deliberate | **Owner right — escalation WITHDRAWN.** Set-then-invoke is the intended contract and is already correctly implemented at `SpawnProjectileBase.cs:31-33` (assign, then `_callback.Invoke` — adjacent and synchronous, so no interleaving window; the earlier "overwritten by whichever object last hit" claim was wrong). The summon invoke wiring exists too: `SpawnSummonBase.cs:12-15` fires the callback from a Unity Animation Event and `LightningController.cs:18` calls `base.Execute()`. **Only the overlap query is missing** — `LightningController.cs:12-19`, still three comment lines. Bug returns to its original scope |
+| **BUG-078** — "double spawn from two prefab fields, still open" | Deliberate: the effect controls two objects within one effect | **Owner right — finding RETRACTED, bug CLOSED.** Verified in `Assets/SO/Skill/Paladin/Ability/Consecrate/Effect/Paladin Spawn Consecrat Effect.asset`: `Prefab` → `RuneCircle.prefab` (Cast-phase telegraph; `Execute()` = `//Do nothing`, correct for something that deals no damage), `summonPrefab` → `Lightning.prefab` (Do-phase payload, `SummonExecute`). Telegraph-then-strike. `RuneCircleController` being an empty subclass is consistent. The inverted-return half remains fixed in `73ab8e7`, so the whole bug is closed with no code change |
+| **BUG-076 (a)** — "Hold re-charges per-effect cost every dispatch" | Correct flow, intended | **Accepted as by design** (channelled cast). Additionally verified **dormant**: no effect asset in the project carries a serialized `Costs` list — all seven predate the field added in `73ab8e7`, so `TryPayEffectCost()` returns at `statCosts.Count == 0`. Blessed Slash (the only `Hold` ability) pays its 5 Mana once from the ability-scope list |
+| **BUG-076 (b)** — "`TryPayEffectCost` never checks affordability" | The check is already in the base class; `Casting()` will be renamed `TryCasting()` to make that legible | **Owner right for the effect-scope list — WITHDRAWN.** `AbilityEffectDefinition.Casting():20` calls `CheckPayCostValid()`, and `AbilityInstance.cs:83-86` pays only inside that gate. **But the ability-scope list has no gate at all**: `TryPayCost()` (`:164-178`) pays unconditionally and `HasEnoughManaCondition` reads `StatType.Mana` only. `Avatar of Light.asset` costs 40 Mana (`statType: 101`) **+ 50 HP** (`statType: 100`); the HP half is validated by nothing, and `Reduction()` clamps at 0. Re-filed as **BUG-076 (b′)**, S2, live |
+| **BUG-076 (c)** — "conditions walked 3× per activation" | Not understood | **Stands.** Restated in full in `BUG-076.md` with the complete call chain: `AbilityHolder.cs:109-112` (walk 1), `AbilityInstance.cs:44` (walk 2), `AbilityInstance.cs:166-171` (walk 3 — a verbatim duplicate of walk 2, five lines later in the same call). Each walk writes to a committed `.asset` via BUG-077 ⇒ three asset writes per button press |
+
+### Net effect on the bug list
+
+- **BUG-078: CLOSED** (S1 → non-issue). Half fixed, half retracted.
+- **BUG-072: still open, scope reduced** to its original filing — summon target resolution
+  unimplemented. The "no v2 effect deals damage" *outcome* is unchanged and still true, but the
+  *cause* is now correctly stated as two independent implementation gaps (BUG-075 for projectiles,
+  BUG-072 for summons), not one design flaw. Either can be fixed without the other.
+- **BUG-076: S1 → S2**, re-scoped a second time. (a) and (b) resolved; (b′) and (c) open.
+- **TD-046: WITHDRAWN** — kept in the register as the record of a retracted claim, marked
+  *do not action*.
+- Two behaviours are now recorded as **confirmed by design** rather than defects: the channelled
+  per-effect cost on `Hold` abilities, and the `if (negativeReceiver != null)` guard pattern in the
+  spawn effects.
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `production/qa/bugs/BUG-072.md` | `## Owner review — 2026-09-22` appended: escalation withdrawn, set-then-invoke confirmed correct with the reference implementation cited, scope returned to the missing overlap query, revised fix sketch using `OverlapCircleNonAlloc` per `.claude/rules/engine-code.md` |
+| `production/qa/bugs/BUG-078.md` | `## Owner review` appended with the asset evidence; **Status → CLOSED**, severity annotated as downgraded-to-non-issue. Follow-up suggested (not filed): `[Header]`/`[Tooltip]` on `Prefab` vs `summonPrefab`, since the two are indistinguishable in the Inspector and that is what caused the misreading |
+| `production/qa/bugs/BUG-076.md` | `## Owner review` appended: (a) accepted by design + the per-asset `Costs` audit proving it dormant; (b) withdrawn with the gate chain quoted; (b′) newly stated with the Avatar of Light asset evidence; (c) restated in full with the three-walk call chain. Severity S1 → S2, Priority 1 → 2, Status rewritten |
+| `docs/tech-debt-register.md` | TD-046 rewritten as WITHDRAWN/Void with the reason, marked *do not action this entry* |
+| `CLAUDE.md` | BUG-072, BUG-075, BUG-076 and BUG-078 rows rewritten. "v2 does not currently work" block rewritten around the two-independent-gaps table instead of the withdrawn architectural claim, and the closed/by-design items listed. Damage-chain ability branch rewritten to state the contract first, then the two gaps |
+| `.claude/rules/weapon-skill-code.md` | Four rules rewritten: the spawn-damage contract is now stated positively as set-then-invoke with `SpawnProjectileBase.cs:31-33` named as the shape to copy; `Casting()` documented as a gate (rename to `TryCasting()` noted) with the two-object case called out as legitimate; the shared-`ScriptableObject` rule split so `_context`/`.dir` is described as load-bearing rather than a violation; the cost rule rewritten around one-off vs channelled cost, with the ability-scope affordability gap (b′) as the live warning |
+| `docs/diagrams/ability-system-diagrams.md` | **§6 and §7 left unedited.** New **§8 Owner review** appended: corrections table, a corrected damage-path diagram (contract → two independent gaps), a corrected Consecrate sequence diagram (telegraph → payload), and revisions to §7 — weakness #1 withdrawn, #2 softened, #3 split, #5 re-aimed, a new strength added for the one-off/channelled cost distinction, and a revised fix order that no longer blocks on a design decision |
+| `production/sprint-status.yaml` | Owner decision (option C) recorded — see below |
+
+### Owner decision — S14-01 / S14-14 (option C)
+
+Both stories cover bugs that are now fixed in code but have no Play Mode confirmation. The owner
+chose **not to close them**.
+
+Implemented conservatively: **no `status:` value was changed and no story was closed.** Only the
+free-text `blocker:` field on S14-01 (BUG-067) and S14-14 (BUG-069) was filled in, recording what
+landed, what evidence exists, and what is still missing. `needs-verification` was deliberately **not**
+introduced as a status value — it is not in this file's vocabulary (`backlog` / `ready-for-dev` /
+`done`) and `/story-done` would not understand it. A dated comment block explaining all of this was
+added under the file's existing "DO NOT edit manually" header. Both stories should be closed through
+`/story-done` after the first Play Mode session.
+
+---
+
+## 2026-09-22 — Bug-documentation re-verification pass
+
+**Cause.** Two ability commits landed after the 2026-09-21 doc-sync and were never reviewed:
+`73ab8e7` ("coding update flow ability, update logic cost") and `e2cb75e` ("done"), reaching `main`
+through the merge `d17fcc5`. `CLAUDE.md` still declared HEAD `15242e6`. Separately, the 2026-09-21
+pass had introduced three claims that source does not support. Every tracked bug and the
+tech-debt register were re-read against `Assets/Script/` at `d17fcc5`.
+
+**Scope constraint.** Documentation only. **No `.cs` file was changed** —
+`git diff --stat` shows zero source files touched. `production/sprint-status.yaml` was deliberately
+not edited: closing a story is a production decision for the owner, made through `/story-done`.
+Status changes below therefore live in the bug files and `CLAUDE.md`, and the sprint files still
+list the old state — see "Handover" at the end.
+
+### Status changes, with evidence
+
+| Bug | Was | Now | Decisive evidence |
+|---|---|---|---|
+| BUG-069 | Open ("apparently fixed, unverified") | **FIXED** | Full loop present: `AbilityHolder.cs:107` calls `CanStart()`; `AbilityInstance.cs:192` sets; `:23-30` ticks; driven by `AbilityHolder.cs:51-59` from `PlayerBasicState.cs:32` / `PlayerSkillWeaponState.cs:68`; gated at `PlayerInputHandle.cs:254` |
+| BUG-067 | Apparently fixed (unverified) | **FIXED** | `ResourceReceiver.cs:17-24` polarity correct; consumer `RecoveryEffectDefinition.cs:13` confirms. Two *unrelated* defects in the same file split out as BUG-080 / BUG-081 rather than closed with it |
+| BUG-078 | Open (two defects in one) | **PARTIAL** | Inverted return fixed in `73ab8e7` (`SpawnSummonEffect.cs:20-25`); double spawn still open — `Casting()` spawns `Prefab`, `Apply()` spawns `summonPrefab`, at states `Cast` and `Do` of the same cast |
+| BUG-076 | Open (double-charge) | **RE-SCOPED, open** | Original defect fixed by a design change: two disjoint cost lists now exist (`AbilityDefinition.cs:25`, `AbilityEffectDefinition.cs:9`). Three new defects replace it — see below |
+| BUG-072 | Open — PLAUSIBLE | **Open — CONFIRMED, widened** | The only writer of `Services.NegativeReceiver` repo-wide is `SpawnProjectileBase.cs:32`, inside the dead 3D callback; `AbilityContext.cs:37-47` never assigns it ⇒ always null ⇒ **no Abilities v2 effect deals any damage** |
+| BUG-073 | Open (suspected) | **Open — CONFIRMED by GUID** | `ShootSpirit.asset:12` guid `ac9ac7c011812d042ac992007bc0cf48` resolves to **0** `.meta` files under `Assets/` |
+| BUG-079 | Open, S2 | **Open, S3** | Consequence corrected — see below |
+| BUG-066 / BUG-070 | Two separate entries | Open, **recorded as one defect, two instances** | Near-verbatim duplicate classes; neither file contains a single `TryGetValue`/`ContainsKey` |
+
+### Claims corrected — all three originated in the 2026-09-21 pass
+
+1. **BUG-063 — the `#if UNITY_EDITOR` guard is not a mitigation.** `CLAUDE.md` framed it as
+   narrowing the blast radius. Play Mode in the Editor *is* `UNITY_EDITOR`, which is precisely the
+   leak path the capitalised comment at `Stat.cs:49-62` warns about; the guard only protects the
+   player build, where `.asset` files are read-only anyway. The framing is why a three-line deletion
+   has been carried 29+ cycles. Corrected in `CLAUDE.md` (Known Bugs row, tree annotation) and
+   `production/qa/bugs/BUG-063.md`.
+2. **BUG-079 — "castable once per scene load" is false.** `AbilityHolder.StartHold()` (`:143-148`)
+   forces `ChangeState(AbilityState.Start)` on every fresh press via `PlayerInputHandle.cs:254-256`,
+   so abilities do re-cast. What remains is a layering defect: the instance cannot reset itself.
+   Severity lowered S2 → S3. Also propagated: `docs/diagrams/ability-system-diagrams.md` lines 226
+   and 248 still carry the wrong claim and are flagged in the handover below.
+3. **BUG-074 — there is no work-in-progress fix.** An earlier review recorded an uncommitted,
+   ineffective edit in `Assets/Script/Utility/Utility.cs` (a dead `finalValue` variable). Verified
+   2026-09-22: `git status --porcelain` is empty and `ModifierStatsCalculate` (`Utility.cs:274-304`)
+   contains no such variable. Anyone picking BUG-074 up starts from the untouched version.
+
+### Eight defects filed for the first time
+
+| ID | Severity | Summary |
+|---|---|---|
+| BUG-080 | S1 | `ResourceReceiver.vitalStatsComponent` (`:5`) is assigned only inside `ReceverModifierGroup()` (`:13`); `Recovery()`/`Reduction()`/`BuffDebuffForDuration()` dereference it unresolved. Live on the item-pickup path via `RecoveryEffectDefinition.cs:13`. `TakeDamage()` escapes only via a shadowing local |
+| BUG-081 | S2 | Two `INegativeReceiver` implementers with byte-identical bodies, **both on `PlayerTest.prefab`** (verified by GUID). Player-side twin of the closed BUG-053. Secondary: `EnemyPrefab.prefab` carries the *player* `NegativeReciver` and no `EntityNegativeReciver` |
+| BUG-082 | S3 | `if (Costs.Count == 0 \|\| Costs == null)` — `\|\|` short-circuits, so the null test is unreachable. Latent only because Unity's serializer materialises empty lists; becomes live the moment code-constructed instances appear (i.e. in tests) |
+| BUG-083 | S2 | `AbilityContext.HoldTime` / `.HoldRatio` are plain fields snapshotted by `BuildContext()` *before* `StartHold()` zeroes the counter, and never rebuilt — always `0f`. Masked because all four Paladin abilities have `MaxHoldTime = 0` |
+| BUG-084 | S2 | **No `.asmdef` anywhere under `Assets/`**, and `tests/` sits outside the Unity asset tree. Test Runner can neither compile nor discover a test. Precondition of TD-014, not a symptom |
+| BUG-085 | S3 | `NotDeadCondition.IsMet()` body commented out, always `true`. Dormant (no asset references it) but carries `[CreateAssetMenu]` |
+| BUG-086 | S2 | `PlayerDeathState.LogicUpdate()` never consumes `Status` and never changes state ⇒ `ON_PLAYER_DEATH` emitted every frame. Violates the durable-`Status` contract in `manager-event-code.md`. Was only a parenthetical inside BUG-065 |
+| BUG-087 | S1 | `ON_PLAYER_DEATH` has zero subscribers; no `GameManager` exists; player `VitalStatsComponent` has no reset path; `ON_REALOAD_GAME` has 0 emitters and 0 subscribers. **Death is a permanent hard lock.** Closes the open half of Bug #6 / S10-08 |
+
+BUG-076's three replacement defects are recorded inside `BUG-076.md` rather than as new IDs, since
+they occupy the same code and the same open design question: (a) Hold abilities re-charge
+per-effect cost every dispatch (`AbilityInstance.cs:57-65`, live on Blessed Slash); (b)
+`TryPayEffectCost()` (`:155-162`) never checks affordability and `Reduction` clamps at 0, so an
+unaffordable cast drains to zero instead of being refused; (c) conditions are evaluated 3× per
+activation (`AbilityHolder.cs:109-112`, `AbilityInstance.cs:44`, `:166-171`), each evaluation
+writing to a committed asset via BUG-077.
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry (HEAD corrected `15242e6` → `d17fcc5`). Known Bugs preamble rewritten with this pass's status changes and the three corrections. All fifteen BUG-063…BUG-079 rows rewritten from source; eight rows added (BUG-080…BUG-087). "v2 is not healthy" block rewritten around BUG-072 as the subsuming defect. Damage-chain section: player branch rewritten (death is a dead end), new "Player ability hits anything — ❌ DOES NOT WORK AT ALL" branch added. Repo-layout annotations updated on 12 lines. Demo checklist: items 6, 20 and 21 rewritten; items 23 (test pipeline) and 24 (death recovery path) added |
+| `production/qa/bugs/BUG-063…079.md` | Dated `## Re-verification — 2026-09-22` section appended to each, with file:line evidence. Status lines updated on 067, 069, 072, 074, 076, 078, 079, 066, 070. `**Priority**` field added to BUG-075…079, which had none and appeared in no sprint or carry-over list. BUG-079 severity S2 → S3 |
+| `production/qa/bugs/BUG-080…087.md` | New, in the existing BUG-*.md format |
+| `docs/tech-debt-register.md` | Header date and counts updated (43 → 47 items). TD-014 re-scoped as blocked by TD-044. TD-044 (asmdef/test pipeline), TD-045 (death recovery path), TD-046 (`NegativeReceiver` shared mutable state / callback signature), TD-047 (duplicate player `INegativeReceiver`) added |
+| `.claude/rules/weapon-skill-code.md` | "Rules that exist because of open bugs" block rewritten. Corrected a wrong bug ID (`SpawnEffectBase._context`/`.dir` is BUG-078, not BUG-079). Four rules added: no v2 effect deals damage today; `Casting()` and `Apply()` run at different phases of one cast; the 3D trigger form compiles clean with no warning; `HoldTime`/`HoldRatio` are always `0f`; cost now comes from two disjoint lists |
+| `.claude/rules/test-standards.md` | Warning added under "Unity Test Naming": the `tests/EditMode/` / `tests/PlayMode/` paths this file prescribes do not compile, and no test can be written to them until BUG-084 / TD-044 is resolved. This file has prescribed non-working paths since it was written |
+| `docs/diagrams/ability-system-diagrams.md` | **Additive only — §1–§5 untouched.** Pointer block added under the existing defect list, then **§6 Current Version** (five stale §1–§3 annotations tabulated, plus three new source-drawn diagrams: the two-list cost model, the damage dead end, the `SpawnSummonEffect` double spawn) and **§7 System assessment** (7 strengths / 11 weaknesses, ranked, with a recommended fix order that puts the two undefined contracts first) appended |
+| `docs/CHANGELOG-DOCS.md` | This entry |
+
+### Handover — deliberately left for the owner
+
+- **`production/sprint-status.yaml` not touched.** Its own header requires `/story-done`. BUG-067
+  and BUG-069 are now FIXED and their stories should be closed there by the owner.
+- **`production/sprints/sprint-15.md` line 39** still reads "Open bugs: 13 (BUG-052, 063-066,
+  070-074 + verify-only 067/069)". BUG-075…079 were never added to any sprint or carry-over list,
+  and BUG-080…087 are new. Sprint files are dated records and were not rewritten.
+- **`docs/diagrams/ability-system-diagrams.md`** — **addressed 2026-09-22 by addition, not rewrite**,
+  per owner instruction. Lines 200, 207, 226 and 248 still carry the pre-`73ab8e7` cost model and the
+  wrong BUG-079 consequence; they are deliberately left in place and are instead tabulated as stale
+  in the new §6.1, so the drift remains auditable. §6 supplies the current diagrams and §7 the
+  strengths/weaknesses assessment. Regenerating §1–§3 in place is still open, and is a larger job.
+- **Estimates now known to be wrong**: sprint-14 S14-13 and the sprint-15 test story estimate
+  "write the first EditMode test" at 0.3d; BUG-084 must land first, and it entails splitting
+  `Assembly-CSharp`.
+
+---
+
 ## 2026-09-21 — Abilities v2 re-synchronisation + Paladin direction renumber
 
 **Cause.** Branch `origin/feature/fix-player-control`, HEAD `15242e6`. Between `8295539`

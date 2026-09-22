@@ -2,7 +2,26 @@
 
   This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-  > **Last updated:** 2026-09-21 (HEAD `15242e6`, branch `origin/feature/fix-player-control`) —
+  > **Last updated:** 2026-09-22 (HEAD `d17fcc5`, branch `main` — merge of `e2cb75e`) —
+  > **Bug-documentation re-verification pass.** Every tracked bug was re-read against source; no
+  > `.cs` file was changed. Two ability commits (`73ab8e7` "coding update flow ability, update logic
+  > cost", `e2cb75e` "done") had landed after the last doc-sync and were never reviewed, and the
+  > 2026-09-21 pass itself introduced three claims that source does not support. Outcome:
+  > **BUG-069 and BUG-067 are FIXED** (full evidence chains in their files); **BUG-078 is half
+  > fixed** (inverted return closed, double spawn open); **BUG-076 is re-scoped** (original
+  > double-charge fixed by a design change; three new cost defects replace it); **BUG-079's
+  > consequence was wrong and its severity is lowered** (abilities *do* re-cast —
+  > `AbilityHolder.StartHold()` forces the state reset); **BUG-063's `#if UNITY_EDITOR` guard is
+  > not a mitigation** (Play Mode *is* `UNITY_EDITOR`); **BUG-074 has no work-in-progress fix**
+  > (working tree is clean). **BUG-072 is now the widest-impact bug in the project**: the only
+  > writer of `Services.NegativeReceiver` sits inside the dead 3D trigger callback of BUG-075, so
+  > the field is always null and **no Abilities v2 effect deals any damage** — and v2 is the
+  > player's only ability path. Eight previously untracked defects filed as **BUG-080…BUG-087**,
+  > including `ON_PLAYER_DEATH` having zero subscribers (death is a permanent hard lock) and the
+  > absence of any `.asmdef` (TD-014's precondition — the first EditMode test cannot be written).
+  > See `docs/CHANGELOG-DOCS.md` for the per-document trail.
+  >
+  > **Previous entry — 2026-09-21 (HEAD `15242e6`, branch `origin/feature/fix-player-control`)** —
   > **Abilities v2 re-synchronisation.** The Abilities effect and runtime layers were replaced
   > wholesale during sprints 13-14 (`8295539` … `7cceda2`) with no doc update. Recorded here now:
   > (a) the `SkillState` enum is **`AbilityState`** and has no `None` member — six documents carried
@@ -135,6 +154,8 @@
             PlayerTakeDamageState.cs
             PlayerDeathState.cs                 # `: PlayerDisadvantageState`, constructed in Player.Awake():58, emits ON_PLAYER_DEATH on EndRangeTrigger.
                                                 # ⚠️ Enter() no longer stops PlayerMovement — **BUG-065 OPEN**
+                                                # ⚠️ LogicUpdate() never consumes Status → ON_PLAYER_DEATH emitted EVERY FRAME — **BUG-086 OPEN**
+                                                # ⚠️ that event has ZERO subscribers and no GameManager exists — **BUG-087 OPEN**
             PlayerResourceReceiverState.cs      # ✅ NEW (2026-09-07, `9f1258c`) — item pickup state
             PlayerEquidUnequid.cs, PlayerIntertorState.cs
             PlayerUserItemState.cs              # ⚠️ Stub — extends MonoBehaviour (wrong base class, TD-001)
@@ -157,6 +178,8 @@
                                                 # applies Defense via DamageCalculate(), writes EntityVitalStats, refreshes EntityUIController.
                                                 # No PlayerInputHandler, no ON_PLAYER_DEATH
             EntityVitalStats.cs                 # ✅ NEW — current HP/stat store. ⚠️ unguarded `currentStats[statType]` → **BUG-066 OPEN**
+                                                # (same defect as BUG-070 on the player side). ✅ Has Reborn() called from Start() AND OnEnable() —
+                                                # the pattern VitalStatsComponent is missing (BUG-087)
             EntityStatsHandler.cs               # ✅ NEW — max-stat façade over the entity's stat SO
             EntityUIController.cs               # ✅ NEW — per-enemy health bar driver
             EntityMovement.cs                   # Chase / flee / wander; pulls the grid from EnemyManager.Instance
@@ -188,9 +211,13 @@
                                                 # Also declares `AbilityActivationType`, `StatCost`, `GetCostValues()` and the
                                                 # **`AbilityState`** enum (Start/Cast/Do/Exit) — ⚠️ renamed from `SkillState`, `None` removed
             AbilityInstance.cs                  # Per-owner runtime state: cooldown, hold time, TryActivateInstant/TryCastInstant/TryDoInstant/Exit.
-                                                # ⚠️ Exit() body commented out (BUG-079); TryPayCost() re-charged per effect (BUG-076)
+                                                # ⚠️ Exit() body commented out (BUG-079 — but StartHold() resets state, so abilities DO re-cast).
+                                                # ⚠️ Hold abilities re-charge per-effect cost every dispatch; TryPayEffectCost() never checks
+                                                # affordability; conditions evaluated 3× per activation (all BUG-076, re-scoped 2026-09-22)
             AbilityContext.cs                   # Caster/Origin/Forward/TargetPoint/HoldTime/HoldRatio/Services.
                                                 # ✅ Also declares `IAbilityServices` + `AbilityServices` (Pool/Stats/ResourceReceiver/Vital/NegativeReceiver)
+                                                # ⚠️ ctor (:37-47) never assigns NegativeReceiver → always null → NO v2 EFFECT DEALS DAMAGE — **BUG-072**
+                                                # ⚠️ HoldTime/HoldRatio are plain fields snapshotted before StartHold() zeroes the timer → always 0f — **BUG-083**
             AbilitySlot.cs                      # Enum: Primary, Secondary, Utility, Ultimate
             AbilityEffectDefinition.cs          # Abstract SO: AbilityName, SubConditions, SubEffects, Apply(), virtual Casting().
                                                 # Also declares `StatImpactType` (Recovery/Reduction)
@@ -199,22 +226,25 @@
             SpawnEffectBase.cs                  # Abstract: Prefab (SpawnMono), SpawnOffset, Lifetime; pools + Launch()es the object
             SpawnProjectileEffect.cs            # `: SpawnEffectBase` — baseDamage; angle from context.Forward
             SpawnSummonEffect.cs                # `: SpawnEffectBase` — summonPrefab; spawns at TargetPoint.
-                                                # ⚠️ Casting() return inverted + double spawn (BUG-078)
+                                                # ⚠️ double spawn from TWO prefab fields — Casting() spawns `Prefab`, Apply() spawns `summonPrefab` (BUG-078, still open).
+                                                # ✅ inverted return FIXED in 73ab8e7. ⚠️ Apply() never sets _context but SpawnPos() reads it — do not split them
             StatEffectBase.cs                   # ⚠️ file/class mismatch: class is `StatsEffectBase`. Groups a StatModifierGroup by StatType
             RecoveryReductionStatsEffect.cs     # `: StatsEffectBase` — instant Vital.Recovery / .Reduction
-            RecoveryReductionPerTimeForDuration.cs  # `: StatsEffectBase` — HoT/DoT. ⚠️ coroutine never started (BUG-071)
+            RecoveryReductionPerTimeForDuration.cs  # `: StatsEffectBase` — HoT/DoT. ⚠️ coroutine never started, not even first tick (BUG-071)
             BuffDebuffStatsForDuration.cs       # `: AbilityEffectDefinition` — timed StatModifierGroup via IVitalComponent
           Conditions/
-            HasEnoughManaCondition.cs           # ⚠️ writes runtime values into serialized public SO fields (BUG-077)
-            NotDeadCondition.cs                 # ⚠️ body commented out — always returns true
+            HasEnoughManaCondition.cs           # ⚠️ writes runtime values into serialized public SO fields — and never reads them back (BUG-077).
+                                                # ⚠️ one shared asset across all 4 Paladin abilities; checks Mana ONLY, so HP costs go unvalidated
+            NotDeadCondition.cs                 # ⚠️ body commented out — always returns true (**BUG-085**, dormant: no asset references it)
           Runtime/                              # ⚠️ AbilityRuntimeHelpers / SpiritOrbProjectile / SpiritDoTBehaviour all DELETED
             BaseController/SpawnMono.cs         # `: MonoBehaviour, ISpawn` — Launch(lifetime, ctx, callback) + despawn coroutine
             SpawnMono/Interface/ISpawn.cs
             SpawnMono/SpawnProjectileBase.cs    # `: SpawnMono` — Rigidbody2D + CircleCollider2D, speed.
-                                                # ⚠️ uses the 3D `OnTriggerEnter(Collider)` — never fires (BUG-075)
+                                                # ⚠️ uses the 3D `OnTriggerEnter(Collider)` — never fires, COMPILES CLEAN WITH NO WARNING (BUG-075).
+                                                # :32 is the ONLY writer of Services.NegativeReceiver repo-wide → BUG-072
             SpawnMono/SpawnSummonBase.cs        # `: SpawnMono` — Animator; Execute() invoked by a Unity Animation Event
             SpawnMono/SlashProjectile.cs        # `: SpawnProjectileBase` (Paladin Blessed Slash)
-            SpawnMono/LightningController.cs    # `: SpawnSummonBase` — random Animator "Index" 0-9. ⚠️ target query is a TODO comment (BUG-072)
+            SpawnMono/LightningController.cs    # `: SpawnSummonBase` — random Animator "Index" 0-9. ⚠️ Execute() target query is still 3 comment lines (BUG-072)
             SpawnMono/RuneCircleController.cs   # `: SpawnSummonBase` — empty body
         Skill_Ability/                          # ⚠️ **Abilities v1 (legacy)** — still compiled and still referenced by
                                                 # WeaponStats.AbilityWeapon/SkillWeapon, AttackSO.ability, Weapon.currentAbilitySO
@@ -229,8 +259,9 @@
           StatType.cs                           # Enum: primary STR/DEX/INT/VIT/LUK (0-4); derived HP/Mana/PhysicalDamage/MagicDamage/
                                                 # Defense/AttackSpeed/CritChance/CritDamage/MoveSpeed/HPRegen/ManaRegen/Evasion (100-111)
           Stat.cs                               # BaseValue/LevelUpValue/EquipmentValue/EquipmentByPrimaryValue/AdjustedValue/FinalValue + modifier list.
-                                                # ⚠️ **BUG-063 OPEN** — `modifiers` is re-serialized behind `#if UNITY_EDITOR [SerializeField]` (Stat.cs:63-65),
-                                                # undoing the 2026-08-21 fix recorded as NEW-4
+                                                # ⚠️ **BUG-063 OPEN** — `modifiers` is re-serialized behind `#if UNITY_EDITOR [SerializeField]` (Stat.cs:63-66),
+                                                # undoing the 2026-08-21 fix recorded as NEW-4. ⚠️ the guard is NOT a mitigation:
+                                                # Play Mode in the Editor IS UNITY_EDITOR — see the capitalised warning at Stat.cs:49-62
           StatModifier.cs                       # Authored (targetStat/type/value) + runtime Source ([NonSerialized], stamped by WithSource())
           StatModifierGroup.cs                  # Plain [System.Serializable] class embedded in WeaponStats (ADR-0001). Field `authoredModifiers` stays serialized
           DerivedStatFormula.cs                 # baseConstant + level×perLevel + Σ(primary × coefficient)
@@ -432,6 +463,8 @@
       PlayerTakeDamageState
       PlayerDeathState        — emits ON_PLAYER_DEATH on EndRangeTrigger.
                                 ⚠️ Enter() does NOT stop PlayerMovement — BUG-065
+                                ⚠️ LogicUpdate() re-emits ON_PLAYER_DEATH every frame — BUG-086
+                                ⚠️ nothing subscribes to that event; no GameManager; no player-side Reborn() — BUG-087
   ```
 
   Animation handoff uses the **`StatusAnimation` enum**, not boolean flags. Animation events on the
@@ -522,12 +555,48 @@
   and `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` — ⚠️ the ShootSpirit assets now
   reference deleted scripts (BUG-073).
 
-  > 🐞 **v2 is not healthy.** Open at HEAD `15242e6`: BUG-068 (NRE on unbound slot), BUG-069
-  > (cooldown never enforced), BUG-071 (HoT/DoT coroutine never started), BUG-072 (summon has no
-  > target resolution), BUG-073 (assets reference deleted scripts), BUG-074 (stat effect formula),
-  > BUG-075 (projectile uses 3D `OnTriggerEnter` — never fires), BUG-076 (cost charged once per
-  > effect), BUG-077 (condition SO serializes runtime state), BUG-078 (`SpawnSummonEffect.Casting()`
-  > inverted + double spawn), BUG-079 (`AbilityInstance.Exit()` is a no-op, state stuck).
+  > 🐞 **v2 does not currently work.** Re-verified against source 2026-09-22 (HEAD `d17fcc5`).
+  >
+  > **No v2 ability deals damage at HEAD — from two independent, unrelated implementation gaps.**
+  > Not, as an earlier draft of this block claimed, from one architectural flaw; that framing was
+  > withdrawn on 2026-09-22 after owner review.
+  >
+  > | Path | Why it deals no damage | Fix |
+  > |---|---|---|
+  > | Projectile | `SpawnProjectileBase.cs:29` declares the **3D** `OnTriggerEnter(Collider)`; Unity never dispatches it, so the receiver is never assigned and the callback never fires | **BUG-075** — one word, `OnTriggerEnter2D(Collider2D)` |
+  > | Summon | `LightningController.Execute()` (`:12-19`) has its overlap query as three comment lines, so it calls `base.Execute()` without ever assigning a receiver | **BUG-072** — implement the query |
+  >
+  > The two are independent: fixing BUG-075 restores projectile damage on its own. The
+  > **set-then-invoke pattern itself is intentional and correct** — `SpawnProjectileBase.cs:31-33`
+  > assigns `Services.NegativeReceiver` and invokes the callback in adjacent synchronous statements,
+  > and the summon side has the same wiring in place (`SpawnSummonBase.cs:12-15` fires the callback
+  > from a Unity Animation Event; `LightningController.cs:18` calls `base.Execute()`). The
+  > `if (negativeReceiver != null)` guard in both effects is deliberate: act if a receiver was
+  > supplied, skip if not.
+  >
+  > Also open: BUG-071 (HoT/DoT coroutine never started — not even the first tick), BUG-073
+  > (`ShootSpirit.asset` references a script GUID that resolves to no file), BUG-074 (stat effect
+  > applies the modifier total, not the delta), BUG-076 (re-scoped twice — what remains is that
+  > `TryPayCost()` has no affordability gate and `HasEnoughManaCondition` covers Mana only, so
+  > Avatar of Light's 50 HP cost is unvalidated; plus conditions walked 3× per activation),
+  > BUG-077 (condition SO writes runtime state into a committed asset, shared by all four Paladin
+  > abilities), BUG-082 (unreachable null guard), BUG-083 (`HoldTime`/`HoldRatio` always `0f` —
+  > charge scaling is dead), BUG-085 (`NotDeadCondition` always true).
+  >
+  > Dormant / downgraded: BUG-068 (S3 — `GetAbility()` has zero callers), BUG-079 (S3 — layering,
+  > not the "castable once per scene load" lock previously claimed).
+  >
+  > ✅ Closed since: BUG-069 (cooldown now enforced end to end); BUG-078 (half fixed in `73ab8e7`,
+  > half retracted — the two-object spawn is the intended telegraph-then-strike shape, verified
+  > against `Paladin Spawn Consecrat Effect.asset`: `Prefab` = RuneCircle, `summonPrefab` =
+  > Lightning).
+  >
+  > ✅ Confirmed by design, not defects: the channelled per-effect cost on Hold abilities, and the
+  > `if (negativeReceiver != null)` guard pattern in the spawn effects.
+  >
+  > ⚠️ **The real blocker is still that there is no GDD for v2.** `Casting()`'s contract, the cost
+  > model, the cooldown model and the spawn-callback contract are all undefined, so BUG-076,
+  > BUG-078 and BUG-072 cannot be fixed without a design decision first. See demo-checklist item 21.
 
   **Abilities v1 — `System/Skill_Ability/` — the WEAPON and ENEMY path.** Inheritance-based
   `ActivateSkill` SO with lifecycle `Enter(player) → Activate() → Cast() → Do() → Exit()`. Still
@@ -557,14 +626,36 @@
         → EntityInput.OnTakeDamage(attackPosition)
         → EntityUIController.UpdateUIHealth(current / max)
     → EntityBasicState death check → EntityDeathState → ON_ENEMY_DEATH
-    ⚠️ BUG-066 OPEN — EntityVitalStats indexes currentStats[statType] with no key guard
+    ⚠️ BUG-066 OPEN — EntityVitalStats indexes currentStats[statType] with no key guard (BUG-070 is the same defect on the player side)
 
-  # Enemy hits player — ✅ works
+  # Enemy hits player — ⚠️ damage lands, but the death branch is a dead end
   EntityAttackState → EntityWeapon.Attack() (or EntityAttack.Attack(), BUG-043 partial)
     → INegativeReceiver.TakeDamage()
-    → NegativeReciver → VitalStatsComponent.ReceiveReduction(StatType.HP, …)
-    → PlayerDeathState emits ON_PLAYER_DEATH at zero
+    ⚠️ TWO implementers on PlayerTest.prefab with byte-identical bodies — NegativeReciver and
+       ResourceReceiver. Which one runs is decided by collider layout, not by design — BUG-081
+    → VitalStatsComponent.Reduction(StatType.HP, …)     ⚠️ unguarded dictionary indexer — BUG-070
+    → PlayerBasicState.cs:74 reads GetCurrentStatValue(HP) → PlayerDeathState at zero
+    → PlayerDeathState emits ON_PLAYER_DEATH … EVERY FRAME, unbounded — BUG-086
+    ⚠️ and NOTHING subscribes to it. No GameManager exists. VitalStatsComponent has no Reborn().
+       ON_REALOAD_GAME has 0 emitters and 0 subscribers. Death is a PERMANENT HARD LOCK — BUG-087
     ⚠️ PlayerData.currentHealth still never written (Bug #6 / S10-08)
+
+  # Player ability hits anything — ❌ deals no damage today (verified 2026-09-22)
+  PlayerSkillWeaponState → AbilityHolder.HandleInput() → AbilityInstance → effect.Apply()
+    → SpawnEffectBase.Apply() → Services.Pool.Spawn() → SpawnMono.Launch(lifetime, ctx, callback)
+
+  The intended contract (correct, and correctly implemented on the projectile side):
+      whoever detects a hit assigns ctx.Services.NegativeReceiver, THEN invokes the callback.
+      SpawnProjectileBase.cs:31-33 is the reference implementation of that pattern.
+      The `if (negativeReceiver != null)` guard in both effects is deliberate: act if supplied, skip if not.
+
+  Two independent gaps break it — neither is a design flaw:
+    → projectile: SpawnProjectileBase.OnTriggerEnter(Collider)   ← 3D signature, NEVER DISPATCHED (BUG-075)
+                  so the assign+invoke pair at :31-33 never runs at all
+    → summon:     LightningController.Execute() :12-19           ← overlap query is 3 comment lines (BUG-072)
+                  base.Execute() :18 DOES invoke the callback — with no receiver assigned
+    ⇒ both effects skip their guard and no-op silently. Fix BUG-075 → projectiles work.
+      Fix BUG-072 → summons work. Independent of each other.
 
   # Projectile hits anything
   Projectile.CheckCollisions() → Raycast → INegativeReceiver.TakeDamage()
@@ -678,10 +769,30 @@
 
   ## Known Bugs (block demo)
 
-  > **Re-verified against source 2026-09-11 (HEAD `6d6a8e4`).** IDs #1–#17 are the historical
-  > CLAUDE.md numbering; BUG-0NN IDs come from `production/qa/bugs/` and the sprint files.
+  > **Re-verified against source 2026-09-22 (HEAD `d17fcc5`, merge of `e2cb75e`).** IDs #1–#17 are the
+  > historical CLAUDE.md numbering; BUG-0NN IDs come from `production/qa/bugs/` and the sprint files.
+  > Every BUG-0NN row below was re-read from source in this pass; each bug file carries the evidence
+  > under a dated `## Re-verification — 2026-09-22` heading.
   >
-  > **Three corrections this pass** — the previous table was wrong on all three:
+  > **Status changes this pass:** BUG-069 → **FIXED**; BUG-067 → **FIXED** (with BUG-080 and BUG-081
+  > split out of it, *not* closed with it); BUG-078 → **PARTIAL**; BUG-076 → **RE-SCOPED**;
+  > BUG-079 → **S3** (downgraded); BUG-072 → **CONFIRMED** and widened to "no v2 effect deals damage".
+  >
+  > **Three claims corrected this pass** — all three came from the 2026-09-21 pass and none survive
+  > a read of source:
+  > - **BUG-063** was described as partly mitigated by its `#if UNITY_EDITOR` guard. It is not
+  >   mitigated at all — Play Mode in the Editor *is* `UNITY_EDITOR`, the exact leak path the
+  >   comment at `Stat.cs:49-62` warns about in capitals.
+  > - **BUG-079** claimed an `Active` ability is "castable once per scene load". False —
+  >   `AbilityHolder.StartHold()` (`:143-148`) forces `ChangeState(AbilityState.Start)` on every fresh
+  >   press. The bug is a layering defect, not a functional lock.
+  > - **BUG-074** was recorded as having a work-in-progress fix in `Utility.cs`. There is none —
+  >   `git status` is clean and the file contains no such edit.
+  >
+  > **Eight defects filed for the first time:** BUG-080…BUG-087. Two of them (BUG-084, BUG-087) are
+  > preconditions that invalidate existing sprint estimates, not ordinary bugs.
+  >
+  > **Previous pass — three corrections on 2026-09-11** — the table before that was wrong on all three:
   > - **BUG-053** was listed OPEN. It is **FIXED** (`f3f5f08`, confirmed in `production/qa/bugs/BUG-053.md`
   >   on 2026-09-06). This table simply never followed the bug file.
   > - **BUG-044** claimed the fix "properly stops `PlayerMovement`". It does not —
@@ -713,23 +824,31 @@
   | BUG-033 | LOGIC | ✅ FIXED | `EnemySpawner` null-check order — now tests `set == null` before `.Count` | [EnemySpawner.cs](Assets/Script/System/Enemy/EnemySpawner.cs) |
   | BUG-052 | DOC | ⚠️ OPEN (widened) | Live subsystems with no ADR. Originally `Character/Base/`, `Pathfinding/`, `Poolable/`. **Now also**: the Item system, Abilities v2, and the UI layer. VContainer was in this set until ADR-0004 landed on 2026-09-11 | — |
   | BUG-053 | LOGIC | ✅ **FIXED** | `EntityNegativeReciver` ran player-only logic on an enemy. Rewritten in the Sprint 12 entity/stat refactor: Defense-aware `DamageCalculate()` → `EntityVitalStats` → `EntityUIController`. No `PlayerInputHandler`, no `ON_PLAYER_DEATH` | [EntityNegativeReciver.cs](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs) |
-  | BUG-063 | DATA | ⚠️ **OPEN (regression)** | `Stat.modifiers` re-serialized via `#if UNITY_EDITOR` + `[SerializeField]` — reopens the data-corruption bug that `f5de65a` closed. Runtime buffs can again be written into committed `.asset` files. One-line fix, carried 24+ cycles | [Stat.cs:63-65](Assets/Script/System/StatSystem/Stat.cs#L63) |
+  | BUG-063 | DATA | ⚠️ **OPEN (regression)** | `Stat.modifiers` re-serialized via `#if UNITY_EDITOR` + `[SerializeField]` (`Stat.cs:63-66`). ⚠️ **Corrected 2026-09-22: the `#if UNITY_EDITOR` guard is NOT a mitigation** — Play Mode in the Editor *is* `UNITY_EDITOR`, which is exactly the leak path the comment block at `Stat.cs:49-62` warns about in capitals. The guard only protects the player build, where `.asset` files are read-only anyway. One-line fix, carried 29+ cycles | [Stat.cs:63-66](Assets/Script/System/StatSystem/Stat.cs#L63) |
   | BUG-064 | BUILD | ⚠️ PARTIAL | Entity refactor deleted types without sweeping callers. Sub-items 1–6 fixed; **sub-item 7 (`RangeWeapon` DI wiring) still open** | [RangeWeapon.cs](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs) |
   | BUG-065 | LOGIC | ⚠️ OPEN | `PlayerDeathState.Enter()` only calls `base.Enter()` — the player keeps sliding during the death animation | [PlayerDeathState.cs:10](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10) |
-  | BUG-066 | LOGIC | ⚠️ OPEN | `EntityVitalStats` indexes `currentStats[statType]` with no key-existence guard → `KeyNotFoundException` for any `StatType` missing from an entity's profile | [EntityVitalStats.cs](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs) |
-  | BUG-067 | LOGIC | ⚠️ Apparently fixed (unverified) | `ResourceReceiver` heal/damage calls swapped — picking up a healing item damaged the player | [ResourceReceiver.cs](Assets/Script/Character/Player/CoreComponent/ResourceReceiver.cs) |
-  | BUG-068 | LOGIC | ⚠️ OPEN | `AbilityHolder.GetAbility()` dereferences `currentAbility.Definition` with no null check → NRE on any unbound `AbilitySlot` | [AbilityHolder.cs:97](Assets/Script/Character/Player/CoreComponent/AbilityHolder.cs#L97) |
-  | BUG-069 | LOGIC | ⚠️ OPEN | `AbilityInstance.CanStart()` cooldown gate has no enforcing caller — abilities can be spammed | [AbilityInstance.cs:95](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L95) |
-  | BUG-070 | LOGIC | ⚠️ OPEN | `VitalStatsComponent` indexes `currentStats[statType]` unguarded — player-side twin of BUG-066 | [VitalComponent.cs](Assets/Script/Character/Player/CoreComponent/VitalComponent.cs) |
-  | BUG-071 | LOGIC | ⚠️ OPEN | `VitalStatsComponent.RecoveryPerTimeForDuration` / `ReductionPerTimeForDuration` create a coroutine but never `StartCoroutine` it — every HoT/DoT effect is a silent no-op | [VitalComponent.cs](Assets/Script/Character/Player/CoreComponent/VitalComponent.cs) |
-  | BUG-072 | LOGIC | ⚠️ OPEN | `SpawnSummonEffect.SummonExecute` has no target resolution — reads the shared `Services.NegativeReceiver`, which is null or stale. `LightningController.Execute()` target query is still a TODO comment | [LightningController.cs:12](Assets/Script/System/Abilities/Runtime/SpawnMono/LightningController.cs#L12) |
-  | BUG-073 | BUILD | ⚠️ OPEN | `ShootSpirit.asset` / `SpiritProjcetile.prefab` reference scripts deleted in the sprint-13/14 effect rewrite — missing-script refs on live assets | [ShootSpirit.asset](Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset) |
-  | BUG-074 | LOGIC | ⚠️ OPEN | `StatsEffectBase.Apply` passes the modifier RESULT as the recovery/reduction amount instead of the delta — a "heal 20%" effect heals 120% of current | [StatEffectBase.cs:27](Assets/Script/System/Abilities/Effects/StatEffectBase.cs#L27) |
-  | BUG-075 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | `SpawnProjectileBase` declares the **3D** `OnTriggerEnter(Collider)` in a 2D project — Unity never dispatches it, so every projectile ability deals zero damage | [SpawnProjectileBase.cs:29](Assets/Script/System/Abilities/Runtime/SpawnMono/SpawnProjectileBase.cs#L29) |
-  | BUG-076 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | Ability cost paid once in `TryActivateInstant()` and then again per effect inside `Casting()` — a 3-effect ability charges its full `Costs` four times | [AbilityInstance.cs:84](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L84) |
-  | BUG-077 | DATA | ⚠️ **OPEN (new 2026-09-21)** | `HasEnoughManaCondition.currentMana` / `.costMana` are public serialized fields written every `IsMet()` — runtime state committed into `Has Enough Mana Condition.asset`. Same class as BUG-063 | [HasEnoughManaCondition.cs:6](Assets/Script/System/Abilities/Conditions/HasEnoughManaCondition.cs#L6) |
-  | BUG-078 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | `SpawnSummonEffect.Casting()` returns its gate inverted (charges cost on failure) and spawns the summon in both `Casting()` and `Apply()` | [SpawnSummonEffect.cs:20](Assets/Script/System/Abilities/Effects/SpawnSummonEffect.cs#L20) |
-  | BUG-079 | LOGIC | ⚠️ **OPEN (new 2026-09-21)** | `AbilityInstance.Exit()` body is commented out — `State` never returns to `Start`, so an `Active` ability is castable once per scene load | [AbilityInstance.cs:72](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L72) |
+  | BUG-066 | LOGIC | ⚠️ OPEN | `EntityVitalStats` indexes `currentStats[statType]` with no key guard (`:39,49,55,61,67`) → `KeyNotFoundException`. **Same defect as BUG-070, two instances** — fix and close together | [EntityVitalStats.cs:39](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs#L39) |
+  | BUG-067 | LOGIC | ✅ **FIXED** (verified 2026-09-22) | `ResourceReceiver` heal/damage polarity is correct (`:17-24`); consumer `RecoveryEffectDefinition.cs:13` confirms. ⚠️ Two *unrelated* defects found in the same file were split out, **not** closed with it: **BUG-080** and **BUG-081** | [ResourceReceiver.cs:17](Assets/Script/Character/Player/CoreComponent/ResourceReceiver.cs#L17) |
+  | BUG-068 | LOGIC | ⚠️ OPEN (S3, dormant) | `AbilityHolder.GetAbility()` discards the `TryGetValue` bool then dereferences `currentAbility.Definition` (`:97`). **Zero callers project-wide** — dead code carrying a live defect. Also `CurrentActivationType` (`:22`) dereferences unguarded where `:21` beside it uses `?.`; its one caller is safe only by accident of call ordering | [AbilityHolder.cs:93](Assets/Script/Character/Player/CoreComponent/AbilityHolder.cs#L93) |
+  | BUG-069 | LOGIC | ✅ **FIXED** (verified 2026-09-22) | Cooldown now enforced end to end: `CanStart()` called at `AbilityHolder.cs:107`, set by `StartCooldown()` (`AbilityInstance.cs:192`), ticked by `Tick()` (`:23-30`) via `Processing()` (`AbilityHolder.cs:51`) from `PlayerBasicState.cs:32` / `PlayerSkillWeaponState.cs:68`. Residual: `Processing()` only runs in those two states, so cooldowns stall elsewhere — fails **tighter**, not looser | [AbilityInstance.cs:95](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L95) |
+  | BUG-070 | LOGIC | ⚠️ OPEN | `VitalStatsComponent` indexes `currentStats[statType]` unguarded (`:28,39,41,46,52,54,58`). `:28` is on the **live death path** (`PlayerBasicState.cs:74`). **Same defect as BUG-066** | [VitalComponent.cs:28](Assets/Script/Character/Player/CoreComponent/VitalComponent.cs#L28) |
+  | BUG-071 | LOGIC | ⚠️ OPEN | `RecoveryPerTimeForDuration` / `ReductionPerTimeForDuration` (`VitalComponent.cs:63-75`) build an iterator and never `StartCoroutine` it — **not even the first tick runs**. Sibling `BuffDebuffForDuration` (`:102-105`) does it right. Two more defects hide behind it: `count` is computed then discarded (`duration` is passed where a tick count is expected), and the recursion re-enters the wrapper (`:84`, `:95`), leaking a coroutine per tick | [VitalComponent.cs:63](Assets/Script/Character/Player/CoreComponent/VitalComponent.cs#L63) |
+  | BUG-072 | LOGIC | ⚠️ **OPEN** (scope corrected 2026-09-22 after owner review) | `LightningController.Execute()` (`:12-19`) still has its target query as three comment lines, so it invokes the callback without ever assigning `Services.NegativeReceiver` — summon abilities deal no damage. ⚠️ **The earlier "architectural root cause" framing is WITHDRAWN.** The set-then-invoke pattern is intentional and correctly implemented at `SpawnProjectileBase.cs:31-33`; the summon invoke wiring exists too (`SpawnSummonBase.cs:12-15` fires from a Unity Animation Event, `LightningController.cs:18` calls `base.Execute()`). Only the overlap query is missing. Fix = `OverlapCircleNonAlloc` + assign receiver + invoke, per target | [LightningController.cs:12](Assets/Script/System/Abilities/Runtime/SpawnMono/LightningController.cs#L12) |
+  | BUG-073 | BUILD | ⚠️ OPEN — **CONFIRMED by GUID** | `ShootSpirit.asset:12` references script guid `ac9ac7c011812d042ac992007bc0cf48`; resolving it against every `.meta` under `Assets/` returns **0 files**. Still reachable: `PlayerTest.prefab` → `SpiritBomd.asset` → this asset. Also `SpawnEffectBase.cs:14,30` still log the deleted class names `[ShootSpiritOrbEffect]` / `SpiritOrbProjectile` | [ShootSpirit.asset](Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset) |
+  | BUG-074 | LOGIC | ⚠️ OPEN | `StatsEffectBase.Apply` passes the modifier **total** as the recovery/reduction amount instead of the **delta** (`StatEffectBase.cs:26-29` → `Utility.cs:274-304`). HP 100 + a `PercentAdd 0.10` modifier heals **110**, not 10. `ModifierStatsCalculate` has exactly **one** caller, so changing the contract is safe — and the fix belongs at the call site (`delta = total - current`), not in the helper. ⚠️ **Corrected 2026-09-22: there is no work-in-progress fix** — `git status` is clean and `Utility.cs` contains no `finalValue` variable | [StatEffectBase.cs:27](Assets/Script/System/Abilities/Effects/StatEffectBase.cs#L27) |
+  | BUG-075 | LOGIC | ⚠️ **OPEN — re-confirmed 2026-09-22** | `SpawnProjectileBase.cs:29` declares the **3D** `OnTriggerEnter(Collider)` on a `Rigidbody2D` + `CircleCollider2D` class. ⚠️ **It compiles clean, with no warning and no Console output** — `UnityEngine.Collider` exists in every Unity project, and Unity simply never dispatches to it. A prior review dismissed this on the grounds that it would have errored; it does not. Confirm with a `Debug.Log`, not the Console. Consequence: projectile abilities deal zero damage. One-word fix, independent of BUG-072 | [SpawnProjectileBase.cs:29](Assets/Script/System/Abilities/Runtime/SpawnMono/SpawnProjectileBase.cs#L29) |
+  | BUG-076 | LOGIC | ⚠️ **OPEN (S2), re-scoped twice** | Original double-charge **fixed** by a design change in `73ab8e7` (two disjoint cost lists now exist). Owner review 2026-09-22 then resolved two of three replacement defects: **(a)** Hold re-charging per effect is **by design** (channelled cast) *and dormant* — no effect asset carries a per-effect `Costs` list; **(b)** effect-scope payment **is** gated by `CheckPayCostValid()` (`AbilityEffectDefinition.cs:20`) before `TryPayEffectCost()` — finding withdrawn, `Casting()` to be renamed `TryCasting()`. **Still open: (b′)** `TryPayCost()` (`AbilityInstance.cs:164-178`) has no affordability gate at all and `HasEnoughManaCondition` covers Mana only, so Avatar of Light's 50 HP cost is unvalidated and `Reduction` clamps at 0 → cast at low HP drains to zero without dying; **(c)** `Definition.Conditions` is walked **3×** per activation (`AbilityHolder.cs:109-112`, `AbilityInstance.cs:44`, `:166-171` — walks 2 and 3 five lines apart in one call), and each walk writes to a committed asset via BUG-077 | [AbilityInstance.cs:164](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L164) |
+  | BUG-077 | DATA | ⚠️ **OPEN** | `HasEnoughManaCondition.currentMana` / `.costMana` (`:6-7`) are public `ScriptableObject` fields written on every `IsMet()` (`:11-12`) — and **never read**: `:13-14` recompute both values for the comparison. Same class as BUG-063. GUID `02cbacd1d0342774abb852a2ed63f9b4` is shared by **all four Paladin abilities** (plus both ShootSpirit assets), which overwrite each other in one file, 3× per cast (BUG-076c). ⚠️ It checks **Mana only** — Avatar of Light costs 40 Mana **+ 50 HP** and the HP half is validated by nothing; `Reduction` clamps at 0, so casting at low HP silently drains to 0 without dying | [HasEnoughManaCondition.cs:6](Assets/Script/System/Abilities/Conditions/HasEnoughManaCondition.cs#L6) |
+  | BUG-078 | LOGIC | ✅ **CLOSED 2026-09-22 — half fixed, half by design** | Inverted `Casting()` return **fixed** in `73ab8e7` (`SpawnSummonEffect.cs:20-25`). The "double spawn" half was a **misreading and is retracted**: the effect deliberately drives two objects. Verified in `Paladin Spawn Consecrat Effect.asset` — `Prefab` = `RuneCircle.prefab` (Cast-phase telegraph, `Execute()` = do nothing, correct for something that deals no damage), `summonPrefab` = `Lightning.prefab` (Do-phase payload, `SummonExecute`). Telegraph-then-strike. No code change required | [SpawnSummonEffect.cs:14](Assets/Script/System/Abilities/Effects/SpawnSummonEffect.cs#L14) |
+  | BUG-079 | ARCH | ⚠️ OPEN (S3, downgraded) | `AbilityInstance.Exit()` body commented out (`:73-76`; the comment still names the pre-rename `SkillState`). ⚠️ **Corrected 2026-09-22: the "castable once per scene load" consequence is wrong** — `AbilityHolder.StartHold()` (`:143-148`) forces `ChangeState(AbilityState.Start)` on every fresh press via `PlayerInputHandle.cs:254-256`, so abilities do re-cast. What remains is a layering defect: the instance cannot reset itself, and any future activation path that skips `StartHold()` gets a stuck instance | [AbilityInstance.cs:73](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L73) |
+  | BUG-080 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `ResourceReceiver.vitalStatsComponent` is assigned only inside `ReceverModifierGroup()`; `Recovery()` / `Reduction()` / `BuffDebuffForDuration()` dereference it unresolved → NRE on the live item-pickup path. Split out of BUG-067 | [ResourceReceiver.cs:5](Assets/Script/Character/Player/CoreComponent/ResourceReceiver.cs#L5) |
+  | BUG-081 | ARCH | ⚠️ **OPEN (new 2026-09-22)** | Two `INegativeReceiver` implementers on the player, byte-identical bodies, **both on `PlayerTest.prefab`** — which one runs depends on collider layout. Player-side twin of BUG-053. Also: `EnemyPrefab.prefab` carries the *player* `NegativeReciver` | [ResourceReceiver.cs:29](Assets/Script/Character/Player/CoreComponent/ResourceReceiver.cs#L29) |
+  | BUG-082 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | Null check after dereference: `if (Costs.Count == 0 \|\| Costs == null)` — `\|\|` short-circuits so `.Count` throws first; the null test is unreachable. Latent only because Unity's serializer materialises empty lists | [AbilityEffectDefinition.cs:26](Assets/Script/System/Abilities/Core/AbilityEffectDefinition.cs#L26) |
+  | BUG-083 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `AbilityContext.HoldTime` / `.HoldRatio` are plain fields snapshotted by `BuildContext()` *before* `StartHold()` zeroes the counter, and never rebuilt — both are always `0f`, so every charge-scaling effect is dead. Masked today: all four Paladin abilities have `MaxHoldTime = 0` | [AbilityContext.cs:11](Assets/Script/System/Abilities/Core/AbilityContext.cs#L11) |
+  | BUG-084 | BUILD | ⚠️ **OPEN (new 2026-09-22)** | **Zero `.asmdef` under `Assets/`**, and `tests/EditMode` + `tests/PlayMode` sit *outside* `Assets/` — Unity compiles nothing there and Test Runner cannot discover a test. This is the precondition of TD-014, not a symptom: "write the first EditMode test" cannot start | — |
+  | BUG-085 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `NotDeadCondition.IsMet()` body is commented out, always returns `true`. Dormant — no asset references it — but it carries `[CreateAssetMenu]`, so a designer can author a silent no-op gate at any time | [NotDeadCondition.cs:6](Assets/Script/System/Abilities/Conditions/NotDeadCondition.cs#L6) |
+  | BUG-086 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `PlayerDeathState.LogicUpdate()` never consumes `Status` and never changes state → `Emit(ON_PLAYER_DEATH)` fires **every frame**, unbounded. Violates the durable-`Status` contract in `manager-event-code.md`. Was only a parenthetical inside BUG-065 | [PlayerDeathState.cs:14](Assets/Script/Character/Player/States/PlayerDeathState.cs#L14) |
+  | BUG-087 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `ON_PLAYER_DEATH` has **zero subscribers**; `grep GameManager Assets --include=*.cs` = 0 hits; player-side `VitalStatsComponent` has no `Reborn()`; `ON_REALOAD_GAME` has 0 emitters and 0 subscribers. **Death is a permanent hard lock.** Closes the open half of Bug #6 / S10-08. Enemy side has the pattern to copy (`EntityVitalStats.Reborn()`, called from `Start()` and `OnEnable()`) | [PlayerDeathState.cs:18](Assets/Script/Character/Player/States/PlayerDeathState.cs#L18) |
   | NEW-1 | LOGIC | ✅ FIXED | `EntityInput` target detection restored; `EntityFindTarget` performs FOV + range + obstacle checks | [EntityFindTarget.cs](Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs) |
   | NEW-2 | LOGIC | ✅ FIXED | `EntityStatsSO.ModifiersAmor` getter/setter recursion → `StackOverflowException`; entire `EntityStatsSO.cs` deleted, entities use `EnemyStatSO : BaseStatsSO` | — |
   | NEW-3 | LOGIC | ✅ FIXED | `RecalculateDerived()` skip-guard used `\|\|` where it needed `&&` — fixed on `sprint-10`, carried into `BaseStatsSO` | [BaseStatsSO.cs](Assets/Script/System/StatSystem/BaseStatsSO.cs) |
@@ -764,7 +883,7 @@
   3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` + `LevelManagerEditor`.
   4. ~~**Fix EventManager build break**~~ ✅ Done (Bug #10).
   5. ~~**Fix player melee damage**~~ ✅ Done (Bug #4).
-  6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` constructed and emitting `ON_PLAYER_DEATH`; ✅ health routes through `VitalStatsComponent`. Still needs: write `PlayerData.currentHealth`, a `GameManager` to subscribe + call `Reborn()` + reload `StartScene`, and **BUG-065** (stop `PlayerMovement` on death).
+  6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` constructed and emitting `ON_PLAYER_DEATH`; ✅ health routes through `VitalStatsComponent`. **Re-verified 2026-09-22: the remaining half is worse than recorded.** `ON_PLAYER_DEATH` has **zero subscribers**, `grep GameManager Assets --include=*.cs` returns **0 hits**, `VitalStatsComponent` has no reset path at all (`currentStats` is filled once in `Start()`), and `ON_REALOAD_GAME` has 0 emitters and 0 subscribers — so **death is a permanent hard lock with no recovery** (**BUG-087**). Also needs **BUG-086** (the event currently fires every frame) and **BUG-065** (stop `PlayerMovement` on death). The enemy side already has the pattern to copy: `EntityVitalStats.Reborn()`, called from both `Start()` and `OnEnable()`.
   7. ~~**Deploy enemy** (Bugs #5, #7, #8)~~ ✅ Done.
   8. ~~**Room clear condition**~~ ✅ Done — `RoomCell.EnemyCount` → `ON_CLEAR_ENEMY`.
   9. **HUD** ⚠️ — `UIManager` is still an empty stub. `StatsUIController`, `StatsScreenUIController` and UI Toolkit menus exist but have no GDD; the **player** health/mana bar is still displayed nowhere (enemies now have one via `EntityUIController`).
@@ -778,17 +897,36 @@
   17. ~~**Enemy damage/death chain**~~ ✅ Done (BUG-042/043/046/053, NEW-2) — one `INegativeReceiver` per side, Defense applied, health bar updated. ⚠️ Residual: BUG-066 key guard, BUG-043 `EntityAttack` duplicate.
   18. **Reconcile the two ability frameworks** ⚠️ NEW — decide whether `ActivateSkill` (v1) migrates to `AbilityDefinition` (v2) or stays as the weapon/enemy path permanently. Needs an ADR; blocks `design/gdd/skill-ability-system.md` from being authoritative again.
   19. **Fix BUG-063** ⚠️ NEW — one-line removal of the `#if UNITY_EDITOR [SerializeField]` on `Stat.modifiers`, before more runtime buffs are committed into `.asset` files.
-  20. **Zero tests** ⚠️ (TD-014) — `tests/EditMode/`, `tests/PlayMode/` still contain only `.gitkeep`.
-  21. **Make Abilities v2 actually work** ⚠️ NEW (2026-09-21) — v2 is the player's only ability path and
-      eleven defects are open against it. Minimum bar for the demo: BUG-075 (projectile trigger is the
-      3D signature — no projectile ability deals damage), BUG-076 (cost charged once per effect),
-      BUG-079 (`Exit()` no-op — an `Active` ability fires once per scene load), BUG-077 (condition SO
-      writes runtime state into a committed asset). BUG-072 + BUG-078 gate the Paladin Consecrate
-      summon. **A GDD for v2 is the real blocker** — `Casting()`'s contract, the cost model and the
-      cooldown model are all undefined, so BUG-076/BUG-078 cannot be fixed without a design decision.
+  20. **Zero tests** ⚠️ (TD-014) — `tests/EditMode/`, `tests/PlayMode/` still contain only `.gitkeep`. **Re-verified 2026-09-22: this is not merely unstarted, it is currently impossible** (**BUG-084**). There is **no `.asmdef` anywhere under `Assets/`** (`find Assets -name "*.asmdef"` = 0), so no assembly can reference `UnityEngine.TestRunner`; and `tests/` is a *sibling* of `Assets/`, so Unity compiles nothing in it regardless. The root `GameRPG.Combat.EditModeTests.csproj` is an untracked, stale IDE artifact pointing at an `Assets/Tests/` directory that does not exist. Every sprint story estimating "write the first EditMode test" at 0.3d is mis-scoped until BUG-084 is done.
+  21. **Make Abilities v2 actually work** ⚠️ (raised 2026-09-21, re-scoped 2026-09-22) — v2 is the
+      player's only ability path, and at HEAD it **deals no damage of any kind**. Fix in this order:
+      (1) **BUG-072 + BUG-075 together** — the 3D `OnTriggerEnter` is the only writer of
+      `Services.NegativeReceiver`, so fixing the signature is necessary but not sufficient; the
+      callback contract (`Action<AbilityContext>`, which has no parameter for the thing that was hit)
+      is the actual defect. (2) **BUG-077** — one-line deletion of two write-only serialized fields,
+      stops runtime state reaching a committed asset today. (3) **BUG-071** — HoT/DoT never starts;
+      fix all three defects in that block at once, not just the `StartCoroutine`. (4) **BUG-076 (a)**
+      — Hold abilities re-charge per-effect cost every dispatch, live on Blessed Slash.
+      (5) **BUG-078** double spawn and **BUG-074** delta-vs-total, both of which gate Consecrate.
+      Downgraded and no longer demo-blocking: BUG-068 (dead code), BUG-079 (layering, not a lock).
+      Closed: BUG-069. **A GDD for v2 is still the real blocker** — `Casting()`'s contract, the cost
+      model, the cooldown model and the spawn-callback contract are all undefined, so BUG-072,
+      BUG-076 and BUG-078 cannot be fixed without a design decision first.
   22. **Author the remaining Paladin ability animations** ⚠️ NEW (2026-09-21) — Consecrate now has all
       8 directions × 3 states wired into `Paladin Consecrate.overrideController`. Blessed Slash,
       Blessing and Avatar of Light still have no per-direction clips.
+  23. **Unlock the test pipeline** ⚠️ NEW (2026-09-22, **BUG-084**) — prerequisite for TD-014 and for
+      every "write the first EditMode test" story in sprints 14 and 15. No `.asmdef` exists anywhere
+      under `Assets/`, and `tests/EditMode` / `tests/PlayMode` sit outside `Assets/` where Unity
+      never compiles them. Needs: a decision on where tests live, a runtime `.asmdef` for gameplay
+      code (a breaking change in its own right — it splits `Assembly-CSharp` and surfaces every
+      implicit cross-directory dependency at once), a test `.asmdef`, and a correction to
+      `.claude/rules/test-standards.md`, which currently points at the non-compiling paths.
+  24. **Give player death a recovery path** ⚠️ NEW (2026-09-22, **BUG-087** + **BUG-086**) — split out
+      of item 6 because it is a feature, not a bug fix: a `GameManager` (scene component registered in
+      `GameLifetimeScope`, **not** a singleton), a `VitalStatsComponent.Reborn()` mirroring
+      `EntityVitalStats.cs:31-35`, and a subscriber for `ON_PLAYER_DEATH` — which must not be added
+      until BUG-086 stops the event firing every frame.
 
   ---
 
