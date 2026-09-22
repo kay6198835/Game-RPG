@@ -33,9 +33,9 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
     protected abstract Vector2 SpawnPos();
     protected abstract float Angle();
     protected abstract void Execute(AbilityContext currentContext);
-    public override bool Casting(AbilityContext context)
+    public override bool TryCast(AbilityContext context)
     {
-        if (!base.Casting(context)) return false;
+        if (!base.TryCast(context)) return false;
         return true;
     }
 }

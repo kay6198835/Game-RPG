@@ -8,7 +8,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
     public List<AbilityEffectDefinition> SubEffects;
     public List<StatCost> Costs;
     public abstract void Apply(AbilityContext context);
-    public virtual bool Casting(AbilityContext context)
+    public virtual bool TryCast(AbilityContext context)
     {
         if (SubConditions.Count > 0)
         {

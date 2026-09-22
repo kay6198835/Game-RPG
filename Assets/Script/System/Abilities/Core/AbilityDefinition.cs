@@ -46,6 +46,34 @@ public class AbilityDefinition : ScriptableObject
         }
     }
 #endif
+
+    public virtual bool TryStart(AbilityContext abilityContext)
+    {
+        if (
+            (Conditions == null || Conditions.Count == 0) &&
+            (Costs == null || Costs.Count == 0)
+            ) return true;
+        foreach (var condition in Conditions)
+        {
+            if (!condition.IsMet(abilityContext)) return false;
+        }
+        foreach (var cost in Costs)
+        {
+            if (cost.value > abilityContext.Services.Vital.GetCurrentStatValue(cost.statType)) return false;
+        }
+        return true;
+    }
+
+    protected virtual bool CheckPayCostValid(AbilityContext context)
+    {
+        if (Costs.Count == 0 || Costs == null) return true;
+        foreach (var cost in Costs)
+        {
+            if (cost.value > context.Services.Vital.GetCurrentStatValue(cost.statType)) return false;
+        }
+        return true;
+    }
+
     public float GetCostValues(StatType statType)
     {
         GetCostValues(statType, out float cost);

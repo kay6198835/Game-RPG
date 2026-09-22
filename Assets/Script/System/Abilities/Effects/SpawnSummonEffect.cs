@@ -17,9 +17,9 @@ public class SpawnSummonEffect : SpawnEffectBase
         var controller = obj.GetComponent<SpawnSummonBase>();
         controller.Launch(Lifetime, context, SummonExecute);
     }
-    public override bool Casting(AbilityContext context)
+    public override bool TryCast(AbilityContext context)
     {
-        if (!base.Casting(context)) return false;
+        if (!base.TryCast(context)) return false;
         base.Apply(context);
         return true;
     }

@@ -105,11 +105,6 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         }
         currentAbility = instance;
         if (!currentAbility.CanStart()) return false;
-        currentAbility.SetupContext();
-        foreach (var condition in currentAbility.Definition.Conditions)
-        {
-            if (!condition.IsMet(currentAbility.AbilityContext)) return false;
-        }
         core.Player.Anim.runtimeAnimatorController = currentAbility.Definition.AnimatorOverride;
 
         return true;
@@ -126,13 +121,13 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
         switch (instance.State)
         {
             case AbilityState.Start:
-                instance.TryActivateInstant();
+                instance.ActivateInstant();
                 break;
             case AbilityState.Cast:
-                instance.TryCastInstant();
+                instance.CastInstant();
                 break;
             case AbilityState.Do:
-                instance.TryDoInstant();
+                instance.DoInstant();
                 break;
             case AbilityState.Exit:
                 instance.Exit();
