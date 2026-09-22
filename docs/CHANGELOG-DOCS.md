@@ -72,6 +72,23 @@ It self-heals — the state has already moved to `Do`, so
 holder's flag is cleared on button release (`PlayerInputHandle.cs:243`/`:273`). Worth knowing before
 anything new reads `AbilityHolder.IsHolding`; not worth a fix on its own.
 
+### Reopen trigger recorded, same pass
+
+Owner decision: **BUG-089 is closed as scaffolding, not as resolved, and is to be reopened when the
+project reaches the demo or release phase** — which of the two is the owner’s call then.
+
+The two conditions that make it harmless today are both temporary. The serialized `Costs` field is
+visible in the Inspector on every effect asset with no in-code guard, so a designer will eventually
+author one; the rule added to `.claude/rules/weapon-skill-code.md` is the only thing in the way, and
+a rule in a file is not a guard in code. And force-release (gap 2) is correct by design but has
+**never actually run** — `Paladin Blessed Slash Ability.asset` is the only `Hold` ability and it
+carries no effect costs, so `CancelHold()` at `Casting():79` has never been reached in play. It is
+untested design, not proven design.
+
+`BUG-089.md` now ends with a seven-point re-check list, numbered to match the original gap audit so
+the two can be read side by side on reopening. The file must not be deleted or folded into another
+bug — that numbering is the checklist.
+
 ### Documents changed
 
 | Document | Change |

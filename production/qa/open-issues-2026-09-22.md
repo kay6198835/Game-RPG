@@ -149,7 +149,7 @@ longer, `HoldRatio` is the natural driver — so this gates that feature too.
 
 ---
 
-### BUG-089 — gain-tier scaffolding · ✅ **CLOSED, by design** · no action
+### BUG-089 — gain-tier scaffolding · ✅ **CLOSED, by design** · ⏭️ **reopen at demo/release**
 
 **Design.** A per-effect `Costs` entry is the price of an **upgrade tier**. Cannot afford it → the
 effect still runs, at its **default** level. Can afford it → the cost is charged and the effect runs
@@ -187,6 +187,14 @@ authored today would take the player’s resources and give nothing back. This i
    *after* the gate, so once effect costs are in use an unaffordable tier on a summon will remove
    the telegraph while the `Do`-phase payload still fires. Harmless today; Consecrate is Active and
    carries no effect costs.
+
+⏭️ **Reopen trigger, owner decision 2026-09-22:** this bug is closed as *scaffolding*, not as
+resolved, and is to be **reopened when the project reaches the demo or release phase** — which of
+the two is the owner’s call then. Two things flip at that moment: someone will author a per-effect
+`Costs` list (the field is serialized and visible on every effect asset, and a rule in a file is not
+a guard in code), and `Hold` abilities stop being one asset out of four — force-release is correct
+by design but has **never actually run**, because the only `Hold` ability carries no effect costs.
+The bug file holds a seven-point re-check list numbered to match the gap audit.
 
 **When the tier feature is picked up**, `BUG-089.md` is the specification. Decisions the code cannot
 infer, in order: what a tier changes; what shape holds the ladder; bought-once vs sustained; what
