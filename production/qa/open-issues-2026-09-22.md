@@ -9,7 +9,11 @@
 > remain authoritative and carry the full evidence chains and the dated correction history.
 > Regenerate or delete this file rather than letting it drift.
 >
-> **Counts:** 31 bug files — 10 closed/fixed, 1 accepted-deferred, 1 partial, **19 open**.
+> **Counts:** 31 bug files — 11 closed/fixed, 1 accepted-deferred, 1 partial, **18 open**.
+>
+> ✏️ **Updated 2026-09-22 after owner review round 4: BUG-089 is CLOSED.** The per-effect cost flow
+> is deliberate scaffolding for a gain-tier feature whose fields are not designed yet, and a refusal
+> force-releasing the ability is intentional. §1 below is superseded for that bug by its file.
 
 ---
 
@@ -21,7 +25,7 @@
 | **BUG-084** — no `.asmdef` anywhere, `tests/` outside `Assets/` | TD-014, and **every** sprint story that estimates "write the first EditMode test" at 0.3d |
 | **BUG-086** — `ON_PLAYER_DEATH` fires every frame | **BUG-087** — do not add a subscriber to that event until this is fixed |
 | **BUG-072** — `layerMask` not set on `Lightning.prefab` | summon abilities dealing damage; code is complete, this is one Inspector field |
-| No Abilities v2 GDD | **BUG-089** (the gain-tier feature), and the sustain-vs-purchase question |
+| No Abilities v2 GDD | nothing urgent — BUG-089 closed as by-design scaffolding. The GDD is still where the tier model belongs when that feature is picked up |
 | No ADR choosing v1 vs v2 (**TD-040**) | `design/gdd/skill-ability-system.md` being authoritative again |
 
 ---
@@ -145,35 +149,50 @@ longer, `HoldRatio` is the natural driver — so this gates that feature too.
 
 ---
 
-### BUG-089 — the gain-tier feature is unimplemented · S3 · dormant · **spec, not a patch**
+### BUG-089 — gain-tier scaffolding · ✅ **CLOSED, by design** · no action
 
-**Design, as stated by the owner.** A per-effect `Costs` entry is the price of an **upgrade tier**
-(*"cột mốc sức mạnh"*). Cannot afford it → the effect still runs, at its **default** level. Can
-afford it → the cost is charged and the effect runs at its **gained** level.
+**Design.** A per-effect `Costs` entry is the price of an **upgrade tier**. Cannot afford it → the
+effect still runs, at its **default** level. Can afford it → the cost is charged and the effect runs
+at its **gained** level. So `Execute()` calling `Apply()` unconditionally is **correct**: a `false`
+from `TryCast()` means “no upgrade”, not “no effect”. On a `Hold` ability a refusal additionally
+**force-releases** the ability — `Casting():79` calls `CancelHold()`, which clears the flag
+`CastInstant():52` tests, so the ability leaves the channel and resolves into `Do`. Deliberate.
 
-Under that design, `Execute()` calling `Apply()` unconditionally is **correct**, and the earlier
-reading of this bug ("a refused effect is applied anyway") is **withdrawn**.
+**Why it is closed rather than fixed.** The gain fields are **not designed yet**; the current flow is
+scaffolding laid down to open the path. Nothing is affected today, and that is checkable:
 
-**The implementation does not deliver the design.** Seven gaps; the first is decisive.
+| Ability asset | `ActivationType` |
+|---|---|
+| `Avatar of Light.asset` | `0` — Active |
+| `Blessing.asset` | `0` — Active |
+| `Consecrate.asset` | `0` — Active |
+| `Paladin Blessed Slash Ability.asset` | `1` — Hold |
 
-| # | Gap | Severity |
-|---|---|---|
-| 1 | **Paying buys nothing.** `Apply(AbilityContext)` receives no record that a cost was paid, and every concrete effect applies one fixed serialized value — `SpawnProjectileEffect.baseDamage`, `SpawnSummonEffect.baseDamage + PhysicalDamage`, `StatsEffectBase.statModifier`, `BuffDebuffStatsForDuration.statModifierGroup`. There is exactly one power level in the code, so affording the tier is **strictly worse** than not affording it | blocks the feature |
-| 2 | A refusal calls `CancelHold()`, clearing the flag `CastInstant():52` tests, which terminates the **whole channel** for **all** effects — instead of dropping that one effect to default | high |
-| 3 | `Costs` is a `List<StatCost>` that `CheckPayCostValid()` requires to be affordable **in full** and `PayCost()` charges **in full** — one all-or-nothing bundle, not a tier ladder. A ladder needs `List<AbilityGainTier>` with a cost bundle and a power delta per tier | high, data model |
-| 4 | Sustain-vs-purchase is undefined: while held, each animation loop re-enters `Casting()` and charges again. Nothing records that a tier was already bought | medium, decide before authoring |
-| 5 | If tiers are charge-driven, `HoldRatio` is the input — and it is always `0f` (**BUG-083**) | medium |
-| 6 | `Casting()` walks effects in list order and charges as it goes, so `Effects[0]` gets first claim on mana and Inspector order silently becomes balance | low |
-| 7 | `SpawnSummonEffect.TryCast()` spawns the Cast-phase telegraph **after** the gate, so a refused tier removes Consecrate's RuneCircle entirely while the `Do`-phase Lightning still fires | low, visible |
+Three of four are Active, so the `Hold` branch at `AbilityInstance.cs:50-53` is skipped for them
+entirely. And every effect asset has `SubConditions: []` with no serialized `Costs` key, so
+`TryCast()` returns `true` unconditionally and `CancelHold()` at `:79` is never reached.
 
-**Dormant.** Every live effect asset has `SubConditions: []` and **no serialized `Costs` key at
-all** — the field was added in `73ab8e7`, after those assets were authored, so Unity materialises an
-empty list on load. `TryCast()` therefore returns `true` unconditionally and none of the above can
-fire today. It becomes live the moment a designer fills either field in.
+⚠️ **The one thing not to do:** do **not** author a per-effect `Costs` list until the tier fields
+exist. Nothing carries “paid” through to `Apply()` and no effect has a second power level, so a cost
+authored today would take the player’s resources and give nothing back. This is now a rule in
+`.claude/rules/weapon-skill-code.md`.
 
-**Next step when picked up:** write the tier model into the Abilities v2 GDD *first* — ladder shape,
-purchase vs sustain, what "gained" changes, and which input selects the tier. Gaps 1, 3 and 4 are
-design decisions the code cannot infer.
+**Two things promoted out of this bug rather than dropped:**
+
+1. **Effect list order is authored data** — now a rule. `AbilityDefinition.Effects` order sets both
+   execution order (`Casting()` and `Execute()` both walk it by index) **and** resource priority
+   (`Effects[0]` has first claim, so a later effect can be refused because an earlier one spent the
+   resource). Reordering in the Inspector changes both. Treat as a balance decision.
+2. **Note for later** — `SpawnSummonEffect.TryCast()` (`:20-25`) spawns the Cast-phase telegraph
+   *after* the gate, so once effect costs are in use an unaffordable tier on a summon will remove
+   the telegraph while the `Do`-phase payload still fires. Harmless today; Consecrate is Active and
+   carries no effect costs.
+
+**When the tier feature is picked up**, `BUG-089.md` is the specification. Decisions the code cannot
+infer, in order: what a tier changes; what shape holds the ladder; bought-once vs sustained; what
+selects the tier (if hold duration, **BUG-083 must be fixed first** — `HoldRatio` is always `0f`);
+and how the result reaches `Apply()` (**not** a field on the effect asset — those are shared single
+instances, and that is BUG-077, closed by deleting the class that did it).
 
 ---
 
@@ -511,7 +530,7 @@ alongside `EntityWeapon` and hardcodes `TakeDamage(10, …)`, which `gameplay-co
 
 | # | Issue |
 |---|---|
-| I-1 | **No GDD for Abilities v2.** The narrow remaining questions: may a `TryCast()` override have side effects (Consecrate says yes and is correct to)? Is a per-effect cost bought once or sustained per animation loop? What does a gain tier change? — all three are BUG-089 prerequisites. Does **not** block the fixes in §1 |
+| I-1 | **No GDD for Abilities v2.** Narrower again after BUG-089 closed: the open questions (what a gain tier changes, ladder shape, bought-once vs sustained, what selects the tier) are all **future-feature** questions, not blockers. The one live convention worth writing down now is that a `TryCast()` override may have side effects — Consecrate relies on it. Does **not** block anything in §1 |
 | I-2 | **No ADR choosing Abilities v1 or v2** (TD-040). Both compile, both ship assets, they share no types |
 | I-3 | `production/sprints/sprint-15.md:39` says "Open bugs: 13". The real figure is **19** |
 | I-4 | BUG-075 … BUG-091 are in no sprint or carry-over list |
@@ -540,5 +559,5 @@ Ordered by working-state gained per unit of effort.
 | 9 | **BUG-074**, **BUG-083**, **BUG-079**, **BUG-068**, un-hardcode `AbilitySlot.Utility` | — | Remaining correctness |
 | 10 | **TD-048** — a pre-push compile hook | ~0.3d | Stops the next BUG-088 from ever reaching a branch tip |
 
-Deferred by decision or dependency: BUG-063 (owner decision), BUG-089 (needs the GDD),
+Deferred by decision or dependency: BUG-063 (owner decision), BUG-089 (**closed** — by-design scaffolding),
 BUG-084 / TD-044 (needs the `.asmdef` decision), BUG-052 / TD-040 (need ADRs).

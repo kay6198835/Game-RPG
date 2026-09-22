@@ -120,6 +120,26 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 - `AbilityContext.HoldTime` / `.HoldRatio` are **always `0f`** (BUG-083): they are plain fields
   snapshotted by `BuildContext()` before `StartHold()` zeroes the counter, and nothing rebuilds the
   context. Do not write a charge-scaling effect against them until that is fixed
+- **The order of `AbilityDefinition.Effects` is authored data, not an implementation detail.** It
+  decides two things at once, and reordering the list in the Inspector changes both:
+  1. **Execution order** — `AbilityInstance.Casting()` (`:68-82`) and `Execute()` (`:139-148`) both
+     walk the list in index order, so `Effects[0]` casts first and applies first
+  2. **Resource priority** — `Casting()` charges each effect’s cost as it goes, so `Effects[0]` has
+     first claim on the player’s resources and a later effect can be refused because an earlier one
+     already spent them
+
+  Treat the order as a balance decision. This is intentional, confirmed by the owner 2026-09-22
+- **Per-effect `Costs` is the price of an upgrade tier, not a go/no-go gate.** The intended
+  semantics: cannot afford it → the effect still runs, at its **default** level; can afford it → the
+  cost is charged and the effect runs at its **gained** level. So `Execute()` calling `Apply()`
+  unconditionally is **correct** — a `false` from `TryCast()` means “no upgrade”, not “no effect”.
+  On a `Hold` ability a refusal additionally **force-releases** the ability: `Casting():79` calls
+  `CancelHold()`, which clears the flag `CastInstant():52` tests, so the ability leaves the channel
+  and resolves into `Do`. That is deliberate
+- ⚠️ **The tier feature is scaffolding — the gain fields do not exist yet.** No effect has a second
+  power level, and nothing carries “paid” through to `Apply()`, so charging a cost today changes
+  nothing. Do **not** author a per-effect `Costs` list until that is built (see `BUG-089.md`, which
+  holds the specification): today it would take the player’s resources and give nothing back
 - Cost is paid from **two disjoint lists** since `73ab8e7`: `AbilityDefinition.Costs` once at
   activation, and per-effect `AbilityEffectDefinition.Costs` inside `TryCast()`. The two are billed
   differently on purpose — a `Hold` ability re-enters `CastInstant()` while held, so a per-effect

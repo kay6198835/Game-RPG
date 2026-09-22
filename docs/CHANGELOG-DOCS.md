@@ -17,6 +17,77 @@ which code change caused it.
 
 ---
 
+## 2026-09-22 (sixth pass, same day) — Owner review round 4: BUG-089 closed by design
+
+**Cause.** The seven-gap audit of the gain-tier flow was put to the owner. Five gaps were answered,
+all five answers hold, and the bug closes. This entry records the answers and what was promoted out
+of the bug rather than dropped with it.
+
+### The answers
+
+| Gap | Owner's position | Outcome |
+|---|---|---|
+| **1** — paying buys nothing; nothing carries "paid" to `Apply()` | The gain fields are not designed yet; the flow is deliberately laid down to open the path later | **Accepted — not a defect.** Re-classified as *planned, unimplemented* |
+| **3** — `Costs` is one all-or-nothing bundle, not a tier ladder | Same: the data shape for tiers is future work | **Accepted — not a defect** |
+| **2** — a refusal calls `CancelHold()` and terminates the channel | **Intentional.** Not enough resource → no tier up **and the ability is force-released**. `CancelHold()` is the mechanism | **Withdrawn.** The reading was wrong — the design is not "drop to default and keep channelling", it is "drop to default and fire now", which is exactly what `CastInstant():50-54` does |
+| **4** — charged per animation event; sustain-vs-purchase undefined | Scaffolding; and the per-animation event **is required** — it is what allows the check to happen at runtime each loop | **Accepted — by design.** The animation event is the intended runtime checkpoint |
+| **6** — effect list order decides who gets the resource | **Also intentional and important**, because the same order decides which effect runs first and last. Belongs with the per-effect cost as one shared authoring note | **Accepted — promoted to a documented rule** |
+| **7** — a refused tier removes the Consecrate telegraph | Note it; only Active abilities are in use | **Recorded as a note.** Not filed, not scheduled |
+| **5** — `HoldRatio` always `0f` | not raised | Unchanged — independent, tracked as **BUG-083** |
+
+### Verified: nothing is affected today
+
+| Ability asset | `ActivationType` |
+|---|---|
+| `Avatar of Light.asset` | `0` — Active |
+| `Blessing.asset` | `0` — Active |
+| `Consecrate.asset` | `0` — Active |
+| `Paladin Blessed Slash Ability.asset` | `1` — Hold |
+| `SpiritBomd.asset` | `1` — Hold (part of the broken ShootSpirit pair) |
+
+Three of the four live Paladin abilities are Active, so the `Hold` branch at
+`AbilityInstance.cs:50-53` is skipped for them entirely. Every effect asset has `SubConditions: []`
+and no serialized `Costs` key, so `TryCast()` returns `true` unconditionally and `CancelHold()` at
+`:79` is never reached. The owner's "current logic is not affected" claim checks out against the
+assets.
+
+### Promoted out of the bug — three new rules in `.claude/rules/weapon-skill-code.md`
+
+1. **Effect list order is authored data, not an implementation detail.** `AbilityDefinition.Effects`
+   order sets execution order (`Casting()` and `Execute()` both walk it by index) *and* resource
+   priority (`Effects[0]` has first claim, so a later effect can be refused because an earlier one
+   already spent the resource). Reordering in the Inspector changes both. Balance decision.
+2. **Per-effect `Costs` is an upgrade-tier price, not a go/no-go gate** — with the force-release
+   behaviour on `Hold` spelled out.
+3. ⚠️ **Do not author a per-effect `Costs` list until the tier fields exist.** Nothing carries "paid"
+   through to `Apply()` and no effect has a second power level, so a cost authored today would take
+   the player's resources and give nothing back.
+
+### One residual loose end, recorded and not pursued
+
+`AbilityInstance.IsHolding` and `AbilityHolder.IsHolding` are two fields for one fact. The forced
+release calls the instance's `CancelHold()` directly, so the holder still reports `true` afterwards.
+It self-heals — the state has already moved to `Do`, so
+`PlayerSkillWeaponState.AnimationOnAction():30-40` takes its `else` branch next event, and the
+holder's flag is cleared on button release (`PlayerInputHandle.cs:243`/`:273`). Worth knowing before
+anything new reads `AbilityHolder.IsHolding`; not worth a fix on its own.
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `production/qa/bugs/BUG-089.md` | `## CLOSED — owner review round 4` appended: the answer table, the `ActivationType` audit, the rule promoted out of gap 6, the gap 7 note, the `IsHolding` loose end, and a five-step specification for whoever implements the tier feature. Status → CLOSED |
+| `.claude/rules/weapon-skill-code.md` | Three rules added above the existing cost rules |
+| `CLAUDE.md` | BUG-089 row rewritten as CLOSED, original text kept after "*Original entry:*" |
+| `production/qa/open-issues-2026-09-22.md` | Counts updated (18 open), the §1 BUG-089 entry rewritten as closed-with-notes, the blocker table and I-1 adjusted |
+
+### Constraint check
+
+No `.cs` file changed in this pass. No commit beyond the documentation commit, no force push.
+
+---
+
+
 ## 2026-09-22 (fifth pass, same day) — Owner review round 2: BUG-072 proposal applied, BUG-089 and BUG-091 item 1 restated
 
 **Cause.** Three responses from the owner: approval of the BUG-072 buffer proposal, a request for a
