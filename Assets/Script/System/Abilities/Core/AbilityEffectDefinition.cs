@@ -23,7 +23,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
 
     protected virtual bool CheckPayCostValid(AbilityContext context)
     {
-        if (Costs.Count == 0 || Costs == null) return true;
+        if (Costs == null || Costs.Count == 0) return true;
         foreach (var cost in Costs)
         {
             if (cost.value > context.Services.Vital.GetCurrentStatValue(cost.statType)) return false;

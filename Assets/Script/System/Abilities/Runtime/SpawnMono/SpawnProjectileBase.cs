@@ -26,7 +26,7 @@ public class SpawnProjectileBase : SpawnMono
         _rb.velocity = context.Forward * speed;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         other.TryGetComponent<INegativeReceiver>(out INegativeReceiver negativeReciver);
         _context.Services.NegativeReceiver = negativeReciver;
