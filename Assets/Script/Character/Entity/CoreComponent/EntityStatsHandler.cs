@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IPlayerStatService
+public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IStatService
 {
     [SerializeField] private BaseStatsSO statsSO;
     public override void Setup()
