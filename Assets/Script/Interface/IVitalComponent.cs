@@ -1,3 +1,7 @@
+/// <summary>
+/// CURRENT stat values of ONE character — player or enemy. Implemented by VitalStatsComponent and
+/// EntityVitalStats (both via VitalStatsBase). Reach it through <see cref="ICharacter.Vital"/>.
+/// </summary>
 public interface IVitalComponent
 {
     float GetCurrentStatValue(StatType statType);
@@ -7,4 +11,6 @@ public interface IVitalComponent
     void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration);
     void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float duration);
     void ReductionPerTimeForDuration(StatType statType, float amount, float perTime, float duration);
+    /// <summary>Refills every current value to its max.</summary>
+    void Reborn();
 }
