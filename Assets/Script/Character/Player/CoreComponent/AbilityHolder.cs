@@ -8,14 +8,12 @@ using VContainer;
 public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 {
     IAbilityServices services;
-    IPlayerStatService statsHandler;
-    IResourceReceiver resourceReceiver;
-    IVitalComponent vital;
     IObjecPoolService objecPoolService;
     PlayerInputHandler playerInputHandler;
     [field: SerializeField] private List<AbilityBinding> abilityBindings = new();
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
     public Transform Transform => this.transform;
+    public ICharacter Character => Core.Character;
     [field: SerializeField] public bool IsHolding { get; private set; }
     [field: SerializeField] private AbilityInstance currentAbility;
     public AbilityState CurrentAbilityState => currentAbility?.State ?? AbilityState.Start;
@@ -42,10 +40,7 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     public override void Setup()
     {
         base.Setup();
-        statsHandler = Core.GetComponentInChildren<IPlayerStatService>();
-        resourceReceiver = Core.GetComponentInChildren<IResourceReceiver>();
-        vital = Core.GetComponentInChildren<IVitalComponent>();
-        services = new AbilityServices(objecPoolService, statsHandler, resourceReceiver, vital);
+        services = new AbilityServices(objecPoolService);
     }
 
     public void Processing()
@@ -60,11 +55,11 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
     public float GetCurrentStatValue(StatType statType)
     {
-        return vital.GetCurrentStatValue(statType);
+        return Character.Vital.GetCurrentStatValue(statType);
     }
     public void PayCost(StatType statType, float amount)
     {
-        vital.Reduction(statType, amount);
+        Character.Vital.Reduction(statType, amount);
     }
     public Vector2 DirectorForward()
     {

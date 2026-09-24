@@ -5,5 +5,6 @@ using UnityEngine.Serialization;
 
 public abstract class ItemEffectDefinition : ScriptableObject
 {
-    public abstract void Apply(ResourceReceiver player);
+    /// <summary>Applies the item to any character through its contract — never a concrete type.</summary>
+    public abstract void Apply(ICharacter target);
 }

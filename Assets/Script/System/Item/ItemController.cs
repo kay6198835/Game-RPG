@@ -28,10 +28,15 @@ public class ItemController : InteractiveObjects
             Debug.LogWarning("Interact: interactor is null");
             return false;
         }
-        // Do something apply effect 
+        ICharacter target = interactor.Core != null ? interactor.Core.Character : null;
+        if (target == null)
+        {
+            Debug.LogWarning("Interact: interactor has no owning character");
+            return false;
+        }
         foreach (var effect in effects)
         {
-            effect.Apply((ResourceReceiver)interactor);
+            effect.Apply(target);
         }
         EventManager.Emit(EventID.ON_COLLECT_ITEM, gameObject);
         return true;

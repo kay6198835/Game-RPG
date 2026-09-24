@@ -15,34 +15,40 @@ public class AbilityContext
     public AbilityDefinition AbilityDefinition;
 
     [NonSerialized] public IAbilityServices Services;
+
+    /// <summary>
+    /// The character a spawned object just hit. Set-then-invoke: the object that detects the hit
+    /// assigns it (null when the collider is not a hurtbox) immediately before invoking the callback.
+    /// </summary>
+    [NonSerialized] public ICharacter Target;
+
+    public ICharacter CasterCharacter => Caster?.Character;
+
+    public ICharacter ResolveRecipient(EffectRecipient recipient)
+    {
+        return recipient == EffectRecipient.Target ? Target : CasterCharacter;
+    }
 }
 
+/// <summary>World-level services an ability needs. Character data is read from Caster / Target, not from here.</summary>
 public interface IAbilityServices
 {
     IObjecPoolService Pool { get; }
-    IPlayerStatService Stats { get; }
-    IResourceReceiver ResourceReceiver { get; }
-    IVitalComponent Vital { get; }
-    public INegativeReceiver NegativeReceiver { get; set; }
 }
 
 public sealed class AbilityServices : IAbilityServices
 {
     public IObjecPoolService Pool { get; }
-    public IPlayerStatService Stats { get; }
-    public IResourceReceiver ResourceReceiver { get; }
-    public IVitalComponent Vital { get; }
-    public INegativeReceiver NegativeReceiver { get; set; }
 
-    public AbilityServices(
-        IObjecPoolService pool,
-        IPlayerStatService stats,
-        IResourceReceiver resourceReceiver,
-        IVitalComponent vital)
+    public AbilityServices(IObjecPoolService pool)
     {
         Pool = pool;
-        Stats = stats;
-        ResourceReceiver = resourceReceiver;
-        Vital = vital;
     }
+}
+
+/// <summary>Which character an effect acts on. Caster = 0 so existing assets keep their behaviour.</summary>
+public enum EffectRecipient
+{
+    Caster = 0,
+    Target = 1
 }

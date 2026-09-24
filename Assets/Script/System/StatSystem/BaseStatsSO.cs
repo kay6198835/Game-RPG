@@ -134,6 +134,23 @@ public class BaseStatsSO : ScriptableObject
         if (primaryChanged) RecalculateDerived();
     }
 
+    /// <summary>
+    /// Drops every runtime modifier, whatever its source. Only for a per-instance runtime clone
+    /// (a pooled enemy being re-spawned) — never call it on a shared, committed asset.
+    /// </summary>
+    public void ClearRuntimeModifiers()
+    {
+        EnsureInitialized();
+        for (int i = 0; i < stats.Count; i++)
+        {
+            Stat stat = stats[i];
+            if (stat == null || stat.Modifiers.Count == 0) continue;
+            stat.ClearModifiers();
+            OnStatChanged?.Invoke(stat.Type);
+        }
+        RecalculateDerived();
+    }
+
     /// <summary>Gỡ mọi modifier đến từ một nguồn (tháo trang bị, hết buff).</summary>
     public void RemoveModifiersFromSource(object source)
     {

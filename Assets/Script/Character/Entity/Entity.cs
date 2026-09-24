@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Entity : BaseEntity
+public class Entity : CharacterBase<EntityCore>
 {
-    [SerializeField] protected EntityCore core;
     [SerializeField] protected Animator anim;
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected ParticleSystem particle;
@@ -18,7 +17,6 @@ public class Entity : BaseEntity
     public Animator Anim { get => anim; }
     public Rigidbody2D Rb { get => rb; }
     public ParticleSystem Particle { get => particle; }
-    public EntityCore Core { get => core; }
     public EntityStateMachine StateMachine { get => stateMachine; }
     public EntityIdleState IdleState { get => idleState; }
     public EntityMoveState MoveState { get => moveState; }

@@ -6,8 +6,8 @@ using UnityEngine;
 public class StatModifierEffectDefinition: ItemEffectDefinition
 {
     [SerializeField] StatModifierGroup statModifierGroup;
-    public override void Apply(ResourceReceiver resourceReceiver)
+    public override void Apply(ICharacter target)
     {
-        resourceReceiver.ReceverModifierGroup(statModifierGroup);
+        target.Vital.ApplyBuffDebuff(statModifierGroup);
     }
 }

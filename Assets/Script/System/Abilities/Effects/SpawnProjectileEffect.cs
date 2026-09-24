@@ -20,11 +20,12 @@ public class SpawnProjectileEffect : SpawnEffectBase
 
     protected override void Execute(AbilityContext currentContext)
     {
-        var negativeReceiver = currentContext.Services.NegativeReceiver;
+        var negativeReceiver = currentContext.Target?.DamageReceiver;
         if (negativeReceiver != null)
         {
             negativeReceiver.TakeDamage(baseDamage, currentContext.Origin);
         }
+        ApplyOnHitEffects(currentContext);
     }
 
     protected override Vector2 SpawnPos()

@@ -8,8 +8,8 @@ public class RecoveryEffectDefinition : ItemEffectDefinition
 {
     [SerializeField] private int amount;
 
-    public override void Apply(ResourceReceiver resourceReceiver)
+    public override void Apply(ICharacter target)
     {
-        resourceReceiver.Recovery(StatType.HP,amount);
+        target.Vital.Recovery(StatType.HP, amount);
     }
 }

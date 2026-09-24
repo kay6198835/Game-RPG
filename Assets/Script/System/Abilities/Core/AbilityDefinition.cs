@@ -61,7 +61,7 @@ public class AbilityDefinition : ScriptableObject
         foreach (var cost in Costs)
         {
             if (cost == null) continue;
-            if (cost.value > abilityContext.Services.Vital.GetCurrentStatValue(cost.statType)) return false;
+            if (cost.value > abilityContext.CasterCharacter.Vital.GetCurrentStatValue(cost.statType)) return false;
         }
         return true;
     }
