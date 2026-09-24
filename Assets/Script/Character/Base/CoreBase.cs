@@ -57,9 +57,6 @@ public abstract class CoreBase : MonoBehaviour, ICore
         return false;
     }
 
-    private ICharacter _character;
-    public ICharacter Character => _character ??= GetComponentInParent<ICharacter>();
-
     public virtual void Setup()
     {
         var allCoreComponents = GetComponentsInChildren<ICoreComponent>(true);

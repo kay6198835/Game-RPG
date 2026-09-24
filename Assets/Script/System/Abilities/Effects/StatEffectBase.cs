@@ -9,10 +9,8 @@ public abstract class StatsEffectBase : AbilityEffectDefinition
 
     public override void Apply(AbilityContext context)
     {
-        // Same path for a player or an enemy: only the ICharacter contract is touched.
-        ICharacter character = context.ResolveRecipient(recipient);
-        if (character == null) return;
-        IVitalComponent vital = character.Vital;
+        // Same path for a player or an enemy: only IVitalComponent is touched.
+        if (!context.TryGetRecipientComponent(recipient, out IVitalComponent vital)) return;
 
         Dictionary<StatType, List<StatModifier>> grouped = new();
 

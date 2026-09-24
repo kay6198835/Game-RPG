@@ -4,7 +4,13 @@
 Proposed — implemented on branch `demo-architeture-1` for review; not yet verified in the Unity Editor.
 
 ## Date
-2026-09-23
+2026-09-23 · **Amendment 1: 2026-09-24** (owner review — see the end of this document)
+
+> **Amendment 1 summary.** `ICharacter` is an identity marker only and exposes **no component
+> interfaces**. Any system that needs an interface gets it with `TryGetComponent` / `GetComponent` /
+> `GetComponentInParent` / `GetComponentInChildren`, whichever fits its context. `ICharacter<TCore>`,
+> `ICore.Character` and `CharacterLookup` are removed. Sections 1, 5 and 6 below are written in their
+> amended form.
 
 ## Engine Compatibility
 
@@ -45,23 +51,33 @@ at all, let alone through the same code path as to the player.
 
 ## Decision
 
-### 1. One character contract
+### 1. One character identity, one set of component interfaces
 
 ```csharp
-public interface ICharacter                       // coordination — the IGrid role
+public interface ICharacter          // identity of the character root — the IGrid role
 {
     Transform Transform { get; }
-    ICore Core { get; }
-    IStatService Stats { get; }                   // max values
-    IVitalComponent Vital { get; }                // current values
-    INegativeReceiver DamageReceiver { get; }     // exactly one per character
-}
-public interface ICharacter<out TCore> : ICharacter where TCore : ICore   // typed — the IGrid<T> role
-{
-    new TCore Core { get; }
 }
 ```
 Filled in place in `Character/Base/Interface/ICharacter.cs` (existing file, not serialized).
+
+The shared contract is the **set of component interfaces** both sides implement (§2), not properties
+on `ICharacter`. `ICharacter` exists so a system can find a character's root
+(`GetComponentInParent<ICharacter>()`); from there it takes whatever component interface it needs.
+
+**Rule — getting a component interface.** Inside one character, siblings use the hub
+(`Core.GetCoreComponent<T>` / `Core.TryGetCapability<T>`). From outside, a system uses the Unity
+lookup that fits its context, and never a property on `ICharacter`:
+
+| Context | Lookup |
+|---|---|
+| The collider hit carries the capability (hurtbox → `INegativeReceiver`) | `hit.TryGetComponent(out T)` |
+| Starting from a child of the character (holder, interactor, hurtbox) | `GetComponentInParent<ICharacter>()` |
+| From the character root to a capability that has no collider (`IVitalComponent`, `IStatService`) | `character.Transform.GetComponentInChildren<T>()` |
+
+By design each externally-targeted component owns its own collider (hurtbox, hitbox, range check), so
+`TryGetComponent` on the collider returns the component of the right prefab. Internal state
+(Vital, Stats) has no collider and is reached from the root.
 
 ### 2. Interfaces and who implements them
 
@@ -72,7 +88,7 @@ Filled in place in `Character/Base/Interface/ICharacter.cs` (existing file, not 
 | `IVitalComponent` | kept; gains `Reborn()` | VitalStatsComponent | **EntityVitalStats** (new) |
 | `INegativeReceiver` | kept, signature `TakeDamage(float, Vector2)` unchanged | NegativeReciver (only) | EntityNegativeReciver |
 | `IResourceReceiver` | **removed** — a subset of `IVitalComponent`, and its only implementer NRE'd (BUG-080) | — | — |
-| `ICharacter<TCore>` | filled | Player | Entity |
+| `ICharacter` | identity only (Amendment 1) | Player | Entity |
 
 `IPlayerStatService` is deliberately **not** renamed: the character-level part moved out, and what
 remains is exactly the player-scoped DI service, so no UI file changes.
@@ -82,9 +98,9 @@ remains is exactly the player-scoped DI service, so no UI file changes.
 - `StatHandlerBase<TCore> : CoreComponentBase<TCore>, IStatService` — template method
   `ResolveProfile()`; `[SerializeField] statsSO` keeps its name.
 - `VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalComponent` — current values, `Reborn()`.
-- `CharacterBase<TCore> : BaseEntity, ICharacter<TCore>` — `[SerializeField] protected TCore core`
-  (same name as both old fields), resolves `Stats`/`Vital`/`DamageReceiver` lazily from its core and
-  logs an error instead of returning a silent null.
+- `CharacterBase<TCore> : BaseEntity, ICharacter` — `[SerializeField] protected TCore core`
+  (same name as both old fields) and the typed `Core` property the state classes use. It hands out no
+  component (Amendment 1).
 
 Every existing MonoBehaviour keeps its class and file name, so script GUIDs and prefab references are
 untouched.
@@ -93,28 +109,27 @@ untouched.
 
 `Core` and `EntityCore` stay as two classes on `CoreBase`; no `CharacterCore<TOwner>`. They differ only
 in the typed owner property, `Core.Player`/`Core.Entity` is used by every state, and merging would gain
-nothing. `CoreComponent<T>`/`EntityCoreComponent<T>` stay as the typed shims. `ICore` gains two
-additive members:
-- `bool TryGetCapability<T>(out T) where T : class` — `GetCoreComponent<T>` requires
-  `T : ICoreComponent<ICore>`, which service interfaces cannot satisfy;
-- `ICharacter Character { get; }`.
+nothing. `CoreComponent<T>`/`EntityCoreComponent<T>` stay as the typed shims. `ICore` gains one
+additive member, for siblings inside a character only: `bool TryGetCapability<T>(out T) where T : class`
+— `GetCoreComponent<T>` requires `T : ICoreComponent<ICore>`, which service interfaces cannot satisfy
+(the shared `VitalStatsBase` needs `IStatService` without knowing the concrete handler).
 
-### 5. One lookup path
+### 5. Lookup paths
 
-- **Hit path** — `CharacterLookup.TryGetCharacter(this Component hit, out ICharacter)`: a collider
-  resolves only if it is a hurtbox (its GameObject carries an `INegativeReceiver`), then
-  `GetComponentInParent<ICharacter>()`. Non-allocating; a weapon hitbox or the root body never
-  resolves, so one hit cannot land twice on the same character.
-- **Owner path** — a core component reaches its own character with `Core.Character`.
-
-No `FindObjectOfType`, no singleton, no DI lookup.
+Per the rule in §1: Unity's `GetComponent` family, chosen by context. No helper class, no
+`FindObjectOfType`, no singleton, no DI lookup. A hit counts only if the collider's own GameObject
+carries an `INegativeReceiver` (the hurtbox), so a weapon hitbox or the root body never counts and one
+hit cannot land twice on the same character.
 
 ### 6. Abilities independent of character type
 
-- `IAbilityOwner` gains `ICharacter Character`.
-- `AbilityContext` gains `ICharacter Target` and `CasterCharacter`. **Set-then-invoke is kept**: the
-  spawned object assigns `Target` (null for a non-hurtbox) and then invokes the callback.
-- `IAbilityServices` keeps only `Pool`; caster data is read from `ctx.CasterCharacter`.
+- `AbilityContext` gains `Collider2D Target` — the hurtbox hit. **Set-then-invoke is kept**: the
+  spawned object assigns `Target` (null for a non-hurtbox) and then invokes the callback. Damage effects
+  do `Target.TryGetComponent(out INegativeReceiver)`.
+- `AbilityContext.TryGetRecipientComponent<T>(recipient, out T)` goes from the caster or the hit
+  collider up to its `ICharacter` root, then `GetComponentInChildren<T>()`.
+- `IAbilityServices` keeps only `Pool`; caster values come from the existing
+  `IAbilityOwner.GetCurrentStatValue` / `PayCost` (AbilityHolder resolves its sibling Vital through the hub).
 - `StatsEffectBase` and `BuffDebuffStatsForDuration` gain `EffectRecipient { Caster = 0, Target }`.
   Default `Caster` keeps every existing Paladin asset unchanged.
 - Spawn effects run their (so far unused, all empty) `SubEffects` on hit, so a Target-recipient stat
@@ -171,6 +186,29 @@ The player keeps the shared asset (BUG-063 stays accepted/deferred).
 | BUG-087 | Partially absorbed — player gains `Reborn()`; GameManager/subscriber still missing |
 | BUG-063 | Unchanged for the player (accepted/deferred) |
 | New (not filed) | Shared enemy stat SO — fixed by §8 |
+
+## Amendment 1 — 2026-09-24 (owner review)
+
+**Decision.** Keep `ICharacter`, but it must not carry component interfaces. Systems get the interface
+they need with `TryGetComponent` / `GetComponent` / `GetComponentInParent` / `GetComponentInChildren`
+according to their own context.
+
+**Why.** Exposing `Stats`/`Vital`/`DamageReceiver`/`Core` on `ICharacter` made it a service locator that
+every system reached through (`target.Vital.Reduction(...)`), grew with every new capability, and leaked
+the whole hub through `Core`. The project's design already addresses capabilities by collider — every
+externally-targeted component owns its hurtbox, hitbox or range check — so the Unity lookup on the
+collider or the character root is the natural address and needs no extra layer.
+
+**Removed:** `ICharacter<TCore>`; `ICharacter.Core/Stats/Vital/DamageReceiver`; `ICore.Character`;
+`CharacterLookup`; `IAbilityOwner.Character`; `AbilityContext.CasterCharacter/ResolveRecipient`.
+**Changed:** `AbilityContext.Target` is now `Collider2D`; items, weapon equip and stat effects resolve
+through the `GetComponent` family.
+
+**Still open (raised in the same review, not decided):** stat effects write `IVitalComponent` directly,
+which skips the character's own rules — an enemy's health bar is only refreshed by
+`EntityNegativeReciver.TakeDamage()`, so a stat-effect HP reduction does not update it, and no hit
+reaction or Defense applies. Options: a gateway interface on the hurtbox component, or change events on
+`IVitalComponent` that the UI subscribes to.
 
 ## Residuals (out of scope)
 

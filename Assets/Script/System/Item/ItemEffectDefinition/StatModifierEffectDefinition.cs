@@ -8,6 +8,7 @@ public class StatModifierEffectDefinition: ItemEffectDefinition
     [SerializeField] StatModifierGroup statModifierGroup;
     public override void Apply(ICharacter target)
     {
-        target.Vital.ApplyBuffDebuff(statModifierGroup);
+        var vital = target.Transform.GetComponentInChildren<IVitalComponent>();
+        if (vital != null) vital.ApplyBuffDebuff(statModifierGroup);
     }
 }

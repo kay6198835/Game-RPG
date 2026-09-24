@@ -17,20 +17,29 @@ public class AbilityContext
     [NonSerialized] public IAbilityServices Services;
 
     /// <summary>
-    /// The character a spawned object just hit. Set-then-invoke: the object that detects the hit
-    /// assigns it (null when the collider is not a hurtbox) immediately before invoking the callback.
+    /// The hurtbox collider a spawned object just hit. Set-then-invoke: the object that detects the hit
+    /// assigns it (null when the collider carries no INegativeReceiver) immediately before invoking the
+    /// callback. Effects get the interface they need from it themselves.
     /// </summary>
-    [NonSerialized] public ICharacter Target;
+    [NonSerialized] public Collider2D Target;
 
-    public ICharacter CasterCharacter => Caster?.Character;
-
-    public ICharacter ResolveRecipient(EffectRecipient recipient)
+    /// <summary>
+    /// Finds component <typeparamref name="T"/> on the character that is the recipient: from the caster
+    /// or from the hit collider, up to its <see cref="ICharacter"/> root, then down to the component.
+    /// </summary>
+    public bool TryGetRecipientComponent<T>(EffectRecipient recipient, out T component) where T : class
     {
-        return recipient == EffectRecipient.Target ? Target : CasterCharacter;
+        component = null;
+        Component source = recipient == EffectRecipient.Target ? (Component)Target : Caster?.Transform;
+        if (source == null) return false;
+        ICharacter character = source.GetComponentInParent<ICharacter>();
+        if (character == null) return false;
+        component = character.Transform.GetComponentInChildren<T>();
+        return component != null;
     }
 }
 
-/// <summary>World-level services an ability needs. Character data is read from Caster / Target, not from here.</summary>
+/// <summary>World-level services an ability needs. Character data is read from the characters themselves.</summary>
 public interface IAbilityServices
 {
     IObjecPoolService Pool { get; }

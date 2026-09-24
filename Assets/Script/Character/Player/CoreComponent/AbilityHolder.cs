@@ -13,7 +13,16 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
     [field: SerializeField] private List<AbilityBinding> abilityBindings = new();
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
     public Transform Transform => this.transform;
-    public ICharacter Character => Core.Character;
+    VitalStatsComponent vital;
+    // Sibling inside the same character: resolved through the hub, lazily because the hub fills its list in Awake.
+    VitalStatsComponent Vital
+    {
+        get
+        {
+            if (vital == null) Core.GetCoreComponent(out vital);
+            return vital;
+        }
+    }
     [field: SerializeField] public bool IsHolding { get; private set; }
     [field: SerializeField] private AbilityInstance currentAbility;
     public AbilityState CurrentAbilityState => currentAbility?.State ?? AbilityState.Start;
@@ -55,11 +64,11 @@ public class AbilityHolder : CoreComponent<Core>, IAbilityOwner
 
     public float GetCurrentStatValue(StatType statType)
     {
-        return Character.Vital.GetCurrentStatValue(statType);
+        return Vital.GetCurrentStatValue(statType);
     }
     public void PayCost(StatType statType, float amount)
     {
-        Character.Vital.Reduction(statType, amount);
+        Vital.Reduction(statType, amount);
     }
     public Vector2 DirectorForward()
     {

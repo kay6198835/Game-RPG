@@ -1,7 +1,7 @@
 # Character Architecture — Diagrams
 
 Companion to [ADR-0005](../architecture/adr-0005-unified-character-contract.md). Before = `85bd612`;
-after = branch `demo-architeture-1`.
+after = branch `demo-architeture-1`, including ADR-0005 Amendment 1 (2026-09-24).
 
 ## 1. Class diagram — before
 
@@ -48,15 +48,17 @@ classDiagram
     note for ICharacter "empty, zero implementers"
 ```
 
-## 2. Class diagram — after
+## 2. Class diagram — after (ADR-0005 + Amendment 1)
+
+`ICharacter` is identity only. The shared contract is the set of component interfaces both sides
+implement; systems reach them with the `GetComponent` family.
 
 ```mermaid
 classDiagram
-    class ICharacter { <<interface>> +Transform +Core +Stats +Vital +DamageReceiver }
-    class ICharacterT["ICharacter~TCore~"] { <<interface>> +Core: TCore }
-    class ICore { <<interface>> +GetCoreComponent~T~() +TryGetCapability~T~() +Character }
+    class ICharacter { <<interface>> +Transform }
+    class ICore { <<interface>> +GetCoreComponent~T~() +TryGetCapability~T~() }
     class BaseEntity { <<abstract>> }
-    class CharacterBase["CharacterBase~TCore~"] { <<abstract>> #core: TCore }
+    class CharacterBase["CharacterBase~TCore~"] { <<abstract>> #core: TCore +Core: TCore }
     class Player
     class Entity
     class CoreBase { <<abstract>> }
@@ -72,18 +74,18 @@ classDiagram
     class EntityStatsHandler { -runtimeClone }
     class VitalStatsComponent
     class EntityVitalStats
-    class NegativeReciver
-    class EntityNegativeReciver
-    class CharacterLookup { <<static>> +TryGetCharacter(Component) }
+    class NegativeReciver { hurtbox collider }
+    class EntityNegativeReciver { hurtbox collider }
 
-    ICharacter <|-- ICharacterT
     BaseEntity <|-- CharacterBase
-    ICharacterT <|.. CharacterBase
+    ICharacter <|.. CharacterBase
     CharacterBase <|-- Player
     CharacterBase <|-- Entity
     ICore <|.. CoreBase
     CoreBase <|-- Core
     CoreBase <|-- EntityCore
+    Player o-- Core
+    Entity o-- EntityCore
     IStatService <|-- IPlayerStatService
     IStatService <|.. StatHandlerBase
     StatHandlerBase <|-- StatHandler
@@ -94,8 +96,16 @@ classDiagram
     VitalStatsBase <|-- EntityVitalStats
     INegativeReceiver <|.. NegativeReciver
     INegativeReceiver <|.. EntityNegativeReciver
-    CharacterLookup ..> ICharacter
 ```
+
+### Lookup rule
+
+| Context | Lookup |
+|---|---|
+| Collider hit carries the capability (hurtbox) | `hit.TryGetComponent(out INegativeReceiver r)` |
+| From a child of the character (holder, interactor, hurtbox) to the root | `GetComponentInParent<ICharacter>()` |
+| From the root to a capability with no collider | `character.Transform.GetComponentInChildren<IVitalComponent / IStatService>()` |
+| Sibling inside the same character | `Core.GetCoreComponent<T>` / `Core.TryGetCapability<T>` |
 
 ## 3. Correspondence with the Map precedent
 
@@ -108,10 +118,11 @@ flowchart LR
       MC[MazeController] -->|List of IGrid| IG
     end
     subgraph Character
-      IC[ICharacter] --> ICT["ICharacter&lt;TCore&gt;"] --> CB["CharacterBase&lt;TCore&gt;"] --> PE[Player / Entity]
+      IC[ICharacter identity] --> CB["CharacterBase&lt;TCore&gt;"] --> PE[Player / Entity]
       SB["StatHandlerBase.ResolveProfile()"] --> SH[StatHandler / EntityStatsHandler]
       SO[BaseStatsSO + current values] -.-> SB
-      SYS[StatsEffect / Item / Weapon] -->|ICharacter only| IC
+      SYS[StatsEffect / Item / Weapon] -->|GetComponent family| IFC[IVitalComponent / IStatService / INegativeReceiver]
+      PE -.implements via components.-> IFC
     end
 ```
 
@@ -119,41 +130,39 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    participant AH as AbilityHolder (IAbilityOwner)
     participant AI as AbilityInstance
     participant FX as SpawnProjectileEffect
     participant SM as SpawnProjectileBase
-    participant LK as CharacterLookup
+    participant CX as AbilityContext
     participant SE as SubEffect: StatsEffectBase (recipient=Target)
-    participant T as ICharacter
-    AH->>AI: TryDoAbility → CanStart → TryStart (CasterCharacter.Vital)
+    participant V as IVitalComponent (hit character)
     AI->>FX: Apply(ctx) [Do]
     FX->>SM: Pool.Spawn + Launch(lifetime, ctx, Execute)
-    SM->>LK: OnTriggerEnter2D(other) → TryGetCharacter
-    LK-->>SM: target or null
-    SM->>SM: ctx.Target = target (set)
-    SM->>FX: Execute(ctx) (then invoke)
-    FX->>T: Target.DamageReceiver.TakeDamage(baseDamage, Origin)
+    SM->>SM: OnTriggerEnter2D(other): other.TryGetComponent(out INegativeReceiver _)
+    SM->>CX: ctx.Target = other (hurtbox) or null  (set)
+    SM->>FX: Execute(ctx)  (then invoke)
+    FX->>FX: ctx.Target.TryGetComponent(out INegativeReceiver r) → r.TakeDamage
     FX->>SE: ApplyOnHitEffects → Apply(ctx)
-    SE->>T: ResolveRecipient(Target).Vital.Reduction / Recovery
-    Note over SE,T: no "is Player" / "is Entity" — IVitalComponent only
+    SE->>CX: TryGetRecipientComponent<IVitalComponent>(Target)
+    CX->>CX: Target.GetComponentInParent<ICharacter>() → .Transform.GetComponentInChildren<IVitalComponent>()
+    CX-->>SE: vital
+    SE->>V: Reduction / Recovery
+    Note over SE,V: no "is Player" / "is Entity" — IVitalComponent only
 ```
 
 ## 5. Flow — damage (signature unchanged)
 
 ```mermaid
 sequenceDiagram
-    participant W as Projectile / Lightning
-    participant LK as CharacterLookup
-    participant C as ICharacter
-    participant R as INegativeReceiver (one per character)
+    participant W as MeleeWeapon / Projectile / Lightning
+    participant H as Hurtbox collider
+    participant R as INegativeReceiver (same GameObject)
     participant V as IVitalComponent
-    W->>LK: hit.TryGetCharacter(out c)
-    Note right of LK: hurtbox only (carries INegativeReceiver)
-    LK-->>W: c
-    W->>C: c.DamageReceiver
+    W->>H: OverlapCircleNonAlloc / OnTriggerEnter2D
+    W->>H: TryGetComponent(out INegativeReceiver r)
+    H-->>W: r (only if this collider is a hurtbox)
     W->>R: TakeDamage(amount, position)
-    R->>V: Reduction(HP, final)  (enemy subtracts Defense first)
+    R->>V: Reduction(HP, final)  (enemy subtracts Defense, refreshes its health bar)
 ```
 
 ## 6. Flow — item pickup
@@ -161,15 +170,16 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant PS as PlayerResourceReceiverState
-    participant RR as ResourceReceiver (Interact)
+    participant RR as ResourceReceiver (Interact, range check)
     participant IC as ItemController
     participant E as ItemEffectDefinition
-    participant C as ICharacter
+    participant V as IVitalComponent
     PS->>RR: Intertion()
     RR->>IC: Interact(this)
-    IC->>IC: target = interactor.Core.Character
+    IC->>IC: target = interactor.GetComponentInParent<ICharacter>()
     IC->>E: Apply(target)
-    E->>C: Vital.Recovery(HP) / Vital.ApplyBuffDebuff(group)
+    E->>E: target.Transform.GetComponentInChildren<IVitalComponent>()
+    E->>V: Recovery(HP) / ApplyBuffDebuff(group)
     IC->>IC: Emit(ON_COLLECT_ITEM)
 ```
 
@@ -179,12 +189,11 @@ sequenceDiagram
 sequenceDiagram
     participant WH as WeaponHolder
     participant W as Weapon
-    participant C as ICharacter
     participant S as IStatService
     WH->>W: Equid(holder)
-    W->>C: holder.Core.Character
-    W->>S: StatModifiers.Apply(Stats.AddModifiersFromSource, this)
-    Note over W,S: UnEquid → StatModifiers.Remmove(Stats.RemoveModifiersFromSource, this)
+    W->>W: holder.GetComponentInParent<ICharacter>().Transform.GetComponentInChildren<IStatService>()
+    W->>S: StatModifiers.Apply(AddModifiersFromSource, this)
+    Note over W,S: UnEquid → StatModifiers.Remmove(RemoveModifiersFromSource, this)
 ```
 
 ## 8. Flow — DI and pooled enemy spawn
@@ -207,5 +216,5 @@ sequenceDiagram
     EN->>VS: OnEnable → Reborn()
     VS->>SH: ResetRuntimeModifiers() (lazy clone of EntityData.StatsSO on first use)
     VS->>VS: current = max
-    Note over EN,SH: Stats / Vital / DamageReceiver resolved through core.TryGetCapability — never DI
+    Note over VS,SH: siblings resolve each other through the core hub — never DI
 ```

@@ -10,6 +10,7 @@ public class RecoveryEffectDefinition : ItemEffectDefinition
 
     public override void Apply(ICharacter target)
     {
-        target.Vital.Recovery(StatType.HP, amount);
+        var vital = target.Transform.GetComponentInChildren<IVitalComponent>();
+        if (vital != null) vital.Recovery(StatType.HP, amount);
     }
 }

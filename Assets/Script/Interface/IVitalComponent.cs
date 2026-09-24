@@ -1,6 +1,7 @@
 /// <summary>
 /// CURRENT stat values of ONE character — player or enemy. Implemented by VitalStatsComponent and
-/// EntityVitalStats (both via VitalStatsBase). Reach it through <see cref="ICharacter.Vital"/>.
+/// EntityVitalStats (both via VitalStatsBase). From outside a character, get it with the GetComponent
+/// family (e.g. from the <see cref="ICharacter"/> root with GetComponentInChildren).
 /// </summary>
 public interface IVitalComponent
 {

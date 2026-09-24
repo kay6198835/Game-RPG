@@ -1,23 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// The contract every character — player or enemy — exposes to systems outside it. Anything that
-/// changes stats (abilities, items, weapons) talks to this, never to Player or Entity.
-/// The non-generic form is for coordination (like IGrid); <see cref="ICharacter{TCore}"/> is typed access.
+/// Identity of a character — player or enemy. It marks the character root and carries NO component
+/// interfaces: a system that needs one (INegativeReceiver, IVitalComponent, IStatService…) gets it with
+/// TryGetComponent / GetComponent / GetComponentInParent / GetComponentInChildren, whichever fits its
+/// context — e.g. <c>hit.GetComponentInParent&lt;ICharacter&gt;().Transform.GetComponentInChildren&lt;IVitalComponent&gt;()</c>.
 /// </summary>
 public interface ICharacter
 {
     Transform Transform { get; }
-    ICore Core { get; }
-    /// <summary>Max values (stat profile).</summary>
-    IStatService Stats { get; }
-    /// <summary>Current values (HP, Mana…).</summary>
-    IVitalComponent Vital { get; }
-    /// <summary>The character's single damage receiver.</summary>
-    INegativeReceiver DamageReceiver { get; }
-}
-
-public interface ICharacter<out TCore> : ICharacter where TCore : ICore
-{
-    new TCore Core { get; }
 }

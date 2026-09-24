@@ -26,7 +26,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
         if (Costs == null || Costs.Count == 0) return true;
         foreach (var cost in Costs)
         {
-            if (cost.value > context.CasterCharacter.Vital.GetCurrentStatValue(cost.statType)) return false;
+            if (cost.value > context.Caster.GetCurrentStatValue(cost.statType)) return false;
         }
         return true;
     }

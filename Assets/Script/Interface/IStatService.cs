@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Max (profile) stat values of ONE character — player or enemy. Current values live in
-/// <see cref="IVitalComponent"/>. Implemented by StatHandler and EntityStatsHandler; reach it
-/// through <see cref="ICharacter.Stats"/>, never through the DI container (it is per-instance).
+/// <see cref="IVitalComponent"/>. Implemented by StatHandler and EntityStatsHandler. From outside a
+/// character, get it with the GetComponent family; never through the DI container (it is per-instance).
 /// </summary>
 public interface IStatService
 {

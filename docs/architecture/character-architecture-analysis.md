@@ -6,6 +6,9 @@
 > [diagrams](../diagrams/character-architecture-diagrams.md) · [migration plan](character-migration-plan.md)
 >
 > Every finding below was read from source at `85bd612`. File:line references are to that revision.
+>
+> **Amended 2026-09-24:** the "should use" column follows ADR-0005 Amendment 1 — `ICharacter` carries no
+> component interfaces; systems use the `GetComponent` family by context.
 
 ---
 
@@ -34,7 +37,7 @@
 
 | Map role | Character role (target) | State at `85bd612` |
 |---|---|---|
-| `IGrid` (P1) | `ICharacter` — Stats, Vital, DamageReceiver, Core, Transform | `ICharacter` empty, zero implementers |
+| `IGrid` (P1) | `ICharacter` — identity of the character root only (Amendment 1) | `ICharacter` empty, zero implementers |
 | `IGrid<T>` (P1) | `ICharacter<TCore> : ICharacter` | absent |
 | `BaseGrid<T>` (P2) | `CharacterBase<TCore> : BaseEntity, ICharacter<TCore>` | `BaseEntity` only ticks the state |
 | `BaseCell.Setting()` (P3) | `StatHandlerBase<TCore>.ResolveProfile()`, `VitalStatsBase<TCore>` | each pair copy-pasted |
@@ -88,15 +91,15 @@
 
 | File:line | Uses | Should use |
 |---|---|---|
-| `Weapons/Weapon.cs:87,100` | `weaponHolder.Core.Player.Data.Stats` — bypasses StatHandler entirely | `ICharacter.Stats` + `StatModifierGroup.Apply/Remmove` |
-| `System/Item/ItemController.cs:34` | cast `(ResourceReceiver)interactor` | `interactor.Core.Character` |
+| `Weapons/Weapon.cs:87,100` | `weaponHolder.Core.Player.Data.Stats` — bypasses StatHandler entirely | `GetComponentInParent<ICharacter>()` → `GetComponentInChildren<IStatService>()` + `StatModifierGroup.Apply/Remmove` |
+| `System/Item/ItemController.cs:34` | cast `(ResourceReceiver)interactor` | `interactor.GetComponentInParent<ICharacter>()` |
 | `ItemEffectDefinitionSO.cs:8` + Recovery/StatModifier/Currency | `Apply(ResourceReceiver)` | `Apply(ICharacter)` |
-| `AbilityHolder.cs:45-47` | `Core.GetComponentInChildren<IPlayerStatService/IResourceReceiver/IVitalComponent>` | `Core.Character` |
+| `AbilityHolder.cs:45-47` | `Core.GetComponentInChildren<IPlayerStatService/IResourceReceiver/IVitalComponent>` | sibling Vital through the hub (`Core.GetCoreComponent`) |
 | `AbilityContext.cs:20-47` | caster's `IPlayerStatService Stats`, `IVitalComponent Vital` | `ctx.Caster.Character`, `ctx.Target` |
-| `StatEffectBase.cs:24`, `RecoveryReduction*.cs`, `BuffDebuffStatsForDuration.cs:11` | `context.Services.Vital` (always the caster) | the recipient's `ICharacter.Vital` |
-| `AbilityDefinition.cs:64`, `AbilityEffectDefinition.cs:29` | `Services.Vital` for affordability | `ctx.CasterCharacter.Vital` |
-| `SpawnProjectileBase.cs:31`, `LightningController.cs:27` | `TryGetComponent<INegativeReceiver>` | `TryGetCharacter` → `ctx.Target` |
-| `bullet.cs:54`, `Projectile.cs:46`, `Spell.cs:10` | `GetComponentInChildren<INegativeReceiver>` (looks *down*) | inconsistent with the rest; left for a later pass |
+| `StatEffectBase.cs:24`, `RecoveryReduction*.cs`, `BuffDebuffStatsForDuration.cs:11` | `context.Services.Vital` (always the caster) | `AbilityContext.TryGetRecipientComponent<IVitalComponent>` (caster or hit collider → `ICharacter` root → `GetComponentInChildren`) |
+| `AbilityDefinition.cs:64`, `AbilityEffectDefinition.cs:29` | `Services.Vital` for affordability | `ctx.Caster.GetCurrentStatValue` (existing `IAbilityOwner` member) |
+| `SpawnProjectileBase.cs:31`, `LightningController.cs:27` | `TryGetComponent<INegativeReceiver>` | keep `TryGetComponent<INegativeReceiver>`; assign the hurtbox `Collider2D` to `ctx.Target` |
+| `bullet.cs:54`, `Projectile.cs:46`, `Spell.cs:10` | `GetComponentInChildren<INegativeReceiver>` (looks *down*) | `TryGetComponent` on the hurtbox; left for a later pass |
 | `MeleeWeapon.cs:31`, `EntityAttack.cs:31` | `TryGetComponent<INegativeReceiver>` | correct today (hurtbox carries receiver); optional later move |
 | `EntityEffectStats.cs:20` (Abilities v1) | `Core.Entity.Data.StatsSO` — writes the **shared** asset | v1 maintenance path; out of scope, noted as residual |
 | `GameLifetimeScope.cs:15`, `StatsUIController`, `StatsScreenUIController`, `StatPointAllocator` | `IPlayerStatService` | **keep** — these genuinely want the player's service |

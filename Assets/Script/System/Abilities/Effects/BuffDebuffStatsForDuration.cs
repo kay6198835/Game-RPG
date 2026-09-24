@@ -8,8 +8,7 @@ public class BuffDebuffStatsForDuration : AbilityEffectDefinition
     public EffectRecipient recipient = EffectRecipient.Caster;
     public override void Apply(AbilityContext context)
     {
-        ICharacter character = context.ResolveRecipient(recipient);
-        if (character == null) return;
-        character.Vital.BuffDebuffForDuration(statModifierGroup, duration);
+        if (!context.TryGetRecipientComponent(recipient, out IVitalComponent vital)) return;
+        vital.BuffDebuffForDuration(statModifierGroup, duration);
     }
 }

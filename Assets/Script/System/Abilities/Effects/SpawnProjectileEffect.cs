@@ -20,8 +20,8 @@ public class SpawnProjectileEffect : SpawnEffectBase
 
     protected override void Execute(AbilityContext currentContext)
     {
-        var negativeReceiver = currentContext.Target?.DamageReceiver;
-        if (negativeReceiver != null)
+        if (currentContext.Target != null
+            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
         {
             negativeReceiver.TakeDamage(baseDamage, currentContext.Origin);
         }

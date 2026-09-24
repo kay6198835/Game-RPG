@@ -56,6 +56,20 @@ Three mechanisms, and they are not interchangeable:
 - Do not resolve the container manually (`IObjectResolver.Resolve<T>()` in gameplay code) — that
   is service-location, not injection
 
+## Getting a Component Interface (ADR-0005, Amendment 1 — 2026-09-24)
+
+- `ICharacter` marks a character root (Player, Entity) and carries **no component interfaces**. Never
+  add `Stats`/`Vital`/`DamageReceiver`-style properties to it
+- Inside one character, siblings use the hub: `Core.GetCoreComponent<T>` / `Core.TryGetCapability<T>`
+- From outside, use the Unity lookup that fits the context:
+  - the collider hit carries the capability (hurtbox) → `hit.TryGetComponent(out INegativeReceiver r)`
+  - from a child of the character to its root → `GetComponentInParent<ICharacter>()`
+  - from the root to a capability with no collider → `character.Transform.GetComponentInChildren<IVitalComponent>()`
+- Each externally-targeted component owns its own collider (hurtbox, hitbox, range check); internal state
+  (`IVitalComponent`, `IStatService`) has none and is reached from the root
+- A hit counts only if the collider's own GameObject carries the receiver — do not look *down* from a
+  hit collider with `GetComponentInChildren` (`bullet.cs`, `Projectile.cs`, `Spell.cs` still do; known debt)
+
 ## Forbidden Patterns
 - `GameObject.Find()`, `FindObjectOfType()`, `SendMessage()` — use Inspector refs, DI, or EventManager
 - `public` fields on MonoBehaviours — use `[SerializeField] private` + properties
