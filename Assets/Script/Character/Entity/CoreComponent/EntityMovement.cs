@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Unity.VisualScripting;
-public class EntityMovement : EntityCoreComponent<EntityCore>
+public class EntityMovement : MovementBase<EntityCore>
 {
-    [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected List<Vector2> Waypoints;
     [SerializeField] protected Vector2 targetPosition;
     [SerializeField] protected Vector2 endPosition;
@@ -30,11 +29,6 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         indexWaypoints = 0;
         grid = EnemyManager.Instance.Grid;
         allDirection = (Vector2[])GameConstants.Direction.Vector.ALL.Clone();
-    }
-    protected override void Awake()
-    {
-        base.Awake();
-        rb = GetComponentInParent<Rigidbody2D>();
     }
     // public void CheckMove()
     // {
@@ -124,9 +118,9 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
 
     public void MoveForwardToTarget()
     {
-        if (targetPosition == Vector2.zero) return;
+        if (targetPosition == Vector2.zero || !CanMove) return;
         forwardDirection = (targetPosition - (Vector2)Core.Entity.transform.position).normalized;
-        rb.MovePosition(rb.position + forwardDirection * speed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + forwardDirection * speed * SpeedMultiplier * Time.fixedDeltaTime);
         entityInput.SetTarget(targetPosition);
     }
 
@@ -180,6 +174,12 @@ public class EntityMovement : EntityCoreComponent<EntityCore>
         return null;
     }
 
+
+    public override void Stop()
+    {
+        base.Stop();
+        StopMove();
+    }
 
     public void StopMove()
     {
