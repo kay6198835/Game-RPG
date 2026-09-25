@@ -4,6 +4,7 @@ using UnityEngine;
 public class EntityAttackState : EntityBasicState
 {
     float startAttackTime;
+    bool usesWeapon;
     public EntityAttackState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
 
@@ -12,6 +13,9 @@ public class EntityAttackState : EntityBasicState
     {
         base.Enter();
         startAttackTime = startTime;
+        // Same lifecycle as PlayerAttackState when a Weapon is equipped; EntityAttack otherwise.
+        usesWeapon = weaponHolder != null && weaponHolder.CanAttack();
+        if (usesWeapon) weaponHolder.Attack();
 
     }
     public override void LogicUpdate()
@@ -26,7 +30,8 @@ public class EntityAttackState : EntityBasicState
             case StatusAnimation.StartRangeTrigger:
                 break;
             case StatusAnimation.OnActivate:
-                entityAttack.Attack();
+                if (usesWeapon) weaponHolder.MakeDamage();
+                else entityAttack.Attack();
                 Status = StatusAnimation.OffActivate;
                 break;
             case StatusAnimation.OffActivate:
@@ -54,6 +59,12 @@ public class EntityAttackState : EntityBasicState
 
     public override void Exit()
     {
+        if (usesWeapon)
+        {
+            weaponHolder.EndDamage();
+            // The weapon stage swapped the animator controller; restore the enemy's own.
+            entity.Anim.runtimeAnimatorController = entityData.Aima;
+        }
         entityAttack.Exit();
         base.Exit();
     }
