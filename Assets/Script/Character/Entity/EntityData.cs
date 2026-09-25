@@ -18,6 +18,8 @@ public class EntityData : ScriptableObject
     [SerializeField] private float rangeCheckAttack;
     [Header("Attack State")]
     [SerializeField] private WeaponSO weaponSO;
+    [Header("Abilities")]
+    [SerializeField] private List<AbilityBinding> abilityBindings = new List<AbilityBinding>();
 
     //public float MaxHealth { get => maxHealth; }
     public LayerMask LayerMask { get => layerMask; }
@@ -29,6 +31,7 @@ public class EntityData : ScriptableObject
     public float MoveDurationTime { get => moveDurationTime;}
     public WeaponSO WeaponSO { get => weaponSO;}
     public BaseStatsSO StatsSO { get => statsSO;}
+    public List<AbilityBinding> AbilityBindings => abilityBindings;
     private void OnValidate()
     {
         
