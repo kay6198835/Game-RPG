@@ -1,7 +1,7 @@
 public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
 {
     // A profile assigned in the Inspector wins; otherwise the one on PlayerData.
-    protected override BaseStatsSO ResolveProfile() => statsSO != null ? statsSO : core.Player.Data.Stats;
+    protected override BaseStatsSO ResolveProfile() => statsSO != null ? statsSO : base.ResolveProfile();
 
     public int GetLevelUpStatsBonus()
     {

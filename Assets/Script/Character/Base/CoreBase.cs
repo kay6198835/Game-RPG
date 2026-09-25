@@ -6,6 +6,9 @@ public abstract class CoreBase : MonoBehaviour, ICore
     [SerializeField] public List<ICoreComponent<ICore>> coreComponents = new List<ICoreComponent<ICore>>();
     protected readonly Dictionary<System.Type, ICoreComponent<ICore>> _cache = new Dictionary<System.Type, ICoreComponent<ICore>>();
 
+    /// <summary>The data asset this character was built from. Read by the shared component bases.</summary>
+    public abstract CharacterData Data { get; }
+
     protected virtual void Awake()
     {
         Setup();

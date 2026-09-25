@@ -4,12 +4,12 @@ public class EntityStatsHandler : StatHandlerBase<EntityCore>
 {
     private BaseStatsSO runtimeClone;
 
-    // Every enemy of one type shares one EntityData.StatsSO asset. A modifier applied to that asset
+    // Every enemy of one type shares one EntityData.Stats asset. A modifier applied to that asset
     // would hit every live enemy of the type and leak into the committed file in the Editor, so each
     // instance works on its own runtime clone.
     protected override BaseStatsSO ResolveProfile()
     {
-        BaseStatsSO source = core.Entity.Data.StatsSO;
+        BaseStatsSO source = base.ResolveProfile();
         runtimeClone = Instantiate(source);
         runtimeClone.name = source.name + " (Runtime)";
         statsSO = runtimeClone;
