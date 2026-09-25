@@ -10,7 +10,12 @@ public class RangeWeapon : Weapon
 
     private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
-
+    IObjecPoolService _objecPoolService;
+    [Inject]
+    public void Construct(IObjecPoolService objecPoolService)
+    {
+        _objecPoolService = objecPoolService;
+    }
     public override bool CanAttack() =>
         base.CanAttack() && StatsRange != null && firePoint != null
         && poolManager != null && Time.time >= nextFireTime;
