@@ -1,26 +1,20 @@
 using UnityEngine;
 
 /// <summary>
-/// Enemy weapon holder: the same attack lifecycle and the same <see cref="Weapon"/> types as the player.
-/// With no weapon assigned in the Inspector, it equips EntityData.WeaponSO's prefab once — only when that
-/// prefab carries a Weapon component; otherwise the enemy keeps attacking through EntityAttack.
+/// Enemy weapon holder: the shared lifecycle and default-weapon equip of WeaponHolderBase, plus the AI's
+/// attack cadence. An enemy without a weapon never attacks — there is no fallback attack path.
 /// </summary>
 public class EntityWeaponHolder : WeaponHolderBase<EntityCore>
 {
-    protected override void Start()
-    {
-        base.Start();
-        if (weapon == null) EquipFromData();
-    }
+    private float nextAttackTime;
 
-    private void EquipFromData()
-    {
-        WeaponSO weaponSO = Core.Entity.Data.WeaponSO;
-        GameObject prefab = weaponSO != null ? weaponSO.Weapon : null;
-        if (prefab == null || !prefab.TryGetComponent(out Weapon _)) return;
+    /// <summary>True when a weapon is equipped, can attack, and the last attack's recovery has elapsed.</summary>
+    public bool CallAttack() => CanAttack() && Time.time >= nextAttackTime;
 
-        // Once per instance: a pooled enemy keeps its weapon across re-spawns.
-        GameObject instance = Instantiate(prefab, transform.position, Quaternion.identity);
-        instance.GetComponent<Weapon>().Equid(this);
+    /// <summary>Starts the recovery after an attack; its length is the played stage's AttackSO.attackRate.</summary>
+    public void SetRecovery()
+    {
+        float recovery = weapon != null && weapon.CurrentStage != null ? weapon.CurrentStage.attackRate : 0f;
+        nextAttackTime = Time.time + recovery;
     }
 }

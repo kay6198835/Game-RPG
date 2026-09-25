@@ -221,7 +221,6 @@ GameObject:
   m_Component:
   - component: {fileID: 536469307961724952}
   - component: {fileID: 922415792365277573}
-  - component: {fileID: 3423492750959988988}
   - component: {fileID: 2635454182600480307}
   m_Layer: 6
   m_Name: WeaponHolder
@@ -260,27 +259,6 @@ MonoBehaviour:
   core: {fileID: 0}
   weapon: {fileID: 0}
   weaponGO: {fileID: 0}
---- !u!114 &3423492750959988988
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1394802370649667084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5997f2e77cfacc46a893dfec99ed137, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  core: {fileID: 0}
-  minRange: 0.5
-  maxRange: 1
-  attackRate: 0
-  nextAttackTime: 0
-  centerAttackPosition: {x: 0, y: 0}
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 128
 --- !u!61 &2635454182600480307
 BoxCollider2D:
   m_ObjectHideFlags: 0
