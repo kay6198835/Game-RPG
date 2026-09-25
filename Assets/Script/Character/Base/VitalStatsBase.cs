@@ -61,18 +61,14 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.
-    public void ReductionPerTimeForDuration(StatType statType, float amount, float perTime, float duration)
+    public void ReductionPerTimeForDuration(StatType statType, float amount, float perTime, float timeCount)
     {
-        var count = duration / perTime;
-        if (duration % perTime > 0) count++;
-        StartCoroutine(ReductionPerTime(statType, amount, perTime, duration));
+        StartCoroutine(ReductionPerTime(statType, amount, perTime, timeCount));
     }
 
-    public void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float duration)
+    public void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float timeCount)
     {
-        var count = duration / perTime;
-        if (duration % perTime > 0) count++;
-        StartCoroutine(RecoveryPerTime(statType, amount, perTime, duration));
+        StartCoroutine(RecoveryPerTime(statType, amount, perTime, timeCount));
     }
 
     IEnumerator RecoveryPerTime(StatType statType, float amount, float perTime, float timeCount)
