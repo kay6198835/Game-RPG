@@ -4,7 +4,7 @@
 Proposed — implemented on branch `demo-architeture-1` for review; not yet verified in the Unity Editor.
 
 ## Date
-2026-09-23 · **Amendment 1: 2026-09-24** (owner review — see the end of this document)
+2026-09-23 · **Amendment 1: 2026-09-24** · **Amendment 2: 2026-09-25** (see the end of this document)
 
 > **Amendment 1 summary.** `ICharacter` is an identity marker only and exposes **no component
 > interfaces**. Any system that needs an interface gets it with `TryGetComponent` / `GetComponent` /
@@ -209,6 +209,35 @@ which skips the character's own rules — an enemy's health bar is only refreshe
 `EntityNegativeReciver.TakeDamage()`, so a stat-effect HP reduction does not update it, and no hit
 reaction or Defense applies. Options: a gateway interface on the hurtbox component, or change events on
 `IVitalComponent` that the UI subscribes to.
+
+## Amendment 2 — 2026-09-25 (owner request): shared bases for the remaining components
+
+**Decision.** Every component pair that does the same job on both sides gets a generic base on
+`CoreComponentBase<TCore>`, so an enemy uses weapons, abilities and movement impacts exactly like the
+player. Class and file names are unchanged; serialized fields keep their names.
+
+| Base | Interface | Player | Entity | Notes |
+|---|---|---|---|---|
+| `DamageReceiverBase<TCore>` | `INegativeReceiver` | `NegativeReciver` | `EntityNegativeReciver` | Template: `Mitigate` → `Vital.Reduction(HP)` → `ICharacterInput.OnTakeDamage` → `OnDamaged`. **Player takes no Defense** (owner decision, unchanged); enemy mitigates Defense and refreshes its health bar |
+| `CharacterInputBase<TCore>` | `ICharacterInput : IAimProvider` (+ `AimPoint`, `IsTakeDamage`, `OnTakeDamage`) | `PlayerInputHandler` | `EntityInput` | Shared action flags, timed take-damage flag (enemy moves from a toggle to set/reset), last hit direction |
+| `MovementBase<TCore>` | `IMovement` | `PlayerMovement` | `EntityMovement` | Hook for movement impacts: speed multipliers, locks (stun/root) and knockback keyed by source; `CanMove` gates steering. Enemies clear impacts on `Reborn()`. **Nothing calls the impact API yet** |
+| `WeaponHolderBase<TCore>` | `IWeaponHolder` | `WeaponHolder` | `EntityWeaponHolder` | `Weapon` no longer references `Player`, `WeaponHolder`, `PlayerInputHandler` or `AbilityHolder`. The player holder stops deriving from `Interact` (single inheritance) and re-declares the pickup fields under `Interact`'s names |
+| `AbilityHolderBase<TCore>` | `IAbilityOwner` | `AbilityHolder` | `EntityAbilityHolder` (new, optional) | Aim from `ICharacterInput`, costs from `IVitalComponent`; services built lazily so pooled enemies see the injected pool |
+
+**Enemy weapon.** With no weapon set in the Inspector, `EntityWeaponHolder` instantiates
+`EntityData.WeaponSO.Weapon` once when that prefab carries a `Weapon`; `EntityAttackState` then runs
+the player's lifecycle (`Attack` → `MakeDamage` → `EndDamage`) and restores `EntityData.Aima` on exit.
+Otherwise it keeps `EntityAttack`. Content requirement: enemy `AttackSO`s need animator overrides built on
+the enemy controller and a `LayerMask` that hits the player hurtbox.
+
+**Enemy ability.** `EntityAbilityState` steps Start → Cast → Do → Exit from `LogicUpdate` (enemy
+animators carry no ability events), dispatches Cast once, holds for `MaxHoldTime`, then restores
+`EntityData.Aima`. `EntityBasicState` ticks cooldowns and casts the first ready ability (`AbilitySlot`
+order) when the target is locked and in attack range. Content requirement: an `Ability` bool on the enemy
+controller; bindings on `EntityData.AbilityBindings`.
+
+**Out of scope, kept:** Abilities v1 (`EntityWeapon`, `ActivateSkill`) is untouched and no longer
+referenced by `EntityWeaponHolder`; the file stays.
 
 ## Residuals (out of scope)
 

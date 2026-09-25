@@ -166,6 +166,18 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 - **Do not add new `ActivateSkill` subclasses for player abilities.** Fix bugs here; author new
   work in v2
 
+## Shared Character Bases (ADR-0005 Amendment 2 — 2026-09-25)
+
+- `Weapon` works for any `IWeaponHolder` — never reference `Player`, `WeaponHolder` or
+  `PlayerInputHandler` from a weapon. Use `user.Animator`, `user.OwnerTransform`, `holder.Aim`
+- An enemy gets a weapon by pointing `EntityData.WeaponSO.Weapon` at a prefab with a `Weapon` component;
+  its `AttackSO`s need animator overrides built on the **enemy** controller and a `LayerMask` hitting the
+  player hurtbox. Without one, the enemy keeps `EntityAttack`
+- An enemy gets Abilities v2 by adding `EntityAbilityHolder` to its prefab, authoring
+  `EntityData.AbilityBindings`, and giving its controller an `Ability` bool. Cast range = attack range
+- Movement impacts (knockback, slow, stun) go through `IMovement` with a stable `source` object; always
+  remove what you add (`RemoveSpeedMultiplier` / `Unlock`)
+
 ## Layer Masks
 - Attack hitbox layer masks MUST be set in Inspector on `EntityData` or `WeaponStats.LayerMask` — never hardcode layer indices
 - `Physics2D.OverlapCircleNonAlloc(pos, range, results, layerMask)` — always pass the configured mask

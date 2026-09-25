@@ -218,3 +218,67 @@ sequenceDiagram
     VS->>VS: current = max
     Note over VS,SH: siblings resolve each other through the core hub — never DI
 ```
+
+## 9. Component bases (ADR-0005 Amendment 2)
+
+Every pair derives from `CoreComponentBase<TCore>`; the base holds the shared logic, the subclass only
+the side-specific part.
+
+```mermaid
+classDiagram
+    class CoreComponentBase["CoreComponentBase~TCore~"] { <<abstract>> }
+    class DamageReceiverBase["DamageReceiverBase~TCore~"] { <<abstract>> +TakeDamage() #Mitigate() #OnDamaged() }
+    class CharacterInputBase["CharacterInputBase~TCore~"] { <<abstract>> +AimDirection +AimPoint +OnTakeDamage() }
+    class MovementBase["MovementBase~TCore~"] { <<abstract>> +SetVelocity() +ApplyKnockback() +AddSpeedMultiplier() +Lock() }
+    class WeaponHolderBase["WeaponHolderBase~TCore~"] { <<abstract>> +Attack() +MakeDamage() +EndDamage() }
+    class AbilityHolderBase["AbilityHolderBase~TCore~"] { <<abstract>> +TryDoAbility() +TryDoAnyAbility() +HandleInput() #ResolveBindings() }
+    class INegativeReceiver { <<interface>> }
+    class ICharacterInput { <<interface>> }
+    class IMovement { <<interface>> }
+    class IWeaponHolder { <<interface>> }
+    class IAbilityOwner { <<interface>> }
+    class Weapon { <<abstract>> +OnAttackEnter(IWeaponHolder) }
+
+    CoreComponentBase <|-- DamageReceiverBase
+    CoreComponentBase <|-- CharacterInputBase
+    CoreComponentBase <|-- MovementBase
+    CoreComponentBase <|-- WeaponHolderBase
+    CoreComponentBase <|-- AbilityHolderBase
+    INegativeReceiver <|.. DamageReceiverBase
+    ICharacterInput <|.. CharacterInputBase
+    IMovement <|.. MovementBase
+    IWeaponHolder <|.. WeaponHolderBase
+    IAbilityOwner <|.. AbilityHolderBase
+    DamageReceiverBase <|-- NegativeReciver
+    DamageReceiverBase <|-- EntityNegativeReciver
+    CharacterInputBase <|-- PlayerInputHandler
+    CharacterInputBase <|-- EntityInput
+    MovementBase <|-- PlayerMovement
+    MovementBase <|-- EntityMovement
+    WeaponHolderBase <|-- WeaponHolder
+    WeaponHolderBase <|-- EntityWeaponHolder
+    AbilityHolderBase <|-- AbilityHolder
+    AbilityHolderBase <|-- EntityAbilityHolder
+    Weapon --> IWeaponHolder : equipped to
+```
+
+## 10. Flow — enemy casts an ability
+
+```mermaid
+sequenceDiagram
+    participant BS as EntityBasicState
+    participant AH as EntityAbilityHolder
+    participant AS as EntityAbilityState
+    participant AI as AbilityInstance
+    BS->>AH: Processing() (cooldowns)
+    BS->>AH: target locked && in attack range → TryDoAnyAbility()
+    AH-->>BS: true (first ready slot; animator override applied)
+    BS->>AS: ChangeState(AbilityState)
+    AS->>AH: StartHold()
+    loop LogicUpdate
+        AS->>AH: HandleInput() — Start→Cast (pay cost)
+        AS->>AH: Cast: dispatch once, hold MaxHoldTime, CancelHold → Do
+        AS->>AI: Do: Execute effects, start cooldown → Exit
+    end
+    AS->>AS: Exit → IdleState, restore EntityData.Aima
+```
