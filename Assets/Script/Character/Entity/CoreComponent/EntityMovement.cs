@@ -154,7 +154,7 @@ public class EntityMovement : MovementBase<EntityCore>
 
     public void SetPositionToCheck(Vector2 endPosition)
     {
-        var rangeToCheck = Random.Range(10, 100)/100f;
+        var rangeToCheck = Random.Range(30, 75)/100f;
         this.endPosition = Vector2.Lerp(transform.position, endPosition, rangeToCheck);
     }
 

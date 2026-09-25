@@ -274,13 +274,14 @@ public static class Utility
     public static float ModifierStatsCalculate(List<StatModifier> modifiers, float baseValue)
     {
         float percentAddSum = 0f;
+        float addedValue = baseValue;
         for (int i = 0; i < modifiers.Count; i++)
         {
             StatModifier mod = modifiers[i];
             switch (mod.Type)
             {
                 case ModifierType.Flat:
-                    baseValue += mod.Value;
+                    addedValue += mod.Value;
                     break;
 
                 case ModifierType.PercentAdd:
@@ -290,16 +291,16 @@ public static class Utility
                         || modifiers[i + 1].Type != ModifierType.PercentAdd;
                     if (isLastPercentAdd)
                     {
-                        baseValue *= 1f + percentAddSum;
+                        addedValue *= 1f + percentAddSum;
                         percentAddSum = 0f;
                     }
                     break;
 
                 case ModifierType.PercentMult:
-                    baseValue *= 1f + mod.Value;
+                    addedValue *= 1f + mod.Value;
                     break;
             }
         }
-        return baseValue;
+        return addedValue - baseValue;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 /// Shared damage pipeline of a character's hurtbox. The flow is fixed here — mitigate, reduce HP,
 /// notify input, then a subclass hook — so both sides apply their rules in the same order.
 /// </summary>
-public abstract class DamageReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver where TCore : CoreBase
+public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver where TCore : CoreBase
 {
     protected IVitalComponent vital;
     protected IStatService stats;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EntityNegativeReciver : DamageReceiverBase<EntityCore>
+public class EntityNegativeReciver : NegativeReceiverBase<EntityCore>
 {
     private EntityUIController entityUIController;
     private EntityMovement entityMovement;

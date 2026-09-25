@@ -65,14 +65,14 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         var count = duration / perTime;
         if (duration % perTime > 0) count++;
-        ReductionPerTime(statType, amount, perTime, duration);
+        StartCoroutine(ReductionPerTime(statType, amount, perTime, duration));
     }
 
     public void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float duration)
     {
         var count = duration / perTime;
         if (duration % perTime > 0) count++;
-        RecoveryPerTime(statType, amount, perTime, duration);
+        StartCoroutine(RecoveryPerTime(statType, amount, perTime, duration));
     }
 
     IEnumerator RecoveryPerTime(StatType statType, float amount, float perTime, float timeCount)
