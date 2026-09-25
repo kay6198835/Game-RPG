@@ -5,7 +5,7 @@ using VContainer;
 
 /// <summary>
 /// Shared Abilities v2 owner for Player and Entity: equips AbilityDefinitions per slot and drives the
-/// Start → Cast → Do → Exit instance. Subclasses only say where the bindings come from; aim comes from
+/// Start → Cast → Do → Exit instance. Bindings come from CharacterData (PlayerData / EntityData); aim comes from
 /// ICharacterInput and costs from IVitalComponent, so the same AbilityDefinition runs on either side.
 /// </summary>
 public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbilityOwner where TCore : CoreBase
@@ -54,8 +54,8 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
         objecPoolService = pool;
     }
 
-    /// <summary>Where this character's slot → ability bindings are authored.</summary>
-    protected abstract List<AbilityBinding> ResolveBindings();
+    /// <summary>Where this character's slot → ability bindings are authored: CharacterData, never the weapon.</summary>
+    protected virtual List<AbilityBinding> ResolveBindings() => Core.Data.AbilityBindings;
 
     protected override void Start()
     {

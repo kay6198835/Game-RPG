@@ -282,3 +282,48 @@ sequenceDiagram
     end
     AS->>AS: Exit → IdleState, restore EntityData.Aima
 ```
+
+## 11. Amendment 3 — shared character data and "no weapon, no attack"
+
+```mermaid
+classDiagram
+    class CharacterData {
+        <<abstract ScriptableObject>>
+        +BaseStatsSO Stats
+        +List~AbilityBinding~ AbilityBindings
+        +WeaponSO DefaultWeapon
+    }
+    class PlayerData
+    class EntityData {
+        +AnimatorOverrideController Aima
+        +float RangeCheckFieldOfView
+        +float IdleDurationTime
+        +float MoveDurationTime
+        +float RangeCheckAttack
+    }
+    CharacterData <|-- PlayerData
+    CharacterData <|-- EntityData
+    class CoreBase {
+        <<abstract>>
+        +CharacterData Data
+    }
+    CoreBase ..> CharacterData : Core → Player.Data / EntityCore → Entity.Data
+    StatHandlerBase ..> CharacterData : Stats
+    AbilityHolderBase ..> CharacterData : AbilityBindings
+    WeaponHolderBase ..> CharacterData : DefaultWeapon (equipped once at Start)
+```
+
+```mermaid
+flowchart TD
+    B[EntityBasicState.LogicUpdate] --> A{EntityAbilityHolder ready<br/>and target in range?}
+    A -- yes --> AS[EntityAbilityState]
+    A -- no --> W{EntityWeaponHolder.CallAttack<br/>weapon equipped, CanAttack,<br/>recovery elapsed?}
+    W -- no weapon / recovering --> F[keep chasing / idling]
+    W -- yes --> R{IsInRangeAttack?}
+    R -- no --> F
+    R -- yes --> AT[EntityAttackState]
+    AT --> E1[Enter: weaponHolder.Attack → Weapon.OnAttackEnter]
+    E1 --> E2[OnActivate: MakeDamage → MeleeWeapon overlap → INegativeReceiver.TakeDamage]
+    E2 --> E3[End: SetRecovery AttackSO.attackRate]
+    E3 --> E4[Exit: EndDamage, restore EntityData.Aima]
+```

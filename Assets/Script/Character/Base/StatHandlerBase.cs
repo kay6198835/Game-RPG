@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Shared max-value façade over a character's <see cref="BaseStatsSO"/>. Subclasses only decide
-/// where the profile comes from (<see cref="ResolveProfile"/>) — the template-method shape of BaseCell.Setting().
+/// Shared max-value façade over a character's <see cref="BaseStatsSO"/>. By default the profile is
+/// CharacterData.Stats; a subclass may override <see cref="ResolveProfile"/> — the template-method shape of BaseCell.Setting().
 /// </summary>
 public abstract class StatHandlerBase<TCore> : CoreComponentBase<TCore>, IStatService where TCore : CoreBase
 {
@@ -14,7 +14,7 @@ public abstract class StatHandlerBase<TCore> : CoreComponentBase<TCore>, IStatSe
     // the hub's own Awake, and Unity does not order Awake across sibling GameObjects.
     protected BaseStatsSO StatsSO => _profile != null ? _profile : (_profile = ResolveProfile());
 
-    protected abstract BaseStatsSO ResolveProfile();
+    protected virtual BaseStatsSO ResolveProfile() => Core.Data.Stats;
 
     public int GetLevel() => StatsSO.Level;
     public Dictionary<StatType, StatsViewDTO> GetFullViewStats() => StatsSO.FullStatView();

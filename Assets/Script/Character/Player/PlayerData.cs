@@ -1,12 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
+// Stats, ability bindings and the default weapon live on CharacterData, shared with EntityData.
 [CreateAssetMenu(fileName = "newPLayerData", menuName = "Data/PLayer Data/Base Data")]
-public class PlayerData : ScriptableObject
+public class PlayerData : CharacterData
 {
-    [SerializeField] private BaseStatsSO stats;
-    public BaseStatsSO Stats { get => stats; }
-    [field: SerializeField] public List<AbilityBinding> AbilityBindings { get; private set; } = new();
 }

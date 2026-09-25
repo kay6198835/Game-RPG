@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-
 // Registered in GameLifetimeScope by this concrete type; the [Inject] Construct lives on the base.
+// Bindings are authored on PlayerData (CharacterData); the serialized list on this component is overwritten.
 public class AbilityHolder : AbilityHolderBase<Core>
 {
-    // Bindings are authored on PlayerData; the serialized list on this component is overwritten.
-    protected override List<AbilityBinding> ResolveBindings() => core.Player.Data.AbilityBindings;
 }
 
 [System.Serializable]

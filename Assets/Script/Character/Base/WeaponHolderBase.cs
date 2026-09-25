@@ -3,7 +3,8 @@ using UnityEngine;
 /// <summary>
 /// Shared weapon-using layer of Player and Entity: holds the equipped <see cref="Weapon"/> and drives
 /// its attack lifecycle (CanAttack → Attack → MakeDamage → EndDamage → CanChain). Damage is computed
-/// from the owner's current stats, so the same weapon works on either side.
+/// from the owner's current stats, so the same weapon works on either side. No weapon, no attack:
+/// every attack entry point returns false / does nothing while <see cref="Weapon"/> is null.
 /// </summary>
 public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeaponHolder where TCore : CoreBase
 {
@@ -26,6 +27,19 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         base.Start();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out input);
+        if (weapon == null) EquipDefaultWeapon();
+    }
+
+    // Same for Player and Entity: CharacterData.DefaultWeapon is equipped once, and only when its prefab
+    // carries a Weapon. A pooled character keeps it across re-spawns, so this never duplicates it.
+    private void EquipDefaultWeapon()
+    {
+        WeaponSO weaponSO = Core.Data != null ? Core.Data.DefaultWeapon : null;
+        GameObject prefab = weaponSO != null ? weaponSO.Weapon : null;
+        if (prefab == null || !prefab.TryGetComponent(out Weapon _)) return;
+
+        GameObject instance = Instantiate(prefab, transform.position, Quaternion.identity);
+        instance.GetComponent<Weapon>().Equid(this);
     }
 
     public void Equid_UnEquid(Weapon weapon)

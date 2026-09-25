@@ -227,7 +227,7 @@ player. Class and file names are unchanged; serialized fields keep their names.
 **Enemy weapon.** With no weapon set in the Inspector, `EntityWeaponHolder` instantiates
 `EntityData.WeaponSO.Weapon` once when that prefab carries a `Weapon`; `EntityAttackState` then runs
 the player's lifecycle (`Attack` → `MakeDamage` → `EndDamage`) and restores `EntityData.Aima` on exit.
-Otherwise it keeps `EntityAttack`. Content requirement: enemy `AttackSO`s need animator overrides built on
+(Superseded by Amendment 3: there is no `EntityAttack` fallback.) Content requirement: enemy `AttackSO`s need animator overrides built on
 the enemy controller and a `LayerMask` that hits the player hurtbox.
 
 **Enemy ability.** `EntityAbilityState` steps Start → Cast → Do → Exit from `LogicUpdate` (enemy
@@ -239,7 +239,47 @@ controller; bindings on `EntityData.AbilityBindings`.
 **Out of scope, kept:** Abilities v1 (`EntityWeapon`, `ActivateSkill`) is untouched and no longer
 referenced by `EntityWeaponHolder`; the file stays.
 
+## Amendment 3 — 2026-09-25 (owner request): no weapon, no attack; shared character data
+
+**Rule.** A character attacks only with an equipped `Weapon`, on both sides. With `Weapon == null`,
+`WeaponHolderBase.CanAttack()` is false, `PlayerBasicState` never enters `AttackState`, and
+`EntityWeaponHolder.CallAttack()` is false so `EntityBasicState` never enters it either. There is no
+fallback attack path.
+
+**`EntityAttack` deleted.** Its hardcoded `TakeDamage(10, …)` path was the fallback; with the rule above
+nothing is left for it. Its cadence gate moves to `EntityWeaponHolder` (`CallAttack` / `SetRecovery`),
+driven by the played stage's `AttackSO.attackRate` instead of `clip length × 1.3`. Range stays in
+`EntityFindTarget.IsInRangeAttack()`. The component was removed from `Prefab/Enemy/EnemyPrefab.prefab`
+(the enemy `LoadRandomMap` spawns) and from `SO/Database/EnemyPrefab.prefab`. Test prefabs (Bat, Crab…)
+still reference it and show "Missing script" — accepted by the owner. Closes the residual of BUG-043.
+
+**Abilities do not depend on the weapon.** Bindings come from the character's data asset only
+(`PlayerData` / `EntityData`). The player's weapon gate on the ability input and on the `AbilityState`
+transition is removed; an unarmed player casts.
+
+**`CharacterData`.** `PlayerData` and `EntityData` now derive from one abstract SO holding what every
+character is built from: `Stats`, `AbilityBindings`, `DefaultWeapon` (a `WeaponSO`). Enemy-only AI tuning
+stays on `EntityData`. `FormerlySerializedAs` maps both sides' previous names (`stats`/`statsSO`,
+`<AbilityBindings>k__BackingField`/`abilityBindings`, `weaponSO`), so no asset loses data; class names and
+GUIDs are unchanged. `CoreBase.Data` exposes it to the component bases — it is the character's own data,
+reached through its own hub, so `ICharacter` stays identity-only. Defaults now live on the bases:
+`StatHandlerBase.ResolveProfile()` → `Data.Stats`, `AbilityHolderBase.ResolveBindings()` →
+`Data.AbilityBindings`.
+
+**Holder-agnostic equip.** `WeaponHolderBase` equips `Data.DefaultWeapon` once at `Start` when the
+holder is empty and the prefab carries a `Weapon` — the same code for Player and Entity. `Player.asset` has
+no default weapon, so the player still starts unarmed and picks weapons up.
+
+**Knight weapon (content).** `Prefab/Weapon/WeaponEntity.prefab` had a missing script; it is now a
+`MeleeWeapon` with a trigger collider, stats `SO/Enemy/Weapon/EnemySnS_Stat.asset` (rewritten to the
+current `WeaponStats` field names; mask = player layer) and one stage `Knight_Attack1.asset` using
+`Knight_Controller.overrideController` (range 1, damage 10 — the values `EntityAttack` used). Enemy damage
+is now `PhysicalDamage + stage damage (+ crit)` from the enemy's own stats, not a flat 10.
+
 ## Residuals (out of scope)
 
-- `EntityEffectStats` (Abilities v1) still writes `Core.Entity.Data.StatsSO`, the shared asset.
+- `EntityEffectStats` (Abilities v1) still writes `Core.Entity.Data.Stats`, the shared asset.
+- `AttackSO.attackDamage` has no `FormerlySerializedAs("attackDamege")`; the player stage assets still
+  store `attackDamege`, so their authored stage damage reads as 0 (pre-existing, commit `ddcc0a5`).
+- `EntityData.layerMask` and `EntityData.movementVelocities` have no reader.
 - `bullet.cs`, `Projectile.cs`, `Spell.cs` still look receivers up with `GetComponentInChildren`.
