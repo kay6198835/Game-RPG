@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Recovery - Reduction Per Time For Duration")]
@@ -6,17 +5,16 @@ public class RecoveryReductionPerTimeForDuration : StatsEffectBase
 {
     public float duration;
     public float perTime;
-    protected override void ApplyImpact(AbilityContext context, StatType statType, float impactValue)
+    protected override void ApplyImpact(IVitalComponent vital, StatType statType, float impactValue)
     {
         switch (impactType)
         {
             case StatImpactType.Recovery:
-                context.Services.Vital.RecoveryPerTimeForDuration(statType, impactValue, perTime, duration);
+                vital.RecoveryPerTimeForDuration(statType, impactValue, perTime, duration);
                 break;
             case StatImpactType.Reduction:
-                context.Services.Vital.ReductionPerTimeForDuration(statType, impactValue, perTime, duration);
+                vital.ReductionPerTimeForDuration(statType, impactValue, perTime, duration);
                 break;
         }
     }
 }
-

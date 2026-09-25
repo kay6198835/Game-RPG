@@ -10,6 +10,7 @@ public class EntityBasicState : EntityState
     protected EntityAttack entityAttack;
     protected EntityFindTarget entityFindTarget;
     protected EntityVitalStats entityVitalStats;
+    protected EntityAbilityHolder abilityHolder;
     public EntityBasicState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -22,6 +23,7 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out entityAttack);
         entity.Core.GetCoreComponent(out entityFindTarget);
         entity.Core.GetCoreComponent(out entityVitalStats);
+        entity.Core.GetCoreComponent(out abilityHolder);
     }
     public override void LogicUpdate()
     {
@@ -38,6 +40,16 @@ public class EntityBasicState : EntityState
             else
             {
                 stateMachine.ChangeState(entity.TakeDamageState);
+                return;
+            }
+        }
+        // Optional component: enemies without EntityAbilityHolder behave exactly as before.
+        if (abilityHolder != null)
+        {
+            abilityHolder.Processing();
+            if (entityFindTarget.HasTarget && entityFindTarget.IsInRangeAttack() && abilityHolder.TryDoAnyAbility())
+            {
+                stateMachine.ChangeState(entity.AbilityState);
                 return;
             }
         }
@@ -58,6 +70,7 @@ public class EntityBasicState : EntityState
         entityAttack = null;
         entityFindTarget = null;
         entityVitalStats = null;
+        abilityHolder = null;
     }
 
 }

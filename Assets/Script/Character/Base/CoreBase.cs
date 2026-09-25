@@ -36,6 +36,27 @@ public abstract class CoreBase : MonoBehaviour, ICore
             }
         }
     }
+    public virtual bool TryGetCapability<T>(out T capability) where T : class
+    {
+        var type = typeof(T);
+        if (_cache.TryGetValue(type, out var cached) && cached is T hit)
+        {
+            capability = hit;
+            return true;
+        }
+        foreach (var comp in coreComponents)
+        {
+            if (comp is T match)
+            {
+                _cache[type] = comp;
+                capability = match;
+                return true;
+            }
+        }
+        capability = null;
+        return false;
+    }
+
     public virtual void Setup()
     {
         var allCoreComponents = GetComponentsInChildren<ICoreComponent>(true);

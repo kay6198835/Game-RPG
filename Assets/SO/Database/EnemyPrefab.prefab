@@ -335,7 +335,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6291776623062486390}
-  - component: {fileID: 5021043265953404686}
   m_Layer: 6
   m_Name: NegativeReciver
   m_TagString: Untagged
@@ -358,20 +357,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8853841013939991596}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5021043265953404686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1801564607496693836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67338086a6ba0854686235682f860347, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  core: {fileID: 0}
-  currentHealth: 0
 --- !u!1 &2126988547769083948
 GameObject:
   m_ObjectHideFlags: 0

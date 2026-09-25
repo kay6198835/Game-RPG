@@ -14,10 +14,10 @@ public class MeleeWeapon : Weapon
         hits = new Collider2D[maxTargetsPerSwing];
     }
 
-    public override void OnAttackEnter(Player player)
+    public override void OnAttackEnter(IWeaponHolder user)
     {
-        base.OnAttackEnter(player);
-        centerAttackPosition = (Vector2)player.transform.position
+        base.OnAttackEnter(user);
+        centerAttackPosition = (Vector2)user.OwnerTransform.position
             + aim.AimDirection.normalized * currentStage.attackRange;
     }
 

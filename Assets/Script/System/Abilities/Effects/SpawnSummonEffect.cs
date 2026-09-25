@@ -32,12 +32,13 @@ public class SpawnSummonEffect : SpawnEffectBase
 
     protected virtual void SummonExecute(AbilityContext currentContext)
     {
-        var negativeReceiver = currentContext.Services.NegativeReceiver;
-        if (negativeReceiver != null)
+        if (currentContext.Target != null
+            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
         {
-            var finalDamage = baseDamage + currentContext.Services.Vital.GetCurrentStatValue(StatType.PhysicalDamage);
+            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.PhysicalDamage);
             negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
         }
+        ApplyOnHitEffects(currentContext);
     }
 
     protected override Vector2 SpawnPos()

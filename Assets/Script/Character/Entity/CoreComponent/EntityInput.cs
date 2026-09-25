@@ -4,27 +4,24 @@ using Unity.VisualScripting;
 using UnityEngine;
 using VContainer;
 
-public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
+public class EntityInput : CharacterInputBase<EntityCore>
 {
-    public Vector2 AimDirection => directionLookVector;
+    public override Vector2 AimDirection => directionLookVector;
+    // Aim at the tracked target when there is one, otherwise straight ahead.
+    public override Vector2 AimPoint => targetTransform != null
+        ? (Vector2)targetTransform.position
+        : (Vector2)transform.position + directionLookVector;
 
     [SerializeField] protected Vector2 spawnPoint;
     // [SerializeField] protected Entity entity;
     [SerializeField] protected Vector2 targetFowardPosition;
     [SerializeField] protected Transform targetTransform;
     [Header("State")]
-    [SerializeField] protected bool isTakeDamage = false;
-    [SerializeField] protected bool isAttack;
-    [SerializeField] protected bool isSkill;
     [SerializeField] protected bool isLockTarget = false;
     [Header("Direction Look")]
     [SerializeField] protected Vector2 directionLookVector;
     [SerializeField] protected int directionLook;
     [SerializeField] protected float directionLookAngle;
-    [Header("Direction TakeDamage")]
-    [SerializeField] private Vector2 directionIsAttakedVector;
-    [SerializeField] private int directionIsAttaked;
-    [SerializeField] private float directionIsAttakedAngle;
     [Header("Skill")]
     [SerializeField] private SkillState state;
     [SerializeField] private SkillType skill;
@@ -40,17 +37,14 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         Ability
     }
     #region Read_Value
-    public bool IsTakeDamage { get => isTakeDamage; }
-    public bool IsAttack { get => isAttack; }
-    public bool IsSkill { get => isSkill; }
     public bool IsLockTarget { get => isLockTarget; }
     public Vector2 DirectionLookVector { get => directionLookVector; }
     //public float AngleSin { get => angleSin;}
     public float DirectionLookAngle { get => directionLookAngle; }
     public int DirectionLook { get => directionLook; }
-    public Vector2 DirectionIsAttakedVector { get => directionIsAttakedVector; }
-    public int DirectionIsAttaked { get => directionIsAttaked; }
-    public float DirectionIsAttakedAngle { get => directionIsAttakedAngle; }
+    public Vector2 DirectionIsAttakedVector => hitDirectionVector;
+    public int DirectionIsAttaked => hitDirection;
+    public float DirectionIsAttakedAngle => hitDirectionAngle;
     public Vector2 SpawnPoint { get => spawnPoint; }
     public SkillState State { get => state; }
     public SkillType Skill { get => skill; }
@@ -69,17 +63,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         Core.GetCoreComponent(out entityFind);
         this.spawnPoint = this.transform.position;
         targetTransform = _playerService.GetPlayerTransform();
-    }
-    public void OnTakeDamage(Vector2 attackPosition)
-    {
-        ChangeIsTakeDamage();
-        Invoke(nameof(ChangeIsTakeDamage), 0.1f);
-        directionIsAttakedVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
-        AngleCalculate(directionIsAttakedVector, ref directionIsAttakedAngle, ref directionIsAttaked);
-    }
-    private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
-    {
-        DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
     public void DirectionMethod()
     {
@@ -127,11 +110,6 @@ public class EntityInput : EntityCoreComponent<EntityCore>, IAimProvider
         float y = Mathf.Sin(radian);
         directionLookVector = new Vector2(x, y).normalized * 100f - (Vector2)transform.position;
     }
-    private void ChangeIsTakeDamage()
-    {
-        this.isTakeDamage = !this.isTakeDamage;
-    }
-
     public void SetLockTarget(bool isLockTarget)
     {
         this.isLockTarget = isLockTarget;

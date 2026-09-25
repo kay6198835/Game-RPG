@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Player : BaseEntity
+public class Player : CharacterBase<Core>
 {
     #region State Variables
 
@@ -21,14 +21,12 @@ public class Player : BaseEntity
     [SerializeField] public PlayerStateMachine stateMachine = new PlayerStateMachine();
     [SerializeField] private PlayerData data;
     // [SerializeField] private BaseStatsSO stats;
-    [SerializeField] private Core core;
     [SerializeField] private Animator anim;
     [SerializeField] private Rigidbody2D rigidbodyPlayer;
 
 
     #region Components
 
-    public Core Core { get => core; }
     public Animator Anim { get => anim; }
     public Rigidbody2D RigidbodyPlayer { get => rigidbodyPlayer; }
     public PlayerStateMachine StateMachine { get => stateMachine; }

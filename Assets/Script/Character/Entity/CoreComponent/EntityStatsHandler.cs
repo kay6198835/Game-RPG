@@ -1,55 +1,30 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityStatsHandler : EntityCoreComponent<EntityCore>, IPlayerStatService
+public class EntityStatsHandler : StatHandlerBase<EntityCore>
 {
-    [SerializeField] private BaseStatsSO statsSO;
-    public override void Setup()
+    private BaseStatsSO runtimeClone;
+
+    // Every enemy of one type shares one EntityData.StatsSO asset. A modifier applied to that asset
+    // would hit every live enemy of the type and leak into the committed file in the Editor, so each
+    // instance works on its own runtime clone.
+    protected override BaseStatsSO ResolveProfile()
     {
-        base.Setup();
-        statsSO = core.Entity.Data.StatsSO;
-    }
-    public int GetLevel()
-    {
-        return statsSO.Level;
-    }
-    public Dictionary<StatType, StatsViewDTO> GetFullViewStats()
-    {
-        return statsSO.FullStatView();
-    }
-    public StatsViewDTO GetViewStat(StatType statType)
-    {
-        return statsSO.GetViewStat(statType);
-    }
-    public Stat GetStat(StatType statType)
-    {
-        return statsSO.GetStat(statType);
-    }
-    public float GetStatValue(StatType statType)
-    {
-        return statsSO.GetStatValue(statType);
-    }
-    public int GetLevelUpStatsBonus()
-    {
-        return statsSO.GetStatUnusedBonus();
-    }
-    public void RemoveModifiersFromSource(object source)
-    {
-        statsSO.RemoveModifiersFromSource(source);
-    }
-    public void AddModifiersFromSource(object source, IReadOnlyList<StatModifier> modifiers)
-    {
-        statsSO.AddModifiersFromSource(source, modifiers);
+        BaseStatsSO source = core.Entity.Data.StatsSO;
+        runtimeClone = Instantiate(source);
+        runtimeClone.name = source.name + " (Runtime)";
+        statsSO = runtimeClone;
+        return runtimeClone;
     }
 
-    public void AddPrimaryPoint(StatType statType, int amount)
+    /// <summary>Drops buffs/debuffs left on this instance's clone, e.g. a timed debuff whose removal
+    /// coroutine was stopped when the pool disabled the enemy.</summary>
+    public void ResetRuntimeModifiers()
     {
-        // amount must be forwarded: Decrease/Revert pass a negative value.
-        statsSO.AddPrimaryPoint(statType, amount);
+        StatsSO.ClearRuntimeModifiers();
     }
-    public Dictionary<StatType, float> GetFullStat()
+
+    private void OnDestroy()
     {
-        // amount must be forwarded: Decrease/Revert pass a negative value.
-        return statsSO.FullStatsValue();
+        if (runtimeClone != null) Destroy(runtimeClone);
     }
 }
