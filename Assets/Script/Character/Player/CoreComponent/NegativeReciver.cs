@@ -1,12 +1,5 @@
-using UnityEngine;
-
-public class NegativeReciver : CoreComponent<Core>, INegativeReceiver
+// The player takes damage unmitigated (no Defense) — an owner decision, kept as before.
+// Override Mitigate() here to change it.
+public class NegativeReciver : DamageReceiverBase<Core>
 {
-    public void TakeDamage(float amoutDamage, Vector2 attackPosition)
-    {
-        Core.GetCoreComponent(out VitalStatsComponent vitalStatsComponent);
-        vitalStatsComponent.Reduction(StatType.HP, amoutDamage);
-        Core.GetCoreComponent(out PlayerInputHandler input);
-        input.OnTakeDamage(attackPosition);
-    }
 }
