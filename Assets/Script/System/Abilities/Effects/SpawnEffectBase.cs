@@ -30,6 +30,20 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
             Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
     }
 
+    /// <summary>
+    /// Runs SubEffects as on-hit effects against the character just hit. A SubEffect whose recipient
+    /// is Target therefore acts on whoever the spawned object hit — player or enemy alike.
+    /// </summary>
+    protected void ApplyOnHitEffects(AbilityContext currentContext)
+    {
+        if (currentContext.Target == null || SubEffects == null) return;
+        for (int i = 0; i < SubEffects.Count; i++)
+        {
+            if (SubEffects[i] == null) continue;
+            SubEffects[i].Apply(currentContext);
+        }
+    }
+
     protected abstract Vector2 SpawnPos();
     protected abstract float Angle();
     protected abstract void Execute(AbilityContext currentContext);

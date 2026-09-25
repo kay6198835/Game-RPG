@@ -16,8 +16,7 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
 - **`MeleeWeapon.OnActivate()` is the reference implementation** — copy it
 - `TakeDamage(float amountDamage, Vector2 attackPosition)` — note `float`; always pass
   `transform.position` as the second arg
-- ⚠️ `EntityAttack.Attack()` is **not** a reference implementation: it still hardcodes
-  `TakeDamage(10, …)` and duplicates `EntityWeapon` (BUG-043). Do not copy it
+- `EntityAttack` was deleted (ADR-0005 Amendment 3); enemies attack through `MeleeWeapon` like the player
 - The weapon lifecycle is `CanAttack()` → `OnAttackEnter(player)` → `OnActivate()` (hit frame)
   → `OnDeactivate()` → `CanChain()`. There is no `CheckCanAttack()` any more
 
@@ -165,6 +164,21 @@ globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
   `Weapon.currentAbilitySO`, `EntityWeapon.currentAbilitySO` — it is live, not dead code
 - **Do not add new `ActivateSkill` subclasses for player abilities.** Fix bugs here; author new
   work in v2
+
+## Shared Character Bases (ADR-0005 Amendment 2 — 2026-09-25)
+
+- `Weapon` works for any `IWeaponHolder` — never reference `Player`, `WeaponHolder` or
+  `PlayerInputHandler` from a weapon. Use `user.Animator`, `user.OwnerTransform`, `holder.Aim`
+- **No weapon, no attack** on either side — there is no fallback attack path (`EntityAttack` was deleted,
+  ADR-0005 Amendment 3). Abilities never depend on the weapon; they come from `CharacterData.AbilityBindings`
+- Any character gets a weapon at spawn by pointing `CharacterData.DefaultWeapon` (`PlayerData` / `EntityData`)
+  at a `WeaponSO` whose prefab carries a `Weapon`; `WeaponHolderBase` equips it the same way for both sides.
+  Enemy `AttackSO`s need animator overrides built on the **enemy** controller and a `LayerMask` hitting the
+  player hurtbox; `AttackSO.attackRate` is the enemy's pause between attacks
+- An enemy gets Abilities v2 by adding `EntityAbilityHolder` to its prefab, authoring
+  `EntityData.AbilityBindings`, and giving its controller an `Ability` bool. Cast range = attack range
+- Movement impacts (knockback, slow, stun) go through `IMovement` with a stable `source` object; always
+  remove what you add (`RemoveSpeedMultiplier` / `Unlock`)
 
 ## Layer Masks
 - Attack hitbox layer masks MUST be set in Inspector on `EntityData` or `WeaponStats.LayerMask` — never hardcode layer indices

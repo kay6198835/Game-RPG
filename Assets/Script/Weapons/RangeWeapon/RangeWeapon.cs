@@ -21,9 +21,9 @@ public class RangeWeapon : Weapon
         return StatsRange.AutoFire || CurrentStageIndex != 0;
     }
 
-    public override void OnAttackEnter(Player player)
+    public override void OnAttackEnter(IWeaponHolder user)
     {
-        base.OnAttackEnter(player);
+        base.OnAttackEnter(user);
         firePoint.right = aim.AimDirection.normalized;
     }
 

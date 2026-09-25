@@ -54,20 +54,16 @@ public class PlayerBasicState : PlayerState
                 return;
             }
         }
-        else if (weaponHolder.Weapon != null)
+        // No weapon, no attack. Abilities are bound on PlayerData and do not need a weapon.
+        else if (inputHandler.IsAttack && weaponHolder.Weapon != null && weaponHolder.CanAttack())
         {
-            if (inputHandler.IsAttack && weaponHolder.CanAttack())
-            {
-                stateMachine.ChangeState(player.AttackState);
-                return;
-            }
-            else if (inputHandler.IsSkill
-            //&& abilityHolder.CanUseAbility
-            )
-            {
-                stateMachine.ChangeState(player.AbilityState);
-                return;
-            }
+            stateMachine.ChangeState(player.AttackState);
+            return;
+        }
+        else if (inputHandler.IsSkill)
+        {
+            stateMachine.ChangeState(player.AbilityState);
+            return;
         }
         if (inputHandler.IsTakeDamage)
         {
