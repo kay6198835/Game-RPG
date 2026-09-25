@@ -237,12 +237,9 @@ public class PlayerInputHandler : CharacterInputBase<Core>
         isSkill = false;
         abilityHolder.CancelHold();
     }
+    // Abilities come from PlayerData.AbilityBindings, not from the weapon: castable unarmed.
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
-        if (weaponHolder.Weapon == null)
-        {
-            return;
-        }
         if (context.started)
         {
             if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
