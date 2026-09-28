@@ -29,12 +29,11 @@ public class SpawnProjectileBase : SpawnMono, IProjectilePayload
             lifetime = lifetime,
             targetMask = targetMask,
             blockMask = blockMask,
-            pierceCount = pierceCount,
         };
-        _body.Launch(context.Forward, config, this, 0f);
+        _body.Launch(context.Forward, config, this);
     }
 
-    public void OnHit(Collider2D target, Vector2 hitPos, float power)
+    public void OnHit(Collider2D target, Vector2 hitPos)
     {
         if (_context == null || _callback == null) return;
         // Set-then-invoke: always assign (null for a non-hurtbox) so a stale target is never reused.
