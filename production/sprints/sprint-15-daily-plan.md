@@ -6,6 +6,10 @@
 > **Opened**: 2026-09-20 (Sunday 22:00 kickoff, autonomous). Branch `sprint-15` from `sprint-14` tip (`15242e6`).
 > Sprint 14 closed FAIL (0/9 Must-Have). See `sprint-14.md`, `retro-sprint-14-2026-09-19.md`.
 
+> **CLOSED 2026-09-28** — see the Closure block in `sprint-15.md`. Must-Have 1/9 done, ≈0.6d of planned
+> estimate delivered; large off-plan throughput (ADR-0005 refactor, 10 bugs closed). Carry-over seeds
+> `sprint-16.md`.
+
 ---
 
 ## Opening Block (checked first at every standup, before any other diff)
@@ -13,7 +17,7 @@
 | # | Task | Est. | Status |
 |---|------|------|--------|
 | 1 | S15-01 BUG-063 | 0.05d | NOT STARTED (re-verified 2026-09-23, `Stat.cs:63-65` still `#if UNITY_EDITOR [SerializeField]`) |
-| 2 | S15-02 BUG-064 item 7 | 0.1d | NOT STARTED (`RangeWeapon.cs:7` still `[SerializeField] private IObjecPoolService poolManager`, no `[Inject]`) |
+| 2 | S15-02 BUG-064 item 7 | 0.1d | ✅ CODE DONE 2026-09-28 (`e1dcee0` + `5b035b7`): `RangeWeapon.Construct(IObjecPoolService)` `[Inject]`, injected on equip by `WeaponHolderBase.Equid_UnEquid()` → `resolver.InjectGameObject()`. Not an isolated commit (bundled with range-weapon feature). Play Mode verify pending |
 | 3 | S15-03 BUG-065 | 0.1d | NOT STARTED (`PlayerDeathState.Enter()` still only `base.Enter()`) |
 | 4 | S15-04 BUG-066 + BUG-070 | 0.2d | NOT STARTED (both `currentStats[statType]` indexers still unguarded, 7+7 sites) |
 
@@ -154,3 +158,11 @@ _(appended by `/daily-standup`)_
 - S14-07 Play Mode: 8th sprint — decision required (S15-06); BUG-072's Inspector step adds a second, smaller Editor-only ask
 - QA plan 32nd+ cycle — owner decision
 - TD-040 ADR (v1 vs v2) and ADR-0002 Accepted — both still open, needed before more v2 content ships
+
+---
+
+### Mon 2026-09-28 - Daily Standup — moved
+
+Sprint 15 was closed by the 2026-09-28 kickoff run while this standup was executing. The standup
+entry for 2026-09-28 is logged in `sprint-16-daily-plan.md`. Final opening-block state for Sprint 15:
+**1/4** (S15-02 code-done in `e1dcee0`/`5b035b7`; S15-01/03/04 not started).
