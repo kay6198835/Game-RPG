@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 664644932343296462}
   - component: {fileID: 8587219888214358558}
   - component: {fileID: 12571246044482450}
-  - component: {fileID: -5491633333990490548}
+  - component: {fileID: 167446185442601584}
   m_Layer: 0
   m_Name: Slash-VFX-GO
   m_TagString: Untagged
@@ -149,7 +149,7 @@ CircleCollider2D:
   m_Offset: {x: -0.2133142, y: 0.0042397827}
   serializedVersion: 2
   m_Radius: 0.22999999
---- !u!114 &-5491633333990490548
+--- !u!114 &167446185442601584
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -158,7 +158,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5687771613966579850}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d93a1ca1fba85db4dab3a08a72332275, type: 3}
+  m_Script: {fileID: 11500000, guid: ee605ad49f91dd74e9fab401de7d8cd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 10

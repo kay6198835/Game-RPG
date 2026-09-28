@@ -4,7 +4,7 @@ public abstract class Weapon : InteractiveObjects
 {
     [Header("Abtract Weapon")]
     [SerializeField] protected WeaponStats stats;
-    [SerializeField] protected ActivateSkill currentAbilitySO;
+    //[SerializeField] protected ActivateSkill currentAbilitySO;
     [SerializeField] protected Collider2D pickupCollider;
 
     protected AttackSO currentStage;

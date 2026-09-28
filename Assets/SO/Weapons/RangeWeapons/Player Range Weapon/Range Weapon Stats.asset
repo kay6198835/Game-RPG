@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f9413cfa4d9691449a07d90b570dceb, type: 3}
+  m_Name: Range Weapon Stats
+  m_EditorClassIdentifier: 
+  <LayerMask>k__BackingField:
+    serializedVersion: 2
+    m_Bits: 64
+  <AttackStages>k__BackingField:
+  - {fileID: 11400000, guid: e189b6c39183f694fbe5b287f1e6a6d9, type: 2}
+  - {fileID: 11400000, guid: 9da22da39b10bc34389ab389ddfd1cba, type: 2}
+  - {fileID: 11400000, guid: aeb392db04a94444499c314146ba8f43, type: 2}
+  <StatModifiers>k__BackingField:
+    authoredModifiers: []
+  nameWeapon: 
+  autoFire: 1
+  projectileCount: 1

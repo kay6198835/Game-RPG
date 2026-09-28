@@ -1,16 +1,16 @@
 using UnityEngine;
+using VContainer;
 
 public class RangeWeapon : Weapon
 {
     [Header("Range")]
     [SerializeField] private Transform firePoint;
-    private IObjecPoolService poolManager;
+    private IObjecPoolService _objecPoolService;
 
     private float nextFireTime;
 
     private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
-    IObjecPoolService _objecPoolService;
     [Inject]
     public void Construct(IObjecPoolService objecPoolService)
     {
@@ -18,12 +18,17 @@ public class RangeWeapon : Weapon
     }
     public override bool CanAttack() =>
         base.CanAttack() && StatsRange != null && firePoint != null
-        && poolManager != null && Time.time >= nextFireTime;
+        && _objecPoolService != null && Time.time >= nextFireTime;
 
     public override bool CanChain()
     {
         if (!CanAttack()) return false;
         return StatsRange.AutoFire || CurrentStageIndex != 0;
+    }
+    public override void Equid(IWeaponHolder weaponHolder)
+    {
+        base.Equid(weaponHolder);
+        firePoint = weaponHolder.OwnerTransform;
     }
 
     public override void OnAttackEnter(IWeaponHolder user)
@@ -35,7 +40,7 @@ public class RangeWeapon : Weapon
     public override void OnActivate(float finalDamage)
     {
         var stage = CurrentRangeStage;
-        if (stage == null || stage.BulletPrefab == null) return;
+        if (stage == null || stage.ProjectilePrefab == null) return;
 
         Vector2 forward = firePoint.right;
         float baseAngle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
@@ -47,7 +52,7 @@ public class RangeWeapon : Weapon
         for (int i = 0; i < stage.ProjectileCount; i++)
         {
             float angle = stage.ProjectileCount > 1 ? startAngle + step * i : baseAngle;
-            poolManager.Spawn(stage.BulletPrefab, firePoint.position, Quaternion.AngleAxis(angle, Vector3.forward));
+            _objecPoolService.Spawn(stage.ProjectilePrefab, firePoint.position, Quaternion.AngleAxis(angle, Vector3.forward));
         }
 
         nextFireTime = Time.time + stage.RecoveryTime;

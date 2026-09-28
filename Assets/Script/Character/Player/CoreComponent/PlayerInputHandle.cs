@@ -49,7 +49,7 @@ public class PlayerInputHandler : CharacterInputBase<Core>
 
 
     [Header("Bool Value")]
-    [SerializeField] public bool BufferIsAttack { get; private set; } = false;
+    [field: SerializeField] private bool bufferIsAttack = false;
     [SerializeField] private bool isDisadvantage;
     [SerializeField] private bool isEquip_Unequip = false;
     [SerializeField] private bool isInteractor = false;
@@ -83,6 +83,7 @@ public class PlayerInputHandler : CharacterInputBase<Core>
     public Vector2 DirectionExternalityVector { get => directionExternalityVector; }
     public float AngleExternalityDirection { get => angleExternalityDirection; }
     public int DirectionExternality { get => directionExternality; }
+    public bool BufferIsAttack { get => bufferIsAttack; }
     #endregion
 
 
@@ -325,7 +326,7 @@ public class PlayerInputHandler : CharacterInputBase<Core>
 
     public void SetBufferAttack(bool bufferIsAttack)
     {
-        this.BufferIsAttack = bufferIsAttack;
+        this.bufferIsAttack = bufferIsAttack;
     }
     public void SetStatusAnimation(StatusAnimation statusAnimation)
     {

@@ -16,10 +16,10 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
         }
         _context = context;
 
-        dir = new Vector2(_context.Forward.x, _context.Forward.y);
-        if (dir.sqrMagnitude < 0.01f)
-            dir = Vector2.right;
-        dir.Normalize();
+        // dir = new Vector2(_context.Forward.x, _context.Forward.y);
+        // if (dir.sqrMagnitude < 0.01f)
+        //     dir = Vector2.right;
+        // dir.Normalize();
         float angle = Angle();
         Vector2 spawnPos = SpawnPos();
         var obj = _context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));

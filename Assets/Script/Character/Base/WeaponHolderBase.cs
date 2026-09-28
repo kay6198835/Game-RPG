@@ -1,4 +1,6 @@
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 /// <summary>
 /// Shared weapon-using layer of Player and Entity: holds the equipped <see cref="Weapon"/> and drives
@@ -14,6 +16,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     protected ICharacterInput input;
     private Animator animator;
     private ICharacter owner;
+    private IObjectResolver resolver;
 
     public Weapon Weapon => weapon;
     public Transform Transform => transform;
@@ -21,6 +24,12 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     public Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
     public IAimProvider Aim => input;
     private ICharacter Owner => owner ??= GetComponentInParent<ICharacter>();
+
+    [Inject]
+    public void Construct(IObjectResolver resolver)
+    {
+        this.resolver = resolver;
+    }
 
     protected override void Start()
     {
@@ -42,9 +51,19 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         instance.GetComponent<Weapon>().Equid(this);
     }
 
+    // Every weapon reaches a character through here (default spawn and pickup alike), and none of them
+    // is known to the container, so the weapon's [Inject] dependencies are supplied on equip.
     public void Equid_UnEquid(Weapon weapon)
     {
-        this.weapon = this.weapon == null ? weapon : null;
+        if (this.weapon == null)
+        {
+            resolver?.InjectGameObject(weapon.gameObject);
+            this.weapon = weapon;
+        }
+        else
+        {
+            this.weapon = null;
+        }
     }
 
     /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>

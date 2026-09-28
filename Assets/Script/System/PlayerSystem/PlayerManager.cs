@@ -1,31 +1,42 @@
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
+
 public class PlayerManager : MonoBehaviour, IPlayerService
 {
+    [SerializeField] private Player playerPrefab;
+    [SerializeField] private Transform spawnPoint;
+
+    private IObjectResolver resolver;
     private Player player;
-    [SerializeField] private Camera cameraMain;
 
     [Inject]
-    public void Construct(Player player)
+    public void Construct(IObjectResolver resolver)
     {
-        this.player = player;
-        this.player.transform.SetParent(this.transform);
-        cameraMain = Camera.main;
-        cameraMain.transform.SetParent(player.transform);
+        this.resolver = resolver;
     }
 
-    void Start()
+    // Lazy: the first consumer (a service factory during container build, or Awake) spawns the player,
+    // so the order in which the container injects scene components does not matter.
+    public Player Player => player != null ? player : (player = SpawnPlayer());
+    public IPlayerStatService StatService => Player.GetComponentInChildren<StatHandler>(true);
+
+    private void Awake()
     {
-        cameraMain = Camera.main;
-    }
-    public Transform GetPlayerTransform()
-    {
-        return player.transform;
+        if (resolver != null) _ = Player;
     }
 
-    public void SetPlayerPosition(Vector2 position)
+    // resolver.Instantiate injects the whole hierarchy before Awake, so no player component needs registering.
+    private Player SpawnPlayer()
     {
-        player.transform.position = position;
+        Vector3 position = spawnPoint != null ? spawnPoint.position : transform.position;
+        GameObject instance = resolver.Instantiate(playerPrefab.gameObject, position, Quaternion.identity, transform);
+        Player spawned = instance.GetComponent<Player>();
+        Camera.main.transform.SetParent(spawned.transform);
+        return spawned;
     }
 
+    public Transform GetPlayerTransform() => Player.transform;
+
+    public void SetPlayerPosition(Vector2 position) => Player.transform.position = position;
 }

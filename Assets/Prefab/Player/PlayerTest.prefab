@@ -332,9 +332,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be6bb403fbb0ced4380e521719c1c8a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
-  stats: {fileID: 11400000, guid: 994ef81e902f63d47b879a85a21261f6, type: 2}
   core: {fileID: 0}
+  data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
   anim: {fileID: 0}
   rigidbodyPlayer: {fileID: 0}
 --- !u!114 &879482146237950515
@@ -563,6 +562,15 @@ MonoBehaviour:
   abilityBindings:
   - Slot: 0
     Ability: {fileID: 11400000, guid: 9de99cc2a34f9d345ac7cffecd4b1b27, type: 2}
+  <IsHolding>k__BackingField: 0
+  currentAbility:
+    AbilityContext:
+      Origin: {x: 0, y: 0, z: 0}
+      Forward: {x: 0, y: 0, z: 0}
+      TargetPoint: {x: 0, y: 0, z: 0}
+      HoldTime: 0
+      HoldRatio: 0
+      AbilityDefinition: {fileID: 0}
 --- !u!1 &5519547563718807823
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,6 +739,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
+  isTakeDamage: 0
+  isAttack: 0
+  isSkill: 0
+  takeDamageFlagDuration: 0.1
+  hitDirectionVector: {x: 0, y: 0}
+  hitDirectionAngle: 0
+  hitDirection: 0
   starTime: 0
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}
@@ -745,15 +760,11 @@ MonoBehaviour:
   directionMouse: 0
   angleMouseDirection: 0
   angleRotationPlayer: 0
-  isAttack: 0
-  isSkill: 0
+  bufferIsAttack: 0
   isDisadvantage: 0
-  isTakeDamage: 0
   isEquip_Unequip: 0
   isInteractor: 0
   isResourceReceiver: 0
-  state: 0
-  skill: 0
   disadvantage: 0
   statusAnimation: 0
 --- !u!1 &9010334046371474003
@@ -801,6 +812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
+  weapon: {fileID: 0}
   intertionPointRadius: 0.5
   interactableMask:
     serializedVersion: 2
@@ -811,4 +823,3 @@ MonoBehaviour:
   - {fileID: 0}
   nearestObject: {fileID: 0}
   numFound: 0
-  weapon: {fileID: 0}
