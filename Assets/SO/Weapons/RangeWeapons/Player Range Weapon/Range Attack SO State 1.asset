@@ -17,8 +17,16 @@ MonoBehaviour:
   attackDamage: 35
   attackRate: 1
   directionAttackAnimatorOV: {fileID: 22100000, guid: 076cfa1bb0bc4b745a59ab74bdadc9ed, type: 2}
-  projectilePrefab: {fileID: 7718158654528199060, guid: c8956271a5325ed438c9d7960caad380, type: 3}
-  bulletData: {fileID: 0}
-  projectileCount: 1
-  spreadAngle: 0
-  recoveryTime: 0.3
+  <ProjectilePrefab>k__BackingField: {fileID: 7718158654528199060, guid: c8956271a5325ed438c9d7960caad380, type: 3}
+  <ProjectileCount>k__BackingField: 1
+  <SpreadAngle>k__BackingField: 0
+  <RecoveryTime>k__BackingField: 0.3
+  <ProjectileConfig>k__BackingField:
+    speed: 1
+    lifetime: 4
+    targetMask:
+      serializedVersion: 2
+      m_Bits: 64
+    blockMask:
+      serializedVersion: 2
+      m_Bits: 0
