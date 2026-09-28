@@ -166,3 +166,14 @@ _(appended by `/daily-standup`)_
 Sprint 15 was closed by the 2026-09-28 kickoff run while this standup was executing. The standup
 entry for 2026-09-28 is logged in `sprint-16-daily-plan.md`. Final opening-block state for Sprint 15:
 **1/4** (S15-02 code-done in `e1dcee0`/`5b035b7`; S15-01/03/04 not started).
+
+---
+
+## Weekly Wrap-up — 2026-09-28 (late run)
+
+**Verdict: CONCERNS.** Must-Have ~15% on plan (1/9 done, 1 partial, 1 cut by decision); ≈0.6d planned
+work delivered. Off-plan: ADR-0005 refactor landed, 12 bugs closed, 9 opened (BUG-088..095 range).
+New from the wrap-up code review: **BUG-094** (ranged attack rotates the character root and camera) and
+**BUG-095** (`Arrow.prefab` inert; `finalDamage` dropped) — both must precede S16-05.
+Triage: `production/qa/bug-triage-2026-09-28.md`. Retro: `production/retros/retro-sprint-15-2026-09-28.md`.
+Playtest: skipped (no log this week). Carry-over: see the Weekly Wrap-up block in `sprint-15.md`.
