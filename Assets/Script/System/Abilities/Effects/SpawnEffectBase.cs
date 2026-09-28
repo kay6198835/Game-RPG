@@ -6,7 +6,6 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
     public float SpawnOffset = 0.8f;
     public float Lifetime = 8f;
     protected AbilityContext _context;
-    protected Vector2 dir;
     public override void Apply(AbilityContext context)
     {
         if (Prefab == null || context?.Caster == null)

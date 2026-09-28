@@ -1,35 +1,44 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(CircleCollider2D))]
-
-public class SpawnProjectileBase : SpawnMono
+[RequireComponent(typeof(ProjectileBody))]
+public class SpawnProjectileBase : SpawnMono, IProjectilePayload
 {
-    protected Rigidbody2D _rb;
-    protected CircleCollider2D _col;
     [Range(1, 30)]
     [SerializeField] protected float speed;
+    [SerializeField] protected LayerMask targetMask;
+    [SerializeField] protected LayerMask blockMask;
+    [SerializeField, Range(0, 10)] protected int pierceCount;
+
+    protected ProjectileBody _body;
+
     protected virtual void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _rb.gravityScale = 0f;
-
-        _col = GetComponent<CircleCollider2D>();
-        _col.isTrigger = true;
+        _body = GetComponent<ProjectileBody>();
     }
+
     public override void Launch(float lifetime,
-                             AbilityContext context, Action<AbilityContext> execute)
+                                AbilityContext context, Action<AbilityContext> execute)
     {
-        base.Launch(lifetime, context, execute);
-        _rb.velocity = context.Forward * speed;
+        // Lifetime is owned by the body; 0 stops SpawnMono from starting a second despawn coroutine.
+        base.Launch(0f, context, execute);
+
+        var config = new ProjectileConfig
+        {
+            speed = speed,
+            lifetime = lifetime,
+            targetMask = targetMask,
+            blockMask = blockMask,
+            pierceCount = pierceCount,
+        };
+        _body.Launch(context.Forward, config, this, 0f);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    public void OnHit(Collider2D target, Vector2 hitPos, float power)
     {
+        if (_context == null || _callback == null) return;
         // Set-then-invoke: always assign (null for a non-hurtbox) so a stale target is never reused.
-        _context.Target = other.TryGetComponent(out INegativeReceiver _) ? other : null;
+        _context.Target = target.TryGetComponent(out INegativeReceiver _) ? target : null;
         _callback.Invoke(_context);
     }
 }

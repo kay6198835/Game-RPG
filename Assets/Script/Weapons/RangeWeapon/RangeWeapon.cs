@@ -1,7 +1,7 @@
 using UnityEngine;
 using VContainer;
 
-public class RangeWeapon : Weapon
+public class RangeWeapon : Weapon, IProjectilePayload
 {
     [Header("Range")]
     [SerializeField] private Transform firePoint;
@@ -11,11 +11,13 @@ public class RangeWeapon : Weapon
 
     private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
+
     [Inject]
     public void Construct(IObjecPoolService objecPoolService)
     {
         _objecPoolService = objecPoolService;
     }
+
     public override bool CanAttack() =>
         base.CanAttack() && StatsRange != null && firePoint != null
         && _objecPoolService != null && Time.time >= nextFireTime;
@@ -25,6 +27,7 @@ public class RangeWeapon : Weapon
         if (!CanAttack()) return false;
         return StatsRange.AutoFire || CurrentStageIndex != 0;
     }
+
     public override void Equid(IWeaponHolder weaponHolder)
     {
         base.Equid(weaponHolder);
@@ -40,7 +43,9 @@ public class RangeWeapon : Weapon
     public override void OnActivate(float finalDamage)
     {
         var stage = CurrentRangeStage;
-        if (stage == null || stage.ProjectilePrefab == null) return;
+        if (stage == null || stage.ProjectilePrefab == null || stage.BulletData == null) return;
+
+        ProjectileConfig config = stage.BulletData.ToConfig();
 
         Vector2 forward = firePoint.right;
         float baseAngle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
@@ -52,10 +57,22 @@ public class RangeWeapon : Weapon
         for (int i = 0; i < stage.ProjectileCount; i++)
         {
             float angle = stage.ProjectileCount > 1 ? startAngle + step * i : baseAngle;
-            _objecPoolService.Spawn(stage.ProjectilePrefab, firePoint.position, Quaternion.AngleAxis(angle, Vector3.forward));
+            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            GameObject go = _objecPoolService.Spawn(stage.ProjectilePrefab, firePoint.position, rotation);
+
+            if (go != null && go.TryGetComponent(out ProjectileBody body))
+                body.Launch(rotation * Vector3.right, config, this, finalDamage);
         }
 
         nextFireTime = Time.time + stage.RecoveryTime;
+    }
+
+    // Reads only power and target — never weapon state — so a shot in flight keeps the damage
+    // it was fired with even after a stage change or an unequip.
+    public void OnHit(Collider2D target, Vector2 hitPos, float power)
+    {
+        if (target.TryGetComponent(out INegativeReceiver receiver))
+            receiver.TakeDamage(power, hitPos);
     }
 
     private void OnDrawGizmosSelected()
