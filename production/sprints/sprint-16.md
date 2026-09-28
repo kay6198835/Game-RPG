@@ -30,7 +30,7 @@ weapon, and record the result.
 - Buffer (20%): 1 day
 - Available: 4 days
 
-Must-Have load ≈ **1.05d**. Planned-work velocity last sprint was ≈0.6d, so the Must set is kept small
+Must-Have load ≈ **1.1d**. Planned-work velocity last sprint was ≈0.6d, so the Must set is kept small
 on purpose; the remaining capacity is **explicitly reserved for the owner's feature stream** rather than
 filled with tasks that history says will not move.
 
@@ -72,8 +72,9 @@ Full detail: `sprint-15.md` (Closure block), `production/qa/open-issues-2026-09-
 | S16-07 | **Play Mode smoke (9th carry → do it or sign it)** — one session: 4 Paladin abilities, melee, ranged weapon, enemy weapon attack, player death. Log in `production/qa/playtests/` | owner (Kay) | 0.3 | S16-01..06 | Written result per item, or a signed accepted-risk note in this file |
 | S16-08 | **TD-048** — pre-push compile check (or, at minimum, the placeholder hook + a written "open Editor before push" rule) | producer / owner | 0.1 | None | Hook file exists and is documented |
 | S16-09 | **BUG-071 residual** — keep a coroutine handle so HoT/DoT stops on death / disable | gameplay-programmer | 0.15 | S16-02 (same file) | DoT does not survive death or pooled respawn |
+| S16-15 | **BUG-093 (S2, new 2026-09-28)** — restore the `context.Forward → dir` computation commented out at `SpawnEffectBase.cs:19-22`; Blessed Slash currently always fires right. Added by the 2026-09-28 standup | gameplay-programmer | 0.05 | None | Projectile fires along aim direction |
 
-Must-Have total ≈ **1.05d**.
+Must-Have total ≈ **1.1d**.
 
 ### Should Have
 
@@ -85,7 +86,7 @@ Must-Have total ≈ **1.05d**.
 | S16-13 | TD-040 ADR — v1 vs v2 (re-scope: ADR-0005 already moved enemies onto v2) | technical-director | 0.3 | None | ADR under `docs/architecture/` |
 | S16-14 | BUG-087 design — `GameManager` + `ON_PLAYER_DEATH` subscriber + player `Reborn()` (design only this sprint) | game-designer / producer | 0.3 | S16-04 | Short design note / story |
 
-Should-Have total ≈ 0.9d. Must + Should ≈ 1.95d of 4.0d.
+Should-Have total ≈ 0.9d. Must + Should ≈ 2.0d of 4.0d.
 
 ### Nice to Have
 
@@ -108,14 +109,14 @@ tracker as it lands so velocity reflects reality.
 | Third compile break in two weeks (no pre-push check) | Medium | High | S16-08; open the Editor before every push |
 | `WeaponHolderBase.cs:60` uses `resolver?.InjectGameObject` — a holder never injected fails silently and the ranged weapon never fires | Low-Medium | Medium | S16-05 in the smoke session |
 | Play Mode smoke slips a 10th time | High | High | S16-07 accepts a signed accepted-risk note as a valid close |
-| Must set loses to feature work a 6th time | High | Medium | Must kept at 1.05d, all items ≤0.15d except the smoke |
+| Must set loses to feature work a 6th time | High | Medium | Must kept at 1.1d, all items ≤0.15d except the smoke |
 | No `gh` CLI | Known | Low | Manual PR command above |
 
 ---
 
 ## Definition of Done
 
-- [ ] S16-01..S16-05, S16-09 committed
+- [ ] S16-01..S16-05, S16-09, S16-15 committed
 - [ ] S16-06 Inspector step done
 - [ ] S16-07 smoke logged or accepted-risk signed
 - [ ] S16-08 hook/rule exists

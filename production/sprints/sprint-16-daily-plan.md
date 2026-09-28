@@ -16,7 +16,7 @@
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have | 1.05d | 0 | 1.05d |
+| Must Have | 1.1d | 0 | 1.1d |
 | Should Have | 0.9d | 0 | 0.9d |
 | Reserved (owner feature work) | ≈1.6d | — | — |
 
