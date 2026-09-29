@@ -19,7 +19,8 @@ namespace UIFlow
         private readonly List<SkillNodeData> _skillTree = new();
         private bool _deathReported;
 
-        public event Action<PlayerStatsData> StatsChanged;
+        // TODO: nối logic thật — bắn sự kiện này khi máu/mana của Player đổi. Hiện chưa nối nên để accessor rỗng.
+        public event Action<PlayerStatsData> StatsChanged { add { } remove { } }
         public event Action PlayerDied;
 
         public int SkillPoints => 0;

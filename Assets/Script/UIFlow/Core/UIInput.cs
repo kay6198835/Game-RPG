@@ -32,6 +32,13 @@ namespace UIFlow
             return Key.None;
         }
 
+        /// <summary>Space / Enter (không tính chuột).</summary>
+        public static bool KeyboardConfirmPressed()
+        {
+            return Keyboard.current != null &&
+                   (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame);
+        }
+
         /// <summary>Chuột trái / Space / Enter — dùng để tua nhanh hộp thoại, bỏ qua logo.</summary>
         public static bool ConfirmPressed()
         {

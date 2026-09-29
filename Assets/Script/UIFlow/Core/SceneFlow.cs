@@ -81,7 +81,9 @@ namespace UIFlow
             if (!AttachGameplayUI) return;
 
             // Load Additive: scene đích vẫn chạy nguyên vẹn, UI chỉ được "đặt chồng" lên trên.
-            SceneManager.LoadSceneAsync(SceneNames.GameplayUI, LoadSceneMode.Additive);
+            // Dùng LoadScene (đồng bộ, hoàn tất ở frame kế) thay vì LoadSceneAsync: bản async bị Unity chia nhỏ
+            // theo backgroundLoadingPriority nên scene nhiều UI này mất 16–20 giây mới hiện HUD (đo trong smoke test).
+            SceneManager.LoadScene(SceneNames.GameplayUI, LoadSceneMode.Additive);
         }
     }
 }

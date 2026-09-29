@@ -53,6 +53,9 @@ namespace UIFlow
             ResetProviders();
         }
 
+        /// <summary>Tạo lại mọi provider theo cờ hiện tại. Dùng khi đổi cờ lúc đang chạy (smoke test, debug).</summary>
+        public static void RebuildProviders() => ResetProviders();
+
         /// <summary>Gọi khi đổi save để provider nhân vật đọc lại tên / class / level.</summary>
         public static void OnSaveSelected()
         {

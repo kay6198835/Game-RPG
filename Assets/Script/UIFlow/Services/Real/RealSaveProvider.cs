@@ -24,7 +24,7 @@ namespace UIFlow
 
         public int SelectedSlot { get; set; } = -1;
 
-        private string FilePath => Path.Combine(Application.persistentDataPath, FileName);
+        private string FilePath => System.IO.Path.Combine(Application.persistentDataPath, FileName);
 
         public bool HasAnySave => Data.slots.Count > 0;
 
