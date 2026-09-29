@@ -10,13 +10,15 @@
 
 ## Status Verdict
 
-**ON TRACK (day 0).** Nothing started. HEAD compiles; working tree clean.
+**AT RISK (day 1 of 5, updated 2026-09-29).** Only S16-15 (BUG-093) closed, as a side effect of
+off-plan ranged-weapon work. Mon's planned S16-01 / S16-02 did not move. HEAD `7c637c0` expected to
+compile (static read); working tree clean.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have | 1.1d | 0 | 1.1d |
+| Must Have | 1.1d | 0.05d (S16-15 code) | 1.05d |
 | Should Have | 0.9d | 0 | 0.9d |
 | Reserved (owner feature work) | ≈1.6d | — | — |
 
@@ -29,7 +31,8 @@
 | S16-03 | BUG-065 stop movement on death | 0.1d | NOT STARTED |
 | S16-04 | BUG-086 death event once | 0.1d | NOT STARTED |
 | S16-05 | BUG-064-7 RangeWeapon DI verify | 0.15d → 0.05d | CODE DONE — Play Mode verify only (see 09-28 standup: `RegisterComponentInHierarchy<RangeWeapon>` was already removed in `5b035b7`) |
-| S16-15 | BUG-093 projectile aim regression (added 09-28 standup) | 0.05d | NOT STARTED |
+| S16-15 | BUG-093 projectile aim regression (added 09-28 standup) | 0.05d | ✅ CODE DONE `b7a0af5` — Play Mode confirm in S16-07 |
+| S16-16 | BUG-095 residual — add `Collider2D` to `Arrow.prefab`, tune `speed` (added 09-29 standup) | 0.05d | NOT STARTED — owner (Editor) |
 | S16-06 | BUG-072 `Lightning.prefab` layerMask | 0.05d | NOT STARTED |
 | S16-07 | Play Mode smoke | 0.3d | NOT STARTED |
 | S16-08 | TD-048 pre-push check | 0.1d | NOT STARTED |
@@ -43,12 +46,14 @@
 ### Mon 2026-09-28 — Crash/lock fixes on the live path
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S16-01 BUG-092 residual | 0.05d | NOT STARTED | Every HoT/DoT asset is silently broken; 2 lines |
-| S16-02 BUG-066+070 | 0.15d | NOT STARTED | One site now; on the live death path |
+| S16-01 BUG-092 residual | 0.05d | ❌ NOT DONE → carried to Tue | Every HoT/DoT asset is silently broken; 2 lines |
+| S16-02 BUG-066+070 | 0.15d | ❌ NOT DONE → carried to Tue | One site now; on the live death path |
+| *(off-plan)* ranged-weapon projectile architecture `b7a0af5` + `7c637c0` | ≈0.5d (reserved bucket) | ✅ LANDED | Closed BUG-093, BUG-094 (code); BUG-095 partial |
 
 ### Tue 2026-09-29 — Death path
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S16-01 + S16-02 (carried from Mon) | 0.2d | NOT STARTED | Same reasons as Mon |
 | S16-03 BUG-065 | 0.1d | NOT STARTED | Same file as S16-04 |
 | S16-04 BUG-086 | 0.1d | NOT STARTED | Must precede any `ON_PLAYER_DEATH` subscriber (BUG-087) |
 | S16-09 BUG-071 residual | 0.15d | NOT STARTED | Same file as S16-02 |
@@ -132,6 +137,61 @@ Total ≈ 0.3d. Day-0 status: 0 Must-Have done; S16-05 mostly pre-done.
 - Runtime-spawned Player: any scene without a `PlayerManager` whose `playerPrefab` is set has no player;
   `Camera.main` is re-parented inside `SpawnPlayer()` (NRE if no MainCamera tag). Undocumented.
 - Feature stream keeps landing un-reviewed multi-file changes (S16-12 decision).
+
+### Tue 2026-09-29 - Daily Standup (autonomous, no owner present)
+
+Branch `sprint-16`, HEAD `7c637c0`, in sync with `origin/sprint-16`, tree clean.
+
+**Yesterday (Mon 09-28), assessed against source:**
+- `5d2dc8a` wrap-up + `5e1d81f` kickoff (docs only). Wrap-up filed **BUG-094** and **BUG-095**.
+- `b7a0af5` "update architech projectile and logic spawn by weapon and ability" + `7c637c0` "prototy range
+  weapon" — **off-plan, 19 files, no `/code-review`**. New shared `ProjectileBody` (flight, lifetime,
+  target/block mask, pool release) used by both the ranged weapon and v2 `SpawnProjectileBase` via a new
+  `IProjectilePayload` interface; `bullet.cs` + `BulletDataSO.cs` deleted; `RangeAttackSO` now carries a
+  `ProjectileConfig`.
+  - ✅ **BUG-093** fixed in code — `dir` recomputed from `_context.Forward` in `SpawnProjectileEffect.Angle()`.
+  - ✅ **BUG-094** fixed in code — `firePoint` is a `Vector2`; no transform is rotated any more.
+  - ⚠️ **BUG-095** partial — `Arrow.prefab` now has `ProjectileBody` and flies, but has **no `Collider2D`**,
+    so it can never hit. `speed: 1` on all three stage assets. → new **S16-16** (owner, Editor, 0.05d).
+  - ✅ Real fix, unticketed: `Pool.Release()` called `transform.parent.SetParent(...)` (re-parented the
+    *pool's parent*) — now `transform.SetParent(...)`.
+  - Planned S16-01 / S16-02 not started.
+
+**New findings from the source read (not filed as bugs — record for `/code-review`):**
+1. `RangeWeapon.CanAttack()` dropped `Time.time >= nextFireTime`; `nextFireTime` is now written, never
+   read → `RangeAttackSO.RecoveryTime` is dead data. Attack cadence relies on animation alone.
+2. `RangeWeapon.OnHit()` reads `currentStage.attackDamage` **at hit time** (comment claims it is a launch
+   snapshot) and ignores the `finalDamage` passed to `OnActivate()` → stat scaling bypassed; stage change
+   mid-flight changes damage; unequip mid-flight may NRE if `currentStage` is cleared.
+3. Deleted `bullet.cs` / `BulletDataSO.cs` GUIDs are still referenced by `Assets/Prefab/Bullet/Bullet{Ennemy,Player}.prefab`
+   and `Assets/SO/Weapons/RangeWeapons/{Enemy,Player}NormalBulletSO.asset` → four new missing-script
+   assets. Bundle with S16-10 (BUG-073/090) — delete them.
+4. `SpawnProjectileBase.pierceCount` serialized, never read. `ProjectileBody.DespawnOneselfAffterDuration()`
+   calls `_pool.Release` without the null fallback `Release()` has (only matters for hand-placed objects).
+
+**Today (Tue 2026-09-29), estimates:**
+
+| # | Task | Est. | Complexity / Risk |
+|---|------|------|-------------------|
+| 0 | Open Unity, confirm compile green at `7c637c0` (static read only so far) | 5min | Gate |
+| 1 | S16-01 BUG-092 residual — `[SerializeField]` on `perTime` + `timeCount`, delete `duration` | 0.05d | Trivial |
+| 2 | S16-02 BUG-066+070 — guard `VitalStatsBase` 7 sites; missing HP key must not read as death | 0.15d | Low-Med; live death path |
+| 3 | S16-03 + S16-04 BUG-065 / BUG-086 — `PlayerDeathState` stop movement + emit once | 0.2d | Low; one file |
+| 4 | S16-16 BUG-095 residual — collider on `Arrow.prefab`, speed ≈10 | 0.05d | Trivial, Editor |
+| 5 | (if time) finding #1-#2 above — restore `nextFireTime` gate, damage from `finalDamage` snapshot | 0.1d | Low |
+
+Total ≈ 0.45-0.55d. S16-09 (BUG-071) slides to Wed alongside the Editor day.
+
+**Blockers:** every verification still needs an owner Unity session; BUG-084 blocks EditMode tests;
+`gh` unavailable.
+
+**Risks:**
+- Must-Have lost day 1 to feature work again (6th sprint running) — 1.05d left over 4 days is still
+  feasible, but only if Tue/Wed hold.
+- Third un-reviewed multi-file architecture change in 5 days (ADR-0005, `5b035b7`, `b7a0af5`) — the new
+  `ProjectileBody` / `IProjectilePayload` contract is undocumented (no ADR, CLAUDE.md damage chain stale).
+  S16-12 review-gate decision is overdue.
+- Ranged weapon cannot be verified in the smoke until S16-16 lands — sequence it before S16-07.
 
 ## Carry-over Watchlist
 
