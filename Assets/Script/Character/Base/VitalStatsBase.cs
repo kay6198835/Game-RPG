@@ -10,6 +10,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 {
     protected Dictionary<StatType, float> currentStats = new();
     protected IStatService statHandler;
+    [field: SerializeField] protected float _currentHP = 0;
 
     protected override void Start()
     {
@@ -21,6 +22,12 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         if (statHandler == null) Core.TryGetCapability(out statHandler);
         currentStats = statHandler.GetFullStat();
+        UpdateStatField();
+    }
+
+    protected virtual void UpdateStatField()
+    {
+        _currentHP = GetCurrentStatValue(StatType.HP);
     }
 
     public float GetCurrentStatValue(StatType statType)
@@ -31,6 +38,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     public void ApplyBuffDebuff(StatModifierGroup statModifierGroup)
     {
         statModifierGroup.Apply(statHandler.AddModifiersFromSource, this);
+        UpdateStatField();
     }
 
     public void Recovery(StatType statType, float amount)
@@ -44,6 +52,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         {
             currentStats[statType] += amount;
         }
+        UpdateStatField();
     }
 
     public void Reduction(StatType statType, float amount)
@@ -57,6 +66,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         {
             currentStats[statType] -= amount;
         }
+        UpdateStatField();
     }
 
     #region Reduction/Recovery per timer for duration
