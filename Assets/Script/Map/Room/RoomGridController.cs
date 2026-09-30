@@ -4,6 +4,7 @@ using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using VContainer;
 [RequireComponent(typeof(RoomGeneraterController))]
 public class RoomGridController : BaseGrid<RoomCell>
 {
@@ -11,6 +12,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
     private int enemyCount = 0;
+    private PlayerManager _playerManager;
     public override void Setting(int columns, int rows)
     {
         base.Setting(columns, rows);
@@ -42,6 +44,12 @@ public class RoomGridController : BaseGrid<RoomCell>
         EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, OnSpawnExtraEnemy);
     }
 
+    [Inject]
+    public void Construct(PlayerManager playerManager)
+    {
+        _playerManager = playerManager;
+    }
+
     public void OnEnemyDeath(object obj = null)
     {
         _current.OnEnemyDeath();
@@ -64,7 +72,7 @@ public class RoomGridController : BaseGrid<RoomCell>
         int index = CaculateIndex(_next.GetGridPosition());
         //Check why can't get right GetStartDoorPosition when go to room the first time
 
-        
+
         _current = _next;
         _current.UpdateStatusDoor(directionToNextMap);
         this.roomGeneraterController.LoadRoom(index, _current);
@@ -79,7 +87,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         _current = GetValue(_startIndex);
         this.roomGeneraterController.LoadRoom(_startIndex, _current);
-        //this.roomGeneraterController._fastMovement.transform.SetPositionAndRotation(this._current.StartDoorPosition, Quaternion.identity);
+        _playerManager.SetPlayerPosition(_current.transform.position);
     }
     public void ClearRoom(object obj = null)
     {

@@ -1,5 +1,5 @@
 using UnityEngine;
-
+[RequireComponent(typeof(Collider2D))]
 public abstract class Weapon : InteractiveObjects
 {
     [Header("Abtract Weapon")]
