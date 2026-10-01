@@ -1,4 +1,6 @@
-public class StateMachine<TState> where TState : class, IState
+using System;
+[Serializable]
+public abstract class StateMachine<TState> where TState : class, IState
 {
     public TState CurrentState { get; private set; }
 

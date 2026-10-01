@@ -25,6 +25,10 @@ public class WeaponHolder : WeaponHolderBase<Core>
     {
         base.Start();
         Core.GetCoreComponent(out playerInputHandler);
+        if(TryGetComponent(out Weapon weapon))
+        {
+            weapon.Equid(this);
+        }
     }
 
     /// <summary>Looks for a weapon on the ground in range; faces it when found.</summary>

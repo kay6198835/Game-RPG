@@ -7,7 +7,7 @@ public class Entity : CharacterBase<EntityCore>
     [SerializeField] protected Animator anim;
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected ParticleSystem particle;
-    [SerializeField] public EntityStateMachine stateMachine = new EntityStateMachine();
+    [SerializeField] public EntityStateMachine stateMachine;
     [SerializeField] private EntityIdleState idleState;
     [SerializeField] private EntityMoveState moveState;
     [SerializeField] private EntityAttackState attackState;
@@ -32,10 +32,13 @@ public class Entity : CharacterBase<EntityCore>
         LoadEntity();
         LoadState();
     }
+    public virtual void OnEnable()
+    {
+        stateMachine.Initialize(idleState);
+    }
     public override void Start()
     {
         base.Start();
-        stateMachine.Initialize(idleState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
     private void LoadEntity()
