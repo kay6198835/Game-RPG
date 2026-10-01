@@ -10,9 +10,10 @@
 
 ## Status Verdict
 
-**AT RISK (day 1 of 5, updated 2026-09-29).** Only S16-15 (BUG-093) closed, as a side effect of
-off-plan ranged-weapon work. Mon's planned S16-01 / S16-02 did not move. HEAD `7c637c0` expected to
-compile (static read); working tree clean.
+**OFF TRACK (day 4 of 5, updated 2026-10-01).** Still only S16-15 (BUG-093) closed. Tue + Wed went to
+off-plan animation polish and the UIFlow feature branch; zero Must-Have items moved for three days.
+1.05d of Must-Have remains with 2 days left — feasible only if Thu+Fri go entirely to the Must set.
+HEAD `e8d117e`, tree clean, compiles by static read.
 
 ## Burn Summary
 
@@ -20,7 +21,8 @@ compile (static read); working tree clean.
 |--------|------|------|-----------|
 | Must Have | 1.1d | 0.05d (S16-15 code) | 1.05d |
 | Should Have | 0.9d | 0 | 0.9d |
-| Reserved (owner feature work) | ≈1.6d | — | — |
+| Reserved (owner feature work) | ≈1.6d | ≈1.5d used (ranged weapon, combo-attack polish, UIFlow branch) | ≈0.1d |
+| Unplanned fix | — | Bug #13 start-room teleport (code, `9154763`) | Play Mode verify |
 
 ## Task Estimates
 
@@ -61,22 +63,29 @@ compile (static read); working tree clean.
 ### Wed 2026-09-30 — Editor day + smoke
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S16-06 BUG-072 layerMask | 0.05d | NOT STARTED | Needed for the smoke to mean anything |
-| S16-10 BUG-073+090 assets | 0.15d | NOT STARTED | Same Editor session |
-| S16-07 Play Mode smoke (+ S16-05 ranged weapon check) | 0.35d | NOT STARTED | 9th carry; all preconditions done by now |
+| S16-06 BUG-072 layerMask | 0.05d | ❌ NOT DONE → Thu | Needed for the smoke to mean anything |
+| S16-10 BUG-073+090 assets | 0.15d | ❌ NOT DONE → Fri | Same Editor session |
+| S16-07 Play Mode smoke (+ S16-05 ranged weapon check) | 0.35d | ❌ NOT DONE → Fri | 9th carry; all preconditions done by now |
+| *(off-plan)* combo-attack + idle animation polish `9154763` + `e8d117e` | ≈0.5d (reserved) | ✅ LANDED | Also fixed Bug #13 (start-room teleport) in code |
+| *(off-plan, separate branch)* UIFlow menus/loading/gameplay UI `origin/feature/ui-flow-maingameplay` | ≈0.5d (reserved) | ✅ LANDED on feature branch, not merged to `sprint-16` | |
 
-### Thu 2026-10-01 — Process + decisions
+### Thu 2026-10-01 — Code Must-Haves (re-planned by 10-01 standup)
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S16-08 TD-048 hook | 0.1d | NOT STARTED | Two compile breaks in four days |
-| S16-12 review-gate decision | 0.1d | NOT STARTED | |
-| S16-11 BUG-068 `:28` | 0.05d | NOT STARTED | |
+| S16-01 BUG-092 residual | 0.05d | NOT STARTED (4th day) | Still unserialized at HEAD |
+| S16-02 BUG-066+070 | 0.15d | NOT STARTED (4th day) | `e8d117e` added `UpdateStatField()` reads at 4 more call sites of the unguarded indexer |
+| S16-03 + S16-04 BUG-065 / BUG-086 | 0.2d | NOT STARTED | One file |
+| S16-06 BUG-072 layerMask | 0.05d | NOT STARTED | Editor, 5 min |
+| S16-08 / S16-11 / S16-12 | 0.25d | → deferred to Fri buffer or Sprint 17 | Must set first |
 
 ### Fri 2026-10-02 — Design + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S16-14 BUG-087 design note | 0.3d | NOT STARTED | Unblocked once S16-04 lands |
-| S16-13 TD-040 ADR | 0.3d | NOT STARTED | |
+| S16-09 BUG-071 residual | 0.15d | NOT STARTED | Same file as S16-02 |
+| S16-16 BUG-095 Arrow collider + S16-10 assets | 0.2d | NOT STARTED | Editor session, before smoke |
+| S16-07 Play Mode smoke (+ S16-05, Bug #13 teleport, `e8d117e` enemy OnEnable init) | 0.35d | NOT STARTED | **Do it or sign the accepted-risk note — no 10th carry** |
+| S16-14 BUG-087 design note | 0.3d | → Sprint 17 | Unblocked once S16-04 lands |
+| S16-13 TD-040 ADR | 0.3d | → Sprint 17 | |
 
 ---
 
@@ -193,9 +202,70 @@ Total ≈ 0.45-0.55d. S16-09 (BUG-071) slides to Wed alongside the Editor day.
   S16-12 review-gate decision is overdue.
 - Ranged weapon cannot be verified in the smoke until S16-16 lands — sequence it before S16-07.
 
+### Thu 2026-10-01 - Daily Standup (autonomous, no owner present)
+
+No Wed 09-30 standup was logged. Run started on local branch `origin/feature/ui-flow-maingameplay`
+(HEAD `4d7cc0e`, a merge of `sprint-16` into the UI branch); checked out `sprint-16`, HEAD `e8d117e`,
+in sync with `origin/sprint-16`, tree clean.
+
+**Since last standup (Tue 09-29 → Thu 10-01 00:41), assessed against source:**
+- **UIFlow feature** — 5 commits on 09-29 (`0c38633` … `3107737`) on `origin/feature/ui-flow-maingameplay`:
+  UIFlow core + mock/real providers, menu/loading/in-game panels, scene builder, 4 new scenes, a Play Mode
+  smoke test, beginner guide. ≈169 files / +59.9k lines (mostly generated scenes/assets). **Not merged into
+  `sprint-16`**; no GDD, no ADR, no `/code-review`. Off-plan (reserved bucket).
+- `9154763` "polish animation combo attack" (09-30) + `e8d117e` "polishing animation attack, update new
+  asset" (10-01 00:41) — off-plan animation work on `sprint-16`. Code impact (11 `.cs` hunks):
+  - ✅ **Bug #13 fixed in code** — `RoomGridController.OnDoneLoadRoomGrid()` now calls
+    `_playerManager.SetPlayerPosition(_current.transform.position)`; `RoomGridController` registered in
+    `GameLifetimeScope`. Needs Play Mode confirm. ⚠️ Injects the **concrete** `PlayerManager` (resolves,
+    because it is registered `.AsSelf()`), while `RoomGeneraterController` beside it uses `IPlayerService` —
+    violates the `engine-code.md` "inject behind an interface" rule. Teleports to the room centre, not to
+    `StartDoorPosition` as the old commented line did — confirm the player does not land inside a wall.
+  - `Entity`: `stateMachine.Initialize(idleState)` moved from `Start()` to `OnEnable()` — a pooled enemy now
+    re-enters Idle on every respawn (good), but on first spawn `IdleState.Enter()` now runs **before**
+    `Start()`; any component resolved in `Start()` is still null there. Smoke must cover first spawn.
+  - `StateMachine<T>` made `abstract` + `[Serializable]`; `Player`/`EntityStateMachine` `[Serializable]`
+    (Inspector debugging). `Entity.LoadEntity()` still `new`s it in `Awake()`, so serialization is display-only.
+  - `VitalStatsBase` adds a serialized `_currentHP` mirror refreshed by `UpdateStatField()` after every
+    write — **4 more reads of the unguarded `currentStats[...]` indexer** (BUG-066/070 surface grows).
+  - ⚠️ `PlayerState.Enter()` now does `Debug.Log("Enter State: " + animBoolName)` — string concat + log on
+    every state change; debug leftover, remove before smoke so the Console stays readable.
+  - `WeaponHolder.Setup()` equips a `Weapon` found on the holder's own GameObject; `Weapon` now
+    `[RequireComponent(typeof(Collider2D))]`.
+  - `Bat.prefab` + `Crab.prefab` **deleted**: dangling refs left in `Assets/SO/Spawners/SpawnBat.asset`,
+    `SpawnCrab.asset` (both referenced by nothing) and `Assets/Scenes/SampleScene.unity` (sandbox). Low
+    impact; bundle the two spawner assets into S16-10 cleanup.
+- **Must-Have movement: none.** Re-verified at HEAD: BUG-092 residual (`perTime`/`timeCount` still private,
+  unserialized), BUG-065, BUG-086, BUG-066/070 all unchanged.
+
+**Today (Thu 2026-10-01), estimates:**
+
+| # | Task | Est. | Complexity / Risk |
+|---|------|------|-------------------|
+| 0 | Open Unity on `sprint-16`, confirm compile green at `e8d117e`; remove the `PlayerState.Enter()` `Debug.Log` | 10min | Gate |
+| 1 | S16-01 BUG-092 residual — `[SerializeField]` on `perTime` + `timeCount`, delete `duration` if present | 0.05d | Trivial |
+| 2 | S16-02 BUG-066+070 — guard the indexer in `VitalStatsBase` (now incl. `UpdateStatField()`); missing HP must not read as death | 0.15d | Low-Med; live death path |
+| 3 | S16-03 + S16-04 BUG-065 / BUG-086 — `PlayerDeathState` stop movement + emit once | 0.2d | Low; one file |
+| 4 | S16-06 BUG-072 — `layerMask` on `Lightning.prefab` | 0.05d | Editor, 5 min |
+
+Total ≈ 0.45d. Friday: S16-09 + S16-16 + S16-10 + S16-07 smoke (≈0.7d). S16-08/11/12/13/14 → Sprint 17.
+
+**Blockers:** every verification still needs an owner Unity session; BUG-084 blocks EditMode tests;
+`gh` unavailable.
+
+**Risks:**
+- **Must-Have loses to feature work for the 6th sprint running** — 3 consecutive days with zero Must
+  movement; sprint will close PARTIAL unless Thu+Fri are protected.
+- Play Mode smoke heading for a **10th carry** — Friday must end with a log or the signed accepted-risk note.
+- Two feature streams now diverge: `sprint-16` vs. the un-merged UIFlow branch (+59.9k lines, unreviewed).
+  Merge order and review need an owner decision before Sprint 17 kickoff.
+- Three un-reviewed off-plan pushes in 4 days touching core lifecycle (`StateMachine`, `Entity.OnEnable`,
+  DI scope) — S16-12 review-gate decision remains overdue.
+
 ## Carry-over Watchlist
 
-- Play Mode smoke: 9th sprint
+- Play Mode smoke: 9th sprint (Fri 10-02 = last chance this sprint)
+- Bug #13 teleport: code done `9154763` — add to smoke
 - BUG-065 / BUG-066: 6th carry
 - Pre-push hook: 26th+ carry
 - QA plan: 33rd+ cycle — owner decision
