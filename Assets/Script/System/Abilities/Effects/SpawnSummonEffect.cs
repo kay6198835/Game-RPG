@@ -17,9 +17,9 @@ public class SpawnSummonEffect : SpawnEffectBase
         var controller = obj.GetComponent<SpawnSummonBase>();
         controller.Launch(Lifetime, context, SummonExecute);
     }
-    public override bool Casting(AbilityContext context)
+    public override bool TryCast(AbilityContext context)
     {
-        if (!base.Casting(context)) return false;
+        if (!base.TryCast(context)) return false;
         base.Apply(context);
         return true;
     }
@@ -32,12 +32,13 @@ public class SpawnSummonEffect : SpawnEffectBase
 
     protected virtual void SummonExecute(AbilityContext currentContext)
     {
-        var negativeReceiver = currentContext.Services.NegativeReceiver;
-        if (negativeReceiver != null)
+        if (currentContext.Target != null
+            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
         {
-            var finalDamage = baseDamage + currentContext.Services.Vital.GetCurrentStatValue(StatType.PhysicalDamage);
+            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.PhysicalDamage);
             negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
         }
+        ApplyOnHitEffects(currentContext);
     }
 
     protected override Vector2 SpawnPos()

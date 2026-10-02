@@ -12,7 +12,9 @@ public class EntityAttackState : EntityBasicState
     {
         base.Enter();
         startAttackTime = startTime;
-
+        // Same lifecycle as PlayerAttackState. EntityBasicState only enters here when CallAttack() passed,
+        // i.e. a weapon is equipped.
+        weaponHolder.Attack();
     }
     public override void LogicUpdate()
     {
@@ -26,7 +28,7 @@ public class EntityAttackState : EntityBasicState
             case StatusAnimation.StartRangeTrigger:
                 break;
             case StatusAnimation.OnActivate:
-                entityAttack.Attack();
+                weaponHolder.MakeDamage();
                 Status = StatusAnimation.OffActivate;
                 break;
             case StatusAnimation.OffActivate:
@@ -35,7 +37,7 @@ public class EntityAttackState : EntityBasicState
                 Status = StatusAnimation.End;
                 break;
             case StatusAnimation.End:
-                entityAttack.SetRecovery();
+                weaponHolder.SetRecovery();
                 if (entityFindTarget.IsInRangeAttack())
                 {
                     stateMachine.ChangeState(entity.IdleState);
@@ -46,7 +48,6 @@ public class EntityAttackState : EntityBasicState
                     stateMachine.ChangeState(entity.MoveState);
                     return;
                 }
-                break;
             default:
                 break;
         }
@@ -54,7 +55,9 @@ public class EntityAttackState : EntityBasicState
 
     public override void Exit()
     {
-        entityAttack.Exit();
+        weaponHolder.EndDamage();
+        // The weapon stage swapped the animator controller; restore the enemy's own.
+        entity.Anim.runtimeAnimatorController = entityData.Aima;
         base.Exit();
     }
 }

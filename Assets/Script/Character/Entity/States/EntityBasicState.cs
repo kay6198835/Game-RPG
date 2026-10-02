@@ -7,9 +7,9 @@ public class EntityBasicState : EntityState
     protected EntityMovement entityMovement;
     protected EntityInput entityInput;
     protected EntityWeaponHolder weaponHolder;
-    protected EntityAttack entityAttack;
     protected EntityFindTarget entityFindTarget;
     protected EntityVitalStats entityVitalStats;
+    protected EntityAbilityHolder abilityHolder;
     public EntityBasicState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -19,9 +19,9 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out entityMovement);
         entity.Core.GetCoreComponent(out entityInput);
         entity.Core.GetCoreComponent(out weaponHolder);
-        entity.Core.GetCoreComponent(out entityAttack);
         entity.Core.GetCoreComponent(out entityFindTarget);
         entity.Core.GetCoreComponent(out entityVitalStats);
+        entity.Core.GetCoreComponent(out abilityHolder);
     }
     public override void LogicUpdate()
     {
@@ -41,7 +41,18 @@ public class EntityBasicState : EntityState
                 return;
             }
         }
-        if (entityAttack.CallAttack())
+        // Optional component: enemies without EntityAbilityHolder behave exactly as before.
+        if (abilityHolder != null)
+        {
+            abilityHolder.Processing();
+            if (entityFindTarget.HasTarget && entityFindTarget.IsInRangeAttack() && abilityHolder.TryDoAnyAbility())
+            {
+                stateMachine.ChangeState(entity.AbilityState);
+                return;
+            }
+        }
+        // No weapon, no attack: CallAttack() is false while nothing is equipped.
+        if (weaponHolder != null && weaponHolder.CallAttack() && entityFindTarget.IsInRangeAttack())
         {
             entity.StateMachine.ChangeState(entity.AttackState);
             return;
@@ -55,9 +66,9 @@ public class EntityBasicState : EntityState
         entityMovement = null;
         entityInput = null;
         weaponHolder = null;
-        entityAttack = null;
         entityFindTarget = null;
         entityVitalStats = null;
+        abilityHolder = null;
     }
 
 }

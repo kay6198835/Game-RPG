@@ -4,6 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Spawn Projectile Effect")]
 public class SpawnProjectileEffect : SpawnEffectBase
 {
+    protected Vector2 dir;
     [SerializeField] protected float baseDamage = 30;
     public override void Apply(AbilityContext context)
     {
@@ -12,6 +13,7 @@ public class SpawnProjectileEffect : SpawnEffectBase
 
     protected override float Angle()
     {
+        dir = new Vector2(_context.Forward.x, _context.Forward.y);
         if (dir.sqrMagnitude < 0.01f)
             dir = Vector2.right;
         dir.Normalize();
@@ -20,11 +22,12 @@ public class SpawnProjectileEffect : SpawnEffectBase
 
     protected override void Execute(AbilityContext currentContext)
     {
-        var negativeReceiver = currentContext.Services.NegativeReceiver;
-        if (negativeReceiver != null)
+        if (currentContext.Target != null
+            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
         {
             negativeReceiver.TakeDamage(baseDamage, currentContext.Origin);
         }
+        ApplyOnHitEffects(currentContext);
     }
 
     protected override Vector2 SpawnPos()

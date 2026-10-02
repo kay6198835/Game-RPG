@@ -10,9 +10,6 @@ public abstract class WeaponStats : ScriptableObject
     [field: FormerlySerializedAs("<AttackState>k__BackingField")]
     public List<AttackSO> AttackStages { get; protected set; } = new List<AttackSO>();
 
-    [field: SerializeField] public ActivateSkill AbilityWeapon { get; protected set; }
-    [field: SerializeField] public ActivateSkill SkillWeapon { get; protected set; }
-
     public abstract WeaponType Type { get; }
 
     public int StageCount => AttackStages == null ? 0 : AttackStages.Count;

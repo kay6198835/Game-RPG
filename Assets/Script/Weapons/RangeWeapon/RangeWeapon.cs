@@ -1,19 +1,27 @@
 using UnityEngine;
+using VContainer;
 
-public class RangeWeapon : Weapon
+public class RangeWeapon : Weapon, IProjectilePayload
 {
     [Header("Range")]
-    [SerializeField] private Transform firePoint;
-    [SerializeField] private IObjecPoolService poolManager;
+    [SerializeField] private Vector2 firePoint;
+    [SerializeField] private float spawnOffset = 0.5f;
+    private IObjecPoolService _objecPoolService;
 
     private float nextFireTime;
 
     private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
 
+    [Inject]
+    public void Construct(IObjecPoolService objecPoolService)
+    {
+        _objecPoolService = objecPoolService;
+    }
+
     public override bool CanAttack() =>
-        base.CanAttack() && StatsRange != null && firePoint != null
-        && poolManager != null && Time.time >= nextFireTime;
+        base.CanAttack() && StatsRange != null
+        && _objecPoolService != null;
 
     public override bool CanChain()
     {
@@ -21,18 +29,25 @@ public class RangeWeapon : Weapon
         return StatsRange.AutoFire || CurrentStageIndex != 0;
     }
 
-    public override void OnAttackEnter(Player player)
+    public override void Equid(IWeaponHolder weaponHolder)
     {
-        base.OnAttackEnter(player);
-        firePoint.right = aim.AimDirection.normalized;
+        base.Equid(weaponHolder);
+    }
+
+    public override void OnAttackEnter(IWeaponHolder user)
+    {
+        base.OnAttackEnter(user);
+        firePoint = (Vector2)holder.OwnerTransform.position + aim.AimDirection.normalized * spawnOffset;
     }
 
     public override void OnActivate(float finalDamage)
     {
         var stage = CurrentRangeStage;
-        if (stage == null || stage.BulletPrefab == null) return;
+        if (stage == null || stage.ProjectilePrefab == null) return;
 
-        Vector2 forward = firePoint.right;
+        ProjectileConfig config = stage.ProjectileConfig;
+
+        Vector2 forward = aim.AimDirection.normalized;
         float baseAngle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
         float step = stage.ProjectileCount > 1
             ? stage.SpreadAngle / (stage.ProjectileCount - 1)
@@ -42,18 +57,30 @@ public class RangeWeapon : Weapon
         for (int i = 0; i < stage.ProjectileCount; i++)
         {
             float angle = stage.ProjectileCount > 1 ? startAngle + step * i : baseAngle;
-            poolManager.Spawn(stage.BulletPrefab, firePoint.position, Quaternion.AngleAxis(angle, Vector3.forward));
+            Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            GameObject go = _objecPoolService.Spawn(stage.ProjectilePrefab, firePoint, rotation);
+
+            if (go != null && go.TryGetComponent(out ProjectileBody body))
+                body.Launch(rotation * Vector3.right, config, this);
         }
 
         nextFireTime = Time.time + stage.RecoveryTime;
+    }
+
+    // Reads only power and target — never weapon state — so a shot in flight keeps the damage
+    // it was fired with even after a stage change or an unequip.
+    public void OnHit(Collider2D target, Vector2 hitPos)
+    {
+        if (target.TryGetComponent(out INegativeReceiver receiver))
+            receiver.TakeDamage(currentStage.attackDamage, hitPos);
     }
 
     private void OnDrawGizmosSelected()
     {
         if (firePoint != null && currentStage != null)
         {
-            Gizmos.DrawLine(firePoint.position,
-                firePoint.position + firePoint.right * currentStage.attackRange);
+            Gizmos.DrawLine(firePoint,
+                firePoint + firePoint * currentStage.attackRange);
         }
     }
 }

@@ -22,7 +22,7 @@ public class AbilityDefinition : ScriptableObject
 
     [Header("Cost & Cooldown")]
     public float Cooldown = 1f;
-    public List<StatCost> Costs;
+    public List<StatCost> Costs = new();
 
     [Header("Hold")]
     public float MaxHoldTime = 0f;
@@ -46,6 +46,26 @@ public class AbilityDefinition : ScriptableObject
         }
     }
 #endif
+
+    public virtual bool TryStart(AbilityContext abilityContext)
+    {
+        if (
+            (Conditions == null || Conditions.Count == 0) &&
+            (Costs == null || Costs.Count == 0)
+            ) return true;
+        foreach (var condition in Conditions)
+        {
+            if (condition == null) continue;
+            if (!condition.IsMet(abilityContext)) return false;
+        }
+        foreach (var cost in Costs)
+        {
+            if (cost == null) continue;
+            if (cost.value > abilityContext.Caster.GetCurrentStatValue(cost.statType)) return false;
+        }
+        return true;
+    }
+
     public float GetCostValues(StatType statType)
     {
         GetCostValues(statType, out float cost);

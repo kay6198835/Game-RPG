@@ -8,7 +8,7 @@ public class CurrencyEffectDefinition : ItemEffectDefinition
 {
     [SerializeField] private int amount;
 
-    public override void Apply(ResourceReceiver player)
+    public override void Apply(ICharacter target)
     {
         // player.Wallet.Add(amount);
     }

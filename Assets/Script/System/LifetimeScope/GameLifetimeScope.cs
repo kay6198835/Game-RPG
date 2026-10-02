@@ -8,17 +8,17 @@ public class GameLifetimeScope : LifetimeScope
     {
         builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
 
-        // Player phai duoc dat san trong scene (Hierarchy) — FindComponentProvider chi tim,
-        // khong tu spawn. Neu Player khong nam trong scene luc Awake(), 3 dong duoi day throw.
-        builder.RegisterComponentInHierarchy<Player>();
-        builder.RegisterComponentInHierarchy<PlayerManager>().As<IPlayerService>();
-        builder.RegisterComponentInHierarchy<StatHandler>().As<IPlayerStatService>();
+        // Player duoc spawn luc runtime boi PlayerManager (resolver.Instantiate inject ca hierarchy),
+        // nen khong dang ky component nao cua player. Service cua player di qua PlayerManager.
+        builder.RegisterComponentInHierarchy<PlayerManager>().AsSelf().As<IPlayerService>();
+        builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<EnemySpawner>();
         builder.RegisterComponentInHierarchy<StatsUIController>();
         builder.RegisterComponentInHierarchy<ItemSpawner>();
         builder.RegisterComponentInHierarchy<RoomGeneraterController>();
-        builder.RegisterComponentInHierarchy<AbilityHolder>();
+        builder.RegisterComponentInHierarchy<RoomGridController>();
+        builder.RegisterComponentInHierarchy<LevelManager>();
         // EntityInput song tren enemy prefab, spawn runtime qua ObjectPoolManager — khong nam
         // trong scene luc LifetimeScope.Configure() chay, RegisterComponentInHierarchy se throw.
         // ObjectPoolManager tu inject cho instance moi spawn (xem Pool.Spawn).

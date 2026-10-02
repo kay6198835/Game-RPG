@@ -17,6 +17,18 @@ globs: ["tests/**/*", "production/qa/**/*.md"]
 
 ## Unity Test Naming
 - File: `[System]Tests.cs` in `tests/EditMode/` or `tests/PlayMode/`
+
+> ⚠️ **Those two paths do not work, and no test can be written to them today (BUG-084, verified
+> 2026-09-22).** `tests/` is a *sibling* of `Assets/`, and Unity compiles only what is under
+> `Assets/` and `Packages/` — nothing in `tests/EditMode` or `tests/PlayMode` is ever seen by the
+> compiler. Separately, `find Assets -name "*.asmdef"` returns **0**: with no assembly definition,
+> nothing can reference `UnityEngine.TestRunner` / `UnityEditor.TestRunner`, so Unity Test Runner
+> cannot discover a test even if one were placed under `Assets/`.
+>
+> The location above is therefore **not** a settled convention — it is an unvalidated assumption
+> this file has carried since it was written. Resolve BUG-084 (decide the location, add a runtime
+> `.asmdef` and a test `.asmdef`) and correct this line to whatever is decided, before estimating
+> any story that involves writing a test.
 - Method: `[MethodName]_[Scenario]_[ExpectedResult]()` e.g. `TakeDamage_BelowZero_TriggersDeathState()`
 
 ## Determinism

@@ -15,34 +15,49 @@ public class AbilityContext
     public AbilityDefinition AbilityDefinition;
 
     [NonSerialized] public IAbilityServices Services;
+
+    /// <summary>
+    /// The hurtbox collider a spawned object just hit. Set-then-invoke: the object that detects the hit
+    /// assigns it (null when the collider carries no INegativeReceiver) immediately before invoking the
+    /// callback. Effects get the interface they need from it themselves.
+    /// </summary>
+    [NonSerialized] public Collider2D Target;
+
+    /// <summary>
+    /// Finds component <typeparamref name="T"/> on the character that is the recipient: from the caster
+    /// or from the hit collider, up to its <see cref="ICharacter"/> root, then down to the component.
+    /// </summary>
+    public bool TryGetRecipientComponent<T>(EffectRecipient recipient, out T component) where T : class
+    {
+        component = null;
+        Component source = recipient == EffectRecipient.Target ? (Component)Target : Caster?.Transform;
+        if (source == null) return false;
+        ICharacter character = source.GetComponentInParent<ICharacter>();
+        if (character == null) return false;
+        component = character.Transform.GetComponentInChildren<T>();
+        return component != null;
+    }
 }
 
+/// <summary>World-level services an ability needs. Character data is read from the characters themselves.</summary>
 public interface IAbilityServices
 {
     IObjecPoolService Pool { get; }
-    IPlayerStatService Stats { get; }
-    IResourceReceiver ResourceReceiver { get; }
-    IVitalComponent Vital { get; }
-    public INegativeReceiver NegativeReceiver { get; set; }
 }
 
 public sealed class AbilityServices : IAbilityServices
 {
     public IObjecPoolService Pool { get; }
-    public IPlayerStatService Stats { get; }
-    public IResourceReceiver ResourceReceiver { get; }
-    public IVitalComponent Vital { get; }
-    public INegativeReceiver NegativeReceiver { get; set; }
 
-    public AbilityServices(
-        IObjecPoolService pool,
-        IPlayerStatService stats,
-        IResourceReceiver resourceReceiver,
-        IVitalComponent vital)
+    public AbilityServices(IObjecPoolService pool)
     {
         Pool = pool;
-        Stats = stats;
-        ResourceReceiver = resourceReceiver;
-        Vital = vital;
     }
+}
+
+/// <summary>Which character an effect acts on. Caster = 0 so existing assets keep their behaviour.</summary>
+public enum EffectRecipient
+{
+    Caster = 0,
+    Target = 1
 }

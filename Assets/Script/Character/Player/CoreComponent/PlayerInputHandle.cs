@@ -2,9 +2,10 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
+public class PlayerInputHandler : CharacterInputBase<Core>
 {
-    public Vector2 AimDirection => directionMouseVector;
+    public override Vector2 AimDirection => directionMouseVector;
+    public override Vector2 AimPoint => mouseVector;
 
     #region Attribute
     public float starTime;
@@ -48,11 +49,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 
 
     [Header("Bool Value")]
-    [SerializeField] private bool isAttack;
-    [SerializeField] public bool BufferIsAttack { get; private set; } = false;
-    [SerializeField] private bool isSkill;
+    [field: SerializeField] private bool bufferIsAttack = false;
     [SerializeField] private bool isDisadvantage;
-    [SerializeField] private bool isTakeDamage;
     [SerializeField] private bool isEquip_Unequip = false;
     [SerializeField] private bool isInteractor = false;
     [SerializeField] private bool isResourceReceiver = false;
@@ -72,13 +70,10 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     public int DirectionMouse { get => directionMouse; }
     public float AngleRotationPlayer { get => angleRotationPlayer; }
     public float AngleLookDirection { get => angleMouseDirection; }
-    public bool IsAttack { get => isAttack; }
     // public SkillState State { get => state; }
     // public SkillType Skill { get => skill; }
-    public bool IsSkill { get => isSkill; }
     public PlayerInput PlayerInput { get => playerInput; }
     public bool IsDisadvantage { get => isDisadvantage; }
-    public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsEquip_Unequip { get => isEquip_Unequip; }
     public bool IsInteractor { get => isInteractor; }
     public bool IsResourceReceiver { get => isResourceReceiver; }
@@ -88,6 +83,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     public Vector2 DirectionExternalityVector { get => directionExternalityVector; }
     public float AngleExternalityDirection { get => angleExternalityDirection; }
     public int DirectionExternality { get => directionExternality; }
+    public bool BufferIsAttack { get => bufferIsAttack; }
     #endregion
 
 
@@ -122,13 +118,29 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         playerInput.Control.Attack.started += OnAttack;
         playerInput.Control.Attack.canceled += OnAttack;
 
-        playerInput.Control.SkillWeapon.started += OnSkillWeapon;
-        playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
-        playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.started += OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
 
-        playerInput.Control.Block.started += OnAbilityWeapon;
-        playerInput.Control.Block.performed += OnAbilityWeapon;
-        playerInput.Control.Block.canceled += OnAbilityWeapon;
+        playerInput.Control.PrimaryAbility.started += OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.performed += OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.canceled += OnPrimaryAbility;
+
+        playerInput.Control.SecondaryAbility.started += OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.performed += OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.canceled += OnSecondaryAbility;
+
+        playerInput.Control.UtilityAbility.started += OnUtilityAbility;
+        playerInput.Control.UtilityAbility.performed += OnUtilityAbility;
+        playerInput.Control.UtilityAbility.canceled += OnUtilityAbility;
+
+        playerInput.Control.UltimateAbility.started += OnUltimateAbility;
+        playerInput.Control.UltimateAbility.performed += OnUltimateAbility;
+        playerInput.Control.UltimateAbility.canceled += OnUltimateAbility;
+
+        // playerInput.Control.Block.started += OnAbilityWeapon;
+        // playerInput.Control.Block.performed += OnAbilityWeapon;
+        // playerInput.Control.Block.canceled += OnAbilityWeapon;
 
         playerInput.Control.EquipUnequip.started += OnEquipUnequip;
         playerInput.Control.EquipUnequip.canceled += OnEquipUnequip;
@@ -150,13 +162,30 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         playerInput.Control.Attack.started -= OnAttack;
         playerInput.Control.Attack.canceled -= OnAttack;
 
-        playerInput.Control.SkillWeapon.started -= OnSkillWeapon;
-        playerInput.Control.SkillWeapon.performed -= OnSkillWeapon;
-        playerInput.Control.SkillWeapon.canceled -= OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.started -= OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.performed -= OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.canceled -= OnSkillWeapon;
 
-        playerInput.Control.Block.started -= OnAbilityWeapon;
-        playerInput.Control.Block.performed -= OnAbilityWeapon;
-        playerInput.Control.Block.canceled -= OnAbilityWeapon;
+        playerInput.Control.PrimaryAbility.started -= OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.performed -= OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.canceled -= OnPrimaryAbility;
+
+        playerInput.Control.SecondaryAbility.started -= OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.performed -= OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.canceled -= OnSecondaryAbility;
+
+        playerInput.Control.UtilityAbility.started -= OnUtilityAbility;
+        playerInput.Control.UtilityAbility.performed -= OnUtilityAbility;
+        playerInput.Control.UtilityAbility.canceled -= OnUtilityAbility;
+
+        playerInput.Control.UltimateAbility.started -= OnUltimateAbility;
+        playerInput.Control.UltimateAbility.performed -= OnUltimateAbility;
+        playerInput.Control.UltimateAbility.canceled -= OnUltimateAbility;
+
+
+        // playerInput.Control.Block.started -= OnAbilityWeapon;
+        // playerInput.Control.Block.performed -= OnAbilityWeapon;
+        // playerInput.Control.Block.canceled -= OnAbilityWeapon;
 
         playerInput.Control.EquipUnequip.started -= OnEquipUnequip;
         playerInput.Control.EquipUnequip.canceled -= OnEquipUnequip;
@@ -242,16 +271,13 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         isSkill = false;
         abilityHolder.CancelHold();
     }
-    private void OnSkillWeapon(InputAction.CallbackContext context)
+    // Abilities come from PlayerData.AbilityBindings, not from the weapon: castable unarmed.
+    private void OnAbility(InputAction.CallbackContext context, AbilitySlot slot)
     {
-        if (weaponHolder.Weapon == null)
-        {
-            return;
-        }
         if (context.started)
         {
             if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
-            if (abilityHolder.TryDoAbility(AbilitySlot.Utility))
+            if (abilityHolder.TryDoAbility(slot))
             {
                 abilityHolder.StartHold();
                 isSkill = true;
@@ -273,6 +299,22 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
             abilityHolder.CancelHold();
             isSkill = false;
         }
+    }
+    private void OnPrimaryAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Primary);
+    }
+    private void OnSecondaryAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Secondary);
+    }
+    private void OnUtilityAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Utility);
+    }
+    private void OnUltimateAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Ultimate);
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {
@@ -299,25 +341,12 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         //     isSkill = false;
         // }
     }
-    public void OnTakeDamage(Vector2 attackPosition)
+    public override void OnTakeDamage(Vector2 attackPosition)
     {
-        CancelInvoke(nameof(ResetTakeDamage));
-        Invoke(nameof(ResetTakeDamage), 0.1f);
-        directionExternalityVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
+        base.OnTakeDamage(attackPosition);
+        // The player keeps the hit direction in its "externality" facing, shared with interaction.
+        directionExternalityVector = hitDirectionVector;
         AngleCalculateExternality(directionExternalityVector);
-        isTakeDamage = true;
-    }
-    private void ResetTakeDamage()
-    {
-        isTakeDamage = false;
-    }
-    private void ChangeIsTakeDamage()
-    {
-        this.isTakeDamage = !this.isTakeDamage;
-    }
-    private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
-    {
-        DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
     public void AngleCalculateKeyboard(Vector2 directionKeyboardVector)
     {
@@ -346,7 +375,7 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 
     public void SetBufferAttack(bool bufferIsAttack)
     {
-        this.BufferIsAttack = bufferIsAttack;
+        this.bufferIsAttack = bufferIsAttack;
     }
     public void SetStatusAnimation(StatusAnimation statusAnimation)
     {

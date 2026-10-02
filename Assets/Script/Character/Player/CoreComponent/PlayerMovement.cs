@@ -1,17 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class PlayerMovement : CoreComponent<Core>
+public class PlayerMovement : MovementBase<Core>
 {
-    [SerializeField] protected Rigidbody2D rb;
-    protected override void Awake()
+    // Kept under its original (misspelt) name: five player states call it.
+    public void SetVeclocity(UnityEngine.Vector2 velocity)
     {
-        base.Awake();
-        rb = GetComponentInParent<Rigidbody2D>();
-    }
-    public void SetVeclocity(Vector2 velocity)
-    {
-        rb.velocity = velocity;
+        SetVelocity(velocity);
     }
 }

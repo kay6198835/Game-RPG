@@ -1,6 +1,70 @@
 # Sprint 15 — 2026-09-21 to 2026-09-25
 
-**Status: OPEN.** Opened 2026-09-20 (Sunday 22:00 `pm-weekly-kickoff`, autonomous run — no owner present).
+## Closure — 2026-09-28 (weekly kickoff, autonomous)
+
+**Status: COMPLETE — closed PARTIAL.** Final HEAD `5b035b7` ("range weapon", 2026-09-28).
+No Saturday wrap-up ran for this sprint (no `retro-sprint-15-*.md`); this block is the close-out of record.
+Source re-verified against HEAD for every item below.
+
+| ID | Final status | Evidence |
+|----|--------------|----------|
+| S15-01 BUG-063 | ⏸️ CUT — owner accepted/deferred to demo prep (2026-09-22) | `Stat.cs:63-65` unchanged by decision |
+| S15-02 BUG-064 item 7 | ✅ CODE DONE (Play Mode verify pending) | `e1dcee0` added `[Inject] Construct(IObjecPoolService)`; `5b035b7` replaced the interim `RegisterComponentInHierarchy<RangeWeapon>()` with spawn-time injection (`WeaponHolderBase.cs:60` → `resolver?.InjectGameObject`), matching ADR-0004. Not an isolated commit. Verify folded into S16-07 |
+| S15-03 BUG-065 | ❌ CARRIED (6th) | `PlayerDeathState.Enter()` still only `base.Enter()` |
+| S15-04 BUG-066+070 | ❌ CARRIED (6th / 4th) | Now one site: `VitalStatsBase.cs:28,39,41,45,52,54,58` |
+| S15-05 BUG-073 | ❌ CARRIED (2nd) | Bundle with BUG-090 |
+| S15-06 Play Mode decision | ❌ CARRIED (9th) | No decision text written |
+| S15-07 review-gate decision | ❌ CARRIED (4th) | Off-plan ADR-0005 refactor (~20 commits) landed without it |
+| S15-08 BUG-071 | ⚠️ PARTIAL | `b0b1337` added `StartCoroutine`; no stop handle remains |
+| S15-09 hook placeholder | ❌ CARRIED (26th+) | `.git/hooks/` has no `pre-push`; now subsumed by TD-048 |
+| S15-10 BUG-072 | ⚠️ CODE DONE | `layerMask` on `Lightning.prefab` still `0` — owner Inspector step |
+| S15-11 TD-040 ADR | ❌ CARRIED (3rd) | |
+| S15-12 first EditMode test | ❌ BLOCKED | BUG-084 (no `.asmdef`) |
+| S15-13 sign-off pass | ❌ CARRIED | |
+| S15-14 `/doc-sync` | ✅ DONE | `6ca82f3` + CLAUDE.md re-verified at `c0067f4` |
+
+**Velocity (planned work):** ≈0.6d of planned estimate delivered (S15-02 0.1, S15-08 ~0.1, S15-10 0.2,
+S15-14 0.2) against 4.0d capacity and a 1.05d Must-Have load → **Must-Have 1/9 fully done**. Fifth
+consecutive sprint near 0% on its own plan.
+
+**Off-plan throughput was high:** BUG-088 (compile break), BUG-075/072 (v2 damage path), the ADR-0005
+unified-character refactor (Amendments 1-3, ~20 commits), and closure of BUG-043/074/076/077/080/081/
+082/085/088/091. Introduced BUG-092 (second compile break in four days); its compile half is fixed at
+HEAD (`perTime` field restored), the serialization half is not.
+
+**Verdict:** the codebase moved a lot; the sprint plan did not. The plan is no longer describing the
+work. Sprint 16 plans the carry-over as a smaller Must set and explicitly makes room for the owner's
+feature stream instead of pretending it will not happen.
+
+## Weekly Wrap-up — 2026-09-28 (late `pm-weekly-wrapup`, autonomous)
+
+The Saturday slot did not fire; this run executed after the kickoff above and adds the missing
+wrap-up artifacts. It does not change the closure table.
+
+**Weekly verdict: CONCERNS.** Not FAIL — the project compiles again by static read, a major refactor
+landed, and 12 bugs closed against 9 opened. Not PASS — Must-Have ~15% on plan, no Play Mode session
+(9th sprint), and the last commit of the window (`5b035b7`) shipped a non-functional ranged weapon.
+
+| Artifact | Path |
+|---|---|
+| Code review (`e1dcee0`, `5b035b7`; earlier commits already re-verified in `6ca82f3`) | inside the triage report |
+| Bug triage | `production/qa/bug-triage-2026-09-28.md` |
+| New bugs | `BUG-094` (ranged attack rotates the character root + camera), `BUG-095` (`Arrow.prefab` has no script/collider; `finalDamage` dropped) |
+| Playtest | Skipped — no playtest log for this week under `production/qa/playtests/`. Run `/playtest-report` manually if a session happened |
+| Retrospective | `production/retros/retro-sprint-15-2026-09-28.md` |
+
+**Velocity:** ≈0.6d planned work delivered of 1.05d Must-Have (4.0d capacity); Must-Have 1/9 fully done
+(+1 partial, +1 cut by owner decision). Off-plan: ~20-commit ADR-0005 refactor, 12 bugs closed.
+
+**Carry-over** (already mapped to Sprint 16 IDs by the kickoff): BUG-066+070 → S16-02, BUG-065 → S16-03,
+BUG-064-7 verify → S16-05, BUG-072 → S16-06, Play Mode → S16-07, TD-048 → S16-08, BUG-071 → S16-09,
+BUG-073+090 → S16-10, review gate → S16-12, TD-040 → S16-13.
+**Wrap-up addition for the owner:** BUG-094 + BUG-095 (~0.2d) must precede S16-05, or the ranged-weapon
+check in S16-07 fails for a reason already known. Not added to `sprint-16.md` by this run.
+
+---
+
+**Status at open (historical): OPEN.** Opened 2026-09-20 (Sunday 22:00 `pm-weekly-kickoff`, autonomous run — no owner present).
 Branch `sprint-15`, created from `sprint-14` tip (`15242e6`, "chore(wrapup): weekly wrap-up 2026-09-19").
 `gh` CLI unavailable (`gh: command not found`) — draft PR **not** auto-created; run manually:
 

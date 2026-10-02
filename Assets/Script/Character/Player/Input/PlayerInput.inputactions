@@ -78,9 +78,36 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SkillWeapon",
+                    "name": "PrimaryAbility",
                     "type": "Button",
                     "id": "d9107f69-f35f-49e8-869e-cd2af76cdf4d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryAbility",
+                    "type": "Button",
+                    "id": "8abe5a71-3fbd-49eb-872c-bef48e6a3b49",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UtilityAbility",
+                    "type": "Button",
+                    "id": "7a575209-bcd3-490c-8171-10746d681a28",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UltimateAbility",
+                    "type": "Button",
+                    "id": "4dde27c5-ab8c-41d5-a109-e7bf5d7f54a3",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -223,11 +250,44 @@
                 {
                     "name": "",
                     "id": "e1def900-e854-4b1e-ba69-11c81ae7e12e",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/1",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SkillWeapon",
+                    "action": "PrimaryAbility",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "560cec1d-8693-4628-a9d6-9b6d9931abbb",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SecondaryAbility",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e69b353f-af2b-4559-9c8c-2344969fa743",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UtilityAbility",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "da7b50fb-d1b6-4bc4-b4a8-97fd611a0220",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UltimateAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

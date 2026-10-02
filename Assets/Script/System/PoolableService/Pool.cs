@@ -64,7 +64,7 @@ public class Pool : MonoBehaviour
         }
 
         if (member.isInPool) return;
-        gameObject.transform.parent.SetParent(parent == null ? this.transform : parent);
+        gameObject.transform.SetParent(parent == null ? this.transform : parent);
         inactiveObjects.Enqueue(member);
         member.SwitchIsInPool(true);
     }
