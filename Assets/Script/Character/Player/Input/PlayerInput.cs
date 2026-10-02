@@ -164,9 +164,36 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""SkillWeapon"",
+                    ""name"": ""PrimaryAbility"",
                     ""type"": ""Button"",
                     ""id"": ""d9107f69-f35f-49e8-869e-cd2af76cdf4d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SecondaryAbility"",
+                    ""type"": ""Button"",
+                    ""id"": ""8abe5a71-3fbd-49eb-872c-bef48e6a3b49"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UtilityAbility"",
+                    ""type"": ""Button"",
+                    ""id"": ""7a575209-bcd3-490c-8171-10746d681a28"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UltimateAbility"",
+                    ""type"": ""Button"",
+                    ""id"": ""4dde27c5-ab8c-41d5-a109-e7bf5d7f54a3"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -309,11 +336,44 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""e1def900-e854-4b1e-ba69-11c81ae7e12e"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SkillWeapon"",
+                    ""action"": ""PrimaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""560cec1d-8693-4628-a9d6-9b6d9931abbb"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SecondaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e69b353f-af2b-4559-9c8c-2344969fa743"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UtilityAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""da7b50fb-d1b6-4bc4-b4a8-97fd611a0220"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UltimateAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -332,7 +392,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Control_Dash = m_Control.FindAction("Dash", throwIfNotFound: true);
         m_Control_Interactor = m_Control.FindAction("Interactor", throwIfNotFound: true);
         m_Control_ResourceReceiver = m_Control.FindAction("ResourceReceiver", throwIfNotFound: true);
-        m_Control_SkillWeapon = m_Control.FindAction("SkillWeapon", throwIfNotFound: true);
+        m_Control_PrimaryAbility = m_Control.FindAction("PrimaryAbility", throwIfNotFound: true);
+        m_Control_SecondaryAbility = m_Control.FindAction("SecondaryAbility", throwIfNotFound: true);
+        m_Control_UtilityAbility = m_Control.FindAction("UtilityAbility", throwIfNotFound: true);
+        m_Control_UltimateAbility = m_Control.FindAction("UltimateAbility", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -421,7 +484,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Control_Dash;
     private readonly InputAction m_Control_Interactor;
     private readonly InputAction m_Control_ResourceReceiver;
-    private readonly InputAction m_Control_SkillWeapon;
+    private readonly InputAction m_Control_PrimaryAbility;
+    private readonly InputAction m_Control_SecondaryAbility;
+    private readonly InputAction m_Control_UtilityAbility;
+    private readonly InputAction m_Control_UltimateAbility;
     /// <summary>
     /// Provides access to input actions defined in input action map "Control".
     /// </summary>
@@ -466,9 +532,21 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ResourceReceiver => m_Wrapper.m_Control_ResourceReceiver;
         /// <summary>
-        /// Provides access to the underlying input action "Control/SkillWeapon".
+        /// Provides access to the underlying input action "Control/PrimaryAbility".
         /// </summary>
-        public InputAction @SkillWeapon => m_Wrapper.m_Control_SkillWeapon;
+        public InputAction @PrimaryAbility => m_Wrapper.m_Control_PrimaryAbility;
+        /// <summary>
+        /// Provides access to the underlying input action "Control/SecondaryAbility".
+        /// </summary>
+        public InputAction @SecondaryAbility => m_Wrapper.m_Control_SecondaryAbility;
+        /// <summary>
+        /// Provides access to the underlying input action "Control/UtilityAbility".
+        /// </summary>
+        public InputAction @UtilityAbility => m_Wrapper.m_Control_UtilityAbility;
+        /// <summary>
+        /// Provides access to the underlying input action "Control/UltimateAbility".
+        /// </summary>
+        public InputAction @UltimateAbility => m_Wrapper.m_Control_UltimateAbility;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -519,9 +597,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ResourceReceiver.started += instance.OnResourceReceiver;
             @ResourceReceiver.performed += instance.OnResourceReceiver;
             @ResourceReceiver.canceled += instance.OnResourceReceiver;
-            @SkillWeapon.started += instance.OnSkillWeapon;
-            @SkillWeapon.performed += instance.OnSkillWeapon;
-            @SkillWeapon.canceled += instance.OnSkillWeapon;
+            @PrimaryAbility.started += instance.OnPrimaryAbility;
+            @PrimaryAbility.performed += instance.OnPrimaryAbility;
+            @PrimaryAbility.canceled += instance.OnPrimaryAbility;
+            @SecondaryAbility.started += instance.OnSecondaryAbility;
+            @SecondaryAbility.performed += instance.OnSecondaryAbility;
+            @SecondaryAbility.canceled += instance.OnSecondaryAbility;
+            @UtilityAbility.started += instance.OnUtilityAbility;
+            @UtilityAbility.performed += instance.OnUtilityAbility;
+            @UtilityAbility.canceled += instance.OnUtilityAbility;
+            @UltimateAbility.started += instance.OnUltimateAbility;
+            @UltimateAbility.performed += instance.OnUltimateAbility;
+            @UltimateAbility.canceled += instance.OnUltimateAbility;
         }
 
         /// <summary>
@@ -557,9 +644,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ResourceReceiver.started -= instance.OnResourceReceiver;
             @ResourceReceiver.performed -= instance.OnResourceReceiver;
             @ResourceReceiver.canceled -= instance.OnResourceReceiver;
-            @SkillWeapon.started -= instance.OnSkillWeapon;
-            @SkillWeapon.performed -= instance.OnSkillWeapon;
-            @SkillWeapon.canceled -= instance.OnSkillWeapon;
+            @PrimaryAbility.started -= instance.OnPrimaryAbility;
+            @PrimaryAbility.performed -= instance.OnPrimaryAbility;
+            @PrimaryAbility.canceled -= instance.OnPrimaryAbility;
+            @SecondaryAbility.started -= instance.OnSecondaryAbility;
+            @SecondaryAbility.performed -= instance.OnSecondaryAbility;
+            @SecondaryAbility.canceled -= instance.OnSecondaryAbility;
+            @UtilityAbility.started -= instance.OnUtilityAbility;
+            @UtilityAbility.performed -= instance.OnUtilityAbility;
+            @UtilityAbility.canceled -= instance.OnUtilityAbility;
+            @UltimateAbility.started -= instance.OnUltimateAbility;
+            @UltimateAbility.performed -= instance.OnUltimateAbility;
+            @UltimateAbility.canceled -= instance.OnUltimateAbility;
         }
 
         /// <summary>
@@ -657,11 +753,32 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnResourceReceiver(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "SkillWeapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "PrimaryAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSkillWeapon(InputAction.CallbackContext context);
+        void OnPrimaryAbility(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SecondaryAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSecondaryAbility(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UtilityAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUtilityAbility(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UltimateAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUltimateAbility(InputAction.CallbackContext context);
     }
 }

@@ -780,6 +780,7 @@ GameObject:
   - component: {fileID: 4708333821092122059}
   - component: {fileID: 545617000182788525}
   - component: {fileID: 6182536592416148168}
+  - component: {fileID: 5537870174276929911}
   m_Layer: 7
   m_Name: WeaponHolder
   m_TagString: Untagged
@@ -876,3 +877,19 @@ MonoBehaviour:
   stats: {fileID: 11400000, guid: 42ea56e61571fa949815576eac83fb82, type: 2}
   pickupCollider: {fileID: 0}
   maxTargetsPerSwing: 8
+--- !u!114 &5537870174276929911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9010334046371474003}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f06c0da7b6f2647bb5e96c10b7eff5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: e44243a84fc07d64a95db6d3e132f134, type: 2}
+  pickupCollider: {fileID: 0}
+  firePoint: {x: 0, y: 0}
+  spawnOffset: 0.5

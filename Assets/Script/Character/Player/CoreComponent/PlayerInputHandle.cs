@@ -118,13 +118,29 @@ public class PlayerInputHandler : CharacterInputBase<Core>
         playerInput.Control.Attack.started += OnAttack;
         playerInput.Control.Attack.canceled += OnAttack;
 
-        playerInput.Control.SkillWeapon.started += OnSkillWeapon;
-        playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
-        playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.started += OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
 
-        playerInput.Control.Block.started += OnAbilityWeapon;
-        playerInput.Control.Block.performed += OnAbilityWeapon;
-        playerInput.Control.Block.canceled += OnAbilityWeapon;
+        playerInput.Control.PrimaryAbility.started += OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.performed += OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.canceled += OnPrimaryAbility;
+
+        playerInput.Control.SecondaryAbility.started += OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.performed += OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.canceled += OnSecondaryAbility;
+
+        playerInput.Control.UtilityAbility.started += OnUtilityAbility;
+        playerInput.Control.UtilityAbility.performed += OnUtilityAbility;
+        playerInput.Control.UtilityAbility.canceled += OnUtilityAbility;
+
+        playerInput.Control.UltimateAbility.started += OnUltimateAbility;
+        playerInput.Control.UltimateAbility.performed += OnUltimateAbility;
+        playerInput.Control.UltimateAbility.canceled += OnUltimateAbility;
+
+        // playerInput.Control.Block.started += OnAbilityWeapon;
+        // playerInput.Control.Block.performed += OnAbilityWeapon;
+        // playerInput.Control.Block.canceled += OnAbilityWeapon;
 
         playerInput.Control.EquipUnequip.started += OnEquipUnequip;
         playerInput.Control.EquipUnequip.canceled += OnEquipUnequip;
@@ -146,13 +162,30 @@ public class PlayerInputHandler : CharacterInputBase<Core>
         playerInput.Control.Attack.started -= OnAttack;
         playerInput.Control.Attack.canceled -= OnAttack;
 
-        playerInput.Control.SkillWeapon.started -= OnSkillWeapon;
-        playerInput.Control.SkillWeapon.performed -= OnSkillWeapon;
-        playerInput.Control.SkillWeapon.canceled -= OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.started -= OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.performed -= OnSkillWeapon;
+        // playerInput.Control.SkillWeapon.canceled -= OnSkillWeapon;
 
-        playerInput.Control.Block.started -= OnAbilityWeapon;
-        playerInput.Control.Block.performed -= OnAbilityWeapon;
-        playerInput.Control.Block.canceled -= OnAbilityWeapon;
+        playerInput.Control.PrimaryAbility.started -= OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.performed -= OnPrimaryAbility;
+        playerInput.Control.PrimaryAbility.canceled -= OnPrimaryAbility;
+
+        playerInput.Control.SecondaryAbility.started -= OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.performed -= OnSecondaryAbility;
+        playerInput.Control.SecondaryAbility.canceled -= OnSecondaryAbility;
+
+        playerInput.Control.UtilityAbility.started -= OnUtilityAbility;
+        playerInput.Control.UtilityAbility.performed -= OnUtilityAbility;
+        playerInput.Control.UtilityAbility.canceled -= OnUtilityAbility;
+
+        playerInput.Control.UltimateAbility.started -= OnUltimateAbility;
+        playerInput.Control.UltimateAbility.performed -= OnUltimateAbility;
+        playerInput.Control.UltimateAbility.canceled -= OnUltimateAbility;
+
+
+        // playerInput.Control.Block.started -= OnAbilityWeapon;
+        // playerInput.Control.Block.performed -= OnAbilityWeapon;
+        // playerInput.Control.Block.canceled -= OnAbilityWeapon;
 
         playerInput.Control.EquipUnequip.started -= OnEquipUnequip;
         playerInput.Control.EquipUnequip.canceled -= OnEquipUnequip;
@@ -239,12 +272,12 @@ public class PlayerInputHandler : CharacterInputBase<Core>
         abilityHolder.CancelHold();
     }
     // Abilities come from PlayerData.AbilityBindings, not from the weapon: castable unarmed.
-    private void OnSkillWeapon(InputAction.CallbackContext context)
+    private void OnAbility(InputAction.CallbackContext context, AbilitySlot slot)
     {
         if (context.started)
         {
             if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
-            if (abilityHolder.TryDoAbility(AbilitySlot.Utility))
+            if (abilityHolder.TryDoAbility(slot))
             {
                 abilityHolder.StartHold();
                 isSkill = true;
@@ -266,6 +299,22 @@ public class PlayerInputHandler : CharacterInputBase<Core>
             abilityHolder.CancelHold();
             isSkill = false;
         }
+    }
+    private void OnPrimaryAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Primary);
+    }
+    private void OnSecondaryAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Secondary);
+    }
+    private void OnUtilityAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Utility);
+    }
+    private void OnUltimateAbility(InputAction.CallbackContext context)
+    {
+        OnAbility(context, AbilitySlot.Ultimate);
     }
     private void OnAbilityWeapon(InputAction.CallbackContext context)
     {

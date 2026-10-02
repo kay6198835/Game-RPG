@@ -23,10 +23,12 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     [SerializeField] PathfindingGrid pathfindingGrid;
     IPlayerService _playerService;
+    LevelManager _levelManager;
     [Inject]
-    public void Construct(IPlayerService playerService)
+    public void Construct(IPlayerService playerService, LevelManager levelManager)
     {
         _playerService = playerService;
+        _levelManager = levelManager;
     }
     public void OnDisable()
     {
@@ -38,9 +40,9 @@ public class RoomGeneraterController : MonoBehaviour
         _endIndex = endIndex;
 
         // need refactor to get _fullDungeonRoomSO, _listTiles, _genmap from other class, not from LevelManager
-        DungeonRoomSO _fullDungeonRoomSO = LevelManager.Instance.GetDungeonRoomSO();
-        _listTiles = LevelManager.Instance.GetTileSOs();
-        _genmap = LevelManager.Instance.GetTilemaps();
+        DungeonRoomSO _fullDungeonRoomSO = _levelManager.GetDungeonRoomSO();
+        _listTiles = _levelManager.GetTileSOs();
+        _genmap = _levelManager.GetTilemaps();
 
         // get start, get radoom, get end
         var totalCount = _fullDungeonRoomSO.room.Count;
