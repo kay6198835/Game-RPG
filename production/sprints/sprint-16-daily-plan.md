@@ -10,10 +10,11 @@
 
 ## Status Verdict
 
-**OFF TRACK (day 4 of 5, updated 2026-10-01).** Still only S16-15 (BUG-093) closed. Tue + Wed went to
-off-plan animation polish and the UIFlow feature branch; zero Must-Have items moved for three days.
-1.05d of Must-Have remains with 2 days left — feasible only if Thu+Fri go entirely to the Must set.
-HEAD `e8d117e`, tree clean, compiles by static read.
+**OFF TRACK — will close PARTIAL (day 5 of 5, updated 2026-10-02).** Still only S16-15 (BUG-093) closed.
+Thu went to asset work (Paladin 8-dir sprite/animation import, Knight clip re-timing) — zero `.cs` changed
+since `e8d117e`, so zero Must-Have items moved for four days. 1.05d of Must-Have remains with 1 day left:
+at most the code half (S16-01..04, ≈0.5d) is reachable today. HEAD `06305f0`, tree clean, compiles by
+static read (no `.cs` delta since the last read).
 
 ## Burn Summary
 
@@ -21,7 +22,7 @@ HEAD `e8d117e`, tree clean, compiles by static read.
 |--------|------|------|-----------|
 | Must Have | 1.1d | 0.05d (S16-15 code) | 1.05d |
 | Should Have | 0.9d | 0 | 0.9d |
-| Reserved (owner feature work) | ≈1.6d | ≈1.5d used (ranged weapon, combo-attack polish, UIFlow branch) | ≈0.1d |
+| Reserved (owner feature work) | ≈1.6d | ≈2.0d used (ranged weapon, combo-attack polish, UIFlow branch, Thu asset import) — **over budget ≈0.4d** | 0 |
 | Unplanned fix | — | Bug #13 start-room teleport (code, `9154763`) | Play Mode verify |
 
 ## Task Estimates
@@ -72,18 +73,23 @@ HEAD `e8d117e`, tree clean, compiles by static read.
 ### Thu 2026-10-01 — Code Must-Haves (re-planned by 10-01 standup)
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S16-01 BUG-092 residual | 0.05d | NOT STARTED (4th day) | Still unserialized at HEAD |
-| S16-02 BUG-066+070 | 0.15d | NOT STARTED (4th day) | `e8d117e` added `UpdateStatField()` reads at 4 more call sites of the unguarded indexer |
-| S16-03 + S16-04 BUG-065 / BUG-086 | 0.2d | NOT STARTED | One file |
-| S16-06 BUG-072 layerMask | 0.05d | NOT STARTED | Editor, 5 min |
-| S16-08 / S16-11 / S16-12 | 0.25d | → deferred to Fri buffer or Sprint 17 | Must set first |
+| S16-01 BUG-092 residual | 0.05d | ❌ NOT DONE → Fri | Still unserialized at HEAD |
+| S16-02 BUG-066+070 | 0.15d | ❌ NOT DONE → Fri | `e8d117e` added `UpdateStatField()` reads at 4 more call sites of the unguarded indexer |
+| S16-03 + S16-04 BUG-065 / BUG-086 | 0.2d | ❌ NOT DONE → Fri | One file |
+| S16-06 BUG-072 layerMask | 0.05d | ❌ NOT DONE → Fri | Editor, 5 min |
+| S16-08 / S16-11 / S16-12 | 0.25d | → Sprint 17 | Must set first |
+| *(off-plan)* Paladin 8-dir sprite + animation import `1e426dc`, Knight Run/TakeDamage/Combo/Spin clip re-timing `63b11a5` | ≈0.5d (over reserved budget) | ✅ LANDED | Asset-only; ≈66 MB of `.fbx` committed without Git LFS |
 
-### Fri 2026-10-02 — Design + buffer
+### Fri 2026-10-02 — Last day: code Must-Haves + smoke-or-sign (re-planned by 10-02 standup)
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S16-09 BUG-071 residual | 0.15d | NOT STARTED | Same file as S16-02 |
-| S16-16 BUG-095 Arrow collider + S16-10 assets | 0.2d | NOT STARTED | Editor session, before smoke |
-| S16-07 Play Mode smoke (+ S16-05, Bug #13 teleport, `e8d117e` enemy OnEnable init) | 0.35d | NOT STARTED | **Do it or sign the accepted-risk note — no 10th carry** |
+| S16-01 BUG-092 residual | 0.05d | NOT STARTED (5th day) | Every HoT/DoT asset silently one-tick |
+| S16-02 BUG-066+070 | 0.15d | NOT STARTED (5th day) | Live death path |
+| S16-03 + S16-04 BUG-065 / BUG-086 | 0.2d | NOT STARTED | One file |
+| S16-06 BUG-072 layerMask + S16-16 Arrow collider | 0.1d | NOT STARTED | Editor, before smoke |
+| S16-07 Play Mode smoke (+ S16-05, Bug #13 teleport, `e8d117e` enemy OnEnable init, new Paladin/Knight clips) | 0.35d | NOT STARTED | **Do it or sign the accepted-risk note — no 10th carry** |
+| S16-09 BUG-071 residual | 0.15d | → Sprint 17 | Does not fit; same file as S16-02 |
+| S16-10 BUG-073+090 + dead bullet/spawner assets | 0.15d | → Sprint 17 | Cleanup, no gameplay impact |
 | S16-14 BUG-087 design note | 0.3d | → Sprint 17 | Unblocked once S16-04 lands |
 | S16-13 TD-040 ADR | 0.3d | → Sprint 17 | |
 
@@ -262,9 +268,59 @@ Total ≈ 0.45d. Friday: S16-09 + S16-16 + S16-10 + S16-07 smoke (≈0.7d). S16-
 - Three un-reviewed off-plan pushes in 4 days touching core lifecycle (`StateMachine`, `Entity.OnEnable`,
   DI scope) — S16-12 review-gate decision remains overdue.
 
+### Fri 2026-10-02 - Daily Standup (autonomous, no owner present)
+
+Run started on local branch `origin/feature/fix-player-control` (HEAD `63b11a5`); checked out `sprint-16`,
+HEAD `06305f0` (merge of `origin/feature/fix-player-control`), in sync with `origin/sprint-16`, tree clean.
+
+**Since last standup (Thu 10-01 → Fri 10-02 13:27), assessed against source:**
+- `1e426dc` "update asset" (10-01 18:53) — **asset-only, off-plan.** New Paladin 8-direction set under
+  `Assets/Sprite/Paladin/`: 7 source `.fbx` (attack/hit/move/power_up/run/slash_up/spin_slash, ≈9 MB each),
+  in-place `.anim` bakes, `Animations2D/*_dir0-7.anim`, rendered sprite sheets + normal maps, 112 materials,
+  `paladin_8dir_controller.controller` rewritten. Knight Walk clips re-timed, `Player.controller` touched,
+  `LoadRandomMap.unity` +186 lines.
+- `63b11a5` "update asset" (10-02 13:27) — Knight Run / TakeDamage / ComboAttack State1-3 / SpinAttack
+  State1-3 clips (8 dirs each) re-timed; `LoadRandomMap.unity` touched again.
+- **Zero `.cs` changed** (`git log -- '*.cs'` last hit is still `e8d117e`). All Must-Have bugs therefore
+  re-verified unchanged by delta: BUG-092 residual, BUG-065, BUG-086, BUG-066/070 still open exactly as
+  recorded on 10-01. `PlayerState.Enter()` `Debug.Log` leftover still present.
+- UIFlow branch `origin/feature/ui-flow-maingameplay` now at `c1cf5b3` (merged `sprint-16` into itself);
+  still **not** merged into `sprint-16`.
+
+**Today (Fri 2026-10-02 — last sprint day), estimates:**
+
+| # | Task | Est. | Complexity / Risk |
+|---|------|------|-------------------|
+| 0 | Open Unity on `sprint-16`, confirm compile + clean import of the new Paladin assets; drop the `PlayerState.Enter()` `Debug.Log` | 10min | Gate; large import may take time |
+| 1 | S16-01 BUG-092 residual — `[SerializeField]` on `perTime` + `timeCount` | 0.05d | Trivial |
+| 2 | S16-02 BUG-066+070 — guard `VitalStatsBase` indexer (incl. `UpdateStatField()`); missing HP must not read as death | 0.15d | Low-Med; live death path |
+| 3 | S16-03 + S16-04 BUG-065 / BUG-086 — `PlayerDeathState` stop movement + emit once | 0.2d | Low; one file |
+| 4 | S16-06 + S16-16 — `Lightning.prefab` layerMask, `Arrow.prefab` `Collider2D` + speed | 0.1d | Editor, trivial |
+| 5 | S16-07 Play Mode smoke — melee, 4 Paladin abilities, ranged weapon, start-room teleport, enemy first spawn, death | 0.35d | **Or sign the accepted-risk note today** |
+
+Total ≈ 0.85d — over a single day. If time runs short, cut in order 5 → 4 and sign the smoke note;
+items 1-3 are the minimum to stop this sprint closing at 1/9 Must-Have like Sprint 15.
+
+**Blockers:** every verification still needs an owner Unity session; BUG-084 blocks EditMode tests;
+`gh` unavailable.
+
+**Risks:**
+- **Sprint 16 closes PARTIAL** — 4 straight days with zero Must-Have movement; feature/asset work has
+  overrun the reserved bucket by ≈0.4d. 7th sprint running where Must-Have loses to feature work.
+  Weekly wrap-up should make protected Must-Have time a Sprint 17 rule, not a goal.
+- **Repo bloat:** ≈66 MB of binary `.fbx` plus ≈1M lines of baked `.anim` in one commit, no Git LFS
+  (`.gitattributes` has only `* text=auto`). Clone/fetch cost grows permanently; decide LFS before more
+  source `.fbx` land. Also: are the source `.fbx` and `*_inplace.anim` bakes needed at runtime, or only
+  the `Animations2D` sprite clips?
+- Re-timed Knight Combo/Spin clips can move animation-event frames (`AnimationOnAction` etc.) — the hit
+  frame of melee and the Blessed Slash spawn depend on them. Add to the smoke.
+- `LoadRandomMap.unity` edited in two asset commits with no description — scene diffs unreviewed.
+- Two branches still diverge (`sprint-16` vs UIFlow, +59.9k lines unreviewed).
+
 ## Carry-over Watchlist
 
 - Play Mode smoke: 9th sprint (Fri 10-02 = last chance this sprint)
+- Git LFS decision for source `.fbx` (new 10-02)
 - Bug #13 teleport: code done `9154763` — add to smoke
 - BUG-065 / BUG-066: 6th carry
 - Pre-push hook: 26th+ carry
