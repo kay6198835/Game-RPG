@@ -7,7 +7,6 @@ using UnityEngine.Tilemaps;
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private RoomModel roomModel;
-    public static LevelManager Instance;
 
     private static readonly Dictionary<RoomType, string> RoomTypeNames = new Dictionary<RoomType, string>
     {
@@ -37,8 +36,6 @@ public class LevelManager : MonoBehaviour
     [SerializeField, Range(0f, 10f)] private float spawnRadius = 10f;
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
         listRooms = GetRandomRooms();
     }
     #region Editor Funtion

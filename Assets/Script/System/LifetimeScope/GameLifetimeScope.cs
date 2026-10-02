@@ -18,6 +18,7 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<ItemSpawner>();
         builder.RegisterComponentInHierarchy<RoomGeneraterController>();
         builder.RegisterComponentInHierarchy<RoomGridController>();
+        builder.RegisterComponentInHierarchy<LevelManager>();
         // EntityInput song tren enemy prefab, spawn runtime qua ObjectPoolManager — khong nam
         // trong scene luc LifetimeScope.Configure() chay, RegisterComponentInHierarchy se throw.
         // ObjectPoolManager tu inject cho instance moi spawn (xem Pool.Spawn).

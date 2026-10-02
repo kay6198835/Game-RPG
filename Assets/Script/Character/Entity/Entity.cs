@@ -34,11 +34,13 @@ public class Entity : CharacterBase<EntityCore>
     }
     public virtual void OnEnable()
     {
-        stateMachine.Initialize(idleState);
+        if (stateMachine.CurrentState is not EntityIdleState)
+            stateMachine.Initialize(idleState);
     }
     public override void Start()
     {
         base.Start();
+        stateMachine.Initialize(idleState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
     private void LoadEntity()
