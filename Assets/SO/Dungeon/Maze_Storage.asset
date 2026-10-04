@@ -13,87 +13,63 @@ MonoBehaviour:
   m_Name: Maze_Storage
   m_EditorClassIdentifier: 
   room:
-  - roomName: NormalRoom_0
-    filePath: /Data/Json/Room/NormalRoom_0.json
+  - roomName: StartRoom_Entrance
+    filePath: /Data/Json/Room/StartRoom_Entrance.json
     roomType: 1
-  - roomName: NormalRoom_1
-    filePath: /Data/Json/Room/NormalRoom_1.json
+  - roomName: CombatRoom_PracticeYard
+    filePath: /Data/Json/Room/CombatRoom_PracticeYard.json
+    roomType: 3
+  - roomName: CombatRoom_FourPillars
+    filePath: /Data/Json/Room/CombatRoom_FourPillars.json
+    roomType: 3
+  - roomName: CombatRoom_TwinCorridors
+    filePath: /Data/Json/Room/CombatRoom_TwinCorridors.json
+    roomType: 3
+  - roomName: CombatRoom_DiagonalWalls
+    filePath: /Data/Json/Room/CombatRoom_DiagonalWalls.json
+    roomType: 3
+  - roomName: RestRoom_Campfire
+    filePath: /Data/Json/Room/RestRoom_Campfire.json
+    roomType: 6
+  - roomName: CombatRoom_HiddenCorner
+    filePath: /Data/Json/Room/CombatRoom_HiddenCorner.json
+    roomType: 3
+  - roomName: CombatRoom_CentralIsland
+    filePath: /Data/Json/Room/CombatRoom_CentralIsland.json
+    roomType: 3
+  - roomName: CombatRoom_RoundArena
+    filePath: /Data/Json/Room/CombatRoom_RoundArena.json
+    roomType: 3
+  - roomName: ShopRoom_Merchant
+    filePath: /Data/Json/Room/ShopRoom_Merchant.json
+    roomType: 5
+  - roomName: CombatRoom_SmallMaze
+    filePath: /Data/Json/Room/CombatRoom_SmallMaze.json
+    roomType: 3
+  - roomName: CombatRoom_TwoHalls
+    filePath: /Data/Json/Room/CombatRoom_TwoHalls.json
+    roomType: 3
+  - roomName: CombatRoom_Cross
+    filePath: /Data/Json/Room/CombatRoom_Cross.json
+    roomType: 3
+  - roomName: BuffRoom_PowerShrine
+    filePath: /Data/Json/Room/BuffRoom_PowerShrine.json
     roomType: 0
-  - roomName: NormalRoom_2
-    filePath: /Data/Json/Room/NormalRoom_2.json
-    roomType: 0
-  - roomName: NormalRoom_3
-    filePath: /Data/Json/Room/NormalRoom_3.json
-    roomType: 0
-  - roomName: NormalRoom_4
-    filePath: /Data/Json/Room/NormalRoom_4.json
-    roomType: 0
-  - roomName: NormalRoom_5
-    filePath: /Data/Json/Room/NormalRoom_5.json
-    roomType: 0
-  - roomName: NormalRoom_6
-    filePath: /Data/Json/Room/NormalRoom_6.json
-    roomType: 0
-  - roomName: NormalRoom_7
-    filePath: /Data/Json/Room/NormalRoom_7.json
-    roomType: 0
-  - roomName: NormalRoom_8
-    filePath: /Data/Json/Room/NormalRoom_8.json
-    roomType: 0
-  - roomName: NormalRoom_9
-    filePath: /Data/Json/Room/NormalRoom_9.json
-    roomType: 0
-  - roomName: NormalRoom_10
-    filePath: /Data/Json/Room/NormalRoom_10.json
-    roomType: 0
-  - roomName: NormalRoom_11
-    filePath: /Data/Json/Room/NormalRoom_11.json
-    roomType: 0
-  - roomName: CombatRoom_SanTap
-    filePath: /Data/Json/Room/CombatRoom_SanTap.json
+  - roomName: CombatRoom_Spiral
+    filePath: /Data/Json/Room/CombatRoom_Spiral.json
     roomType: 3
-  - roomName: CombatRoom_BonTru
-    filePath: /Data/Json/Room/CombatRoom_BonTru.json
+  - roomName: CombatRoom_NarrowBridges
+    filePath: /Data/Json/Room/CombatRoom_NarrowBridges.json
     roomType: 3
-  - roomName: CombatRoom_HanhLangKep
-    filePath: /Data/Json/Room/CombatRoom_HanhLangKep.json
+  - roomName: CombatRoom_Checkerboard
+    filePath: /Data/Json/Room/CombatRoom_Checkerboard.json
     roomType: 3
-  - roomName: CombatRoom_VachCheo
-    filePath: /Data/Json/Room/CombatRoom_VachCheo.json
+  - roomName: CombatRoom_EliteGuard
+    filePath: /Data/Json/Room/CombatRoom_EliteGuard.json
     roomType: 3
-  - roomName: CombatRoom_GocKhuat
-    filePath: /Data/Json/Room/CombatRoom_GocKhuat.json
+  - roomName: CombatRoom_GrandArena
+    filePath: /Data/Json/Room/CombatRoom_GrandArena.json
     roomType: 3
-  - roomName: CombatRoom_DaoGiua
-    filePath: /Data/Json/Room/CombatRoom_DaoGiua.json
-    roomType: 3
-  - roomName: CombatRoom_DauTruongTron
-    filePath: /Data/Json/Room/CombatRoom_DauTruongTron.json
-    roomType: 3
-  - roomName: CombatRoom_MeCungNho
-    filePath: /Data/Json/Room/CombatRoom_MeCungNho.json
-    roomType: 3
-  - roomName: CombatRoom_HaiGianNoi
-    filePath: /Data/Json/Room/CombatRoom_HaiGianNoi.json
-    roomType: 3
-  - roomName: CombatRoom_ChuThap
-    filePath: /Data/Json/Room/CombatRoom_ChuThap.json
-    roomType: 3
-  - roomName: CombatRoom_VongXoan
-    filePath: /Data/Json/Room/CombatRoom_VongXoan.json
-    roomType: 3
-  - roomName: CombatRoom_CauHep
-    filePath: /Data/Json/Room/CombatRoom_CauHep.json
-    roomType: 3
-  - roomName: CombatRoom_BanCo
-    filePath: /Data/Json/Room/CombatRoom_BanCo.json
-    roomType: 3
-  - roomName: CombatRoom_VeBinh
-    filePath: /Data/Json/Room/CombatRoom_VeBinh.json
-    roomType: 3
-  - roomName: CombatRoom_DauTruongCuoi
-    filePath: /Data/Json/Room/CombatRoom_DauTruongCuoi.json
-    roomType: 3
-  - roomName: NormalRoom_12
-    filePath: /Data/Json/Room/NormalRoom_12.json
-    roomType: 9
+  - roomName: BossRoom_ThroneArena
+    filePath: /Data/Json/Room/BossRoom_ThroneArena.json
+    roomType: 2
