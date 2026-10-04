@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -679766024, guid: 2ef8c921ce0bb5047a7266f4d38bdae0, type: 3}
+  m_Sprite: {fileID: 8751171813443809633, guid: fe3069f63664f7d4fb09e0b205aac11b, type: 3}
   m_Color: {r: 1, g: 0.10980393, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -310,7 +310,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -12.1, y: 170}
+  m_AnchoredPosition: {x: -12.1, y: 97}
   m_SizeDelta: {x: 60, y: -80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5108076589459757568
@@ -549,6 +549,7 @@ MonoBehaviour:
   core: {fileID: 0}
   target: {fileID: 0}
   range: 0
+  fieldOfView: 90
   player:
     serializedVersion: 2
     m_Bits: 128
@@ -557,9 +558,9 @@ MonoBehaviour:
     m_Bits: 1024
   collider: {fileID: 0}
   distanceToPlayer: 0
-  entityInput: {fileID: 0}
   minRange: 0.5
   maxRange: 1
+  entityInput: {fileID: 0}
 --- !u!1 &5327214108066150684
 GameObject:
   m_ObjectHideFlags: 0
@@ -768,7 +769,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   core: {fileID: 0}
   weapon: {fileID: 0}
-  weaponGO: {fileID: 0}
 --- !u!61 &7532365003631008685
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -859,6 +859,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
+  _currentHP: 0
 --- !u!1 &7680863446993445270
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,18 +1034,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  spawnPoint: {x: 0, y: 0}
-  targetFowardPosition: {x: 0, y: 0}
-  targetTransform: {fileID: 0}
   isTakeDamage: 0
   isAttack: 0
   isSkill: 0
+  takeDamageFlagDuration: 0.1
+  hitDirectionVector: {x: 0, y: 0}
+  hitDirectionAngle: 0
+  hitDirection: 0
+  spawnPoint: {x: 0, y: 0}
+  targetFowardPosition: {x: 0, y: 0}
+  targetTransform: {fileID: 0}
+  isLockTarget: 0
   directionLookVector: {x: 0, y: 0}
   directionLook: 0
   directionLookAngle: 0
-  directionIsAttakedVector: {x: 0, y: 0}
-  directionIsAttaked: 0
-  directionIsAttakedAngle: 0
   state: 0
   skill: 0
 --- !u!1 &8781458133831304855

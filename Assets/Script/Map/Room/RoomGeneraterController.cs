@@ -131,14 +131,7 @@ public class RoomGeneraterController : MonoBehaviour
             _genmap[layerIdx].SetTile(worldPose, _listTiles.Find(t => t.name == tilemap).tile);
         }
         nextRoomCell.SetDoorPoints(this.DoorPoints);
-        if (!nextRoomCell.IsCleared && spawnPositions.Count == 0)
-        {
-            // No spawn markers (start / rest / shop / buff room): nothing will ever emit
-            // ON_CLEAR_ENEMY, so open the doors now instead of locking the player in.
-            pathfindingGrid.BuildGrid(Data, nextRoomCell.transform.position);
-            DeleteDoorTileMap(nextRoomCell);
-        }
-        else if (!nextRoomCell.IsCleared)
+        if (!nextRoomCell.IsCleared)
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
