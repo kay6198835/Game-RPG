@@ -10,7 +10,11 @@
 
 ## Status Verdict
 
-**OFF TRACK — will close PARTIAL (day 5 of 5, updated 2026-10-02).** Still only S16-15 (BUG-093) closed.
+**FINAL (wrap-up 2026-10-05): SLIPPED — closed PARTIAL, wrap-up verdict FAIL.** Must-Have 1/10 (S16-15
+code only); planned velocity ≈0.05d/4.0d ≈ **0.01**. Weekend commits added BUG-096 (S1) and BUG-097 (S2)
+on the map path. Carry-over + velocity recorded below for the Sprint 17 kickoff.
+
+*Previous verdict (10-02):* **OFF TRACK — will close PARTIAL (day 5 of 5, updated 2026-10-02).** Still only S16-15 (BUG-093) closed.
 Thu went to asset work (Paladin 8-dir sprite/animation import, Knight clip re-timing) — zero `.cs` changed
 since `e8d117e`, so zero Must-Have items moved for four days. 1.05d of Must-Have remains with 1 day left:
 at most the code half (S16-01..04, ≈0.5d) is reachable today. HEAD `06305f0`, tree clean, compiles by
@@ -317,7 +321,29 @@ items 1-3 are the minimum to stop this sprint closing at 1/9 Must-Have like Spri
 - `LoadRandomMap.unity` edited in two asset commits with no description — scene diffs unreviewed.
 - Two branches still diverge (`sprint-16` vs UIFlow, +59.9k lines unreviewed).
 
+### Weekly Wrap-up — 2026-10-05 (autonomous, late; Saturday 10-03 slot did not fire)
+
+HEAD `ac13ee4`, tree clean. After the 10-02 standup: `3a395fe` (abilities on keys 1-4, `Block`/`SkillWeapon`
+handlers commented out), `0bc3640` (`LevelManager` singleton removed → DI; minimap `Move` re-subscribed;
+`Entity` Idle init split between `OnEnable`/`Start`), `213fa5a`..`d3400ee` (20-room set), `40d2c79`
+(no-spawn rooms open at once), `ac13ee4` (**reverts that branch**).
+
+- Code review: 4 new commits read; 2 bugs filed — **BUG-096** (S1, no-spawn rooms sealed, includes
+  Start/Boss) and **BUG-097** (S2, `Maze_Storage` alphabetical → start cell = Boss room). Details in
+  `production/qa/bug-triage-2026-10-05.md`.
+- Playtest: none logged this week (`production/qa/playtests/` newest is 2026-06-12) — **skipped**; run
+  `/playtest-report` manually if a session happened.
+- Retro: `production/retros/retro-sprint-16-2026-10-05.md`.
+
+**Handoff to Sprint 17 kickoff**
+- **Velocity:** planned 0.05d / 4.0d ≈ 0.01 (Must 1/10). Off-plan ≈3.5d+.
+- **Carry-over (priority order):** BUG-096 → BUG-097 → S16-07 smoke → S16-01 → S16-02 → S16-03+04 →
+  S16-06 + S16-16 → S16-05 verify → S16-09 → S16-08 → S16-10..14.
+
 ## Carry-over Watchlist
+
+- BUG-096 / BUG-097: new 10-05, block every run
+- Play Mode smoke: **10th** sprint — closes as carried
 
 - Play Mode smoke: 9th sprint (Fri 10-02 = last chance this sprint)
 - Git LFS decision for source `.fbx` (new 10-02)
