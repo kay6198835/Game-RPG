@@ -25,6 +25,7 @@ namespace UIFlow.EditorTools
         public const string GameplayUIPath = "Assets/Scenes/Main/GameplayUI.unity";
         public const string GameplayRealPath = "Assets/Scenes/Main/Test/LoadRandomMap.unity";
         public const string ConfigPath = "Assets/SO/UIFlow/UIDebugConfig.asset";
+        public const string HealthBarPrefabPath = "Assets/Prefab/UIFlow/WorldHealthBar.prefab";
         public const string DamageNumberPrefabPath = "Assets/Prefab/UIFlow/DamageNumber.prefab";
 
         [MenuItem("Tools/UI Flow/Build All")]
@@ -47,6 +48,7 @@ namespace UIFlow.EditorTools
         public static void BuildAll()
         {
             UIDebugConfig config = EnsureConfig();
+            BuildHealthBarPrefab();
             DamageNumber damageNumberPrefab = BuildDamageNumberPrefab();
 
             BuildMainGamePlay(config);

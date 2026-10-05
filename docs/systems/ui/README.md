@@ -18,7 +18,7 @@ against the real game, and screens with no gameplay source yet (inventory, quest
 | `Data/UIDataModels.cs` | DTOs: `PlayerStatsData`, `SkillSlotData`, `SkillNodeData`, `CharacterClassInfo`, … |
 | `Menu/` | `SplashPanel`, `LoginPanel`, `MainMenuPanel` + `MainMenuFlow`, `SaveSelectPanel` + `SaveSlotView`, `SettingsPanel` + `KeyBindingRow`. `CharacterCreationPanel` deleted in `cb0de496` — New Game creates a "Paladin N" save |
 | `Loading/LoadingScreen.cs` | Async load of `SceneFlow.TargetScene`, minimum display time, tips |
-| `Gameplay/` | `GameplayUIController`; `HUD/` (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed); `Windows/` (TabWindow, Inventory + InventorySlot + ItemTooltip, Character, Quest, SkillTree); `Shop/`; `Dialogue/`; `World/` (DamageNumber + spawner); `PausePanel`, `GameOverPanel` |
+| `Gameplay/` | `GameplayUIController`; `HUD/` (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed); `Windows/` (TabWindow, Inventory + InventorySlot + ItemTooltip, Character, Quest, SkillTree); `Shop/`; `Dialogue/`; `World/` (DamageNumber + spawner, WorldHealthBar — both currently unused); `PausePanel`, `GameOverPanel` |
 | `Services/` | `Interfaces/` (ILoginService, ISaveProvider, IPlayerDataProvider, IInventoryProvider, IQuestProvider); `Real/` (player data wired; login / inventory / quest stubs); `KeyBindings`, `SettingsStore` |
 | `Editor/` | `UIFlowBuilder` (+ `.Gameplay`) — generates the scenes; `UIKit`. (`UIFlowSmokeTest` deleted 2026-10-05) |
 | `Assets/Script/UI/` (legacy) | `UIController` (UI Toolkit MainMenu/Settings/Pause from `Assets/UI/Screens/*.uxml`), `StatsUIController` (VContainer-registered), `StatsScreenUIController`, `StatSlot` |

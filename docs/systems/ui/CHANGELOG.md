@@ -3,8 +3,8 @@
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
 ## 2026-10-05 — Mock and test-only flow removed
-- **Changed:** deleted `Services/Mock/` (6 files incl. `MockCatalog`), `Gameplay/Mock/` (`GameplayMockController`, `MockEnemy`), `WorldHealthBar` (+ prefab), `UIFlowSmokeTest`, `Assets/Scenes/Test/GameplayMock.unity` (and its Build Settings entry); removed flags `useMockData`, `skipGameplayInit`, `skipSaveLoad`, `bypassLoadRandomLogic` and `UIServices.RebuildProviders()` / `OnSaveSelected()`; loading tips moved into `LoadingScreen.DefaultTips`
-- **From → To:** Mock/Real providers switched by flags → `UIServices` always builds the `Real*` providers; `EnterGameplay()` chose mock or real scene → always `LoadRandomMap` + `GameplayUI`; 64 → 54 `.cs` files
+- **Changed:** deleted `Services/Mock/` (6 files incl. `MockCatalog`), `Gameplay/Mock/` (`GameplayMockController`, `MockEnemy`), `UIFlowSmokeTest`, `Assets/Scenes/Test/GameplayMock.unity` (and its Build Settings entry); removed flags `useMockData`, `skipGameplayInit`, `skipSaveLoad`, `bypassLoadRandomLogic` and `UIServices.RebuildProviders()` / `OnSaveSelected()`; loading tips moved into `LoadingScreen.DefaultTips`
+- **From → To:** Mock/Real providers switched by flags → `UIServices` always builds the `Real*` providers; `EnterGameplay()` chose mock or real scene → always `LoadRandomMap` + `GameplayUI`; 64 → 55 `.cs` files. UI component logic (all panels, `WorldHealthBar`, `DamageNumber`) kept unchanged
 - **Why:** owner request — start building the UI/UX against the real game without mock and fake-behaviour paths in the way
 - **Bugs:** none closed; no automated UI check remains (verify by playing)
 

@@ -9,7 +9,7 @@ append entries by hand (template in `docs/systems/README.md`).
 
 ## 2026-10-05 — Mock removal
 - **Changed:** banner, scene flow, section 3 (flags → configuration), 6.2, 6.3, section 7 (removed), section 8 table, findings 6 and 8, "Working on it", file map
-- **From → To:** five flags with a mock path → `skipLogin` + timings only; `GameplayMock` harness documented → removed; real-vs-mock table → what is wired today; findings 6 (two health-bar paths) and 8 (stale provider after rebuild) → resolved
+- **From → To:** five flags with a mock path → `skipLogin` + timings only; `GameplayMock` harness documented → removed; real-vs-mock table → what is wired today; finding 8 (stale provider after rebuild) → resolved; `WorldHealthBar` / `DamageNumber` kept but now have no caller (finding 6 still open)
 - **Why:** owner request to remove mock and test-only flows before building the UI/UX on the real game
 - **Bugs:** none
 

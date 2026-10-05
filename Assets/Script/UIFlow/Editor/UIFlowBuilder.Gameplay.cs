@@ -9,10 +9,32 @@ using static UIFlow.EditorTools.UIKit;
 
 namespace UIFlow.EditorTools
 {
-    /// <summary>Phần dựng scene GameplayUI (HUD + cửa sổ in-game) và prefab số damage.</summary>
+    /// <summary>Phần dựng scene GameplayUI (HUD + cửa sổ in-game) và 2 prefab world-space (thanh máu, số damage).</summary>
     public static partial class UIFlowBuilder
     {
         // ═════════════════════════ Prefab world-space ═════════════════════════
+
+        private static WorldHealthBar BuildHealthBarPrefab()
+        {
+            GameObject root = new("WorldHealthBar", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup));
+            Canvas canvas = root.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;   // Canvas là vật trong thế giới, đi theo quái
+            canvas.sortingOrder = 50;                     // Vẽ trên sprite quái (sortingOrder 0)
+            RectTransform rect = Rect(root);
+            rect.sizeDelta = new Vector2(120, 16);
+            rect.localScale = Vector3.one * 0.01f;         // 120 px × 0.01 = 1.2 unit: vừa bằng thân quái
+
+            Image background = Img(root.transform, "Background", new Color(0f, 0f, 0f, 0.7f), White);
+            Stretch(background.gameObject);
+            Image trail = Filled(root.transform, "Trail", new Color(1f, 0.85f, 0.6f), Image.FillMethod.Horizontal);
+            Stretch(trail.gameObject, 2, 2, 2, 2);
+            Image fill = Filled(root.transform, "Fill", new Color(0.9f, 0.2f, 0.2f), Image.FillMethod.Horizontal);
+            Stretch(fill.gameObject, 2, 2, 2, 2);
+
+            WorldHealthBar bar = root.AddComponent<WorldHealthBar>();
+            Wire(bar, ("fill", fill), ("trail", trail));
+            return SavePrefab(root, HealthBarPrefabPath).GetComponent<WorldHealthBar>();
+        }
 
         private static DamageNumber BuildDamageNumberPrefab()
         {
@@ -25,7 +47,7 @@ namespace UIFlow.EditorTools
             text.enableWordWrapping = false;
             text.text = "99";
             text.rectTransform.sizeDelta = new Vector2(3f, 1f);
-            text.GetComponent<MeshRenderer>().sortingOrder = 100;   // Vẽ trên sprite nhân vật / quái
+            text.GetComponent<MeshRenderer>().sortingOrder = 100;   // Trên thanh máu (50) và sprite
             root.AddComponent<DamageNumber>();
             return SavePrefab(root, DamageNumberPrefabPath).GetComponent<DamageNumber>();
         }

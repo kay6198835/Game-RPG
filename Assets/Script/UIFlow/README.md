@@ -5,7 +5,7 @@ Mọi chỗ gameplay chưa có dữ liệu (túi đồ, nhiệm vụ, EXP…) đ
 
 > **Giai đoạn hoàn thiện game (2026-10-05):** UI chỉ chạy với dữ liệu thật — Chơi mới / Tiếp tục vào thẳng
 > `LoadRandomMap`, HUD đọc máu/mana/level/kỹ năng của Player thật. **Toàn bộ mock đã bị xóa**: scene `GameplayMock`,
-> `Services/Mock/`, `Gameplay/Mock/`, `WorldHealthBar`, smoke test và các cờ mock. Màn tạo nhân vật cũng đã bỏ
+> `Services/Mock/`, `Gameplay/Mock/`, smoke test và các cờ mock. Logic của mọi màn UI (kể cả `WorldHealthBar`) vẫn giữ nguyên. Màn tạo nhân vật cũng đã bỏ
 > (Chơi mới tạo ngay save "Paladin N"). UI có sẵn trong `LoadRandomMap` (bảng chỉ số, minimap) giữ nguyên.
 
 ---
@@ -97,7 +97,7 @@ UIFlow/
   Loading/     LoadingScreen
   Gameplay/    HUD/ (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed)
                Windows/ (TabWindow, Inventory, InventorySlot, ItemTooltip, Character, SkillTree, Quest)
-               Dialogue/, Shop/, World/ (DamageNumber, DamageNumberSpawner)
+               Dialogue/, Shop/, World/ (WorldHealthBar, DamageNumber, DamageNumberSpawner)
                PausePanel, GameOverPanel, GameplayUIController
   Editor/      UIKit (hàm dựng uGUI), UIFlowBuilder (dựng scene)
 ```
@@ -156,7 +156,8 @@ DamageNumbers          DamageNumberSpawner (pool số damage)
 ```
 
 **Screen Space hay World Space?** Mọi menu/HUD/cửa sổ = *Screen Space - Overlay* (luôn phủ màn hình, không cần camera).
-Thanh máu trên đầu quái thật do `EntityUIController` của gameplay lo, không thuộc UIFlow.
+Thanh máu trên đầu = *World Space* (`WorldHealthBar`, scale 0.01 để 100 px = 1 unit). Hiện chưa có quái thật nào dùng —
+quái thật vẫn dùng `EntityUIController` của gameplay.
 Số damage = `TextMeshPro` 3D (không cần Canvas, rẻ hơn một Canvas cho mỗi con số).
 
 ---

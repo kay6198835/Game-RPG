@@ -511,7 +511,7 @@
         Loading/LoadingScreen.cs
         Gameplay/                               # GameplayUIController, HUD/ (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed),
                                                 # Windows/ (Inventory, Character, Quest, SkillTree, TabWindow, ItemTooltip), Shop/, Dialogue/,
-                                                # World/ (DamageNumber), Pause/GameOver panels. Gameplay/Mock/ and WorldHealthBar DELETED 2026-10-05 (mock removal)
+                                                # World/ (DamageNumber, WorldHealthBar — kept, no caller yet), Pause/GameOver panels. Gameplay/Mock/ DELETED 2026-10-05 (mock removal)
         Services/                               # Interfaces/ (ILoginService, ISaveProvider, IPlayerDataProvider, IInventoryProvider, IQuestProvider),
                                                 # Real/ only (Services/Mock/ + MockCatalog DELETED 2026-10-05) — ✅ RealPlayerDataProvider bound to the player since cb0de496 (ON_PLAYER_READY → IVitalComponent / IStatService / AbilityBindings / cooldowns); Login, Inventory, Quest still stubs,
                                                 # and RealSaveProvider), KeyBindings, SettingsStore

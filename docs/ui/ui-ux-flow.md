@@ -7,8 +7,8 @@
 > `LoadRandomMap`, the HUD reads the real player), character creation is removed, and every UI asset dating from
 > before February 2026 is deleted. Findings 1, 2, 5 and 7 in section 9 are resolved by that change.
 > **Updated 2026-10-05 (mock removal):** every mock / test-only path is deleted — the `GameplayMock` scene,
-> `Services/Mock/` (incl. `MockCatalog`), `Gameplay/Mock/`, `WorldHealthBar`, the smoke test and the four mock
-> flags. `UIServices` always builds the `Real*` providers and New Game / Continue always load `LoadRandomMap`
+> `Services/Mock/` (incl. `MockCatalog`), `Gameplay/Mock/`, the smoke test and the four mock
+> flags. The UI components themselves (every panel, `WorldHealthBar`, `DamageNumber`) are kept unchanged. `UIServices` always builds the `Real*` providers and New Game / Continue always load `LoadRandomMap`
 > with `GameplayUI` attached.
 > **Companion:** `Assets/Script/UIFlow/README.md` (beginner guide, Vietnamese, written with the code). This
 > document is the end-to-end flow reference: every screen, every transition, what is wired to gameplay and what is still empty,
@@ -22,7 +22,7 @@ There are **three UI stacks** in the project. Only one of them is the player-fac
 
 | Stack | Tech | Where | Status |
 |---|---|---|---|
-| **UIFlow** (`Assets/Script/UIFlow/`, namespace `UIFlow`) | uGUI + TextMeshPro | `MainGamePlay`, `Loading`, `GameplayUI` scenes | **The current flow.** ~5k lines, 54 files, added 2026-09-28/29 |
+| **UIFlow** (`Assets/Script/UIFlow/`, namespace `UIFlow`) | uGUI + TextMeshPro | `MainGamePlay`, `Loading`, `GameplayUI` scenes | **The current flow.** ~5k lines, 55 files, added 2026-09-28/29 |
 | Legacy gameplay UI | uGUI + TMP | inside `LoadRandomMap` (stats panel, minimap) and on the enemy prefab (health bar) | Live, untouched by UIFlow |
 | Legacy UI Toolkit screens | UXML/USS | `UIController`, `StatsScreenUIController` + `Assets/UI/Screens/*.uxml` | Code kept, but no scene uses it since `UISample.unity` was deleted |
 
@@ -248,8 +248,9 @@ stateDiagram-v2
 
 - `DamageNumber` / `DamageNumberSpawner` — 3D `TextMeshPro` (no canvas), pooled in a `Queue`, triggered by
   `UIEvents.ShowDamage(pos, amount, crit)`. **Nothing in real gameplay calls it yet.**
-- Enemy health bars are not UIFlow's: real enemies use `EntityUIController` on `EnemyPrefab.prefab`.
-  (UIFlow's `WorldHealthBar` was mock-only and was deleted on 2026-10-05.)
+- `WorldHealthBar` — World Space canvas (scale 0.01 → 100 px = 1 unit), follows a target without being
+  parented (so sprite flips do not mirror it). Kept as a reusable component; **nothing uses it now that
+  `MockEnemy` is gone.** Real enemies keep their own `EntityUIController` bar on `EnemyPrefab.prefab`.
 
 ---
 
@@ -319,8 +320,8 @@ Ordered by how much they affect someone actually playing the flow.
    until overrides are applied, or apply them.
 5. ✅ **Resolved 2026-10-05.** *Was:* the HUD's placeholder minimap box could cover `LoadRandomMap`'s real
    minimap. The placeholder is now inactive in `GameplayUI.unity` and in the builder.
-6. ✅ **Resolved 2026-10-05 (mock removal).** *Was:* two health-bar paths. `WorldHealthBar` is deleted;
-   `EntityUIController` is the only enemy bar. `DamageNumber` remains and still has no gameplay caller.
+6. **Two health-bar and two damage paths.** `WorldHealthBar` + `DamageNumber` (UIFlow, now unused) vs
+   `EntityUIController` (real enemies). Decide which one survives before wiring real damage numbers.
 7. ✅ **Resolved 2026-10-05.** *Was:* a stale `TabWindow` comment about Q/E; it now says Q is the pickup key.
 8. ✅ **Resolved 2026-10-05 (mock removal).** *Was:* `RebuildProviders()` could leave panels subscribed to a
    stale provider. The method is deleted; providers are only rebuilt when the config asset changes.
@@ -341,8 +342,8 @@ removed with the mock scene; verify by playing.
 ## 10. Working on it
 
 - **Run:** open `Assets/Scenes/Main/MainGamePlay.unity` → Play → New Game → the real dungeon with the HUD.
-- **Layout lives in code.** `Tools > UI Flow > Build All` regenerates the three UIFlow scenes, the
-  damage-number prefab and the config from `UIFlowBuilder*.cs` — **manual edits to those scenes are overwritten.** Change
+- **Layout lives in code.** `Tools > UI Flow > Build All` regenerates the three UIFlow scenes, the two
+  prefabs and the config from `UIFlowBuilder*.cs` — **manual edits to those scenes are overwritten.** Change
   layout in the builder, or stop using the builder for that scene. `Update Build Settings Only` is safe.
 - **Add a screen:** subclass `UIPanel`, override `OnShown()`, open it with `uiManager.Open(panel)`; let the
   flow class (`MainMenuFlow` / `GameplayUIController`) own navigation, not the panel.
@@ -363,8 +364,8 @@ Assets/Script/UIFlow/
   Gameplay/  GameplayUIController, PausePanel, GameOverPanel
              HUD/ (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed)
              Windows/ (TabWindow, InventoryPanel, InventorySlot, ItemTooltip, CharacterPanel, SkillTreePanel, QuestPanel)
-             Dialogue/, Shop/, World/ (DamageNumber, DamageNumberSpawner)
+             Dialogue/, Shop/, World/ (WorldHealthBar, DamageNumber, DamageNumberSpawner)
   Editor/    UIKit, UIFlowBuilder (+.Gameplay)
-Assets/SO/UIFlow/UIDebugConfig.asset · Assets/Prefab/UIFlow/DamageNumber.prefab
+Assets/SO/UIFlow/UIDebugConfig.asset · Assets/Prefab/UIFlow/{DamageNumber,WorldHealthBar}.prefab
 Assets/Scenes/Main/{MainGamePlay,Loading,GameplayUI}.unity
 ```
