@@ -1,5 +1,7 @@
 # ADR-0003: Enemy Spawn Selection Algorithm — Room Budget + Candidate Pool + RarityTier (Option C)
 
+> 📜 Change log: [changelog/adr-0003-enemy-spawn-selection-candidate-pool.CHANGELOG.md](changelog/adr-0003-enemy-spawn-selection-candidate-pool.CHANGELOG.md)
+
 ## Status
 Accepted
 

@@ -47,7 +47,7 @@ fi
 SRC_FILES=$(echo "$SRC_FILES" | tr -d ' ')
 
 if [ -d "design/gdd" ]; then
-    DESIGN_FILES=$(find design/gdd -type f -name "*.md" 2>/dev/null | wc -l)
+    DESIGN_FILES=$(find design/gdd -type f -name "*.md" -not -path "*/changelog/*" 2>/dev/null | wc -l)
 else
     DESIGN_FILES=0
 fi
@@ -65,7 +65,7 @@ if [ -d "Assets/Script" ]; then
         echo "GAP: Unity scripts exist but no docs/architecture/ directory"
         echo "    Suggested: /architecture-decision or /create-architecture"
     else
-        ADR_COUNT=$(find docs/architecture -type f -name "*.md" 2>/dev/null | wc -l)
+        ADR_COUNT=$(find docs/architecture -type f -name "*.md" -not -path "*/changelog/*" 2>/dev/null | wc -l)
         ADR_COUNT=$(echo "$ADR_COUNT" | tr -d ' ')
         if [ "$ADR_COUNT" -lt 2 ]; then
             echo "GAP: Only $ADR_COUNT ADR(s) documented"

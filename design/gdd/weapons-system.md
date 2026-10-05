@@ -1,27 +1,30 @@
 ---
 status: reverse-documented
 source: Assets/Script/Weapons/
-date: 2026-08-13
-verified-by: Kiet
+date: 2026-10-05
+verified-by: Kiet (re-synced against HEAD 93ba6d8e by doc-sync)
 ---
 
 # Weapons System Design
 
-> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The weapon lifecycle, combo-stage model and
-> `AttackSO` tuning knobs below still match the code. Three corrections:
+> 📜 Change log: [changelog/weapons-system.CHANGELOG.md](changelog/weapons-system.CHANGELOG.md)
+
+> **Re-synced 2026-10-05 against HEAD `93ba6d8e`.** What changed since the 2026-09-11 version
+> (full trail in the change log):
 >
-> - `INegativeReceiver.TakeDamage` now takes a **`float`**, not an `int`. Any formula below that
->   assumes integer damage should be read as float.
-> - `EntityWeaponMelee.cs` has been **deleted** (BUG-043 / BUG-046 closed).
->   `MeleeWeapon.OnActivate()` is the single reference implementation for melee hit detection.
->   ⚠️ `EntityAttack.Attack()` still duplicates it and hardcodes `TakeDamage(10, …)` (BUG-043, open).
-> - `WeaponStats.AbilityWeapon` / `.SkillWeapon` still hold **`ActivateSkill`** (Abilities v1).
->   The player's own ability slots moved to the v2 `AbilityDefinition` framework on 2026-09-09, so
->   weapons and the player now run *different* ability systems — see the banner in
->   `design/gdd/skill-ability-system.md`.
->
-> ⚠️ `RangeWeapon`'s VContainer wiring is incomplete — **BUG-064 sub-item 7**, the last open piece
-> of the Sprint 12 refactor.
+> - **Ranged projectiles rebuilt (2026-09-28).** `bullet.cs` and `BulletDataSO` are deleted. Every
+>   projectile is a pooled `ProjectileBody` configured by a `ProjectileConfig` on the stage, and the
+>   weapon receives hits through `IProjectilePayload.OnHit()`. Projectile abilities use the same body.
+> - **Weapons no longer carry abilities.** `WeaponStats.AbilityWeapon` / `.SkillWeapon`,
+>   `AttackSO.ability` and `Weapon.currentAbilitySO` are deleted. Abilities come from
+>   `CharacterData.AbilityBindings` and run on keys `1`-`4` whether or not a weapon is equipped.
+> - **Damage formula:** `PhysicalDamage + attackDamage (+ CritDamage)` computed by the holder, not the raw stage value.
+> - **`attackDamege` → `attackDamage`** (2026-09-01). Old assets still carry the old key — **BUG-095**.
+> - **Any character can hold a weapon** (`IWeaponHolder`, ADR-0005). Enemies attack only through a
+>   weapon; `EntityAttack` / `EntityWeaponMelee` are deleted.
+> - ✅ BUG-064 sub-item 7 closed — weapons are injected on equip.
+> - ⚠️ **BUG-093:** the ranged `RecoveryTime` gate was dropped from `CanAttack()`, and ranged hits
+>   ignore the computed damage.
 
 
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
@@ -39,9 +42,9 @@ The weapons system governs how players and enemies deal damage. Two weapon types
 direction-agnostic). Each weapon is a pickable GameObject that the player equips via
 interaction; enemies use a parallel EntityWeapon hierarchy.
 
-Weapons are the primary source of damage in the dungeon. Every weapon carries two ability
-slots — one for the block/ability input (RMB) and one for the skill input (E key) — linking
-the weapon system directly to the skill system.
+Weapons are the primary source of damage in the dungeon. Since 2026-09-28 they are **independent
+of abilities**: a character's abilities come from its `CharacterData.AbilityBindings`, not from the
+weapon it holds. Any character (player or enemy) holds a weapon through `IWeaponHolder`.
 
 ---
 
@@ -60,11 +63,13 @@ has different visual feedback, grounding the action in space rather than just pr
 
 ### Weapon Equip / Unequip
 
-- Player equips a weapon by pressing **F** near a weapon pickup (via `PlayerIntertorState`)
+- Each character spawns holding `CharacterData.DefaultWeapon` (a `WeaponSO` naming a prefab with a `Weapon`)
+- Player equips a weapon by pressing **F** near a weapon pickup (via `PlayerIntertorState` → `Weapon.Interact()`)
+- `WeaponHolderBase.Equid()` injects the weapon's `[Inject]` dependencies (VContainer `InjectGameObject`) on every equip
 - Only **one weapon** can be equipped at a time; equipping a second drops the current
 - Unequipping re-enables the weapon's collider and detaches it from the player
 - An unequipped weapon remains in the world as a pickup
-- Without a weapon, the player cannot enter Attack or Skill states
+- Without a weapon, a character cannot attack (no fallback attack path on either side). Abilities still work
 
 ### Attack Stages — Shared By Both Weapon Types [IMPLEMENTED]
 
@@ -104,45 +109,48 @@ aim direction differ between the two weapon families.
 **Attack direction:** both families read `IAimProvider.AimDirection`, implemented by
 `PlayerInputHandler` (mouse direction) and `EntityInput` (look direction).
 Melee: hit center = `player.position + AimDirection × attackRange`.
-Ranged: `firePoint.right = AimDirection`.
+Ranged: `firePoint = ownerPosition + AimDirection × spawnOffset`, computed in `OnAttackEnter()`.
 
 ### Melee Specifics [IMPLEMENTED]
 
 `MeleeWeapon.OnActivate()` runs `Physics2D.OverlapCircleNonAlloc` against a cached
 `Collider2D[]` buffer sized by `maxTargetsPerSwing`, and calls
-`INegativeReceiver.TakeDamage(attackDamege, transform.position)` on every hit — multi-hit
-AoE is intentional for the player.
+`INegativeReceiver.TakeDamage(finalDamage, transform.position)` on every hit — multi-hit
+AoE is intentional for the player. `finalDamage` is computed by
+`WeaponHolderBase.CalculateCurrentDamage()` and passed into `OnActivate(finalDamage)`.
 
 ### Ranged Specifics [IMPLEMENTED]
 
-`RangeAttackSO` extends `AttackSO` with the projectile payload: `BulletPrefab`,
-`BulletData`, `ProjectileCount`, `SpreadAngle`, `RecoveryTime`.
+`RangeAttackSO` extends `AttackSO` with the projectile payload: `ProjectilePrefab`,
+`ProjectileCount`, `SpreadAngle`, `RecoveryTime` and a `ProjectileConfig`
+(`speed`, `lifetime`, `targetMask`, `blockMask`).
 
-`RangeWeapon.OnActivate()` spawns `ProjectileCount` bullets from `ObjectPoolManager`
-(pooled — no `Instantiate` per shot), fanned across `SpreadAngle` centred on the aim
-direction, then sets `nextFireTime = Time.time + RecoveryTime`.
+`RangeWeapon : Weapon, IProjectilePayload`. `OnActivate()` spawns `ProjectileCount`
+projectiles from `IObjecPoolService` (pooled — no `Instantiate` per shot), fanned across
+`SpreadAngle` centred on the aim direction, and calls `ProjectileBody.Launch(direction, config,
+payload: this)` on each. It then writes `nextFireTime = Time.time + RecoveryTime` —
+⚠️ **which nothing reads (BUG-093)**, so the cooldown is not enforced today.
 
-`bullet.cs` reads its speed and lifetime from `BulletDataSO`, applies damage through
-`INegativeReceiver`, and returns itself to the pool on hit, on wall contact
-(`blockMask`), or on lifetime expiry.
+`ProjectileBody` (shared with projectile abilities) moves by `Rigidbody2D` velocity and handles
+`OnTriggerEnter2D`: a `blockMask` layer releases it with no damage; a `targetMask` layer calls
+`payload.OnHit(target, position)` and releases it; lifetime expiry releases it. A body that was not
+spawned by the pool destroys itself instead. `RangeWeapon.OnHit()` resolves `INegativeReceiver` on
+the hit collider and deals `currentStage.attackDamage` — ⚠️ the raw stage value, not the
+`finalDamage` melee uses (BUG-093).
 
 **Fire rate lives per stage** (`RangeAttackSO.RecoveryTime`), not on the weapon — a charged
 shot and a quick shot on the same weapon need different recovery. The former weapon-level
 `firerate` / `timeBtwShots` / `StartTimeBtwShots` fields are removed; `timeBtwShots` was a
 runtime countdown stored in a shared SO asset, which persisted across play sessions.
 
-### Weapon Skill Slots
+### Weapon Skill Slots — REMOVED 2026-09-28
 
-Every `WeaponStats` SO carries two ability references:
-
-| Slot | Input | Field | Purpose |
-|------|-------|-------|---------|
-| `abilityWeapon` | RMB (held) | `WeaponStats.abilityWeapon` | Weapon-bound ability (e.g. block, special) |
-| `skillWeapon` | E (held) | `WeaponStats.skillWeapon` | Weapon-bound skill (e.g. slash, dash-attack) |
-
-`Weapon.SetAbility()` reads the player's input enum and routes to the correct SO,
-which is then registered with `AbilityHolder`. The ability lifecycle (Start→Cast→Do→Exit)
-is driven by `AbilityHolder` per frame — not by the weapon itself.
+Weapons no longer carry ability references. `WeaponStats.AbilityWeapon` / `.SkillWeapon` and
+`AttackSO.ability` are deleted, `Weapon.currentAbilitySO` is commented out, and
+`Weapon.SetAbility()` is an empty stub ("fix later"). Abilities are bound per character in
+`CharacterData.AbilityBindings` and triggered on keys `1`-`4` (Primary / Secondary / Utility /
+Ultimate) — see `docs/systems/abilities/README.md`. The RMB block handler is commented out in
+`PlayerInputHandler`. Only `EntityWeapon` still references Abilities v1 (`ActivateSkill`).
 
 ### Block Mechanic
 Out of scope for the demo. `blockDamage` and `shieldEra` fields in `MeleeWeaponStats` are
@@ -169,11 +177,17 @@ CurrentStageIndex = (CurrentStageIndex + 1) % StageCount
 # Chain permission
 Weapon.CanChain()      = CanAttack() && CurrentStageIndex != 0
 RangeWeapon.CanChain() = CanAttack() && (AutoFire || CurrentStageIndex != 0)
-RangeWeapon.CanAttack() = base.CanAttack() && Time.time >= nextFireTime
+RangeWeapon.CanAttack() = base.CanAttack() && StatsRange != null && poolService != null
+                          [⚠️ the `Time.time >= nextFireTime` term was dropped on 2026-09-28 — BUG-093]
 
-# Melee damage
-finalDamage = currentStage.attackDamege
-              [no multiplier, no armor reduction — raw value from AttackSO]
+# Melee damage (WeaponHolderBase.CalculateCurrentDamage)
+finalDamage = PhysicalDamage + currentStage.attackDamage
+if RollChance(CritChance): finalDamage += CritDamage
+[stats read from the holder's IVitalComponent; the receiver then applies Mitigate()
+ — enemies: finalDamage - Defense, clamped at 0]
+
+# Ranged damage (RangeWeapon.OnHit) — ⚠️ BUG-093
+rangedDamage = currentStage.attackDamage      [no PhysicalDamage, no crit]
 
 # Ranged spread (ProjectileCount > 1)
 step       = SpreadAngle ÷ (ProjectileCount - 1)
@@ -183,9 +197,9 @@ angle[i]   = startAngle + step × i
 # Ranged cooldown
 nextFireTime = Time.time + RangeAttackSO.RecoveryTime
 
-# Bullet travel
-bulletVelocity = transform.right × BulletDataSO.speed
-bulletLifetime = BulletDataSO.lifetime seconds, then released back to the pool
+# Projectile travel (ProjectileBody)
+velocity = direction.normalized × ProjectileConfig.speed
+lifetime = ProjectileConfig.lifetime seconds, then released back to the pool
 ```
 
 ---
@@ -194,19 +208,22 @@ bulletLifetime = BulletDataSO.lifetime seconds, then released back to the pool
 
 | Scenario | Behaviour |
 |----------|-----------|
-| Melee hit frame | `OverlapCircleNonAlloc` + `TakeDamage(attackDamege, transform.position)` on every hit collider ✓ |
-| Bullet hits player/enemy | `bullet.OnCollisionEnter2D` resolves `INegativeReceiver` and calls `TakeDamage(BulletSO.dmg, ...)`, then releases to the pool ✓ |
-| Bullet hits a wall | `blockMask` match → released to the pool, no damage ✓ |
-| Bullet outlives `lifetime` | Released to the pool by the `Update()` timer, never `Destroy`ed ✓ |
-| Bullet has no `PoolMember` (hand-placed in a scene) | Falls back to `Destroy(gameObject)` ✓ |
+| Melee hit frame | `OverlapCircleNonAlloc` + `TakeDamage(finalDamage, transform.position)` on every hit collider ✓ |
+| Projectile hits a `targetMask` layer | `ProjectileBody.OnTriggerEnter2D` → `RangeWeapon.OnHit()` → `TakeDamage(currentStage.attackDamage, pos)`, then released ✓ |
+| Projectile hits a `blockMask` layer | Released to the pool, no damage ✓ |
+| Projectile hits a layer in neither mask | Ignored — keeps flying ✓ |
+| Projectile outlives `lifetime` | Released by the despawn coroutine ✓ |
+| Projectile not spawned by the pool (hand-placed) | `Destroy(gameObject)` ✓ |
+| Pooled projectile reused | `OnDisable` clears payload and velocity — no carry-over from the last shot ✓ |
 | Stage index passes end of list | Resets to 0 ✓ |
 | Attack input while no weapon equipped | `WeaponHolder.CanAttack()` returns false — `PlayerBasicState` never enters `PlayerAttackState` ✓ |
-| Attack input while ranged weapon is on cooldown | `RangeWeapon.CanAttack()` returns false; the state is not re-entered, so the cooldown cannot be bypassed by leaving and re-entering ✓ |
+| Attack input while ranged weapon is on cooldown | ⚠️ **Not enforced** — `CanAttack()` no longer tests `nextFireTime` (BUG-093). Fire rate is bounded only by the attack animation |
 | Attack finishes with no buffered input | `Status = None` → `PlayerUseWeaponState` exits to Idle/Move ✓ (previously the status stayed at `EndRangeTrigger` and the player was stuck in the attack state) |
 | Attack input during TakeDamage state | `PlayerBasicState` transitions to TakeDamage before the attack check ✓ (TakeDamage > Attack) |
 | Multiple enemies in melee hitbox | All are hit, bounded by `maxTargetsPerSwing` — intentional AoE for the player ✓ |
 | Ranged stats SO wired onto a melee weapon (or vice versa) | `CanAttack()` returns false instead of throwing `InvalidCastException` ✓ |
-| `attackDamege = 0` in an AttackSO | All attacks deal 0 damage until the SO is configured — **[GAP]** no validator warns about this yet |
+| `attackDamage = 0` in an AttackSO | Melee hits for `PhysicalDamage` only; ranged hits for 0 — **[GAP]** no validator warns. ⚠️ This is the live state of `SnS_State1-3.asset` (BUG-095: old key `attackDamege` not migrated) |
+| Character with no weapon | `WeaponHolderBase.MakeDamage()` returns early; no attack state entered ✓ |
 
 ---
 
@@ -215,11 +232,13 @@ bulletLifetime = BulletDataSO.lifetime seconds, then released back to the pool
 | System | Role | Direction |
 |--------|------|-----------|
 | **Character system** (`PlayerAttackState`, `WeaponHolder`) | Calls `Weapon.Attack()` on animation event; holds the equipped weapon reference | Character → Weapons |
-| **Skill/Ability system** (`ActivateSkill`, `AbilityHolder`) | Weapon SO carries ability references; `SetAbility()` registers them with `AbilityHolder` | Weapons → Skills |
+| **Skill/Ability system** | No link since 2026-09-28 — abilities come from `CharacterData`. Shared piece: `ProjectileBody` / `IProjectilePayload` serve both ranged weapons and projectile abilities | Shared runtime |
+| **Stats** (`IVitalComponent`) | `PhysicalDamage`, `CritChance`, `CritDamage` read by `WeaponHolderBase.CalculateCurrentDamage()` | Weapons → Stats |
+| **Dependency injection** (VContainer) | `WeaponHolderBase.Equid()` injects the weapon; `RangeWeapon.Construct(IObjecPoolService)` | DI → Weapons |
 | **Animation system** (`AnimationEventManager`) | `AnimationTrigger` event drives `Attack()` call; `directionAttackAnimatorOV` provides directional clips | Weapons → Animation |
 | **Interface** (`INegativeReceiver`) | All damage application goes through this interface — weapons must never call `.health` directly | Weapons → Interface |
-| **Pooling** (`ObjectPoolManager` / `Pool`) | Ranged weapons spawn every projectile through the pool; bullets release themselves back | Weapons → Pooling |
-| **Map/Room** (`RoomController`) | Room clear counts enemies; weapons drive enemy death events | Weapons → Map (indirect) |
+| **Pooling** (`ObjectPoolManager` / `Pool`) | Ranged weapons spawn every projectile through the pool; each `ProjectileBody` releases itself back | Weapons → Pooling |
+| **Map/Room** (`RoomCell`) | Room clear counts enemies; weapons drive enemy death events | Weapons → Map (indirect) |
 
 ---
 
@@ -232,15 +251,15 @@ All values in ScriptableObject assets — never hardcode in MonoBehaviours.
 | Field | Effect | Demo target |
 |-------|--------|-------------|
 | `attackRange` | Melee hitbox radius / ranged muzzle offset (units) | 1.0 (light), 1.5 (heavy) |
-| `attackDamege` | Raw damage dealt | 10 (light), 20 (heavy) |
+| `attackDamage` | Stage damage, added to the holder's `PhysicalDamage` (was `attackDamege` until 2026-09-01) | 10 (light), 20 (heavy) |
 | `directionAttackAnimatorOV` | Directional clip set for this stage | one per stage |
 
 ### Per-stage ranged tuning (`RangeAttackSO`)
 
 | Field | Effect | Notes |
 |-------|--------|-------|
-| `BulletPrefab` | Which projectile to pool and spawn | required |
-| `BulletData` | `BulletDataSO` carrying speed / lifetime / damage | required |
+| `ProjectilePrefab` | Prefab with a `ProjectileBody` (+ `Rigidbody2D`, a 2D collider) | required |
+| `ProjectileConfig` | `speed` (1-60), `lifetime` (0.1-30 s), `targetMask`, `blockMask` | required |
 | `ProjectileCount` | Projectiles per shot | 1 = single, >1 = shotgun fan |
 | `SpreadAngle` | Total fan width in degrees | 0 for a single accurate shot |
 | `RecoveryTime` | Cooldown before the next shot (seconds) | lower = faster |
@@ -251,26 +270,27 @@ All values in ScriptableObject assets — never hardcode in MonoBehaviours.
 |-------|--------|-------|
 | `LayerMask` | Which layers the melee hitbox hits | set in Inspector |
 | `AttackStages` | Stage list (`List<AttackSO>`) | 3 entries for melee, 1+ for ranged |
-| `AbilityWeapon` | RMB ability SO reference | per-weapon |
-| `SkillWeapon` | E key skill SO reference | per-weapon |
+| `StatModifiers` | `StatModifierGroup` applied to the holder's stats on equip | per-weapon |
 | `AutoFire` (ranged only) | Holding the trigger replays the stage list | true for pistols, false for a draw chain |
 
-### Bullet tuning (`BulletDataSO`)
+### Projectile tuning (`ProjectileConfig`, embedded in `RangeAttackSO`)
 
 | Field | Effect | Notes |
 |-------|--------|-------|
-| `speed` | Projectile velocity (units/sec) | set on the SO, applied on spawn |
-| `lifetime` | Bullet range, indirectly (seconds) | released to the pool on expiry |
-| `dmg` | Bullet damage | raw, no reduction |
-| `targetMask` | Which layers the bullet damages | set in Inspector |
+| `speed` | Projectile velocity (units/sec) | applied in `ProjectileBody.Launch()` |
+| `lifetime` | Projectile range, indirectly (seconds) | released to the pool on expiry |
+| `targetMask` | Layers that receive `OnHit()` | set in Inspector |
+| `blockMask` | Layers that stop the projectile without damage | walls |
+
+`BulletDataSO` (and its `dmg` field) was deleted on 2026-09-28; projectile damage now comes from the stage.
 
 ### Per-weapon-instance tuning (MonoBehaviour Inspector)
 
 | Field | Effect | Default |
 |-------|--------|---------|
 | `maxTargetsPerSwing` (`MeleeWeapon`) | Hit buffer size — caps multi-hit AoE | 8 |
-| `firePoint` (`RangeWeapon`) | Muzzle transform, rotated to the aim direction | required |
-| `blockMask` (`bullet`) | Layers that stop a projectile without damage | walls |
+| `spawnOffset` (`RangeWeapon`) | Distance from the owner at which projectiles spawn | 0.5 |
+| `firePoint` (`RangeWeapon`) | Serialized `Vector2`, **overwritten every shot** — runtime state, not a knob | — |
 
 ---
 
@@ -278,22 +298,23 @@ All values in ScriptableObject assets — never hardcode in MonoBehaviours.
 
 ### Melee — Player
 - [ ] LMB advances through a 3-stage chain (light → light → heavy) with distinct animations per direction
-- [ ] Each hit applies `AttackSO.attackDamege` damage to all enemies within `attackRange` via `INegativeReceiver.TakeDamage()`
+- [ ] Each hit applies `PhysicalDamage + AttackSO.attackDamage` (+ crit) to all enemies within `attackRange` via `INegativeReceiver.TakeDamage()` — blocked by BUG-095 for the SnS stages
 - [ ] Chain resets after the chain window expires or after the 3rd hit
 - [ ] Missing the chain window (too slow between LMB presses) resets to stage 1
 - [ ] No weapon equipped → LMB has no effect
 - [ ] Attack state exits to Idle/Move when the animation finishes with no buffered input
 
 ### Melee — Enemy
-- [ ] `EntityWeaponMelee.Attack()` correctly deals damage to player (regression check only)
+- [ ] An enemy whose `EntityData.DefaultWeapon` names a melee weapon damages the player through the same `MeleeWeapon.OnActivate()` path
+- [ ] An enemy with no weapon never attacks
 
 ### Ranged — Player
-- [ ] LMB fires a bullet from `firePoint` in the aim direction
-- [ ] Bullet travels at `BulletDataSO.speed` and returns to the pool after `lifetime` seconds
-- [ ] Bullet collision with an enemy applies `BulletDataSO.dmg` via `INegativeReceiver.TakeDamage()`
-- [ ] Bullet collision with a `blockMask` layer returns it to the pool with no damage
-- [ ] `RangeAttackSO.RecoveryTime` prevents rapid-fire spam, and cannot be bypassed by leaving and re-entering the attack state
-- [ ] Bullets are pooled — no `Instantiate` per shot after the pool warms up
+- [ ] LMB fires a projectile from `ownerPosition + AimDirection × spawnOffset` in the aim direction
+- [ ] Projectile travels at `ProjectileConfig.speed` and returns to the pool after `lifetime` seconds
+- [ ] Projectile hitting a `targetMask` collider applies damage via `INegativeReceiver.TakeDamage()`
+- [ ] Projectile hitting a `blockMask` collider returns to the pool with no damage
+- [ ] `RangeAttackSO.RecoveryTime` prevents rapid-fire spam — **fails today (BUG-093)**
+- [ ] Projectiles are pooled — no `Instantiate` per shot after the pool warms up
 - [ ] `ProjectileCount > 1` fans projectiles evenly across `SpreadAngle`
 
 ### Ranged — Stage chaining
@@ -304,4 +325,5 @@ All values in ScriptableObject assets — never hardcode in MonoBehaviours.
 ### Weapon Management
 - [ ] Player can equip a weapon by pressing F near a pickup
 - [ ] Unequipping clears `WeaponHolder.Weapon` so a different weapon can be picked up
-- [ ] Ability/skill slots on weapon SO are correctly registered with `AbilityHolder` on equip
+- [ ] Equipping injects the weapon (a ranged weapon fires on its first attack after pickup)
+- [ ] Abilities work with and without a weapon equipped

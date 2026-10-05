@@ -1,7 +1,14 @@
 # ADR-0004: VContainer is the project's dependency-injection container
 
+> 📜 Change log: [changelog/adr-0004-vcontainer-dependency-injection.CHANGELOG.md](changelog/adr-0004-vcontainer-dependency-injection.CHANGELOG.md)
+
 ## Status
 Accepted (retroactively documented)
+
+> **⚠️ Amended 2026-10-05 — read Amendment 1 at the end.** The registration list in the Decision
+> below is the 2026-09-11 state. Since 2026-09-28 the player is **spawned at runtime** by
+> `PlayerManager` and none of its components are registered; `LevelManager` and
+> `RoomGridController` were added (2026-10-02). The decision itself is unchanged.
 
 > **⚠️ This ADR was written on 2026-09-11, 20 days after the decision shipped.** VContainer was
 > added to `Packages/manifest.json` and `GameLifetimeScope` was authored in commit `aa4e620`
@@ -165,3 +172,43 @@ Checked directly against source at HEAD `6d6a8e4` on 2026-09-11:
    which is precisely the case DI handles worst. Deliberately deferred.
 3. **What happens to the two commented-out registrations?** Either guarantee those components are
    in the scene, or move them to spawn-time injection. Currently neither.
+
+---
+
+## Amendment 1 — 2026-10-05 (doc sync against HEAD `93ba6d8e`)
+
+**Cause.** `5b035b73` (2026-09-28) and `0bc36406` (2026-10-02) changed what is registered and how the
+player and weapons are injected. Recorded here instead of editing the Decision.
+
+**Registrations now (`GameLifetimeScope.Configure()`):**
+
+| Registration | Exposed as | Change |
+|---|---|---|
+| `ObjectPoolManager` | `IObjecPoolService` | unchanged |
+| `PlayerManager` | **self** + `IPlayerService` | `.AsSelf()` added — `RoomGridController` injects the concrete type |
+| factory `r => r.Resolve<PlayerManager>().StatService` | `IPlayerStatService` | **was** `RegisterComponentInHierarchy<StatHandler>()` |
+| `EnemySpawner`, `StatsUIController`, `ItemSpawner`, `RoomGeneraterController` | self | unchanged |
+| `RoomGridController` | self | **new** (needs `PlayerManager` for the start-room teleport) |
+| `LevelManager` | self | **new** — replaces the `LevelManager.Instance` singleton (TD-023 closed) |
+| ~~`Player`~~, ~~`StatHandler`~~, ~~`AbilityHolder`~~ | — | **removed** |
+
+**New injection paths:**
+
+- **Runtime player spawn.** `PlayerManager.Construct(IObjectResolver)`; the lazy `Player` property calls
+  `resolver.Instantiate(playerPrefab, spawnPoint, parent)`, which injects the whole player hierarchy
+  before `Awake()`. The Player prefab must therefore **not** be placed in the scene — the reverse of
+  the "Player must be placed, not instantiated" rule this ADR implied.
+- **Weapons on equip.** `WeaponHolderBase.Construct(IObjectResolver)`; `Equid()` calls
+  `resolver.InjectGameObject(weapon.gameObject)`. This closes BUG-064 sub-item 7 (`RangeWeapon`
+  receives `IObjecPoolService`).
+
+**Deviations from Rule "inject behind an interface"** introduced by these commits:
+`RoomGridController.Construct(PlayerManager)` and `RoomGeneraterController.Construct(IPlayerService,
+LevelManager)` take concrete MonoBehaviours. Accepted here as recorded fact, not ratified; an
+`ILevelDataService` / reuse of `IPlayerService` would restore the rule.
+
+**Outside the container:** UIFlow (`Assets/Script/UIFlow/`) uses its own static `UIServices` locator
+(TD-053). It does not resolve anything from `GameLifetimeScope`.
+
+**Open Question #2 update:** `EnemyManager` and `MazeController` are now the only singletons in the
+project.

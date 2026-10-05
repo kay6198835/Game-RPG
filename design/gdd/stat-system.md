@@ -9,6 +9,8 @@ verified-by: Kiet
 
 # Stat System Design
 
+> 📜 Change log: [changelog/stat-system.CHANGELOG.md](changelog/stat-system.CHANGELOG.md)
+
 > **⚠️ Renamed 2026-09-11 — `StatsSO` is now `BaseStatsSO`.** The class was deleted in `b0512f4`
 > and re-added as `BaseStatsSO` in `1c0742e`, with `EnemyStatSO : BaseStatsSO` for enemies.
 > **The API surface did not change** — `Get()`, `GetStat()`, `GetStatValue()`,

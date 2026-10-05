@@ -1,5 +1,7 @@
 # Systems Index
 
+> 📜 Change log: [changelog/systems-index.CHANGELOG.md](changelog/systems-index.CHANGELOG.md)
+
 > **Generated**: 2026-05-19 · **Status columns re-verified against source**: 2026-09-11 (HEAD `6d6a8e4`)
 > **Game**: Unity Action Roguelike RPG
 > **Review mode**: lean

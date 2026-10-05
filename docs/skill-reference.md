@@ -1,5 +1,7 @@
 # Studio Skill Reference
 
+> 📜 Change log: [changelog/skill-reference.CHANGELOG.md](changelog/skill-reference.CHANGELOG.md)
+
 > Quick-lookup guide to all Claude Code skills available in this project, grouped by
 > development phase. Generated 2026-06-08 from `.claude/skills/`; re-synced **2026-09-11**
 > against the **80** skill files on disk. (Previous re-sync 2026-08-21 counted 79.)

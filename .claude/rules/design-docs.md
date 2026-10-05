@@ -27,9 +27,12 @@ Every GDD in `design/gdd/` MUST have all 8 sections. Pre-commit hook validates t
 - Mark sections as `[IMPLEMENTED]` or `[PLANNED]` for clarity during development
 - Run `/design-review` before handing a GDD to programmers
 
+## Diagrams
+- Mermaid blocks follow `.claude/rules/mermaid-diagrams.md`; run `py .claude/hooks/lint-mermaid.py <file>` before finishing
+
 ## Formulas Format
 ```
-finalDamage = attackDamege - target.blockDMG
+finalDamage = attackDamage - target.blockDMG
 healAmount  = maxHealth * 0.15
 dashDistance = movementVelocities.dash * Time.deltaTime * dashDuration
 ```

@@ -1,5 +1,7 @@
 # ADR-0001: StatSystem keeps List<Stat> and Dictionary<StatType, float> in parallel
 
+> 📜 Change log: [changelog/adr-0001-statsystem-dual-data-structure.CHANGELOG.md](changelog/adr-0001-statsystem-dual-data-structure.CHANGELOG.md)
+
 ## Status
 Proposed
 

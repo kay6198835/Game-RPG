@@ -1,5 +1,7 @@
 # UI / UX Flow — Current State
 
+> 📜 Change log: [changelog/ui-ux-flow.CHANGELOG.md](changelog/ui-ux-flow.CHANGELOG.md)
+
 > **Scope:** branch `origin/feature/ui-flow-maingameplay`, read from source on 2026-10-05.
 > **Updated 2026-10-05 (game-completion phase):** flags now default to the **real** game (New Game / Continue load
 > `LoadRandomMap`, the HUD reads the real player), character creation is removed, and every UI asset dating from

@@ -7,6 +7,8 @@ verified-by: Kiet
 
 # Character System Design
 
+> 📜 Change log: [changelog/character-system.CHANGELOG.md](changelog/character-system.CHANGELOG.md)
+
 > **⚠️ Partially superseded 2026-09-11 — the health/stat model below predates the Sprint 12 refactor.**
 >
 > This GDD describes damage landing on a single health field. Since `9b8d40f` / `f3f5f08`, both

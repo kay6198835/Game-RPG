@@ -2,126 +2,129 @@
 
   This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-  > **Last updated:** 2026-09-25 (HEAD `c0067f4`, branch `origin/feature/fix-player-control`) —
-
+  > **Last updated:** 2026-10-05 — **merge of `origin/feature/synce-doc-and-code` (`7d1b5c79`) into
+  > `origin/feature/ui-flow-maingameplay` (`cb0de496`).** `cb0de496` is the UIFlow game-completion
+  > commit; its facts are folded into the sections below:
+  > - **EventID now has 24 values** — `ON_PLAYER_READY` (emitted by `VitalStatsComponent.Reborn()`,
+  >   payload = the player's `ICharacter` root). Also new: `IVitalComponent.CurrentStatsChanged`,
+  >   `AbilityHolderBase.AbilityCooldownStarted`, `AbilityInstance.CooldownStarted`.
+  > - **UIFlow runs the real game by default** (`UIDebugConfig`: only `skipLogin` on). New Game /
+  >   Continue load `LoadRandomMap` + `GameplayUI`; `RealPlayerDataProvider` binds HP/Mana, stats,
+  >   the 4-slot hotbar and cooldowns to the real player. Character creation is removed.
+  > - **Deleted:** `StartScene.unity`, `UISample.unity`, `Assets/Script/MainMenu/MainMenu.cs`,
+  >   `Assets/Script/Manager/UI/UIManager.cs` (the TD-017 stub), the 2024 `Assets/Prefab/UI/` prefabs.
+  >   `MainGamePlay` is build index 0.
+  > - The 2026-10-05 doc-sync entry below predates `cb0de496`; where they disagree, this note wins.
+  >
+  > **Previous entry — doc sync, same day:**
+  > 2026-10-05 (HEAD `93ba6d8e`, branch `origin/feature/synce-doc-and-code`) —
+  > **Doc sync after 38 commits (sprints 16-17).** Every change below was read from `git diff
+  > c0067f4..93ba6d8e`; no `.cs` file was changed by this pass.
+  >
+  > ✅ **The project compiles again.** `RecoveryReductionPerTimeForDuration.cs:6` declares `perTime`
+  > once more, so **BUG-092 is PARTIAL** — the build break is gone, but `perTime` and `timeCount`
+  > are both `private` with no `[SerializeField]`, so every HoT/DoT asset still runs with
+  > `perTime = 0`, `timeCount = 0` (one instant tick).
+  >
+  > ✅ **Closed by this pass:** **Bug #12 / TD-023** (`LevelManager.Instance` deleted; `LevelManager`
+  > is now registered in `GameLifetimeScope` and injected into `RoomGeneraterController`),
+  > **Bug #13** (`RoomGridController.OnDoneLoadRoomGrid()` now calls
+  > `PlayerManager.SetPlayerPosition()`), **BUG-064 sub-item 7** (`RangeWeapon` has
+  > `[Inject] Construct(IObjecPoolService)` and `WeaponHolderBase.Equid()` injects every weapon
+  > through `IObjectResolver.InjectGameObject()`). **BUG-087 is PARTIAL** — `ON_PLAYER_DEATH` now has
+  > one subscriber (`UIFlow.RealPlayerDataProvider`), but no `Reborn()` / `GameManager` exists.
+  >
+  > **New since `c0067f4`:**
+  > - **UIFlow** (`Assets/Script/UIFlow/`, 65 files, `namespace UIFlow`) — a complete menu → loading →
+  >   in-game UI flow built on UGUI + TextMeshPro, with Mock/Real data providers switched by a
+  >   `UIDebugConfig` SO. Real providers are stubs except the death event. New scenes `MainGamePlay`,
+  >   `Loading`, `GameplayUI`, `Test/GameplayMock`. See `docs/ui/ui-ux-flow.md`.
+  > - **Projectile layer rebuilt:** `ProjectileBody` + `ProjectileConfig` + `IProjectilePayload` serve
+  >   both weapons and abilities. `bullet.cs` and `BulletDataSO.cs` are deleted.
+  > - **Player is spawned at runtime** by `PlayerManager` (`resolver.Instantiate`), so no player
+  >   component is registered in `GameLifetimeScope` any more (`Player`, `StatHandler`,
+  >   `AbilityHolder` removed; `IPlayerStatService` is now a factory over `PlayerManager.StatService`).
+  > - **Abilities v1 unhooked from the player weapon path:** `AttackSO.ability`,
+  >   `WeaponStats.AbilityWeapon` / `.SkillWeapon` and `Weapon.currentAbilitySO` are gone. Only
+  >   `EntityWeapon` still references `ActivateSkill`.
+  > - **Ability input:** keys `1`/`2`/`3`/`4` → Primary/Secondary/Utility/Ultimate. Block (RMB) commented out.
+  > - **Room data:** the 13 `NormalRoom_N.json` became 20 named rooms (Start, 15 Combat, Buff, Rest,
+  >   Shop, Boss). Rooms with no spawn marker open their doors immediately.
+  >
+  > **New bugs:** **BUG-093** (`RangeWeapon.nextFireTime` written, never read — `RecoveryTime` is
+  > dead), **BUG-094** (`PlayerState.Enter()` logs every state change, unguarded), and
+  > ⚠️ **BUG-095** — `AttackSO.attackDamege` was renamed `attackDamage` in `ddcc0a5c` (2026-09-01) with
+  > no `[FormerlySerializedAs]`; the three player sword stages (`SnS_State1-3.asset`) still store
+  > `attackDamege: 55`, so Unity loads `attackDamage = 0` — the player sword loses its 55 stage damage — `WeaponHolderBase.CalculateCurrentDamage()` (`:92-98`) computes `PhysicalDamage + attackDamage (+ CritDamage on crit)`, so a hit deals only the character's `PhysicalDamage`.
+  > Static analysis; confirm in Play Mode. `attackDamege` is no longer an intentional typo in code.
+  >
+  > **Fix commits located with `git log -S`:** BUG-092 build fix and BUG-064 sub-7 → `5b035b73`
+  > (2026-09-28); Bug #13 → `9154763f` (2026-09-30); Bug #12 → `0bc36406` (2026-10-02).
+  >
+  > 📁 **New documentation layout:** `docs/systems/<system>/README.md` (current official doc) +
+  > `docs/systems/<system>/CHANGELOG.md` (when / what / why / from → to). Start at
+  > `docs/systems/README.md`.
+  >
+  > **Previous entry — 2026-09-25 (HEAD `c0067f4`, branch `origin/feature/fix-player-control`)** —
   > **Post-pull re-verification.** Eleven commits landed since the pass recorded below. The biggest is
-
   > **ADR-0005 Amendments 1-3**, which rebuilt the character layer around shared base classes and, as a
-
   > side effect, changed the Abilities v2 damage contract. Every tracked bug was re-read against source
-
   > at this HEAD. No `.cs` file was changed by the documentation pass.
-
   >
-
   > 🔴 **THE PROJECT DOES NOT COMPILE AT HEAD — BUG-092.** `c0067f4` deleted the field
-
   > `public float perTime;` from `RecoveryReductionPerTimeForDuration.cs` and left both uses of it
-
   > (`:14`, `:17`) — `error CS0103`, twice. `Assembly-CSharp` fails, so there is no Play Mode, no Test
-
   > Runner, and **no bug in this register can be verified in the Editor until it is fixed.** Fix it
-
   > first. ⚠️ A second defect in that file survives the compile fix: `timeCount` (`:8`) is `private`
-
   > with no `[SerializeField]`, so Unity never serializes it and every HoT/DoT asset runs **exactly one
-
   > instant tick**, silently.
-
   >
-
   > ⚠️ **This is the second compile break committed in four days** (BUG-088 was the first, on
-
   > 2026-09-22). Nothing in this project compiles the code except a human opening the Editor. That is
-
   > **TD-048** (a pre-push compile check) and it is now the highest-value open process item; the
-
   > recurrence is filed as **TD-051**.
-
   >
-
   > ✅ **Closed by this pass:** **BUG-043** (`EntityAttack.cs` deleted, `f7d98b1`), **BUG-074**
-
   > (`Utility.ModifierStatsCalculate` returns the delta, `b0b1337`), **BUG-080** (`ResourceReceiver`
-
   > gutted to `: Interact`), **BUG-081** (one `INegativeReceiver` implementer project-wide),
-
   > **BUG-082** (last residual — all three `AbilityEffectDefinition` lists carry `= new()`),
-
   > **BUG-088** (`Random.Range(30, 75)/100f`), **BUG-091** (committed). **BUG-068** keeps only one
-
   > site (`AbilityHolderBase.cs:28`); **BUG-071** is PARTIAL (S2 → S3).
-
   >
-
   > 🔀 **BUG-066 and BUG-070 are now ONE site**, not two instances of one defect: the unguarded
-
   > dictionary moved into the shared `VitalStatsBase.cs:28,39,41,45,52,54,58`. One guard closes both.
-
   >
-
   > ⚠️ **Architectural change that invalidated several sections below, now corrected in place:**
-
   > `IAbilityServices` was reduced from five members to **`Pool` only**. `NegativeReceiver`, `Vital`,
-
   > `Stats` and `ResourceReceiver` were removed from it. The hit target now travels as
-
   > `AbilityContext.Target` (a `Collider2D`), effects resolve `INegativeReceiver` from it themselves,
-
   > and character data is read through `IAbilityOwner.GetCurrentStatValue()` — so one
-
   > `AbilityDefinition` runs for a player or an enemy. **The set-then-invoke contract is unchanged in
-
   > shape**; only the field it assigns changed. `SpawnProjectileBase.cs:32-33` is still the reference
-
   > implementation. `ICharacter` is also no longer a dead API — it is the character-root identity
-
   > marker (ADR-0005 Amendment 1).
-
   >
-
   > **Still open and unchanged:** BUG-072 (`layerMask` on `Lightning.prefab` still ships as `0` =
-
   > *Nothing* — code complete since 2026-09-22, **one Inspector field**), BUG-052, BUG-063 (accepted,
-
   > deferred), BUG-064 sub-item 7 (`RangeWeapon.poolManager` has no `[Inject]`, so a ranged weapon
-
   > silently never fires), BUG-065, BUG-073, BUG-079, BUG-083, BUG-084, BUG-086, BUG-087, BUG-090.
-
   >
-
   > **Counts:** 32 bug files — 15 closed/fixed, 1 accepted (deferred), 2 partial, 14 open.
-
   > ⚠️ The `Open bugs: NN` line in the session banner is **not** a count of open bugs:
-
   > `.claude/hooks/session-start.sh:29-34` sums `production/qa/bugs` and `production` recursively, so it
-
   > counts every file twice and counts closed bugs as open. It reported 62 for 31 files. Ignore it.
-
   >
-
   > Full trail: `production/qa/open-issues-2026-09-25.md` and `docs/CHANGELOG-DOCS.md`.
-
   >
-
   > **Previous entry — 2026-09-22 (HEAD `2a83469`, branch `origin/feature/fix-player-control`)** —
-
   > **Post-fetch re-verification.** Two commits landed after the documentation pass recorded below
-
   > (`723fab1` "coding", `2a83469` "coding") and were re-read against source. They are a net
-
   > improvement to Abilities v2 and a build break everywhere else.
-
   >
-
   > 🔴 **THE PROJECT DOES NOT COMPILE AT HEAD — BUG-088.** `EntityMovement.SetPositionToCheck()`
-
   > (`EntityMovement.cs:161-165`, added in `723fab1`) calls `Random.range` (no such member; it is
-
   > `Random.Range`) and `trasnform.postion` (two typos, neither identifier exists). `Assembly-CSharp`
-
   > fails with CS0117 and CS0103, so there is no Play Mode, no Test Runner, and **no bug in this
-
   > register can be verified in the Editor until it is fixed**. Fix it first, before anything else.
   > ⚠️ **Owner review, later the same day — working tree now carries four uncommitted `.cs` edits,**
   > **none of them committed and none of them in the fetched history (remote is still `2a83469`):**
@@ -137,47 +140,26 @@
   > `Random.Range`. `trasnform.postion` is still there, so the file still does not build; and the
   > integer division (`Random.Range(0, 100)/100` is always `0`) is untouched, so fixing only the
   > identifiers leaves a method that silently returns the entity’s own position.
-
   >
-
   > ✅ **Fixed by `2a83469`:** **BUG-077** (`HasEnoughManaCondition.cs` deleted; all four Paladin
-
   > assets cleaned to `Conditions: []`), **BUG-085** (`NotDeadCondition.cs` deleted —
-
   > `Abilities/Conditions/` is now empty), and **BUG-076** in full: the ability-scope affordability
-
   > gate now exists and is generic over `StatType` (`AbilityDefinition.TryStart()`, `:50-64`), so
-
   > Avatar of Light’s 50 HP cost is validated; and the three condition walks collapsed to one
-
   > (`ValidateConditions()`, `TryPayCost()` and the `AbilityHolder` walk are all deleted).
-
   > `Casting()` was renamed `TryCast()` as the owner said it would be.
-
   >
-
   > ⚠️ **Introduced by the same push — BUG-088…BUG-091:** the compile break above; **BUG-089** a
-
   > refused `TryCast()` calls `CancelHold()` but `CastInstant()` still advances to `Do`, so
-
   > `Execute()` applies the refused effect anyway; **BUG-090** the orphaned
-
   > `Has Enough Mana Condition.asset` (script deleted, asset and two references kept);
-
   > **BUG-091** `TryStart()` lost its null-element guard and `AbilityDefinition.CheckPayCostValid()`
-
   > is dead code carrying the BUG-082 defect.
-
   >
-
   > Unchanged and still open: BUG-072 (`LightningController` overlap query — `723fab1` touched the
-
   > file, whitespace only), BUG-075, BUG-063, BUG-071, BUG-073, BUG-074, BUG-079, BUG-082, BUG-083,
-
   > BUG-084, BUG-086, BUG-087.
-
   >
-
   > **Previous entry — 2026-09-22 (HEAD `d17fcc5`, branch `main` — merge of `e2cb75e`)** —
   > **Bug-documentation re-verification pass.** Every tracked bug was re-read against source; no
   > `.cs` file was changed. Two ability commits (`73ab8e7` "coding update flow ability, update logic
@@ -393,7 +375,10 @@
 
       System/                                   # ✅ NEW top-level grouping (`1c0742e`, 2026-09-03)
         LifetimeScope/                          # ✅ NEW — VContainer composition root (ADR-0004)
-          GameLifetimeScope.cs                  # `: LifetimeScope`; RegisterComponentInHierarchy for 9 scene components
+          GameLifetimeScope.cs                  # `: LifetimeScope`. ⚠️ **CHANGED 2026-10-05:** registers ObjectPoolManager, PlayerManager
+                                                # (AsSelf + IPlayerService), IPlayerStatService (factory → PlayerManager.StatService), EnemySpawner,
+                                                # StatsUIController, ItemSpawner, RoomGeneraterController, RoomGridController, LevelManager.
+                                                # Player / StatHandler / AbilityHolder are NO LONGER registered — the player is spawned at runtime
           Interface/
             IObjecPoolService.cs                # (typo intentional in source) pooling façade
             IPlayerService.cs                   # player transform / position
@@ -447,14 +432,21 @@
           Runtime/                              # ⚠️ AbilityRuntimeHelpers / SpiritOrbProjectile / SpiritDoTBehaviour all DELETED
             BaseController/SpawnMono.cs         # `: MonoBehaviour, ISpawn` — Launch(lifetime, ctx, callback) + despawn coroutine
             SpawnMono/Interface/ISpawn.cs
-            SpawnMono/SpawnProjectileBase.cs    # `: SpawnMono` — Rigidbody2D + CircleCollider2D, speed.
-                                                # ⚠️ uses the 3D `OnTriggerEnter(Collider)` — never fires, COMPILES CLEAN WITH NO WARNING (BUG-075).
-                                                # :32 is the ONLY writer of Services.NegativeReceiver repo-wide → BUG-072
+            SpawnMono/SpawnProjectileBase.cs    # `: SpawnMono, IProjectilePayload` — ⚠️ **REWRITTEN 2026-10-05:** flight + hit detection
+                                                # delegated to `ProjectileBody` (required component). Serialized targetMask / blockMask / pierceCount
+                                                # (pierceCount not read yet). OnHit() sets `_context.Target` then invokes the callback. BUG-075 stays FIXED
+            SpawnMono/ProjectileBody.cs         # ✅ NEW 2026-10-05 — shared pooled projectile for weapons AND abilities: Rigidbody2D,
+                                                # OnTriggerEnter2D, blockMask → release, targetMask → payload.OnHit() → release; lifetime despawn.
+                                                # Also declares `struct ProjectileConfig` (speed, lifetime, targetMask, blockMask).
+                                                # *SpawnProjectileBase was (until 2026-10-05):* own Rigidbody2D + CircleCollider2D, 3D OnTriggerEnter (BUG-075)
             SpawnMono/SpawnSummonBase.cs        # `: SpawnMono` — Animator; Execute() invoked by a Unity Animation Event
             SpawnMono/SlashProjectile.cs        # `: SpawnProjectileBase` (Paladin Blessed Slash)
-            SpawnMono/LightningController.cs    # `: SpawnSummonBase` — random Animator "Index" 0-9. ⚠️ Execute() target query is still 3 comment lines (BUG-072)
+            SpawnMono/LightningController.cs    # `: SpawnSummonBase` — random Animator "Index" 0-9. ✅ Execute() overlap query implemented (2026-09-22).
+                                                # ⚠️ `layerMask` still unset on Lightning.prefab → hits nothing (BUG-072)
             SpawnMono/RuneCircleController.cs   # `: SpawnSummonBase` — empty body
-        Skill_Ability/                          # ⚠️ **Abilities v1 (legacy)** — still compiled and still referenced by
+        Skill_Ability/                          # ⚠️ **Abilities v1 (legacy)** — still compiled. Since 2026-10-05 referenced ONLY by
+                                                # EntityWeapon.currentAbilitySO (WeaponStats.AbilityWeapon/SkillWeapon, AttackSO.ability and
+                                                # Weapon.currentAbilitySO were deleted). The PLAYER no longer runs this path
                                                 # WeaponStats.AbilityWeapon/SkillWeapon, AttackSO.ability, Weapon.currentAbilitySO
                                                 # and EntityWeapon. The PLAYER no longer runs this path
           AbstractSkillSO.cs, ActivateSkill.cs
@@ -494,7 +486,9 @@
           ItemEffectDefinition/
             ItemEffectDefinitionSO.cs, RecoveryEffectDefinition.cs, StatModifierEffectDefinition.cs, CurrencyEffectDefinition.cs
         PlayerSystem/
-          PlayerManager.cs                      # ✅ NEW — `: MonoBehaviour, IPlayerService`; GetPlayerTransform() / SetPlayerPosition()
+          PlayerManager.cs                      # `: MonoBehaviour, IPlayerService`. ⚠️ **REWRITTEN 2026-10-05:** SPAWNS the player at runtime
+                                                # (`resolver.Instantiate(playerPrefab, spawnPoint)`, lazily via the `Player` property) and parents
+                                                # Camera.main to it. Exposes `StatService` (the player's StatHandler). GetPlayerTransform() / SetPlayerPosition()
         Pathfinding/                            # A* — NO GDD, NO ADR yet (BUG-052)
           Algorithm/ AStar.cs, Heuristic.cs, PriorityQueue.cs
           Data/ Node.cs, Path.cs, PathRequest.cs, SearchNode.cs
@@ -506,6 +500,22 @@
 
       Handler/                                  # ⚠️ ORPHAN — only `EventHandler.meta`, no `.cs`
 
+      UIFlow/                                   # ✅ **NEW 2026-09-29…10-05** (`0c38633d`…`f8f180d0`) — `namespace UIFlow`, 65 files, UGUI + TextMeshPro.
+                                                # Full menu → loading → in-game flow. Docs: docs/ui/ui-ux-flow.md, docs/systems/ui/README.md
+        Core/                                   # SceneFlow / SceneNames (static scene routing via Loading), UIManager (panel stack —
+                                                # the legacy Manager/UI/UIManager.cs stub was deleted in cb0de496), UIPanel, UIInput, UIBootstrap,
+                                                # UIEvents (⚠️ static `event Action` bus, separate from EventManager), UIServices (⚠️ static
+                                                # service locator choosing Mock vs Real per UIDebugConfig flag — bypasses VContainer), UIDebugConfig SO
+        Data/UIDataModels.cs                    # Plain DTOs (PlayerStatsData, SkillSlotData, …)
+        Menu/                                   # Splash, Login, MainMenu(+Flow), SaveSelect, Settings (CharacterCreationPanel DELETED in cb0de496 — New Game creates a "Paladin N" save), KeyBindingRow
+        Loading/LoadingScreen.cs
+        Gameplay/                               # GameplayUIController, HUD/ (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed),
+                                                # Windows/ (Inventory, Character, Quest, SkillTree, TabWindow, ItemTooltip), Shop/, Dialogue/,
+                                                # World/ (DamageNumber, WorldHealthBar), Pause/GameOver panels, Mock/ (GameplayMockController, MockEnemy)
+        Services/                               # Interfaces/ (ILoginService, ISaveProvider, IPlayerDataProvider, IInventoryProvider, IQuestProvider),
+                                                # Mock/ (all working), Real/ — ✅ RealPlayerDataProvider bound to the player since cb0de496 (ON_PLAYER_READY → IVitalComponent / IStatService / AbilityBindings / cooldowns); Login, Inventory, Quest still stubs,
+                                                # and RealSaveProvider), KeyBindings, SettingsStore
+        Editor/                                 # UIFlowBuilder(.Gameplay) — builds the scenes; UIFlowSmokeTest — menu-driven smoke test (not NUnit); UIKit
       UI/                                       # NO GDD yet
         UIController.cs                         # Runtime UI Toolkit: MainMenu / Settings / Pause screens from .uxml
         StatsUIController.cs                    # Stat panel driven by ON_*_STATS_*_UI events; resolved through VContainer
@@ -519,7 +529,11 @@
         IInteractable.cs, IEffectable.cs, IAimProvider.cs, IPoolable.cs
         INegativeReciver.cs                     # filename keeps the old typo; interface name is INegativeReceiver —
                                                 # ⚠️ signature is `TakeDamage(**float** amountDamage, Vector2 attackPosition)` (was `int`)
-        IResourceReceiver.cs                    # ✅ NEW — ReceverModifierGroup / ReceverRecovery / BuffDebuffForDuration
+        # ⚠️ IResourceReceiver.cs was DELETED 2026-09-24 (`8c3c350a`, ADR-0005) — items now apply themselves via ItemController.
+        #    *Was:* ReceverModifierGroup / ReceverRecovery / BuffDebuffForDuration
+        IStatService.cs, IMovement.cs, IWeaponHolder.cs, ICharacterInput.cs   # ADR-0005 shared contracts (2026-09-23…25)
+        IProjectilePayload.cs                   # ✅ NEW 2026-10-05 — OnHit(Collider2D, Vector2); implemented by RangeWeapon and SpawnProjectileBase
+        IReasourceReceiver                      # ⚠️ ORPHAN (2026-10-05) — empty file, NO `.cs` extension, plus a .meta. Safe to delete
         IVitalComponent.cs                      # ✅ NEW — GetCurrentStatValue / ApplyBuffDebuff / ReceiverRecovery / ReceiveReduction / BuffDebuffForDuration
 
       Map/
@@ -534,14 +548,17 @@
           MapGridController.cs                  # ✅ Minimap grid — avatar tween via DOTween
         Room/
           RoomCell.cs                           # World room cell + the room-clear counter (EnemyCount → ON_CLEAR_ENEMY at zero)
-          RoomGridController.cs                 # Room grid event hub — listens to SIX events
+          RoomGridController.cs                 # Room grid event hub — listens to SIX events. ✅ Registered in GameLifetimeScope (2026-10-05);
+                                                # `[Inject] Construct(PlayerManager)`; OnDoneLoadRoomGrid() teleports the player — Bug #13 FIXED
           RoomGeneraterController.cs            # Tilemap loader; parses Tile_Spawn_Enemy markers; builds the PathfindingGrid.
-                                                # ⚠️ still loads JSON via File.ReadAllText(Application.dataPath…) (Bug #15). Resolved through VContainer
+                                                # ⚠️ still loads JSON via File.ReadAllText(Application.dataPath…) (Bug #15). Resolved through VContainer;
+                                                # ✅ takes `LevelManager` by `[Inject] Construct(IPlayerService, LevelManager)` since 2026-10-05
           Door/ DoorController.cs
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
 
       LevelEdit/
-        LevelManager.cs                         # Singleton ⚠️ (TD-023); editor save/import + runtime room queries; SpawnRoomEnemies() Editor button
+        LevelManager.cs                         # ✅ **No longer a singleton (2026-10-05)** — registered in GameLifetimeScope, injected into
+                                                # RoomGeneraterController. Editor save/import + runtime room queries; SpawnRoomEnemies() Editor button. Bug #12 / TD-023 FIXED
 
       Database-SO/Modal/                        # note `Modal` typo = "Model"
         EntityModel.cs                          # Base SO: id, nameEnity
@@ -551,21 +568,24 @@
 
       Weapons/
         Weapon.cs (abstract base)                # CanAttack() / CanChain() / OnAttackEnter(player) / OnActivate() / OnDeactivate() / Equid() / UnEquid()
-        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages, AbilityWeapon + SkillWeapon (both `ActivateSkill` = Abilities v1), StatModifiers
+        WeaponStats.cs                          # Abstract SO base: LayerMask, AttackStages, StatModifiers. ⚠️ AbilityWeapon + SkillWeapon (v1) DELETED 2026-10-05
         WeaponType.cs                           # Enum: RangeWP, MeleeWP
         MeleeWeapon/
           MeleeWeapon.cs                        # ✅ OnActivate() = OverlapCircleNonAlloc + INegativeReceiver.TakeDamage() — reference implementation
           MeleeWeaponStats.cs, SwordAndShield.cs
-          AttackSO.cs                           # SO "WeaponData/AttackStage/Melee": nameState, attackRange, attackDamege, attackRate, directionAttackAnimatorOV, ability
+          AttackSO.cs                           # SO "WeaponData/AttackStage/Melee": nameState, attackRange, attackDamege, attackRate, directionAttackAnimatorOV (⚠️ `ability` field DELETED 2026-10-05)
         RangeWeapon/
-          RangeWeapon.cs                        # ✅ pooled bullets fanned across SpreadAngle; RecoveryTime cooldown. ⚠️ DI wiring is BUG-064 sub-item 7 (open)
-          RangeWeaponStats.cs, RangeAttackSO.cs, bullet.cs, BulletDataSO.cs
+          RangeWeapon.cs                        # `: Weapon, IProjectilePayload` — pooled `ProjectileBody`s fanned across SpreadAngle; OnHit() → TakeDamage.
+                                                # ✅ BUG-064 sub-item 7 FIXED — `[Inject] Construct(IObjecPoolService)`, injected on equip by WeaponHolderBase.
+                                                # ⚠️ `nextFireTime` written (:67), never read — RecoveryTime cooldown is dead (**BUG-093**)
+          RangeWeaponStats.cs, RangeAttackSO.cs     # RangeAttackSO: ProjectilePrefab / ProjectileCount / SpreadAngle / RecoveryTime / ProjectileConfig
+                                                # ⚠️ **bullet.cs and BulletDataSO.cs DELETED 2026-10-05** — replaced by `ProjectileBody` + `ProjectileConfig`
 
-      Interact/, MainMenu/
+      Interact/                                 # (MainMenu/ DELETED 2026-10-05, cb0de496)
       Manager/
         EventManager.cs                         # Static bus: Resgister / UnResgister / Emit; EventID enum (**24 values** — see Event System below)
         AnimationEventManager.cs                # ⚠️ dead — Emit() has zero callers
-        UI/UIManager.cs                         # EMPTY STUB (TD-017)
+        # UI/UIManager.cs                       # ⚠️ DELETED 2026-10-05 (cb0de496) — was the empty TD-017 stub
       Utility/
         GameConstants.cs                        # AnimationName, Direction, Input, RouteAsset, SettingStats, RoomTypeNames, TileName, StatTypeName
         Utility.cs, VectorExtensions.cs, DirectionTarget.cs, FastMovement.cs
@@ -587,7 +607,10 @@
       LevelManagerEditor.cs, StatModifierTesterEditor.cs
       DepotItemEditor.cs                        # ✅ NEW — custom Inspector for the drop table
 
-    Data/Json/Room/                             # NormalRoom_0.json … NormalRoom_12.json (13 rooms), all carrying Tile_Spawn_Enemy markers
+    Data/Json/Room/                             # ⚠️ **REPLACED 2026-10-05** (`213fa5a6`…`d3400ee7`): 20 named rooms —
+                                                # StartRoom_Entrance, CombatRoom_* ×15, BuffRoom_PowerShrine, RestRoom_Campfire,
+                                                # ShopRoom_Merchant, BossRoom_ThroneArena. Start/Rest/Shop/Buff carry NO spawn marker, so
+                                                # `LoadRoom()` opens their doors immediately (`40d2c793`). *Was:* NormalRoom_0 … NormalRoom_12 (13 rooms)
 
     Prefab/, Sprite/, Animation/, AnimationController/, Plugins/, UI/Screens/, Scenes/
 
@@ -609,26 +632,37 @@
   > ✅ **Added 2026-08-22 (`aa4e620`), documented here 2026-09-11.** This is the largest
   > architectural change in the project and went 3 sprints with no doc entry. See **ADR-0004**.
 
-  `GameLifetimeScope : LifetimeScope` is the composition root. `Configure()` registers nine
-  scene components, three of them behind interfaces:
+  `GameLifetimeScope : LifetimeScope` is the composition root. ⚠️ **Changed 2026-10-05.** `Configure()`
+  registers eight scene components plus one factory (the player is no longer in the scene):
 
   ```csharp
   builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
-  builder.RegisterComponentInHierarchy<Player>();
-  builder.RegisterComponentInHierarchy<PlayerManager>().As<IPlayerService>();
-  builder.RegisterComponentInHierarchy<StatHandler>().As<IPlayerStatService>();
+  builder.RegisterComponentInHierarchy<PlayerManager>().AsSelf().As<IPlayerService>();
+  builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
   builder.RegisterComponentInHierarchy<EnemySpawner>();
   builder.RegisterComponentInHierarchy<StatsUIController>();
   builder.RegisterComponentInHierarchy<ItemSpawner>();
   builder.RegisterComponentInHierarchy<RoomGeneraterController>();
-  builder.RegisterComponentInHierarchy<AbilityHolder>();
+  builder.RegisterComponentInHierarchy<RoomGridController>();
+  builder.RegisterComponentInHierarchy<LevelManager>();
   ```
+
+  > **Player spawn (2026-10-05):** `PlayerManager` holds `playerPrefab` + `spawnPoint` and spawns the
+  > player lazily with `resolver.Instantiate(...)`, which injects the whole player hierarchy before
+  > `Awake()`. So the Player prefab must **not** be placed in the scene any more, and
+  > `Player` / `StatHandler` / `AbilityHolder` are no longer registered. Weapons are injected on
+  > equip by `WeaponHolderBase` (`IObjectResolver.InjectGameObject`).
+  >
+  > *Superseded list (until 2026-10-05):* `Player`, `PlayerManager`→`IPlayerService`,
+  > `StatHandler`→`IPlayerStatService`, `EnemySpawner`, `StatsUIController`, `ItemSpawner`,
+  > `RoomGeneraterController`, `AbilityHolder`, `ObjectPoolManager`→`IObjecPoolService`.
 
   Rules that follow from this, and that supersede the older "always `GetComponent` or Inspector
   refs" wording in `.claude/rules/engine-code.md`:
 
   - `RegisterComponentInHierarchy<T>()` **finds, never spawns.** A component absent from the scene
-    at `Awake()` throws immediately. The Player prefab must be placed in the scene, not instantiated.
+    at `Awake()` throws immediately. ⚠️ *Changed 2026-10-05:* the Player is now the opposite case — it is
+    spawned by `PlayerManager` and must NOT be placed in the scene (see the note above).
   - **Runtime-spawned objects cannot be registered.** `EntityInput` lives on enemy prefabs spawned
     through `ObjectPoolManager`, so it is deliberately *not* in `Configure()`; `Pool.Spawn()` injects
     into each new instance instead. Two registrations are commented out in source for this reason
@@ -857,7 +891,8 @@
   # Player hits enemy — ✅ WORKS end to end
   PlayerAttackState [OnActivate] → WeaponHolder.MakeDamage() → Weapon.OnActivate()
     → MeleeWeapon: OverlapCircleNonAlloc → INegativeReceiver.TakeDamage(attackDamege, pos)
-    → RangeWeapon: pooled bullets → bullet → INegativeReceiver.TakeDamage()
+    → RangeWeapon: pooled ProjectileBody → OnTriggerEnter2D (targetMask) → RangeWeapon.OnHit() → INegativeReceiver.TakeDamage()
+      (bullet.cs deleted 2026-10-05)
 
   # Enemy receives damage — ✅ UNBLOCKED (BUG-053 FIXED, f3f5f08)
     → EntityNegativeReciver.TakeDamage(float, Vector2)
@@ -1054,8 +1089,8 @@
   | 9 | LOGIC | ✅ FIXED | `AnimationPlayerController` registers all five `AnimationEventId`s | [AnimationPlayerController.cs](Assets/Script/Character/Player/Animation/AnimationPlayerController.cs) |
   | 10 | BUILD | ✅ FIXED | No unguarded `using UnityEditor` in `Assets/Script/` runtime code | [EventManager.cs](Assets/Script/Manager/EventManager.cs) |
   | 11 | LOGIC | ✅ FIXED | Minimap avatar tween works (DOTween) | [MapGridController.cs](Assets/Script/Map/Cell/MapGridController.cs) |
-  | 12 | ARCH | ⚠️ OPEN | `LevelManager` uses a bare `public static Instance` field — violates "no new singletons"; `RoomGeneraterController.Setting()` reaches through it (TD-023) | [LevelManager.cs:10](Assets/Script/LevelEdit/LevelManager.cs#L10) |
-  | 13 | LOGIC | ⚠️ OPEN | Player is not teleported into the start room — the teleport line is commented out; `RoomGeneraterController.OnDoneLoadRoomGrid()` has no caller | [RoomGridController.cs:82](Assets/Script/Map/Room/RoomGridController.cs#L82) |
+  | 12 | ARCH | ✅ **FIXED 2026-10-02 (`0bc36406`, found 2026-10-05)** — `LevelManager.Instance` and its Awake() guard deleted; `LevelManager` is registered in `GameLifetimeScope` and `RoomGeneraterController.Construct(IPlayerService, LevelManager)` receives it by injection. `grep "LevelManager.Instance" Assets` = 0. Closes TD-023 *(was: ⚠️ OPEN — bare `public static Instance`, reached through by `RoomGeneraterController.Setting()`)* | [LevelManager.cs](Assets/Script/LevelEdit/LevelManager.cs) |
+  | 13 | LOGIC | ✅ **FIXED 2026-09-30 (`9154763f`, found 2026-10-05)** — `RoomGridController.OnDoneLoadRoomGrid()` loads the start room then calls `_playerManager.SetPlayerPosition(_current.transform.position)`. `PlayerManager` is injected (`[Inject] Construct(PlayerManager)`). Also fixed alongside: the minimap start cell now uses (Column, Row) instead of (Row, Column) *(was: ⚠️ OPEN — teleport line commented out, no caller)* | [RoomGridController.cs:91](Assets/Script/Map/Room/RoomGridController.cs#L91) |
   | 14 | LOGIC | ⚠️ OPEN | `MazeController.Awake()` missing `return` after `Destroy(gameObject)` — a duplicate still overwrites `Instance` and re-runs the generator. `EnemyManager.Awake()` has the correct shape to copy | [MazeController.cs:17](Assets/Script/Map/Maze/MazeController.cs#L17) |
   | 15 | BUILD | ⚠️ OPEN | Room JSON via `File.ReadAllText(Application.dataPath + filePath)` — Editor-only; `Assets/Data/Json/` is not packaged into a Player build | [RoomGeneraterController.cs:69](Assets/Script/Map/Room/RoomGeneraterController.cs#L69) |
   | 16 | LOGIC | ⚠️ OPEN | `RoomType` never read at runtime — start/end rooms forced by list position `room[0]`/`room[last]`; reordering `Maze_Storage.asset` breaks selection silently | [RoomGeneraterController.cs:47](Assets/Script/Map/Room/RoomGeneraterController.cs#L47) |
@@ -1068,7 +1103,7 @@
   | BUG-052 | DOC | ⚠️ OPEN (widened) | Live subsystems with no ADR. Originally `Character/Base/`, `Pathfinding/`, `Poolable/`. **Now also**: the Item system, Abilities v2, and the UI layer. VContainer was in this set until ADR-0004 landed on 2026-09-11 | — |
   | BUG-053 | LOGIC | ✅ **FIXED** | `EntityNegativeReciver` ran player-only logic on an enemy. Rewritten in the Sprint 12 entity/stat refactor: Defense-aware `DamageCalculate()` → `EntityVitalStats` → `EntityUIController`. No `PlayerInputHandler`, no `ON_PLAYER_DEATH` | [EntityNegativeReciver.cs](Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs) |
   | BUG-063 | DATA | ⏸️ **ACCEPTED (deferred) 2026-09-22 — owner decision** | The `#if UNITY_EDITOR [SerializeField]` stays while the stat system is in development and is removed at demo prep, because the Inspector view of live modifiers is useful during dev. This supersedes the "one-line fix, no blocker, 29+ cycles" framing — it is a deliberate trade, not neglect. ⚠️ The leak is still real and silent while it stands (Play Mode *is* `UNITY_EDITOR`; two `STR +1 Flat` modifiers were committed to git once already). Mitigation: check `git status` for a dirty `Assets/SO/Stat/*.asset` after any Play Mode session. *Original entry:* | `Stat.modifiers` re-serialized via `#if UNITY_EDITOR` + `[SerializeField]` (`Stat.cs:63-66`). ⚠️ **Corrected 2026-09-22: the `#if UNITY_EDITOR` guard is NOT a mitigation** — Play Mode in the Editor *is* `UNITY_EDITOR`, which is exactly the leak path the comment block at `Stat.cs:49-62` warns about in capitals. The guard only protects the player build, where `.asset` files are read-only anyway. One-line fix, carried 29+ cycles | [Stat.cs:63-66](Assets/Script/System/StatSystem/Stat.cs#L63) |
-  | BUG-064 | BUILD | ⚠️ **PARTIAL — sub-item 7 re-scoped 2026-09-25.** `b0b1337` removed the inert `[SerializeField]` from `RangeWeapon.poolManager` (Unity cannot serialize an interface), but **nothing assigns the field** — no `[Inject]`, no Inspector path. `CanAttack():16` tests `poolManager != null`, so a ranged weapon **silently never fires**: no exception, no log. Fix = method injection in the shape of `AbilityHolderBase.Construct():51-55`, injected at spawn time because a weapon is pooled *(was: ⚠️ PARTIAL)* | Entity refactor deleted types without sweeping callers. Sub-items 1–6 fixed; **sub-item 7 (`RangeWeapon` DI wiring) still open** | [RangeWeapon.cs](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs) |
+  | BUG-064 | BUILD | ✅ **FIXED 2026-09-28 (`5b035b73`) — sub-item 7 closed.** `RangeWeapon` now has `[Inject] Construct(IObjecPoolService)`, and `WeaponHolderBase.Equid()` calls `resolver.InjectGameObject(weapon.gameObject)` for every weapon a character equips (default spawn and pickup), so the pooled-weapon case is covered. *Previous status:* ⚠️ **PARTIAL — sub-item 7 re-scoped 2026-09-25.** `b0b1337` removed the inert `[SerializeField]` from `RangeWeapon.poolManager` (Unity cannot serialize an interface), but **nothing assigns the field** — no `[Inject]`, no Inspector path. `CanAttack():16` tests `poolManager != null`, so a ranged weapon **silently never fires**: no exception, no log. Fix = method injection in the shape of `AbilityHolderBase.Construct():51-55`, injected at spawn time because a weapon is pooled *(was: ⚠️ PARTIAL)* | Entity refactor deleted types without sweeping callers. Sub-items 1–6 fixed; **sub-item 7 (`RangeWeapon` DI wiring) still open** | [RangeWeapon.cs](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs) |
   | BUG-065 | LOGIC | ⚠️ OPEN | `PlayerDeathState.Enter()` only calls `base.Enter()` — the player keeps sliding during the death animation | [PlayerDeathState.cs:10](Assets/Script/Character/Player/States/PlayerDeathState.cs#L10) |
   | BUG-066 | LOGIC | ⚠️ **OPEN — MERGED with BUG-070 on 2026-09-25.** ADR-0005 moved the unguarded dictionary into the shared `VitalStatsBase.cs:28,39,41,45,52,54,58`, which both `EntityVitalStats` and `VitalStatsComponent` derive from. The two bugs are now literally the same seven lines — **one guard closes both** *(was: ⚠️ OPEN)* | `EntityVitalStats` indexes `currentStats[statType]` with no key guard (`:39,49,55,61,67`) → `KeyNotFoundException`. **Same defect as BUG-070, two instances** — fix and close together | [EntityVitalStats.cs:39](Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs#L39) |
   | BUG-067 | LOGIC | ✅ **FIXED** (verified 2026-09-22) | `ResourceReceiver` heal/damage polarity is correct (`:17-24`); consumer `RecoveryEffectDefinition.cs:13` confirms. ⚠️ Two *unrelated* defects found in the same file were split out, **not** closed with it: **BUG-080** and **BUG-081** | [ResourceReceiver.cs:17](Assets/Script/Character/Player/CoreComponent/ResourceReceiver.cs#L17) |
@@ -1091,12 +1126,15 @@
   | BUG-084 | BUILD | ⚠️ **OPEN (new 2026-09-22)** | **Zero `.asmdef` under `Assets/`**, and `tests/EditMode` + `tests/PlayMode` sit *outside* `Assets/` — Unity compiles nothing there and Test Runner cannot discover a test. This is the precondition of TD-014, not a symptom: "write the first EditMode test" cannot start | — |
   | BUG-085 | LOGIC | ✅ **FIXED 2026-09-22 by `2a83469`** — `NotDeadCondition.cs` and its `.meta` deleted; `Assets/Script/System/Abilities/Conditions/` is now empty, so the `[CreateAssetMenu]` hazard is gone. *Original entry:* | `NotDeadCondition.IsMet()` body is commented out, always returns `true`. Dormant — no asset references it — but it carries `[CreateAssetMenu]`, so a designer can author a silent no-op gate at any time | [NotDeadCondition.cs:6](Assets/Script/System/Abilities/Conditions/NotDeadCondition.cs#L6) |
   | BUG-086 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `PlayerDeathState.LogicUpdate()` never consumes `Status` and never changes state → `Emit(ON_PLAYER_DEATH)` fires **every frame**, unbounded. Violates the durable-`Status` contract in `manager-event-code.md`. Was only a parenthetical inside BUG-065 | [PlayerDeathState.cs:14](Assets/Script/Character/Player/States/PlayerDeathState.cs#L14) |
-  | BUG-087 | LOGIC | ⚠️ **OPEN (new 2026-09-22)** | `ON_PLAYER_DEATH` has **zero subscribers**; `grep GameManager Assets --include=*.cs` = 0 hits; player-side `VitalStatsComponent` has no `Reborn()`; `ON_REALOAD_GAME` has 0 emitters and 0 subscribers. **Death is a permanent hard lock.** Closes the open half of Bug #6 / S10-08. Enemy side has the pattern to copy (`EntityVitalStats.Reborn()`, called from `Start()` and `OnEnable()`) | [PlayerDeathState.cs:18](Assets/Script/Character/Player/States/PlayerDeathState.cs#L18) |
+  | BUG-087 | LOGIC | ⚠️ **PARTIAL 2026-10-05** — `ON_PLAYER_DEATH` now has ONE subscriber, `UIFlow.RealPlayerDataProvider` (de-duplicated by a `_deathReported` flag because of BUG-086), active when `UIDebugConfig.useMockData = false` — the default since `cb0de496`. Its `Respawn()` reloads the gameplay scene. Still missing: `GameManager`, a player-side `Reborn()` caller, any `ON_REALOAD_GAME` emitter *(was: ⚠️ **OPEN (new 2026-09-22)**)* | `ON_PLAYER_DEATH` has **zero subscribers**; `grep GameManager Assets --include=*.cs` = 0 hits; player-side `VitalStatsComponent` has no `Reborn()`; `ON_REALOAD_GAME` has 0 emitters and 0 subscribers. **Death is a permanent hard lock.** Closes the open half of Bug #6 / S10-08. Enemy side has the pattern to copy (`EntityVitalStats.Reborn()`, called from `Start()` and `OnEnable()`) | [PlayerDeathState.cs:18](Assets/Script/Character/Player/States/PlayerDeathState.cs#L18) |
   | BUG-088 | BUILD | ✅ **FIXED 2026-09-25.** `379c267` made the divisor a float literal (`Random.Range(10, 100)/100f`) and `b0b1337` tuned the range to `Random.Range(30, 75)`, so `rangeToCheck` lands in `[0.30, 0.74]` and `Vector2.Lerp` returns a real intermediate point. The related `EntityNegativeReciver.cs:27` line was removed by the ADR-0005 rewrite of that file *(was: ⚠️ **OPEN — PARTIAL** (S1 → S3 once committed))* | ✅ Fixed in the working tree: `Random.range`→`Random.Range`, `trasnform.postion`→`transform.position`, `Vector3.Lerp`→`Vector2.Lerp`. **The project compiles again.** ❌ Still open: `Random.Range(10, 100)/100` binds the `int` overload, so it is **integer division and evaluates to 0 for every draw** (max numerator 99). `Vector2.Lerp(a, b, 0)` returns `a`, so the method assigns the entity its own position and the knockback-target feature is silently dead — no error, no log. Fix: `/ 100f`. Also open: `EntityNegativeReciver.cs:27` unguarded dereference. *Original entry:* | `EntityMovement.SetPositionToCheck()` (`:161-165`, added in `723fab1`) calls `Random.range` — the member is `Random.Range` — and `trasnform.postion`, two typos naming nothing. CS0117 + CS0103: `Assembly-CSharp` does not build, so no Play Mode, no Test Runner, no verification of any other bug. Also, even once it compiles, `Random.Range(0, 100)/100` is **integer division** and is always `0`, so the method returns the entity’s own position. Related, same commit: `EntityNegativeReciver.cs:27` dereferences the `GetCoreComponent` result unguarded on the live damage path | [EntityMovement.cs:161](Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs#L161) |
   | BUG-089 | LOGIC | ✅ **CLOSED 2026-09-22 — by design. ⏭️ REOPEN at demo/release phase** (owner decision which). Closed as *scaffolding*, not as resolved: the gain fields do not exist and no live content exercises the path. Both change the moment the project leaves development — the serialized `Costs` field is visible on every effect asset with no in-code guard, and force-release has never actually run (the only `Hold` ability carries no effect costs). The bug file keeps a seven-point re-check list, numbered to match the original gap audit | Per-effect `Costs` is the price of an **upgrade tier**: cannot afford → the effect still runs at its **default** level; can afford → charge and run at the **gained** level. So `Apply()` being unconditional is **correct**, and on a `Hold` ability a refusal additionally **force-releases** the ability — `CancelHold()` is that mechanism, not a failed abort. The flow is deliberate scaffolding; the gain fields are not designed yet. Unaffected today: three of the four live Paladin abilities are `Active` (`ActivationType: 0`) and no effect asset carries `SubConditions` or `Costs`. ⚠️ **Do not author a per-effect `Costs` list until the tier fields exist** — it would take resources and give nothing back. `BUG-089.md` holds the specification. Effect list order promoted to a rule in `weapon-skill-code.md`: it sets both execution order and resource priority. *Original entry:* | Owner stated the design: a per-effect `Costs` entry is the price of an **upgrade tier** — cannot afford → the effect still runs at its **default** level; can afford → charge, and run at the **gained** level. Under that design `Apply()` being unconditional is **correct**, so the earlier "a refused effect is applied anyway" claim is **withdrawn**. The implementation does not deliver the design. Seven gaps; the first is decisive: **paying buys nothing.** `Apply(AbilityContext)` receives no record that a cost was paid, and every concrete effect applies one fixed serialized value (`SpawnProjectileEffect.baseDamage`, `SpawnSummonEffect.baseDamage + PhysicalDamage`, `StatsEffectBase.statModifier`, `BuffDebuffStatsForDuration.statModifierGroup`) — there is exactly one power level in the code, so affording the tier is strictly worse than not affording it. Also: a refusal calls `CancelHold()`, which terminates the **whole channel** for **all** effects rather than dropping one effect to default; and `Costs` is a single all-or-nothing bundle, not a tier ladder. Dormant — no effect asset carries `SubConditions` or `Costs`. Treat the bug file as the feature spec, not a patch list. Dormant either way: every live effect asset has `SubConditions: []` and no serialized `Costs`. *Original entry:* | A refused `TryCast()` does not stop the cast. `Casting():79` calls `CancelHold()` — which clears `IsHolding` and returns nothing — and `CastInstant():52` then reads that cleared flag, does **not** return, and falls through to `ChangeState(Do)`. `DoInstant()` runs `Execute()`, which applies **every** effect unguarded, including the one that just refused, and starts the cooldown. Also desynchronises `AbilityInstance.IsHolding` from `AbilityHolder.IsHolding` | [AbilityInstance.cs:68](Assets/Script/System/Abilities/Core/AbilityInstance.cs#L68) |
   | BUG-090 | DATA | ⚠️ **OPEN (new 2026-09-22, S3)** | `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` survived the deletion of its script. Its `m_Script` guid `6f896bb258601fc4cb5fc183399618ea` resolves to **0** `.meta` files; `ShootSpirit.asset` and `SpiritBomd.asset` still reference the asset, and both are reachable from `PlayerTest.prefab`. Second missing-script reference in that pair — bundle with BUG-073 | — |
   | BUG-091 | LOGIC | ✅ **FIXED — committed 2026-09-25** in `379c267` (was: working tree). Null-element guards at `AbilityDefinition.cs:58,63`; `CheckPayCostValid()` deleted; all three lists carry `= new()`, which makes the `&&` early-return case and the `GetCostValues()` walk unreachable. No residual *(was: ✅ **FIXED 2026-09-22** (owner, working tree) — null-element guards added to both `TryStart()` loops; `CheckPayCostValid()` deleted; operand order corrected (BUG-082); `Costs` (`:25`) given `= new()`, which also makes the `&&` early-return case and the unguarded `GetCostValues()` walk **unreachable** — all three lists on this class now carry initialisers, so neither loop can meet a null. Residual tidy-up only: the `&&` block at `:52-55` is now redundant and reads as a null guard it no longer needs to be. *Original entry:*)* | ✅ Owner added `if (condition == null) continue` and `if (cost == null) continue` to `TryStart()` in the working tree, restoring the null-**element** guard (and giving the `Costs` loop one the original never had). `StatCost` is a class, so `cost == null` is valid. ❌ Still open, and re-stated after owner review: the combined early return is joined by **`&&`**, so it fires only when *both* lists are empty — `Conditions == null` with a non-empty `Costs` (or the reverse) does **not** return, and the corresponding `foreach` then walks a null reference. ⚠️ A fifth site was found: `GetCostValues()` (`:74-77`) iterates `Costs` with no list guard and no element guard at all. Also still open: `CheckPayCostValid()` (`:67-75`) still has zero callers; the `||` operand order (BUG-082) is still at two sites; `Costs` (`:25`) still lacks `= new()`. Deleting `CheckPayCostValid()` closes two of those at once. *Original entry:* | Three defects in the new `AbilityDefinition`: `TryStart()` (`:50-64`) lost the `if (condition == null) continue` guard the deleted `ValidateConditions()` had (BUG-090’s asset is what would trigger it); its `&&` early-return lets a null `Costs` or null `Conditions` reach a `foreach`; and `CheckPayCostValid()` (`:67-75`) is a zero-caller copy carrying the BUG-082 null-check-after-dereference verbatim | [AbilityDefinition.cs:50](Assets/Script/System/Abilities/Core/AbilityDefinition.cs#L50) |
-  | BUG-092 | BUILD | 🔴 **OPEN — NEW 2026-09-25, S1 BLOCKER** | `c0067f4` deleted `public float perTime;` from `RecoveryReductionPerTimeForDuration.cs` and left both uses (`:14`, `:17`) — **`error CS0103` twice**, so `Assembly-CSharp` does not build and **no bug in this register can be verified in the Editor**. Second compile break committed in four days (BUG-088 was the first); the absence of any pre-push compile check is **TD-048**, with this recurrence filed as **TD-051**. ⚠️ **A second defect survives the compile fix:** `timeCount` (`:8`) is `private` with no `[SerializeField]`, so Unity never serializes it and `[Range(1, 10)]` draws nothing — it is `0` on every asset, and `VitalStatsBase.RecoveryPerTime` decrements before testing, so **every HoT/DoT runs exactly one instant tick, silently**. `duration` (`:6`) is now read by nothing. Fix: serialize `perTime` and `timeCount`, delete `duration` | [RecoveryReductionPerTimeForDuration.cs:14](Assets/Script/System/Abilities/Effects/RecoveryReductionPerTimeForDuration.cs#L14) |
+  | BUG-092 | BUILD | ⚠️ **PARTIAL (S1 → S2)** — ✅ compile break fixed in `5b035b73` (2026-09-28): `RecoveryReductionPerTimeForDuration.cs:6` declares `private float perTime;` again. ❌ Still open: `perTime` (`:6`) AND `timeCount` (`:8`) are both `private` with no `[SerializeField]`, so neither is serialized — every HoT/DoT asset runs with interval 0 and count 0 (one instant tick, silently). Fix: `[SerializeField]` on both *(was: 🔴 **OPEN — NEW 2026-09-25, S1 BLOCKER**)* | `c0067f4` deleted `public float perTime;` from `RecoveryReductionPerTimeForDuration.cs` and left both uses (`:14`, `:17`) — **`error CS0103` twice**, so `Assembly-CSharp` does not build and **no bug in this register can be verified in the Editor**. Second compile break committed in four days (BUG-088 was the first); the absence of any pre-push compile check is **TD-048**, with this recurrence filed as **TD-051**. ⚠️ **A second defect survives the compile fix:** `timeCount` (`:8`) is `private` with no `[SerializeField]`, so Unity never serializes it and `[Range(1, 10)]` draws nothing — it is `0` on every asset, and `VitalStatsBase.RecoveryPerTime` decrements before testing, so **every HoT/DoT runs exactly one instant tick, silently**. `duration` (`:6`) is now read by nothing. Fix: serialize `perTime` and `timeCount`, delete `duration` | [RecoveryReductionPerTimeForDuration.cs:14](Assets/Script/System/Abilities/Effects/RecoveryReductionPerTimeForDuration.cs#L14) |
+  | BUG-093 | LOGIC | ⚠️ **OPEN (new 2026-10-05, S3)** | `RangeWeapon.nextFireTime` is written (`:67`, `Time.time + stage.RecoveryTime`) but never read — the `Time.time >= nextFireTime` term was dropped from `CanAttack()` in `b7a0af5e`, so `RangeAttackSO.RecoveryTime` has no effect and fire rate is bounded only by the attack animation. Same file: `OnDrawGizmosSelected` draws `firePoint + firePoint * attackRange` (a position scaled by itself, not the aim direction). Also: `RangeWeapon.OnHit()` (`:72-76`) ignores the `finalDamage` passed to `OnActivate()` and deals raw `currentStage.attackDamage`, so ranged hits get no `PhysicalDamage` and no crit, unlike melee; and it reads `currentStage` at hit time, contradicting its own comment that an in-flight shot keeps the damage it was fired with. | [RangeWeapon.cs:23](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs#L23) |
+  | BUG-094 | PERF | ⚠️ **OPEN (new 2026-10-05, S4)** | `PlayerState.Enter()` calls `Debug.Log("Enter State: " + animBoolName)` with no `#if UNITY_EDITOR` guard — a string concat + log on every player state change, shipped in builds. Violates `ai-code.md` / `gameplay-code.md` logging and hot-path rules | [PlayerState.cs:35](Assets/Script/Character/Player/PlayerState.cs#L35) |
+  | BUG-095 | DATA | ⚠️ **OPEN (new 2026-10-05, S2 pending Play Mode)** | `AttackSO.attackDamege` was renamed `attackDamage` (`AttackSO.cs:10`) in `ddcc0a5c` (2026-09-01) without `[FormerlySerializedAs("attackDamege")]`. `SnS_State1/2/3.asset:17` still serialize `attackDamege: 55`; Unity drops the unknown key and loads the default `0`. Those stages are reached from `SnS_Stat.asset` → `SnS.prefab`, `Weapon.prefab`, `PlayerTest.prefab`, `CoreGame.prefab`. Consequence: the player sword loses its 55 stage damage — `WeaponHolderBase.CalculateCurrentDamage()` (`:92-98`) computes `PhysicalDamage + attackDamage (+ CritDamage on crit)`, so a hit deals only the character's `PhysicalDamage` (then Defense-clamped). The other 4 `AttackSO` assets already carry `attackDamage:`. Fix: add `[FormerlySerializedAs("attackDamege")]`, or re-enter 55 on the three assets. Also: `CLAUDE.md` Coding Conventions, `scriptableobject-data.md` and `design-docs.md` still list `attackDamege` as a live intentional typo. Already noted, unfiled, in ADR-0005 "Residuals" (2026-09-25) | [AttackSO.cs:10](Assets/Script/Weapons/MeleeWeapon/AttackSO.cs#L10) |
   | NEW-1 | LOGIC | ✅ FIXED | `EntityInput` target detection restored; `EntityFindTarget` performs FOV + range + obstacle checks | [EntityFindTarget.cs](Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs) |
   | NEW-2 | LOGIC | ✅ FIXED | `EntityStatsSO.ModifiersAmor` getter/setter recursion → `StackOverflowException`; entire `EntityStatsSO.cs` deleted, entities use `EnemyStatSO : BaseStatsSO` | — |
   | NEW-3 | LOGIC | ✅ FIXED | `RecalculateDerived()` skip-guard used `\|\|` where it needed `&&` — fixed on `sprint-10`, carried into `BaseStatsSO` | [BaseStatsSO.cs](Assets/Script/System/StatSystem/BaseStatsSO.cs) |
@@ -1119,7 +1157,7 @@
   - **Skills**: new *player* abilities are authored as `AbilityDefinition` SO assets composed from effects + conditions (Abilities v2). Do **not** add new `ActivateSkill` subclasses — v1 is in maintenance for the weapon/enemy path only.
   - **Damage**: `INegativeReceiver.TakeDamage(float amountDamage, Vector2 attackPosition)` — note `float`, not `int`.
   - **Layer masks** must be set in Inspector; never hardcode layer indices.
-  - **Preserve intentional typos** — `Resgister`, `INegativeReciver.cs`, `attackDamege`, `Modal`, `ENEBLE`, `CaculateIndex`, `currrentSA`, `deplayTime`, `IObjecPoolService`, `amoutDamage` are real contracts in code and in serialized assets.
+  - **Preserve intentional typos** — `Resgister`, `INegativeReciver.cs`, ~~`attackDamege`~~ (⚠️ renamed to `attackDamage` in code 2026-09-01 — see BUG-095; old `.asset` files still carry the old key), `Modal`, `ENEBLE`, `CaculateIndex`, `currrentSA`, `deplayTime`, `IObjecPoolService`, `amoutDamage` are real contracts in code and in serialized assets.
   - **Known file/class name mismatches** (do not "fix" casually — prefab and scene references depend on the file name): `PlayerInputHandle.cs` → `PlayerInputHandler`, `TalentManager.cs` → `TalentManagger`, `VitalComponent.cs` → `VitalStatsComponent`, `CoreCompoment.cs` → `CoreComponent<T>`.
 
   ---
@@ -1134,11 +1172,14 @@
   6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` constructed and emitting `ON_PLAYER_DEATH`; ✅ health routes through `VitalStatsComponent`. **Re-verified 2026-09-22: the remaining half is worse than recorded.** `ON_PLAYER_DEATH` has **zero subscribers**, `grep GameManager Assets --include=*.cs` returns **0 hits**, `VitalStatsComponent` has no reset path at all (`currentStats` is filled once in `Start()`), and `ON_REALOAD_GAME` has 0 emitters and 0 subscribers — so **death is a permanent hard lock with no recovery** (**BUG-087**). Also needs **BUG-086** (the event currently fires every frame) and **BUG-065** (stop `PlayerMovement` on death). The enemy side already has the pattern to copy: `EntityVitalStats.Reborn()`, called from both `Start()` and `OnEnable()`.
   7. ~~**Deploy enemy** (Bugs #5, #7, #8)~~ ✅ Done.
   8. ~~**Room clear condition**~~ ✅ Done — `RoomCell.EnemyCount` → `ON_CLEAR_ENEMY`.
-  9. **HUD** ⚠️ — `UIManager` is still an empty stub. `StatsUIController`, `StatsScreenUIController` and UI Toolkit menus exist but have no GDD; the **player** health/mana bar is still displayed nowhere (enemies now have one via `EntityUIController`).
+  9. **HUD** ✅ mostly done (2026-10-05, `cb0de496`) — UIFlow `GameplayUI` HUD (`HUDPanel`, `StatBar`,
+     `SkillHotbar`) bound to the real player through `RealPlayerDataProvider` (HP/Mana, stats, 4-slot
+     hotbar with icons and cooldowns). Remaining: EXP bar hidden (gameplay has no EXP), minimap
+     placeholder disabled, skill tree has no gameplay source. *Was:* `UIManager` empty stub, no player bar.
   10. **Between-room upgrade** ⚠️ — after room clear: pause, offer 3 stat cards, apply through `BaseStatsSO.AddModifiersFromSource()`. `StatPointAllocator` provides the allocation-session mechanics.
   11. ~~**Fix AnimationPlayerController**~~ ✅ Done (Bug #9).
   12. ~~**Combo attack**~~ ✅ Done — `WeaponStats.AttackStages` + `Weapon.OnAttackEnter()`.
-  13. **Fix start-room teleport** ⚠️ (Bug #13).
+  13. ~~**Fix start-room teleport**~~ ✅ Done 2026-10-05 (Bug #13) — `OnDoneLoadRoomGrid()` → `PlayerManager.SetPlayerPosition()`.
   14. **Build-safe room JSON loading** ⚠️ (Bug #15) — replace `File.ReadAllText(Application.dataPath…)` with `TextAsset` refs or StreamingAssets.
   15. **Enemy spawn system** ⚠️ — GDD + ADR-0002/0003 exist. ✅ BUG-033 fixed; ✅ unblocked now that BUG-053 is closed. **Open:** BUG-ES-2 (two parallel spawn drivers), `overflowPercent` declared but never read, and the `retry > 4` fallback in `SetListCandidate()` that breaks ADR-0003's budget guarantee.
   16. ~~**Enemy targeting**~~ ✅ Done (NEW-1) — `EntityFindTarget` performs FOV + range + obstacle checks.
@@ -1147,8 +1188,8 @@
   19. **Fix BUG-063** ⚠️ NEW — one-line removal of the `#if UNITY_EDITOR [SerializeField]` on `Stat.modifiers`, before more runtime buffs are committed into `.asset` files.
   20. **Zero tests** ⚠️ (TD-014) — `tests/EditMode/`, `tests/PlayMode/` still contain only `.gitkeep`. **Re-verified 2026-09-22: this is not merely unstarted, it is currently impossible** (**BUG-084**). There is **no `.asmdef` anywhere under `Assets/`** (`find Assets -name "*.asmdef"` = 0), so no assembly can reference `UnityEngine.TestRunner`; and `tests/` is a *sibling* of `Assets/`, so Unity compiles nothing in it regardless. The root `GameRPG.Combat.EditModeTests.csproj` is an untracked, stale IDE artifact pointing at an `Assets/Tests/` directory that does not exist. Every sprint story estimating "write the first EditMode test" at 0.3d is mis-scoped until BUG-084 is done.
   21. **Make Abilities v2 actually work** ⚠️ (raised 2026-09-21, re-scoped three times; latest
-      2026-09-25 post-pull at HEAD `c0067f4`) — **fix BUG-092 first: the project does not compile, so
-      none of this can be tested.** Then: **(1) BUG-072** — set `layerMask` on `Lightning.prefab`;
+      2026-10-05 at HEAD `93ba6d8e`) — ✅ the project compiles again (BUG-092 build break fixed). *Superseded:*
+      "fix BUG-092 first: the project does not compile". Order: **(1) BUG-072** — set `layerMask` on `Lightning.prefab`;
       the code has been complete since 2026-09-22 and this is one Inspector field. **(2) a Play Mode
       smoke on all four Paladin abilities**, which converts BUG-075 and BUG-072 from static analysis
       into verified behaviour and closes S14-01 / S14-14. **(3) BUG-071 defect 3** (the tick chain
@@ -1194,6 +1235,12 @@
       `EntityVitalStats.cs:31-35`, and a subscriber for `ON_PLAYER_DEATH` — which must not be added
       until BUG-086 stops the event firing every frame.
 
+  25. ~~**Wire UIFlow Real providers to gameplay**~~ ✅ Player provider done 2026-10-05 (`cb0de496`):
+      HP/Mana via `IVitalComponent.CurrentStatsChanged`, max/level/stats via `IStatService`, hotbar from
+      `CharacterData.AbilityBindings`, cooldowns via `AbilityHolderBase.AbilityCooldownStarted`, binding on
+      `ON_PLAYER_READY`; flags default to the real game. Still stubs: `RealLoginService`,
+      `RealInventoryProvider`, `RealQuestProvider`; skill tree and EXP have no gameplay source.
+  26. **Fix BUG-093** ⚠️ NEW (2026-10-05) — restore the `RecoveryTime` gate in `RangeWeapon.CanAttack()`.
   ---
 
   ## Enemy Definitions
@@ -1217,8 +1264,8 @@
   |--------|---------|
   | Movement | WASD |
   | Attack | Left Mouse Button |
-  | Block / Ability | Right Mouse Button (Hold) |
-  | Skill | E (Hold) |
+  | Block | Right Mouse Button (Hold) — ⚠️ handler commented out in `PlayerInputHandler` since 2026-10-05 |
+  | Ability Primary / Secondary / Utility / Ultimate | `1` / `2` / `3` / `4` (Hold) — was `E` (SkillWeapon → Utility) until 2026-10-05 |
   | Equip/Unequip | F |
   | Interact | G |
   | Dash | Space |
@@ -1229,11 +1276,12 @@
 
   | Scene | Path | Purpose |
   |-------|------|---------|
-  | `MainGamePlay` | `Assets/Scenes/Main/MainGamePlay.unity` | **Entry scene (build index 0)** — UIFlow splash / menu / save select / settings. New Game and Continue load `LoadRandomMap` through `Loading`, with `GameplayUI` (HUD) attached additively. See `docs/ui/ui-ux-flow.md` |
-  | `Loading` / `GameplayUI` | `Assets/Scenes/Main/` | Shared loading screen / in-game UI loaded additively |
-  | `GameplayMock` | `Assets/Scenes/Test/GameplayMock.unity` | Fake gameplay for UI work (only with the UIFlow mock flags on) |
   | `LoadRandomMap` | `Assets/Scenes/Main/Test/LoadRandomMap.unity` | Procedural dungeon — primary dev and play scene |
   | `SetLevel` | `Assets/Scenes/Main/SetLevel.unity` | Room authoring scene for the level editor |
   | `Test AI` | `Assets/Scenes/Test/Test AI.unity` | Enemy AI sandbox |
   | `ObjectPooling` | `Assets/Scenes/Test/ObjectPooling.unity` | Pool sandbox |
+  | `MainGamePlay` | `Assets/Scenes/Main/MainGamePlay.unity` | **Entry scene (build index 0)** — UIFlow splash / menu / save select / settings. New Game and Continue load `LoadRandomMap` through `Loading`, with `GameplayUI` (HUD) attached additively. See `docs/ui/ui-ux-flow.md`. (`StartScene` and `UISample` were deleted 2026-10-05) |
+  | `Loading` | `Assets/Scenes/Main/Loading.unity` | ✅ NEW — shared loading screen; every `SceneFlow.GoTo()` passes through it |
+  | `GameplayUI` | `Assets/Scenes/Main/GameplayUI.unity` | ✅ NEW — in-game UI only, loaded Additive on top of the gameplay scene |
+  | `GameplayMock` | `Assets/Scenes/Test/GameplayMock.unity` | Fake gameplay for UI work (only with the UIFlow mock flags on) |
   | `SampleScene` | `Assets/Scenes/SampleScene.unity` | General dev sandbox |

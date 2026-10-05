@@ -1,9 +1,15 @@
 # Ability System — Diagrams
 
+> 📜 Change log: [changelog/ability-system-diagrams.CHANGELOG.md](changelog/ability-system-diagrams.CHANGELOG.md)
+
 > Source: **`Assets/Script/System/Abilities/`** (originally `Assets/Skill Enhance/Scripts/`;
 > parked in `prototypes/skill-enhance-abilities/Scripts/` 2026-08-22; promoted into `Assets/` 2026-09-09)
 > Diagrams authored: 2026-05-20 · **§1–§3 rewritten 2026-09-21** against
 > `origin/feature/fix-player-control` HEAD `15242e6`
+
+> ➡️ **Current version: read §10 first (2026-10-05, HEAD `93ba6d8e`).** §6–§9 are dated
+> re-verification snapshots and are kept for history; their damage-path diagrams (3D
+> `OnTriggerEnter`, `Services.NegativeReceiver`) no longer describe the code.
 
 > ⚠️ **REWRITTEN 2026-09-21 — §1–§3 previously described code that no longer exists.**
 >
@@ -190,11 +196,14 @@ random Index 0-9 into Animator"]
 
 **Wiring notes not visible in the graph**
 
-- `AbilityHolder.Construct(IObjecPoolService)` is the only `[Inject]` point; `IPlayerStatService`,
-  `IResourceReceiver` and `IVitalComponent` are pulled with `Core.GetComponentInChildren<T>()` in
-  `Setup()`, not through the container.
-- `AbilityHolder` is registered in `GameLifetimeScope.Configure()` with
-  `RegisterComponentInHierarchy<AbilityHolder>()`, so it must exist in the scene at `Awake()`.
+- `AbilityHolderBase.Construct(IObjecPoolService)` is the only `[Inject]` point; `IVitalComponent`
+  and `ICharacterInput` are resolved lazily with `Core.TryGetCapability<T>()`, not through the
+  container. *(Corrected 2026-10-05 — was: `AbilityHolder.Construct`, plus `IPlayerStatService` /
+  `IResourceReceiver` via `GetComponentInChildren`; `IResourceReceiver` was deleted 2026-09-24.)*
+- `AbilityHolder` is **no longer registered** in `GameLifetimeScope` (removed 2026-09-28). The
+  player is spawned by `PlayerManager` through `resolver.Instantiate`, which injects the whole
+  hierarchy; enemy `EntityAbilityHolder`s are injected by `Pool.Spawn()`. *(Was:
+  `RegisterComponentInHierarchy<AbilityHolder>()`, scene-placed player.)*
 - `abilityBindings` is read from `core.Player.Data.AbilityBindings` in `Start()` — the serialized list
   on the component is overwritten, so editing it on the prefab has no effect.
 - Pooled spawn objects are injected by `Pool.Spawn()`, never registered in the container.
@@ -1206,3 +1215,54 @@ or re-ordered because BUG-076, BUG-077, BUG-078 and BUG-085 are all closed.
 The design questions from §8.4 are unchanged and still do not block steps 0–6: whether a `TryCast()`
 override may have side effects (Consecrate says yes and is correct to), and whether a channelled cost
 meters per dispatch or per second. Both belong in the Abilities v2 GDD.
+
+---
+
+## 10. Current version — 2026-10-05, HEAD `93ba6d8e`
+
+Supersedes the damage-path diagrams of §6.3, §8 and §9. Read from source; no Play Mode run.
+
+**What changed since §9:**
+
+| Area | §9 (2026-09-22) | Now |
+|------|-----------------|-----|
+| Hit target | `ctx.Services.NegativeReceiver` assigned by the spawned object | `ctx.Target` (`Collider2D`) assigned by the spawned object; the effect resolves `INegativeReceiver` from it (ADR-0005, 2026-09-25) |
+| `IAbilityServices` | Pool / Stats / ResourceReceiver / Vital / NegativeReceiver | **Pool only** |
+| Owner | Player `AbilityHolder` only | `AbilityHolderBase<T>` → `AbilityHolder` (player), `EntityAbilityHolder` (enemy) |
+| Projectile hit detection | `SpawnProjectileBase.OnTriggerEnter2D` on its own `Rigidbody2D` + `CircleCollider2D` | `ProjectileBody.OnTriggerEnter2D` (required component), filtered by `targetMask` / `blockMask`, calls `SpawnProjectileBase.OnHit()` (2026-09-28) |
+| Projectile lifetime | `SpawnMono` despawn coroutine | `ProjectileBody` owns it; `SpawnMono` gets lifetime `0` |
+| Input | `E` → Utility slot | `1` / `2` / `3` / `4` → Primary / Secondary / Utility / Ultimate |
+| HoT/DoT | build break (BUG-092) | builds; `perTime` / `timeCount` not serialized → one instant tick |
+
+### 10.1 Damage path
+
+```mermaid
+flowchart TD
+    IN["Key 1-4 → AbilityHolderBase.TryDoAbility(slot)"] --> GATE["AbilityInstance.CanStart()<br/>→ AbilityDefinition.TryStart()"]
+    GATE --> APPLY["Do phase → effect.Apply(ctx)"]
+    APPLY --> SPAWN["SpawnEffectBase.Apply()<br/>Services.Pool.Spawn(Prefab, SpawnPos(), Angle())<br/>SpawnMono.Launch(Lifetime, ctx, Execute)"]
+
+    SPAWN --> PB["SpawnProjectileBase.Launch()<br/>base.Launch(0, …)  — body owns lifetime<br/>ProjectileBody.Launch(ctx.Forward, ProjectileConfig, payload: this)"]
+    PB --> TRIG["ProjectileBody.OnTriggerEnter2D(other)"]
+    TRIG -->|"layer in blockMask"| REL1["Release — no hit"]
+    TRIG -->|"layer in targetMask"| HIT["SpawnProjectileBase.OnHit(target)<br/>ctx.Target = target if it has INegativeReceiver<br/>_callback.Invoke(ctx)"]
+    HIT --> EXE["SpawnProjectileEffect.Execute(ctx)<br/>ctx.Target.TryGetComponent(INegativeReceiver)<br/>→ TakeDamage(baseDamage, ctx.Origin)<br/>→ ApplyOnHitEffects (SubEffects on the target)"]
+    HIT --> REL2["ProjectileBody releases itself to the pool"]
+
+    SPAWN --> SUM["SpawnSummonBase — Animation Event → Execute()"]
+    SUM --> LC["LightningController.Execute()<br/>OverlapCircleNonAlloc(radius, layerMask)<br/>per hit: ctx.Target = hit; base.Execute()"]
+    LC -->|"layerMask = 0 on Lightning.prefab"| NONE["hits nothing — BUG-072"]
+```
+
+**Status per path**
+
+| Path | Code | Blocker |
+|------|------|---------|
+| Projectile (Blessed Slash) | complete | needs `targetMask` set on the projectile prefab; Play Mode unverified |
+| Summon (Consecrate) | complete | **BUG-072** — `layerMask` unset on `Lightning.prefab` |
+| Stat effects (Blessing, Avatar of Light) | complete | **BUG-092** residual for HoT/DoT assets |
+
+**Still open:** BUG-068 (`CurrentActivationType` unguarded), BUG-071 (HoT/DoT chain cannot be
+stopped), BUG-073 / BUG-090 (missing-script assets; `SpawnEffectBase` still logs the deleted
+`[ShootSpiritOrbEffect]` name), BUG-079, BUG-083. `SpawnProjectileBase.pierceCount` is serialized but
+unused.
