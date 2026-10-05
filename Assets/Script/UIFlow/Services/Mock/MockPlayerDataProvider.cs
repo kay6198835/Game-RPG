@@ -11,7 +11,6 @@ namespace UIFlow
     /// </summary>
     public class MockPlayerDataProvider : IPlayerDataProvider
     {
-        private readonly List<CharacterClassInfo> _classes = MockCatalog.CreateClasses();
         private readonly List<SkillSlotData> _hotbar = MockCatalog.CreateHotbar();
         private readonly List<SkillNodeData> _skillTree = MockCatalog.CreateSkillTree();
         private PlayerStatsData _stats;
@@ -19,6 +18,7 @@ namespace UIFlow
 
         public event Action<PlayerStatsData> StatsChanged;
         public event Action PlayerDied;
+        public event Action HotbarChanged { add { } remove { } }   // Hotbar mock cố định
 
         public int SkillPoints { get; private set; } = 4;
 
@@ -27,8 +27,6 @@ namespace UIFlow
             if (_stats == null) _stats = BuildStatsFromSelectedSave();
             return _stats;
         }
-
-        public IReadOnlyList<CharacterClassInfo> GetAvailableClasses() => _classes;
 
         public IReadOnlyList<SkillSlotData> GetHotbar() => _hotbar;
 
@@ -59,7 +57,7 @@ namespace UIFlow
             StatsChanged?.Invoke(stats);
         }
 
-        /// <summary>Gọi khi đổi save (chọn save khác / tạo nhân vật mới) để đọc lại tên, class, level.</summary>
+        /// <summary>Gọi khi đổi save (chọn save khác / chơi mới) để đọc lại tên, class, level.</summary>
         public void ResetForNewSave()
         {
             _stats = null;

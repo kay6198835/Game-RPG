@@ -17,9 +17,10 @@ namespace UIFlow
         /// <summary>Bắn ra đúng MỘT lần khi nhân vật chết → mở màn Game Over.</summary>
         event Action PlayerDied;
 
-        void Respawn();
+        /// <summary>Danh sách ô hotbar đổi (ví dụ Player thật vừa xuất hiện) → HUD dựng lại hotbar.</summary>
+        event Action HotbarChanged;
 
-        IReadOnlyList<CharacterClassInfo> GetAvailableClasses();
+        void Respawn();
 
         IReadOnlyList<SkillSlotData> GetHotbar();
 

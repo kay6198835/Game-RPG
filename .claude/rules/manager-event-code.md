@@ -49,7 +49,8 @@ globs: ["Assets/Script/Manager/**/*.cs", "Assets/Script/GameConstants.cs"]
 
 ## EventID Count (added 2026-09-11)
 
-`EventID` holds **23** values. Three were added between 2026-08-22 and 2026-09-07 without any doc
+`EventID` holds **24** values. `ON_PLAYER_READY` was added on 2026-10-05 (player vitals seeded; payload
+is the player's `ICharacter` root — the UIFlow HUD binds on it). Before that, three were added between 2026-08-22 and 2026-09-07 without any doc
 update: `ON_RESET_STATS_UI_SESSION` (the `StatPointAllocator` session reset) and `ON_DROP_ITEM` /
 `ON_COLLECT_ITEM` (the Item system). `ON_ROOM_CLEAR` exists but still has no producer.
 Nothing has ever been removed from the enum — see the count history in `CLAUDE.md` before

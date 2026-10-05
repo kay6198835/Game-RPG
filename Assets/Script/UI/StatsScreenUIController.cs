@@ -32,7 +32,7 @@ public class StatsScreenUIController : MonoBehaviour
 
     [Header("Panel")]
     [SerializeField] private PanelSettings _panelSettings;
-    [SerializeField] private int _sortingOrder = 10;   // above the menu UIDocument in UISample
+    [SerializeField] private int _sortingOrder = 10;   // above any other UIDocument in the scene
 
     // Injected by GameLifetimeScope, not serialized: the screen reads stats through the
     // service and never holds the StatsSO asset.

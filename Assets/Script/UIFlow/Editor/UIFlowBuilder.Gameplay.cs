@@ -115,6 +115,9 @@ namespace UIFlow.EditorTools
             Place(minimap.gameObject, TopRight, TopRight, new Vector2(-30, -30), new Vector2(280, 280));
             TextMeshProUGUI minimapLabel = Txt(minimap.transform, "Label", "MINIMAP\n<size=60%>TODO: nối logic thật\n(MapGridController)</size>", 26, TextAlignmentOptions.Center, MutedColor);
             Stretch(minimapLabel.gameObject, 10, 10, 10, 10);
+            // LoadRandomMap đã có minimap thật (MapGridController, trong Canvas của chính scene đó) → khung giữ chỗ
+            // này tắt sẵn để không che nó. Bật lại khi HUD tự vẽ minimap.
+            minimap.gameObject.SetActive(false);
 
             // ── Bên phải: theo dõi nhiệm vụ
             Image questFrame = Img(hud.transform, "QuestTracker", new Color(0f, 0f, 0f, 0.35f), Rounded);

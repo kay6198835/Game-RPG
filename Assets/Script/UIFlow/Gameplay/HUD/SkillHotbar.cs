@@ -41,7 +41,17 @@ namespace UIFlow
             {
                 GameObject view = Instantiate(slotTemplate, slotContainer);
                 view.SetActive(true);
-                view.transform.Find("Icon").GetComponent<Image>().color = skill.iconColor;
+                Image icon = view.transform.Find("Icon").GetComponent<Image>();
+                if (skill.icon != null)
+                {
+                    icon.sprite = skill.icon;
+                    icon.color = Color.white;
+                    icon.preserveAspect = true;
+                }
+                else
+                {
+                    icon.color = skill.iconColor;
+                }
                 view.transform.Find("Key").GetComponent<TMP_Text>().text = skill.keyLabel;
 
                 Slot slot = new()

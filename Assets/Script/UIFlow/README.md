@@ -1,19 +1,26 @@
 # UIFlow — Luồng UI độc lập (uGUI + TextMeshPro)
 
-Tài liệu cho người mới học Unity UI. Toàn bộ luồng UI nằm trong `Assets/Script/UIFlow/`, namespace `UIFlow`,
-**không sửa một dòng code gameplay nào**. Mọi chỗ dùng dữ liệu giả / bỏ qua logic cũ đều có comment `// TODO: nối logic thật`.
+Tài liệu cho người mới học Unity UI. Toàn bộ luồng UI nằm trong `Assets/Script/UIFlow/`, namespace `UIFlow`.
+Mọi chỗ dùng dữ liệu giả / bỏ qua logic cũ đều có comment `// TODO: nối logic thật`.
+
+> **Giai đoạn hoàn thiện game (2026-10-05):** cờ mặc định giờ là **chạy thật** — Chơi mới / Tiếp tục vào thẳng
+> `LoadRandomMap`, HUD đọc máu/mana/level/kỹ năng của Player thật. Màn tạo nhân vật đã bị bỏ (Chơi mới tạo ngay
+> save "Paladin N"). UI có sẵn trong `LoadRandomMap` (bảng chỉ số, minimap) giữ nguyên. Cờ mock vẫn còn — bật lên
+> trong `UIDebugConfig.asset` khi cần thử UI bằng `GameplayMock`.
 
 ---
 
 ## 0. Chạy thử trong 30 giây
 
 1. Mở Unity → `Assets/Scenes/Main/MainGamePlay.unity` → bấm **Play**.
-2. Logo → menu chính → **Tiếp tục** → màn Loading → scene `GameplayMock` có HUD.
-3. Trong GameplayMock: click vào quái đỏ (Shift+click = chí mạng), `1`–`5` kỹ năng, `H` mất máu, `M` tốn mana,
+2. Logo → menu chính → **Chơi mới** (hoặc **Tiếp tục**) → màn Loading → `LoadRandomMap` thật + HUD (scene `GameplayUI`).
+   HUD: máu/mana thật, hotbar 4 ô = phím `1`–`4` (cooldown thật), `I`/`K`/`J` cửa sổ, `Esc` tạm dừng.
+3. Muốn thử UI không cần gameplay: bật `useMockData` + `skipGameplayInit` + `skipSaveLoad` → vào `GameplayMock`.
+   Trong GameplayMock: click vào quái đỏ (Shift+click = chí mạng), `1`–`5` kỹ năng, `H` mất máu, `M` tốn mana,
    `X` +EXP, `T` nói chuyện NPC (xong tự mở shop), `B` shop, `U` tiến độ nhiệm vụ, `N` thông báo,
    `I` túi đồ, `K` kỹ năng, `J` nhiệm vụ, `Q`/`E` đổi tab, `Esc` quay lại / tạm dừng.
 
-Kiểm tra tự động cả luồng: **Tools > UI Flow > Run Smoke Test** (37 bước, xem Console: `RESULT: PASS`).
+Kiểm tra tự động cả luồng: **Tools > UI Flow > Run Smoke Test** (36 bước, xem Console: `RESULT: PASS`; test tự bật cờ mock cho phần đầu rồi trả lại).
 Dựng lại scene sau khi sửa bố cục trong code: **Tools > UI Flow > Build All** (⚠️ ghi đè 4 scene UIFlow).
 
 ---
@@ -22,8 +29,8 @@ Dựng lại scene sau khi sửa bố cục trong code: **Tools > UI Flow > Buil
 
 ```
 Khởi động
-  └─ MainGamePlay (menu) ──Tiếp tục / Chơi mới / Chọn save──► Loading ──► GameplayMock  (skipGameplayInit = BẬT)
-                                                                     └─► LoadRandomMap (skipGameplayInit = TẮT)
+  └─ MainGamePlay (menu) ──Tiếp tục / Chơi mới / Chọn save──► Loading ──► LoadRandomMap (skipGameplayInit = TẮT, mặc định)
+                                                                     └─► GameplayMock  (skipGameplayInit = BẬT)
        ▲                                                                   │  + GameplayUI load Additive chồng lên
        └──────────── Loading ◄──── Tạm dừng > Về menu / Game Over > Về menu ┘
 ```
@@ -32,12 +39,14 @@ Build Settings (script tự đặt):
 
 | # | Scene | Vai trò |
 |---|---|---|
-| 0 | `Main/MainGamePlay` | Logo, đăng nhập, menu chính, tạo nhân vật, chọn save, cài đặt |
+| 0 | `Main/MainGamePlay` | Logo, đăng nhập, menu chính, chọn save, cài đặt |
 | 1 | `Main/Loading` | Màn loading dùng chung, thanh tiến trình thật |
 | 2 | `Main/Test/LoadRandomMap` | Dungeon thật — **không sửa** |
 | 3 | `Main/GameplayUI` | Chỉ có UI in-game, luôn load kiểu **Additive** |
 | 4 | `Test/GameplayMock` | Gameplay giả để test HUD |
-| 5+ | `StartScene`, `SetLevel` | Giữ nguyên như cũ |
+| 5 | `SetLevel` | Công cụ dựng level, giữ nguyên |
+
+`StartScene` (menu cũ, 2024) và `UISample` đã bị xóa cùng các UI cũ có từ trước 02/2026.
 
 **Vì sao LoadRandomMap không phải màn loading?** Scene tên `LoadRandomMap` thực ra là scene *gameplay*
 (sinh mê cung, Player, quái, `GameLifetimeScope`). Nó không có `LoadSceneAsync` hay thanh tiến trình nào.
@@ -50,16 +59,37 @@ Nên màn loading là scene mới `Loading`, còn `LoadRandomMap` đóng vai "Ga
 
 ## 2. Cờ mock / bypass — `Assets/SO/UIFlow/UIDebugConfig.asset`
 
-| Cờ | BẬT (mặc định khi làm UI) | TẮT |
+Mặc định hiện tại: chỉ `skipLogin` BẬT, bốn cờ còn lại TẮT (= chạy thật).
+
+| Cờ | BẬT | TẮT (mặc định, trừ skipLogin) |
 |---|---|---|
-| `useMockData` | Chỉ số, túi đồ, nhiệm vụ, cây kỹ năng giả | Bản Real (hiện là stub, chờ nối) |
-| `skipLogin` | Logo → menu chính luôn | Logo → màn đăng nhập (Real = server "Offline") |
+| `useMockData` | Chỉ số, túi đồ, nhiệm vụ, cây kỹ năng giả | Bản Real: HUD/bảng Nhân vật/hotbar đọc Player thật; túi đồ, nhiệm vụ, cây kỹ năng còn rỗng (gameplay chưa có) |
+| `skipLogin` (mặc định BẬT) | Logo → menu chính luôn | Logo → màn đăng nhập (Real = server "Offline") |
 | `skipGameplayInit` | Vào game = `GameplayMock` | Vào game = `LoadRandomMap` thật |
 | `skipSaveLoad` | 3 save mẫu trong RAM | Save JSON thật ở `Application.persistentDataPath/ui_saves.json` |
-| `bypassLoadRandomLogic` | Vào `LoadRandomMap` **không** gắn UI mới — scene cũ chạy y hệt hiện nay | Gắn `GameplayUI` (HUD, tạm dừng, túi đồ) lên map thật |
+| `bypassLoadRandomLogic` | Vào `LoadRandomMap` **không** gắn UI mới — scene cũ chạy y hệt trước đây | Gắn `GameplayUI` (HUD, tạm dừng, túi đồ) lên map thật |
+
+### HUD nối với gameplay thật như thế nào
+
+```
+VitalStatsComponent.Reborn()  ──EventManager.ON_PLAYER_READY (ICharacter)──►  RealPlayerDataProvider.Bind()
+   (Player, trong LoadRandomMap)                                                  │ GetComponentInChildren từ gốc:
+                                                                                  │  IVitalComponent, IStatService, AbilityHolder
+VitalStatsBase.UpdateStatField() ──IVitalComponent.CurrentStatsChanged──────────► StatsChanged → HUDPanel / CharacterPanel
+AbilityInstance.StartCooldown()  ──AbilityHolderBase.AbilityCooldownStarted─────► UIEvents.UseSkill(i) → SkillHotbar
+PlayerDeathState                 ──EventManager.ON_PLAYER_DEATH (mỗi frame)─────► PlayerDied (1 lần) → GameOverPanel
+```
+
+- Provider được tạo sẵn từ `UIBootstrap` ở scene Menu/Loading để kịp nghe `ON_PLAYER_READY` (Player bắn trong
+  `Start()`, trước khi `GameplayUI` load xong). Không dùng `FindObjectOfType`.
+- Tên / class trên HUD lấy từ save đang chơi; level, máu, mana từ gameplay. Gameplay chưa có EXP → thanh EXP ẩn.
+- Hotbar: 4 ô theo `AbilitySlot` (Primary…Ultimate = phím 1–4 trong `PlayerInput.inputactions`), lấy tên/icon/cooldown
+  từ `PlayerData.AbilityBindings`. Ô chưa gán kỹ năng hiện mờ.
+- Bấm Play thẳng ở `LoadRandomMap` (không qua menu) thì **không** có HUD mới — `GameplayUI` chỉ được gắn qua `SceneFlow`.
 
 Chỗ duy nhất đọc cờ: `Core/UIServices.cs`. UI chỉ gọi `UIServices.Save / Login / Player / Inventory / Quests`
-(các interface) nên **tắt hết cờ là chạy bản Real mà không sửa code UI** (smoke test bước 31–37 kiểm tra đúng điều này).
+(các interface) nên **tắt hết cờ là chạy bản Real mà không sửa code UI** (smoke test bước 29–36 kiểm tra đúng điều này,
+kể cả HUD gắn được với Player thật).
 
 ---
 
@@ -72,7 +102,7 @@ UIFlow/
   Data/        UIDataModels — lớp dữ liệu thuần UI hiển thị (không dính Player/ItemSO)
   Services/    Interfaces/ (ISaveProvider, ILoginService, IPlayerDataProvider, IInventoryProvider, IQuestProvider)
                Mock/ (dữ liệu mẫu) · Real/ (bọc logic thật / stub) · SettingsStore · KeyBindings
-  Menu/        Splash, Login, MainMenu, CharacterCreation, SaveSelect(+SaveSlotView), Settings(+KeyBindingRow), MainMenuFlow
+  Menu/        Splash, Login, MainMenu, SaveSelect(+SaveSlotView), Settings(+KeyBindingRow), MainMenuFlow
   Loading/     LoadingScreen
   Gameplay/    HUD/ (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed)
                Windows/ (TabWindow, Inventory, InventorySlot, ItemTooltip, Character, SkillTree, Quest)
@@ -103,8 +133,6 @@ MenuCanvas             Screen Space - Overlay · Canvas Scaler 1920x1080 · UIMa
   SplashPanel          Logo (Title, Subtitle), Hint
   LoginPanel           Window (UserNameInput, PasswordInput, ServerList/…/ServerRowTemplate, StatusText, LoginButton)
   MainMenuPanel        Title, Buttons (ContinueButton+Detail, NewGame, LoadGame, Settings, Quit), Version
-  CharacterCreationPanel  ClassColumn · Preview (Body, Hair, Compass/Arrow, DirectionText, RotateLeft/Right, AutoRotate)
-                          · AppearanceColumn (Hair/Skin/Outfit rows, NameInput, ErrorText) · Footer (Back, Random, Confirm)
   SaveSelectPanel      Window (SaveList/…/SaveSlotTemplate, EmptyText, MessageText, BackButton)
   SettingsPanel        Window (Tabs, AudioPage, GraphicsPage, KeysPage/KeyList/…/KeyRowTemplate, BackButton)
 MainMenuFlow           (nối các panel với nhau)
@@ -125,7 +153,7 @@ Không có Camera/EventSystem riêng: Canvas Overlay không cần camera, và sc
 UIBootstrap
 GameplayCanvas         Screen Space - Overlay · sortingOrder 10 · UIManager (root = HUD, Esc rỗng = Pause, controlsTimeScale)
                        · GameplayUIController
-  HUDPanel             StatusTopLeft (LevelBadge, Name, HPBar, ManaBar, ExpBar) · Minimap (trên-phải)
+  HUDPanel             StatusTopLeft (LevelBadge, Name, HPBar, ManaBar, ExpBar) · Minimap (trên-phải, TẮT sẵn: LoadRandomMap có minimap riêng)
                        · QuestTracker (phải) · SkillHotbar (dưới-giữa) · Notifications (trái-giữa) · Hints
   TabWindow            Window (Tabs, CloseButton, InventoryPage, CharacterPage, SkillPage, QuestPage) · DragIcon · ItemTooltip
   DialoguePanel        Box (Speaker, Body, ContinueHint, FastForwardToggle, SkipButton)
@@ -186,9 +214,10 @@ Số damage = `TextMeshPro` 3D (không cần Canvas, rẻ hơn một Canvas cho 
 | `EventManager` (bus static) | `ON_PLAYER_DEATH` bắn **mỗi frame** (BUG-086) | `RealPlayerDataProvider` chỉ *nghe*, có cờ chỉ phản ứng 1 lần, hủy đăng ký khi reset |
 | Singleton `MazeController`, `EnemyManager`, `LevelManager` | Chỉ tồn tại trong `LoadRandomMap` | Scene menu / loading không chứa chúng; không có `DontDestroyOnLoad` nào |
 | `GameLifetimeScope` (VContainer) | Ném lỗi nếu thiếu component | UI không dùng container; `UIServices` độc lập |
-| Phím Q/E là phím gameplay | Mở túi đồ bấm Q/E có thể ra chiêu | Cửa sổ tab đặt `pausesGame` → game dừng khi đang mở |
+| Phím Q là phím nhặt đồ (gameplay) | Mở túi đồ bấm Q (đổi tab) có thể nhặt đồ | Cửa sổ tab đặt `pausesGame` → game dừng khi đang mở |
 | Chết không có đường hồi sinh (BUG-087) | Game Over trên map thật | Real `Respawn()` = load lại scene gameplay qua Loading (TODO) |
-| Không có save / login / túi đồ / nhiệm vụ | Menu cần dữ liệu | Mock đầy đủ; Real là stub có `// TODO: nối logic thật` |
+| Không có login / túi đồ / nhiệm vụ / EXP | Menu, cửa sổ tab cần dữ liệu | Mock đầy đủ; Real là stub có `// TODO: nối logic thật` |
+| HUD cần máu / mana / kỹ năng | Phải đọc Player thật | Gameplay được sửa tối thiểu: `ON_PLAYER_READY`, `IVitalComponent.CurrentStatsChanged`, `AbilityHolderBase.AbilityCooldownStarted` (chỉ thêm sự kiện, không đổi hành vi) |
 
 ---
 

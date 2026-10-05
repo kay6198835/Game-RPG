@@ -9,19 +9,6 @@ namespace UIFlow
     /// </summary>
     public static class MockCatalog
     {
-        public static List<CharacterClassInfo> CreateClasses()
-        {
-            return new List<CharacterClassInfo>
-            {
-                new() { id = "paladin", displayName = "Paladin", tint = new Color(0.95f, 0.85f, 0.4f),
-                        description = "Hiệp sĩ thánh. Máu trâu, hồi máu cho bản thân, chém bằng ánh sáng." },
-                new() { id = "ranger", displayName = "Ranger", tint = new Color(0.45f, 0.85f, 0.45f),
-                        description = "Xạ thủ. Đánh xa, di chuyển nhanh, né tránh cao." },
-                new() { id = "mage", displayName = "Mage", tint = new Color(0.45f, 0.6f, 1f),
-                        description = "Pháp sư. Sát thương phép lớn, máu mỏng, tốn nhiều mana." },
-            };
-        }
-
         public static List<SaveSlotData> CreateSaves()
         {
             return new List<SaveSlotData>

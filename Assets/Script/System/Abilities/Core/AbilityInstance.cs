@@ -12,6 +12,8 @@ public class AbilityInstance
     public bool IsHolding { get; private set; }
     public float CurrentHoldTime { get; private set; }
     public AbilityState State { get; private set; } = AbilityState.Start;
+    /// <summary>Raised when the cooldown starts, with its full duration in seconds.</summary>
+    public event Action<float> CooldownStarted;
     [field: SerializeField] public AbilityContext AbilityContext;
     public AbilityInstance(AbilityDefinition definition, IAbilityOwner owner, IAbilityServices abilityServices)
     {
@@ -151,5 +153,6 @@ public class AbilityInstance
     private void StartCooldown()
     {
         CooldownRemaining = Definition.Cooldown;
+        CooldownStarted?.Invoke(CooldownRemaining);
     }
 }

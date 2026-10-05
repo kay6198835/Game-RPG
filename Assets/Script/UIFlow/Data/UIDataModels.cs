@@ -128,25 +128,10 @@ namespace UIFlow
     }
 
     [Serializable]
-    public class CharacterClassInfo
-    {
-        public string id;
-        public string displayName;
-        [TextArea] public string description;
-        public Color tint = Color.white;
-        // 8 sprite theo quy ước DirectionResolver của project: 0 = dưới-trái, đi theo chiều kim đồng hồ.
-        // Để trống thì preview chỉ hiện ô màu + số hướng.
-        public Sprite[] directionSprites = new Sprite[8];
-    }
-
-    [Serializable]
     public class NewCharacterRequest
     {
         public string characterName;
         public string classId;
-        public int hairIndex;
-        public int skinIndex;
-        public int colorIndex;
     }
 
     [Serializable]
@@ -166,6 +151,7 @@ namespace UIFlow
     {
         public string keyLabel;        // Phím hiển thị trên hotbar, ví dụ "1", "RMB"
         public string skillName;
+        public Sprite icon;            // null → ô hotbar chỉ tô iconColor
         public Color iconColor = Color.white;
         public float cooldownSeconds;
     }

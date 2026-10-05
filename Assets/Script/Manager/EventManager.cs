@@ -63,5 +63,7 @@ public enum EventID
     ON_RESET_STATS_UI_SESSION,
     ON_DROP_ITEM,
     ON_COLLECT_ITEM,
+    // Player vitals were (re)seeded: payload is the player's ICharacter root. UI binds to it here.
+    ON_PLAYER_READY,
 }
 

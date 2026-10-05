@@ -16,7 +16,7 @@ namespace UIFlow.EditorTools
     /// - Hàng trăm tham chiếu [SerializeField] được nối đúng, không sót ô nào.
     /// - Chạy lại bao nhiêu lần cũng ra cùng kết quả; sửa bố cục ở đây rồi chạy lại là xong.
     /// ⚠️ Chạy lại sẽ GHI ĐÈ 4 scene UIFlow. Sửa tay trong scene thì đừng chạy lại (hoặc sửa luôn ở đây).
-    /// Không bao giờ đụng tới LoadRandomMap, StartScene hay scene gameplay nào khác.
+    /// Không bao giờ đụng tới LoadRandomMap hay scene gameplay nào khác.
     /// </summary>
     public static partial class UIFlowBuilder
     {
@@ -122,7 +122,6 @@ namespace UIFlow.EditorTools
             SplashPanel splash = BuildSplash(canvas.transform);
             LoginPanel login = BuildLogin(canvas.transform);
             MainMenuPanel mainMenu = BuildMainMenu(canvas.transform);
-            CharacterCreationPanel creation = BuildCharacterCreation(canvas.transform);
             SaveSelectPanel saveSelect = BuildSaveSelect(canvas.transform);
             SettingsPanel settings = BuildSettings(canvas.transform);
 
@@ -132,7 +131,7 @@ namespace UIFlow.EditorTools
             GameObject flowObject = new("MainMenuFlow");
             MainMenuFlow flow = flowObject.AddComponent<MainMenuFlow>();
             Wire(flow, ("uiManager", manager), ("splashPanel", splash), ("loginPanel", login), ("mainMenuPanel", mainMenu),
-                 ("characterCreationPanel", creation), ("saveSelectPanel", saveSelect), ("settingsPanel", settings));
+                 ("saveSelectPanel", saveSelect), ("settingsPanel", settings));
 
             Save(scene, MainGamePlayPath);
         }
@@ -227,100 +226,6 @@ namespace UIFlow.EditorTools
             Stretch(button.GetComponentInChildren<TMP_Text>().gameObject, 20, 20, 4, 4);
             Size(button, preferredHeight: 76);
             return button;
-        }
-
-        private static CharacterCreationPanel BuildCharacterCreation(Transform canvas)
-        {
-            CharacterCreationPanel panel = Panel<CharacterCreationPanel>(canvas, "CharacterCreationPanel", PanelColor);
-            TextMeshProUGUI title = Txt(panel.transform, "Title", "Tạo nhân vật", 48, TextAlignmentOptions.Center, AccentColor);
-            Place(title.gameObject, TopCenter, TopCenter, new Vector2(0, -40), new Vector2(900, 70));
-
-            // ── Cột trái: chọn class
-            GameObject left = Node("ClassColumn", panel.transform);
-            Place(left, TopLeft, TopLeft, new Vector2(80, -150), new Vector2(460, 760));
-            VLayout(left, 12, null, TextAnchor.UpperLeft);
-            Size(Txt(left.transform, "Label", "Class", 30, TextAlignmentOptions.Left, MutedColor), preferredHeight: 44);
-            GameObject classList = Node("ClassList", left.transform);
-            VLayout(classList, 10);
-            Size(Rect(classList), preferredHeight: 280);
-            Button classTemplate = Btn(classList.transform, "ClassButtonTemplate", "Class", 30);
-            Size(classTemplate, preferredHeight: 76);
-            TextMeshProUGUI description = Txt(left.transform, "ClassDescription", "", 26, TextAlignmentOptions.TopLeft);
-            Size(description, preferredHeight: 300);
-
-            // ── Giữa: preview
-            Image previewFrame = Img(panel.transform, "Preview", new Color(1, 1, 1, 0.05f), Rounded);
-            Place(previewFrame.gameObject, Center, Center, new Vector2(0, 40), new Vector2(520, 700));
-            Image body = Img(previewFrame.transform, "Body", Color.white, White);
-            Place(body.gameObject, Center, Center, new Vector2(0, 40), new Vector2(200, 300));
-            body.preserveAspect = true;
-            Image hair = Img(previewFrame.transform, "Hair", Color.black, White);
-            Place(hair.gameObject, Center, Center, new Vector2(0, 205), new Vector2(210, 60));
-
-            Image compass = Img(previewFrame.transform, "Compass", new Color(1, 1, 1, 0.08f), UIResources.knob);
-            Place(compass.gameObject, BottomCenter, Center, new Vector2(0, 175), new Vector2(110, 110));
-            Image arrow = Img(compass.transform, "Arrow", AccentColor, White);
-            RectTransform arrowRect = Place(arrow.gameObject, Center, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(10, 50));
-
-            TextMeshProUGUI directionText = Txt(previewFrame.transform, "DirectionText", "", 24, TextAlignmentOptions.Center, MutedColor);
-            Place(directionText.gameObject, BottomCenter, BottomCenter, new Vector2(0, 80), new Vector2(480, 40));
-            Button rotateLeft = Btn(previewFrame.transform, "RotateLeft", "<", 36);
-            Place(rotateLeft.gameObject, BottomCenter, BottomCenter, new Vector2(-190, 175), new Vector2(70, 70));
-            Button rotateRight = Btn(previewFrame.transform, "RotateRight", ">", 36);
-            Place(rotateRight.gameObject, BottomCenter, BottomCenter, new Vector2(190, 175), new Vector2(70, 70));
-            Toggle autoRotate = Tgl(previewFrame.transform, "AutoRotate", "Tự xoay", 24);
-            Place(autoRotate.gameObject, BottomCenter, BottomCenter, new Vector2(40, 20), new Vector2(220, 44));
-            autoRotate.isOn = true;
-
-            // ── Cột phải: ngoại hình + tên
-            GameObject right = Node("AppearanceColumn", panel.transform);
-            Place(right, TopRight, TopRight, new Vector2(-80, -150), new Vector2(560, 760));
-            VLayout(right, 14, null, TextAnchor.UpperLeft);
-            Size(Txt(right.transform, "Label", "Ngoại hình", 30, TextAlignmentOptions.Left, MutedColor), preferredHeight: 44);
-            (Button hairPrev, Button hairNext, TMP_Text hairLabel) = OptionRow(right.transform, "Hair", "Tóc");
-            (Button skinPrev, Button skinNext, TMP_Text skinLabel) = OptionRow(right.transform, "Skin", "Da");
-            (Button colorPrev, Button colorNext, TMP_Text colorLabel) = OptionRow(right.transform, "Outfit", "Màu áo");
-            Size(Txt(right.transform, "NameLabel", "Tên nhân vật", 30, TextAlignmentOptions.Left, MutedColor), preferredHeight: 60);
-            TMP_InputField nameInput = Input(right.transform, "NameInput", "Nhập tên (2–16 ký tự)");
-            Size(nameInput, preferredHeight: 60);
-            TextMeshProUGUI error = Txt(right.transform, "ErrorText", "", 24, TextAlignmentOptions.Left, new Color(1f, 0.45f, 0.4f));
-            Size(error, preferredHeight: 40);
-
-            // ── Hàng nút dưới cùng
-            GameObject footer = Node("Footer", panel.transform);
-            Place(footer, BottomCenter, BottomCenter, new Vector2(0, 50), new Vector2(1000, 80));
-            HLayout(footer, 30);
-            Button back = Btn(footer.transform, "BackButton", "Quay lại", 30);
-            Size(back, 260, 76);
-            Button random = Btn(footer.transform, "RandomButton", "Ngẫu nhiên", 30);
-            Size(random, 260, 76);
-            Button confirm = Btn(footer.transform, "ConfirmButton", "Bắt đầu", 32, AccentColor);
-            Size(confirm, 320, 76);
-
-            Wire(panel,
-                ("classListContainer", classList.transform), ("classButtonTemplate", classTemplate), ("classDescriptionText", description),
-                ("hairPrevButton", hairPrev), ("hairNextButton", hairNext), ("hairLabel", hairLabel),
-                ("skinPrevButton", skinPrev), ("skinNextButton", skinNext), ("skinLabel", skinLabel),
-                ("colorPrevButton", colorPrev), ("colorNextButton", colorNext), ("colorLabel", colorLabel),
-                ("previewBody", body), ("previewHair", hair), ("previewDirectionArrow", arrowRect), ("previewDirectionText", directionText),
-                ("rotateLeftButton", rotateLeft), ("rotateRightButton", rotateRight), ("autoRotateToggle", autoRotate),
-                ("nameInput", nameInput), ("errorText", error), ("randomButton", random), ("confirmButton", confirm), ("backButton", back));
-            return panel;
-        }
-
-        private static (Button prev, Button next, TMP_Text value) OptionRow(Transform parent, string name, string label)
-        {
-            GameObject row = Node(name + "Row", parent);
-            HLayout(row, 10, null, TextAnchor.MiddleLeft);
-            Size(Rect(row), preferredHeight: 64);
-            Size(Txt(row.transform, "Label", label, 28), 160, 60);
-            Button prev = Btn(row.transform, "Prev", "<", 32);
-            Size(prev, 64, 60);
-            TextMeshProUGUI value = Txt(row.transform, "Value", "", 28, TextAlignmentOptions.Center);
-            Size(value, 200, 60);
-            Button next = Btn(row.transform, "Next", ">", 32);
-            Size(next, 64, 60);
-            return (prev, next, value);
         }
 
         private static SaveSelectPanel BuildSaveSelect(Transform canvas)

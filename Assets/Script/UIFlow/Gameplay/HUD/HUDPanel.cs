@@ -24,24 +24,31 @@ namespace UIFlow
         private void OnEnable()
         {
             UIServices.Player.StatsChanged += Refresh;
+            UIServices.Player.HotbarChanged += RebuildHotbar;
         }
 
         private void OnDisable()
         {
             UIServices.Player.StatsChanged -= Refresh;
+            UIServices.Player.HotbarChanged -= RebuildHotbar;
         }
 
         private void Start()
         {
-            hotbar.Build(UIServices.Player.GetHotbar());
+            RebuildHotbar();
             Refresh(UIServices.Player.GetStats());
         }
+
+        private void RebuildHotbar() => hotbar.Build(UIServices.Player.GetHotbar());
 
         private void Refresh(PlayerStatsData stats)
         {
             hpBar.SetValue(stats.currentHP, stats.maxHP);
             manaBar.SetValue(stats.currentMana, stats.maxMana);
-            expBar.SetValue(stats.exp, stats.expToNextLevel);
+            // Gameplay thật chưa có EXP (expToNextLevel = 0) → ẩn thanh thay vì hiện "0 / 0".
+            bool hasExp = stats.expToNextLevel > 0;
+            expBar.gameObject.SetActive(hasExp);
+            if (hasExp) expBar.SetValue(stats.exp, stats.expToNextLevel);
             nameText.text = $"{stats.characterName}  <size=75%><color=#BBB>{stats.className}</color></size>";
             levelText.text = stats.level.ToString();
         }

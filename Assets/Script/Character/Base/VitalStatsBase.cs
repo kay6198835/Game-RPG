@@ -12,6 +12,8 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     protected IStatService statHandler;
     [field: SerializeField] protected float _currentHP = 0;
 
+    public event System.Action CurrentStatsChanged;
+
     protected override void Start()
     {
         base.Start();
@@ -28,6 +30,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     protected virtual void UpdateStatField()
     {
         _currentHP = GetCurrentStatValue(StatType.HP);
+        CurrentStatsChanged?.Invoke();
     }
 
     public float GetCurrentStatValue(StatType statType)

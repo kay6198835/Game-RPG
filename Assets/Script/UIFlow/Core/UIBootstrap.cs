@@ -17,9 +17,13 @@ namespace UIFlow
         {
             if (config == null)
             {
-                Debug.LogWarning("[UIBootstrap] Chưa gán UIDebugConfig, dùng cờ mặc định (tất cả BẬT).", this);
+                Debug.LogWarning("[UIBootstrap] Chưa gán UIDebugConfig, dùng cờ mặc định (chỉ skipLogin BẬT — chạy gameplay thật).", this);
             }
             UIServices.Init(config);
+
+            // Tạo sẵn provider nhân vật NGAY TỪ scene Menu/Loading: bản Real phải nghe được ON_PLAYER_READY
+            // mà Player bắn trong Start() của LoadRandomMap — trước cả khi scene GameplayUI (HUD) được load.
+            _ = UIServices.Player;
 
             if (applySavedSettings) SettingsStore.ApplySaved();
         }

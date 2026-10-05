@@ -5,6 +5,8 @@
 /// </summary>
 public interface IVitalComponent
 {
+    /// <summary>Raised after any current value changes (damage, heal, cost, buff, Reborn).</summary>
+    event System.Action CurrentStatsChanged;
     float GetCurrentStatValue(StatType statType);
     void ApplyBuffDebuff(StatModifierGroup statModifierGroup);
     void Recovery(StatType statType, float amount);

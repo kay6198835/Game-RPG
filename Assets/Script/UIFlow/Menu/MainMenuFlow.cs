@@ -4,7 +4,9 @@ namespace UIFlow
 {
     /// <summary>
     /// Điều phối luồng trong scene MainGamePlay:
-    ///   Logo → (Đăng nhập nếu skipLogin tắt) → Menu chính → Tạo nhân vật / Chọn save / Cài đặt → vào game.
+    ///   Logo → (Đăng nhập nếu skipLogin tắt) → Menu chính → Chơi mới / Chọn save / Cài đặt → vào game.
+    /// Không có màn tạo nhân vật: "Chơi mới" tạo ngay một save mặc định (class Paladin — class duy nhất
+    /// của game) rồi vào gameplay.
     /// Các panel chỉ báo sự kiện ("người chơi bấm Chơi mới"); lớp này quyết định mở màn nào.
     /// Tách vậy để panel dùng lại được và luồng nằm gọn ở một chỗ.
     /// </summary>
@@ -14,9 +16,10 @@ namespace UIFlow
         [SerializeField] private SplashPanel splashPanel;
         [SerializeField] private LoginPanel loginPanel;
         [SerializeField] private MainMenuPanel mainMenuPanel;
-        [SerializeField] private CharacterCreationPanel characterCreationPanel;
         [SerializeField] private SaveSelectPanel saveSelectPanel;
         [SerializeField] private SettingsPanel settingsPanel;
+
+        private const string DefaultClassName = "Paladin";
 
         // Chỉ hiện logo ở lần mở game đầu tiên; quay về menu từ gameplay thì vào thẳng menu chính.
         private static bool _splashShown;
@@ -32,8 +35,6 @@ namespace UIFlow
             mainMenuPanel.NewGameClicked += OnNewGame;
             mainMenuPanel.LoadGameClicked += OnLoadGame;
             mainMenuPanel.SettingsClicked += OnSettings;
-            characterCreationPanel.CharacterCreated += OnCharacterCreated;
-            characterCreationPanel.BackClicked += OnCreationBack;
             saveSelectPanel.SaveChosen += OnSaveChosen;
         }
 
@@ -45,8 +46,6 @@ namespace UIFlow
             mainMenuPanel.NewGameClicked -= OnNewGame;
             mainMenuPanel.LoadGameClicked -= OnLoadGame;
             mainMenuPanel.SettingsClicked -= OnSettings;
-            characterCreationPanel.CharacterCreated -= OnCharacterCreated;
-            characterCreationPanel.BackClicked -= OnCreationBack;
             saveSelectPanel.SaveChosen -= OnSaveChosen;
         }
 
@@ -78,15 +77,21 @@ namespace UIFlow
             SceneFlow.EnterGameplay();
         }
 
-        private void OnNewGame() => uiManager.Open(characterCreationPanel);
+        private void OnNewGame()
+        {
+            ISaveProvider saves = UIServices.Save;
+            saves.CreateNewSave(new NewCharacterRequest
+            {
+                characterName = $"{DefaultClassName} {saves.GetSlots().Count + 1}",
+                classId = DefaultClassName,
+            });
+            UIServices.OnSaveSelected();
+            SceneFlow.EnterGameplay();
+        }
 
         private void OnLoadGame() => uiManager.Open(saveSelectPanel);
 
         private void OnSettings() => uiManager.Open(settingsPanel);
-
-        private void OnCharacterCreated(SaveSlotData save) => SceneFlow.EnterGameplay();
-
-        private void OnCreationBack() => uiManager.Close(characterCreationPanel);
 
         private void OnSaveChosen(SaveSlotData save) => SceneFlow.EnterGameplay();
     }

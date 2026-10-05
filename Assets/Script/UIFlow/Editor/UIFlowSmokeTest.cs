@@ -42,7 +42,6 @@ namespace UIFlow.EditorTools
         private static double _stepStart;
         private static readonly List<string> _errors = new();
         private static readonly List<string> _passed = new();
-        private static string _newCharacterName;
 
         // Chạy lại sau mỗi lần domain reload (vào Play Mode làm reload) → gắn lại vòng lặp nếu test đang dở.
         static UIFlowSmokeTest()
@@ -170,6 +169,9 @@ namespace UIFlow.EditorTools
         {
             return new List<Step>
             {
+                // Cờ mặc định giờ là chạy thật → bật cờ mock cho phần thử UI (RestoreFlags trả lại khi xong).
+                S("Bật cờ mock cho phần thử UI", () => SetFlags(true, true, true, true, true),
+                  () => UIServices.Player is MockPlayerDataProvider && UIServices.Save is MockSaveProvider),
                 S("Logo tự chuyển sang menu chính (skipLogin bật)", null,
                   () => Active(SceneNames.MainGamePlay) && Visible<MainMenuPanel>()),
                 S("Có save mock → nút Tiếp tục hiện và được làm nổi bật", null,
@@ -217,18 +219,8 @@ namespace UIFlow.EditorTools
                   () => !Visible<GameOverPanel>() && UIServices.Player.GetStats().currentHP == UIServices.Player.GetStats().maxHP),
                 S("Về menu chính qua Loading (bỏ qua logo lần 2)", SceneFlow.ReturnToMainMenu,
                   () => Active(SceneNames.MainGamePlay) && Visible<MainMenuPanel>() && Time.timeScale == 1f),
-                S("Chơi mới → màn tạo nhân vật", () => Click("NewGameButton"), () => Visible<CharacterCreationPanel>()),
-                S("Tên quá ngắn bị từ chối", () => { Input("NameInput").text = "A"; Click("ConfirmButton"); },
-                  () => Visible<CharacterCreationPanel>() && Find("ErrorText").GetComponent<TMP_Text>().text.Length > 0),
-                S("Nút Ngẫu nhiên + xoay preview", () => { Click("RandomButton"); Click("RotateRight"); },
-                  () => Find("DirectionText").GetComponent<TMP_Text>().text.StartsWith("Hướng")),
-                S("Tạo nhân vật hợp lệ → vào game với đúng tên", () =>
-                  {
-                      _newCharacterName = "Kay";
-                      Input("NameInput").text = _newCharacterName;
-                      Click("ConfirmButton");
-                  },
-                  () => Active(SceneNames.GameplayMock) && Visible<HUDPanel>() && UIServices.Player.GetStats().characterName == _newCharacterName),
+                S("Chơi mới → tạo save mặc định và vào game ngay (không còn màn tạo nhân vật)", () => Click("NewGameButton"),
+                  () => Active(SceneNames.GameplayMock) && Visible<HUDPanel>() && UIServices.Player.GetStats().characterName.StartsWith("Paladin")),
                 S("Về menu → Tải game liệt kê 4 save", () => SceneFlow.ReturnToMainMenu(),
                   () => Active(SceneNames.MainGamePlay) && Visible<MainMenuPanel>()),
                 S("Mở màn chọn save", () => Click("LoadGameButton"),
@@ -253,6 +245,10 @@ namespace UIFlow.EditorTools
                       SceneFlow.EnterGameplay();
                   },
                   () => Active(SceneNames.GameplayReal) && SceneManager.GetSceneByName(SceneNames.GameplayUI).isLoaded && Visible<HUDPanel>()),
+                G("HUD gắn với Player thật: máu tối đa > 0, hotbar đủ 4 ô (phím 1–4)", null,
+                  () => UIServices.Player is RealPlayerDataProvider real && real.IsBound
+                        && UIServices.Player.GetStats().maxHP > 0f
+                        && Find("SkillHotbar").transform.childCount == 5),   // 4 ô + 1 ô mẫu đang tắt
                 G("Esc trên map thật → menu tạm dừng, game dừng", () => Manager().HandleEscape(),
                   () => Visible<PausePanel>() && Time.timeScale == 0f),
                 G("Về menu từ map thật → timeScale trả về 1", () => Click("MainMenuButton", inScene: SceneNames.GameplayUI),
@@ -315,8 +311,6 @@ namespace UIFlow.EditorTools
             }
             throw new Exception("Không tìm thấy GameObject: " + name);
         }
-
-        private static TMP_InputField Input(string name) => Find(name).GetComponent<TMP_InputField>();
 
         private static void Click(string name, string inScene = null)
         {

@@ -28,6 +28,9 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     public AbilityActivationType CurrentActivationType => currentAbility.Definition.ActivationType;
     public AbilityDefinition CurrentDefinition => currentAbility?.Definition;
 
+    /// <summary>An equipped ability started its cooldown: slot and full duration in seconds. Read by the HUD.</summary>
+    public event Action<AbilitySlot, float> AbilityCooldownStarted;
+
     // Lazy: a pooled enemy runs Awake before Pool.Spawn() injects it, so the pool is not known yet in Setup().
     private IAbilityServices Services => services ??= new AbilityServices(objecPoolService);
     private IVitalComponent Vital
@@ -103,7 +106,9 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     {
         if (definition == null) return;
 
-        _equipped[slot] = new AbilityInstance(definition, this, Services);
+        var instance = new AbilityInstance(definition, this, Services);
+        instance.CooldownStarted += duration => AbilityCooldownStarted?.Invoke(slot, duration);
+        _equipped[slot] = instance;
     }
 
     public void Unequip(AbilitySlot slot)

@@ -15,8 +15,8 @@ namespace UIFlow
 
     /// <summary>
     /// Cửa sổ quản lý nhiều tab (Túi đồ, Nhân vật, Cây kỹ năng, Nhiệm vụ). Q/E chuyển tab (đổi được trong Cài đặt).
-    /// Đặt pausesGame = true trong Inspector: game dừng khi cửa sổ mở, nên phím Q/E (cũng là phím gameplay)
-    /// không làm nhân vật ra chiêu trong lúc đang xem túi đồ.
+    /// Đặt pausesGame = true trong Inspector: game dừng khi cửa sổ mở, nên phím Q (cũng là phím nhặt đồ của
+    /// gameplay) không làm nhân vật nhặt đồ trong lúc đang xem túi đồ.
     /// </summary>
     public class TabWindow : UIPanel
     {

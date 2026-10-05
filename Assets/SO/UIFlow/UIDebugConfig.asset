@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bdc4a315f0b001429c4681008fe5655, type: 3}
   m_Name: UIDebugConfig
   m_EditorClassIdentifier: 
-  useMockData: 1
+  useMockData: 0
   skipLogin: 1
-  skipGameplayInit: 1
-  skipSaveLoad: 1
-  bypassLoadRandomLogic: 1
+  skipGameplayInit: 0
+  skipSaveLoad: 0
+  bypassLoadRandomLogic: 0
   splashDuration: 2
   minLoadingTime: 1.5
