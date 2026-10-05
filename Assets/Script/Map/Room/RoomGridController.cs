@@ -17,7 +17,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     {
         base.Setting(columns, rows);
         roomGeneraterController = GetComponent<RoomGeneraterController>();
-        Vector2 position = new Vector2(MazeController.Instance.GetCellStart().Row, MazeController.Instance.GetCellStart().Column);
+        Vector2 position = new Vector2(MazeController.Instance.GetCellStart().Column, MazeController.Instance.GetCellStart().Row);
         _startIndex = CaculateIndex(position);
 
         position.y = MazeController.Instance.GetCellEnd().Row;

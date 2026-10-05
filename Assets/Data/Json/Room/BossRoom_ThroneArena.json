@@ -907,7 +907,8 @@
         "Tile_Floor",
         "Tile_Floor",
         "Tile_Floor",
-        "Tile_Floor"
+        "Tile_Floor",
+        "Tile_Spawn_Enemy"
     ],
     "poses": [
         {
@@ -5449,6 +5450,11 @@
             "x": 14,
             "y": -2,
             "z": 0
+        },
+        {
+            "x": 0,
+            "y": -7,
+            "z": 0
         }
     ],
     "layerIndices": [
@@ -6359,6 +6365,7 @@
         1,
         1,
         1,
-        1
+        1,
+        3
     ]
 }
