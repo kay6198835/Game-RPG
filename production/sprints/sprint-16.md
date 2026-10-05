@@ -1,5 +1,10 @@
 # Sprint 16 — 2026-09-28 to 2026-10-02
 
+**Status: ✅ COMPLETE (closed PARTIAL) — 2026-10-05.** Finalized by `pm-weekly-kickoff` (autonomous).
+Final HEAD `96c65fa` (wrap-up commit on top of `ac13ee4`). Branch `sprint-17` created from this tip.
+Final carry-over: 15 items (all Must except S16-15, all Should, both Nice) → `sprint-17.md`, plus
+new BUG-096 / BUG-097. S16-15 (BUG-093) closed in code; S16-05 code-done, verify carried.
+
 ## Closure — 2026-10-05 (weekly wrap-up, autonomous, late)
 
 **Verdict: FAIL — closed PARTIAL.** Final HEAD `ac13ee4` ("done load map.", 2026-10-04). The Saturday
