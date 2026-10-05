@@ -11,7 +11,8 @@
 
 ## Status Verdict
 
-**OPEN — day 1 of 5 (2026-10-05).** 0 / 8 Must-Have done. HEAD `96c65fa`, tree clean.
+**OPEN — day 1 of 5 (2026-10-05, standup).** 0 / 8 Must-Have done, 0 blocked. HEAD `d3a57f0`, tree clean.
+On track only if the Mon block (S17-01..04, ≈0.5d) lands today.
 
 ## Burn Summary
 
@@ -77,3 +78,45 @@
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-10-05 (Mon) — standup, day 1 of 5 (autonomous run, 02:00 slot)
+
+**Yesterday (Sun 2026-10-04) — off-plan, Sprint 16 scope, already scored by the wrap-up.**
+Six commits (`8b778fd`…`ac13ee4`): room set rebuilt as 20 English-named rooms (start → boss),
+`NormalRoom_13-27` registered in `Maze_Storage.asset`, old room data deleted, and `ac13ee4`
+"done load map." (8 files, `LoadRandomMap.unity` +18 986 lines churn, `RoomGeneraterController.cs`
+±9). `ac13ee4` is the commit that removed the no-spawn door branch added in `40d2c79` — that is
+**BUG-096**. No `.cs` change after it. Assessment: real progress on map content, but it landed the
+S1 regression the sprint opens on, and no Play Mode load is recorded for it.
+
+**Since kickoff (`d3a57f0`):** no commits. Tree clean, `sprint-17` in sync with `origin/sprint-17`.
+
+**Re-check against source (read only):**
+- BUG-096 — still OPEN. `RoomGeneraterController.LoadRoom()` has no `spawnPositions.Count == 0`
+  branch; an uncleared room with zero `SPAWN` markers emits `ON_GET_SPAWN_POSITIONS` with an empty
+  list and never calls `OpenDoors()`.
+- BUG-097 — not re-verifiable from text alone (order of `Maze_Storage.asset` vs `room[0]/room[last]`);
+  carried as recorded by the wrap-up.
+- No playtest log since 2026-06-12 in `production/qa/playtests/`.
+
+**Tracker:** all 14 tasks NOT STARTED (expected — sprint opened today). No item moved to blocked.
+
+**Today (Mon) — order matters:**
+| # | Task | Est. | Basis |
+|---|------|------|-------|
+| 1 | S17-01 BUG-096 — decide (restore `40d2c79` branch vs. non-combat door rule), then code | 0.05d (≈20 min) | ≈6 lines, one file, pattern already existed in `40d2c79`; risk = decision, not code |
+| 2 | S17-02 BUG-097 — reorder `Maze_Storage.asset` (stop-gap) | 0.05d | Inspector drag; `RoomType` selection = 0.2d, defer unless Bug #16 is wanted now |
+| 3 | S17-03 `Lightning.prefab` layerMask + `Arrow.prefab` Collider2D | 0.1d | Two Inspector fields; confirm in `git diff` |
+| 4 | S17-04 Play Mode smoke, logged in `production/qa/playtests/` | 0.3d | 9 checklist items; one run + notes. **Gate for all feature work** |
+Total ≈ 0.5d — fits one session with margin.
+
+**Blockers:** none external. Everything today needs the owner in the Unity Editor (no agent can
+open Play Mode). S17-04 depends on S17-01..03.
+
+**Risks (emerging):**
+- Smoke now at **11th** carry; if Monday ends without it, write the signed accepted-risk note
+  rather than carry silently.
+- `ac13ee4` pattern (a "done" commit that reverts a fix, no Play Mode load) — S17-08 rule should
+  land this week, not Thursday.
+- Yesterday's `LoadRandomMap.unity` churn (≈19k lines) raises scene merge-conflict risk if any
+  other branch touches the scene.
