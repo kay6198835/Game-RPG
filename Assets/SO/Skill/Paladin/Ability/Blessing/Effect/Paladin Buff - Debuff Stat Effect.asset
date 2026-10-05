@@ -14,12 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityName: Paladin Blessing Recovery Stat Effect
   SubConditions: []
+  SubEffects: []
+  Costs: []
   statModifierGroup:
     authoredModifiers:
     - targetStat: 102
-      type: 100
-      value: 30
+      type: 200
+      value: 0.15
     - targetStat: 104
-      type: 100
-      value: 25
+      type: 200
+      value: 0.15
   duration: 3
+  recipient: 0
