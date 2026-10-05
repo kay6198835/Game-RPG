@@ -1,6 +1,39 @@
 # Sprint 16 — 2026-09-28 to 2026-10-02
 
-**Status: OPEN.** Opened 2026-09-28 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
+## Closure — 2026-10-05 (weekly wrap-up, autonomous, late)
+
+**Verdict: FAIL — closed PARTIAL.** Final HEAD `ac13ee4` ("done load map.", 2026-10-04). The Saturday
+2026-10-03 run did not fire; this block is the close-out of record. Triage:
+`production/qa/bug-triage-2026-10-05.md`. Retro: `production/retros/retro-sprint-16-2026-10-05.md`.
+
+| ID | Final status | Evidence |
+|----|--------------|----------|
+| S16-01 BUG-092 residual | ❌ CARRIED (2nd) | `perTime` / `timeCount` still private, unserialized |
+| S16-02 BUG-066+070 | ❌ CARRIED (7th / 5th) | `VitalStatsBase` raw indexer, +4 reads from `e8d117e` |
+| S16-03 BUG-065 | ❌ CARRIED (7th) | `PlayerDeathState.Enter()` unchanged |
+| S16-04 BUG-086 | ❌ CARRIED (2nd) | Unchanged |
+| S16-05 BUG-064-7 verify | ⚠️ CODE DONE, unverified | Needs BUG-095 collider first |
+| S16-06 BUG-072 layerMask | ❌ CARRIED (3rd) | `Lightning.prefab` untouched |
+| S16-07 Play Mode smoke | ❌ CARRIED (**10th**) | No log, no accepted-risk note |
+| S16-08 TD-048 | ❌ CARRIED (27th+) | No hook |
+| S16-09 BUG-071 | ❌ CARRIED | |
+| S16-15 BUG-093 | ✅ CODE DONE `b7a0af5` | Play Mode confirm pending |
+| S16-16 BUG-095 collider | ❌ CARRIED (2nd) | `Arrow.prefab` untouched since `7c637c0` |
+| S16-10..14 Should | ❌ all carried | |
+
+**Velocity (planned work):** 0.05d of a 1.15d Must load against 4.0d capacity → **≈0.01** (Must 1/10).
+**Off-plan delivered (≈3.5d+):** shared `ProjectileBody`/`IProjectilePayload` (BUG-093/094 code), combo
+animation polish, Paladin 8-dir assets, abilities on keys 1-4, 20-room map set, minimap tracking,
+Bug #13 teleport, `LevelManager` singleton removed (Bug #12 / TD-023 code).
+**New:** BUG-096 (S1, no-spawn rooms sealed — `ac13ee4` reverted fix `40d2c79`), BUG-097 (S2, start/boss
+rooms swapped by alphabetical `Maze_Storage`).
+
+**Carry-over to Sprint 17 (priority order):** BUG-096, BUG-097, S16-07 smoke, S16-01, S16-02, S16-03+04,
+S16-06 + S16-16 (Editor), S16-05 verify, S16-09, S16-08, S16-10..14.
+
+---
+
+**Status (at open): OPEN.** Opened 2026-09-28 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
 fired on Monday, so the sprint starts today).
 Branch `sprint-16`, created from `sprint-15` tip (`5b035b7`, "range weapon").
 `gh` CLI unavailable (`gh: command not found`) — draft PR **not** auto-created; run manually:
