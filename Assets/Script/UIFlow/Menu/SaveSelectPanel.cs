@@ -56,7 +56,6 @@ namespace UIFlow
         private void OnLoad(SaveSlotData slot)
         {
             UIServices.Save.SelectedSlot = slot.slotIndex;
-            UIServices.OnSaveSelected();
             SaveChosen?.Invoke(slot);
         }
 

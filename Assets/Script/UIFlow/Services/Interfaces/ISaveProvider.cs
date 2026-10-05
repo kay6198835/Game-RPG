@@ -4,7 +4,7 @@ namespace UIFlow
 {
     /// <summary>
     /// Đọc / ghi file save. UI (menu chính, chọn save, menu tạm dừng) chỉ gọi qua interface này.
-    /// Cờ skipSaveLoad quyết định dùng MockSaveProvider hay RealSaveProvider.
+    /// Bản cài đặt: RealSaveProvider (JSON ở persistentDataPath).
     /// </summary>
     public interface ISaveProvider
     {

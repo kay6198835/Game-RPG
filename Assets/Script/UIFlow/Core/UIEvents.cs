@@ -5,7 +5,7 @@ using UnityEngine;
 namespace UIFlow
 {
     /// <summary>
-    /// Kênh sự kiện riêng của UI: bên ngoài (scene GameplayMock, sau này là gameplay thật) YÊU CẦU UI
+    /// Kênh sự kiện riêng của UI: bên ngoài (gameplay) YÊU CẦU UI
     /// làm gì đó mà không cần giữ tham chiếu tới panel nào.
     ///
     /// Vì sao không dùng EventManager của gameplay? EventManager nhận object không kiểu và thêm giá trị

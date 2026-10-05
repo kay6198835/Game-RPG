@@ -47,7 +47,7 @@ namespace UIFlow.EditorTools
 
                 TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(WhiteSpritePath);
                 importer.textureType = TextureImporterType.Sprite;
-                importer.spritePixelsPerUnit = 4;   // 4 px = 1 unit → sprite 1x1 unit, tiện làm khối vuông trong scene mock
+                importer.spritePixelsPerUnit = 4;   // 4 px = 1 unit → sprite 1x1 unit, dùng làm nền ô vuông cho Image
                 importer.filterMode = FilterMode.Point;
                 importer.SaveAndReimport();
                 _white = AssetDatabase.LoadAssetAtPath<Sprite>(WhiteSpritePath);

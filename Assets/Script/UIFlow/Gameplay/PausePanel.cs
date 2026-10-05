@@ -26,7 +26,7 @@ namespace UIFlow
 
         protected override void OnShown()
         {
-            // Chưa chọn save (ví dụ bấm Play thẳng ở GameplayMock) thì không có gì để lưu.
+            // Chưa chọn save (ví dụ bấm Play thẳng ở LoadRandomMap) thì không có gì để lưu.
             saveButton.interactable = UIServices.Save.SelectedSlot >= 0;
         }
 

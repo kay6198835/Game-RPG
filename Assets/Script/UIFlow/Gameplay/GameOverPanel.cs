@@ -22,7 +22,7 @@ namespace UIFlow
         private void Respawn()
         {
             CloseSelf();
-            // Mock: hồi đầy máu tại chỗ. Real: load lại scene gameplay (xem RealPlayerDataProvider).
+            // Load lại scene gameplay (xem RealPlayerDataProvider.Respawn).
             UIServices.Player.Respawn();
             UIEvents.Notify("Đã hồi sinh ở checkpoint.");
         }

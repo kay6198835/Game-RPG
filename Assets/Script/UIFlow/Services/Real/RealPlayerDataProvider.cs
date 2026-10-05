@@ -42,9 +42,6 @@ namespace UIFlow
 
         public int SkillPoints => 0;
 
-        /// <summary>Đã gắn với một Player thật chưa (smoke test dùng).</summary>
-        public bool IsBound => _vital != null;
-
         public RealPlayerDataProvider()
         {
             EventManager.Resgister(EventID.ON_PLAYER_DEATH, OnPlayerDeath);
