@@ -1,5 +1,7 @@
 # Character Architecture — Migration Plan
 
+> 📜 Change log: [changelog/character-migration-plan.CHANGELOG.md](changelog/character-migration-plan.CHANGELOG.md)
+
 Implements [ADR-0005](adr-0005-unified-character-contract.md) on branch `demo-architeture-1`.
 
 > **Status:** all steps are written. Step 1 (`2aa225e`), step 2 (`0b3d129`) and step 3 (`b489f94`)
@@ -55,8 +57,10 @@ reverting either, reopen the listed prefabs and confirm no missing script.
 
 - Update `CLAUDE.md` and `.claude/rules/{gameplay,weapon-skill,ai,ui}-code.md` once the ADR is accepted
   (they still describe `Services.Vital`, `IResourceReceiver` and `Services.NegativeReceiver`).
-- Move `bullet.cs` / `Projectile.cs` / `Spell.cs` from `GetComponentInChildren` to `TryGetComponent` on the hurtbox.
+- Move ~~`bullet.cs`~~ / `Projectile.cs` / `Spell.cs` from `GetComponentInChildren` to `TryGetComponent` on the hurtbox.
+  *(2026-10-05: `bullet.cs` deleted 2026-09-28 — replaced by `ProjectileBody`, which already uses `TryGetComponent`.)*
 - Decide how stat effects respect the character's own rules (health-bar refresh, hit reaction, Defense) — see ADR-0005 Amendment 1, "Still open".
 - Route `EntityEffectStats` (Abilities v1) to the per-instance clone.
 - Add `FormerlySerializedAs("attackDamege")` to `AttackSO.attackDamage` (player stage damage reads 0).
+  *(2026-10-05: still not done — filed as BUG-095.)*
 - Fix BUG-066/070 once at `VitalStatsBase` and BUG-071 there.

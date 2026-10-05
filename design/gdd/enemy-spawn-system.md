@@ -30,6 +30,8 @@ supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (En
 
 # Enemy Spawn & Per-Room Management System
 
+> 📜 Change log: [changelog/enemy-spawn-system.CHANGELOG.md](changelog/enemy-spawn-system.CHANGELOG.md)
+
 > **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The selection algorithm, budget model and
 > `RarityTier` rules below still match `RoomModel.GetSpawnSet()` — this GDD did not drift on
 > substance. Four status corrections:

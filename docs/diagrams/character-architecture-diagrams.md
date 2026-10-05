@@ -1,5 +1,7 @@
 # Character Architecture — Diagrams
 
+> 📜 Change log: [changelog/character-architecture-diagrams.CHANGELOG.md](changelog/character-architecture-diagrams.CHANGELOG.md)
+
 Companion to [ADR-0005](../architecture/adr-0005-unified-character-contract.md). Before = `85bd612`;
 after = branch `demo-architeture-1`, including ADR-0005 Amendment 1 (2026-09-24).
 
@@ -272,7 +274,7 @@ sequenceDiagram
     participant AI as AbilityInstance
     BS->>AH: Processing() (cooldowns)
     BS->>AH: target locked && in attack range → TryDoAnyAbility()
-    AH-->>BS: true (first ready slot; animator override applied)
+    AH-->>BS: true (first ready slot, animator override applied)
     BS->>AS: ChangeState(AbilityState)
     AS->>AH: StartHold()
     loop LogicUpdate

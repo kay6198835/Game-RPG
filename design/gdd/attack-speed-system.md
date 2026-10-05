@@ -9,6 +9,8 @@ verified-by: Kiet
 
 # Attack Speed System Design
 
+> 📜 Change log: [changelog/attack-speed-system.CHANGELOG.md](changelog/attack-speed-system.CHANGELOG.md)
+
 > **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The `AttackSpeed` formula and its
 > `DerivedStatFormula` coefficients are unchanged; `StatType.AttackSpeed` is still `105`.
 > Corrections: the stat profile type is now **`BaseStatsSO`** (was `StatsSO`, deleted in

@@ -23,7 +23,7 @@ fi
 WARNINGS=""
 
 # Check design documents for required sections
-DESIGN_FILES=$(echo "$STAGED" | grep -E '^design/gdd/')
+DESIGN_FILES=$(echo "$STAGED" | grep -E '^design/gdd/' | grep -v '/changelog/')
 if [ -n "$DESIGN_FILES" ]; then
     while IFS= read -r file; do
         if [[ "$file" == *.md ]] && [ -f "$file" ]; then
@@ -54,6 +54,33 @@ if [ -n "$DATA_FILES" ]; then
             fi
         fi
     done <<< "$DATA_FILES"
+fi
+
+# Lint Mermaid blocks in staged Markdown — a syntax slip renders as a parse error, not a diagram.
+# Rules and pitfalls: .claude/rules/mermaid-diagrams.md
+MD_FILES=$(echo "$STAGED" | grep -E '\.md$')
+if [ -n "$MD_FILES" ]; then
+    LINT_PY=""
+    # `python` on Windows can be the Store stub that only prints an install hint, so probe each.
+    for cmd in py python3 python; do
+        if command -v "$cmd" >/dev/null 2>&1 && "$cmd" --version >/dev/null 2>&1; then
+            LINT_PY="$cmd"
+            break
+        fi
+    done
+    if [ -n "$LINT_PY" ]; then
+        EXISTING=$(echo "$MD_FILES" | while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done)
+        if [ -n "$EXISTING" ]; then
+            # shellcheck disable=SC2086
+            MERMAID_OUT=$(echo "$EXISTING" | tr '\n' '\0' | xargs -0 "$LINT_PY" .claude/hooks/lint-mermaid.py 2>&1)
+            if [ $? -ne 0 ]; then
+                echo "BLOCKED: Mermaid syntax errors in staged Markdown:" >&2
+                echo "$MERMAID_OUT" >&2
+                echo "See .claude/rules/mermaid-diagrams.md" >&2
+                exit 2
+            fi
+        fi
+    fi
 fi
 
 # Check for hardcoded gameplay values in Unity scripts

@@ -1,5 +1,7 @@
 # ADR-0002: EnemyManager is a permitted singleton exception
 
+> 📜 Change log: [changelog/adr-0002-enemymanager-singleton-exception.CHANGELOG.md](changelog/adr-0002-enemymanager-singleton-exception.CHANGELOG.md)
+
 ## Status
 Proposed
 
@@ -7,6 +9,11 @@ Proposed
 > The shipped `EnemyManager` does not do what the Decision below describes. The singleton
 > exception has been re-scoped to the role the class actually fills (pathfinding service), and
 > the room-combat lifecycle this ADR assigns to it lives elsewhere, uncovered by any ADR.
+>
+> **⚠️ Note 2026-10-05:** TD-023 (`LevelManager` singleton), cited below as an existing
+> unratified violation, was **removed** on 2026-10-02 (`0bc36406`) — `LevelManager` is now injected
+> through VContainer. `EnemyManager` (this exception) and `MazeController` are the only singletons
+> left. Every TD-023 mention below describes the state at the time it was written.
 >
 > **⚠️ Further amended 2026-09-11 (path + DI note).** Two facts changed under this ADR without it
 > being touched:

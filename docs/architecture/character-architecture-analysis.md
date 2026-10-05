@@ -1,5 +1,7 @@
 # Character Architecture — Phase 1 Analysis
 
+> 📜 Change log: [changelog/character-architecture-analysis.CHANGELOG.md](changelog/character-architecture-analysis.CHANGELOG.md)
+
 > **Date:** 2026-09-23 · **Branch:** `demo-architeture-1` (cut from `origin/feature/update-architecture-object` at `85bd612`)
 > **Scope:** Player ↔ Entity (enemy) architecture, measured against the Map Grid/Cell system as precedent.
 > **Companion documents:** [ADR-0005](adr-0005-unified-character-contract.md) (target design) ·
@@ -99,7 +101,7 @@
 | `StatEffectBase.cs:24`, `RecoveryReduction*.cs`, `BuffDebuffStatsForDuration.cs:11` | `context.Services.Vital` (always the caster) | `AbilityContext.TryGetRecipientComponent<IVitalComponent>` (caster or hit collider → `ICharacter` root → `GetComponentInChildren`) |
 | `AbilityDefinition.cs:64`, `AbilityEffectDefinition.cs:29` | `Services.Vital` for affordability | `ctx.Caster.GetCurrentStatValue` (existing `IAbilityOwner` member) |
 | `SpawnProjectileBase.cs:31`, `LightningController.cs:27` | `TryGetComponent<INegativeReceiver>` | keep `TryGetComponent<INegativeReceiver>`; assign the hurtbox `Collider2D` to `ctx.Target` |
-| `bullet.cs:54`, `Projectile.cs:46`, `Spell.cs:10` | `GetComponentInChildren<INegativeReceiver>` (looks *down*) | `TryGetComponent` on the hurtbox; left for a later pass |
+| ~~`bullet.cs:54`~~ (deleted 2026-09-28), `Projectile.cs:46`, `Spell.cs:10` | `GetComponentInChildren<INegativeReceiver>` (looks *down*) | `TryGetComponent` on the hurtbox; left for a later pass |
 | `MeleeWeapon.cs:31`, `EntityAttack.cs:31` | `TryGetComponent<INegativeReceiver>` | correct today (hurtbox carries receiver); optional later move |
 | `EntityEffectStats.cs:20` (Abilities v1) | `Core.Entity.Data.StatsSO` — writes the **shared** asset | v1 maintenance path; out of scope, noted as residual |
 | `GameLifetimeScope.cs:15`, `StatsUIController`, `StatsScreenUIController`, `StatPointAllocator` | `IPlayerStatService` | **keep** — these genuinely want the player's service |

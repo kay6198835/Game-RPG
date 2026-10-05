@@ -7,6 +7,8 @@ verified-by: Kiet
 
 # Game Concept
 
+> 📜 Change log: [changelog/game-concept.CHANGELOG.md](changelog/game-concept.CHANGELOG.md)
+
 > **Note**: Reverse-documented from CLAUDE.md project overview and existing codebase.
 > Run `/brainstorm` to expand this into a full concept document with player journey,
 > market positioning, and visual identity sections.

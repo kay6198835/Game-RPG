@@ -17,6 +17,67 @@ which code change caused it.
 
 ---
 
+## 2026-10-05 — Mermaid lint guard
+
+**Cause.** A `;` inside a `sequenceDiagram` message (`character-architecture-diagrams.md` §10,
+line 277) ended the statement early and the diagram rendered as a parse error.
+
+| Document / file | Change |
+|---|---|
+| `docs/diagrams/character-architecture-diagrams.md` | `;` → `,` in the §10 message |
+| `.claude/hooks/lint-mermaid.py` | **New.** Pattern linter for Mermaid blocks: `;` and bare `#` in sequence messages, unquoted flowchart labels with brackets, `end` as a node id, `<>` generics in class diagrams, unclosed fences. Whole repo clean after the fix |
+| `.claude/hooks/validate-commit.sh` | Runs the linter on staged `.md` files and **blocks** the commit on a finding |
+| `.claude/rules/mermaid-diagrams.md` | **New** rule (globs `**/*.md`): syntax pitfalls per diagram type and the verify step |
+| `.claude/rules/design-docs.md`, `.claude/skills/doc-sync/SKILL.md`, `docs/systems/README.md` | Point at the rule and require a clean lint run |
+
+---
+
+## 2026-10-05 — Doc sync against HEAD `93ba6d8e` (38 commits, sprints 16-17) + per-system layout
+
+**Cause.** `git diff c0067f4..93ba6d8e`: shared projectile layer (`5b035b73`, `b7a0af5e`,
+`7c637c0e`), runtime player spawn and LevelManager DI (`5b035b73`, `0bc36406`), start-room teleport
+(`9154763f`), ability input split (`3a395fe9`), UIFlow (`0c38633d`…`f8f180d0`), 20-room data set
+(`213fa5a6`…`40d2c793`). No `.cs` file was changed by this pass.
+
+| Document | Change |
+|----------|--------|
+| `CLAUDE.md` | New header entry; Repository Layout (UIFlow, ProjectileBody, IProjectilePayload, orphan `IReasourceReceiver`, deleted `bullet.cs` / `BulletDataSO.cs` / `IResourceReceiver.cs`, PlayerManager, GameLifetimeScope, LevelManager, room set); VContainer registration block; Known Bugs — Bug #12, Bug #13, BUG-064 FIXED; BUG-087, BUG-092 PARTIAL; BUG-093, BUG-094, BUG-095 NEW; Demo Checklist items 9, 13, 21 updated, 25-26 added; Input Bindings; Scene Map; damage chain; `attackDamege` struck from the intentional-typo list |
+| `memory/project_state.md` | Rewritten (was 2026-09-11, skipped by three passes) |
+| `docs/systems/` | **New.** One folder per system (12) with `README.md` (current official doc) + `CHANGELOG.md` (when / what / from → to / why), plus an index. History before 2026-10-05 reconstructed from this file, `CLAUDE.md` and `git log -S` |
+
+**Findings worth reading.**
+- **BUG-095** — `AttackSO.attackDamege` was renamed `attackDamage` in `ddcc0a5c` (2026-09-01) without
+  `[FormerlySerializedAs]`; `SnS_State1-3.asset` still store the old key, so the player sword loses its 55
+  stage damage and hits for `PhysicalDamage` only (`WeaponHolderBase.CalculateCurrentDamage()`). `CLAUDE.md`, `.claude/rules/scriptableobject-data.md` and `.claude/rules/design-docs.md` still
+  name `attackDamege` as a live intentional typo — the rules files were **not** edited in this pass.
+- Fix dates located with `git log -S` differ from the date this pass found them: BUG-092 build fix and
+  BUG-064 → `5b035b73` (09-28), Bug #13 → `9154763f` (09-30), Bug #12 → `0bc36406` (10-02).
+- **Same day, second step — change logs for the other living documents.** 23 documents (10 GDDs,
+  5 ADRs + 2 architecture notes, 2 diagrams, `ui-ux-flow.md`, `skill-reference.md`,
+  `tech-debt-register.md`, `VERSION.md`) kept their paths and got `changelog/<doc>.CHANGELOG.md`
+  beside them, generated from `git log --follow` + diff hunks (sections touched, first line removed →
+  first line added) + this file's per-document rows. Each document gained a two-line `📜 Change log`
+  link and nothing else. Ten of them open with an `⚠️ Out of date against code` entry listing stale
+  statements (weapons-system, skill-ability-system, map-system, ability-system-diagrams,
+  tech-debt-register, ADR-0002, ADR-0004, ADR-0005, character-migration-plan,
+  character-architecture-analysis) — corrected in the third step below.
+- **Third step — drift fixed.** All ten documents were corrected against source: `weapons-system.md`
+  (ProjectileBody, damage formula, abilities decoupled, acceptance criteria), `skill-ability-system.md`
+  (v1 users), `map-system.md` (Bug #13 fixed, 20 rooms, no-spawn rooms, injected `LevelManager`),
+  `ability-system-diagrams.md` (wiring notes + new §10 current damage path), `tech-debt-register.md`
+  (TD-023, TD-050 closed; TD-010 corrected; TD-052, TD-053 new), ADR-0004 (status banner + Amendment 1),
+  ADR-0002 (status note), ADR-0005 / character-migration-plan / character-architecture-analysis
+  (residual annotations). Each change log's ⚠️ entry was replaced by a "Re-synced" entry listing every
+  from → to. Also: `.claude/rules/scriptableobject-data.md` gained the `[FormerlySerializedAs]` rule and
+  `design-docs.md` its formula example; `.claude/skills/doc-sync/SKILL.md` now maintains
+  `docs/systems/`, the per-document change logs and this file. BUG-095 re-scoped: melee keeps
+  `PhysicalDamage`, it loses only the 55 stage damage (`WeaponHolderBase.CalculateCurrentDamage()`).
+  `.claude/hooks/validate-commit.sh` and `detect-gaps.sh` now skip `*/changelog/*`.
+- `CLAUDE.md` was stored with CRLF plus 81 stray `\r\r\n` sequences; editing normalised them, so the
+  committed diff of that file will be larger than its content change.
+
+---
+
 ## 2026-09-25 — Post-pull re-verification against HEAD `c0067f4` (ADR-0005 refactor + two fix commits)
 
 **Cause.** Three days and eleven commits after the 2026-09-22 pass, the branch had moved from

@@ -1,5 +1,7 @@
 # Animation System
 
+> 📜 Change log: [changelog/animation-system.CHANGELOG.md](changelog/animation-system.CHANGELOG.md)
+
 > **Re-verified 2026-09-21 against HEAD `15242e6`.** The `StatusAnimation` handoff is unchanged.
 > Added this pass: the **8-direction index convention** (see Formulas) — previously undocumented,
 > which is how the Paladin sprite set came in numbered against a different convention.

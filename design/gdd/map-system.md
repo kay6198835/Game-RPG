@@ -2,13 +2,30 @@
 status: reverse-documented
 source: Assets/Script/Map/
 date: 2026-05-19
-updated: 2026-07-09
+updated: 2026-10-05
 verified-by: Kiet
 ---
 
 # Map & Dungeon System Design
 
-> **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** No drift found — the maze generation, room
+> 📜 Change log: [changelog/map-system.CHANGELOG.md](changelog/map-system.CHANGELOG.md)
+
+> **Re-synced 2026-10-05 against HEAD `93ba6d8e`.** Changes since the 2026-09-11 pass:
+>
+> - ✅ **Bug #13 fixed** (`9154763f`, 2026-09-30): `RoomGridController.OnDoneLoadRoomGrid()` loads the
+>   start room and calls `PlayerManager.SetPlayerPosition(startRoom.position)`. Door transitions move
+>   the player through `IPlayerService.SetPlayerPosition()` (`RoomGeneraterController.SetNextRoom()`);
+>   `fastMovement` is no longer used.
+> - ✅ **Bug #12 / TD-023 fixed** (`0bc36406`): `LevelManager` is not a singleton any more; it is
+>   registered in `GameLifetimeScope` and injected into `RoomGeneraterController`.
+> - **New room set** (`d3400ee7`, 2026-10-04): 20 named rooms replace `NormalRoom_0 … 12`.
+> - **Rooms without spawn markers open at once** (`40d2c793`): Start / Rest / Shop / Buff rooms
+>   build their pathfinding grid and delete their door tiles on load instead of waiting for
+>   `ON_CLEAR_ENEMY`, which would never come.
+> - Minimap: `MapGridController` listens to `ON_PLAYER_ON_DOOR` again (`0bc36406`), and the start
+>   cell is read as (Column, Row) (`a8820666`).
+>
+> *Previous banner — re-verified 2026-09-11 against HEAD `6d6a8e4`:* No drift found — the maze generation, room
 > loading, door-state and room-progression rules below all still match the code, and every bug
 > this GDD references (start-room teleport #13, `MazeController` missing `return` #14, Editor-only
 > JSON loading #15, `RoomType` unread #16, dead door methods #17) was checked in source and is
@@ -110,7 +127,13 @@ Each `RoomCell` has `DoorController` children — one per passable direction —
 named via `DoorController.SetDirection(name)`. Only directions with `STATUS_DOOR != DISABLE`
 get a `DoorController` instantiated.
 
-**Room JSON files:** `Assets/Data/Json/Room/NormalRoom_0.json … NormalRoom_12.json` (13 rooms).
+**Room JSON files (since 2026-10-04):** 20 files in `Assets/Data/Json/Room/` — `StartRoom_Entrance`,
+15 × `CombatRoom_*` (CentralIsland, Checkerboard, Cross, DiagonalWalls, EliteGuard, FourPillars,
+GrandArena, HiddenCorner, NarrowBridges, PracticeYard, RoundArena, SmallMaze, Spiral, TwinCorridors,
+TwoHalls), `BuffRoom_PowerShrine`, `RestRoom_Campfire`, `ShopRoom_Merchant`, `BossRoom_ThroneArena`.
+Only the combat and boss rooms carry `Tile_Spawn_Enemy` markers. The type is in the **file name only**
+— `RoomType` is still never read at runtime (Bug #16), so `Maze_Storage.asset` list order decides
+which room is Start (`room[0]`) and Boss (`room[last]`). *Was:* `NormalRoom_0 … NormalRoom_12` (13 rooms).
 Format: `LevelData { List<string> tiles (tile id), List<Vector3Int> poses, List<int> layerIndices }`.
 Tiles are identified by name matching `TileSO.id` (e.g. `"Tile_Room"`, `"Tile_Door"`, `"Tile_Floor"`).
 
@@ -188,7 +211,7 @@ RoomGridController.OnLoadMap(direction):
   3. RoomGeneraterController.LoadRoom(index, _next)
   4. _next.GetStartDoorPosition(-direction)  [computes StartDoorPosition only — its OpenDoor() call is a no-op, BUG #17]
   5. _current.UpdateStatusDoor(direction)    [no-op — dead code, BUG #17]
-  6. fastMovement.position = _next.StartDoorPosition
+  6. RoomGeneraterController.SetNextRoom(_next.StartDoorPosition) → IPlayerService.SetPlayerPosition()
   7. _current = _next; _next = null
   8. Emit(ON_LOAD_MAP, index)               [MapGridController moves the minimap avatar]
 ```
@@ -205,10 +228,14 @@ After leaving a room, ALL of its doors are `CLOSE`; they reopen in bulk on re-en
 (`IsCleared` branch of `LoadRoom`). Backtracking through cleared rooms is **intended design**
 (confirmed 2026-07-02).
 
-**[BUG #13]** The player is never teleported into the start room: the teleport line in
-`RoomGridController.OnDoneLoadRoomGrid()` is commented out (RoomGridController.cs:56) and
-`RoomGeneraterController.OnDoneLoadRoomGrid()` (which performs the teleport) is never called.
-The start room has no entry door, so `StartDoorPosition` needs its own computation.
+~~**[BUG #13]** The player is never teleported into the start room.~~ ✅ **FIXED 2026-09-30**
+(`9154763f`): `RoomGridController.OnDoneLoadRoomGrid()` loads the start room and calls
+`_playerManager.SetPlayerPosition(_current.transform.position)` — the room's centre, since the start
+room has no entry door.
+
+**No-spawn rooms [IMPLEMENTED 2026-10-04].** In `LoadRoom()`, an uncleared room whose JSON yields no
+spawn position builds its pathfinding grid and calls `DeleteDoorTileMap()` immediately. Without this
+the player was locked in: nothing would ever emit `ON_CLEAR_ENEMY` for it.
 
 **[BUG #14]** `MazeController.Awake()` is missing `return` after `Destroy(gameObject)`
 (MazeController.cs:17-21) — a duplicate instance still overwrites `Instance` and re-runs the
@@ -350,12 +377,13 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 | Room-clear doors lock on entry | **[PARTIAL]** `RoomCell.ClearRoom()` calls `CloseDoor()` on room exit, and doors only reopen via `OpenDoors()` when `ON_CLEAR_ENEMY` fires — so the lock exists. Not verified in Play Mode, and the start room is a known hole (the teleport is commented out, Bug #13) | Play-Mode verify; there is no separate `LockRoom()` and none is needed |
 | Enemy count reaches 0 but no event fires | ✅ **RESOLVED** — `ON_ENEMY_DEATH` is in the enum and `EntityDeathState` emits it; `RoomCell` counts down and emits `ON_CLEAR_ENEMY` at zero | — |
 | Doors of the previous room after transition | ALL set to `CLOSE` on leave; reopened in bulk on re-entry (`IsCleared` branch) | ✓ Acceptable — backtracking through cleared rooms allowed by design (2026-07-02) |
-| Scene starts — player position in start room | **[BUG #13]** No teleport (line commented out); `StartDoorPosition` = (0,0,0) | Re-enable teleport; compute start position without an entry door |
+| Scene starts — player position in start room | ✅ Player spawned by `PlayerManager`, then moved to the start room centre by `OnDoneLoadRoomGrid()` (Bug #13 fixed) | — |
+| Uncleared room with no spawn markers (start / rest / shop / buff) | ✅ Doors open on load (`40d2c793`) | — |
 | Two `MazeController` instances in scene | **[BUG #14]** Duplicate destroys itself but still overwrites `Instance` and re-runs the generator | Add `return` after `Destroy(gameObject)` |
 | Standalone Player build | **[BUG #15]** Room JSON read from `Application.dataPath` — files absent in build → load failure | Move to `TextAsset` refs or StreamingAssets |
 | Player re-enters a cleared room | Doors already open; no enemies → room-clear instant | ✓ Acceptable — no lock triggered if `enemyCount == 0` |
 | `LevelData.tiles` serialization | **[BUG — potential]** `JsonUtility` cannot serialize `TileBase` references by value — JSON round-trip may fail or produce null tiles on load | Verify in editor; may need a tile-by-name lookup table instead |
-| `fastMovement` null reference | `RoomNavigator` requires `FastMovement` field wired in Inspector — if unset, teleport silently fails | Add null check + warning log |
+| Player not spawned yet when a room loads | `PlayerManager.Player` is lazy — the first `SetPlayerPosition()` call spawns it | ✓ |
 
 ---
 
@@ -364,11 +392,11 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 | System | Role | Direction |
 |--------|------|-----------|
 | **Event Manager** | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAP`, `ON_LOAD_MAZE_DONE`, `ON_CLEAR_ENEMY`, `ON_ENEMY_DEATH`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` all **[IMPLEMENTED]** (the enum has 20 values as of 2026-08-22). `ON_ROOM_CLEAR` exists but has **no producer** | Map → EventManager |
-| **Character system** | `DoorController` tags player via "Player" tag; `fastMovement` is the player transform for teleport | Map → Character |
+| **Character system** | `DoorController` tags player via "Player" tag; the player is moved through `IPlayerService` / `PlayerManager.SetPlayerPosition()` (injected) | Map → Character |
 | **Enemy AI** | ✅ `EntityDeathState` emits `ON_ENEMY_DEATH`. ⚠️ Corrected 2026-08-20: the count is tracked by **`RoomCell`**, not `EnemyManager` — `EnemyManager` became the pathfinding service and owns no alive-count. `docs/registry/architecture.yaml` records this ownership change and flags ADR-0002 as stale | Enemy → Map |
 | **Enemy Spawn & Per-Room Mgmt** | Owns spawn selection; the room combat lifecycle actually lives in `RoomCell` + `RoomGridController`. `RoomCell.CloseDoor()`/`OpenDoors()` and `IsCleared` are called from `RoomGeneraterController`/`RoomGridController`, not from the spawner. The `Tile_Spawn_Enemy` parser is built (`RoomGeneraterController.LoadRoom()`); the `RoomType → RoomData` routing was never built and Bug #16 is still open | Spawn ↔ Map |
 | **Skill/Ability + Weapons** | No direct dependency | — |
-| **LevelManager** | `RoomGeneraterController.Setting()` calls `LevelManager.GetDungeonRoomSO()`, `GetTileSOs()`, `GetTilemaps()`; `LevelManager` must exist in the scene (singleton — Bug #12) | Map → LevelEdit |
+| **LevelManager** | `RoomGeneraterController.Setting()` calls `LevelManager.GetDungeonRoomSO()`, `GetTileSOs()`, `GetTilemaps()`; `LevelManager` must exist in the scene and is **injected** (registered in `GameLifetimeScope`; singleton removed 2026-10-02, Bug #12 fixed) | Map → LevelEdit |
 | **Per-Run Upgrades** | Upgrade card selection triggered by `ON_ROOM_CLEAR` | Map → Progression |
 
 ---
@@ -411,7 +439,8 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 ### Room Transitions
 - [x] Walking into an `OPEN` door triggers `ON_PLAYER_ON_DOOR`
 - [x] Player teleports to entry door of next room (no visible cross-room travel)
-- [ ] Player teleports into the START room on maze load (Bug #13 — currently commented out)
+- [x] Player teleports into the START room on maze load (Bug #13 fixed 2026-09-30)
+- [x] Rooms without spawn markers open their doors on load (2026-10-04)
 - [x] Doors of previous room close on leave and reopen on re-entry — backtrack by design
 - [x] Minimap avatar updates on every transition (Bug #11 fixed 2026-07-02)
 - [ ] Doors cannot be traversed before room is cleared — lock-on-entry not implemented

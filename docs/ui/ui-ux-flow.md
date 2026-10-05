@@ -1,5 +1,7 @@
 # UI / UX Flow — Current State
 
+> 📜 Change log: [changelog/ui-ux-flow.CHANGELOG.md](changelog/ui-ux-flow.CHANGELOG.md)
+
 > **Scope:** branch `origin/feature/ui-flow-maingameplay`, HEAD `ae8be5e`, read from source on 2026-10-05.
 > **Companion:** `Assets/Script/UIFlow/README.md` (beginner guide, Vietnamese, written with the code). This
 > document is the end-to-end flow reference: every screen, every transition, what is real and what is mock,

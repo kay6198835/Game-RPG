@@ -7,6 +7,8 @@ verified-by: Kiet
 
 # Skill & Ability System Design
 
+> 📜 Change log: [changelog/skill-ability-system.CHANGELOG.md](changelog/skill-ability-system.CHANGELOG.md)
+
 > **⚠️ SCOPE CHANGED 2026-09-11 — this GDD now describes only ONE of two live frameworks.**
 >
 > Everything below documents the inheritance-based **`ActivateSkill`** system
@@ -19,7 +21,7 @@ verified-by: Kiet
 > | Location | `System/Skill_Ability/` | `System/Abilities/` |
 > | Model | Subclass `ActivateSkill`, override `Cast()`/`Do()` | Compose an `AbilityDefinition` SO from effect + condition assets |
 > | Lifecycle | `Enter → Activate → Cast → Do → Exit` | `AbilityState`: `Start → Cast → Do → Exit` |
-> | **Used by** | `WeaponStats.AbilityWeapon`/`.SkillWeapon`, `AttackSO.ability`, `Weapon`, `EntityWeapon` | **`AbilityHolder` — i.e. the PLAYER** |
+> | **Used by** | **`EntityWeapon.currentAbilitySO` only** (since 2026-09-28) | **`AbilityHolder` (player) and `EntityAbilityHolder` (enemy)** |
 > | Live SO assets | `SO/Skill/{Dash,Slash,Block,Dual} Ability.asset` | `SO/Skill/Paladin/Ability/**`, `SO/Skill/ShootSpirit/*.asset`, `SO/Skill/Conditions/*.asset` |
 >
 > **v2 delta re-verified 2026-09-21** (HEAD `15242e6`): the enum is `AbilityState`, not `SkillState`,
@@ -29,6 +31,14 @@ verified-by: Kiet
 >
 > **So: the player no longer runs the system this GDD describes.** v1 remains live on the weapon
 > and enemy path, so this document is not obsolete — it is now partial.
+>
+> **Update 2026-10-05 (HEAD `93ba6d8e`):** the *weapon* half of that path is gone. On 2026-09-28
+> (`b7a0af5e`) `WeaponStats.AbilityWeapon` / `.SkillWeapon` and `AttackSO.ability` were deleted and
+> `Weapon.currentAbilitySO` commented out; `Weapon.SetAbility()` is an empty stub. v1 is now reached
+> **only** through `EntityWeapon.currentAbilitySO`. The RMB (block) and E (skill) inputs this document
+> assigns to weapon abilities no longer exist: the E action was replaced by four v2 slots on keys
+> `1`-`4`, and the RMB block handler is commented out. Read every "weapon slot" statement below as
+> historical.
 >
 > There is **no ADR** deciding whether v1 migrates into v2 or the two coexist permanently. Until
 > that decision exists, this GDD cannot be made authoritative again, and v2 should not be
@@ -242,7 +252,7 @@ playerStat += playerStat × (skillIncreaseAmount / 100)  [if isPercentage]
 
 | System | Role | Direction |
 |--------|------|-----------|
-| **Weapons** (`WeaponStats`) | Carries `AbilityWeapon` and `SkillWeapon` SO refs — corrected 2026-08-20: these moved up from `WeaponMeleeStats` to the shared `WeaponStats` base, so ranged weapons carry them too. Wired to `AbilityHolder` on equip via `Weapon.SetAbility()` | Weapons → Skills |
+| **Weapons** | ⚠️ **No longer linked (2026-09-28).** `WeaponStats.AbilityWeapon` / `.SkillWeapon` deleted; `Weapon.SetAbility()` is an empty stub. Only `EntityWeapon.currentAbilitySO` still holds an `ActivateSkill`. *Was:* both refs on the shared `WeaponStats` base, wired to `AbilityHolder` on equip | Weapons → Skills (enemy only) |
 | **Character** (`AbilityHolder`, `PlayerSkillWeaponState`) | `AbilityHolder` drives lifecycle each frame; `PlayerSkillWeaponState` calls `SetStateAbility()` on `AnimationTrigger` | Character → Skills |
 | **Animation** (`AnimationEventManager`) | `ability.Animator` overrides the runtime controller; `AnimationTrigger` event starts skill execution | Skills → Animation |
 | **Input** (`PlayerInputHandle`) | Provides `DirectionMouseVector` and `MouseVector`, consumed through `IAbilityOwner.DirectorForward()` / `.TargetPosition()`. ⚠️ Corrected 2026-09-21: the "`SkillState` enum" this row claimed comes from input never did — the v1 phase enum is internal to `ActivateSkill`, and v2's is `AbilityState` on `AbilityInstance` | Input → Skills |

@@ -1,5 +1,7 @@
 # ADR-0005: Player and Entity share one character contract
 
+> 📜 Change log: [changelog/adr-0005-unified-character-contract.CHANGELOG.md](changelog/adr-0005-unified-character-contract.CHANGELOG.md)
+
 ## Status
 Proposed — implemented on branch `demo-architeture-1` for review; not yet verified in the Unity Editor.
 
@@ -281,5 +283,9 @@ is now `PhysicalDamage + stage damage (+ crit)` from the enemy's own stats, not 
 - `EntityEffectStats` (Abilities v1) still writes `Core.Entity.Data.Stats`, the shared asset.
 - `AttackSO.attackDamage` has no `FormerlySerializedAs("attackDamege")`; the player stage assets still
   store `attackDamege`, so their authored stage damage reads as 0 (pre-existing, commit `ddcc0a5`).
+  *Filed as **BUG-095** on 2026-10-05; still open at HEAD `93ba6d8e`.*
 - `EntityData.layerMask` and `EntityData.movementVelocities` have no reader.
 - `bullet.cs`, `Projectile.cs`, `Spell.cs` still look receivers up with `GetComponentInChildren`.
+  *Update 2026-10-05:* `bullet.cs` was **deleted** on 2026-09-28 (`b7a0af5e`); its replacement,
+  `ProjectileBody` → `IProjectilePayload.OnHit()`, uses `TryGetComponent` on the hit collider.
+  `Projectile.cs` and `Spell.cs` remain.

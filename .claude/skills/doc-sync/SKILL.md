@@ -1,6 +1,6 @@
 ---
 name: doc-sync
-description: "Phân tích trạng thái hiện tại của dự án từ git log và source code, sau đó cập nhật CLAUDE.md (Repository Layout, Known Bugs, Demo Checklist, Event System) và memory/project_state.md để đồng bộ với code thực tế. Chạy khi user nói 'cập nhật docs', 'sync document', 'update project docs', 'cập nhật tài liệu dự án'."
+description: "Phân tích trạng thái hiện tại của dự án từ git log và source code, sau đó cập nhật CLAUDE.md (Repository Layout, Known Bugs, Demo Checklist, Event System), memory/project_state.md, docs/systems/<system>/ (README + CHANGELOG), các tài liệu sống (GDD, ADR, diagrams, ui-ux-flow, skill-reference, tech-debt-register, VERSION.md) cùng changelog/<doc>.CHANGELOG.md bên cạnh, và docs/CHANGELOG-DOCS.md để đồng bộ với code thực tế. Chạy khi user nói 'cập nhật docs', 'sync document', 'update project docs', 'cập nhật tài liệu dự án'."
 argument-hint: "[--dry-run]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Write, Edit
@@ -22,8 +22,12 @@ tài liệu `.md` để khớp với code. Không suy đoán — chỉ ghi nhữ
 ## Phase 1: Xác định phạm vi thay đổi
 
 Đọc git log từ context (đã tự động chạy). Xác định những commit mới nhất chưa được
-phản ánh trong tài liệu bằng cách đọc timestamp cuối cập nhật trong
-`memory/project_state.md` (dòng `cập nhật YYYY-MM-DD`).
+phản ánh trong tài liệu bằng cách đọc mốc cập nhật cuối:
+- `CLAUDE.md` dòng `> **Last updated:** YYYY-MM-DD (HEAD `<hash>` …)` — **mốc chính**, dùng
+  `git log <hash>..HEAD`.
+- `memory/project_state.md` dòng `Updated **YYYY-MM-DD**`.
+- `docs/systems/*/README.md` dòng `**Last verified:** YYYY-MM-DD, HEAD `<hash>``.
+Nếu các mốc lệch nhau, lấy mốc **cũ nhất** — file nào bị bỏ qua ở lần trước phải được bù.
 
 Với mỗi commit chưa được document:
 - Chạy `git show --stat [hash]` để xem danh sách file thay đổi.
@@ -64,6 +68,32 @@ Dựa trên code đọc được, xác định hệ thống mới chưa có tron
 - Class mới không có trong Repository Layout
 - Pattern kiến trúc mới (SO mới, Manager mới, tool Editor mới)
 - Vấn đề mới (singleton vi phạm, import sai, stub chưa implement)
+- **Rename field có `[SerializeField]` / public trên SO hoặc MonoBehaviour**: nếu không có
+  `[FormerlySerializedAs]`, grep `.asset` / `.prefab` tìm key cũ — asset còn key cũ = dữ liệu mất
+  im lặng (bài học BUG-095)
+- **Xác nhận ngày fix bằng `git log -S"<chuỗi>"`**, không ghi ngày của lần doc-sync làm ngày fix
+
+### 2e. Tài liệu sống bị lệch (drift)
+Bộ tài liệu sống (giữ nguyên path, mỗi file có `changelog/<tên>.CHANGELOG.md` cạnh nó):
+`design/gdd/*.md` (trừ `gdd-cross-review-*`), `docs/architecture/adr-*.md`,
+`docs/architecture/character-architecture-analysis.md`, `character-migration-plan.md`,
+`docs/diagrams/*.md`, `docs/ui/ui-ux-flow.md`, `docs/skill-reference.md`,
+`docs/tech-debt-register.md`, `docs/engine-reference/unity/VERSION.md`.
+
+**KHÔNG thuộc phạm vi** (snapshot theo ngày/tuần/tháng — không bao giờ viết lại):
+`production/sprints/*`, `production/retros/*`, `production/qa/bug-triage-*`,
+`module-health-*`, `open-issues-*`, `production/qa/playtests/*`, `production/session-*`,
+`*-review-YYYY-MM-DD.md`, `combat-balance-*`, `docs/archive/*`.
+
+Với mỗi file/class/field bị đổi tên, xóa hoặc thay hành vi trong các commit chưa document:
+- `grep` tên cũ trong bộ tài liệu sống ở trên.
+- Với mỗi hit: xác định câu đó còn đúng không. Câu mang tính lịch sử (trong section có ngày,
+  "Was:", "Original entry:") thì giữ nguyên.
+- Ghi lại: `file:line — câu cũ — sự thật hiện tại — commit gây ra`.
+
+### 2f. docs/systems/
+Với mỗi hệ thống bị ảnh hưởng (map theo bảng trong `docs/systems/README.md`), so sánh
+`README.md` của hệ thống đó với code. Hệ thống mới chưa có folder → đề xuất tạo folder mới.
 
 ---
 
@@ -95,6 +125,17 @@ CLAUDE.md — Event System:
 
 memory/project_state.md:
   ~ Cập nhật: [mô tả thay đổi]
+
+docs/systems/<system>/:
+  ~ README: [section cần sửa]
+  + CHANGELOG entry: [ngày — tiêu đề — commit]
+  + Folder mới: [system]
+
+Tài liệu sống bị lệch:
+  ~ [file:line] — [câu cũ] → [sự thật hiện tại] ([commit])
+
+docs/CHANGELOG-DOCS.md:
+  + Entry [YYYY-MM-DD] — nguyên nhân + bảng tài liệu đã sửa
 ```
 
 Nếu không có gì thay đổi, báo:
@@ -117,11 +158,14 @@ Nếu không có `--dry-run`, hỏi user:
 > Tôi sẽ cập nhật các file sau:
 > - `CLAUDE.md` — [N] thay đổi
 > - `memory/project_state.md` — cập nhật toàn bộ
+> - `docs/systems/` — [N] hệ thống
+> - Tài liệu sống — [N] file (+ changelog tương ứng)
+> - `docs/CHANGELOG-DOCS.md` — 1 entry
 >
 > Tiếp tục?
 > [A] Có, ghi tất cả
-> [B] Chỉ ghi CLAUDE.md
-> [C] Chỉ ghi memory
+> [B] Chỉ ghi CLAUDE.md + memory
+> [C] Chỉ ghi docs/systems + tài liệu sống
 > [D] Không — tôi sẽ tự xử lý
 
 Nếu user chọn [D]: dừng, không ghi file.
@@ -153,13 +197,56 @@ Dùng **Edit** (không phải Write) — chỉ thay đổi đúng phần cần c
 
 ### 5b. Cập nhật memory/project_state.md
 
-Viết lại hoàn toàn file này với:
-- Timestamp mới: `cập nhật YYYY-MM-DD` (dùng ngày hôm nay).
+Viết lại hoàn toàn file này (tiếng Anh — quy tắc `language-reporting.md`) với:
+- Timestamp mới: `Updated **YYYY-MM-DD**` (dùng ngày hôm nay) + HEAD hash.
 - Danh sách hệ thống mới hoàn thành (kể từ lần cập nhật trước).
 - Bảng bug với trạng thái hiện tại (chỉ bug còn OPEN).
 - EventID enum hiện tại.
 - Danh sách stub/file chưa implement.
 - Thứ tự ưu tiên sửa cho demo.
+
+### 5c. Cập nhật docs/systems/
+
+Với mỗi hệ thống bị ảnh hưởng:
+1. **Append** entry vào đầu `docs/systems/<system>/CHANGELOG.md` (mới nhất ở trên), đúng template
+   trong `docs/systems/README.md`: `## YYYY-MM-DD — <tiêu đề>` + Commit / Changed / From → To /
+   Why / Bugs. "Why" lấy từ commit message hoặc code comment; không có thì ghi
+   "not recorded in the commit" — **không bịa lý do**. Lý do suy luận phải ghi "(inferred)".
+2. **Sửa** `docs/systems/<system>/README.md` cho khớp code hiện tại (README là bản chính thức,
+   không giữ lịch sử trong đó). Cập nhật dòng `**Last verified:** YYYY-MM-DD, HEAD `<hash>``.
+3. Hệ thống mới: tạo folder `docs/systems/<system>/` với README + CHANGELOG, thêm 1 dòng vào bảng
+   trong `docs/systems/README.md`.
+
+### 5d. Cập nhật tài liệu sống + changelog cạnh nó
+
+Với mỗi drift ở Phase 2e:
+1. Sửa nội dung tài liệu bằng **Edit** (giữ CRLF/LF như file gốc). Banner `Re-synced YYYY-MM-DD`
+   ở đầu file tóm tắt thay đổi. Câu cũ quan trọng thì giữ dạng ~~gạch~~ hoặc `*Was:*`.
+   - **ADR**: không sửa phần Decision — thêm banner Status + section `## Amendment N — YYYY-MM-DD`.
+   - **Tài liệu có section theo ngày** (vd `ability-system-diagrams.md`): không sửa section cũ —
+     thêm section `Current version — YYYY-MM-DD` mới và trỏ tới nó dưới tiêu đề.
+2. **Append** entry vào đầu `changelog/<tên>.CHANGELOG.md` cạnh tài liệu (cùng template).
+   Mỗi câu đã sửa là một dòng `From → To`.
+3. Tài liệu sống mới (GDD/ADR mới): tạo `changelog/<tên>.CHANGELOG.md` và thêm dòng
+   `> 📜 Change log: [changelog/<tên>.CHANGELOG.md](changelog/<tên>.CHANGELOG.md)` dưới tiêu đề H1.
+4. Không tìm được bằng chứng để sửa → **không sửa**, ghi entry
+   `⚠️ Out of date against code (found by doc-sync, not yet fixed)` liệt kê câu sai + dòng.
+
+### 5d′. Kiểm Mermaid (bắt buộc)
+
+Sau khi ghi xong mọi file `.md`, chạy:
+```bash
+py .claude/hooks/lint-mermaid.py
+```
+Exit khác 0 → sửa từng `path:line` được báo theo `.claude/rules/mermaid-diagrams.md` rồi chạy lại,
+cho tới khi sạch. Lỗi hay gặp: `;` trong message của `sequenceDiagram`, label flowchart có `()`
+mà không đặt trong `"…"`, generic `List<T>` trong `classDiagram` (phải là `List~T~`).
+Hook commit chặn commit nếu còn lỗi.
+
+### 5e. docs/CHANGELOG-DOCS.md
+
+Thêm entry mới ở đầu (sau phần giới thiệu): `## YYYY-MM-DD — <tiêu đề> (HEAD `<hash>`)`,
+dòng **Cause.** liệt kê commit, bảng `| Document | Change |`, và mục phát hiện đáng chú ý.
 
 ---
 
@@ -179,6 +266,19 @@ CLAUDE.md:
 memory/project_state.md:
   ✅ Cập nhật — [N] hệ thống mới, [N] bug open
 
+docs/systems/:
+  ✅ [N] README sửa, [N] CHANGELOG entry, [N] folder mới
+
+Tài liệu sống:
+  ✅ [N] file sửa, [N] changelog entry
+  ⚠️ [N] file còn lệch (ghi Out of date)
+
+docs/CHANGELOG-DOCS.md:
+  ✅ 1 entry
+
+Mermaid lint:
+  ✅ py .claude/hooks/lint-mermaid.py — exit 0
+
 Verdict: SYNCED
 ```
 
@@ -188,8 +288,13 @@ Verdict: SYNCED
 
 - **Không xóa lịch sử**: bug đã FIXED vẫn giữ trong bảng, task done vẫn giữ
   với strikethrough.
-- **Giữ nguyên typo có chủ đích**: `attackDamege`, `Resgister`, `UnResgister` —
-  đây là tên thật trong source, không sửa.
+- **Giữ nguyên typo có chủ đích**: `Resgister`, `UnResgister`, `IObjecPoolService` —
+  đây là tên thật trong source, không sửa. (`attackDamege` đã đổi thành `attackDamage` trong code
+  từ 2026-09-01 — xem BUG-095; asset cũ vẫn lưu key cũ.)
+- **CHANGELOG chỉ append**: không sửa/xóa entry cũ trong `docs/systems/*/CHANGELOG.md` và
+  `changelog/*.CHANGELOG.md`; entry `⚠️ Out of date` được thay bằng entry "Re-synced" khi đã sửa.
+- **Snapshot theo ngày không bao giờ viết lại** (sprint, daily plan, retro, triage, playtest,
+  module-health, open-issues, review có ngày).
 - **Không suy đoán**: nếu không đọc được file thực tế, không ghi.
 - **File paths trong CLAUDE.md**: dùng relative path từ `Assets/` (không có leading slash).
 - **Ký hiệu**: ✅ = hoàn thành/clean, ⚠️ = cần chú ý/open bug.
