@@ -58,7 +58,6 @@ public class RoomCell : BaseCell
         {
             Debug.Log($"[{nameof(RoomCell)}] Room {name} cleared.");
             EventManager.Emit(EventID.ON_CLEAR_ENEMY);
-            IsCleared = true;
         }
     }
 
@@ -132,6 +131,7 @@ public class RoomCell : BaseCell
         {
             door.SetStatus(STATUS_DOOR.OPEN);
         }
+        IsCleared = true;
     }
 
     public void CloseDoor()

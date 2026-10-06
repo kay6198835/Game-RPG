@@ -182,6 +182,7 @@ public class RoomGeneraterController : MonoBehaviour
 
     public void DeleteDoorTileMap(RoomCell _current)
     {
+        if (_current.IsCleared == true) return;
         for (int i = 0; i < IndexLevelDataDoor.Count; i++)
         {
             _genmap[Data.layerIndices[IndexLevelDataDoor[i]]].SetTile(Data.poses[IndexLevelDataDoor[i]] + Vector3Int.RoundToInt(_current.transform.position), null);
