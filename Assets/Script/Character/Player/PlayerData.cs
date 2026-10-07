@@ -4,4 +4,5 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "newPLayerData", menuName = "Data/PLayer Data/Base Data")]
 public class PlayerData : CharacterData
 {
+    AnimatorOverrideController animationController;
 }
