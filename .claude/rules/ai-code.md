@@ -18,7 +18,7 @@ globs: ["Assets/Script/Character/Entity/**/*.cs", "Assets/Script/Enemy/**/*.cs"]
 ## Data-Driven Parameters
 - All AI tuning values (FOV range, idle duration, move duration, attack range) live in the `EntityData` ScriptableObject, read via `entity.Data`
 - Stat values (HP, Defense, MoveSpeed…) live in an `EnemyStatSO : BaseStatsSO` profile, read via `EntityStatsHandler` (max) and `EntityVitalStats` (current) — never via `EntityData` directly
-- Never hardcode distances, timers or damage in state classes. ⚠️ `EntityAttack.Attack()` still hardcodes `TakeDamage(10, …)` (BUG-043) — that is a known violation, not a pattern to follow
+- Never hardcode distances, timers or damage in state classes. Enemy damage and attack cadence come from the equipped weapon's `AttackSO`; an enemy without a weapon does not attack
 
 ## Null Safety
 - Always null-check `target` before calling `.position`, `.transform`, or distance calculations

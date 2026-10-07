@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityWeaponHolder : EntityCoreComponent<EntityCore>
+/// <summary>
+/// Enemy weapon holder: the shared lifecycle and default-weapon equip of WeaponHolderBase, plus the AI's
+/// attack cadence. An enemy without a weapon never attacks — there is no fallback attack path.
+/// </summary>
+public class EntityWeaponHolder : WeaponHolderBase<EntityCore>
 {
-    [SerializeField] private EntityWeapon weapon;
-    [SerializeField] private GameObject weaponGO;
+    private float nextAttackTime;
 
-    public EntityWeapon Weapon { get => weapon;}
+    /// <summary>True when a weapon is equipped, can attack, and the last attack's recovery has elapsed.</summary>
+    public bool CallAttack() => CanAttack() && Time.time >= nextAttackTime;
 
-    protected override void Awake()
+    /// <summary>Starts the recovery after an attack; its length is the played stage's AttackSO.attackRate.</summary>
+    public void SetRecovery()
     {
-        base.Awake();
-        //weaponGO = Instantiate(Core.Entity.Data.WeaponSO.Weapon,this.transform.position,Quaternion.identity,this.transform);
-        //weapon = weaponGO.GetComponent<EntityWeapon>();
+        float recovery = weapon != null && weapon.CurrentStage != null ? weapon.CurrentStage.attackRate : 0f;
+        nextAttackTime = Time.time + recovery;
     }
 }

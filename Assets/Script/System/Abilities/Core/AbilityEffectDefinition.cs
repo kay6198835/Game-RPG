@@ -4,9 +4,9 @@ using UnityEngine;
 public abstract class AbilityEffectDefinition : ScriptableObject
 {
     public string AbilityName = "";
-    public List<AbilityConditionDefinition> SubConditions;
-    public List<AbilityEffectDefinition> SubEffects;
-    public List<StatCost> Costs;
+    public List<AbilityConditionDefinition> SubConditions = new();
+    public List<AbilityEffectDefinition> SubEffects = new();
+    public List<StatCost> Costs = new();
     public abstract void Apply(AbilityContext context);
     public virtual bool TryCast(AbilityContext context)
     {
@@ -26,7 +26,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
         if (Costs == null || Costs.Count == 0) return true;
         foreach (var cost in Costs)
         {
-            if (cost.value > context.Services.Vital.GetCurrentStatValue(cost.statType)) return false;
+            if (cost.value > context.Caster.GetCurrentStatValue(cost.statType)) return false;
         }
         return true;
     }

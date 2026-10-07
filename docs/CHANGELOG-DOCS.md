@@ -17,6 +17,110 @@ which code change caused it.
 
 ---
 
+## 2026-09-25 — Post-pull re-verification against HEAD `c0067f4` (ADR-0005 refactor + two fix commits)
+
+**Cause.** Three days and eleven commits after the 2026-09-22 pass, the branch had moved from
+`2a83469` to `c0067f4`. The largest change is **ADR-0005 Amendments 1-3**, which rebuilt the
+character layer around shared base classes and, as a side effect, changed the Abilities v2 damage
+contract. No bug documentation had been updated for any of it. Every tracked bug was re-read against
+source at the new HEAD. **No `.cs` file was changed in this pass.**
+
+### What the code did
+
+| Commits | Change |
+|---|---|
+| `2aa225e` … `ece3257` | ADR-0005: `ICharacter` as identity, `CharacterInputBase`, `NegativeReceiverBase`, `StatHandlerBase`, `VitalStatsBase`, `MovementBase`/`IMovement`, `WeaponHolderBase`/`IWeaponHolder`, `AbilityHolderBase`/`EntityAbilityHolder`, `CharacterData`. `EntityAttack.cs` deleted |
+| `379c267` | merge into `origin/feature/fix-player-control` |
+| `b0b1337` "fix bug" | BUG-074, BUG-071 part 1, `RangeWeapon` field attribute, `DamageReceiverBase` renamed `NegativeReceiverBase` |
+| `c0067f4` "fixing" | BUG-071 part 2, BUG-082 residual — **and introduced BUG-092** |
+
+### The architectural change that invalidated the most documentation
+
+`IAbilityServices` was reduced from five members to one:
+
+```csharp
+public interface IAbilityServices
+{
+    IObjecPoolService Pool { get; }
+}
+```
+
+`NegativeReceiver`, `Vital`, `Stats` and `ResourceReceiver` are gone from it. The hit target now
+travels as `AbilityContext.Target` (a `Collider2D`), with effects resolving `INegativeReceiver` from
+it themselves, and character data is read through `IAbilityOwner.GetCurrentStatValue()` so the same
+`AbilityDefinition` runs for a player or an enemy. **The set-then-invoke contract is unchanged in
+shape** — assign the target, then invoke the callback, once per target — only the field it assigns
+changed. `SpawnProjectileBase.cs:32-33` is still the reference implementation.
+
+Every document that described `Services.NegativeReceiver` was therefore wrong, including CLAUDE.md's
+damage chain and its Abilities v2 section.
+
+### Status changes — eight bugs closed, two merged, one new
+
+| Bug | Change | Evidence |
+|---|---|---|
+| **BUG-043** | Open → **FIXED** | `EntityAttack.cs` deleted in `f7d98b1`; the hardcoded `TakeDamage(10, …)` is gone |
+| **BUG-068** | Open → **Open, scope reduced** | `AbilityHolderBase.cs:121` now null-guards `GetAbility()`. `CurrentActivationType` (`:28`) still dereferences unguarded |
+| **BUG-071** | Open → **PARTIAL**, S2 → S3 | `StartCoroutine` added (`b0b1337`), dead `count` removed and parameter renamed (`c0067f4`). The recursion through the public wrapper remains |
+| **BUG-074** | Open → **FIXED** | `Utility.cs:304` returns `addedValue - baseValue` — the delta. Verified exactly one caller |
+| **BUG-080** | Open → **FIXED** | `ResourceReceiver` is now `: Interact` with an empty body; the field is gone |
+| **BUG-081** | Open → **FIXED** | One `INegativeReceiver` implementer (`NegativeReceiverBase<TCore>`); both enemy prefabs carry 0 references to the player receiver |
+| **BUG-082** | working tree → **committed** | `c0067f4` gave all three `AbilityEffectDefinition` lists `= new()`, closing the last residual |
+| **BUG-088** | PARTIAL → **FIXED** | `/100f` (`379c267`) then `Random.Range(30, 75)` (`b0b1337`). The `EntityNegativeReciver.cs:27` line was removed by the refactor |
+| **BUG-091** | working tree → **committed FIXED** | `379c267`; no residual |
+| **BUG-066 + BUG-070** | two bugs → **one site** | Both moved into the shared `VitalStatsBase.cs:28,39,41,45,52,54,58`. One guard closes both |
+| **BUG-092** | — | **NEW, S1.** `c0067f4` deleted `perTime` and left two uses of it. The project does not compile |
+
+### One claim of mine, caught and corrected before it was written
+
+A first draft of the BUG-079 entry asserted that ADR-0005 widened that bug, on the reasoning that an
+enemy has no button to press and so could never call `StartHold()`. That is false:
+`EntityAbilityState.Enter():27` calls `abilityHolder.StartHold()`, and `LogicUpdate():61-63` leaves
+the `Exit` state by changing to `IdleState`. The enemy path gets the same forced reset the player
+does. The entry was rewritten to say so explicitly, and BUG-079 stays S3.
+
+### BUG-092 — the second compile break in four days
+
+`c0067f4` deleted `public float perTime;` from `RecoveryReductionPerTimeForDuration.cs` and left both
+call sites reading it (`:14`, `:17`) — `error CS0103`, twice. Same class of failure as BUG-088
+(`723fab1`, four days earlier), same consequence: `Assembly-CSharp` does not build, so nothing in
+this register can be verified in the Editor.
+
+The bug file also records a second defect in the same file that survives the compile fix:
+`timeCount` (`:8`) is `private` with no `[SerializeField]`, so Unity never serializes it, `[Range(1, 10)]`
+draws nothing, and every HoT/DoT asset runs exactly one instant tick — silently.
+
+Filed as **TD-051**, deliberately *not* merged into TD-048: TD-051 is the recurrence record that
+justifies scheduling TD-048 (a pre-push compile check), which is now the highest-value open process
+item in the project.
+
+### Documents changed
+
+| Document | Change |
+|---|---|
+| `production/qa/bugs/BUG-092.md` | **NEW.** The compile break, the GUID-level grep that proves no declaration exists, the second (serialization) defect, and the fix |
+| `production/qa/bugs/BUG-063/064/065/066/068/070/071/072/073/074/079/080/081/082/083/084/086/087/088/090/091.md` | `## Re-verification — 2026-09-25 (HEAD c0067f4)` appended to each, with file:line evidence. Status lines updated for the eleven that changed, each keeping its previous text after `*Previous status line:*` |
+| `production/qa/open-issues-2026-09-25.md` | **NEW.** Consolidated snapshot replacing the 2026-09-22 one: what changed, the blocker table, per-area entries, verified counts, suggested order |
+| `production/qa/open-issues-2026-09-22.md` | `⚠️ SUPERSEDED` banner added at the top; content untouched |
+| `docs/tech-debt-register.md` | **TD-050** (orphan `.meta` from the `NegativeReceiverBase` rename) and **TD-051** (BUG-092 as TD-048's recurrence) added. TD-042, TD-047, TD-049 marked **Closed**; TD-041 marked merged; TD-045 scope reduced. All five keep their original text after `**Original text follows.**` |
+| `CLAUDE.md` | Header rewritten for HEAD `c0067f4`; Known Bugs table updated for the eleven status changes; the stale `ICharacter`, `IAbilityServices`, `EntityAttack` and damage-chain claims corrected |
+
+### Counts, and a broken hook
+
+32 bug files: **15 closed/fixed**, **1 accepted (deferred)**, **2 partial**, **14 open**.
+
+`.claude/hooks/session-start.sh:29-34` prints `Open bugs: NN` by iterating over *both*
+`production/qa/bugs` and `production` recursively and summing the results, so it counts every file
+twice and counts closed bugs as open. It reported **62** for 31 files. The number has been wrong in
+every session banner since the hook was written.
+
+### Constraint check
+
+No `.cs` file changed. No `production/sprint-status.yaml` change. The owner's uncommitted
+`PlayerInputHandle.cs` was backed up before the pull and left untouched.
+
+---
+
 ## 2026-09-22 (sixth pass, same day) — Owner review round 4: BUG-089 closed by design
 
 **Cause.** The seven-gap audit of the gain-tier flow was put to the owner. Five gaps were answered,

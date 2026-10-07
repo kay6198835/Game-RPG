@@ -2,9 +2,10 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
+public class PlayerInputHandler : CharacterInputBase<Core>
 {
-    public Vector2 AimDirection => directionMouseVector;
+    public override Vector2 AimDirection => directionMouseVector;
+    public override Vector2 AimPoint => mouseVector;
 
     #region Attribute
     public float starTime;
@@ -48,11 +49,8 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
 
 
     [Header("Bool Value")]
-    [SerializeField] private bool isAttack;
     [SerializeField] public bool BufferIsAttack { get; private set; } = false;
-    [SerializeField] private bool isSkill;
     [SerializeField] private bool isDisadvantage;
-    [SerializeField] private bool isTakeDamage;
     [SerializeField] private bool isEquip_Unequip = false;
     [SerializeField] private bool isInteractor = false;
     [SerializeField] private bool isResourceReceiver = false;
@@ -72,13 +70,10 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
     public int DirectionMouse { get => directionMouse; }
     public float AngleRotationPlayer { get => angleRotationPlayer; }
     public float AngleLookDirection { get => angleMouseDirection; }
-    public bool IsAttack { get => isAttack; }
     // public SkillState State { get => state; }
     // public SkillType Skill { get => skill; }
-    public bool IsSkill { get => isSkill; }
     public PlayerInput PlayerInput { get => playerInput; }
     public bool IsDisadvantage { get => isDisadvantage; }
-    public bool IsTakeDamage { get => isTakeDamage; }
     public bool IsEquip_Unequip { get => isEquip_Unequip; }
     public bool IsInteractor { get => isInteractor; }
     public bool IsResourceReceiver { get => isResourceReceiver; }
@@ -242,12 +237,9 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         isSkill = false;
         abilityHolder.CancelHold();
     }
+    // Abilities come from PlayerData.AbilityBindings, not from the weapon: castable unarmed.
     private void OnSkillWeapon(InputAction.CallbackContext context)
     {
-        if (weaponHolder.Weapon == null)
-        {
-            return;
-        }
         if (context.started)
         {
             if (Core.Player.stateMachine.CurrentState is PlayerSkillWeaponState) return;
@@ -299,25 +291,12 @@ public class PlayerInputHandler : CoreComponent<Core>, IAimProvider
         //     isSkill = false;
         // }
     }
-    public void OnTakeDamage(Vector2 attackPosition)
+    public override void OnTakeDamage(Vector2 attackPosition)
     {
-        CancelInvoke(nameof(ResetTakeDamage));
-        Invoke(nameof(ResetTakeDamage), 0.1f);
-        directionExternalityVector = ((attackPosition - (Vector2)this.transform.position)).normalized;
+        base.OnTakeDamage(attackPosition);
+        // The player keeps the hit direction in its "externality" facing, shared with interaction.
+        directionExternalityVector = hitDirectionVector;
         AngleCalculateExternality(directionExternalityVector);
-        isTakeDamage = true;
-    }
-    private void ResetTakeDamage()
-    {
-        isTakeDamage = false;
-    }
-    private void ChangeIsTakeDamage()
-    {
-        this.isTakeDamage = !this.isTakeDamage;
-    }
-    private void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)
-    {
-        DirectionResolver.Calculate(directionVector, ref angle, ref direction);
     }
     public void AngleCalculateKeyboard(Vector2 directionKeyboardVector)
     {

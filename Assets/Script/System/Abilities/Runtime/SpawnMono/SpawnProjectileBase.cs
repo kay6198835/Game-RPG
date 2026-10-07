@@ -28,8 +28,8 @@ public class SpawnProjectileBase : SpawnMono
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        other.TryGetComponent<INegativeReceiver>(out INegativeReceiver negativeReciver);
-        _context.Services.NegativeReceiver = negativeReciver;
+        // Set-then-invoke: always assign (null for a non-hurtbox) so a stale target is never reused.
+        _context.Target = other.TryGetComponent(out INegativeReceiver _) ? other : null;
         _callback.Invoke(_context);
     }
 }

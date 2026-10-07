@@ -17,7 +17,7 @@ public class EntityEffectStats : EntityCoreComponent<EntityCore>, IEffectable
     {
         Debug.Log("Apply");
         this.effect = effect;
-        this.effect.OnEffect(Core.Entity.Data.StatsSO);
+        this.effect.OnEffect(Core.Entity.Data.Stats);
     }
 
     public void HandleEffect()

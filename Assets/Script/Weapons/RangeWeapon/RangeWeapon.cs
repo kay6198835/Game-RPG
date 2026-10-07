@@ -4,13 +4,18 @@ public class RangeWeapon : Weapon
 {
     [Header("Range")]
     [SerializeField] private Transform firePoint;
-    [SerializeField] private IObjecPoolService poolManager;
+    private IObjecPoolService poolManager;
 
     private float nextFireTime;
 
     private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
-
+    IObjecPoolService _objecPoolService;
+    [Inject]
+    public void Construct(IObjecPoolService objecPoolService)
+    {
+        _objecPoolService = objecPoolService;
+    }
     public override bool CanAttack() =>
         base.CanAttack() && StatsRange != null && firePoint != null
         && poolManager != null && Time.time >= nextFireTime;
@@ -21,9 +26,9 @@ public class RangeWeapon : Weapon
         return StatsRange.AutoFire || CurrentStageIndex != 0;
     }
 
-    public override void OnAttackEnter(Player player)
+    public override void OnAttackEnter(IWeaponHolder user)
     {
-        base.OnAttackEnter(player);
+        base.OnAttackEnter(user);
         firePoint.right = aim.AimDirection.normalized;
     }
 

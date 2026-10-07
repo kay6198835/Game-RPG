@@ -1,11 +1,19 @@
 using UnityEngine;
 
-public class WeaponHolder : Interact
+/// <summary>
+/// Player weapon holder: the shared attack lifecycle from WeaponHolderBase, plus picking weapons up
+/// from the ground. It no longer derives from Interact (C# allows one base class), so the pickup
+/// fields below keep Interact's serialized names to preserve the values on PlayerTest.prefab.
+/// </summary>
+public class WeaponHolder : WeaponHolderBase<Core>
 {
-    [SerializeField] private Weapon weapon;
-    VitalStatsComponent vitalStatsComponent;
+    [SerializeField] protected float intertionPointRadius = 0.5f;
+    [SerializeField] protected LayerMask interactableMask;
+    [SerializeField] protected Collider2D[] colliders = new Collider2D[3];
+    [SerializeField] protected Collider2D nearestObject;
+    [SerializeField] protected int numFound;
 
-    public Weapon Weapon { get => weapon; }
+    private PlayerInputHandler playerInputHandler;
 
     protected override void Awake()
     {
@@ -16,54 +24,52 @@ public class WeaponHolder : Interact
     protected override void Start()
     {
         base.Start();
-        Core.GetCoreComponent(out vitalStatsComponent);
+        Core.GetCoreComponent(out playerInputHandler);
     }
 
-    public void Equid_UnEquid(Weapon weapon)
+    /// <summary>Looks for a weapon on the ground in range; faces it when found.</summary>
+    public bool FindInteraction()
     {
-        this.weapon = this.weapon == null ? weapon : null;
+        numFound = Physics2D.OverlapCircleNonAlloc(transform.position, intertionPointRadius, colliders, interactableMask);
+        if (numFound <= 0) return false;
+        nearestObject = FindNearestObject();
+        playerInputHandler.AngleCalculateExternality(nearestObject.transform.position - transform.position);
+        return true;
     }
 
-    public override void Intertion()
+    /// <summary>Drops the held weapon, or equips the nearest one found by FindInteraction().</summary>
+    public void Intertion()
     {
         if (weapon != null)
         {
             weapon.UnEquid(this);
             return;
         }
-        base.Intertion();
+        if (nearestObject != null && nearestObject.TryGetComponent(out Weapon groundWeapon))
+        {
+            groundWeapon.Equid(this);
+        }
     }
 
-    /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>
-    public void Attack()
+    private Collider2D FindNearestObject()
     {
-        if (weapon == null) return;
-        weapon.OnAttackEnter(Core.Player);
+        Collider2D nearest = null;
+        float minDistance = Mathf.Infinity;
+        for (int i = 0; i < numFound; i++)
+        {
+            float distance = Vector2.Distance(colliders[i].transform.position, playerInputHandler.MouseVector);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                nearest = colliders[i];
+            }
+        }
+        return nearest;
     }
 
-    public bool CanAttack() => weapon != null && weapon.CanAttack();
-
-    public bool CanChain() => weapon != null && weapon.CanChain();
-
-    public void MakeDamage()
+    protected virtual void OnDrawGizmos()
     {
-        if (weapon == null) return;
-        weapon.OnActivate(CalculateCurrentDamage());
-    }
-
-    public void EndDamage()
-    {
-        if (weapon == null) return;
-        weapon.OnDeactivate();
-    }
-
-    private float CalculateCurrentDamage()
-    {
-        float finalDamage = 0;
-        finalDamage = vitalStatsComponent.GetCurrentStatValue(StatType.PhysicalDamage)
-         + weapon.CurrentStage.attackDamage;
-        if (Utility.RollChance(vitalStatsComponent.GetCurrentStatValue(StatType.CritChance)))
-            finalDamage += vitalStatsComponent.GetCurrentStatValue(StatType.CritDamage);
-        return finalDamage;
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(transform.position, intertionPointRadius);
     }
 }

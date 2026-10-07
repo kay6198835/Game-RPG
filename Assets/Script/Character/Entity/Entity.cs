@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Entity : BaseEntity
+public class Entity : CharacterBase<EntityCore>
 {
-    [SerializeField] protected EntityCore core;
     [SerializeField] protected Animator anim;
     [SerializeField] protected Rigidbody2D rb;
     [SerializeField] protected ParticleSystem particle;
@@ -14,17 +13,18 @@ public class Entity : BaseEntity
     [SerializeField] private EntityAttackState attackState;
     [SerializeField] private EntityTakeDamageState takeDamageState;
     [SerializeField] private EntityDeathState deathState;
+    [SerializeField] private EntityAbilityState abilityState;
     [SerializeField] private EntityData data;
     public Animator Anim { get => anim; }
     public Rigidbody2D Rb { get => rb; }
     public ParticleSystem Particle { get => particle; }
-    public EntityCore Core { get => core; }
     public EntityStateMachine StateMachine { get => stateMachine; }
     public EntityIdleState IdleState { get => idleState; }
     public EntityMoveState MoveState { get => moveState; }
     public EntityAttackState AttackState { get => attackState; }
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
     public EntityDeathState DeathState { get => deathState; }
+    public EntityAbilityState AbilityState { get => abilityState; }
     public EntityData Data { get => data; }
 
     public override void Awake()
@@ -54,6 +54,7 @@ public class Entity : BaseEntity
         attackState = new EntityAttackState(this, stateMachine, data, "Attack");
         takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
         deathState = new EntityDeathState(this, stateMachine, data, "Death");
+        abilityState = new EntityAbilityState(this, stateMachine, data, "Ability");
     }
 
     public void SetDataEntity(EntityData data)

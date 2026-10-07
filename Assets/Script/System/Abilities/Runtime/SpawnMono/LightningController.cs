@@ -24,8 +24,8 @@ public class LightningController : SpawnSummonBase
         int n = Physics2D.OverlapCircleNonAlloc(transform.position, radius, _buffer, layerMask);
         for (int i = 0; i < n; i++)
         {
-            if (!_buffer[i].TryGetComponent<INegativeReceiver>(out var r)) continue;
-            _context.Services.NegativeReceiver = r;
+            if (!_buffer[i].TryGetComponent(out INegativeReceiver _)) continue;
+            _context.Target = _buffer[i];
             base.Execute();
         }
 

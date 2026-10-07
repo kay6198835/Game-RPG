@@ -1,5 +1,10 @@
 # Open issues — consolidated register, 2026-09-22
 
+> ⚠️ **SUPERSEDED 2026-09-25 by `production/qa/open-issues-2026-09-25.md`.** Kept as the record of
+> what was true at HEAD `2a83469`. Eight statuses in this file changed between 2026-09-22 and
+> 2026-09-25, mostly as side effects of the ADR-0005 character refactor. **Do not read this file for
+> current status.**
+
 > **Snapshot after commit `e306c63`** (branch `origin/feature/fix-player-control`, pushed).
 > Written because the per-bug files are now long enough that nobody can hold them in their head.
 > Each entry below carries the context needed to act on it **without** reading anything else:

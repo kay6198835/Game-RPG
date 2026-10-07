@@ -8,8 +8,9 @@ public class RecoveryEffectDefinition : ItemEffectDefinition
 {
     [SerializeField] private int amount;
 
-    public override void Apply(ResourceReceiver resourceReceiver)
+    public override void Apply(ICharacter target)
     {
-        resourceReceiver.Recovery(StatType.HP,amount);
+        var vital = target.Transform.GetComponentInChildren<IVitalComponent>();
+        if (vital != null) vital.Recovery(StatType.HP, amount);
     }
 }

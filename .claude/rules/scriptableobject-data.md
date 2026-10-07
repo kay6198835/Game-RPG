@@ -13,6 +13,8 @@ globs: ["Assets/Script/**/*SO.cs", "Assets/Script/**/*Data.cs", "Assets/Scriptab
 
 - All gameplay config belongs in SO assets — no magic numbers in MonoBehaviour code
 - One SO type per concern: `PlayerData`, `EntityData`, `AttackSO`, `EnemySO`, `MeleeWeaponStats`, `ItemSO`, `DepotItem`
+- `PlayerData` and `EntityData` derive from **`CharacterData`** (`Stats`, `AbilityBindings`, `DefaultWeapon`) —
+  put anything every character needs there, and side-specific tuning on the subclass (ADR-0005 Amendment 3)
 - Shared stats use the **`BaseStatsSO`** base (`EnemyStatSO : BaseStatsSO` for enemies) — do not duplicate stat fields across SOs
 - ⚠️ `StatsCharacter.cs` is the legacy base and is no longer used by `Player` or `Entity`. Do not build on it
 
