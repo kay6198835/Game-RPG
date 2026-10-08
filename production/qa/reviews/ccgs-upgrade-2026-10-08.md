@@ -218,3 +218,25 @@ Owner asked to remove skills and agents duplicated by the merge.
 - The rest of the vendored folder (`.claude/docs`, `hooks`, `rules`, `scripts`, `settings.json`, root docs,
   `CCGS Skill Testing Framework/`, Godot/Unreal engine references) is unchanged and remains the source for the
   next upgrade.
+
+## 11. Addendum — vendored folder dissolved, 2026-10-08
+
+Owner asked to distribute the contents of `.claude/Claude-Code-Game-Studios-main/` into the project. Every
+file was compared with `cmp` against its live counterpart first; the folder no longer exists.
+
+- **Already live and identical (deleted from the copy):** `.claude/docs` (104 of 105; the 105th is the
+  project-kept `technical-preferences.md`), `.claude/scripts` (10), `.claude/statusline.sh`, 12 of 14 hooks
+  (the other 2 carry the project patches), `CCGS Skill Testing Framework/` (128).
+- **Moved to working locations:** `docs/CLAUDE.md` and `design/CLAUDE.md` (directory instructions, adapted:
+  Unity engine reference; project rule that all 8 GDD sections are required),
+  `docs/architecture/tr-registry.yaml` and `design/registry/entities.yaml` (empty registries that
+  `/architecture-review`, `/create-stories`, `/story-done`, `/story-readiness` and `/consistency-check` read —
+  this closes the `entities.yaml` gap in `skill-audit-2026-10-08.md` §4.2).
+- **Moved to `docs/ccgs/` (reference only, not loaded):** upstream README, CHANGELOG, UPGRADING, LICENSE (MIT),
+  CONTRIBUTING, SECURITY, `CLAUDE.template.md`, `project.template.yaml`, WORKFLOW-GUIDE,
+  skill-flow-diagrams, COLLABORATIVE-DESIGN-PRINCIPLE, migration guide, and the 11 unmerged upstream rules
+  (`docs/ccgs/rules-upstream/`). Index: `docs/ccgs/README.md`.
+- **Merged into root files:** `.gitattributes` gains `*.sh`, `*.tsv` and `.claude/**/*.md` → LF;
+  `.gitignore` gains `project.local.yaml`, `CLAUDE.local.md`, `.scratch/`, `__pycache__/`.
+- **Not kept:** Godot/Unreal engine references, `src/`, `.github/` (upstream repository templates), upstream
+  `docs/registry/architecture.yaml` (the project has its own), the upstream `settings.json` (merged).

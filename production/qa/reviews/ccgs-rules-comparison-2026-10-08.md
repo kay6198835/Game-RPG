@@ -3,8 +3,8 @@
 > **Date**: 2026-10-08 · Companion to `ccgs-upgrade-2026-10-08.md` §5.
 > **Purpose**: the owner asked to see, item by item, what the eight upstream rules that were *not* merged
 > actually say, since "not needed now" does not mean "no effect". Nothing in `.claude/rules/` was changed
-> by this document. Source of upstream text:
-> `.claude/Claude-Code-Game-Studios-main/Claude-Code-Game-Studios-main/.claude/rules/`.
+> by this document. Source of upstream text (moved 2026-10-08):
+> `docs/ccgs/rules-upstream/`.
 
 ## How rules take effect
 

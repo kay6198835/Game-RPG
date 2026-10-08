@@ -17,6 +17,22 @@ which code change caused it.
 
 ---
 
+## 2026-10-08 — Dissolve the vendored CCGS folder into the project
+
+**Cause.** Owner request: distribute `.claude/Claude-Code-Game-Studios-main/` into the project's own layout.
+Details and the per-file decision: `production/qa/reviews/ccgs-upgrade-2026-10-08.md` §11.
+
+| Document / file | Change |
+|---|---|
+| `.claude/Claude-Code-Game-Studios-main/` | **Removed** — duplicates of live files deleted, the rest moved |
+| `docs/ccgs/` | **New** — framework reference (README index, CHANGELOG, UPGRADING, LICENSE, guides, `rules-upstream/`) |
+| `docs/CLAUDE.md`, `design/CLAUDE.md` | **New** — upstream directory instructions, adapted to Unity 2022.3 and the project's 8-section GDD rule |
+| `docs/architecture/tr-registry.yaml`, `design/registry/entities.yaml` | **New** — empty registries read by the story pipeline and `/consistency-check` |
+| `.gitattributes`, `.gitignore` | LF for shell scripts and `.claude` Markdown; per-developer CCGS files ignored |
+| `production/qa/reviews/ccgs-rules-comparison-2026-10-08.md` | Source path updated to `docs/ccgs/rules-upstream/` |
+
+---
+
 ## 2026-10-08 — Remove duplicated skills and agents from the vendored CCGS copy
 
 **Cause.** Owner request after the merge. `cmp` showed the vendored `.claude/skills` and `.claude/agents` were
