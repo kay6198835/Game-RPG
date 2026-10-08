@@ -1,6 +1,9 @@
 ---
-description: Testing standards for the project — Unity PlayMode/EditMode tests, manual QA evidence
-globs: ["tests/**/*", "production/qa/**/*.md"]
+# Testing standards for the project — Unity PlayMode/EditMode tests, manual QA evidence
+paths:
+  - "tests/**"
+  - "Assets/Tests/**"
+  - "production/qa/**/*.md"
 ---
 
 # Testing Standards

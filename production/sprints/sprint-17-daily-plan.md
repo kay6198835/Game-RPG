@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**AT RISK — day 2 of 5 (2026-10-06, standup).** 0 / 8 Must-Have done, 0 blocked. HEAD `8da09b1`.
+**OFF TRACK — day 4 of 5 (2026-10-08, standup).** 0 / 8 Must-Have done, 0 blocked. `sprint-17` HEAD
+`765a46e1`; `origin/feature/ui-flow-maingameplay` is one commit ahead (`ada2c1a8`). Must-Have remaining
+1.25d with ≈1.5 working days left (Thu + Fri, Fri has 1d buffer) — only fits if Thu is spent on the Mon
+block and Fri on the vitals/death block, with zero further feature work. Two more days of off-plan feature
+work (Champion start-room / character select, shop) landed instead. The StatModifierGroup WIP was
+committed (`7f632021`), clearing the S17-06 self-conflict risk.
+
+*Previous verdict (2026-10-06):* **AT RISK — day 2 of 5.** 0 / 8 Must-Have done, 0 blocked. HEAD `8da09b1`.
 Working tree carries 4 uncommitted owner `.cs` edits (StatModifierGroup refactor — see log), not staged.
 Mon block (S17-01..04) did not land; ≈1.6d of off-plan UIFlow work landed instead, **ahead of the S17-04
 gate**. S17-14 (`/doc-sync`) closed off-schedule. Must-Have remaining 1.25d with 4 days left — still
@@ -26,6 +33,7 @@ fits, but only if today runs the Mon block before anything else.
 | Must Have | 1.25d | 0 | 1.25d |
 | Should Have | 0.95d | 0.2d (S17-14) | 0.75d |
 | Reserved (owner feature work) | ≈1.6d | ≈1.6d consumed — UIFlow real-game wiring (`cb0de496`, `8535b2fb`, `c511c538`) + Paladin assets (`f30b8343`), **landed before S17-04** | ≈0 |
+| Over-reserve feature work (unplanned) | 0 | ≈1.0–1.5d — shop (`5d1986db`), start room / Champion monuments + character select + confirm panel (`7f632021`, `ada2c1a8`) | — |
 
 ---
 
@@ -34,34 +42,34 @@ fits, but only if today runs the Mon block before anything else.
 ### Mon 2026-10-05 — Unlock the loop, then play it
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S17-01 BUG-096 decision + restore no-spawn door branch | 0.05d | **CARRIED → Tue** (not started; `LoadRoom()` still has no `spawnPositions.Count == 0` branch) | S1 — first room of every run sealed |
-| S17-02 BUG-097 start/boss order | 0.05–0.2d | **CARRIED → Tue** (`Maze_Storage.asset` untouched since `ac13ee4`) | Run currently starts in the Boss room |
-| S17-03 Editor block: `Lightning.prefab` layerMask + `Arrow.prefab` collider | 0.1d | **CARRIED → Tue** (neither field serialized) | Smoke is meaningless without them |
-| S17-04 Play Mode smoke (logged or signed) | 0.3d | **CARRIED → Tue** (no playtest log since 2026-06-12) | **12th carry. Gate was bypassed by UIFlow commits** |
+| S17-01 BUG-096 decision + restore no-spawn door branch | 0.05d | **CARRIED → Thu** (3rd day; `LoadRoom()` still has no zero-spawn branch at `ada2c1a8`) | S1 — first room of every run sealed |
+| S17-02 BUG-097 start/boss order | 0.05–0.2d | **CARRIED → Thu** (`Maze_Storage.asset` untouched since `ac13ee4`) | Run currently starts in the Boss room |
+| S17-03 Editor block: `Lightning.prefab` layerMask + `Arrow.prefab` collider | 0.1d | **CARRIED → Thu** (neither field serialized) | Smoke is meaningless without them |
+| S17-04 Play Mode smoke (logged or signed) | 0.3d | **CARRIED → Thu** (no playtest log since 2026-06-12; 13th carry) | **12th carry. Gate was bypassed by UIFlow commits** |
 | *(off-plan)* UIFlow: real game from menu + HUD bound to player; mock removal | — | DONE (`cb0de496`, `8535b2fb`, `c511c538`) | Reserved bucket, consumed early |
 | *(off-plan)* Paladin asset + ability stats update | — | DONE (`f30b8343`) | Reserved bucket |
 
 ### Tue 2026-10-06 — Mon block (carried) first, then vitals + death path
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S17-05 BUG-092 residual | 0.05d | NOT STARTED | Every HoT/DoT silently one tick |
-| S17-06 BUG-066+070 guard | 0.15d | NOT STARTED | Live death path |
-| S17-07 BUG-065 + BUG-086 | 0.2d | NOT STARTED | One file; precondition for BUG-087 |
-| S17-08 Process gate decision | 0.1d | NOT STARTED | BUG-096 showed the cost |
+| S17-05 BUG-092 residual | 0.05d | CARRIED → Fri (`perTime`/`timeCount` still private) | Every HoT/DoT silently one tick |
+| S17-06 BUG-066+070 guard | 0.15d | CARRIED → Fri (7 raw reads, `VitalStatsBase.cs:38-70`); WIP precondition cleared by `7f632021` | Live death path |
+| S17-07 BUG-065 + BUG-086 | 0.2d | CARRIED → Fri (`PlayerDeathState` unchanged) | One file; precondition for BUG-087 |
+| S17-08 Process gate decision | 0.1d | CARRIED → Fri | BUG-096 showed the cost |
 
 ### Wed 2026-10-07 — Should-Have code
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S17-09 BUG-071 residual | 0.15d | NOT STARTED | Same file as S17-06 |
-| S17-10 BUG-068 `:28` | 0.05d | NOT STARTED | Enemies run it on pooled objects |
+| S17-09 BUG-071 residual | 0.15d | NOT STARTED — likely carry to Sprint 18 | Same file as S17-06 |
+| S17-10 BUG-068 `:28` | 0.05d | NOT STARTED — likely carry to Sprint 18 | Enemies run it on pooled objects |
 | Reserved feature work | — | — | Opens once S17-04 is done |
 
 ### Thu 2026-10-08 — Editor cleanup + decisions
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S17-11 BUG-073+090 asset cleanup | 0.15d | NOT STARTED | Missing-script warnings |
-| S17-13 Git LFS decision | 0.1d | NOT STARTED | Before more `.fbx` lands |
-| S17-12 BUG-087 design note | 0.3d | NOT STARTED | Unblocked by S17-07 |
+| S17-11 BUG-073+090 asset cleanup | 0.15d | NOT STARTED — deferred behind Mon block | Missing-script warnings |
+| S17-13 Git LFS decision | 0.1d | NOT STARTED — deferred | Before more `.fbx` lands |
+| S17-12 BUG-087 design note | 0.3d | NOT STARTED — blocked by S17-07 | Unblocked by S17-07 |
 
 ### Fri 2026-10-09 — Docs + buffer
 | Task | Est. | Status | Why now |
@@ -198,3 +206,64 @@ Total ≈ 1.1d — more than one session. If time is short: do 0→4 (≈0.6d), 
 - Uncommitted refactor in shared stat code (`VitalStatsBase`, `Weapon`) — compile-break risk (TD-048,
   three breaks in three weeks) if pushed without an Editor compile.
 - Off-plan velocity ≫ planned velocity again (≈1.6d vs 0) — 5th sprint running.
+
+### 2026-10-08 (Thu) — standup, day 4 of 5 (autonomous run, 02:00 slot)
+
+> No standup ran on Wed 2026-10-07; this entry covers Tue 2026-10-06 evening through Thu 2026-10-08 08:42.
+
+**Since last standup (`8bb73e80`) — off-plan feature work only, no Must-Have item touched.**
+- `5d1986db` "shop coding" (Tue evening, landed before the Tue standup commit) — shop UI work.
+- `7f632021` "coding start room" (Wed) — **commits the StatModifierGroup WIP** flagged on Tue
+  (`VitalStatsBase`, `Weapon`, `StatModifierGroup` −30, `StatModifierTester`), adds
+  `System/StartGameSystem/ChampitionController.cs` stub and `PlayerData` +1 field. Merged into
+  `origin/feature/ui-flow-maingameplay` (`765a46e1`), which `sprint-17` fast-forwarded to.
+- `ada2c1a8` "Base logic access panel + prototype start room" (Thu 08:42, **feature branch only, not on
+  `sprint-17` yet**) — Champion Monument prefabs (Archer / Mage / Paladin) + spawn tiles, `Archer` /
+  `Mage` `PlayerData` + stat assets (`Player.asset` renamed `Paladin.asset`), `ICharacter.SetCharacterData`,
+  `ConfirnPanel` + `UIEvents.OnOpenConfirnPanel`, `BossRoom_ThroneArena.json` edit, `LoadRandomMap.unity`
+  ±2k lines. `.cs` delta small (9 files, +110/−2).
+
+Assessment: the start room / character-select direction is real product progress, but it is a **new
+feature with no story, no GDD and no ADR** (character data swap at runtime through `ICharacter`), built on
+a loop that has still not been played in Play Mode. Must-Have burn is 0 for the 4th day running.
+
+**Quick read of new code (`ChampitionController.cs`, read only — not a full review):** hardcoded
+`localScale = 2.5f` in `Start()` and an inline Vietnamese dialogue string (gameplay-code / ui-code rules:
+data in SO, strings not inline); unused `using Unity.VisualScripting`; `Awake()` override does not call
+`base.Awake()` (check `InteractiveObjects`); `ConfirnPanel` name typo is new — decide now whether to keep it
+before prefabs reference it. Suggest `/code-review` on Sat wrap-up.
+
+**Re-check against source (read only, at `ada2c1a8`):**
+- BUG-096 — OPEN. `RoomGeneraterController.LoadRoom()` (`:129-143`) unchanged: no zero-spawn branch.
+- BUG-097 — `Maze_Storage.asset` not touched. OPEN.
+- BUG-072 / Arrow collider — no prefab change. OPEN.
+- BUG-092 residual — `perTime` / `timeCount` still `private`, no `[SerializeField]`. OPEN.
+- BUG-066+070 — `VitalStatsBase.cs:38,50,52,56,64,66,70` raw `currentStats[statType]`. OPEN.
+- BUG-065 / BUG-086 — `PlayerDeathState` unchanged. OPEN.
+- No playtest log since 2026-06-12.
+
+**Tracker:** S17-01..04 → CARRIED → Thu (3rd carry within sprint). S17-05..08 → CARRIED → Fri.
+S17-09 / S17-10 → likely Sprint 18. S17-11 / S17-13 deferred; S17-12 blocked by S17-07. S17-14 DONE.
+
+**Today (Thu) — Mon block, nothing else until it is done:**
+| # | Task | Est. | Basis |
+|---|------|------|-------|
+| 0 | Merge `ada2c1a8` into `sprint-17` (or keep it on the feature branch until smoke passes) | 0.02d | Fast-forward; scene churn — do not hand-merge `LoadRandomMap.unity` |
+| 1 | S17-01 BUG-096 — zero-spawn branch (`BuildGrid` + `OpenDoors()`) | 0.05d | ~6 lines, one file; the new start room with Champion monuments has no enemy marker, so it is **sealed** until this lands |
+| 2 | S17-02 BUG-097 — reorder `Maze_Storage.asset` | 0.05d | Inspector drag |
+| 3 | S17-03 `Lightning.prefab` layerMask + `Arrow.prefab` Collider2D | 0.1d | Two Inspector edits |
+| 4 | S17-04 smoke via `MainGamePlay` → New Game → start room → pick Champion → combat room → death/respawn; log in `production/qa/playtests/` | 0.4d | +0.05d for the new character-select path |
+Total ≈ 0.6d. **Fri:** S17-05..08 (≈0.5d) inside the 1d buffer.
+
+**Blockers:** none external. All of today needs the owner in the Unity Editor.
+
+**Risks (emerging):**
+- **BUG-096 now blocks the new feature itself**: the start room is non-combat, so with no zero-spawn
+  branch the player cannot leave it after picking a Champion.
+- Smoke at **13th** carry. If it does not run today, Friday's wrap-up must record a signed accepted-risk
+  note and Sprint 17 closes with Must-Have 0/8.
+- Runtime character swap (`SetCharacterData`) touches stats, abilities, weapon, animator — high regression
+  surface on the death/respawn path (`RealPlayerDataProvider`, `ON_PLAYER_READY`) with no test and no design note.
+- `LoadRandomMap.unity` churn again (±2k) on a feature branch — scene merge-conflict risk persists.
+- 6th consecutive sprint where off-plan output ≫ planned output; Sprint 18 kickoff should plan feature work
+  explicitly (start room / champion select / shop) instead of leaving it as "reserved".
