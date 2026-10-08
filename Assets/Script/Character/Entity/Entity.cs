@@ -75,4 +75,9 @@ public class Entity : CharacterBase<EntityCore>
     private void AnimationFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
     private void AnimationEnd() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.End);
 
+    public override void SetCharacterData(CharacterData data)
+    {
+        this.data = (EntityData)data;
+        gameObject.name = data.name;
+    }
 }

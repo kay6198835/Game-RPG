@@ -25,6 +25,7 @@ namespace UIFlow
         [SerializeField] private DialoguePanel dialoguePanel;
         [SerializeField] private ShopPanel shopPanel;
         [SerializeField] private GameOverPanel gameOverPanel;
+        [SerializeField] private ConfirnPanel confirnPanel;
 
         private void OnEnable()
         {
@@ -33,6 +34,7 @@ namespace UIFlow
             UIEvents.NotificationRequested += OnNotification;
             UIEvents.SkillUsed += OnSkillUsed;
             UIServices.Player.PlayerDied += OnPlayerDied;
+            UIEvents.OpenConfirnPanel += OnConfirnPanel;
         }
 
         private void OnDisable()
@@ -42,6 +44,7 @@ namespace UIFlow
             UIEvents.NotificationRequested -= OnNotification;
             UIEvents.SkillUsed -= OnSkillUsed;
             UIServices.Player.PlayerDied -= OnPlayerDied;
+            UIEvents.OpenConfirnPanel += OnConfirnPanel;
         }
 
         private void Start()
@@ -96,6 +99,12 @@ namespace UIFlow
         {
             uiManager.CloseAll();
             uiManager.Open(gameOverPanel);
+        }
+
+        private void OnConfirnPanel(Action callback)
+        {
+            UIEvents.ConfirnRequest += callback;
+            uiManager.Open(confirnPanel);
         }
     }
 }
