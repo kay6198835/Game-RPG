@@ -17,6 +17,19 @@ which code change caused it.
 
 ---
 
+## 2026-10-08 — Remove duplicated skills and agents from the vendored CCGS copy
+
+**Cause.** Owner request after the merge. `cmp` showed the vendored `.claude/skills` and `.claude/agents` were
+byte-identical to the live copies (130 files) plus 10 unmerged Godot/Unreal agents.
+
+| Document / file | Change |
+|---|---|
+| `.claude/Claude-Code-Game-Studios-main/.../.claude/skills/`, `.../.claude/agents/` | **Deleted** (140 files). Live `.claude/skills` (81) and `.claude/agents` (39) unchanged |
+| `.claude/skills/weekly-sprint/` | **Kept** — still invoked by the `pm-weekly-wrapup` and `weekly-monday-kickoff` scheduled routines |
+| `production/qa/reviews/ccgs-upgrade-2026-10-08.md` | §10 addendum |
+
+---
+
 ## 2026-10-08 — CCGS upgrade, approval pass: rules scoping, filtered Unity reference, config finalize
 
 **Cause.** Owner approved the remaining upgrade items, asked to keep (and filter) the upstream Unity

@@ -202,3 +202,19 @@ cp .ccgs-staging/hooks/* .claude/hooks/ && cp .ccgs-staging/settings.json .claud
 Then start a new session (hooks and settings load at session start) and check the banner shows
 `Review mode: lean` and `Open bugs: 41`. `.ccgs-staging/` is not committed and can be deleted afterwards.
 To roll back: `git checkout HEAD -- .claude/hooks .claude/settings.json`.
+
+## 10. Addendum — duplicate removal, 2026-10-08
+
+Owner asked to remove skills and agents duplicated by the merge.
+
+- **Removed** `.claude/Claude-Code-Game-Studios-main/Claude-Code-Game-Studios-main/.claude/skills/` and
+  `.../.claude/agents/` (140 files). Verified first with `cmp`: 130 files were byte-identical to the live
+  copies in `.claude/skills/` and `.claude/agents/`; the other 10 were the Godot/Unreal specialists that were
+  deliberately not merged. Live set unchanged: 81 skills, 39 agents.
+- **Kept** `/weekly-sprint`, although `docs/skill-reference.md` calls it superseded by `/weekly-kickoff` +
+  `/weekly-wrapup`: the scheduled routines `pm-weekly-wrapup` (Sat 22:00, "the backbone") and
+  `weekly-monday-kickoff` still invoke it. Removing it would break those runs. Retire it only after those
+  routine prompts are rewritten.
+- The rest of the vendored folder (`.claude/docs`, `hooks`, `rules`, `scripts`, `settings.json`, root docs,
+  `CCGS Skill Testing Framework/`, Godot/Unreal engine references) is unchanged and remains the source for the
+  next upgrade.
