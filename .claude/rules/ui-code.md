@@ -1,6 +1,9 @@
 ---
-description: UI code standards — UIManager, HUD, health bar, menus
-globs: ["Assets/Script/Manager/UI/**/*.cs", "Assets/Script/MainMenu/**/*.cs"]
+# UI code standards — UIManager, HUD, health bar, menus
+paths:
+  - "Assets/Script/UIFlow/**/*.cs"
+  - "Assets/Script/UI/**/*.cs"
+  - "Assets/UI/**"
 ---
 
 # UI Code Standards

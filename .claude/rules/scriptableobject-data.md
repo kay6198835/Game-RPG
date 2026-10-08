@@ -1,6 +1,10 @@
 ---
-description: ScriptableObject data authoring standards — PlayerData, EntityData, EnemySO, AttackSO, ActivateSkill subclasses
-globs: ["Assets/Script/**/*SO.cs", "Assets/Script/**/*Data.cs", "Assets/ScriptableObjects/**/*.asset"]
+# ScriptableObject data authoring standards — PlayerData, EntityData, EnemySO, AttackSO, ActivateSkill subclasses
+paths:
+  - "Assets/Script/**/*SO.cs"
+  - "Assets/Script/**/*Data.cs"
+  - "Assets/Script/Database-SO/**/*.cs"
+  - "Assets/SO/**/*.asset"
 ---
 
 # ScriptableObject / Data Standards

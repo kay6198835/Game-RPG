@@ -102,6 +102,17 @@ invisible to `manifest.json` — neither dependency is reproducible from the man
 
 ## Note
 
-This engine version is within the LLM's training data. Full reference docs
-(breaking-changes.md, deprecated-apis.md) are not required. Run `/setup-engine refresh`
-to populate full reference docs if agents suggest incorrect APIs.
+This engine version is within the LLM's training data. Run `/setup-engine refresh` only with
+care: it web-searches for newer releases and rewrites **all** reference docs in this folder, which
+would drop the 2022.3 filter markers below and may re-word the package table. Re-check the diff after.
+
+## Extended reference (CCGS upstream, filtered for 2022.3)
+
+Added 2026-10-08. These files were written for **Unity 6.3** and are kept here with a 2022.3
+filter applied. Read [UNITY-2022.3-FILTER.md](UNITY-2022.3-FILTER.md) first; each file also carries
+inline markers (⛔ not in 2022.3 / ✅ OK in 2022.3 / ❌ incorrect / ➖ not used).
+
+- [breaking-changes.md](breaking-changes.md) — read in reverse: the "NEW" side is Unity 6
+- [deprecated-apis.md](deprecated-apis.md), [current-best-practices.md](current-best-practices.md), [PLUGINS.md](PLUGINS.md)
+- `modules/` — input, animation, ui, rendering, physics (3D only), audio, navigation, networking
+- `plugins/` — addressables, cinemachine, dots-entities (none installed)

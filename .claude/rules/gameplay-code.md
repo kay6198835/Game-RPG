@@ -1,6 +1,12 @@
 ---
-description: Standards for all gameplay logic in Assets/Script/Character, Assets/Script/Weapons, Assets/Script/Skill_Ability
-globs: ["Assets/Script/Character/**/*.cs", "Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
+# Standards for all gameplay logic in Assets/Script/Character, Assets/Script/Weapons, Assets/Script/Skill_Ability
+paths:
+  - "Assets/Script/Character/**/*.cs"
+  - "Assets/Script/Weapons/**/*.cs"
+  - "Assets/Script/System/Abilities/**/*.cs"
+  - "Assets/Script/System/Skill_Ability/**/*.cs"
+  - "Assets/Script/System/Item/**/*.cs"
+  - "Assets/Script/System/StatSystem/**/*.cs"
 ---
 
 # Gameplay Code Standards

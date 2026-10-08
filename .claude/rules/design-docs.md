@@ -1,6 +1,7 @@
 ---
-description: Design document standards for all GDDs in design/gdd/
-globs: ["design/gdd/**/*.md"]
+# Design document standards for all GDDs in design/gdd/
+paths:
+  - "design/gdd/**/*.md"
 ---
 
 # Design Document Standards

@@ -1,6 +1,8 @@
 ---
-description: Manager and event bus code standards — EventManager, AnimationEventManager, GameConstants, UIManager
-globs: ["Assets/Script/Manager/**/*.cs", "Assets/Script/GameConstants.cs"]
+# Manager and event bus code standards — EventManager, AnimationEventManager, GameConstants, UIManager
+paths:
+  - "Assets/Script/Manager/**/*.cs"
+  - "Assets/Script/Utility/GameConstants.cs"
 ---
 
 # Manager and Event Bus Standards
