@@ -11,7 +11,15 @@
 
 ## Status Verdict
 
-**OFF TRACK — day 5 of 5 (2026-10-09, standup).** Must-Have 0 / 8 done for the 5th day. `sprint-17` HEAD
+**FINAL (weekly wrap-up 2026-10-09): SLIPPED — evidence `COMPILED` + `LOG` (no `RUNTIME`).**
+Must-Have 0 / 8 done (S17-01 partial, off `sprint-17`). Should-Have 0.2d / 0.95d (S17-14 only).
+Planned velocity 0.2d / 4d = **0.05**. Off-plan output ≈2.6–3.1d (UIFlow real-game wiring, shop, start
+room / Champion select / confirm panel, CCGS tooling upgrade). Playtest sheet
+`playtest-2026-10-10.md` is **not filled** at wrap-up time (run fired Fri 17:25 local, before the Sat
+session) → verdict capped at CONCERNS in any case; **playtest done: no**. BUG-096 (S1) still open on
+`sprint-17`. Handoff values for Sunday kickoff are in the Daily Log entry below.
+
+*Previous verdict — standup:* **OFF TRACK — day 5 of 5 (2026-10-09, standup).** Must-Have 0 / 8 done for the 5th day. `sprint-17` HEAD
 `ec44e9be` (CCGS studio-framework upgrade, `.claude/` only). One owner code commit since Thu standup,
 `221d54be` "logic open door at start room" (feature branches only) — partial progress on BUG-096 (start
 room opens after Champion confirm), but no zero-spawn branch, no Inspector block, no smoke. Headless
@@ -315,3 +323,47 @@ tooling + feature work.
 
 **Risks:** sprint closes Must-Have ≈0/8 (6th sprint of off-plan ≫ planned); smoke 14th carry unless
 Saturday's sheet is filled; `EventID` rename + scene move not yet in docs (NOTE-4).
+
+### 2026-10-09 (Fri 17:25 local) — weekly wrap-up (autonomous run)
+
+> The `pm-weekly-wrapup` routine fired on Friday evening, not Saturday 22:00. Today's date (2026-10-09)
+> is used for every file name; the Saturday sheet `playtest-2026-10-10.md` exists but is empty.
+
+**Final statuses:**
+
+| Task | Est. | Final |
+|---|---|---|
+| S17-01 BUG-096 | 0.05d | 🟡 PARTIAL — start room opens on Champion confirm (`221d54be`, feature branch only); no zero-spawn branch for Rest/Shop/Buff. Carry |
+| S17-02 BUG-097 | 0.05–0.2d | ❌ NOT DONE — carry |
+| S17-03 Lightning layerMask + Arrow collider | 0.1d | ❌ NOT DONE — carry |
+| S17-04 Play Mode smoke | 0.3d | ❌ NOT DONE (14th carry) — sheet ready, unfilled. Carry, **first on Monday** |
+| S17-05 BUG-092 residual | 0.05d | ❌ carry |
+| S17-06 BUG-066+070 | 0.15d | ❌ carry |
+| S17-07 BUG-065+086 | 0.2d | ❌ carry |
+| S17-08 process gate decision | 0.1d | ❌ carry |
+| S17-09 BUG-071 residual | 0.15d | ❌ carry |
+| S17-10 BUG-068 `:28` | 0.05d | ❌ carry |
+| S17-11 BUG-073+090 | 0.15d | ❌ carry |
+| S17-12 BUG-087 design note | 0.3d | ❌ carry (blocked by S17-07) |
+| S17-13 Git LFS decision | 0.1d | ❌ carry |
+| S17-14 `/doc-sync` | 0.2d | ✅ DONE |
+
+**Burn:** planned 0.2d of 2.2d (Must 0 / 1.25d, Should 0.2 / 0.95d). Off-plan ≈2.6–3.1d.
+
+**Handoff to Sunday `/weekly-kickoff`:**
+- **carry-over**: S17-01 … S17-13 (all of the above except S17-14); newly confirmed bug **BUG-102**
+  (S3, not a blocker); blocker bug still open: **BUG-096** (S1).
+- **velocity**: 0.2 / 4 = **0.05** (planned work only).
+- **playtest done: no** — put the playtest / smoke first on Monday.
+- **needs owner**: NOTE-20261009-2 (NRE `PlayerState.cs:35`), NOTE-20261009-6 (Champion select swaps
+  `PlayerData` but nothing re-reads it), and the untracked `production/qa/bugs/BUG-102.md` in the owner's
+  folder (now committed on `sprint-17` — delete the local copy before pulling).
+
+**Retro (light):**
+- Went well: the menu → game → HUD loop now exists end to end (`cb0de496`); first `COMPILED` evidence this
+  sprint; StatModifierGroup WIP committed before it could conflict.
+- Slipped: every Must-Have; smoke at 14th carry; `221d54be` (BUG-096 partial) not merged into `sprint-17`.
+  Tasks deferred multiple weeks: S17-04 smoke (14 carries), BUG-092 residual, BUG-066+070, BUG-065+086.
+- One process improvement: plan the owner's feature work as explicit stories in Sprint 18 (start room /
+  Champion select / shop) with a 0.5d cap, and put the 30-minute smoke **before** the first feature commit
+  of the week instead of on Saturday.
