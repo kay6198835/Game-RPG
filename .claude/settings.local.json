@@ -1,6 +1,12 @@
 {
   "permissions": {
+    "additionalDirectories": [
+      "D:/Fork/Game-RPG-pm"
+    ],
     "allow": [
+      "Read(//d/Fork/Game-RPG-pm/**)",
+      "Edit(//d/Fork/Game-RPG-pm/**/*.md)",
+      "Write(//d/Fork/Game-RPG-pm/**/*.md)",
       "Bash(code --uninstall-extension ms-dotnettools.csdevkit)",
       "Bash(code --list-extensions)",
       "Bash(mkdir -p \"Assets/Script/Map\")",
@@ -93,8 +99,7 @@
       "Skill(module-quality-audit)",
       "Skill(module-quality-audit:*)",
       "Bash(rtk --version)",
-      "Bash(git symbolic-ref *)"
-      "mcp__Claude_Code_Remote__send_later"
+      "Bash(git symbolic-ref *)",
       "mcp__Claude_Code_Remote__send_later",
       "mcp__Claude_Code_Remote__delete_trigger",
       "mcp__Claude_Code_Remote__unsubscribe_pr_activity"

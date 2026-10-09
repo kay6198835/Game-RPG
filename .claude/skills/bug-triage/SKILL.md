@@ -51,6 +51,12 @@ Glob for bug reports in priority order:
 2. `production/qa/bugs.md` — single consolidated bug log (fallback)
 3. Any `production/qa/qa-plan-*.md` "Bugs Found" table (last resort)
 
+**Project rule (`.claude/rules/bug-inbox.md`, 2026-10-09):** also read the Open notes of
+`production/qa/bug-inbox.md` and report their count and severity guesses, but do **not** treat them
+as bugs and do **not** allocate IDs for them. Only `/weekly-wrapup`'s Saturday inbox triage turns a
+note into `production/qa/bugs/BUG-NNN.md` (three digits — the `BUG-NNNN` placeholders in the
+templates below mean the project's three-digit IDs).
+
 If no bug files found:
 > "No bug files found in `production/qa/bugs/`. If bugs are tracked in a
 > different location, adjust the glob pattern. If no bugs exist yet, there is

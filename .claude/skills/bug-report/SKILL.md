@@ -41,7 +41,7 @@ If no argument is provided, ask the user for a bug description before proceeding
 
 ## Summary
 **Title**: [Concise, descriptive title]
-**ID**: BUG-[NNNN]
+**ID**: BUG-[NNN] — allocated only at Saturday triage; before that this report is a `NOTE-YYYYMMDD-N` in `production/qa/bug-inbox.md`
 **Severity**: [S1-Critical / S2-High / S3-Medium / S4-Low]
 **Priority**: [P1-Fix this sprint / P2-Fix soon / P3-Backlog / P4-Won't fix]
 **Status**: Open
@@ -162,16 +162,23 @@ After closing, check `production/qa/bug-triage-*.md` — if the bug appears in a
 
 Present the completed bug report(s) to the user.
 
-**Allocate the ID** before asking: Glob `production/qa/bugs/BUG-*.md`, take the
-highest number and add 1, zero-padded to four digits (`BUG-0001` when there are
-none). Several reports in one run (analyze mode) take consecutive IDs from
-there, one each — never the same ID twice.
+> **Project rule — bug inbox (`.claude/rules/bug-inbox.md`, 2026-10-09).** Bug IDs are allocated
+> **only** by `/weekly-wrapup` during Saturday triage. Every other caller — interactive sessions,
+> `/daily-standup`, `/doc-sync`, `/module-quality-audit` — saves the report as a **note** instead:
+> append a row to the Open notes table of `production/qa/bug-inbox.md`
+> (`NOTE-YYYYMMDD-N`, source, severity guess, where, what, evidence tier) and keep the full draft
+> in the note's "What" cell or as a linked section below the table. No `BUG-` number is written.
 
-Ask: "May I write this to `production/qa/bugs/BUG-[NNNN].md`?" For several
-reports, ask once and name every file: "May I write these to
-`production/qa/bugs/BUG-[NNNN].md`, `production/qa/bugs/BUG-[NNNN+1].md`, …?"
+**Called from `/weekly-wrapup` triage** (the only allocator): get the ID with
+`bash .claude/scripts/bug-id.sh next` — three digits (`BUG-103`), max existing + 1. Several reports
+in one run: create each file before asking for the next ID, never the same ID twice. Header order:
+Title, Severity, Priority, System, Found by, Status, Fixed in.
 
-If yes, write the file, creating the directory if needed. Verdict: **COMPLETE** — bug report filed.
+**Any other caller**: ask "May I write this as a note to `production/qa/bug-inbox.md`?" (autonomous
+mode: write it). Verdict: **COMPLETE** — note recorded for Saturday triage.
+
+**Wrap-up triage** (autonomous): write `production/qa/bugs/BUG-NNN.md`, creating the directory if
+needed. Verdict: **COMPLETE** — bug report filed.
 
 If no, stop here. Verdict: **BLOCKED** — user declined write.
 

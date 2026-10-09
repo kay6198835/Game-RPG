@@ -1,9 +1,11 @@
 # Full Project Review Flow
 
-> **Created**: 2026-10-08 · **Author**: PM assistant (Claude), review-only pass, no code changed
+> **Created**: 2026-10-08 · **Revised (v2)**: 2026-10-09 — see §10 · **Author**: PM assistant (Claude),
+> review-only passes, no code changed
 > **Companion files**: `production/review-schedule.md` (older cadence table — see §8),
 > `production/qa/reviews/skill-audit-2026-10-08.md`, `production/qa/reviews/project-review-2026-10-08.md`
-> (the first run of this flow).
+> (run 1), `production/qa/reviews/skill-audit-2026-10-09.md` (R1 after the CCGS v1.1.2 install; holds the
+> skill-to-phase map for all 81 skills), `production/qa/reviews/project-review-2026-10-09.md` (run 2).
 
 ## 1. Why this flow exists
 
@@ -125,6 +127,14 @@ phase's output.
 4. **Rule conformance spot-check** against `.claude/rules/*.md` for the touched files only
    (no new singletons, interface-first DI, NonAlloc in hot paths, `[FormerlySerializedAs]` on renamed
    serialized fields, no `[SerializeField]` on runtime state).
+5. **Contract-rename sweep** *(added v2, 2026-10-09)*. For every identifier renamed in the window that
+   other text depends on — `EventID` members, serialized fields, scene paths, file names behind GUIDs —
+   grep the whole repo (code **and** `.md`) for the old name. Code hits are bugs; doc hits go to R6.
+   An `EventID` rename that keeps the enum position is binary-safe but leaves every doc stale
+   (`ON_CLEAR_ENEMY` → `ON_OPEN_DOOR` in `221d54be` left 25+ Markdown files naming the old value).
+6. **Static-event null-invoke check** *(added v2)*. Any new `public static event` raised with `.Invoke()`
+   instead of `?.Invoke()` is a crash when the subscribing scene is not loaded (e.g. playing
+   `LoadRandomMap` without `GameplayUI`). UIFlow's `UIEvents` bus is the main site.
 
 ### R4 — Runtime truth
 
@@ -208,12 +218,16 @@ older Mon/Fri table:
 
 | Cadence | Routine | Phases | Depth |
 |---|---|---|---|
-| Daily 10:00 | `/daily-standup` | R0, R3.1 (yesterday's commits only) | Surface |
-| Weekly Sat 22:00 | `/weekly-wrapup` | R0, R3 (all), R4 attempt, R8 | Full code, triage |
-| Weekly Sun 22:00 | `/weekly-kickoff` | R7 (process metrics), R8 hand-off | Planning |
-| Monthly, 1st Monday | `/module-quality-audit` | R5, R6 | Design + docs |
-| Quarterly / on `.claude/` change | manual | R1 | Tooling |
-| Milestone / before demo | **full flow R0–R8** | All | Complete |
+| Mon–Fri 02:00 (cron `0 2 * * 1-5`, routine `pm-daily-standup`) | `/daily-standup --auto` | R0, R2 (headless compile), R3.1, R3.2 (7 days, conditional), R4 `LOG`; Friday: playtest sheet | Surface |
+| Sat before 22:00 | **owner**, ~30 min | R4 `RUNTIME` (sheet: smoke list + fixed bugs + week's changes) | Play |
+| Sat 22:00 (`pm-weekly-wrapup`) | `/weekly-wrapup --auto` (v3: no longer `/weekly-sprint`) | R0, R3 (all), R4 sheet, inbox triage (only bug-ID allocator), R8 | Full code, triage |
+| Sat 23:00 (`pm-weekly-doc-truth`) | `/doc-sync --auto` | R6 (claim sweep, then edits on a `pm/` branch) | Docs |
+| Sun 22:00 (`pm-weekly-kickoff`) | `/weekly-kickoff` | R7 (process metrics), R8 hand-off | Planning |
+| 1st Monday 22:00 (`pm-monthly-module-audit`; cron fires every Monday, prompt guards) | `/module-quality-audit` | R5, R6 | Design + docs |
+| Quarterly / **on any `.claude/` change** | manual | R1 | Tooling |
+| Milestone / before demo / after a framework upgrade | **full flow R0–R8** | All | Complete |
+
+*v1 of this table said "Daily 10:00". The cron has fired at 02:00 throughout; corrected 2026-10-09.*
 
 ## 8. Relationship to existing documents
 
@@ -235,3 +249,21 @@ older Mon/Fri table:
 | 6 | Point `/consistency-check` at an existing registry or have it create one | `design/registry/entities.yaml` does not exist |
 | 7 | Resolve the 13 missing agents in 6 team skills (author or rewrite) | Open since 2026-08-21 |
 | 8 | Fix `validate-commit.sh` gameplay glob (`Skill_Ability/` moved to `System/`) and the session-start bug counter | Hooks report wrong data |
+
+**Status 2026-10-09** (after the CCGS v1.1.2 install): #6 ✅ registry file exists (empty); #7 ✅ 0 missing
+agents; #8 ✅ commit hook replaced, ⚠️ banner still counts files not open bugs. #1–#5 ❌ open — they all
+live in project-own skills the upgrade did not touch. New items:
+
+| # | Change | Why |
+|---|---|---|
+| 9 | Rewrite the `pm-weekly-wrapup` routine prompt to call `/weekly-wrapup`, then retire `/weekly-sprint` | Legacy skill still runs every Saturday and reads the deleted `review-mode.txt` |
+| 10 | Port project-own skills to `resolve_config` + `NOT ASSESSED` + the evidence tiers of §2 | The routines that run are now the least rigorous skills in `.claude/` |
+| 11 | Normalise bug-file headers (`**Status**` always the 2nd bold field) and make the banner count by status | BUG-098/099 lack the field; banner says 41 for 19 open |
+
+## 10. Revision history
+
+| Version | Date | Change | Cause |
+|---|---|---|---|
+| v1 | 2026-10-08 | Flow created (R0–R8), first run | Four process failures, §1 |
+| v3 | 2026-10-09 | Four process gaps closed by owner decision. **Gap 1 (bug-ID authority):** suspected defects are notes in `production/qa/bug-inbox.md`; only `/weekly-wrapup` allocates `BUG-NNN` (`.claude/rules/bug-inbox.md`, `bug-id.sh`). **Gap 2 (doc truth):** `/doc-sync` Phase 0 claim sweep (`doc-claims.sh`, `bug-id.sh audit`) and new routine `pm-weekly-doc-truth` Sat 23:00. **Gap 3 (regression):** `fix-survival.sh` in wrap-up (30 days) and standup (7 days, conditional); a GONE fix is an inbox note, never an automatic reopen. **Gap 4 (runtime):** evidence tier `COMPILED` (`compile-check.sh`, headless Unity at 02:00 when the Editor is closed) and `LOG` (`editor-log.sh`); weekly ~30-min owner playtest on Saturday from a sheet prepared Friday (`playtest-sheet.sh`, `tests/smoke/critical-paths.md`). Routines write `.md` only, from the PM worktree `D:/Fork/Game-RPG-pm` (`.claude/docs/pm-routine-protocol.md`). Bug-status lifecycle **pending** | Owner review of run 2; routine runs stalling on approval prompts because `.claude/settings.local.json` was invalid JSON |
+| v2 | 2026-10-09 | R1 made mandatory after any `.claude/` change (was quarterly only); R3.5 contract-rename sweep and R3.6 static-event null-invoke check added; cadence table corrected to the real cron; skill-to-phase map for all 81 skills moved to `skill-audit-2026-10-09.md` §5; §9 status column added | CCGS v1.1.2 install changed 257 `.claude/` files the day after v1; commit `221d54be` renamed an `EventID` and added an unguarded static event |

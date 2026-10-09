@@ -17,6 +17,60 @@ which code change caused it.
 
 ---
 
+## 2026-10-09 — PM routines redesigned: bug inbox, weekly playtest, doc-truth routine (no code changed)
+
+**Cause:** owner review of run 2 (`production/qa/reviews/skill-audit-2026-10-09.md`) — four open
+process gaps (bug-ID authority, doc-vs-code check, regression sweep, runtime evidence), and routine
+runs stalling on approval prompts (2026-09-20, 2026-10-04, 2026-10-07) because
+`.claude/settings.local.json` was invalid JSON (missing commas, line 97), so every allow rule in it
+was ignored. Owner decisions: routines may write any `.md`, nothing else; push only to `sprint-*`,
+special changes via a branch merged into the sprint; headless compile at 02:00; doc-sync Sat 23:00;
+bug IDs only at Saturday triage; weekly ~30-min playtest on Saturday; bug-status lifecycle pending.
+
+| File | Change |
+|---|---|
+| `.claude/rules/bug-inbox.md` | **New.** Notes during the week, IDs only at Saturday triage |
+| `.claude/docs/pm-routine-protocol.md` | **New.** PM worktree `D:/Fork/Game-RPG-pm` (detached HEAD), `.md`-only writes, routine vs special commits, evidence tiers, run log |
+| `.claude/scripts/{bug-id,fix-survival,doc-claims,editor-log,compile-check,playtest-sheet}.sh` | **New**, read-only helpers |
+| `.claude/skills/daily-standup`, `weekly-wrapup`, `weekly-kickoff`, `doc-sync`, `module-quality-audit`, `bug-report`, `bug-triage` | Rewired to the inbox rule and protocol; `doc-sync` Phase 0 + `--auto`; wrap-up reads the playtest sheet and runs the fix-survival sweep; kickoff creates the sprint branch on the remote and guards the weekly playtest |
+| `.claude/settings.local.json` | JSON repaired (two missing commas, one duplicate removed) |
+| `.ccgs-staging/settings.json` | Staged allow rules for the routines (`.md` edits, scripts, PM worktree git, sprint/pm pushes, draft PR, PM skills). Direct edit of `.claude/settings.json` was refused by the auto-mode classifier; owner installs |
+| `~/.claude/scheduled-tasks/pm-*` | Prompts rewritten to call the skills with `--auto`; new `pm-weekly-doc-truth` (Sat 23:00); completion notifications on |
+| `production/qa/bug-inbox.md` | **New**, 3 notes (BUG-096 fix gone; two Editor-log findings) |
+| `production/session-state/routine-log.md` | **New** |
+| `tests/smoke/critical-paths.md` | **New** — 10-step weekly smoke list |
+| `production/qa/playtests/playtest-2026-10-10.md` | **New** — first weekly playtest sheet |
+| `production/review-flow.md` | v3 row; cadence table |
+| `docs/skill-reference.md` (+ changelog) | §9 PM skills re-synced; weekly cycle note |
+
+Verified on HEAD `221d54be`: `bug-id.sh next` → `BUG-103`; `bug-id.sh audit` → BUG-064/087/093/094/095
+status mismatches; `fix-survival.sh 30` → BUG-096 fix `40d2c793` GONE (1/4 lines); `doc-claims.sh` →
+567 claims, 86 STALE incl. `Main/Test/LoadRandomMap.unity` and 37× `ON_CLEAR_ENEMY`;
+`editor-log.sh` → today's Play Mode sessions; `compile-check.sh` → COMPILED (exit 0, 38 s, no file
+changed by Unity).
+
+---
+
+## 2026-10-09 — Full review run 2 + review flow v2 (no code changed)
+
+**Cause:** CCGS v1.1.2 install changed 257 files under `.claude/` after run 1 (`959268bd`, `7c90520b`,
+`d64047a8`, `ec44e9be`), and game commits `ada2c1a8` / `221d54be` landed unreviewed. Owner asked for a
+review of the skill set, a full review flow, and an assessment of design and feature state, docs only.
+
+| File | Change |
+|---|---|
+| `production/qa/reviews/skill-audit-2026-10-09.md` | **New.** R1 re-run: status of every 2026-10-08 finding, 7 new tooling findings (N-1…N-7), skill-to-phase map for all 81 skills |
+| `production/review-flow.md` | **v2.** R1 mandatory after any `.claude/` change; R3.5 contract-rename sweep; R3.6 static-event null-invoke check; cadence table corrected to the real cron (standup 02:00, not 10:00); §9 status; §10 revision history |
+| `production/qa/reviews/project-review-2026-10-09.md` | **New.** Run 2 (delta on run 1): verdict AT RISK (static); champion select coupled to BUG-097; doc drift from the `ON_CLEAR_ENEMY` → `ON_OPEN_DOOR` rename and the `LoadRandomMap` scene move |
+| `production/qa/bugs/BUG-102.md` | **New (S3).** Confirm-panel static events raised with `.Invoke()`; `SetConfirm()` field mapping |
+| `production/qa/bugs/BUG-097.md` | Re-verification note: champion tiles live in `BossRoom_ThroneArena.json`; fix order changed |
+
+Not edited (listed as drift for the next `/doc-sync`): `CLAUDE.md` (scene path, `ON_CLEAR_ENEMY`,
+BUG-093..095 IDs), `.claude/rules/map-code.md`, `design/gdd/map-system.md`,
+`docs/systems/{map,enemy,event-system}/README.md`, `docs/ui/ui-ux-flow.md`, `docs/skill-reference.md`.
+
+---
+
 ## 2026-10-08 — Dissolve the vendored CCGS folder into the project
 
 **Cause.** Owner request: distribute `.claude/Claude-Code-Game-Studios-main/` into the project's own layout.

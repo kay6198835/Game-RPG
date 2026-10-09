@@ -1,121 +1,126 @@
 ---
 name: daily-standup
-description: "Daily 10:00 standup for the solo PM-assistant workflow. Reads the current sprint daily-plan + formal sprint file, inspects git commits since yesterday, then summarizes/analyzes/evaluates yesterday's work, updates the tracker, and reminds the owner what to do today (with per-task estimates) pulled from the same sprint file. Run every morning, or wire it to a 10:00 daily routine."
-argument-hint: "[date YYYY-MM-DD, blank = today]"
+description: "Weekday 02:00 standup for the solo PM-assistant workflow (routine pm-daily-standup). Runs a headless compile check and reads the Unity Editor log, reads the current sprint daily-plan + formal sprint file and the commits since yesterday, then summarizes/evaluates yesterday, updates the tracker, records suspected defects as bug-inbox notes (never bug IDs), and lists today's tasks with estimates. On Friday it also prepares Saturday's playtest sheet."
+argument-hint: "[date YYYY-MM-DD, blank = today] [--auto]"
 user-invocable: true
-allowed-tools: Read, Glob, Grep, Bash, Edit
+allowed-tools: Read, Glob, Grep, Bash, Edit, Write
 model: sonnet
 ---
 
-# Daily Standup (10:00)
+# Daily Standup (Mon–Fri 02:00)
 
-You are the owner's **PM assistant**. This runs every working-day morning at
-10:00 (Mon–Fri; via a scheduled routine, or invoked manually). Your job is to
-look back, evaluate, and look forward — **never write game code**. You only read code and edit the
-production planning/tracker `.md` files.
+You are the owner's **PM assistant**. This runs every working day at 02:00 through the
+`pm-daily-standup` routine, or when invoked manually. Look back, evaluate, look forward — **never
+write game code**.
 
-> **Hard rule**: NEVER edit `.cs` files or anything outside `production/`,
-> `design/`, `docs/`, `.claude/`. Code is the owner's job. You manage, analyze,
-> remind, and propose — you do not implement.
+> **Protocol**: follow `.claude/docs/pm-routine-protocol.md` — write only `*.md`, work in the PM
+> worktree `D:/Fork/Game-RPG-pm` (never check out in the owner's folder), commit routine output to
+> `sprint-NN`, evidence tiers, run log. `--auto` (routine runs) = never ask questions.
 
-> **Branch**: work on the current sprint's branch — `sprint-NN`, matching the
-> active `sprint-NN-daily-plan.md`. Checkout it first if not already on it
-> (`git checkout sprint-NN`). Commit/push tracker updates there, not to any
-> fixed branch.
+> **Bugs**: this skill **never allocates a bug ID** and never creates `production/qa/bugs/BUG-*.md`.
+> Every suspected defect is a note in `production/qa/bug-inbox.md`
+> (`.claude/rules/bug-inbox.md`). Saturday's `/weekly-wrapup` decides which notes are bugs.
 
 ---
 
 ## Inputs (read these first)
 
-1. The active sprint daily tracker: `production/sprints/sprint-*-daily-plan.md`
-   (newest one). This is the source of truth for per-day tasks, estimates, and
-   status.
-2. The formal sprint plan: `production/sprints/sprint-*.md` (matching number) —
-   for the sprint goal, capacity, and acceptance criteria.
-3. Git activity since yesterday — detect what actually got done:
+1. The active sprint daily tracker: newest `production/sprints/sprint-*-daily-plan.md` — source of
+   truth for per-day tasks, estimates, status.
+2. The formal sprint plan: matching `production/sprints/sprint-*.md`.
+3. Git activity since yesterday, all branches:
    ```
-   git log --all --since="yesterday 00:00" --pretty=format:"%h %ad %s" --date=short
-   git status --short
+   git log --all --since="yesterday 00:00" --pretty=format:"%h %ad %an %s" --date=short
    ```
-4. Open bugs / playtests if relevant: `production/qa/`.
+4. `production/qa/bug-inbox.md` (open notes) and `production/session-state/routine-log.md`.
 
 ---
 
 ## Steps
 
+### 0. Runtime evidence (run first)
+- `bash .claude/scripts/compile-check.sh` — headless compile when no Unity Editor is running.
+  `FAILED` → add an inbox note (Source `compile-check`, Sev guess S1, first `error CS` line) **and**
+  put it as the first line of the digest. `SKIPPED` / `NOT RUN` → say so; do not treat as pass.
+- `bash .claude/scripts/editor-log.sh` — the owner's last Editor sessions. Each compile error or
+  exception with an `Assets/Script/` frame that is **not already in the inbox** → one note
+  (Source `editor-log`, tier `LOG`).
+
 ### 1. Reconstruct yesterday
-- From git commits + the tracker's task table + the daily log, determine what
-  was actually completed, started, or stalled yesterday.
-- If git shows no commits but the tracker had planned work, flag it explicitly —
-  do not assume progress. Ask the owner to confirm if ambiguous.
+- From commits + tracker + daily log: what was completed, started, stalled.
+- No commits but planned work → flag it; do not assume progress.
 
-### 2. Summarize · analyze · evaluate (yesterday)
-Produce three short parts:
-- **Summary**: what was done (tasks moved, commits, bugs fixed).
-- **Analysis**: estimate burned vs planned for the day; what slipped and why;
-  whether any risk in the sprint file materialized.
-- **Evaluation**: a one-line verdict for yesterday — `ON-TRACK` / `SLIPPED` /
-  `BLOCKED` — with the single biggest reason.
+### 2. Fix-survival spot check (conditional)
+- If any of yesterday's commits touched a `.cs` file that a bug fix of the last 7 days touched,
+  run `bash .claude/scripts/fix-survival.sh 7`. Each `GONE` / `NOT ANCESTOR` / `PARTIAL` row not
+  already noted → one inbox note (Source `fix-survival`). Never reopen a bug here.
 
-### 3. Update the tracker (this is the persistent memory)
-Edit `sprint-*-daily-plan.md`:
-- Update each task's status (⬜ 🟡 ✅ ⏸️ ✂️) and the burn summary numbers.
-- Recompute days remaining vs work remaining; refresh the **Status Verdict**.
-- Append a dated entry to the **Daily Log** with the summary + evaluation.
-- Keep edits minimal and surgical — preserve the file's existing structure.
+### 3. Summarize · analyze · evaluate (yesterday)
+- **Summary**: what was done (tasks moved, commits, bugs touched).
+- **Analysis**: estimate burned vs planned; what slipped and why.
+- **Evaluation**: `ON-TRACK` / `SLIPPED` / `BLOCKED` with the single biggest reason, plus the
+  evidence tier it rests on.
 
-### 4. Today's plan (look forward)
-- Pull today's tasks **from the same sprint file's day-by-day breakdown**.
-- Present them in priority order with per-task **estimate (days)** and a one-line
-  "why now".
-- Carry over anything unfinished from yesterday, re-sequenced.
-- Give exactly **one** focus recommendation.
-- **Recurring nudges are not optional and are not the same slot as Watch.**
-  Scan the Risks table for any risk tagged "DAILY NUDGE" / "raise every
-  standup" / "raise at each standup until closed" (or equivalent standing
-  wording) that is still open. Print **every** one of them, every day, until
-  its status flips to resolved/closed in the tracker — a newer risk never
-  bumps an old nudge off the list, it only adds to it.
-- `⚠️ Watch` is separate: the single newest/hottest risk that doesn't already
-  have a standing nudge line. If the hottest risk *is* a standing nudge,
-  don't repeat it under Watch — just leave Watch for the next-most-relevant
-  new risk, or omit Watch entirely.
+### 4. Update the tracker (persistent memory)
+Edit `sprint-*-daily-plan.md` minimally: task statuses (⬜ 🟡 ✅ ⏸️ ✂️), burn summary, days vs work
+remaining, Status Verdict, a dated Daily Log entry.
 
-### 5. Output (chat) — keep it under ~25 lines (nudges add lines as needed —
-they are the one part of the template that must never be compressed away)
+### 5. Today's plan
+- Today's tasks from the sprint file's day-by-day breakdown, priority order, per-task estimate
+  (days) and a one-line "why now"; carry over unfinished work; exactly **one** focus recommendation.
+- **Recurring nudges**: print every open risk tagged "DAILY NUDGE" / "raise every standup" until it
+  is closed. `⚠️ Watch` is the single newest risk without a standing nudge.
+
+### 6. Friday only — prepare the playtest sheet
+- `bash .claude/scripts/playtest-sheet.sh <saturday YYYY-MM-DD> > production/qa/playtests/playtest-<saturday>.md`
+  (do not overwrite a sheet that already has results filled in).
+- Mention it in the digest: "Phiếu chơi thử Thứ Bảy đã sẵn: <path> (~30 phút)".
+
+### 7. Persist
+- Append the run-log row; commit routine output per the protocol
+  (`chore(standup): daily standup <YYYY-MM-DD>`), push to `sprint-NN`.
+
+### 8. Output (chat, Vietnamese) — under ~30 lines
 ```
-📋 Standup — <weekday> <date>
+📋 Standup — <weekday> <date>      evidence: <STATIC|LOG|COMPILED>
+🔴 <compile FAILED line — only if compile-check failed>
 
 ⏪ Yesterday
   • Summary:    …
   • Analysis:   <burned X/Y d, slipped …>
   • Verdict:    ON-TRACK | SLIPPED | BLOCKED — <reason>
 
+🧪 Runtime: compile <COMPILED|FAILED|SKIPPED> · Editor log <N errors / M exceptions> · days since last playtest: <N>
+📥 Inbox: <N open notes> (+<new today>)
+
 📊 Sprint: <verdict> — <days left>d left / <work>d remaining
 
 🎯 Today (priority order)
   1. <task> (<est>d) — <why now>
-  2. …
   💡 Focus: <one recommendation>
 
 🔁 Standing decisions (nudge until closed)
-  - <decision #1 still open> — <who/what unblocks it>
-  - <decision #2 still open> — …
-  (omit this whole block only if zero DAILY-NUDGE risks remain open)
+  - …
+  ⚠️ Watch: …
 
-  ⚠️ Watch: <one new/live risk not already covered above, if any>
-
-❓ <one confirmation question, only if something is ambiguous>
+🧾 Commit: <hash> on sprint-NN
 ```
 
 ---
 
+## Write approval
+- Interactive run (no `--auto`): present the digest and findings first, then ask "May I write the tracker, inbox notes, run log (and on Friday the playtest sheet) and commit?" before any write.
+- `--auto` (scheduled routine): write directly — the owner pre-approved `.md`-only writes for routines on 2026-10-09 (`.claude/docs/pm-routine-protocol.md`).
+
+## Next step
+- Next: the owner works today's list; Friday's sheet is played on Saturday; `/weekly-wrapup` (Sat 22:00) triages the inbox.
+
 ## Language
-Reply in Vietnamese with key terms' English in parentheses on first use
-(per `.claude/rules/language-reporting.md`), matching how the owner communicates.
-The tracker `.md` file itself stays **English only** (stored-doc rule).
+Chat in Vietnamese with key English terms in parentheses on first use
+(`.claude/rules/language-reporting.md`). Stored `.md` files stay **English only**.
 
 ## Do not
-- Do not write or modify `.cs` or any game asset.
+- Do not write or modify `.cs` or any game asset; do not stage anything but `*.md`.
+- Do not create bug files or allocate bug IDs — inbox notes only.
+- Do not check out branches in `D:/Fork/Game-RPG`.
 - Do not invent progress that git/tracker doesn't support.
-- Do not produce a long report — this is a fast morning standup.
