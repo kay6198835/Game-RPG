@@ -1,6 +1,23 @@
 # Sprint 17 — 2026-10-05 to 2026-10-09
 
-**Status: OPEN.** Opened 2026-10-05 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
+**Status: CLOSED — SLIPPED (2026-10-09, `pm-weekly-kickoff`, autonomous).**
+
+## Closure — 2026-10-09 (weekly kickoff, autonomous)
+
+- **Must-Have:** 0 / 8 done. S17-01 (BUG-096) PARTIAL — start room opens on Champion confirm in
+  `221d54be`, which is on feature branches only, not on `sprint-17`; no zero-spawn branch for
+  Rest/Shop/Buff rooms.
+- **Should-Have:** 0.2d / 0.95d (S17-14 `/doc-sync` only).
+- **Planned velocity:** 0.2d / 4d = **0.05**. Off-plan owner output ≈2.6–3.1d (UIFlow real-game wiring,
+  shop, start room / Champion select / confirm panel, CCGS tooling upgrade).
+- **Evidence tier:** `COMPILED` + `LOG`, no `RUNTIME` — `playtest-2026-10-10.md` unfilled;
+  **playtest done: no**.
+- **Carry-over to Sprint 18:** S17-01 … S17-13. New confirmed bug at triage: BUG-102 (S3).
+- **Recurring slippage:** Play Mode smoke carried for the 14th time; BUG-066+070 and BUG-065 for the
+  9th time; BUG-092 residual and BUG-086 for the 4th time.
+- Full trail: `sprint-17-daily-plan.md` (Daily Log, wrap-up entry).
+
+*Original header:* **Status: OPEN.** Opened 2026-10-05 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
 fired on Monday, so the sprint starts today).
 Branch `sprint-17`, created from `sprint-16` tip (`96c65fa`, "chore(wrapup): weekly wrap-up 2026-10-05").
 `gh` CLI unavailable (`gh: command not found`) — draft PR **not** auto-created; run manually:
