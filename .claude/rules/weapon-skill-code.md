@@ -99,7 +99,8 @@ paths:
 - Effect and condition `ScriptableObject`s are **shared, single-instance assets**. Never store
   per-cast state in a field on one. The violation this rule was written against —
   `HasEnoughManaCondition.currentMana` / `.costMana` (BUG-077) — was ✅ **fixed in `2a83469` by
-  deleting the class**; `Assets/Script/System/Abilities/Conditions/` is now empty. The rule stands
+  deleting the class**; the `Assets/Script/System/Abilities/Conditions/` directory is gone from the tree
+  (2026-10-09 check). The rule stands
   regardless: `Stat.modifiers` (BUG-063) is the same defect and is still open.
   `SpawnEffectBase._context` / `.dir` are the same shape; they are load-bearing today, because
   `SpawnSummonEffect.Apply()` relies on `TryCast()` having set `_context` for it. That coupling is

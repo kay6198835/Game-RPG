@@ -10,7 +10,20 @@ verified-by: Kiet
 
 > 📜 Change log: [changelog/map-system.CHANGELOG.md](changelog/map-system.CHANGELOG.md)
 
-> **Re-synced 2026-10-05 against HEAD `93ba6d8e`.** Changes since the 2026-09-11 pass:
+> **Re-synced 2026-10-09 against `sprint-17` `cdf68555` (doc-truth pass).** Two claims made by the
+> 2026-10-05 banner are wrong and are corrected here and in the body:
+>
+> - ❌ **Rooms without spawn markers do NOT open at once (BUG-099).** `40d2c793` added the zero-spawn
+>   branch, but `ac13ee4f` removed it again, and both commits are ancestors of HEAD.
+>   `RoomGeneraterController.LoadRoom()` (`:134-144`) has only the `!IsCleared` path, so Start / Boss /
+>   Rest / Shop / Buff rooms stay sealed (**BUG-096**, S1). The edge-case row and the acceptance
+>   criterion below are reset.
+> - ⚠️ **"Start room = index 0 template" now selects the Boss room (BUG-097).** `Maze_Storage.asset`
+>   is alphabetical, so `room[0]` = `BossRoom_ThroneArena` and `room[last]` = `StartRoom_Entrance`.
+> - New since `93ba6d8e` (`5d1986db`): `RoomCell.IsCleared` is set in `OpenDoors()` (was: in
+>   `OnEnemyDeath()` at zero alive), and `DeleteDoorTileMap()` returns early on an already-cleared room.
+>
+> *Previous banner — re-synced 2026-10-05 against HEAD `93ba6d8e`.* Changes since the 2026-09-11 pass:
 >
 > - ✅ **Bug #13 fixed** (`9154763f`, 2026-09-30): `RoomGridController.OnDoneLoadRoomGrid()` loads the
 >   start room and calls `PlayerManager.SetPlayerPosition(startRoom.position)`. Door transitions move
@@ -378,7 +391,7 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 | Enemy count reaches 0 but no event fires | ✅ **RESOLVED** — `ON_ENEMY_DEATH` is in the enum and `EntityDeathState` emits it; `RoomCell` counts down and emits `ON_CLEAR_ENEMY` at zero | — |
 | Doors of the previous room after transition | ALL set to `CLOSE` on leave; reopened in bulk on re-entry (`IsCleared` branch) | ✓ Acceptable — backtracking through cleared rooms allowed by design (2026-07-02) |
 | Scene starts — player position in start room | ✅ Player spawned by `PlayerManager`, then moved to the start room centre by `OnDoneLoadRoomGrid()` (Bug #13 fixed) | — |
-| Uncleared room with no spawn markers (start / rest / shop / buff) | ✅ Doors open on load (`40d2c793`) | — |
+| Uncleared room with no spawn markers (start / rest / shop / buff) | ❌ Doors stay sealed — `ON_CLEAR_ENEMY` never fires (BUG-096; `40d2c793` reverted by `ac13ee4f`). *Was (2026-10-05):* "✅ Doors open on load" | BUG-096 |
 | Two `MazeController` instances in scene | **[BUG #14]** Duplicate destroys itself but still overwrites `Instance` and re-runs the generator | Add `return` after `Destroy(gameObject)` |
 | Standalone Player build | **[BUG #15]** Room JSON read from `Application.dataPath` — files absent in build → load failure | Move to `TextAsset` refs or StreamingAssets |
 | Player re-enters a cleared room | Doors already open; no enemies → room-clear instant | ✓ Acceptable — no lock triggered if `enemyCount == 0` |
@@ -425,7 +438,7 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 - [x] All rooms reachable — inherent to DFS spanning tree algorithm
 - [x] Door states correctly reflect carving direction
 - [x] Maze generates before rooms populated (MazeController.Awake → Start order)
-- [x] Start room = index 0 template; End room = last template; middle rooms random
+- [x] Start room = index 0 template; End room = last template; middle rooms random — ⚠️ the rule holds in code, but with the alphabetical `Maze_Storage.asset` it puts the Boss room at the start (BUG-097, 2026-10-09)
 
 ### Room Loading
 - [x] `LoadRoom()` reads JSON by tile name, sets tiles on correct layer
@@ -440,7 +453,7 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 - [x] Walking into an `OPEN` door triggers `ON_PLAYER_ON_DOOR`
 - [x] Player teleports to entry door of next room (no visible cross-room travel)
 - [x] Player teleports into the START room on maze load (Bug #13 fixed 2026-09-30)
-- [x] Rooms without spawn markers open their doors on load (2026-10-04)
+- [ ] Rooms without spawn markers open their doors on load — **un-ticked 2026-10-09**: the fix (`40d2c793`) was reverted by `ac13ee4f` (BUG-096, BUG-099)
 - [x] Doors of previous room close on leave and reopen on re-entry — backtrack by design
 - [x] Minimap avatar updates on every transition (Bug #11 fixed 2026-07-02)
 - [ ] Doors cannot be traversed before room is cleared — lock-on-entry not implemented

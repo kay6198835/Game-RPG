@@ -8,8 +8,12 @@
 
 | Note | Date | Source | Sev guess | Where | What | Evidence tier |
 |---|---|---|---|---|---|---|
+| NOTE-20261009-9 | 2026-10-09 | doc-sync | S4 | `production/qa/bugs/BUG-064.md`, `BUG-087.md` | Bug-file status lags the code. **BUG-064**: file says PARTIAL (sub-item 7 open), but at `sprint-17` `cdf68555` `RangeWeapon.cs:16-17` has `[Inject] Construct(IObjecPoolService)` and `WeaponHolderBase.cs:60` calls `InjectGameObject` → sub-7 looks fixed (`5b035b73`). **BUG-087**: file says Open; `RealPlayerDataProvider.cs:47` now subscribes to `ON_PLAYER_DEATH` → partial. `CLAUDE.md` now shows the file statuses; triage should decide whether to update the files | STATIC |
+| NOTE-20261009-10 | 2026-10-09 | doc-sync | S3 | `Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs:11,67` | `nextFireTime` is written (`:67`, `Time.time + stage.RecoveryTime`) but never read; `CanAttack()` (`:22-23`) has no time term, so `RangeAttackSO.RecoveryTime` has no effect. Also `OnDrawGizmosSelected` (`:82-83`) draws `firePoint + firePoint * attackRange`. One of the three unfiled defects from BUG-101 (mislabelled "BUG-093" in `CLAUDE.md` 2026-10-05); re-confirmed at `cdf68555` | STATIC |
+| NOTE-20261009-11 | 2026-10-09 | doc-sync | S4 | `Assets/Script/Character/Player/PlayerState.cs:35` | `PlayerState.Enter()` calls `Debug.Log("Enter State: " + animBoolName)` with no `#if UNITY_EDITOR` guard: a string concat and a log on every player state change, shipped in builds. BUG-101 orphan (mislabelled "BUG-094"); re-confirmed at `cdf68555`. Relates to NOTE-20261009-2 (an NRE was logged at the same line from an uncommitted file) | STATIC |
+| NOTE-20261009-12 | 2026-10-09 | doc-sync | S2 | `Assets/Script/Weapons/MeleeWeapon/AttackSO.cs:10`; `Assets/SO/Weapons/MeleeWeapons/SnS_State1-3.asset` | `attackDamege` was renamed to `attackDamage` in `ddcc0a5c` with no `[FormerlySerializedAs("attackDamege")]`. The three player sword stages still serialize `attackDamege: 55`, so Unity loads `attackDamage = 0` and a sword hit deals only `PhysicalDamage`. BUG-101 orphan (mislabelled "BUG-095"); re-confirmed at `cdf68555` (no attribute; 3 assets still carry the old key). Needs Play Mode to confirm the damage loss. `.claude/rules/scriptableobject-data.md` and the doc-sync skill cite "BUG-095" for this lesson; rewrite those once an ID exists | STATIC |
 
-_(none — every note below was triaged by the 2026-10-09 wrap-up; see **Triaged notes**)_
+_(the four notes above were added by `/doc-sync --auto` on 2026-10-09, after the wrap-up triage; the earlier notes are under **Triaged notes**)_
 
 ## Note text archive (triaged 2026-10-09)
 

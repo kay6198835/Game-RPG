@@ -7,6 +7,14 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — Edge-case table re-synced (doc-sync --auto)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **From → To:** `EntityStatsSO.ModifiersAmor` "[BUG — still open, 12 weeks]" (`EntityStatsSO.cs:45`) → RESOLVED. The file was deleted in `b0512f4` (NEW-2).
+- **From → To:** "Entity health ≤ 0 … unreachable, two disconnected stores" → RESOLVED. Damage now goes `EntityNegativeReciver` → `EntityVitalStats`, and `EntityBasicState` reads `EntityVitalStats` (BUG-053 fixed).
+- **From → To:** "the enum has 20 values" → 24 values at `sprint-17` `cdf68555`.
+- **Why:** the claim sweep found the citation pointed at a deleted file. The rows had been stale since the 2026-09 entity refactor.
+- **Bugs:** NEW-2, BUG-053
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+25 / −1 lines)
 - **Sections touched:** “Character System Design”, “Dependencies”

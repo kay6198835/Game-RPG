@@ -7,6 +7,17 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — Doc-truth correction (doc-sync --auto)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Changed:** two claims from the 2026-10-05 re-sync, found false by the claim sweep `production/qa/doc-truth-2026-10-09.md`
+  - **From → To:** banner `:22` "Rooms without spawn markers open at once (`40d2c793`)" → the fix was reverted by `ac13ee4f`; the rooms stay sealed (BUG-096)
+  - **From → To:** edge-case row "✅ Doors open on load" → "❌ Doors stay sealed" (BUG-096)
+  - **From → To:** acceptance criterion `[x] Rooms without spawn markers open their doors on load` → `[ ]` with a reason
+  - **From → To:** `[x] Start room = index 0 template …` → rule still ticked, with a note that the alphabetical `Maze_Storage.asset` puts the Boss room at the start (BUG-097)
+  - **From → To:** `RoomCell.IsCleared` was written only in `OnEnemyDeath()` → it is now written in `OpenDoors()`, and `DeleteDoorTileMap()` returns early when the room is cleared (`5d1986db`, 2026-10-06)
+- **Why:** BUG-099. The 2026-10-05 sync took `40d2c793` from the commit log without checking that the change was still in the code.
+- **Bugs:** BUG-096, BUG-097, BUG-099
+
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
 - **Changed:** corrected every statement found stale against HEAD `93ba6d8e`. Each item reads *was stale → now says*:

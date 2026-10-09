@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — Path note added (doc-sync --auto)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Changed:** added a re-sync note under the Status banner. The Decision text is unchanged.
+- **From → To:** `Assets/Script/Enemy/` and `Assets/Script/Enemy/EnemyManager.cs` (`:20`, `:305`, `:373`) → read them as `Assets/Script/System/Enemy/…`. The directory moved in `1c0742e` (2026-09-03).
+- **Why:** the claim sweep marked three path claims STALE.
+
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
 - **Changed:** corrected every statement found stale against HEAD `93ba6d8e`. Each item reads *was stale → now says*:

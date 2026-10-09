@@ -9,3 +9,4 @@
 |---|---|---|---|---|---|---|
 | 2026-10-09 | daily-standup | `ec44e9be` | OK | COMPILED | (this commit) | Fri; compile PASS on `221d54be`; +1 inbox note (NOTE-4); playtest sheet 2026-10-10 generated; Must-Have 0/8 |
 | 2026-10-09 | weekly-wrapup | `9706c6f4` | PARTIAL | COMPILED + LOG (no RUNTIME) | `9706c6f4`, `386083ca` (merge `662383d9`), (this commit) | Fired Fri 17:25, not Sat; playtest sheet empty → SLIPPED, playtest done: no; 8 notes triaged → BUG-102; velocity 0.05 |
+| 2026-10-09 | doc-sync (`pm-weekly-doc-truth`) | `cdf68555` | PARTIAL | STATIC | merge on `sprint-17` (see branch `pm/doc-sync-2026-10-09`) | Phase 0: 567 claims, 45 flagged → 13 STALE / 5 FALSE overall; CLAUDE.md bug table aligned to files (BUG-064/087/093-095, +096-102); BUG-099 claims fixed; +4 inbox notes (9-12); 3 left Out of date. PARTIAL: protocol + scripts read from unmerged `42a81260`, not on `sprint-17` |

@@ -55,7 +55,10 @@ ON_GET_SPAWN_POSITIONS (from RoomGeneraterController.LoadRoom)
 RoomCell: ON_DONE_SPAWN_ENEMY → EnemyCount; ON_ENEMY_DEATH → -- ; 0 → ON_CLEAR_ENEMY
 ```
 
-Rooms with no spawn marker never emit `ON_GET_SPAWN_POSITIONS`; see [map](../map/README.md).
+Rooms with no spawn marker still emit `ON_GET_SPAWN_POSITIONS` (with an empty list) — `LoadRoom()` has no
+zero-spawn branch at `sprint-17`. `OnGetSpawnPositions()` returns early, so `ON_DONE_SPAWN_ENEMY` and
+`ON_CLEAR_ENEMY` never follow and the room stays sealed (BUG-096); see [map](../map/README.md).
+*Corrected 2026-10-09 — was:* "Rooms with no spawn marker never emit `ON_GET_SPAWN_POSITIONS`".
 
 **Prefab wiring.** `Entity` + child `EntityCore` + all core components as descendants; assign an
 `EntityData`. A scene `EnemyManager` is required.
