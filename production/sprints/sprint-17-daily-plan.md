@@ -11,7 +11,15 @@
 
 ## Status Verdict
 
-**OFF TRACK — day 4 of 5 (2026-10-08, standup).** 0 / 8 Must-Have done, 0 blocked. `sprint-17` HEAD
+**OFF TRACK — day 5 of 5 (2026-10-09, standup).** Must-Have 0 / 8 done for the 5th day. `sprint-17` HEAD
+`ec44e9be` (CCGS studio-framework upgrade, `.claude/` only). One owner code commit since Thu standup,
+`221d54be` "logic open door at start room" (feature branches only) — partial progress on BUG-096 (start
+room opens after Champion confirm), but no zero-spawn branch, no Inspector block, no smoke. Headless
+compile of `221d54be` + working tree: **COMPILED** (first `COMPILED`-tier evidence this sprint). Must-Have
+remaining ≈1.2d with ≈1 day left — the sprint cannot meet its goal; Saturday wrap-up should close it
+PARTIAL and either log S17-04 from tomorrow's playtest sheet or record a signed accepted-risk note.
+
+*Previous verdict (2026-10-08):* **OFF TRACK — day 4 of 5.** 0 / 8 Must-Have done, 0 blocked. `sprint-17` HEAD
 `765a46e1`; `origin/feature/ui-flow-maingameplay` is one commit ahead (`ada2c1a8`). Must-Have remaining
 1.25d with ≈1.5 working days left (Thu + Fri, Fri has 1d buffer) — only fits if Thu is spent on the Mon
 block and Fri on the vitals/death block, with zero further feature work. Two more days of off-plan feature
@@ -75,7 +83,9 @@ fits, but only if today runs the Mon block before anything else.
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S17-14 `/doc-sync` | 0.2d | ✅ DONE Mon (`7d1b5c79` + CLAUDE.md header from the `cb0de496` merge) | CLAUDE.md stale on input, DI, projectile |
-| Re-run smoke if Mon–Thu commits touched Map/Combat | 0.1d | NOT STARTED | Retro process rule |
+| Re-run smoke if Mon–Thu commits touched Map/Combat | 0.1d | ⬜ NOT STARTED — folded into Sat playtest sheet `production/qa/playtests/playtest-2026-10-10.md` | Retro process rule |
+| *(off-plan)* Start-room door opens on Champion confirm; `ON_CLEAR_ENEMY` → `ON_OPEN_DOOR`; confirm panel buttons | — | 🟡 committed `221d54be` (feature branch, not on `sprint-17`) | Partial BUG-096 (start room only) |
+| *(PM)* CCGS v1.1.2 studio upgrade (`959268bd`…`ec44e9be`) | — | ✅ on `sprint-17` | Tooling, `.claude/` only |
 | Buffer | 1d | — | |
 
 ---
@@ -267,3 +277,41 @@ Total ≈ 0.6d. **Fri:** S17-05..08 (≈0.5d) inside the 1d buffer.
 - `LoadRandomMap.unity` churn again (±2k) on a feature branch — scene merge-conflict risk persists.
 - 6th consecutive sprint where off-plan output ≫ planned output; Sprint 18 kickoff should plan feature work
   explicitly (start room / champion select / shop) instead of leaving it as "reserved".
+
+### 2026-10-09 (Fri) — standup, day 5 of 5 (autonomous run)
+
+**Since last standup (`1b24ef7b`):**
+- `df1d09d3`, `959268bd`, `7c90520b`, `d64047a8`, `ec44e9be` (Thu) — CCGS v1.1.2 studio-framework upgrade
+  (skills, hooks, settings, `.claude/` layout). Tooling only; `sprint-17` now at `ec44e9be`.
+- `221d54be` "logic open door at start room" (Fri 13:44, `origin/feature/ui-flow-maingameplay` +
+  `origin/feature/update-bug-document`, **not on `sprint-17`**) — `EventID.ON_CLEAR_ENEMY` renamed
+  `ON_OPEN_DOOR` (same slot), `ChampitionController.SetCharacterData()` emits it, `ConfirnPanel` gets
+  confirm/cancel buttons + `ConfirnData`, `GameplayUIController.OnDisable()` now unsubscribes correctly,
+  `LoadRandomMap.unity` moved from `Scenes/Main/Test/` to `Scenes/Main/`. `GameplayUI.unity` ±1.1k lines.
+
+Assessment: partial BUG-096 progress — the start room now opens after a Champion is confirmed — but
+`LoadRoom()` still has no zero-spawn branch, so Rest / Shop / Buff rooms still look sealed (added to
+NOTE-20261009-1). Must-Have burn still 0. Editor.log shows 9 Play Mode entries today, so the owner is
+playing; nothing is logged in `production/qa/playtests/`.
+
+**Runtime evidence:**
+- `compile-check.sh` → **COMPILED** (HEAD `221d54be` + 31 uncommitted paths, 33 s).
+- `editor-log.sh` → `Editor.log` clean; `Editor-prev.log` 3× CS0246 (`InputSystemUIInputModule`, transient —
+  compile now passes) and 1× NRE @ `PlayerState.cs:35`. Both already in the inbox (NOTE-2, NOTE-3).
+- `fix-survival.sh` — already run earlier today (NOTE-1); not re-run.
+- Inbox: 4 open notes (+1 today from this run: NOTE-4, doc drift).
+
+**Tracker:** S17-01 🟡 partial (start room only, off `sprint-17`). S17-02..08 not done. Fri buffer consumed by
+tooling + feature work.
+
+**Today (Fri):**
+| # | Task | Est. | Basis |
+|---|------|------|-------|
+| 1 | S17-01 finish — zero-spawn branch in `LoadRoom()` (`BuildGrid` + `OpenDoors()`) for Rest/Shop/Buff | 0.05d | ~6 lines; start-room case now handled by Champion confirm |
+| 2 | S17-02 + S17-03 Inspector block | 0.15d | Three Inspector edits |
+| 3 | Merge `221d54be` into `sprint-17` after one load via menu | 0.02d | Keeps sprint branch = played build |
+| 4 | Saturday playtest sheet ready: `production/qa/playtests/playtest-2026-10-10.md` (~30 min) | — | Becomes S17-04 evidence |
+| 5 | S17-05 + S17-07 if time | 0.25d | Small, one file each |
+
+**Risks:** sprint closes Must-Have ≈0/8 (6th sprint of off-plan ≫ planned); smoke 14th carry unless
+Saturday's sheet is filled; `EventID` rename + scene move not yet in docs (NOTE-4).
