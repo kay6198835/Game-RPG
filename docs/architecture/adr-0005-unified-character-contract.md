@@ -5,6 +5,9 @@
 ## Status
 Proposed — implemented on branch `demo-architeture-1` for review; not yet verified in the Unity Editor.
 
+> ⚠️ **Out of date against code (2026-10-09):** `StatModifierGroup.Apply/Remmove` (Context, below) was
+> deleted in `7f632021`. See the change log; an Amendment is an owner decision.
+
 ## Date
 2026-09-23 · **Amendment 1: 2026-09-24** · **Amendment 2: 2026-09-25** (see the end of this document)
 

@@ -7,6 +7,11 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — ⚠️ Out of date against code (found by doc-sync, not yet fixed)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Stale term:** `RarityTier`. The code enum is `RarityTierEnemy` (`RoomModel.cs:110`, `853fe39`). The 2026-09-11 banner (`:34`) says the `RarityTier` rules "still match".
+- **Why not fixed:** this is an Approved GDD and the drift is open bug **BUG-098**. It is left for the owner or the bug fix.
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+19 / −1 lines)
 - **Sections touched:** “Enemy Spawn & Per-Room Management System”, “Current Implementation (2026-07-13) — HISTORICAL, …”

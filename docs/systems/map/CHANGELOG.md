@@ -2,6 +2,15 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-09 — Correction: no-spawn rooms do not open; IsCleared moved into OpenDoors()
+- **Commits:** `ac13ee4f` (reverted `40d2c793`), `5d1986db` (2026-10-06, "shop coding")
+- **Changed:** `RoomGeneraterController.LoadRoom()`, `RoomGeneraterController.DeleteDoorTileMap()`, `RoomCell`
+- **From → To:**
+  - The 2026-10-05 entry below says marker-less rooms build their grid and delete door tiles on load → **false at HEAD.** `ac13ee4f` removed the zero-spawn branch, so those rooms wait forever for `ON_CLEAR_ENEMY` (BUG-096). README flow corrected.
+  - `RoomCell.IsCleared` was set in `OnEnemyDeath()` at zero alive → it is now set in `OpenDoors()`. `DeleteDoorTileMap()` returns early when `IsCleared` is already true.
+- **Why:** the `5d1986db` message ("shop coding") gives no reason, and the code carries no comment. The 2026-10-05 doc entry was written from the commit log without checking that the fix was still in the code (BUG-099).
+- **Bugs:** BUG-096, BUG-097, BUG-099
+
 ## 2026-10-04 / 10-05 — New room set; no-spawn rooms open at once
 - **Commits:** `213fa5a6`, `8b778fd5`, `f9262495`, `d09671fd`, `d3400ee7`, `40d2c793`, `ac13ee4f`, `a8820666`
 - **Changed:** `Assets/Data/Json/Room/`, `Maze_Storage.asset`, `RoomGeneraterController.LoadRoom()`

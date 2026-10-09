@@ -17,6 +17,37 @@ which code change caused it.
 
 ---
 
+## 2026-10-09 — Doc-truth pass: bug table follows the bug files; BUG-099 claims corrected (HEAD `cdf68555`)
+
+**Cause.** Routine `pm-weekly-doc-truth` (`/doc-sync --auto`). Phase 0 claim sweep:
+`production/qa/doc-truth-2026-10-09.md`. Code commits on `sprint-17` since the last sync (`cb0de496`):
+`7f632021` (StatModifierGroup `Apply`/`Remmove` deleted, `ChampitionController` stub),
+`5d1986db` (`IsCleared` moved into `OpenDoors()`, `PopupPanel` stub) and `f30b8343` (assets). Bug
+files BUG-096…BUG-102 (filed 2026-10-05…09) and BUG-101 (the ID collision) drove most of the edits.
+No `.cs` file was changed.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry. Known Bugs: BUG-064 → PARTIAL and BUG-087 → OPEN, to match their files. BUG-093/094/095 rewritten to the defects in their files (BUG-101). Rows BUG-096…BUG-102 added. Layout: `StartGameSystem/`, `Popup/` added; `Conditions/` marked gone; `Data/Json/Room/` door claim corrected (BUG-099). Checklist 24 citation corrected |
+| `memory/project_state.md` | Rewritten for `sprint-17` `cdf68555` |
+| `design/gdd/map-system.md` (+ change log) | Banner; edge-case row and acceptance criterion for marker-less rooms reset (BUG-096/099); BUG-097 note |
+| `design/gdd/attack-speed-system.md` (+ change log) | `StatsSO.cs:272` blocker marked cleared |
+| `design/gdd/character-system.md` (+ change log) | Two edge-case rows resolved (NEW-2, BUG-053); EventID count 20 → 24 |
+| `docs/systems/map/README.md` + `CHANGELOG.md` | Flow corrected (no zero-spawn branch); `IsCleared` move; BUG-096/097 listed |
+| `docs/systems/enemy/README.md` + `CHANGELOG.md` | Marker-less rooms *do* emit `ON_GET_SPAWN_POSITIONS` |
+| `docs/architecture/adr-0002-…md` (+ change log) | Path note under Status (`System/Enemy/`) |
+| `docs/architecture/adr-0005-…md` (+ change log) | ⚠️ Out of date banner — `StatModifierGroup.Apply/Remmove` deleted; Amendment left to owner |
+| ADR-0003, `enemy-spawn-system.md` change logs | ⚠️ Out of date — `RarityTier` (BUG-098) |
+| `.claude/rules/weapon-skill-code.md` | `Abilities/Conditions/` is gone, not empty |
+| `production/qa/bug-inbox.md` | NOTE-20261009-9…12 (bug-file status lag; the three BUG-101 orphan defects) |
+
+**Notable findings.**
+- Two doc syncs in a row wrote a fix as done on the strength of a commit message (BUG-099). Phase 0
+  now catches that, but only if its scripts exist: `pm-routine-protocol.md`, `doc-claims.sh` and
+  `bug-id.sh` are on an unmerged branch (`42a81260`) and not on `sprint-17`.
+- The `attackDamege` serialization loss (S2, likely silent) still has no bug ID because of the
+  BUG-101 collision. It is NOTE-20261009-12.
+
 ## 2026-10-08 — Dissolve the vendored CCGS folder into the project
 
 **Cause.** Owner request: distribute `.claude/Claude-Code-Game-Studios-main/` into the project's own layout.
