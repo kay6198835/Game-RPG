@@ -16,6 +16,8 @@ namespace UIFlow
     {
         /// <summary>Mở hộp thoại NPC. Callback onFinished chạy khi hộp thoại đóng.</summary>
         public static event Action<IReadOnlyList<DialogueLine>, Action> DialogueRequested;
+        public static event Action<ConfirnData> OpenConfirnPanel;
+        public static event Action ConfirnRequest;
 
         public static event Action ShopRequested;
 
@@ -48,6 +50,18 @@ namespace UIFlow
             NotificationRequested = null;
             DamageNumberRequested = null;
             SkillUsed = null;
+        }
+
+        public static void OnOpenConfirmPanel(Action callback, ConfirnData data)
+        {
+            OpenConfirnPanel.Invoke(data);
+            ConfirnRequest = callback;
+        }
+
+        public static void AccessAction()
+        {
+            ConfirnRequest.Invoke();
+            ConfirnRequest = null;
         }
     }
 }

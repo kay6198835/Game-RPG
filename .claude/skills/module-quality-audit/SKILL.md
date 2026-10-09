@@ -166,8 +166,9 @@ Write `production/qa/module-health-[YYYY-MM].md`:
 
 ## New Bugs / Debt Found This Cycle
 
-[Any new issue found while auditing MUST be filed as its own `production/qa/bugs/BUG-NNN.md`
-via /bug-report — never written here as prose only. List filed IDs.]
+[Any new issue found while auditing MUST be recorded as its own note in
+`production/qa/bug-inbox.md` — never written here as prose only, and never given a bug ID
+(`.claude/rules/bug-inbox.md`). List the NOTE ids.]
 
 ## Recommended Actions Next Cycle
 
@@ -176,43 +177,33 @@ via /bug-report — never written here as prose only. List filed IDs.]
 
 ---
 
-## Phase 5: New Findings → Individual Bug Files
+## Phase 5: New Findings → Bug-Inbox Notes
 
-Per the process gap already flagged across Sprints 6-8 (`S7-D3`/`S8-D1`,
-never completed): any new bug or drift found during this audit must be filed
-as its own file via `/bug-report`, output to `production/qa/bugs/BUG-NNN.md`
-(increment `NNN` from the highest existing file). Do **not** fold new findings
-into the module-health report as prose only — that repeats the exact mistake
-this audit exists partly to catch.
+Per the process gap already flagged across Sprints 6-8 (`S7-D3`/`S8-D1`): any new bug or drift
+found during this audit must be recorded **individually**, not folded into the report as prose.
+Since 2026-10-09 the record is a note in `production/qa/bug-inbox.md` (`NOTE-YYYYMMDD-N`, Source
+`module-audit`), **not** a `BUG-NNN.md` file: only Saturday's `/weekly-wrapup` allocates bug IDs
+(`.claude/rules/bug-inbox.md`; cause: BUG-101, two writers allocating the same IDs).
 
 ---
 
 ## Phase 6: Persist
 
 **Interactive mode**: ask "May I write `production/qa/module-health-[YYYY-MM].md`
-[+ any new `BUG-NNN.md` files] and commit?" before writing/committing.
+[+ inbox notes] and commit?" before writing/committing.
 
-**Autonomous mode**: write the report + any new bug files directly (no
-approval gate — matches the existing `pm-weekly-kickoff`/`pm-weekly-wrapup`
-autonomous convention), then:
-
-```
-git add production/qa/module-health-[YYYY-MM].md production/qa/bugs/*.md
-git commit -m "chore(module-audit): monthly module quality audit [YYYY-MM]
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
-git push
-```
-
-Never stage `.cs` files or assets. If the current branch is a sprint branch,
-commit there; do not create a new branch for this audit.
+**Autonomous mode** (routine `pm-monthly-module-audit`): write the report and inbox notes directly,
+following `.claude/docs/pm-routine-protocol.md` — work in the PM worktree `D:/Fork/Game-RPG-pm`
+(never check out in the owner's folder), stage only `*.md`, commit
+`chore(module-audit): monthly module quality audit [YYYY-MM]` on the detached HEAD at
+`origin/sprint-NN`, push with `git push origin HEAD:sprint-NN`, append the run-log row.
 
 ---
 
 ## Output
 
 A summary: per-module verdict table, count of CRITICAL/AT RISK/HEALTHY modules,
-count of cross-module impact flags found, count of new bugs filed, and the
+count of cross-module impact flags found, count of new inbox notes, and the
 report file path.
 
 Verdict: **COMPLETE** — audit written and (if autonomous) committed.

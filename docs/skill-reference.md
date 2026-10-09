@@ -5,6 +5,9 @@
 > Quick-lookup guide to all Claude Code skills available in this project, grouped by
 > development phase. Generated 2026-06-08 from `.claude/skills/`; re-synced **2026-09-11**
 > against the **80** skill files on disk. (Previous re-sync 2026-08-21 counted 79.)
+> ⚠️ Partial update 2026-10-09: there are now **81** skills and **39** agents (CCGS v1.1.2,
+> 2026-10-08), so §11's missing-agent warning is obsolete; only §9 (recurring PM skills) was
+> re-synced in this pass.
 >
 > Invoke any skill with `/skill-name [argument]`. See `production/review-schedule.md`
 > for which skills run on a recurring cadence (weekly/monthly).
@@ -110,12 +113,19 @@
 | `/milestone-review` | Reviews feature completeness, quality metrics, risk, go/no-go verdict | Milestone checkpoints (monthly review Part 4) |
 | `/gate-check [phase]` | Validates readiness to advance phases (e.g., Production → Polish) — PASS/CONCERNS/FAIL | "Are we ready to move to X" |
 | `/retrospective` | Generates a sprint/milestone retrospective — velocity, blockers, patterns | End of sprint/milestone |
-| `/doc-sync` | Analyzes git log + code, updates CLAUDE.md (Layout, Known Bugs, Checklist, Events) | "Update docs", "sync project documentation" |
+| `/doc-sync [--auto]` | Phase 0 claim sweep (docs vs code), then updates CLAUDE.md (Layout, Known Bugs, Checklist, Events) and living docs. `--auto` = unattended, edits on a `pm/` branch | "Update docs"; routine `pm-weekly-doc-truth` Sat 23:00 |
 | `/changelog` | Auto-generates a changelog from commits, sprint data, and design docs | Need to summarize change history |
-| `/daily-standup` | Daily 10:00 standup — reads sprint plan + git commits since yesterday, updates the tracker, lists today's tasks with estimates | Every morning, or wired to a 10:00 routine |
-| `/weekly-kickoff` | Sunday 22:00 — closes last week (carry-over + velocity), auto-creates next `sprint-NN.md` + daily-plan tracker | Sunday, before the working week |
-| `/weekly-wrapup` | Saturday 22:00 — code review of the week's `.cs`, playtest log, bug triage, retro + scope-check, weekly verdict | Saturday, feeds Sunday's kickoff |
-| `/weekly-sprint [kickoff\|wrapup]` | The older combined Monday/Friday ritual — superseded in practice by the three skills above | Legacy; prefer the dated skills above |
+| `/daily-standup [--auto]` | Mon–Fri 02:00 — headless compile check + Unity log scan, tracker update, today's tasks; suspected defects → bug inbox; Friday prepares the playtest sheet | Routine `pm-daily-standup` |
+| `/weekly-kickoff [--auto]` | Sunday 22:00 — closes last week, creates `sprint-NN` on the remote + draft PR, writes `sprint-NN.md` + daily-plan; playtest first on Monday if Saturday's was missed | Routine `pm-weekly-kickoff` |
+| `/weekly-wrapup [--auto]` | Saturday 22:00 — code review, reads the owner's playtest sheet, fix-survival sweep, **bug-inbox triage (the only bug-ID allocator)**, retro, weekly verdict | Routine `pm-weekly-wrapup` |
+| `/weekly-sprint [kickoff\|wrapup]` | The older combined Monday/Friday ritual. No routine calls it since 2026-10-09 | Legacy — candidate for removal |
+
+> **Weekly PM cycle (2026-10-09):** Mon–Fri 02:00 standup → Fri 02:00 playtest sheet → Sat before
+> 22:00 owner playtest (~30 min) → Sat 22:00 wrap-up (inbox triage) → Sat 23:00 doc-sync →
+> Sun 22:00 kickoff. Shared rules: `.claude/docs/pm-routine-protocol.md` (PM worktree
+> `D:/Fork/Game-RPG-pm`, `.md`-only writes, branch model) and `.claude/rules/bug-inbox.md`.
+> Read-only helpers in `.claude/scripts/`: `bug-id.sh`, `fix-survival.sh`, `doc-claims.sh`,
+> `editor-log.sh`, `compile-check.sh`, `playtest-sheet.sh`.
 | `/module-quality-audit` | Monthly per-module scoring (bug density, test evidence, tech debt, code-vs-GDD drift) + re-verification flags | Monthly review — combines bug-triage, consistency-check, content-audit, tech-debt |
 
 ## 10. Release & Live-Ops

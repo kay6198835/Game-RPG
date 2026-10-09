@@ -1,7 +1,7 @@
 ---
 name: doc-sync
-description: "Phân tích trạng thái hiện tại của dự án từ git log và source code, sau đó cập nhật CLAUDE.md (Repository Layout, Known Bugs, Demo Checklist, Event System), memory/project_state.md, docs/systems/<system>/ (README + CHANGELOG), các tài liệu sống (GDD, ADR, diagrams, ui-ux-flow, skill-reference, tech-debt-register, VERSION.md) cùng changelog/<doc>.CHANGELOG.md bên cạnh, và docs/CHANGELOG-DOCS.md để đồng bộ với code thực tế. Chạy khi user nói 'cập nhật docs', 'sync document', 'update project docs', 'cập nhật tài liệu dự án'."
-argument-hint: "[--dry-run]"
+description: "Đối chiếu lời khẳng định trong tài liệu với code (Phase 0 claim sweep), phân tích trạng thái hiện tại của dự án từ git log và source code, sau đó cập nhật CLAUDE.md (Repository Layout, Known Bugs, Demo Checklist, Event System), memory/project_state.md, docs/systems/<system>/ (README + CHANGELOG), các tài liệu sống (GDD, ADR, diagrams, ui-ux-flow, skill-reference, tech-debt-register, VERSION.md) cùng changelog/<doc>.CHANGELOG.md bên cạnh, và docs/CHANGELOG-DOCS.md để đồng bộ với code thực tế. Chạy khi user nói 'cập nhật docs', 'sync document', 'update project docs', 'cập nhật tài liệu dự án'."
+argument-hint: "[--dry-run | --auto]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Write, Edit
 context: |
@@ -15,7 +15,35 @@ tài liệu `.md` để khớp với code. Không suy đoán — chỉ ghi nhữ
 
 **Argument:** `$ARGUMENTS[0]`
 - Nếu là `--dry-run`: chỉ hiển thị những gì sẽ thay đổi, không ghi file.
+- Nếu là `--auto`: chạy không người (routine `pm-weekly-doc-truth`, Thứ Bảy 23:00). Bỏ bước hỏi ở
+  Phase 4 (coi như chọn [A]), tuân thủ `.claude/docs/pm-routine-protocol.md`: chỉ ghi `*.md`, làm
+  trong worktree `D:/Fork/Game-RPG-pm`, mọi sửa đổi tài liệu sống đi qua nhánh
+  `pm/doc-sync-<YYYY-MM-DD>` rồi merge vào `sprint-NN`, ghi một dòng vào
+  `production/session-state/routine-log.md`. Không bao giờ hỏi.
 - Nếu để trống: chạy đầy đủ, hỏi xác nhận trước khi ghi.
+
+> **Bug ID**: skill này **không bao giờ cấp số bug** và không tạo file `production/qa/bugs/BUG-*.md`.
+> Lỗi code nghi ngờ phát hiện khi đọc source → ghi chú vào `production/qa/bug-inbox.md`
+> (`.claude/rules/bug-inbox.md`). Trong `CLAUDE.md` chỉ được nhắc tới ID đã có file.
+
+---
+
+## Phase 0: Claim sweep — đối chiếu tài liệu với code (bắt buộc, chạy trước mọi phase)
+
+Mục đích: không ghi lại một lời khẳng định sai chỉ vì commit message nói vậy (BUG-099: doc-sync
+từng ghi BUG-096 là "đã sửa" trong khi fix đã bị xoá cùng ngày).
+
+1. `bash .claude/scripts/doc-claims.sh` — đường dẫn `Assets/…`, trích dẫn `File.cs:NN`, tên
+   `ON_*` trong tài liệu sống, so với HEAD. Mỗi dòng `STALE` là một việc phải xử lý ở Phase 5.
+2. `bash .claude/scripts/bug-id.sh audit` — ID không có file, file thiếu `**Status**`, trạng thái
+   trong bảng Known Bugs của `CLAUDE.md` lệch với file bug. **File bug luôn đúng** — sửa `CLAUDE.md`.
+3. Đọc lại source cho mọi dòng Known Bugs ghi FIXED/PARTIAL mà file được trích dẫn đã đổi kể từ
+   mốc cập nhật cuối (tối đa 15 dòng): fix còn trong code không? Hết dòng nào thì ghi `UNVERIFIABLE`.
+4. Ghi kết quả vào `production/qa/doc-truth-<YYYY-MM-DD>.md`: bảng `Claim | Doc:line | Verdict
+   (TRUE/STALE/FALSE/UNVERIFIABLE) | Evidence`. Các phase sau **phải** dùng danh sách này: mọi dòng
+   STALE/FALSE hoặc được sửa, hoặc được ghi `⚠️ Out of date` kèm lý do không sửa.
+5. Câu khẳng định nằm trong phần lịch sử (`Previous entry`, `*Was:*`, `(was: …)`) là lịch sử — để
+   nguyên, không tính là lỗi.
 
 ---
 
@@ -153,7 +181,10 @@ Nếu `--dry-run`: hiển thị diff report và dừng với:
 Verdict: DRY RUN COMPLETE — Dùng /doc-sync (không có --dry-run) để áp dụng.
 ```
 
-Nếu không có `--dry-run`, hỏi user:
+Nếu `--auto`: không hỏi — áp dụng [A] (ghi tất cả) theo protocol, rồi sang Phase 5.
+
+Nếu không có `--dry-run` và không có `--auto`, trình bày diff report trước, rồi hỏi user
+("May I write these updates?"):
 
 > Tôi sẽ cập nhật các file sau:
 > - `CLAUDE.md` — [N] thay đổi
@@ -183,9 +214,11 @@ Dùng **Edit** (không phải Write) — chỉ thay đổi đúng phần cần c
 - Không xóa entry cũ — chỉ thêm hoặc cập nhật ghi chú.
 
 **Known Bugs:**
-- Đổi `⚠️ OPEN` → `✅ FIXED` cho bug đã được fix, kèm ngày fix.
-- Thêm hàng mới cho bug mới phát hiện với format:
-  `| [N] | [COMPILE/LOGIC/BUILD/ARCH] | ⚠️ OPEN | [mô tả] | [File.cs:line] |`
+- Trạng thái mỗi dòng **chép từ `**Status**` của file bug**, không suy ra từ commit message.
+  Đổi `⚠️ OPEN` → `✅ FIXED` chỉ khi file bug đã ghi FIXED và Phase 0 xác nhận fix còn trong code.
+- Chỉ thêm hàng cho bug **đã có file** `production/qa/bugs/BUG-NNN.md`. Lỗi mới nghi ngờ → ghi
+  chú vào `production/qa/bug-inbox.md`, không thêm hàng, không đặt số.
+  Format hàng: `| BUG-NNN | [COMPILE/LOGIC/BUILD/ARCH] | ⚠️ OPEN | [mô tả] | [File.cs:line] |`
 - Giữ nguyên các bug đã FIXED ở bảng để có lịch sử.
 
 **Demo Checklist:**
@@ -281,6 +314,10 @@ Mermaid lint:
 
 Verdict: SYNCED
 ```
+
+**Next step:** commit theo protocol (`--auto`: nhánh `pm/doc-sync-<date>` merge vào `sprint-NN`);
+dòng nào còn `⚠️ Out of date` hoặc `UNVERIFIABLE` → `/weekly-wrapup` tuần sau xem lại; lỗi code
+nghi ngờ đã nằm trong `production/qa/bug-inbox.md` chờ triage Thứ Bảy.
 
 ---
 

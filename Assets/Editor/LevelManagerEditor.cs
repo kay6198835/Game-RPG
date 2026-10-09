@@ -26,7 +26,7 @@ public class LevelManagerEditor : Editor
         }
         if (GUILayout.Button("Clear Enemy"))
         {
-            EventManager.Emit(EventID.ON_CLEAR_ENEMY);
+            EventManager.Emit(EventID.ON_OPEN_DOOR);
         }
         if (GUILayout.Button("Import Room Json Files"))
         {

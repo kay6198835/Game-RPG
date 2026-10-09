@@ -78,6 +78,12 @@ public class Player : CharacterBase<Core>
     private void AnimationFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
     private void AnimationEnd() => stateMachine.CurrentState.AnimationEnd();
 
+    public override void SetCharacterData(CharacterData data)
+    {
+        this.data = (PlayerData)data;
+        gameObject.name = data.name;
+    }
+
 
     #endregion
 }

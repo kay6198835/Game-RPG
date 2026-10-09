@@ -1,7 +1,7 @@
 ---
 name: weekly-wrapup
-description: "Saturday 22:00 weekly wrap-up for the solo PM-assistant workflow. Closes the working week: reviews the week's changed .cs (code-review), logs the playtest, triages bugs, runs a light retrospective and scope-check, updates the daily tracker with a final weekly verdict, and produces the carry-over + velocity inputs that Sunday's /weekly-kickoff consumes. Wire it to a 22:00 Saturday routine."
-argument-hint: "[week end date YYYY-MM-DD, blank = today]"
+description: "Saturday 22:00 weekly wrap-up for the solo PM-assistant workflow (routine pm-weekly-wrapup). Closes the working week: reviews the week's changed .cs, reads the owner's playtest sheet, checks that recent fixes survived, triages the bug inbox (the ONLY place bug IDs are allocated), runs a light retrospective, and records the weekly verdict, carry-over and velocity that Sunday's /weekly-kickoff consumes."
+argument-hint: "[week end date YYYY-MM-DD, blank = today] [--auto]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Edit, Write
 model: sonnet
@@ -9,84 +9,111 @@ model: sonnet
 
 # Weekly Wrap-Up (Saturday 22:00)
 
-You are the owner's **PM assistant**. This runs Saturday night (22:00) to close
-the working week (Mon–Fri all done). You **never write game code** — you read
-code (to review it) and edit/create production planning `.md` files only.
+You are the owner's **PM assistant**. This runs Saturday 22:00 through the `pm-weekly-wrapup`
+routine, after the owner's ~30-minute playtest. You **never write game code**.
 
-> **Hard rule**: NEVER touch `.cs` or anything outside `production/`, `design/`,
-> `docs/`, `.claude/`. The owner does all coding. You review, evaluate, record.
+> **Protocol**: follow `.claude/docs/pm-routine-protocol.md` (write only `*.md`, PM worktree,
+> routine output vs special changes, evidence tiers, run log). `--auto` = never ask questions.
 
-> **Branch**: operate on the current sprint's branch — `sprint-NN`, matching the
-> active `sprint-NN-daily-plan.md`. Commit/push the wrap-up updates there. The
-> NEXT sprint's branch is created by Sunday's `/weekly-kickoff`, not here.
+> **Bug IDs**: this is the **only** skill allowed to allocate `BUG-NNN`
+> (`.claude/rules/bug-inbox.md`). It does so only in step 5, from inbox notes.
 
 ---
 
 ## Inputs
-1. Current tracker: newest `production/sprints/sprint-*-daily-plan.md`.
-2. Current formal plan: matching `production/sprints/sprint-*.md`.
-3. The week's commits and changed files:
-   ```
-   git log --all --since="last monday" --pretty=format:"%h %ad %s" --date=short
-   git diff --stat "@{last monday}" -- '*.cs'
-   ```
-4. Open bugs / past playtests: `production/qa/`.
+1. Current tracker and formal plan: newest `production/sprints/sprint-*-daily-plan.md` + matching
+   `sprint-*.md`.
+2. The week's commits, all branches: since the last wrap-up commit
+   (`git log --all --grep '^chore(wrapup)' -1`), fallback last 7 days.
+3. This week's playtest sheet: `production/qa/playtests/playtest-<today>.md`.
+4. `production/qa/bug-inbox.md`, `production/qa/bugs/`.
 
 ---
 
 ## Steps
 
 ### 1. Code review of the week's changes
-- List the `.cs` files changed this week. Review the most complex/risky ones
-  for: coding-standard compliance (`.claude/rules/`), state-machine discipline,
-  null-safety, allocation in hot paths, damage-chain correctness.
-- Report findings as a short list (file → issue → suggested fix). **Do not edit
-  code** — propose only; the owner fixes.
-- For anything material, write/append a bug entry under `production/qa/bugs/`.
+- List `.cs` files changed in the window. Review the riskiest for `.claude/rules/` compliance,
+  state-machine discipline, null-safety, hot-path allocation, damage-chain correctness, and the
+  review-flow checks R3.5 (renamed `EventID` / serialized field / scene path still named elsewhere)
+  and R3.6 (static event raised with `.Invoke()` instead of `?.Invoke()`).
+- Each finding → an inbox note (Source `wrapup`) with `file:line`. Do not edit code.
 
-### 2. Playtest log
-- Capture this week's playtest findings as a brief dated note under
-  `production/qa/playtests/` (a short entry is fine — consistency over length).
+### 2. Playtest sheet
+- Read `production/qa/playtests/playtest-<today>.md`.
+  - Filled → evidence tier `RUNTIME`. Every `FAIL` row → an inbox note (Source `playtest`).
+    Record which section-B bugs the owner marked `PASS` (status changes wait for the pending
+    lifecycle decision — record, do not move them).
+  - Missing or empty → `NOT RUN — no playtest this week`; the weekly verdict is capped at
+    `CONCERNS`; flag it for Sunday's kickoff.
+- Also run `bash .claude/scripts/editor-log.sh`; new findings → inbox notes (Source `editor-log`).
 
-### 3. Bug triage
-- Re-prioritize open bugs (severity vs priority). Mark blockers for next sprint;
-  defer non-blockers. Record under `production/qa/` (triage note).
+### 3. Fix survival (regression sweep)
+- `bash .claude/scripts/fix-survival.sh 30`.
+- `GONE` / `NOT ANCESTOR` / `PARTIAL` rows not already noted → inbox note (Source `fix-survival`),
+  citing the fix commit and the later commits on the same files. **Never reopen automatically** —
+  a removed fix may be an intentional design change; triage (step 5) decides.
 
-### 4. Light retrospective
-- What went well / what slipped / one process improvement for next week.
-- Name any task deferred multiple weeks (recurring slippage is a pattern to call
-  out explicitly, not bury).
+### 4. Doc/ID drift (report only)
+- `bash .claude/scripts/bug-id.sh audit` and the summary line of `bash .claude/scripts/doc-claims.sh`.
+  List counts in the digest; the fixes happen in tonight's 23:00 `/doc-sync --auto`.
 
-### 5. Close the tracker for the week
-- Edit the current `sprint-*-daily-plan.md`: finalize task statuses, the burn
-  summary, and a **final weekly Status Verdict** (ON-TRACK / SLIPPED / BLOCKED).
-- Append a Friday entry to the Daily Log.
-- Compute and record the two handoff values for Monday: **carry-over tasks**
-  (anything not ✅) and **velocity** (estimate-days actually completed / 4).
+### 5. Inbox triage — the only bug-ID allocation point
+For every open note in `production/qa/bug-inbox.md`, re-read the cited code at the sprint HEAD and
+decide: **Confirmed** · **Resolved in week** (cite commit) · **Duplicate** (append evidence to the
+existing bug) · **Not a bug / by design** (reason) · **Needs owner** (carry, list in digest).
+- For all Confirmed notes, at the end of triage: `bash .claude/scripts/bug-id.sh next` → create
+  `production/qa/bugs/BUG-NNN.md` (header: Title, Severity, Priority, System, Found by, Status,
+  Fixed in) — one at a time, re-running `next` each time.
+- Move each triaged row to **Triaged notes** with its outcome.
+- New bug files and status changes are **special changes** → `pm/wrapup-<date>` branch per the
+  protocol. Write `production/qa/bug-triage-<date>.md` (priority vs severity, blockers for next
+  sprint, inbox outcomes).
 
-### 6. Output (chat) — under ~30 lines
+### 6. Light retrospective
+- Went well / slipped / one process improvement. Name any task deferred multiple weeks.
+
+### 7. Close the tracker for the week
+- Finalize statuses, burn summary, a **final weekly Status Verdict** (ON-TRACK / CONCERNS /
+  SLIPPED / BLOCKED) with its evidence tier; append the Daily Log entry.
+- Record handoff values for Sunday: **carry-over** (anything not ✅, plus newly confirmed blocker
+  bugs) and **velocity** (estimate-days completed / 4), and **playtest done: yes/no**.
+
+### 8. Persist
+- Run-log row; commit routine output (`chore(wrapup): weekly wrap-up <YYYY-MM-DD>`) and merge the
+  `pm/wrapup-<date>` branch per the protocol.
+
+### 9. Output (chat, Vietnamese) — under ~30 lines
 ```
-🏁 Weekly Wrap-Up (Sat 22:00) — Sprint NN (week ending <Fri date>)
+🏁 Weekly Wrap-Up (Sat 22:00) — Sprint NN        evidence: <tier>
 
 ✅ Done this week: <tasks> (velocity <X>/4 d)
 ⤵️ Carry-over:     <tasks>
-🔍 Code review:    <N files reviewed, top finding>
-🐞 Bug triage:     <blockers → next sprint>
-🧪 Playtest:       <one-line note>
-📊 Verdict:        ON-TRACK | SLIPPED | BLOCKED — <reason>
+🧪 Playtest:       <PASS n / FAIL n / not run>  — section B confirmed: <bugs>
+🔍 Code review:    <N files, top finding>
+♻️ Fix survival:   <n PRESENT / n PARTIAL / n GONE>
+📥 Inbox triage:   <n confirmed → BUG-xxx…> · <n resolved> · <n duplicate> · <n needs owner>
+📚 Doc drift:      <n STALE claims, n ID mismatches> → doc-sync 23:00
+📊 Verdict:        ON-TRACK | CONCERNS | SLIPPED | BLOCKED — <reason>
 🔁 Retro:          well: … | slipped: … | improve: …
-
-→ Handoff to Monday /weekly-kickoff: carry-over + velocity recorded in tracker.
+🧾 Commits:        <hash> (+ merge of pm/wrapup-<date>)
 ```
 
 ---
 
+## Write approval
+- Interactive run (no `--auto`): present the digest and findings first, then ask "May I write the tracker, triage report, retro, inbox, new bug files and run log and commit?" before any write.
+- `--auto` (scheduled routine): write directly — the owner pre-approved `.md`-only writes for routines on 2026-10-09 (`.claude/docs/pm-routine-protocol.md`).
+
+## Next step
+- Next: `/doc-sync --auto` (Sat 23:00) aligns the docs with tonight's triage; `/weekly-kickoff` (Sun 22:00) consumes carry-over, velocity and "playtest done".
+
 ## Language
-Reply in Vietnamese with key English terms in parentheses on first use
-(per `.claude/rules/language-reporting.md`). The `.md` files stay
-**English only** (stored-doc rule).
+Chat in Vietnamese with key English terms in parentheses on first use. Stored `.md` files stay
+**English only**.
 
 ## Do not
-- Do not edit `.cs` or assets — propose fixes, the owner implements.
+- Do not edit `.cs` or assets; stage only `*.md`.
+- Do not reopen or close a bug from a script verdict alone — triage decides, with a re-read.
 - Do not create the next sprint — that is Sunday's `/weekly-kickoff`.
-- Do not invent progress git/tracker doesn't support.
+- Do not report a PASS-level verdict without a playtest sheet.
