@@ -26,7 +26,11 @@ public class ChampitionController : InteractiveObjects
                 ", người sẽ hướng dẫn bạn trong hành trình này. Hãy chuẩn bị cho những thử thách và phiêu lưu phía trước!"
             };
             //UIEvents.RequestDialogue(new DialogueLine[] { dialogueLine }, ConfirmSetCharacterData);
-            UIEvents.OnOpenConfirnPanel(SetCharacterData);
+            UIEvents.OnOpenConfirmPanel(SetCharacterData, new ConfirnData
+            {
+                confirmText = "Xác nhận",
+                cancelText = "Hủy"
+            });
             return true;
         }
         return false;
@@ -35,6 +39,7 @@ public class ChampitionController : InteractiveObjects
     void SetCharacterData()
     {
         character.SetCharacterData(dataChampition);
+        EventManager.Emit(EventID.ON_OPEN_DOOR);
     }
 
     protected override void Awake()

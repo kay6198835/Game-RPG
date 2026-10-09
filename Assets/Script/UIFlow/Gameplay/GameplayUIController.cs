@@ -44,7 +44,7 @@ namespace UIFlow
             UIEvents.NotificationRequested -= OnNotification;
             UIEvents.SkillUsed -= OnSkillUsed;
             UIServices.Player.PlayerDied -= OnPlayerDied;
-            UIEvents.OpenConfirnPanel += OnConfirnPanel;
+            UIEvents.OpenConfirnPanel -= OnConfirnPanel;
         }
 
         private void Start()
@@ -101,9 +101,9 @@ namespace UIFlow
             uiManager.Open(gameOverPanel);
         }
 
-        private void OnConfirnPanel(Action callback)
+        private void OnConfirnPanel(ConfirnData data)
         {
-            UIEvents.ConfirnRequest += callback;
+            confirnPanel.SetConfirm(data);
             uiManager.Open(confirnPanel);
         }
     }
