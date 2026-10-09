@@ -4,7 +4,7 @@ namespace UIFlow
 {
     /// <summary>
     /// Cài đặt âm thanh + đồ họa, lưu bằng PlayerPrefs.
-    /// Không cần bản Mock: cài đặt không dính gameplay, PlayerPrefs chạy được ở mọi scene.
+    /// Cài đặt không dính gameplay, PlayerPrefs chạy được ở mọi scene.
     /// </summary>
     public static class SettingsStore
     {

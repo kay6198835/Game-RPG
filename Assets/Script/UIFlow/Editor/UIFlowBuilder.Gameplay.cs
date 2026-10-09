@@ -9,7 +9,7 @@ using static UIFlow.EditorTools.UIKit;
 
 namespace UIFlow.EditorTools
 {
-    /// <summary>Phần dựng scene GameplayUI (HUD + cửa sổ in-game), GameplayMock và 2 prefab world-space.</summary>
+    /// <summary>Phần dựng scene GameplayUI (HUD + cửa sổ in-game) và 2 prefab world-space (thanh máu, số damage).</summary>
     public static partial class UIFlowBuilder
     {
         // ═════════════════════════ Prefab world-space ═════════════════════════
@@ -64,7 +64,7 @@ namespace UIFlow.EditorTools
 
         private static void BuildGameplayUI(UIDebugConfig config, DamageNumber damageNumberPrefab)
         {
-            // Scene này KHÔNG có Camera/EventSystem: nó được load Additive chồng lên scene gameplay (thật hoặc mock),
+            // Scene này KHÔNG có Camera/EventSystem: nó được load Additive chồng lên scene gameplay (LoadRandomMap),
             // dùng luôn camera và EventSystem của scene đó.
             Scene scene = NewScene();
             Bootstrap(config, applySavedSettings: false);
@@ -451,71 +451,6 @@ namespace UIFlow.EditorTools
 
             Wire(panel, ("respawnButton", respawn), ("mainMenuButton", menu));
             return panel;
-        }
-
-        // ═════════════════════════ GameplayMock ═════════════════════════
-
-        private static void BuildGameplayMock(UIDebugConfig config, WorldHealthBar healthBarPrefab)
-        {
-            Scene scene = NewScene();
-            Camera camera = CameraObject(new Color(0.12f, 0.14f, 0.13f), 6f);
-            EventSystemObject();
-            Bootstrap(config, applySavedSettings: false);
-
-            Block("Floor", new Vector2(0, 0), new Vector2(20, 11), new Color(0.18f, 0.2f, 0.19f), -10);
-            Block("Player (giả)", new Vector2(0, -2.5f), new Vector2(0.8f, 1.2f), new Color(0.35f, 0.55f, 1f), 0);
-            WorldLabel("Người chơi (giả)", new Vector2(0, -3.6f), 3f);
-            Block("NPC Thợ rèn", new Vector2(-6f, 2f), new Vector2(0.9f, 1.3f), new Color(0.95f, 0.8f, 0.3f), 0);
-            WorldLabel("Thợ rèn — nhấn T", new Vector2(-6f, 0.9f), 3f);
-            WorldLabel("GAMEPLAY MOCK — click quái · 1-5 kỹ năng · H/M/X · T nói chuyện · B shop · U nhiệm vụ · N thông báo",
-                       new Vector2(0, 5.2f), 3.2f);
-
-            Vector2[] enemyPositions = { new(3f, 2f), new(6f, -0.5f), new(3.5f, -3f) };
-            for (int i = 0; i < enemyPositions.Length; i++)
-            {
-                GameObject enemy = Block("Slime " + (i + 1), enemyPositions[i], new Vector2(1f, 1f), new Color(0.9f, 0.35f, 0.4f), 0);
-                enemy.AddComponent<BoxCollider2D>();   // Collider 1x1 khớp sprite 1x1 → click trúng mới tính
-
-                // Nạp lại prefab từ đĩa: tham chiếu giữ từ lúc tạo có thể bị Unity hủy sau khi mở scene mới.
-            GameObject barPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(HealthBarPrefabPath);
-            GameObject barObject = (GameObject)PrefabUtility.InstantiatePrefab(barPrefab);
-                barObject.name = enemy.name + " HealthBar";
-                MockEnemy mockEnemy = enemy.AddComponent<MockEnemy>();
-                Wire(mockEnemy, ("healthBar", barObject.GetComponent<WorldHealthBar>()), ("body", enemy.GetComponent<SpriteRenderer>()));
-            }
-
-            GameObject controllerObject = new("GameplayMockController");
-            GameplayMockController controller = controllerObject.AddComponent<GameplayMockController>();
-            Wire(controller, ("worldCamera", camera));
-
-            Save(scene, GameplayMockPath);
-        }
-
-        private static GameObject Block(string name, Vector2 position, Vector2 size, Color color, int sortingOrder)
-        {
-            GameObject go = new(name, typeof(SpriteRenderer));
-            go.transform.position = position;
-            go.transform.localScale = new Vector3(size.x, size.y, 1f);
-            SpriteRenderer renderer = go.GetComponent<SpriteRenderer>();
-            renderer.sprite = White;
-            renderer.color = color;
-            renderer.sortingOrder = sortingOrder;
-            return go;
-        }
-
-        private static void WorldLabel(string text, Vector2 position, float fontSize)
-        {
-            GameObject go = new(text.Length > 24 ? text.Substring(0, 24) : text);
-            TextMeshPro label = go.AddComponent<TextMeshPro>();
-            label.font = TMP_Settings.defaultFontAsset;
-            label.text = text;
-            label.fontSize = fontSize;
-            label.alignment = TextAlignmentOptions.Center;
-            label.enableWordWrapping = false;
-            label.color = MutedColor;
-            label.rectTransform.sizeDelta = new Vector2(20f, 1f);
-            label.GetComponent<MeshRenderer>().sortingOrder = 5;
-            go.transform.position = position;
         }
     }
 }

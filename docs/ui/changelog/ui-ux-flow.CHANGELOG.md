@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-05 — Mock removal
+- **Changed:** banner, scene flow, section 3 (flags → configuration), 6.2, 6.3, section 7 (removed), section 8 table, findings 6 and 8, "Working on it", file map
+- **From → To:** five flags with a mock path → `skipLogin` + timings only; `GameplayMock` harness documented → removed; real-vs-mock table → what is wired today; finding 8 (stale provider after rebuild) → resolved; `WorldHealthBar` / `DamageNumber` kept but now have no caller (finding 6 still open)
+- **Why:** owner request to remove mock and test-only flows before building the UI/UX on the real game
+- **Bugs:** none
+
 ## 2026-10-05 — Game-completion phase (merged into the doc-sync layout)
 - **Commit:** `cb0de496` (content); merge of `7d1b5c79` (change-log link)
 - **Changed:** scope banner, flags, scenes, real-vs-mock table, findings

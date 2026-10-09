@@ -1,6 +1,9 @@
 ---
-description: Dungeon/map generation code standards — MazeGenerator, RoomGridController, RoomGeneraterController, RoomCell, DoorController, MapGridController
-globs: ["Assets/Script/Map/**/*.cs"]
+# Dungeon/map generation code standards — MazeGenerator, RoomGridController, RoomGeneraterController, RoomCell, DoorController, MapGridController
+paths:
+  - "Assets/Script/Map/**/*.cs"
+  - "Assets/Script/LevelEdit/**/*.cs"
+  - "Assets/Data/Json/Room/**"
 ---
 
 # Map / Dungeon Code Standards

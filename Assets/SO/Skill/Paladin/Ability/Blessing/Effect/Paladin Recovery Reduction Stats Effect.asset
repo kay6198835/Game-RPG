@@ -14,9 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityName: Paladin Recovery Reduction Stats Effect
   SubConditions: []
+  SubEffects: []
+  Costs: []
   statModifier:
     authoredModifiers:
     - targetStat: 100
-      type: 100
-      value: 30
+      type: 200
+      value: 0.15
   impactType: 0
+  recipient: 0

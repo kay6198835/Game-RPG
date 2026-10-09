@@ -6,8 +6,12 @@
 > **Updated 2026-10-05 (game-completion phase):** flags now default to the **real** game (New Game / Continue load
 > `LoadRandomMap`, the HUD reads the real player), character creation is removed, and every UI asset dating from
 > before February 2026 is deleted. Findings 1, 2, 5 and 7 in section 9 are resolved by that change.
+> **Updated 2026-10-05 (mock removal):** every mock / test-only path is deleted — the `GameplayMock` scene,
+> `Services/Mock/` (incl. `MockCatalog`), `Gameplay/Mock/`, the smoke test and the four mock
+> flags. The UI components themselves (every panel, `WorldHealthBar`, `DamageNumber`) are kept unchanged. `UIServices` always builds the `Real*` providers and New Game / Continue always load `LoadRandomMap`
+> with `GameplayUI` attached.
 > **Companion:** `Assets/Script/UIFlow/README.md` (beginner guide, Vietnamese, written with the code). This
-> document is the end-to-end flow reference: every screen, every transition, what is real and what is mock,
+> document is the end-to-end flow reference: every screen, every transition, what is wired to gameplay and what is still empty,
 > and the gaps found while reading. Nothing here was verified in Play Mode — it is static analysis.
 
 ---
@@ -18,7 +22,7 @@ There are **three UI stacks** in the project. Only one of them is the player-fac
 
 | Stack | Tech | Where | Status |
 |---|---|---|---|
-| **UIFlow** (`Assets/Script/UIFlow/`, namespace `UIFlow`) | uGUI + TextMeshPro | `MainGamePlay`, `Loading`, `GameplayUI`, `GameplayMock` scenes | **The current flow.** ~6.4k lines, 74 files, added 2026-09-28/29 |
+| **UIFlow** (`Assets/Script/UIFlow/`, namespace `UIFlow`) | uGUI + TextMeshPro | `MainGamePlay`, `Loading`, `GameplayUI` scenes | **The current flow.** ~5k lines, 55 files, added 2026-09-28/29 |
 | Legacy gameplay UI | uGUI + TMP | inside `LoadRandomMap` (stats panel, minimap) and on the enemy prefab (health bar) | Live, untouched by UIFlow |
 | Legacy UI Toolkit screens | UXML/USS | `UIController`, `StatsScreenUIController` + `Assets/UI/Screens/*.uxml` | Code kept, but no scene uses it since `UISample.unity` was deleted |
 
@@ -45,12 +49,10 @@ tree) stays stubbed, marked `// TODO: nối logic thật` in source.
 flowchart LR
     Boot([Play / app start]) --> MGP[MainGamePlay<br/>menu scene]
     MGP -- "Continue / New Game / Load" --> L1[Loading]
-    L1 -- "skipGameplayInit = OFF (default)" --> Real[LoadRandomMap<br/>real dungeon]
-    L1 -- "skipGameplayInit = ON" --> Mock[GameplayMock]
-    Mock -. "always + Additive" .-> GUI[GameplayUI<br/>HUD + windows]
-    Real -. "bypassLoadRandomLogic = OFF (default)" .-> GUI
+    L1 --> Real[LoadRandomMap<br/>real dungeon]
+    Real -. "Additive" .-> GUI[GameplayUI<br/>HUD + windows]
     GUI -- "Pause > Main Menu<br/>Game Over > Main Menu" --> L2[Loading] --> MGP
-    GUI -- "Game Over > Respawn (Real)" --> L1
+    GUI -- "Game Over > Respawn" --> L1
 ```
 
 | Build index | Scene | Role |
@@ -59,8 +61,7 @@ flowchart LR
 | 1 | `Main/Loading` | Shared loading screen with real `AsyncOperation` progress |
 | 2 | `Main/Test/LoadRandomMap` | The real dungeon (unchanged) |
 | 3 | `Main/GameplayUI` | In-game UI only; always loaded **Additive** on top of a gameplay scene |
-| 4 | `Test/GameplayMock` | Fake gameplay to exercise the HUD |
-| 5 | `SetLevel` | Level editor |
+| 4 | `SetLevel` | Level editor |
 
 ### How a transition works — `SceneFlow` (static)
 
@@ -72,11 +73,11 @@ flowchart LR
    `LoadSceneAsync(target)` with `allowSceneActivation = false`.
 3. Progress bar = `operation.progress / 0.9`, smoothed with `MoveTowards`. The screen stays at least
    `minLoadingTime` (1.5 s) and until the bar visibly reaches 100 %, then activates the scene.
-   Random background colour + rotating tips (`MockCatalog.LoadingTips`) every 3 s.
+   Random background colour + rotating tips (`LoadingScreen.DefaultTips` unless the Inspector list is filled) every 3 s.
 4. When the target scene finishes loading, `SceneFlow.OnSceneLoaded` loads `GameplayUI` with
    **synchronous** `LoadScene(..., Additive)` — async took 16-20 s because of `backgroundLoadingPriority`.
 
-`SceneFlow.EnterGameplay()` is the single "go play" entry point; the flags (section 3) decide which scene.
+`SceneFlow.EnterGameplay()` is the single "go play" entry point: `GoTo(LoadRandomMap, attachGameplayUI: true)`.
 `SceneFlow.ReturnToMainMenu()` = `GoTo(MainGamePlay)`.
 
 Why static and not a `DontDestroyOnLoad` manager or an SO: survives scene loads without putting an object
@@ -85,24 +86,18 @@ into the legacy gameplay scene, and an SO could write runtime data back into an 
 
 ---
 
-## 3. The five flags — `Assets/SO/UIFlow/UIDebugConfig.asset`
+## 3. Configuration — `Assets/SO/UIFlow/UIDebugConfig.asset`
 
-Read in exactly one place: `UIServices` (plus `SceneFlow.EnterGameplay` and `MainMenuFlow` for routing).
-**Defaults (since 2026-10-05): only `skipLogin` is ON — the flow runs the real game.** Turn the mock flags back on
-to work on UI without gameplay. The flags were kept on purpose.
+No mock flags remain (removed 2026-10-05). The asset holds three settings:
 
-| Flag | ON | OFF |
+| Field | Default | Effect |
 |---|---|---|
-| `useMockData` | `MockPlayerDataProvider`, `MockInventoryProvider`, `MockQuestProvider` | `Real*` — player data is real; inventory / quests / skill tree are empty stubs (section 8) |
-| `skipLogin` | Splash → Main menu | Splash → Login panel (`RealLoginService` = one "Offline" server, always succeeds) |
-| `skipGameplayInit` | Enter game = `GameplayMock` | Enter game = `LoadRandomMap` |
-| `skipSaveLoad` | `MockSaveProvider`: 3 sample saves in RAM | `RealSaveProvider`: JSON at `persistentDataPath/ui_saves.json` |
-| `bypassLoadRandomLogic` | `LoadRandomMap` runs exactly as before, **no** new UI | `GameplayUI` is attached on top of the real map |
+| `skipLogin` | ON | Splash → Main menu. OFF: Splash → Login panel (`RealLoginService` = one "Offline" server, always succeeds) |
+| `splashDuration` | 2 s | Splash time |
+| `minLoadingTime` | 1.5 s | Minimum loading-screen time |
 
-Also on the asset: `splashDuration` (2 s), `minLoadingTime` (1.5 s).
-
-`UIServices` creates each provider lazily, **once**, and keeps it across scenes — so a character created in
-the menu is still there in game. `UIBootstrap` (execution order −1000, one per UIFlow scene) calls
+`UIServices` creates each provider lazily, **once**, and keeps it across scenes — so the save chosen in the
+menu is still selected in game. `UIBootstrap` (execution order −1000, one per UIFlow scene) calls
 `UIServices.Init(config)`; the first scene also applies saved settings (`SettingsStore.ApplySaved()`).
 `UIBootstrap` also creates the player provider eagerly, so the real one is already listening for
 `ON_PLAYER_READY` before `LoadRandomMap` starts. If you press Play directly in `LoadRandomMap`, no bootstrap runs,
@@ -119,8 +114,8 @@ the menu is still there in game. `UIBootstrap` (execution order −1000, one per
 | `UIInput` | Keyboard/mouse reads through the new Input System, always null-checks `Keyboard.current` |
 | `KeyBindings` | PlayerPrefs-backed key table (`ui.key.<id>`). UI keys are live; gameplay keys are only stored (section 9) |
 | `SettingsStore` | PlayerPrefs for master/music/SFX volume, quality, fullscreen, VSync, resolution. Only master volume has an audible effect (no AudioMixer yet) |
-| `UIEvents` | UIFlow's own static event channel: `RequestDialogue`, `RequestShop`, `Notify`, `ShowDamage`, `UseSkill`. Gameplay is meant to call these; today only `GameplayMock` does |
-| `UIServices` | Mock/Real provider switch (section 3) |
+| `UIEvents` | UIFlow's own static event channel: `RequestDialogue`, `RequestShop`, `Notify`, `ShowDamage`, `UseSkill`. Gameplay is meant to call these; today only `UseSkill` is raised (by `RealPlayerDataProvider`) |
+| `UIServices` | Creates the `Real*` providers once and keeps them across scenes |
 
 Panel flags as built by `UIFlowBuilder`:
 
@@ -223,8 +218,7 @@ stateDiagram-v2
     HUD --> Shop: UIEvents.RequestShop
     Shop --> HUD: Esc / close
     HUD --> GameOver: PlayerDied
-    GameOver --> HUD: Respawn (Mock)
-    GameOver --> Reload: Respawn (Real)
+    GameOver --> Reload: Respawn
     GameOver --> MainMenuScene: Main Menu
 ```
 
@@ -242,7 +236,7 @@ stateDiagram-v2
   - *Quests:* list on the left, detail and objectives on the right, Track toggle feeds the HUD tracker.
 - **Dialogue** — typewriter via TMP `maxVisibleCharacters`. Click/Space/Enter while typing = show the full
   line; after = next line. Fast-forward toggle, Skip button, Esc. **Any** close (end, Skip, Esc) runs the
-  `onFinished` callback — in the mock that opens the shop.
+  `onFinished` callback. Nothing in gameplay requests a dialogue or a shop yet.
 - **Shop** — left column NPC stock (Buy), right column player inventory (Sell), gold display, message line,
   same comparison tooltip. Everything goes through `IInventoryProvider`; the panel redraws on `Changed`.
 - **Pause** — Resume, Save (disabled when no slot is selected), Settings, Main Menu. Save →
@@ -252,42 +246,30 @@ stateDiagram-v2
 
 ### 6.3 World-space UI
 
-- `WorldHealthBar` — World Space canvas (scale 0.01 → 100 px = 1 unit), follows a target without being
-  parented (so sprite flips do not mirror it). **Used only by `MockEnemy`.** Real enemies keep their own
-  `EntityUIController` bar on `EnemyPrefab.prefab`.
 - `DamageNumber` / `DamageNumberSpawner` — 3D `TextMeshPro` (no canvas), pooled in a `Queue`, triggered by
   `UIEvents.ShowDamage(pos, amount, crit)`. **Nothing in real gameplay calls it yet.**
+- `WorldHealthBar` — World Space canvas (scale 0.01 → 100 px = 1 unit), follows a target without being
+  parented (so sprite flips do not mirror it). Kept as a reusable component; **nothing uses it now that
+  `MockEnemy` is gone.** Real enemies keep their own `EntityUIController` bar on `EnemyPrefab.prefab`.
 
 ---
 
-## 7. `GameplayMock` — the test harness
+## 7. (removed) `GameplayMock`
 
-Scene with a fake player, a blacksmith NPC, three slimes (`MockEnemy` + `WorldHealthBar`) and
-`GameplayMockController`. Controls (ignored while `timeScale == 0`):
+The fake-gameplay test scene and its controller, enemies and data catalogue were deleted on 2026-10-05.
+Exercise the UI by playing the real game from `MainGamePlay`.
 
-| Input | Effect |
+---
+
+## 8. What is wired today
+
+| Interface | Implementation |
 |---|---|
-| Left click a slime (Shift = crit) | Damage number + bar drop; at 0 HP: "+120 EXP", respawns after 2 s |
-| `1`-`5` | `UIEvents.UseSkill(i)` → hotbar cooldown |
-| `H` / `M` / `X` | −25 HP / −15 Mana / +300 EXP (HP 0 → Game Over) |
-| `T` | NPC dialogue, then the shop opens |
-| `B` / `U` / `N` | Shop / advance a quest objective / test notification |
-| `I` `K` `J`, `Q` `E`, `Esc` | Windows, tab cycling, back/pause |
-
-Mock data lives in `MockCatalog` (items, classes, tips, dialogue) and the `Mock*Provider` classes
-(3 saves, the newest is "Aria"; 4 skill points; mock `Respawn()` refills HP/Mana in place).
-
----
-
-## 8. What is real vs mock today
-
-| Interface | Mock | Real |
-|---|---|---|
-| `ISaveProvider` | 3 saves in RAM | **Works** — slot metadata to `ui_saves.json`. Does not save any gameplay state (room, stats, items) and the selected slot is not passed into the dungeon |
-| `ILoginService` | Server list with statuses | One "Offline" server, always succeeds |
-| `IPlayerDataProvider` | Full | **Wired (2026-10-05):** HP/Mana current (`IVitalComponent`) and max + level + all stats (`IStatService`), `StatsChanged` on every vitals change, 4-slot hotbar from `CharacterData.AbilityBindings`, real cooldowns, `PlayerDied` (de-duplicated because BUG-086 emits `ON_PLAYER_DEATH` every frame). Name/class come from the selected save. Not wired: EXP (gameplay has none), skill tree. `Respawn()` reloads the gameplay scene through Loading (BUG-087: no in-place rebirth) |
-| `IInventoryProvider` | Full | Empty 24-slot bag, 0 gold, shop refuses ("not connected") |
-| `IQuestProvider` | Full | Empty list |
+| `ISaveProvider` | **Works** — slot metadata to `ui_saves.json`. Does not save any gameplay state (room, stats, items) and the selected slot is not passed into the dungeon |
+| `ILoginService` | One "Offline" server, always succeeds |
+| `IPlayerDataProvider` | **Wired (2026-10-05):** HP/Mana current (`IVitalComponent`) and max + level + all stats (`IStatService`), `StatsChanged` on every vitals change, 4-slot hotbar from `CharacterData.AbilityBindings`, real cooldowns, `PlayerDied` (de-duplicated because BUG-086 emits `ON_PLAYER_DEATH` every frame). Name/class come from the selected save. Not wired: EXP (gameplay has none), skill tree. `Respawn()` reloads the gameplay scene through Loading (BUG-087: no in-place rebirth) |
+| `IInventoryProvider` | Empty 24-slot bag, 0 gold, shop refuses ("not connected") |
+| `IQuestProvider` | Empty list |
 
 ### How the HUD binds to the real player
 
@@ -338,12 +320,11 @@ Ordered by how much they affect someone actually playing the flow.
    until overrides are applied, or apply them.
 5. ✅ **Resolved 2026-10-05.** *Was:* the HUD's placeholder minimap box could cover `LoadRandomMap`'s real
    minimap. The placeholder is now inactive in `GameplayUI.unity` and in the builder.
-6. **Two health-bar and two damage paths.** `WorldHealthBar` + `DamageNumber` (UIFlow, mock-only) vs
+6. **Two health-bar and two damage paths.** `WorldHealthBar` + `DamageNumber` (UIFlow, now unused) vs
    `EntityUIController` (real enemies). Decide which one survives before wiring real damage numbers.
 7. ✅ **Resolved 2026-10-05.** *Was:* a stale `TabWindow` comment about Q/E; it now says Q is the pickup key.
-8. **Static subscription after `RebuildProviders()`.** `GameplayUIController` and `HUDPanel` subscribe to
-   the provider instance that existed at `OnEnable`. Rebuilding providers mid-scene (smoke test, debug)
-   leaves them on the old instance. Debug-only today.
+8. ✅ **Resolved 2026-10-05 (mock removal).** *Was:* `RebuildProviders()` could leave panels subscribed to a
+   stale provider. The method is deleted; providers are only rebuilt when the config asset changes.
 9. **Language.** All player-facing strings are Vietnamese literals in code and in the builder
    (`ui-code.md` asks for constants or a data source). Fine for now; a localisation pass will have to touch
    every panel.
@@ -353,17 +334,15 @@ Ordered by how much they affect someone actually playing the flow.
 
 What is solid: the panel stack + Esc model, CanvasGroup show/hide, unscaled-time fades, the
 loading-screen guard for scenes missing from Build Settings, `timeScale` reset on every scene change and in
-`UIManager.OnDestroy`, de-duplication of the per-frame death event, and the 36-step smoke test.
+`UIManager.OnDestroy`, and de-duplication of the per-frame death event. There is no automated test since the smoke test was
+removed with the mock scene; verify by playing.
 
 ---
 
 ## 10. Working on it
 
 - **Run:** open `Assets/Scenes/Main/MainGamePlay.unity` → Play → New Game → the real dungeon with the HUD.
-- **Smoke test:** `Tools > UI Flow > Run Smoke Test` → Console `RESULT: PASS` (36 steps). Step 1 turns the mock
-  flags on for the UI part and the test restores the asset's flags at the end; steps 29-36 switch all flags off,
-  load the real `LoadRandomMap` and check the HUD is bound to the real player.
-- **Layout lives in code.** `Tools > UI Flow > Build All` regenerates the four UIFlow scenes, the two
+- **Layout lives in code.** `Tools > UI Flow > Build All` regenerates the three UIFlow scenes, the two
   prefabs and the config from `UIFlowBuilder*.cs` — **manual edits to those scenes are overwritten.** Change
   layout in the builder, or stop using the builder for that scene. `Update Build Settings Only` is safe.
 - **Add a screen:** subclass `UIPanel`, override `OnShown()`, open it with `uiManager.Open(panel)`; let the
@@ -378,15 +357,15 @@ loading-screen guard for scenes missing from Build Settings, `timeScale` reset o
 Assets/Script/UIFlow/
   Core/      SceneFlow, SceneNames, UIBootstrap, UIDebugConfig, UIServices, UIManager, UIPanel, UIInput, UIEvents
   Data/      UIDataModels (ItemData, PlayerStatsData, SaveSlotData, QuestData, SkillNodeData, …)
-  Services/  Interfaces/ · Mock/ (+ MockCatalog) · Real/ · KeyBindings · SettingsStore
+  Services/  Interfaces/ · Real/ · KeyBindings · SettingsStore
   Menu/      SplashPanel, LoginPanel, MainMenuPanel, SaveSelectPanel (+SaveSlotView),
              SettingsPanel (+KeyBindingRow), MainMenuFlow
   Loading/   LoadingScreen
   Gameplay/  GameplayUIController, PausePanel, GameOverPanel
              HUD/ (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed)
              Windows/ (TabWindow, InventoryPanel, InventorySlot, ItemTooltip, CharacterPanel, SkillTreePanel, QuestPanel)
-             Dialogue/, Shop/, World/ (WorldHealthBar, DamageNumber, DamageNumberSpawner), Mock/
-  Editor/    UIKit, UIFlowBuilder (+.Gameplay), UIFlowSmokeTest
+             Dialogue/, Shop/, World/ (WorldHealthBar, DamageNumber, DamageNumberSpawner)
+  Editor/    UIKit, UIFlowBuilder (+.Gameplay)
 Assets/SO/UIFlow/UIDebugConfig.asset · Assets/Prefab/UIFlow/{DamageNumber,WorldHealthBar}.prefab
-Assets/Scenes/Main/{MainGamePlay,Loading,GameplayUI}.unity · Assets/Scenes/Test/GameplayMock.unity
+Assets/Scenes/Main/{MainGamePlay,Loading,GameplayUI}.unity
 ```

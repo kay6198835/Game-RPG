@@ -32,7 +32,7 @@ namespace UIFlow
         public string id;
         public string displayName;
         [TextArea] public string description;
-        public Sprite icon;                 // null trong mock → UI tô màu iconColor thay thế
+        public Sprite icon;                 // null → UI tô màu iconColor thay thế
         public Color iconColor = Color.white;
         public ItemSlotType slotType;
         public ItemRarity rarity;

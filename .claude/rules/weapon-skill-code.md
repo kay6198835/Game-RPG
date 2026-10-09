@@ -1,6 +1,11 @@
 ---
-description: Weapon and skill/ability code standards — WeaponMelee, RangeWeapon, ActivateSkill, AbilityHolder
-globs: ["Assets/Script/Weapons/**/*.cs", "Assets/Script/Skill_Ability/**/*.cs"]
+# Weapon and skill/ability code standards — WeaponMelee, RangeWeapon, ActivateSkill, AbilityHolder
+paths:
+  - "Assets/Script/Weapons/**/*.cs"
+  - "Assets/Script/System/Abilities/**/*.cs"
+  - "Assets/Script/System/Skill_Ability/**/*.cs"
+  - "Assets/SO/Skill/**"
+  - "Assets/SO/Weapons/**"
 ---
 
 # Weapon and Skill Code Standards

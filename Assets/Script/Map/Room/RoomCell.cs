@@ -57,8 +57,7 @@ public class RoomCell : BaseCell
         if (EnemyCount == 0)
         {
             Debug.Log($"[{nameof(RoomCell)}] Room {name} cleared.");
-            EventManager.Emit(EventID.ON_CLEAR_ENEMY);
-            IsCleared = true;
+            EventManager.Emit(EventID.ON_OPEN_DOOR);
         }
     }
 
@@ -132,6 +131,7 @@ public class RoomCell : BaseCell
         {
             door.SetStatus(STATUS_DOOR.OPEN);
         }
+        IsCleared = true;
     }
 
     public void CloseDoor()

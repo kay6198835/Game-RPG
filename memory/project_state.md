@@ -27,7 +27,7 @@ pre-push compile check is still missing (TD-048 / TD-051).
 | R6 | **ADR-0005 Amendments 1-3** — shared character bases (`CharacterBase`, `VitalStatsBase`, `NegativeReceiverBase`, `WeaponHolderBase`, `AbilityHolderBase`), `IAbilityServices` reduced to `Pool`, `EntityAttack` deleted | 2026-09-24/25 | Recorded in CLAUDE.md 2026-09-25 |
 | R7 | **Shared projectile layer** — `ProjectileBody` + `ProjectileConfig` + `IProjectilePayload`; `bullet.cs` and `BulletDataSO.cs` deleted | `b7a0af5e`, `5b035b73`, `7c637c0e` | Weapons and abilities fire the same pooled projectile |
 | R8 | **Player spawned at runtime** by `PlayerManager` (`resolver.Instantiate`); `Player` / `StatHandler` / `AbilityHolder` no longer registered; `LevelManager` and `RoomGridController` registered | `a8820666`, `ac13ee4f` | The Player prefab must not be in the scene |
-| R9 | **UIFlow** — 65-file UGUI menu/loading/in-game UI system with Mock/Real providers; 4 new scenes | `0c38633d`…`f8f180d0` | First real HUD; Real providers are stubs |
+| R9 | **UIFlow** — 65-file UGUI menu/loading/in-game UI system (mock providers and GameplayMock removed 2026-10-05); 3 scenes | `0c38633d`…`f8f180d0` | First real HUD; Real providers are stubs |
 | R10 | Abilities v1 unhooked from player weapons (`AttackSO.ability`, `WeaponStats.AbilityWeapon/SkillWeapon`, `Weapon.currentAbilitySO` deleted) | `b7a0af5e` | v1 survives only in `EntityWeapon` |
 | R11 | Room data rebuilt: 13 `NormalRoom_N` → 20 named rooms (Start → Boss); no-spawn rooms open doors at once | `213fa5a6`…`40d2c793` | `Maze_Storage` lists the new set |
 | R12 | Ability input split: keys 1-4 → Primary/Secondary/Utility/Ultimate; Block (RMB) handler commented out | `3a395fe9` | Was `E` → Utility |
@@ -128,7 +128,7 @@ separate static bus (`UIFlow.UIEvents`) for UI-only requests.
 - `EnemySO` — not consumed by `Entity` (TD-030)
 - `TalentManagger` — hardcoded stats (TD-018)
 - `Assets/Script/Character/Boss/`, `Assets/Script/Handler/` — `.meta`-only orphans
-- `tests/` — only `.gitkeep`; zero tests (TD-014, blocked by BUG-084). `UIFlowSmokeTest` is an Editor menu tool, not an NUnit test
+- `tests/` — only `.gitkeep`; zero tests (TD-014, blocked by BUG-084). (`UIFlowSmokeTest` was deleted with the UIFlow mock removal on 2026-10-05)
 
 ---
 

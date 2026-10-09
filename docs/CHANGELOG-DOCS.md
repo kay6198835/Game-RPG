@@ -17,6 +17,91 @@ which code change caused it.
 
 ---
 
+## 2026-10-08 — Dissolve the vendored CCGS folder into the project
+
+**Cause.** Owner request: distribute `.claude/Claude-Code-Game-Studios-main/` into the project's own layout.
+Details and the per-file decision: `production/qa/reviews/ccgs-upgrade-2026-10-08.md` §11.
+
+| Document / file | Change |
+|---|---|
+| `.claude/Claude-Code-Game-Studios-main/` | **Removed** — duplicates of live files deleted, the rest moved |
+| `docs/ccgs/` | **New** — framework reference (README index, CHANGELOG, UPGRADING, LICENSE, guides, `rules-upstream/`) |
+| `docs/CLAUDE.md`, `design/CLAUDE.md` | **New** — upstream directory instructions, adapted to Unity 2022.3 and the project's 8-section GDD rule |
+| `docs/architecture/tr-registry.yaml`, `design/registry/entities.yaml` | **New** — empty registries read by the story pipeline and `/consistency-check` |
+| `.gitattributes`, `.gitignore` | LF for shell scripts and `.claude` Markdown; per-developer CCGS files ignored |
+| `production/qa/reviews/ccgs-rules-comparison-2026-10-08.md` | Source path updated to `docs/ccgs/rules-upstream/` |
+
+---
+
+## 2026-10-08 — Remove duplicated skills and agents from the vendored CCGS copy
+
+**Cause.** Owner request after the merge. `cmp` showed the vendored `.claude/skills` and `.claude/agents` were
+byte-identical to the live copies (130 files) plus 10 unmerged Godot/Unreal agents.
+
+| Document / file | Change |
+|---|---|
+| `.claude/Claude-Code-Game-Studios-main/.../.claude/skills/`, `.../.claude/agents/` | **Deleted** (140 files). Live `.claude/skills` (81) and `.claude/agents` (39) unchanged |
+| `.claude/skills/weekly-sprint/` | **Kept** — still invoked by the `pm-weekly-wrapup` and `weekly-monday-kickoff` scheduled routines |
+| `production/qa/reviews/ccgs-upgrade-2026-10-08.md` | §10 addendum |
+
+---
+
+## 2026-10-08 — CCGS upgrade, approval pass: rules scoping, filtered Unity reference, config finalize
+
+**Cause.** Owner approved the remaining upgrade items, asked to keep (and filter) the upstream Unity
+reference instead of dropping it, and asked for a detailed view of the eight upstream rules not merged.
+
+| Document / file | Change |
+|---|---|
+| `.claude/rules/*.md` (13 files) | Frontmatter `description:` + `globs:` → `paths:` with globs corrected to the current tree. Rules now load only when a matching file is touched. Bodies unchanged |
+| `docs/engine-reference/unity/` | **New:** `breaking-changes.md`, `deprecated-apis.md`, `current-best-practices.md`, `PLUGINS.md`, `modules/` (8), `plugins/` (3) from CCGS — written for Unity 6.3, each with a project banner and inline 2022.3 verdicts; **new** `UNITY-2022.3-FILTER.md` (summary table). `VERSION.md` links them and warns about `/setup-engine refresh` |
+| `docs/engine-reference/unity/changelog/VERSION.CHANGELOG.md` | Entry for the above |
+| `project.yaml` | `modes.review_mode: lean` re-added (equal to the `standard` expansion) so `--finalize` could verify it |
+| `production/review-mode.txt` | **Deleted** by `migrate-v1-config.sh --finalize` (value preserved in `project.yaml`) |
+| `production/qa/reviews/ccgs-rules-comparison-2026-10-08.md` | **New.** Item-by-item comparison of upstream `gameplay-code`, `ai-code`, `ui-code`, `engine-code`, `data-files`, `shader-code`, `narrative`, `network-code` vs the project rules, with which globs would fire here |
+| `production/qa/reviews/ccgs-upgrade-2026-10-08.md` | §9 addendum: hooks and settings still blocked by the session classifier; merged versions staged in `.ccgs-staging/` (not committed) with an install command |
+
+---
+
+## 2026-10-08 — CCGS framework upgrade to v1.1.2 (skills, agents, framework docs)
+
+**Cause.** Owner added the upstream Claude Code Game Studios v1.1.2 template in `df1d09d3`
+(`.claude/Claude-Code-Game-Studios-main/`) and asked for a detailed comparison and a merge. Local
+framework files dated from the 2026-05-01 import (`489c5510`) and, except for the files listed below,
+had never been edited. Full comparison: `production/qa/reviews/ccgs-upgrade-2026-10-08.md`.
+
+| Document / file | Change |
+|---|---|
+| `.claude/skills/*` (72 template skills) | Replaced with upstream v1.1.2; `settings` and `vertical-slice` added. Project-own skills (`daily-standup`, `weekly-kickoff`, `weekly-wrapup`, `weekly-sprint`, `module-quality-audit`, `doc-sync`, `ui-screen`) untouched |
+| `.claude/agents/*` | 26 updated, 13 added (closes the missing-agent finding); 10 Godot/Unreal specialists not taken |
+| `.claude/docs/*` | 48 updated, 56 added; `technical-preferences.md` kept local; `review-workflow.md` and `templates/skill-test-spec.md` kept. Local note in `director-gates.md` (`3e0ee09d`) superseded by the upstream rewrite |
+| `.claude/scripts/`, `.claude/statusline.sh` | **New** (upstream helpers) |
+| `.claude/rules/skill-authoring.md`, `.claude/rules/agent-memory.md` | **New** (upstream). Other upstream rules not taken — reasons in the comparison doc §5 |
+| `CCGS Skill Testing Framework/` | **New** at repo root; required by `skill-test` / `skill-improve` |
+| `project.yaml` | **New.** From `migrate-v1-config.sh`, completed by hand (engine version, specialists, naming, budgets, `modes.rigor: standard`, `project.stage: Production`) |
+| `production/migration-report.md` | **New** (script output). Legacy files not finalized |
+| `.claude/hooks/*`, `.claude/settings.json` | **Not changed** — blocked by the session permission classifier; owner plan in comparison doc §6. `yaml-helper.sh` is required by 68 upstream skills |
+| `docs/engine-reference/unity/` | Unchanged — upstream files target Unity 6.3, project pins 2022.3 |
+
+---
+
+## 2026-10-08 — Full review flow, skill audit and project review (review-only)
+
+**Cause.** Owner request: audit the project's skill set, design an end-to-end review flow, and assess
+the current design and feature state. HEAD `1b24ef7b` (`sprint-17`). No `.cs`, asset, scene, rule,
+skill or hook was changed; `CLAUDE.md` was not edited (its drift is listed for the next `/doc-sync`).
+
+| Document / file | Change |
+|---|---|
+| `production/review-flow.md` | **New.** Nine-phase review pipeline (R0 snapshot → R8 record), evidence tiers (`RUNTIME` / `COMPILED` / `STATIC` / `CLAIMED`), bug-ID authority rule, documentation-claim sweep, regression sweep, cadence mapped to the routines that actually run, and 8 recommended skill/hook changes |
+| `production/qa/reviews/skill-audit-2026-10-08.md` | **New.** Phase R1: 79 skills / 26 agents; 13 missing agents in 6 team skills; required inputs that do not exist (`design/registry/entities.yaml`, architecture master doc, smoke critical paths); 14 skills assume `src/`; hook defects; three process seams (ID authority, doc-claim verification, regression sweep) |
+| `production/qa/reviews/project-review-2026-10-08.md` | **New.** First run of the flow: demo verdict AT RISK (static only, 118 days since last playtest), feature matrix, design coverage (7 live systems without a GDD, 3 of 5 ADRs `Proposed` but implemented), review of unreviewed commits `5d1986db` / `7f632021`, documentation drift list, process metrics, ranked actions |
+| `production/qa/bugs/BUG-100.md` | **New, S2.** Timed buff expiry strips all modifiers sharing source `this` in `VitalStatsBase` (item buffs, overlapping Blessing casts) |
+| `production/qa/bugs/BUG-101.md` | **New, S3.** `CLAUDE.md` BUG-093/094/095 describe different defects than the bug files with those IDs |
+| `production/qa/reviews/` | **New directory** for dated full-review and tooling-audit snapshots |
+
+---
+
 ## 2026-10-05 — Mermaid lint guard
 
 **Cause.** A `;` inside a `sequenceDiagram` message (`character-architecture-diagrams.md` §10,

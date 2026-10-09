@@ -1,0 +1,247 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ddbf4281c7bbc0409c19795f09a2ec5, type: 3}
+  m_Name: MageStats
+  m_EditorClassIdentifier: 
+  level: 10
+  statUnusedBonus: 9
+  stats:
+  - <Type>k__BackingField: 0
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 2
+    equipmentByPrimaryValue: 0
+    adjustedValue: 10
+    finalValue: 12
+    modifiers:
+    - targetStat: 0
+      type: 100
+      value: 2
+  - <Type>k__BackingField: 1
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 10
+    finalValue: 10
+    modifiers: []
+  - <Type>k__BackingField: 2
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 10
+    finalValue: 10
+    modifiers: []
+  - <Type>k__BackingField: 3
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 10
+    finalValue: 10
+    modifiers: []
+  - <Type>k__BackingField: 4
+    baseValue: 10
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 10
+    finalValue: 10
+    modifiers: []
+  - <Type>k__BackingField: 100
+    baseValue: 190
+    levelUpValue: 80
+    equipmentValue: 4
+    equipmentByPrimaryValue: 4
+    adjustedValue: 270
+    finalValue: 274
+    modifiers: []
+  - <Type>k__BackingField: 101
+    baseValue: 140
+    levelUpValue: 30
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 170
+    finalValue: 170
+    modifiers: []
+  - <Type>k__BackingField: 102
+    baseValue: 30
+    levelUpValue: 12
+    equipmentValue: 14.400002
+    equipmentByPrimaryValue: 4.4
+    adjustedValue: 42
+    finalValue: 56.4
+    modifiers:
+    - targetStat: 102
+      type: 100
+      value: 10
+  - <Type>k__BackingField: 103
+    baseValue: 28
+    levelUpValue: 12
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 40
+    finalValue: 40
+    modifiers: []
+  - <Type>k__BackingField: 104
+    baseValue: 20
+    levelUpValue: 6
+    equipmentValue: 1
+    equipmentByPrimaryValue: 1
+    adjustedValue: 26
+    finalValue: 27
+    modifiers: []
+  - <Type>k__BackingField: 105
+    baseValue: 0.95
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 0.95
+    finalValue: 0.95
+    modifiers: []
+  - <Type>k__BackingField: 106
+    baseValue: 9
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 9
+    finalValue: 9
+    modifiers: []
+  - <Type>k__BackingField: 107
+    baseValue: 158
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 158
+    finalValue: 158
+    modifiers: []
+  - <Type>k__BackingField: 108
+    baseValue: 3.2
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 3.2
+    finalValue: 3.2
+    modifiers: []
+  - <Type>k__BackingField: 109
+    baseValue: 2
+    levelUpValue: 1
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 3
+    finalValue: 3
+    modifiers: []
+  - <Type>k__BackingField: 110
+    baseValue: 1.8
+    levelUpValue: 0.79999995
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 2.6
+    finalValue: 2.6
+    modifiers: []
+  - <Type>k__BackingField: 111
+    baseValue: 3.5
+    levelUpValue: 0
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
+    adjustedValue: 3.5
+    finalValue: 3.5
+    modifiers: []
+  statFormulas:
+  - targetStat: 100
+    baseConstant: 50
+    perLevel: 8
+    contributions:
+    - sourceStat: 0
+      coefficient: 2
+    - sourceStat: 3
+      coefficient: 12
+  - targetStat: 101
+    baseConstant: 30
+    perLevel: 3
+    contributions:
+    - sourceStat: 2
+      coefficient: 10
+    - sourceStat: 3
+      coefficient: 1
+  - targetStat: 102
+    baseConstant: 0
+    perLevel: 1.2
+    contributions:
+    - sourceStat: 0
+      coefficient: 2.2
+    - sourceStat: 1
+      coefficient: 0.8
+  - targetStat: 103
+    baseConstant: 0
+    perLevel: 1.2
+    contributions:
+    - sourceStat: 2
+      coefficient: 2.5
+    - sourceStat: 4
+      coefficient: 0.3
+  - targetStat: 104
+    baseConstant: 0
+    perLevel: 0.6
+    contributions:
+    - sourceStat: 0
+      coefficient: 0.5
+    - sourceStat: 3
+      coefficient: 1.5
+  - targetStat: 105
+    baseConstant: 0.8
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.015
+  - targetStat: 106
+    baseConstant: 5
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.05
+    - sourceStat: 4
+      coefficient: 0.35
+  - targetStat: 107
+    baseConstant: 150
+    perLevel: 0
+    contributions:
+    - sourceStat: 4
+      coefficient: 0.8
+  - targetStat: 108
+    baseConstant: 3
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.02
+  - targetStat: 109
+    baseConstant: 1
+    perLevel: 0.1
+    contributions:
+    - sourceStat: 3
+      coefficient: 0.1
+  - targetStat: 110
+    baseConstant: 1
+    perLevel: 0.08
+    contributions:
+    - sourceStat: 2
+      coefficient: 0.08
+  - targetStat: 111
+    baseConstant: 0
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.25
+    - sourceStat: 4
+      coefficient: 0.1
+  <isDevMode>k__BackingField: 0

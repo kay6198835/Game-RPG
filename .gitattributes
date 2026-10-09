@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# From CCGS v1.1.2 (2026-10-08): shell scripts and .claude Markdown stay LF.
+# A CRLF checkout of a bash hook can corrupt commands on Git Bash, and CRLF
+# Markdown under .claude/ breaks tooling that substring-matches skill text.
+*.sh text eol=lf
+*.tsv text eol=lf
+.claude/**/*.md text eol=lf
