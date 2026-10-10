@@ -13,6 +13,23 @@
 
 **OPEN — day 0 of 5 (2026-10-09, kickoff).** 0 / 8 Must-Have. Evidence `STATIC`.
 
+**Weekly wrap-up 2026-10-10 (Sat) — verdict for the week ending 2026-10-10: SLIPPED** (evidence
+`LOG` + `STATIC`; capped at CONCERNS at best — playtest sheet empty). No `.cs` commit since the
+2026-10-09 wrap-up; Sprint 17 already closed SLIPPED (0/8 Must, velocity 0.05). Sprint 18 work has not
+started (begins Mon 2026-10-12).
+
+**Handoff to Sunday `/weekly-kickoff`:**
+- **playtest done: no** (15th consecutive week without runtime evidence) → S18-01 stays first on Monday
+- **velocity: 0.05** (unchanged; no estimate-days completed since the 2026-10-09 close)
+- **carry-over:** the whole Sprint 18 plan as written, plus newly confirmed **BUG-105** (S2, P1 —
+  `[FormerlySerializedAs("attackDamege")]` on `AttackSO.attackDamage` + re-save `SnS_State1-3.asset`;
+  ≈0.05d, recommend Must-Have next to S18-04) and **BUG-103** (S3, ranged `RecoveryTime` dead; bundle
+  with S18-04) and **BUG-104** (S4, bundle with any `PlayerState` edit)
+- **status changes to know:** BUG-064 now FIXED in code (awaiting playtest A6); BUG-087 now PARTIAL —
+  S18-14's design note starts from `RealPlayerDataProvider.Respawn()` (scene reload), not from zero
+- `221d54be` (BUG-096 start-room half) is already on `sprint-18` via `c6cbc57a` — S18-02 shrinks to the
+  zero-spawn branch in `LoadRoom()`
+
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
@@ -105,3 +122,19 @@
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-10-10 (Sat) — `/weekly-wrapup --auto`
+
+- **Code review:** 0 `.cs` files changed since the 2026-10-09 wrap-up (all branches). Nothing to review.
+- **Playtest:** `playtest-2026-10-10.md` present but empty → `NOT RUN`. Editor was opened twice today
+  (Play Mode once per session) — `editor-log.sh` clean: 0 compile errors, no project exception.
+- **Fix survival (30 d):** 16 PRESENT / 4 PARTIAL / 1 GONE — all already triaged 2026-10-09.
+- **Inbox triage:** 4 notes → 3 confirmed (**BUG-103** S3, **BUG-104** S4, **BUG-105** S2), 1 status
+  update (BUG-064 → fixed in code, BUG-087 → partial); NOTE-2 closed (not reproduced); NOTE-6 carried
+  (needs owner). Report: `production/qa/bug-triage-2026-10-10.md`.
+- **Doc drift:** 92 STALE claims of 587; 0 bug-ID status mismatches → `/doc-sync` 23:00.
+- **Retro:** went well — inbox flow worked end to end (notes written Fri, IDs allocated once, Sat);
+  slipped — playtest (15th week), all Sprint 17 Must-Haves; improve — the routines fired early on
+  Friday 2026-10-09 (wrap-up, doc-sync, kickoff all ran Fri), so Saturday's run had no new week to
+  close: check the schedule times of `pm-weekly-wrapup` / `pm-weekly-kickoff`.
+- **Verdict:** SLIPPED (`LOG`). Handoff above under Status Verdict.
