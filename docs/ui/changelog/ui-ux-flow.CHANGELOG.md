@@ -7,6 +7,13 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-10 — Scene path; ConfirnPanel noted (doc-sync --auto)
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** banner, build-index table
+- **From → To:** `Main/Test/LoadRandomMap` → `Main/LoadRandomMap`; banner notes the new `ConfirnPanel`.
+- **Why:** the scene was moved and the panel was added in code.
+- **⚠️ Out of date against code (found by doc-sync, not yet fixed):** sections 6-8 do not describe `ConfirnPanel` / `UIEvents.OnOpenConfirmPanel` — the panel has an open defect (BUG-102) and its labels are swapped, so a description now would document a bug.
+
 ## 2026-10-05 — Mock removal
 - **Changed:** banner, scene flow, section 3 (flags → configuration), 6.2, 6.3, section 7 (removed), section 8 table, findings 6 and 8, "Working on it", file map
 - **From → To:** five flags with a mock path → `skipLogin` + timings only; `GameplayMock` harness documented → removed; real-vs-mock table → what is wired today; finding 8 (stale provider after rebuild) → resolved; `WorldHealthBar` / `DamageNumber` kept but now have no caller (finding 6 still open)

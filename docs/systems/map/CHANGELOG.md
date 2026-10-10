@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-10 — ON_CLEAR_ENEMY renamed ON_OPEN_DOOR; Champion opens the start room
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** `EventManager.cs` (enum), `RoomCell.cs:60`, `RoomGridController.cs:31,40`, `LevelManagerEditor.cs:29`, new emitter `ChampitionController.cs:42`
+- **From → To:**
+  - `RoomCell` emits `ON_CLEAR_ENEMY` at zero alive → emits `ON_OPEN_DOOR`; `RoomGridController` subscribes `DeleteDoorTileMap` to `ON_OPEN_DOOR`
+  - Nothing could open a marker-less room → in the start room, confirming the Champion (`ChampitionController.SetCharacterData()`) emits `ON_OPEN_DOOR`. Boss / Buff / Rest / Shop rooms unchanged (BUG-096 open)
+  - Main dev scene `Assets/Scenes/Main/Test/LoadRandomMap.unity` → `Assets/Scenes/Main/LoadRandomMap.unity`
+- **Why:** the rename matches the event's real effect (the event now opens doors for reasons other than an enemy clear) (inferred). The commit messages give no further reason.
+- **Bugs:** BUG-096 (start-room half addressed only when a Champion is placed), BUG-102
+
 ## 2026-10-09 — Correction: no-spawn rooms do not open; IsCleared moved into OpenDoors()
 - **Commits:** `ac13ee4f` (reverted `40d2c793`), `5d1986db` (2026-10-06, "shop coding")
 - **Changed:** `RoomGeneraterController.LoadRoom()`, `RoomGeneraterController.DeleteDoorTileMap()`, `RoomCell`

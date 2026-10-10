@@ -12,7 +12,7 @@ Implements [ADR-0005](adr-0005-unified-character-contract.md) on branch `demo-ar
 > **Order change from the plan:** "Core hub capability" moved from step 3 to step 2, because the
 > shared vital base resolves its stat service through it. The two steps are otherwise independent.
 
-## Smoke test S (run after every step on `Assets/Scenes/Main/Test/LoadRandomMap.unity`)
+## Smoke test S (run after every step on `Assets/Scenes/Main/LoadRandomMap.unity` — moved out of `Test/` in `221d54be`)
 
 1. Console has no errors or `MissingReferenceException`.
 2. Player moves.

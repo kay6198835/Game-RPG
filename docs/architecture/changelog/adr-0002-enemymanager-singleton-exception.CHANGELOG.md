@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-10 — Event-name note added (doc-sync --auto)
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** note under Status
+- **From → To:** body names `ON_CLEAR_ENEMY` (`:63,156,396,403`) → note says read it as `ON_OPEN_DOOR`. Decision and Amendment untouched.
+- **Why:** enum value renamed in code; an ADR body is not rewritten by doc-sync.
+
 ## 2026-10-09 — Path note added (doc-sync --auto)
 - **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
 - **Changed:** added a re-sync note under the Status banner. The Decision text is unchanged.

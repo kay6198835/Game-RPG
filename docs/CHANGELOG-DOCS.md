@@ -17,6 +17,32 @@ which code change caused it.
 
 ---
 
+## 2026-10-10 — Doc-truth pass: 221d54be reached sprint-18 (ON_OPEN_DOOR, scene move, Champion); bug table follows the 2026-10-10 triage (HEAD `617bb2bb`)
+
+**Cause.** `42a81260` "update flow" merged feature branch `221d54be` "logic open door at start room" into
+`sprint-18` (`c6cbc57a`): `EventID.ON_CLEAR_ENEMY` → `ON_OPEN_DOOR`, `LoadRandomMap.unity` moved out of
+`Main/Test/`, working `ChampitionController`, new `ConfirnPanel`, `ICharacter.SetCharacterData()`,
+`PlayerIntertorState.AnimationOnAction()`. The 2026-10-10 wrap-up triage (`ad0a7dd2`) moved BUG-064 to
+FIXED in code, BUG-087 to PARTIAL, and filed BUG-103/104/105. Claim sweep:
+`production/qa/doc-truth-2026-10-10.md` (587 claims, 92 flagged, 0 FALSE).
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry; main dev scene path (×2); `ICharacter`, `ChampitionController`, `ConfirnPanel`, `RoomCell`, `PlayerIntertorState` layout notes; map flow + Event System table → `ON_OPEN_DOOR`; Known Bugs BUG-064 / BUG-087 statuses from files, BUG-096 / BUG-102 re-checked, rows BUG-103/104/105 added; Bug #13 citation `:91` → `:90`; Demo Checklist 8, 26 (BUG-093 → BUG-103), new item 27 (BUG-105); conventions cite BUG-105 |
+| `memory/project_state.md` | Rewritten for `sprint-18` |
+| `docs/systems/{map,enemy,event-system,character,ui}/` | README + CHANGELOG entry each |
+| `design/gdd/map-system.md`, `design/gdd/enemy-spawn-system.md` | Re-synced banner (read `ON_CLEAR_ENEMY` as `ON_OPEN_DOOR`); body left as written |
+| `docs/architecture/adr-0002-…md` | Event-name note under Status; Decision untouched |
+| `docs/ui/ui-ux-flow.md` | Scene path; banner notes `ConfirnPanel` (sections 6-8 left Out of date) |
+| `docs/architecture/character-migration-plan.md` | Smoke-test scene path |
+| `.claude/rules/map-code.md` | Room Clear Condition → `ON_OPEN_DOOR` |
+| `.claude/rules/scriptableobject-data.md`, `.claude/skills/doc-sync/SKILL.md` | `attackDamege` lesson cites BUG-105 (was BUG-095, BUG-101 residue) |
+
+**Notable findings.** The start room can now be opened by the Champion, but only when one is placed;
+BUG-096 stays open for Boss / Buff / Rest / Shop. `ICharacter` gained a method while ADR-0005 Amendment 1
+still says "`Transform` only" — left for an owner Amendment. Root `README.md:101` and
+`Assets/Script/UIFlow/README.md:39` still name `Main/Test/LoadRandomMap` (outside the doc-sync set).
+
 ## 2026-10-09 — Doc-truth pass: bug table follows the bug files; BUG-099 claims corrected (HEAD `cdf68555`)
 
 **Cause.** Routine `pm-weekly-doc-truth` (`/doc-sync --auto`). Phase 0 claim sweep:

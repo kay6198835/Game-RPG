@@ -48,9 +48,10 @@ paths:
 - **Implemented as of 2026-08-20** — the owner of the alive count is `RoomCell.EnemyCount`,
   not a `RoomController` (no such class ever existed). `RoomGridController` forwards
   `ON_DONE_SPAWN_ENEMY` / `ON_SPAWN_EXTRA_ENEMY` / `ON_ENEMY_DEATH` to the current cell;
-  `RoomCell.OnEnemyDeath()` emits `ON_CLEAR_ENEMY` when the count reaches zero.
+  `RoomCell.OnEnemyDeath()` emits `ON_OPEN_DOOR` when the count reaches zero (renamed from
+  `ON_CLEAR_ENEMY` in `221d54be`; `ChampitionController` also emits it in the start room).
 - Doors are closed by `RoomCell.ClearRoom()` on room exit and opened by `OpenDoors()` when
-  `ON_CLEAR_ENEMY` fires. Extend that path — do not add a second counter.
+  `ON_OPEN_DOOR` fires. Extend that path — do not add a second counter.
 - Use `EventManager.Emit` for door state changes — never call `DoorController.OpenDoor()`
   directly from enemy death (it is a no-op anyway, see Known Bugs)
 

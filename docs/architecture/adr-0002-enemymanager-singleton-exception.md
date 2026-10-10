@@ -5,6 +5,9 @@
 ## Status
 Proposed
 
+> **Re-synced 2026-10-10 (event name only).** Read every `ON_CLEAR_ENEMY` below as `ON_OPEN_DOOR`;
+> the enum value was renamed in `221d54be` (on `sprint-18` since 2026-10-10). The Decision is unchanged.
+
 > **Re-synced 2026-10-09 (paths only).** Read every `Assets/Script/Enemy/…` path below as
 > `Assets/Script/System/Enemy/…`; the directory moved in `1c0742e` (2026-09-03). The Decision is unchanged.
 

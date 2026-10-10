@@ -3,6 +3,9 @@
 > 📜 Change log: [changelog/ui-ux-flow.CHANGELOG.md](changelog/ui-ux-flow.CHANGELOG.md)
 
 > **Scope:** branch `origin/feature/ui-flow-maingameplay`, read from source on 2026-10-05.
+> **Re-synced 2026-10-10 (`sprint-18` `617bb2bb`):** the gameplay scene path is `Main/LoadRandomMap` (no `Test/`).
+> `221d54be` also added `Gameplay/Windows/ConfirnPanel` (opened by `GameplayUIController` on
+> `UIEvents.OpenConfirnPanel`, used by the start-room Champion) — not yet described in the sections below; open defect BUG-102.
 > **Updated 2026-10-05 (game-completion phase):** flags now default to the **real** game (New Game / Continue load
 > `LoadRandomMap`, the HUD reads the real player), character creation is removed, and every UI asset dating from
 > before February 2026 is deleted. Findings 1, 2, 5 and 7 in section 9 are resolved by that change.
@@ -59,7 +62,7 @@ flowchart LR
 |---|---|---|
 | 0 | `Main/MainGamePlay` | Splash, login, main menu, save select, settings |
 | 1 | `Main/Loading` | Shared loading screen with real `AsyncOperation` progress |
-| 2 | `Main/Test/LoadRandomMap` | The real dungeon (unchanged) |
+| 2 | `Main/LoadRandomMap` | The real dungeon (moved out of `Test/` in `221d54be`, 2026-10-10) |
 | 3 | `Main/GameplayUI` | In-game UI only; always loaded **Additive** on top of a gameplay scene |
 | 4 | `SetLevel` | Level editor |
 
