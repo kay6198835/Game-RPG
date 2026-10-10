@@ -7,6 +7,13 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-10 — Event rename banner (doc-sync --auto)
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** Re-synced banner; front-matter `updated`
+- **From → To:** body names `ON_CLEAR_ENEMY` → banner says read it as `ON_OPEN_DOOR` and lists the new producers (`RoomCell`, `ChampitionController`, editor button). Body left as written — most mentions are dated or struck-through history.
+- **Why:** enum value renamed in code.
+- **Bugs:** BUG-096
+
 ## 2026-10-09 — Doc-truth correction (doc-sync --auto)
 - **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
 - **Changed:** two claims from the 2026-10-05 re-sync, found false by the claim sweep `production/qa/doc-truth-2026-10-09.md`
