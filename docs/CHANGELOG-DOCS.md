@@ -17,6 +17,30 @@ which code change caused it.
 
 ---
 
+## 2026-10-10 — Remove redundant files (owner request)
+
+**Cause:** owner review of a redundancy scan (2026-10-10). Every item was checked for references
+(code, scene/prefab/asset GUIDs, routine prompts) before removal.
+
+| Removed | Why it was redundant |
+|---|---|
+| `.ccgs-staging/settings.json` | Byte-identical to the installed `.claude/settings.json` |
+| `.claude/worktrees/cool-noyce-af2d46`, `heuristic-moore-d8e6c8` | Empty gitlinks (mode 160000) left by earlier Claude sessions; not registered worktrees |
+| `Assets/Script/Character/Boss/` (+ folder metas), `Assets/Script/Handler/` | Only `.meta` files, residue of the reverted boss feature |
+| `Assets/Script/Interface/IReasourceReceiver` (+ `.meta`) | Empty file with no extension |
+| `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` (+ folder) | Its script was deleted in `2a83469` (BUG-090); only the already-broken ShootSpirit assets (BUG-073) referenced it |
+| `.claude/scripts/godot-parse-check.gd` | Godot-only helper; referenced only in Godot branches of `/dev-story` and `/setup-engine` |
+| `.claude/skills/weekly-sprint/` | Legacy Mon/Fri ritual. Last caller was `pm-weekly-wrapup` until its 2026-10-09 rewrite; no active routine calls it |
+| `production/review-schedule.md` | Superseded by `production/review-flow.md` §7 |
+
+Updated: `production/review-flow.md` (§8, §9 #9, header), `docs/skill-reference.md` (header, §9 row).
+
+**Not removed — would break the project:** `Assets/Script/Map/Legacy/Door.cs` + `Room.cs` (attached to
+23 + 1 components in `Assets/Scenes/Main/SetLevel.unity`) and `Assets/Script/Manager/AnimationEventManager.cs`
+(`AnimationPlayerController.cs:17-29` registers on it; deleting it is a compile error). Owner decision pending.
+
+---
+
 ## 2026-10-09 — Doc-truth pass: bug table follows the bug files; BUG-099 claims corrected (HEAD `cdf68555`)
 
 **Cause.** Routine `pm-weekly-doc-truth` (`/doc-sync --auto`). Phase 0 claim sweep:

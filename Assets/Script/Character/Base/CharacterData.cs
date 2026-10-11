@@ -21,4 +21,5 @@ public abstract class CharacterData : ScriptableObject
     public List<AbilityBinding> AbilityBindings => abilityBindings;
     /// <summary>Weapon item equipped when the character spawns empty-handed. Null = starts unarmed.</summary>
     public WeaponSO DefaultWeapon => defaultWeapon;
+    [SerializeField] public AnimatorOverrideController animationController;
 }

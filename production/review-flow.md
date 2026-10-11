@@ -2,8 +2,7 @@
 
 > **Created**: 2026-10-08 · **Revised (v2)**: 2026-10-09 — see §10 · **Author**: PM assistant (Claude),
 > review-only passes, no code changed
-> **Companion files**: `production/review-schedule.md` (older cadence table — see §8),
-> `production/qa/reviews/skill-audit-2026-10-08.md`, `production/qa/reviews/project-review-2026-10-08.md`
+> **Companion files**: `production/qa/reviews/skill-audit-2026-10-08.md`, `production/qa/reviews/project-review-2026-10-08.md`
 > (run 1), `production/qa/reviews/skill-audit-2026-10-09.md` (R1 after the CCGS v1.1.2 install; holds the
 > skill-to-phase map for all 81 skills), `production/qa/reviews/project-review-2026-10-09.md` (run 2).
 
@@ -231,10 +230,9 @@ older Mon/Fri table:
 
 ## 8. Relationship to existing documents
 
-- `production/review-schedule.md` (2026-05-19) still prescribes Monday/Friday runs and the combined
-  `/weekly-sprint`; the routines that actually run are the dated daily/Sat/Sun/monthly skills. Treat
-  §7 above as the current cadence; the schedule file should be updated or marked superseded by the
-  owner.
+- §7 above is the only cadence. `production/review-schedule.md` (2026-05-19, Monday/Friday runs) and
+  the legacy `/weekly-sprint` skill it prescribed were **deleted 2026-10-10** by owner decision; no
+  active routine called either. Their history is in git (`git log --all -- production/review-schedule.md`).
 - `docs/skill-reference.md` remains the per-skill catalogue.
 
 ## 9. Recommended skill changes (not made — owner decision)
@@ -256,7 +254,7 @@ live in project-own skills the upgrade did not touch. New items:
 
 | # | Change | Why |
 |---|---|---|
-| 9 | Rewrite the `pm-weekly-wrapup` routine prompt to call `/weekly-wrapup`, then retire `/weekly-sprint` | Legacy skill still runs every Saturday and reads the deleted `review-mode.txt` |
+| 9 | ✅ Done 2026-10-09/10: `pm-weekly-wrapup` calls `/weekly-wrapup`; `/weekly-sprint` deleted 2026-10-10 | Legacy skill ran every Saturday and read the deleted `review-mode.txt` |
 | 10 | Port project-own skills to `resolve_config` + `NOT ASSESSED` + the evidence tiers of §2 | The routines that run are now the least rigorous skills in `.claude/` |
 | 11 | Normalise bug-file headers (`**Status**` always the 2nd bold field) and make the banner count by status | BUG-098/099 lack the field; banner says 41 for 19 open |
 

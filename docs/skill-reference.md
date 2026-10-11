@@ -9,8 +9,9 @@
 > 2026-10-08), so §11's missing-agent warning is obsolete; only §9 (recurring PM skills) was
 > re-synced in this pass.
 >
-> Invoke any skill with `/skill-name [argument]`. See `production/review-schedule.md`
-> for which skills run on a recurring cadence (weekly/monthly).
+> Invoke any skill with `/skill-name [argument]`. See `production/review-flow.md` §7 for which
+> skills run on a recurring cadence (the 2026-05-19 `review-schedule.md` was deleted 2026-10-10).
+> Skill count after 2026-10-10: **80** (`/weekly-sprint` deleted).
 
 ---
 
@@ -118,7 +119,6 @@
 | `/daily-standup [--auto]` | Mon–Fri 02:00 — headless compile check + Unity log scan, tracker update, today's tasks; suspected defects → bug inbox; Friday prepares the playtest sheet | Routine `pm-daily-standup` |
 | `/weekly-kickoff [--auto]` | Sunday 22:00 — closes last week, creates `sprint-NN` on the remote + draft PR, writes `sprint-NN.md` + daily-plan; playtest first on Monday if Saturday's was missed | Routine `pm-weekly-kickoff` |
 | `/weekly-wrapup [--auto]` | Saturday 22:00 — code review, reads the owner's playtest sheet, fix-survival sweep, **bug-inbox triage (the only bug-ID allocator)**, retro, weekly verdict | Routine `pm-weekly-wrapup` |
-| `/weekly-sprint [kickoff\|wrapup]` | The older combined Monday/Friday ritual. No routine calls it since 2026-10-09 | Legacy — candidate for removal |
 
 > **Weekly PM cycle (2026-10-09):** Mon–Fri 02:00 standup → Fri 02:00 playtest sheet → Sat before
 > 22:00 owner playtest (~30 min) → Sat 22:00 wrap-up (inbox triage) → Sat 23:00 doc-sync →
