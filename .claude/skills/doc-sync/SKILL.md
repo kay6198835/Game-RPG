@@ -98,7 +98,7 @@ Dựa trên code đọc được, xác định hệ thống mới chưa có tron
 - Vấn đề mới (singleton vi phạm, import sai, stub chưa implement)
 - **Rename field có `[SerializeField]` / public trên SO hoặc MonoBehaviour**: nếu không có
   `[FormerlySerializedAs]`, grep `.asset` / `.prefab` tìm key cũ — asset còn key cũ = dữ liệu mất
-  im lặng (bài học BUG-095)
+  im lặng (bài học BUG-105)
 - **Xác nhận ngày fix bằng `git log -S"<chuỗi>"`**, không ghi ngày của lần doc-sync làm ngày fix
 
 ### 2e. Tài liệu sống bị lệch (drift)
@@ -327,7 +327,7 @@ nghi ngờ đã nằm trong `production/qa/bug-inbox.md` chờ triage Thứ Bả
   với strikethrough.
 - **Giữ nguyên typo có chủ đích**: `Resgister`, `UnResgister`, `IObjecPoolService` —
   đây là tên thật trong source, không sửa. (`attackDamege` đã đổi thành `attackDamage` trong code
-  từ 2026-09-01 — xem BUG-095; asset cũ vẫn lưu key cũ.)
+  từ 2026-09-01 — xem BUG-105; asset cũ vẫn lưu key cũ.)
 - **CHANGELOG chỉ append**: không sửa/xóa entry cũ trong `docs/systems/*/CHANGELOG.md` và
   `changelog/*.CHANGELOG.md`; entry `⚠️ Out of date` được thay bằng entry "Re-synced" khi đã sửa.
 - **Snapshot theo ngày không bao giờ viết lại** (sprint, daily plan, retro, triage, playtest,

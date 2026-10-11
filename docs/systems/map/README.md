@@ -1,6 +1,6 @@
 # Map — Maze, Rooms, Doors, Level Editor
 
-> **Status:** live · **Last verified:** 2026-10-09, `sprint-17` `cdf68555`
+> **Status:** live · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb`
 > History: [CHANGELOG.md](CHANGELOG.md) · GDD: `design/gdd/map-system.md` · Rules: `.claude/rules/map-code.md`
 
 ## Purpose
@@ -48,9 +48,10 @@ RoomGeneraterController.LoadRoom(index, cell):
   per tile: door tiles kept only for maze directions; spawn tiles → spawnPositions
   if !cleared → SwapTileMap + Emit(ON_GET_SPAWN_POSITIONS) + build grid
   else → OpenDoors()
-  (no zero-spawn branch: a room with no marker never gets ON_CLEAR_ENEMY — BUG-096)
+  (no zero-spawn branch: a room with no marker never gets ON_OPEN_DOOR from RoomCell — BUG-096)
 
-ON_CLEAR_ENEMY → RoomGridController.DeleteDoorTileMap (returns early if IsCleared) → RoomCell.OpenDoors
+ChampitionController (start room, Champion confirmed) → Emit(ON_OPEN_DOOR)
+ON_OPEN_DOOR → RoomGridController.DeleteDoorTileMap (returns early if IsCleared) → RoomCell.OpenDoors
   (OpenDoors() sets IsCleared = true since 5d1986db)
 DoorController.OnTriggerEnter2D (Player, OPEN) → Emit(ON_PLAYER_ON_DOOR, dir)
   → RoomGridController.ClearRoom → OnLoadMap(dir) → LoadRoom(next) → Emit(ON_LOAD_MAP)

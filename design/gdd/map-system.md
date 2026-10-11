@@ -2,7 +2,7 @@
 status: reverse-documented
 source: Assets/Script/Map/
 date: 2026-05-19
-updated: 2026-10-05
+updated: 2026-10-10
 verified-by: Kiet
 ---
 
@@ -10,6 +10,15 @@ verified-by: Kiet
 
 > 📜 Change log: [changelog/map-system.CHANGELOG.md](changelog/map-system.CHANGELOG.md)
 
+> **Re-synced 2026-10-10 against `sprint-18` `617bb2bb` (doc-truth pass) — event rename only.**
+> `221d54be` (merged into `sprint-18` by `42a81260`) renamed `EventID.ON_CLEAR_ENEMY` to **`ON_OPEN_DOOR`**,
+> same enum slot, same subscriber (`RoomGridController.DeleteDoorTileMap`). **Read every `ON_CLEAR_ENEMY`
+> below as `ON_OPEN_DOOR`**; the body is left as written because most mentions sit in dated or
+> struck-through history. Producers now: `RoomCell` (alive count reaches 0), `ChampitionController`
+> (Champion confirmed in the start room — the only path that opens a marker-less room, and only if a
+> Champion is placed there; BUG-096 stays open for Boss / Buff / Rest / Shop) and the
+> `LevelManagerEditor` "Clear Enemy" button. The room-clear design is unchanged.
+>
 > **Re-synced 2026-10-09 against `sprint-17` `cdf68555` (doc-truth pass).** Two claims made by the
 > 2026-10-05 banner are wrong and are corrected here and in the body:
 >

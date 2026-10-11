@@ -2,6 +2,13 @@
 
 Newest first. Entries reconstructed from the count history in `CLAUDE.md` and `git log`.
 
+## 2026-10-10 — ON_CLEAR_ENEMY renamed ON_OPEN_DOOR (still 24 values)
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** `EventManager.cs:46`
+- **From → To:** `ON_CLEAR_ENEMY` → `ON_OPEN_DOOR`, same slot. Producers: `RoomCell` (0 alive), `ChampitionController` (Champion confirmed), `LevelManagerEditor` "Clear Enemy" button. Consumer: `RoomGridController.DeleteDoorTileMap`.
+- **Why:** not recorded in the commit; the new name describes the effect (inferred).
+- **Bugs:** none
+
 ## 2026-10-05 — ON_PLAYER_READY (23 → 24 values)
 - **Commit:** `cb0de496`
 - **Changed:** `EventID`

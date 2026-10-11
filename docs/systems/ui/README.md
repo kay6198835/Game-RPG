@@ -1,6 +1,6 @@
 # UI — UIFlow (current) + legacy UI
 
-> **Status:** UIFlow live and **runs the real game by default**; player data is real, inventory/quest/login still stubs · **Last verified:** 2026-10-05, merge of `7d1b5c79` into `cb0de496` · **No GDD, no ADR** (BUG-052)
+> **Status:** UIFlow live and **runs the real game by default**; player data is real, inventory/quest/login still stubs · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb` · **No GDD, no ADR** (BUG-052)
 > History: [CHANGELOG.md](CHANGELOG.md) · **Deep reference:** `docs/ui/ui-ux-flow.md` (flow, flags, every panel, findings)
 
 ## Purpose
@@ -18,13 +18,13 @@ against the real game, and screens with no gameplay source yet (inventory, quest
 | `Data/UIDataModels.cs` | DTOs: `PlayerStatsData`, `SkillSlotData`, `SkillNodeData`, `CharacterClassInfo`, … |
 | `Menu/` | `SplashPanel`, `LoginPanel`, `MainMenuPanel` + `MainMenuFlow`, `SaveSelectPanel` + `SaveSlotView`, `SettingsPanel` + `KeyBindingRow`. `CharacterCreationPanel` deleted in `cb0de496` — New Game creates a "Paladin N" save |
 | `Loading/LoadingScreen.cs` | Async load of `SceneFlow.TargetScene`, minimum display time, tips |
-| `Gameplay/` | `GameplayUIController`; `HUD/` (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed); `Windows/` (TabWindow, Inventory + InventorySlot + ItemTooltip, Character, Quest, SkillTree); `Shop/`; `Dialogue/`; `World/` (DamageNumber + spawner, WorldHealthBar — both currently unused); `PausePanel`, `GameOverPanel` |
+| `Gameplay/` | `GameplayUIController`; `HUD/` (HUDPanel, StatBar, SkillHotbar, QuestTracker, NotificationFeed); `Windows/` (TabWindow, Inventory + InventorySlot + ItemTooltip, Character, Quest, SkillTree); `Shop/`; `Dialogue/`; `World/` (DamageNumber + spawner, WorldHealthBar — both currently unused); `PausePanel`, `GameOverPanel`; `Windows/ConfirnPanel` + `struct ConfirnData` (confirm/cancel dialog, opened on `UIEvents.OpenConfirnPanel`, confirm → `UIEvents.AccessAction()` — ⚠️ BUG-102); `Popup/PopupPanel` (empty stub) |
 | `Services/` | `Interfaces/` (ILoginService, ISaveProvider, IPlayerDataProvider, IInventoryProvider, IQuestProvider); `Real/` (player data wired; login / inventory / quest stubs); `KeyBindings`, `SettingsStore` |
 | `Editor/` | `UIFlowBuilder` (+ `.Gameplay`) — generates the scenes; `UIKit`. (`UIFlowSmokeTest` deleted 2026-10-05) |
 | `Assets/Script/UI/` (legacy) | `UIController` (UI Toolkit MainMenu/Settings/Pause from `Assets/UI/Screens/*.uxml`), `StatsUIController` (VContainer-registered), `StatsScreenUIController`, `StatSlot` |
 
 Scenes: `Main/MainGamePlay` (menus, **build index 0**), `Main/Loading`, `Main/GameplayUI` (additive in-game UI).
-Real gameplay scene: `Main/Test/LoadRandomMap`. `StartScene`,
+Real gameplay scene: `Main/LoadRandomMap` (moved out of `Test/` in `221d54be`; `SceneNames.GameplayReal` loads it by name). `StartScene`,
 `UISample`, `MainMenu.cs`, the legacy `Manager/UI/UIManager.cs` stub and the 2024 `Assets/Prefab/UI/`
 prefabs were deleted in `cb0de496`; `Test/GameplayMock` was deleted with the mock removal (2026-10-05).
 
@@ -66,4 +66,5 @@ Death: ON_PLAYER_DEATH → RealPlayerDataProvider.PlayerDied → GameOverPanel �
 |-------|---------|
 | — | Login, Inventory, Quest Real providers still stubs; minimap placeholder disabled |
 | BUG-087 | Game over works only via scene reload — no gameplay `Reborn()` |
+| BUG-102 | Confirm panel: `UIEvents.OpenConfirnPanel` / `ConfirnRequest` raised with `.Invoke()` (NRE without `GameplayUI`); `SetConfirm()` writes button labels into title/message |
 | BUG-052 | No GDD / ADR for UIFlow |

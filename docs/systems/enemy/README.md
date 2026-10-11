@@ -1,6 +1,6 @@
 # Enemy — AI + Spawning
 
-> **Status:** live · **Last verified:** 2026-10-05, HEAD `93ba6d8e` · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
+> **Status:** live · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb` · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -52,12 +52,12 @@ ON_GET_SPAWN_POSITIONS (from RoomGeneraterController.LoadRoom)
       → mapModel.GetRandomRoom() → roomModel.GetSpawnSet()
       → ObjectPoolManager.Spawn() per entry at a random marker
       → Emit(ON_DONE_SPAWN_ENEMY, count)
-RoomCell: ON_DONE_SPAWN_ENEMY → EnemyCount; ON_ENEMY_DEATH → -- ; 0 → ON_CLEAR_ENEMY
+RoomCell: ON_DONE_SPAWN_ENEMY → EnemyCount; ON_ENEMY_DEATH → -- ; 0 → ON_OPEN_DOOR
 ```
 
 Rooms with no spawn marker still emit `ON_GET_SPAWN_POSITIONS` (with an empty list) — `LoadRoom()` has no
-zero-spawn branch at `sprint-17`. `OnGetSpawnPositions()` returns early, so `ON_DONE_SPAWN_ENEMY` and
-`ON_CLEAR_ENEMY` never follow and the room stays sealed (BUG-096); see [map](../map/README.md).
+zero-spawn branch (re-checked at `sprint-18` `617bb2bb`). `OnGetSpawnPositions()` returns early, so `ON_DONE_SPAWN_ENEMY` and
+`ON_OPEN_DOOR` never follow and the room stays sealed (BUG-096); see [map](../map/README.md).
 *Corrected 2026-10-09 — was:* "Rooms with no spawn marker never emit `ON_GET_SPAWN_POSITIONS`".
 
 **Prefab wiring.** `Entity` + child `EntityCore` + all core components as descendants; assign an

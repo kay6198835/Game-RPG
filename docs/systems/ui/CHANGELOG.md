@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-10 — ConfirnPanel; gameplay scene moved
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** new `Gameplay/Windows/ConfirnPanel.cs` (+ `struct ConfirnData`), `UIEvents.cs` (`OpenConfirnPanel`, `ConfirnRequest`, `OnOpenConfirmPanel()`, `AccessAction()`), `GameplayUIController.cs`, `GameplayUI.unity`; `LoadRandomMap.unity` moved out of `Main/Test/`
+- **From → To:** no confirm dialog → `ConfirnPanel` opened from `UIEvents.OpenConfirnPanel`; README scene path `Main/Test/LoadRandomMap` → `Main/LoadRandomMap`
+- **Why:** Champion selection in the start room needs a confirm step (from `ChampitionController`).
+- **Bugs:** BUG-102
+
 ## 2026-10-05 — Mock and test-only flow removed
 - **Changed:** deleted `Services/Mock/` (6 files incl. `MockCatalog`), `Gameplay/Mock/` (`GameplayMockController`, `MockEnemy`), `UIFlowSmokeTest`, `Assets/Scenes/Test/GameplayMock.unity` (and its Build Settings entry); removed flags `useMockData`, `skipGameplayInit`, `skipSaveLoad`, `bypassLoadRandomLogic` and `UIServices.RebuildProviders()` / `OnSaveSelected()`; loading tips moved into `LoadingScreen.DefaultTips`
 - **From → To:** Mock/Real providers switched by flags → `UIServices` always builds the `Real*` providers; `EnterGameplay()` chose mock or real scene → always `LoadRandomMap` + `GameplayUI`; 64 → 55 `.cs` files. UI component logic (all panels, `WorldHealthBar`, `DamageNumber`) kept unchanged
