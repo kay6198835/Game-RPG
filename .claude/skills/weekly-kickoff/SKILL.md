@@ -44,11 +44,12 @@ edit/create production planning `.md` files.
 - Determine the new sprint number (last + 1), zero-padded (`sprint-18`). Create it **on the
   remote, from the latest commit of the previous sprint**, without touching the owner's folder:
   ```
-  PM=D:/Fork/Game-RPG-pm
-  git -C D:/Fork/Game-RPG fetch origin --prune
-  git -C "$PM" checkout --detach origin/sprint-<NN-1>
-  git -C "$PM" push origin HEAD:refs/heads/sprint-<NN>     # skip if origin/sprint-<NN> exists
+  git -C D:/Fork/Game-RPG-pm fetch origin --prune
+  git -C D:/Fork/Game-RPG-pm checkout --detach origin/sprint-<NN-1>
+  git -C D:/Fork/Game-RPG-pm push origin HEAD:refs/heads/sprint-<NN>     # skip if origin/sprint-<NN> exists
   ```
+  One command per Bash call, real numbers instead of `<NN>`, never the PowerShell tool
+  (protocol §2 "Command form").
 - Do NOT base it off `main`. Open a draft PR:
   `gh pr create --draft --base sprint-<NN-1> --head sprint-<NN> --title "Sprint <NN>"`
   (if `gh` is missing or unauthenticated, note it and continue).
