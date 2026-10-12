@@ -83,6 +83,12 @@ public class Player : CharacterBase<Core>
         this.data = (PlayerData)data;
         gameObject.name = data.name;
         anim.runtimeAnimatorController = data.animationController;
+
+        // Need check and fix this logic late
+        core.GetCoreComponent(out WeaponHolder weaponHolder);
+        weaponHolder.EquipDefaultWeapon();
+        core.GetCoreComponent(out AbilityHolder abilityHolder);
+        abilityHolder.SetAbility();
     }
 
 

@@ -25,7 +25,7 @@ public class WeaponHolder : WeaponHolderBase<Core>
     {
         base.Start();
         Core.GetCoreComponent(out playerInputHandler);
-        if(TryGetComponent(out Weapon weapon))
+        if (TryGetComponent(out Weapon weapon))
         {
             weapon.Equid(this);
         }
@@ -76,4 +76,13 @@ public class WeaponHolder : WeaponHolderBase<Core>
         Gizmos.color = Color.black;
         Gizmos.DrawWireSphere(transform.position, intertionPointRadius);
     }
+
+    // Need check and fix this logic late
+    public virtual void GetWeapon(Weapon weapon)
+    {
+        this.weapon = weapon;
+
+        
+    }
+
 }
