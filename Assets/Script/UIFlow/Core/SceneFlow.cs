@@ -40,20 +40,11 @@ namespace UIFlow
             SceneManager.LoadScene(SceneNames.Loading);
         }
 
-        /// <summary>Vào gameplay: cờ skipGameplayInit quyết định scene thật hay scene giả.</summary>
+        /// <summary>Vào gameplay: load LoadRandomMap rồi gắn GameplayUI (HUD) lên trên.</summary>
         public static void EnterGameplay()
         {
-            UIDebugConfig config = UIServices.Config;
-            if (config.skipGameplayInit)
-            {
-                // GameplayMock không có HUD riêng → luôn gắn GameplayUI.
-                GoTo(SceneNames.GameplayMock, attachGameplayUI: true);
-                return;
-            }
-
             // TODO: nối logic thật — khi có hệ thống save, truyền slot đang chọn vào gameplay ở đây.
-            // Gắn GameplayUI vào scene thật chỉ khi đã tắt bypassLoadRandomLogic.
-            GoTo(SceneNames.GameplayReal, attachGameplayUI: !config.bypassLoadRandomLogic);
+            GoTo(SceneNames.GameplayReal, attachGameplayUI: true);
         }
 
         /// <summary>Thoát gameplay về menu chính.</summary>
@@ -82,7 +73,7 @@ namespace UIFlow
 
             // Load Additive: scene đích vẫn chạy nguyên vẹn, UI chỉ được "đặt chồng" lên trên.
             // Dùng LoadScene (đồng bộ, hoàn tất ở frame kế) thay vì LoadSceneAsync: bản async bị Unity chia nhỏ
-            // theo backgroundLoadingPriority nên scene nhiều UI này mất 16–20 giây mới hiện HUD (đo trong smoke test).
+            // theo backgroundLoadingPriority nên scene nhiều UI này mất 16–20 giây mới hiện HUD (đã đo).
             SceneManager.LoadScene(SceneNames.GameplayUI, LoadSceneMode.Additive);
         }
     }

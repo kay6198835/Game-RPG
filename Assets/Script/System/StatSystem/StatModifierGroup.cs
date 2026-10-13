@@ -24,34 +24,4 @@ public class StatModifierGroup
     private List<StatModifier> authoredModifiers = new List<StatModifier>();
 
     public IReadOnlyList<StatModifier> Modifiers => authoredModifiers;
-
-    /// <summary>Gắn toàn bộ cụm vào một StatsSO, ghi nhận nguồn là source.</summary>
-    public void ApplyTo(BaseStatsSO stats, object source)
-    {
-        if (stats == null)
-        {
-            Debug.LogWarning($"[{nameof(StatModifierGroup)}] statsSO là null.");
-            return;
-        }
-        stats.AddModifiersFromSource(source, authoredModifiers);
-    }
-    public void Apply(Action<object, IReadOnlyList<StatModifier>> action, object source)
-    {
-        action(source, Modifiers);
-    }
-    public void Remmove(Action<object> action, object source)
-    {
-        action(source);
-    }
-
-    /// <summary>Gỡ mọi modifier đến từ source (gồm cụm này và mọi cụm khác cùng nguồn).</summary>
-    public void RemoveFrom(BaseStatsSO stats, object source)
-    {
-        if (stats == null)
-        {
-            Debug.LogWarning($"[{nameof(StatModifierGroup)}] statsSO là null.");
-            return;
-        }
-        stats.RemoveModifiersFromSource(source);
-    }
 }

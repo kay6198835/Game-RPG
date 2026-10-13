@@ -31,9 +31,18 @@ namespace UIFlow
         {
             new(0.09f, 0.1f, 0.16f), new(0.14f, 0.08f, 0.1f), new(0.07f, 0.13f, 0.11f), new(0.12f, 0.1f, 0.06f),
         };
-        [Tooltip("Mẹo hiện khi load. Để trống thì dùng mẹo mẫu trong MockCatalog.")]
+        [Tooltip("Mẹo hiện khi load. Để trống thì dùng DefaultTips bên dưới.")]
         [SerializeField, TextArea] private string[] tips;
         [SerializeField] private float tipInterval = 3f;
+
+        private static readonly string[] DefaultTips =
+        {
+            "Mẹo: Nhấn 1 – 4 để dùng kỹ năng.",
+            "Mẹo: Dọn hết quái trong phòng thì cửa mới mở.",
+            "Mẹo: Nhấn I, K hoặc J để mở túi đồ, kỹ năng, nhân vật.",
+            "Mẹo: Nhấn Esc để tạm dừng và lưu game.",
+            "Mẹo: Avatar of Light tốn cả máu — đừng dùng khi sắp chết.",
+        };
 
         private float _displayedProgress;
 
@@ -88,7 +97,7 @@ namespace UIFlow
 
         private IEnumerator RotateTips()
         {
-            string[] source = tips != null && tips.Length > 0 ? tips : MockCatalog.LoadingTips;
+            string[] source = tips != null && tips.Length > 0 ? tips : DefaultTips;
             int last = -1;
             while (true)
             {
@@ -123,7 +132,6 @@ namespace UIFlow
         {
             SceneNames.MainGamePlay => "Menu chính",
             SceneNames.GameplayReal => "Hầm ngục",
-            SceneNames.GameplayMock => "Hầm ngục (bản giả để test UI)",
             _ => sceneName,
         };
     }

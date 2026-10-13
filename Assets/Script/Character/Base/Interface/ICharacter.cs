@@ -9,4 +9,5 @@ using UnityEngine;
 public interface ICharacter
 {
     Transform Transform { get; }
+    void SetCharacterData(CharacterData data);
 }

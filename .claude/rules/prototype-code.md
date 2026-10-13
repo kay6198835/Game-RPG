@@ -1,6 +1,7 @@
 ---
-description: Relaxed standards for throwaway prototypes in prototypes/ directory
-globs: ["prototypes/**/*.cs", "prototypes/**/*.md"]
+# Relaxed standards for throwaway prototypes in prototypes/ directory
+paths:
+  - "prototypes/**"
 ---
 
 # Prototype Code Standards

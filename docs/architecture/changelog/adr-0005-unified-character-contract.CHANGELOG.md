@@ -7,6 +7,13 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — ⚠️ Out of date against code (found by doc-sync, not yet fixed)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Stale sentence:** Context, `:33`: "`StatModifierGroup.Apply/Remmove` becomes the one way to attach a modifier bundle to a character".
+- **Code at `sprint-17`:** `7f632021` (2026-10-07, "coding start room") deleted `StatModifierGroup.Apply()` and `.Remmove()`. `VitalStatsBase` and `Weapon` now call `AddModifiersFromSource(this, group.Modifiers)` / `RemoveModifiersFromSource(this)` directly.
+- **Why not fixed:** whether this changes the ADR's intent is an owner decision (an Amendment), not a doc-sync edit. A note under the Status banner points here.
+- **Related:** BUG-100 (one modifier source shared by permanent and timed buffs) sits on the same code path.
+
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
 - **Changed:** corrected every statement found stale against HEAD `93ba6d8e`. Each item reads *was stale → now says*:

@@ -2,6 +2,20 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-10 — Room-clear event renamed ON_OPEN_DOOR
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** `RoomCell.cs:60` (emitter), README flow
+- **From → To:** `0 alive → ON_CLEAR_ENEMY` → `0 alive → ON_OPEN_DOOR`. Spawn flow unchanged.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-096
+
+## 2026-10-09 — Correction: marker-less rooms do emit ON_GET_SPAWN_POSITIONS
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Changed:** README only. No enemy code changed.
+- **From → To:** "Rooms with no spawn marker never emit `ON_GET_SPAWN_POSITIONS`" → they do emit it, with an empty list. `EnemySpawner.OnGetSpawnPositions()` returns early, so the room never clears.
+- **Why:** `ac13ee4f` reverted the zero-spawn branch in `LoadRoom()` (`40d2c793`), and the 2026-10-05 doc sync did not notice (BUG-099).
+- **Bugs:** BUG-096, BUG-099
+
 ## 2026-09-28 … 10-05 — Pool-safe restart, serialized state machine
 - **Commits:** `5b035b73`, `b7a0af5e`, `0bc36406`
 - **Changed:** `Entity`, `EntityStateMachine`, `EntityVitalStats`

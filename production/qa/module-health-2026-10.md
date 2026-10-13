@@ -109,3 +109,51 @@ next `/bug-triage`):
 7. **Reconcile GDD status headers with `systems-index.md`** — pick one source of truth.
 8. **Check the scheduled task fires**: the September audit did not run, so this window doubled. Confirm
    the 2026-11-02 run lands.
+
+---
+
+## Addendum — delta run 2026-10-06
+
+**Run**: 2026-10-06 (autonomous scheduled run fired again; day-of-month 6 passes the first-Monday guard).
+**Window**: `d3a57f0` (the 2026-10-05 audit HEAD) → `8da09b1a`. Same branch, `sprint-17`.
+
+**Autonomous-mode choice:** the full October audit already ran and was committed yesterday
+(`255546a1`). Re-scoring all 8 modules a day later would duplicate it, so this run audits only the
+delta and appends here instead of writing a second October file.
+
+**What landed:** the UIFlow branch merge (`cb0de496` real-game binding, `8535b2fb`/`c511c538` mock
+removal), the doc sync `7d1b5c79`, and Paladin assets (`f30b8343`). Outside `Assets/Script/UIFlow/`,
+only 10 `.cs` files changed, all small: additive events (`VitalStatsBase.CurrentStatsChanged`,
+`AbilityInstance.CooldownStarted`, `AbilityHolderBase.AbilityCooldownStarted`, `ON_PLAYER_READY`),
+deletion of `MainMenu.cs` and the `UIManager` stub, and the `RoomGridController` start-cell
+(Column, Row) swap.
+
+### Verdict changes
+
+None. All 8 verdicts from 2026-10-05 stand (2 CRITICAL, 2 AT RISK, 4 HEALTHY).
+
+- `character-system.md` stays **CRITICAL**: BUG-087 is now PARTIAL (one subscriber,
+  `RealPlayerDataProvider`), but there is still no `GameManager` / player `Reborn()` caller.
+- `map-system.md` stays **CRITICAL**: BUG-096 is still open in code (see BUG-099).
+- `weapons-system.md`: the GDD was rewritten by `7d1b5c79` and now mentions the ADR-0005 / projectile
+  types (17 hits, was 0). Recommendation 5 is done for weapons; still open for `character-system.md`
+  (0 hits). Verdict unchanged — BUG-093/094/095 still open.
+
+### Change-impact (delta)
+
+| Module | Status | Files Touched | Commit(s) | In-Scope? | Recommended Follow-Up | Run This Cycle? |
+|--------|--------|---------------|-----------|-----------|-----------------------|-----------------|
+| character-system.md | Designed | `Character/Base/VitalStatsBase.cs`, `AbilityHolderBase.cs`, `Player/CoreComponent/VitalComponent.cs`, `Interface/IVitalComponent.cs` | `cb0de496` (UI feature) | **No** — UI work adding events to character components. Additive only, low risk | `/consistency-check` on `character-system.md` (already recommended yesterday; bundle) | Not run — requires owner decision |
+
+Not flagged: `map-system.md` (In Progress; `RoomGridController` change is the in-scope Bug #13 follow-up),
+`enemy-spawn-system.md` (only a changelog-link line added to the GDD; BUG-098 still open — 0
+`RarityTierEnemy` mentions in the GDD, ADR-0003 or CLAUDE.md). GDD/ADR edits in the window are all
+from the doc sync, not design revisions, so `/propagate-design-change` is not indicated.
+
+**Count: 1 cross-module impact flag** (Designed module).
+
+### New bugs filed
+
+- **BUG-099** (S3) — `7d1b5c79` recorded BUG-096 as fixed: CLAUDE.md (`:52`, `:612`) and
+  `map-system.md` (`:22`, `:381`, `:443` ticked) say marker-less rooms open their doors, but the fix
+  `40d2c793` was reverted by `ac13ee4` and the code still has no empty-list branch.

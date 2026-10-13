@@ -2,6 +2,15 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-10 — ICharacter.SetCharacterData; PlayerIntertorState triggers interaction
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** `ICharacter.cs:12`, `CharacterBase.cs:13`, `Player.cs:81-85`, `Entity.cs:78-82`, `PlayerIntertorState.cs`
+- **From → To:**
+  - `ICharacter` carried `Transform` only → also `void SetCharacterData(CharacterData)`, abstract on `CharacterBase`; `Player` / `Entity` cast unchecked and rename the GameObject
+  - `PlayerIntertorState` only set the animator direction → resolves `Interactor` on `Enter()` and calls `Interactor.Intertion()` on `AnimationOnAction()`
+- **Why:** the start-room Champion assigns the chosen `PlayerData` to the player (from `ChampitionController`). ⚠️ ADR-0005 Amendment 1 ("`Transform` only") is not amended.
+- **Bugs:** NOTE-20261009-6 (Needs owner — unchecked casts)
+
 ## 2026-09-28 … 10-02 — Player spawned at runtime; ability input split
 - **Commits:** `5b035b73` (runtime spawn, weapon injection), `9154763f` (state log), `3a395fe9` (input split), `0bc36406`
 - **Changed:** player instantiation, input map, debug fields

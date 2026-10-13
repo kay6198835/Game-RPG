@@ -28,7 +28,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     public void OnEnable()
     {
         EventManager.Resgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
-        EventManager.Resgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
+        EventManager.Resgister(EventID.ON_OPEN_DOOR, DeleteDoorTileMap);
         EventManager.Resgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
         EventManager.Resgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
         EventManager.Resgister(EventID.ON_DONE_SPAWN_ENEMY, OnDoneSpawnEnemy);
@@ -37,7 +37,7 @@ public class RoomGridController : BaseGrid<RoomCell>
     public void OnDisable()
     {
         EventManager.UnResgister(EventID.ON_LOAD_MAZE_DONE, OnDoneLoadRoomGrid);
-        EventManager.UnResgister(EventID.ON_CLEAR_ENEMY, DeleteDoorTileMap);
+        EventManager.UnResgister(EventID.ON_OPEN_DOOR, DeleteDoorTileMap);
         EventManager.UnResgister(EventID.ON_PLAYER_ON_DOOR, ClearRoom);
         EventManager.UnResgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
         EventManager.UnResgister(EventID.ON_DONE_SPAWN_ENEMY, OnDoneSpawnEnemy);

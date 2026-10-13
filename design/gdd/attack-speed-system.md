@@ -250,10 +250,10 @@ intended before implementing.
 | [`GameConstants.cs`](../../Assets/Script/Utility/GameConstants.cs) | Add `MIN_SPEED_MULT` / `MAX_SPEED_MULT` under `SettingStats` |
 | `Player.Stats` | Already exists (`Player.cs:21`) — read layer 2 through `player.Stats.GetStatValue(StatType.AttackSpeed)`. No new component required |
 
-⚠️ Blocker for the stat half: `StatsSO.RecalculateDerived()` currently skips its update when
-**any one** of four values already matches, because the guard uses `||` where it needs `&&`
-(`StatsSO.cs:272`). Until that is fixed, `AttackSpeed` will not recalculate on level-up or
-point allocation unless `isDevMode` is on (TD-038).
+✅ *Re-synced 2026-10-09 — blocker cleared.* The `||`-for-`&&` skip-guard in `RecalculateDerived()` was
+fixed on `sprint-10` (NEW-3) and carried into `BaseStatsSO` when `StatsSO` was deleted (`b0512f4`).
+*Was:* "⚠️ Blocker for the stat half: `StatsSO.RecalculateDerived()` currently skips its update when
+any one of four values already matches … (`StatsSO.cs:272`) … (TD-038)."
 
 Existing helpers to reuse — do not reimplement:
 [`Utility.DurationNextAttack()`](../../Assets/Script/Utility/Utility.cs),

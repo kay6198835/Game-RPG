@@ -10,4 +10,5 @@ public abstract class CharacterBase<TCore> : BaseEntity, ICharacter where TCore 
 
     public TCore Core => core;
     public Transform Transform => transform;
+    public abstract void SetCharacterData(CharacterData data);
 }

@@ -1,6 +1,8 @@
 ---
-description: Shader and VFX standards for Unity URP 2D
-globs: ["Assets/Shader/**/*", "Assets/Sprite/VFX/**/*", "Assets/Particle Effect/**/*"]
+# Shader and VFX standards for Unity URP 2D
+paths:
+  - "Assets/**/*.{shader,hlsl,shadergraph,vfx}"
+  - "Assets/Sprite/VFX/**"
 ---
 
 # Shader and VFX Standards

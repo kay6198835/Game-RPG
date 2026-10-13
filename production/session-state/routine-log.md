@@ -1,0 +1,18 @@
+# Routine Run Log
+
+> One line per run of a scheduled PM routine, appended by the routine at the end of its run.
+> `/daily-standup` reads the last 7 days and reports any missed slot.
+> Expected slots: standup Mon–Fri 02:00 · wrap-up Sat 22:00 · doc-sync Sat 23:00 · kickoff Sun 22:00 ·
+> module audit first Monday 22:00.
+
+| Date (local) | Routine | HEAD (`origin/sprint-NN`) | Status | Evidence tier | Commit | Note |
+|---|---|---|---|---|---|---|
+| 2026-10-09 | daily-standup | `ec44e9be` | OK | COMPILED | (this commit) | Fri; compile PASS on `221d54be`; +1 inbox note (NOTE-4); playtest sheet 2026-10-10 generated; Must-Have 0/8 |
+| 2026-10-09 | weekly-wrapup | `9706c6f4` | PARTIAL | COMPILED + LOG (no RUNTIME) | `9706c6f4`, `386083ca` (merge `662383d9`), (this commit) | Fired Fri 17:25, not Sat; playtest sheet empty → SLIPPED, playtest done: no; 8 notes triaged → BUG-102; velocity 0.05 |
+| 2026-10-09 | doc-sync (`pm-weekly-doc-truth`) | `cdf68555` | PARTIAL | STATIC | merge on `sprint-17` (see branch `pm/doc-sync-2026-10-09`) | Phase 0: 567 claims, 45 flagged → 13 STALE / 5 FALSE overall; CLAUDE.md bug table aligned to files (BUG-064/087/093-095, +096-102); BUG-099 claims fixed; +4 inbox notes (9-12); 3 left Out of date. PARTIAL: protocol + scripts read from unmerged `42a81260`, not on `sprint-17` |
+| 2026-10-09 | weekly-kickoff | `d8962b8d` | PARTIAL | STATIC | `d8962b8d` (close S17 on `sprint-17`), (this commit) | Fired Fri, not Sun; Sprint 17 closed SLIPPED (0/8 Must, velocity 0.05); `sprint-18` created on remote from `sprint-17` tip; plan 1.3d Must + 1.0d Should + 0.5d feature cap; playtest first Mon; PARTIAL: `gh` missing → no draft PR, protocol read from unmerged `42a81260`, `tests/smoke/critical-paths.md` absent |
+| 2026-10-10 | weekly-wrapup | `c6cbc57a` | OK | LOG + STATIC (no RUNTIME) | `ad0a7dd2` (branch `pm/wrapup-2026-10-10`, merged), (this commit) | Sat 22:00 slot; 0 `.cs` changes since Fri wrap-up; playtest sheet empty → SLIPPED, playtest done: no; 4 notes → BUG-103/104/105 + BUG-064/087 status; velocity 0.05 |
+| 2026-10-10 | doc-sync (`pm-weekly-doc-truth`) | `617bb2bb` | PARTIAL | STATIC | `29916f0b` (branch `pm/doc-sync-2026-10-10`), merge `65a969aa`, (this commit) | Phase 0: 587 claims, 92 flagged (45 recurring TRUE, 47 new); 221d54be on sprint-18 → ON_OPEN_DOOR + scene path + Champion/ConfirnPanel/ICharacter reflected in 27 docs; BUG-064/087 rows follow files, BUG-103..105 rows added, BUG-095→105 citations; 0 FALSE, 0 new inbox notes; left Out of date: ADR-0002 body (banner), GDD bodies (banner), ADR-0005 Amd 1, ADR-0003/RarityTier, ui-ux-flow §6-8 ConfirnPanel, root README + UIFlow/README scene path |
+| 2026-10-12 | daily-standup | `ff8d4713` | PARTIAL | LOG | (this commit) | Mon, sprint-18 day 1; 0 owner commits since 2026-10-09; compile-check SKIPPED (Editor open); editor-log clean (0 CS errors, 0 Play Mode); inbox 0 open; today S18-01..04 (≈0.7d), playtest first |
+| 2026-10-12 | weekly-kickoff | `97d2da55` | SKIPPED | STATIC | (this commit) | Sun slot fired Mon 2026-10-12; Sprint 18 (2026-10-12→16) already opened by the 2026-10-09 kickoff and is on day 1 → no sprint-19 branch, no new plan (would start a sprint mid-week). Plan left as-is; BUG-103..105 from the 2026-10-10 triage not added to Sprint 18 Must (next kickoff decides). `gh` still missing → no draft PR for `sprint-18` |
+| 2026-10-13 | daily-standup | `7b361725` | OK | COMPILED + LOG | (this commit) | Tue, day 2; compile PASS on `sprint-18`; editor-log clean, 0 Play Mode → S18-01 not run; Mon S18-01..04 undone → SLIPPED; off-branch `51f8d2d4` read statically → +3 inbox notes (compile break S1, DI S2, enemy equip S2) |
