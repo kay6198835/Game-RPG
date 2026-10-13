@@ -17,6 +17,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     private Animator animator;
     private ICharacter owner;
     private IObjectResolver resolver;
+    private ObjectPoolManager objectPoolManager;
 
     public Weapon Weapon => weapon;
     public Transform Transform => transform;
@@ -26,9 +27,10 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     private ICharacter Owner => owner ??= GetComponentInParent<ICharacter>();
 
     [Inject]
-    public void Construct(IObjectResolver resolver)
+    public void Construct(IObjectResolver resolver, ObjectPoolManager objectPoolManager)
     {
         this.resolver = resolver;
+        this.objectPoolManager = objectPoolManager;
     }
 
     protected override void Start()
@@ -36,18 +38,18 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         base.Start();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out input);
-        if (weapon == null) EquipDefaultWeapon();
     }
 
     // Same for Player and Entity: CharacterData.DefaultWeapon is equipped once, and only when its prefab
     // carries a Weapon. A pooled character keeps it across re-spawns, so this never duplicates it.
-    private void EquipDefaultWeapon()
+    public void EquipDefaultWeapon()
     {
+        if (weapon != null) objectPoolManager.Release(weapon.gameobject);
         WeaponSO weaponSO = Core.Data != null ? Core.Data.DefaultWeapon : null;
         GameObject prefab = weaponSO != null ? weaponSO.Weapon : null;
         if (prefab == null || !prefab.TryGetComponent(out Weapon _)) return;
 
-        GameObject instance = Instantiate(prefab, transform.position, Quaternion.identity);
+        GameObject instance = objectPoolManager.Spawn(prefab);
         instance.GetComponent<Weapon>().Equid(this);
     }
 

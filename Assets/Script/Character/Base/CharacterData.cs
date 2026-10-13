@@ -22,4 +22,5 @@ public abstract class CharacterData : ScriptableObject
     /// <summary>Weapon item equipped when the character spawns empty-handed. Null = starts unarmed.</summary>
     public WeaponSO DefaultWeapon => defaultWeapon;
     [SerializeField] public AnimatorOverrideController animationController;
+    [field:SerializeField] public Weapon Weapon { get; set; }
 }

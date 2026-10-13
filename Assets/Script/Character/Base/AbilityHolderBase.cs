@@ -63,6 +63,11 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     protected override void Start()
     {
         base.Start();
+    }
+
+    public void SetAbility()
+    {
+        bindings = null;
         List<AbilityBinding> bindings = ResolveBindings();
         if (bindings != null) abilityBindings = bindings;
         for (int i = 0; i < abilityBindings.Count; i++)

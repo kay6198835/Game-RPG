@@ -35,7 +35,11 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     public float GetCurrentStatValue(StatType statType)
     {
-        return currentStats[statType];
+        if (currentStats.TryGetValue(statType, out float valueStat))
+        {
+            return valueStat;
+        }
+        return statHandler.GetStatValue(statType);
     }
 
     public void ApplyBuffDebuff(StatModifierGroup statModifierGroup)
