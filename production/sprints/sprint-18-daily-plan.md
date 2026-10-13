@@ -11,11 +11,13 @@
 
 ## Status Verdict
 
-**OPEN — day 1 of 5 (2026-10-12, Mon standup). ON-TRACK (nominal — nothing due yet).** 0 / 8
-Must-Have; 0 of 4.0d burned, 5 days left / 2.8d planned work remaining. Evidence `LOG` (compile
-check SKIPPED — Editor open). Today decides the sprint: S18-01 playtest must run before any feature commit.
+**OPEN — day 2 of 5 (2026-10-13, Tue standup). SLIPPED.** 0 / 8 Must-Have; 0 of 4.0d burned,
+4 days left / 2.8d planned work remaining. Monday's S18-01..04 (≈0.7d) not done on `sprint-18`; the
+owner worked off-plan instead (Mage/Archer assets `e6bf8fc3`; feature commit `51f8d2d4` touching
+S18-05/06 files, which does not compile — NOTE-20261013-1). Evidence `COMPILED` (`sprint-18`
+`7b361725`) + `LOG` (0 Play Mode entries → S18-01 not run).
 
-*Previous:* OPEN — day 0 of 5 (2026-10-09, kickoff). 0 / 8 Must-Have. Evidence `STATIC`.
+*Previous:* OPEN — day 1 of 5 (2026-10-12, Mon standup). ON-TRACK (nominal — nothing due yet). Evidence `LOG`.
 
 **Weekly wrap-up 2026-10-10 (Sat) — verdict for the week ending 2026-10-10: SLIPPED** (evidence
 `LOG` + `STATIC`; capped at CONCERNS at best — playtest sheet empty). No `.cs` commit since the
@@ -73,16 +75,16 @@ started (begins Mon 2026-10-12).
 ### Mon 2026-10-12 — Play first, then unlock the loop
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S18-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 15th carry; gates all feature work |
-| S18-02 BUG-096 on `sprint-18` | 0.1d | ⬜ | S1 — non-combat rooms sealed |
-| S18-03 BUG-097 | 0.05–0.2d | ⬜ | Run starts in the wrong room |
-| S18-04 Editor block | 0.1d | ⬜ | Abilities / ranged weapon untestable without it |
+| S18-01 Playtest / smoke through the menu | 0.3d | ⬜ (carried Tue) | playtest done: no; 15th carry; gates all feature work |
+| S18-02 BUG-096 on `sprint-18` | 0.1d | ⬜ (carried Tue) | S1 — non-combat rooms sealed |
+| S18-03 BUG-097 | 0.05–0.2d | ⬜ (carried Tue) | Run starts in the wrong room |
+| S18-04 Editor block | 0.1d | ⬜ (carried Tue) | Abilities / ranged weapon untestable without it |
 
 ### Tue 2026-10-13 — Vitals + death path (one file session)
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S18-05 BUG-092 residual | 0.05d | ⬜ | Every HoT/DoT one tick |
-| S18-06 BUG-066 + BUG-070 | 0.15d | ⬜ | Live death path; precondition for S18-09/10 |
+| S18-05 BUG-092 residual | 0.05d | 🟡 (off-branch in `51f8d2d4`, not compiling) | Every HoT/DoT one tick |
+| S18-06 BUG-066 + BUG-070 | 0.15d | 🟡 (getter only, off-branch in `51f8d2d4`) | Live death path; precondition for S18-09/10 |
 | S18-07 BUG-065 + BUG-086 | 0.2d | ⬜ | Precondition for BUG-087 |
 | S18-08 Process gate decision | 0.1d | ⬜ | 7th carry — decide or drop |
 
@@ -155,3 +157,22 @@ _(appended by `/daily-standup`)_
 - **Inbox:** 0 open notes (+0 today).
 - **Today:** S18-01 (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d); ≈0.7d.
 - **Verdict:** ON-TRACK nominal (day 1, nothing due before today). Evidence `LOG`.
+
+### 2026-10-13 (Tue) — `/daily-standup --auto`
+
+- **Since last standup:** owner commits `e6bf8fc3` (Mage/Archer art, animations, controllers — off-plan),
+  `e2a896cb` / `7b361725` (settings, `.claude` docs), merge `6ba55dd4`; all now on `sprint-18`. Plus
+  `51f8d2d4` "polish" (2026-10-12 16:57, other machine) on a remote branch literally named
+  `origin/feature/ui-flow-maingameplay` — touches `VitalStatsBase.cs` (S18-06 getter guard),
+  `RecoveryReductionPerTimeForDuration.cs` (S18-05 `[SerializeField]`), weapon/ability equip on
+  Champion pick (S18-F1 area).
+- **Runtime:** compile-check **COMPILED** `sprint-18` `7b361725` (1286 s). `editor-log.sh`: Editor.log
+  2026-10-12 18:52 and Editor-prev 04:36 — 0 CS errors, 0 Play Mode entries → S18-01 not run.
+  Fix-survival (7 d): no fix commits in window.
+- **Static read of `51f8d2d4`:** four compile errors (NOTE-20261013-1), unresolvable `ObjectPoolManager`
+  injection (NOTE-20261013-2), enemies lose weapon + abilities (NOTE-20261013-3). Must be fixed before
+  merging into `sprint-18`.
+- **Inbox:** 3 open notes (+3 today).
+- **Today:** carry S18-01 (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d), then fix
+  `51f8d2d4` to finish S18-05/06 (≈0.2d); ≈0.9d — over one day, S18-07/08 slip to Wed.
+- **Verdict:** SLIPPED — 0.7d of Monday Must-Have not done; off-plan work instead. Evidence `COMPILED` + `LOG`.
