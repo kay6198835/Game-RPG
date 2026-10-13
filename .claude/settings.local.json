@@ -121,7 +121,12 @@
       "PowerShell(bash .claude/scripts/*)",
       "Bash(py .claude/hooks/lint-mermaid.py*)",
       "Bash(gh pr create --draft*)",
-      "PowerShell(cd D:/Fork/Game-RPG; git branch --show-current; git status --porcelain | Measure-Object | Select-Object -ExpandProperty Count; git status --porcelain | ForEach-Object { $_.Substring\\(0,2\\) } | Group-Object | Select-Object Name,Count; git log -1 --format=\"%h %s\"; git rev-parse origin/sprint-18; git merge-base HEAD origin/sprint-18; git rev-list --left-right --count HEAD...origin/sprint-18)"
+      "PowerShell(cd D:/Fork/Game-RPG; git branch --show-current; git status --porcelain | Measure-Object | Select-Object -ExpandProperty Count; git status --porcelain | ForEach-Object { $_.Substring\\(0,2\\) } | Group-Object | Select-Object Name,Count; git log -1 --format=\"%h %s\"; git rev-parse origin/sprint-18; git merge-base HEAD origin/sprint-18; git rev-list --left-right --count HEAD...origin/sprint-18)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='git.exe'\")",
+      "Bash(wmic process *)",
+      "PowerShell(Get-Process git -ErrorAction SilentlyContinue)",
+      "PowerShell(\\(Get-Item D:\\\\Fork\\\\Game-RPG\\\\.git\\\\index.lock\\).LastWriteTime; Get-Date)",
+      "Bash(rm D:/Fork/Game-RPG/.git/index.lock)"
     ],
     "additionalDirectories": [
       "D:/Fork/Game-RPG-pm"
