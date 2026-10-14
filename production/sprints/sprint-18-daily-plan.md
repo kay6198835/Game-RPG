@@ -11,7 +11,15 @@
 
 ## Status Verdict
 
-**OPEN — day 3 of 5 (2026-10-14, Wed standup). BLOCKED — `sprint-18` does not compile.** Merge
+**OPEN — day 4 of 5 (2026-10-15, Thu standup). BLOCKED — `sprint-18` still does not compile.**
+No commit to `sprint-18` since the 2026-10-14 standup. The owner's working tree now compiles
+(`Editor.log` 2026-10-15 03:17: 0 `error CS`, 1 Play Mode entry), but the fix to
+`AbilityHolderBase.cs` / `WeaponHolderBase.cs` / `IWeaponHolder.cs` is still **uncommitted**. That one
+Play Mode session logged an NRE at `PlayerState.cs:35` (NOTE-20261015-1). 0 / 8 Must-Have; 0 of 4.0d
+burned; 2 days left / ≈2.9d remaining → the sprint cannot finish its Must-Have list as planned.
+Off-plan: `b364c303` (weapon architecture, feature branch only). Evidence `LOG` (batchmode `SKIPPED`).
+
+*Previous:* OPEN — day 3 of 5 (2026-10-14, Wed standup). BLOCKED — `sprint-18` does not compile. Merge
 `f552f701` (2026-10-13) brought `51f8d2d4` onto the sprint branch; `Editor.log` shows 15 `error CS`
 (NOTE-20261013-1, now `LOG`). 0 / 8 Must-Have; 0 of 4.0d burned; 3 days left / ≈2.9d remaining
 (2.8d plan + ≈0.1d build fix). No Play Mode entry in any Editor log → S18-01 still not run, and it
@@ -106,9 +114,11 @@ started (begins Mon 2026-10-12).
 ### Thu 2026-10-15 — Feature story + Editor cleanup
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S18-F1 Start room / Champion / shop (cap 0.5d) | ≤0.5d | ⬜ | Only after S18-01 is filled |
-| S18-12 BUG-073 + BUG-090 | 0.15d | ⬜ | Missing-script warnings |
-| S18-13 Git LFS decision | 0.1d | ⬜ | Before more `.fbx` |
+| Build fix — commit the working tree (compiles locally since 2026-10-15 03:17) | ≈0.05d | ⬜ (carried Thu) | `sprint-18` tip still broken; blocks every runtime check |
+| S18-01 smoke (+ S18-02/03/04) | ≈0.7d | ⬜ (carried Thu) | Must-Have; 15th carry |
+| S18-F1 Start room / Champion / shop (cap 0.5d) | ≤0.5d | ⏸️ (gated: S18-01 not filled) | Only after S18-01 is filled |
+| S18-12 BUG-073 + BUG-090 | 0.15d | ⬜ (deferred behind Must) | Missing-script warnings |
+| S18-13 Git LFS decision | 0.1d | ⬜ (deferred behind Must) | Before more `.fbx` |
 
 ### Fri 2026-10-16 — Design + buffer
 | Task | Est. | Status | Why now |
@@ -202,3 +212,22 @@ _(appended by `/daily-standup`)_
 - **Today:** build fix (≈0.1d) → S18-01 smoke (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d);
   ≈0.8d. S18-07/08 and Wednesday's Should-Have slip again.
 - **Verdict:** BLOCKED — `sprint-18` does not compile. Evidence `LOG`.
+
+### 2026-10-15 (Thu) — `/daily-standup --auto`
+
+- **Since last standup:** 0 commits on `sprint-18` (tip `72b45dce` = yesterday's standup). One owner commit
+  off-plan: `b364c303` "need review new architecture" (2026-10-14 16:26) on
+  `origin/feature/update-weapon-architecture` — adds `IWeapon<TStat>` / `IWeaponStat`, a generic
+  `Weapon<TStat>` base owning the serialized `stats` field; `Weapon.Stats` → abstract `BaseStats`. Static
+  read: no remaining `Weapon.Stats` caller in `Assets/Script/`; not on `sprint-18`, not compiled by the
+  routine. No task finished.
+- **Runtime:** compile-check **SKIPPED** (Unity Editor open). `editor-log.sh`: `Editor.log` (2026-10-15
+  03:17) — **0 `error CS`**, 1 Play Mode entry, 1× `NullReferenceException` @ `PlayerState.cs:35`
+  (NOTE-20261015-1). `Editor-prev.log` (2026-10-14 17:16) — the same 15 `error CS` as NOTE-20261013-1.
+  So the owner's working-tree fix compiles; it is not committed (`AbilityHolderBase.cs`,
+  `WeaponHolderBase.cs`, `IWeaponHolder.cs`, `LoadRandomMap.unity`, `EditorBuildSettings.asset` modified).
+  Fix-survival: no bug-fix commit in the 7-day window touches the files `b364c303` changed → not run.
+- **Inbox:** 4 open notes (+1 today; NOTE-20261013-1 updated).
+- **Today:** commit build fix (≈0.05d) → S18-01 smoke via the playtest sheet (0.3d) → S18-02 (0.1d) →
+  S18-03 (≤0.2d) → S18-04 (0.1d); ≈0.75d. S18-F1 stays gated; Thu Should-Have slips.
+- **Verdict:** BLOCKED — fix exists only in the working tree. Evidence `LOG`.
