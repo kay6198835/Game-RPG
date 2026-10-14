@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**OPEN — day 2 of 5 (2026-10-13, Tue standup). SLIPPED.** 0 / 8 Must-Have; 0 of 4.0d burned,
+**OPEN — day 3 of 5 (2026-10-14, Wed standup). BLOCKED — `sprint-18` does not compile.** Merge
+`f552f701` (2026-10-13) brought `51f8d2d4` onto the sprint branch; `Editor.log` shows 15 `error CS`
+(NOTE-20261013-1, now `LOG`). 0 / 8 Must-Have; 0 of 4.0d burned; 3 days left / ≈2.9d remaining
+(2.8d plan + ≈0.1d build fix). No Play Mode entry in any Editor log → S18-01 still not run, and it
+cannot run until the build is fixed. Owner has uncommitted edits to the three failing files.
+Evidence `LOG` (batchmode `SKIPPED` — Editor open).
+
+*Previous:* OPEN — day 2 of 5 (2026-10-13, Tue standup). SLIPPED. 0 / 8 Must-Have; 0 of 4.0d burned,
 4 days left / 2.8d planned work remaining. Monday's S18-01..04 (≈0.7d) not done on `sprint-18`; the
 owner worked off-plan instead (Mage/Archer assets `e6bf8fc3`; feature commit `51f8d2d4` touching
 S18-05/06 files, which does not compile — NOTE-20261013-1). Evidence `COMPILED` (`sprint-18`
@@ -83,17 +90,18 @@ started (begins Mon 2026-10-12).
 ### Tue 2026-10-13 — Vitals + death path (one file session)
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S18-05 BUG-092 residual | 0.05d | 🟡 (off-branch in `51f8d2d4`, not compiling) | Every HoT/DoT one tick |
-| S18-06 BUG-066 + BUG-070 | 0.15d | 🟡 (getter only, off-branch in `51f8d2d4`) | Live death path; precondition for S18-09/10 |
-| S18-07 BUG-065 + BUG-086 | 0.2d | ⬜ | Precondition for BUG-087 |
-| S18-08 Process gate decision | 0.1d | ⬜ | 7th carry — decide or drop |
+| S18-05 BUG-092 residual | 0.05d | 🟡 (on `sprint-18` via `f552f701`, branch not compiling) | Every HoT/DoT one tick |
+| S18-06 BUG-066 + BUG-070 | 0.15d | 🟡 (getter only, on `sprint-18` via `f552f701`, not compiling) | Live death path; precondition for S18-09/10 |
+| S18-07 BUG-065 + BUG-086 | 0.2d | ⬜ (carried Wed) | Precondition for BUG-087 |
+| S18-08 Process gate decision | 0.1d | ⬜ (carried Wed) | 7th carry — decide or drop; the 2026-10-13 merge of non-compiling code is the third build break this is meant to prevent |
 
 ### Wed 2026-10-14 — Should-Have code
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S18-09 BUG-100 | 0.2d | ⬜ | S2; same file as S18-06 |
-| S18-10 BUG-071 residual | 0.15d | ⬜ | Same file |
-| S18-11 BUG-068 + BUG-102 | 0.1d | ⬜ | Two one-liners |
+| Build fix — commit the working-tree fix for NOTE-20261013-1 (+ NOTE-2 `IObjecPoolService`) | ≈0.1d | ⬜ (new, unplanned) | `sprint-18` does not compile; blocks everything below |
+| S18-09 BUG-100 | 0.2d | ⬜ (deferred behind Must) | S2; same file as S18-06 |
+| S18-10 BUG-071 residual | 0.15d | ⬜ (deferred behind Must) | Same file |
+| S18-11 BUG-068 + BUG-102 | 0.1d | ⬜ (deferred behind Must) | Two one-liners |
 
 ### Thu 2026-10-15 — Feature story + Editor cleanup
 | Task | Est. | Status | Why now |
@@ -122,6 +130,8 @@ started (begins Mon 2026-10-12).
 - `VitalStatsBase.cs` is the target of four tasks — do them in one session, in order.
 - `pm-routine-protocol.md` not on the sprint branch.
 - `gh` unavailable — draft PR not opened.
+- **(2026-10-14) `sprint-18` tip does not compile** since merge `f552f701` — no playtest, no smoke and
+  no batchmode evidence is possible until the build fix is committed.
 
 ---
 
@@ -176,3 +186,19 @@ _(appended by `/daily-standup`)_
 - **Today:** carry S18-01 (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d), then fix
   `51f8d2d4` to finish S18-05/06 (≈0.2d); ≈0.9d — over one day, S18-07/08 slip to Wed.
 - **Verdict:** SLIPPED — 0.7d of Monday Must-Have not done; off-plan work instead. Evidence `COMPILED` + `LOG`.
+
+### 2026-10-14 (Wed) — `/daily-standup --auto`
+
+- **Since last standup:** `0b8ac0ba` "update" (`.claude/settings.local.json` only) and merge `f552f701`
+  (2026-10-13 10:30), which brought `51f8d2d4` "polish" onto `sprint-18`. No other owner commit on any
+  branch. No task finished.
+- **Runtime:** compile-check **SKIPPED** (Unity Editor open). `editor-log.sh`: `Editor.log` (2026-10-14)
+  has **15 `error CS`** — `AbilityHolderBase.cs(70,9)` CS0841, `WeaponHolderBase.cs(11,75)` CS0535,
+  `WeaponHolderBase.cs(52,55)` CS1503 — 0 Play Mode entries; `Editor-prev.log` (2026-10-12) clean.
+  This confirms NOTE-20261013-1 at tier `LOG`; the sprint branch tip does not compile. Owner's folder has
+  uncommitted edits to the three failing files (fix in progress, invisible to the routine).
+  Fix-survival: no bug-fix commit in the 7-day window touches the merged files → not run.
+- **Inbox:** 3 open notes (+0 new; NOTE-20261013-1/2/3 updated with the merge and the log evidence).
+- **Today:** build fix (≈0.1d) → S18-01 smoke (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d);
+  ≈0.8d. S18-07/08 and Wednesday's Should-Have slip again.
+- **Verdict:** BLOCKED — `sprint-18` does not compile. Evidence `LOG`.
