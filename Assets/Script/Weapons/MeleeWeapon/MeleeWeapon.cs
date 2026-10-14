@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MeleeWeapon : Weapon
+public class MeleeWeapon : Weapon<MeleeWeaponStats>
 {
     [Header("Melee")]
     [SerializeField] private int maxTargetsPerSwing = 8;

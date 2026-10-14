@@ -1,7 +1,7 @@
 using UnityEngine;
 using VContainer;
 
-public class RangeWeapon : Weapon, IProjectilePayload
+public class RangeWeapon : Weapon<RangeWeaponStats>, IProjectilePayload
 {
     [Header("Range")]
     [SerializeField] private Vector2 firePoint;
@@ -10,7 +10,6 @@ public class RangeWeapon : Weapon, IProjectilePayload
 
     private float nextFireTime;
 
-    private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
 
     [Inject]
@@ -19,14 +18,12 @@ public class RangeWeapon : Weapon, IProjectilePayload
         _objecPoolService = objecPoolService;
     }
 
-    public override bool CanAttack() =>
-        base.CanAttack() && StatsRange != null
-        && _objecPoolService != null;
+    public override bool CanAttack() => base.CanAttack() && _objecPoolService != null;
 
     public override bool CanChain()
     {
         if (!CanAttack()) return false;
-        return StatsRange.AutoFire || CurrentStageIndex != 0;
+        return stats.AutoFire || CurrentStageIndex != 0;
     }
 
     public override void Equid(IWeaponHolder weaponHolder)

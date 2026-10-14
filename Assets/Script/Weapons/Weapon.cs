@@ -3,7 +3,6 @@ using UnityEngine;
 public abstract class Weapon : InteractiveObjects
 {
     [Header("Abtract Weapon")]
-    [SerializeField] protected WeaponStats stats;
     //[SerializeField] protected ActivateSkill currentAbilitySO;
     [SerializeField] protected Collider2D pickupCollider;
 
@@ -15,7 +14,8 @@ public abstract class Weapon : InteractiveObjects
     protected IWeaponHolder holder;
 
     public int CurrentStageIndex { get; protected set; }
-    public WeaponStats Stats => stats;
+    /// <summary>Untyped stat profile for the shared lifecycle. Subclasses read their typed <c>stats</c> instead.</summary>
+    public abstract WeaponStats BaseStats { get; }
     public AttackSO CurrentStage => currentStage;
 
     protected override void Awake()
@@ -26,7 +26,7 @@ public abstract class Weapon : InteractiveObjects
     }
 
     /// <summary>True when a brand new attack may be started from a non-attacking state.</summary>
-    public virtual bool CanAttack() => stats != null && stats.StageCount > 0;
+    public virtual bool CanAttack() => BaseStats != null && BaseStats.StageCount > 0;
 
     /// <summary>
     /// True when the attack state may play another stage without leaving the state.
@@ -40,12 +40,12 @@ public abstract class Weapon : InteractiveObjects
         if (!CanAttack()) return;
 
         // StageCount can shrink while the SO is edited in play mode, so clamp as well as time out.
-        if (CurrentStageIndex >= stats.StageCount || lastAttackTime + chainWindow < Time.time)
+        if (CurrentStageIndex >= BaseStats.StageCount || lastAttackTime + chainWindow < Time.time)
         {
             CurrentStageIndex = 0;
         }
 
-        currentStage = stats.GetStage(CurrentStageIndex);
+        currentStage = BaseStats.GetStage(CurrentStageIndex);
         Animator animator = user.Animator;
         animator.speed = 1f;
         chainWindow = Utility.DurationNextAttack(
@@ -55,7 +55,7 @@ public abstract class Weapon : InteractiveObjects
         lastAttackTime = Time.time;
         // Wrapping is what makes a zero index mean "the chain just completed", which is the whole
         // of CanChain(). A bare ++ leaves the index non-zero forever, so the combo never ends.
-        CurrentStageIndex = (CurrentStageIndex + 1) % stats.StageCount;
+        CurrentStageIndex = (CurrentStageIndex + 1) % BaseStats.StageCount;
     }
 
     /// <summary>The hit frame. Melee resolves a hitbox here, ranged spawns projectiles.</summary>
@@ -87,14 +87,14 @@ public abstract class Weapon : InteractiveObjects
         aim = weaponHolder.Aim;
         weaponHolder.Equid_UnEquid(this);
         IStatService ownerStats = OwnerStats(weaponHolder);
-        if (ownerStats != null) ownerStats.AddModifiersFromSource(this, stats.StatModifiers.Modifiers);
+        if (ownerStats != null) ownerStats.AddModifiersFromSource(this, BaseStats.StatModifiers.Modifiers);
         else Debug.LogWarning($"[{name}] equipped by a holder with no character stats.", this);
         transform.SetParent(weaponHolder.Transform);
         transform.position = transform.parent.position;
     }
 
     // Up from the holder to the character root, then down to its stat profile.
-    private static IStatService OwnerStats(IWeaponHolder weaponHolder)
+    protected static IStatService OwnerStats(IWeaponHolder weaponHolder)
     {
         ICharacter owner = weaponHolder.Transform.GetComponentInParent<ICharacter>();
         return owner?.Transform.GetComponentInChildren<IStatService>();
@@ -114,5 +114,30 @@ public abstract class Weapon : InteractiveObjects
         aim = null;
         this.holder = null;
         CurrentStageIndex = 0;
+    }
+}
+
+/// <summary>
+/// Typed weapon base: owns the serialized stat profile as its concrete type, so a subclass reads
+/// <c>stats.AutoFire</c> / <c>stats.BlockDamage</c> without a cast. The field keeps the name
+/// <c>stats</c>, so prefabs authored against the old <see cref="Weapon"/> field still load.
+/// </summary>
+public abstract class Weapon<TStat> : Weapon, IWeapon<TStat> where TStat : WeaponStats
+{
+    [SerializeField] protected TStat stats;
+
+    public TStat Stats => stats;
+    public override WeaponStats BaseStats => stats;
+
+    /// <summary>Swaps the stat profile. While equipped, the owner's modifiers move to the new profile.</summary>
+    public virtual void SetStat(TStat stat)
+    {
+        IStatService ownerStats = holder != null ? OwnerStats(holder) : null;
+        ownerStats?.RemoveModifiersFromSource(this);
+        stats = stat;
+        currentStage = null;
+        CurrentStageIndex = 0;
+        if (ownerStats != null && stats != null)
+            ownerStats.AddModifiersFromSource(this, stats.StatModifiers.Modifiers);
     }
 }

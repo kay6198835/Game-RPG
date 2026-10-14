@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public abstract class WeaponStats : ScriptableObject
+public abstract class WeaponStats : ScriptableObject, IWeaponStat
 {
     [field: SerializeField] public LayerMask LayerMask { get; protected set; }
 
