@@ -11,7 +11,17 @@
 
 ## Status Verdict
 
-**OPEN — day 4 of 5 (2026-10-15, Thu standup). BLOCKED — `sprint-18` still does not compile.**
+**OPEN — day 5 of 5 (2026-10-16, Fri standup). BLOCKED — `sprint-18` still does not compile.**
+No commit to `sprint-18` since the 2026-10-15 standup (tip `9527c9aa`); the only new object on any ref
+is a stash index commit `820a8dec`. The owner's working tree compiles (`Editor.log` 2026-10-16 13:15:
+0 `error CS`; `Editor-prev.log` 2026-10-15 18:28: 0 `error CS`, 2 Play Mode entries, 2× NRE @
+`PlayerState.cs:35` — NOTE-20261015-1 recurs). The working-tree fix is still **uncommitted** and has
+grown (session snapshot: 14 modified files incl. `GameLifetimeScope.cs`, `ObjectPoolManager.cs`,
+`RangeWeapon.cs`, `PlayerTest.prefab`). 0 / 8 Must-Have; 0 of 4.0d burned; 1 day left / ≈2.9d
+remaining → Must-Have list will not finish this sprint; carry-over goes to Sunday's kickoff.
+Evidence `LOG` (batchmode `SKIPPED`).
+
+*Previous:* OPEN — day 4 of 5 (2026-10-15, Thu standup). BLOCKED — `sprint-18` still does not compile.
 No commit to `sprint-18` since the 2026-10-14 standup. The owner's working tree now compiles
 (`Editor.log` 2026-10-15 03:17: 0 `error CS`, 1 Play Mode entry), but the fix to
 `AbilityHolderBase.cs` / `WeaponHolderBase.cs` / `IWeaponHolder.cs` is still **uncommitted**. That one
@@ -123,13 +133,15 @@ started (begins Mon 2026-10-12).
 ### Fri 2026-10-16 — Design + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S18-14 BUG-087 design note | 0.3d | ⬜ | Unblocked by S18-07 |
-| Buffer | 1d | — | |
+| Build fix — commit the working tree (compiles locally; 14 files modified) | ≈0.05d | ⬜ (carried Fri) | `sprint-18` tip still broken; last day before the playtest |
+| S18-01 smoke (+ S18-02/03/04) | ≈0.7d | ⬜ (carried Fri) | Must-Have; 15th carry; Saturday sheet is ready |
+| S18-14 BUG-087 design note | 0.3d | ⬜ (deferred behind Must) | S18-07 not done |
+| Buffer | 1d | — | consumed by the build break |
 
 ### Sat 2026-10-17 — Weekly playtest
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| Weekly playtest (`tests/smoke/critical-paths.md` — not present on `sprint-18`; use the `playtest-sheet.sh` sheet) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+| Weekly playtest (`tests/smoke/critical-paths.md` — not present on `sprint-18`; use the `playtest-sheet.sh` sheet) | 0.1d | ⬜ (sheet `production/qa/playtests/playtest-2026-10-17.md` prepared Fri) | Reserved every Saturday; feeds wrap-up |
 
 ---
 
@@ -231,3 +243,18 @@ _(appended by `/daily-standup`)_
 - **Today:** commit build fix (≈0.05d) → S18-01 smoke via the playtest sheet (0.3d) → S18-02 (0.1d) →
   S18-03 (≤0.2d) → S18-04 (0.1d); ≈0.75d. S18-F1 stays gated; Thu Should-Have slips.
 - **Verdict:** BLOCKED — fix exists only in the working tree. Evidence `LOG`.
+
+### 2026-10-16 (Fri) — `/daily-standup --auto`
+
+- **Since last standup:** 0 owner commits on any branch. Only `820a8dec` (a `git stash` index commit on
+  `refs/stash`, 2026-10-15 03:33 — not progress). `sprint-18` tip = `9527c9aa` (yesterday's standup).
+  No task finished. No `.cs` commit → fix-survival not run.
+- **Runtime:** compile-check **SKIPPED** (Unity Editor open). `editor-log.sh`: `Editor.log` (2026-10-16
+  13:15) — 0 `error CS`, 0 Play Mode entries, no project exception. `Editor-prev.log` (2026-10-15 18:28)
+  — 0 `error CS`, 2 Play Mode entries, 2× `NullReferenceException` @ `PlayerState.cs:35` (evidence added
+  to NOTE-20261015-1). The owner is playing the working tree, which compiles; nothing committed.
+- **Inbox:** 4 open notes (+0 new; NOTE-20261013-1 and NOTE-20261015-1 updated).
+- **Friday:** Saturday playtest sheet written to `production/qa/playtests/playtest-2026-10-17.md`.
+- **Today:** commit build fix (≈0.05d) → S18-01 smoke (0.3d) → S18-02/03/04 (≈0.4d). S18-14 and all
+  Should-Have slip to Sprint 19.
+- **Verdict:** BLOCKED — 5th day with `sprint-18` not compiling at tip; 0/8 Must-Have. Evidence `LOG`.
