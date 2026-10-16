@@ -49,7 +49,6 @@ public class ProjectileBody : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-
         int layer = other.gameObject.layer;
         if (IsInMask(_config.blockMask, layer))
         {
