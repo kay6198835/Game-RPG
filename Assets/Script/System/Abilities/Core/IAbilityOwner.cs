@@ -6,5 +6,6 @@ public interface IAbilityOwner
     float GetCurrentStatValue(StatType statType);
     void PayCost(StatType statType, float amount);
     Vector2 DirectorForward();
+    int DirectorForwardIndex();
     Vector2 TargetPosition();
 }

@@ -17,7 +17,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     [SerializeField] protected AbilityInstance currentAbility;
 
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
-    private IObjecPoolService objecPoolService;
+    private IObjectPoolService objecPoolService;
     private IAbilityServices services;
     private IVitalComponent vital;
     private ICharacterInput input;
@@ -52,7 +52,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     private Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
 
     [Inject]
-    public void Construct(IObjecPoolService pool)
+    public void Construct(IObjectPoolService pool)
     {
         objecPoolService = pool;
     }
@@ -67,7 +67,6 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
 
     public void SetAbility()
     {
-        bindings = null;
         List<AbilityBinding> bindings = ResolveBindings();
         if (bindings != null) abilityBindings = bindings;
         for (int i = 0; i < abilityBindings.Count; i++)
@@ -101,6 +100,10 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     public Vector2 DirectorForward()
     {
         return CharacterInput.AimDirection;
+    }
+    public int DirectorForwardIndex()
+    {
+        return CharacterInput.AimDirectionIndex;
     }
     public Vector2 TargetPosition()
     {

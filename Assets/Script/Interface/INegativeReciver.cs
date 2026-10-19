@@ -5,6 +5,6 @@ using UnityEngine;
 public interface INegativeReceiver
 {
     void TakeDamage(float amountDamage,Vector2 attackPosition);
-    void MakeSlow(float amountPer);
+    //void MakeSlow(float amountPer);
     
 }

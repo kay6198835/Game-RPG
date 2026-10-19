@@ -14,7 +14,7 @@ public abstract class StatHandlerBase<TCore> : CoreComponentBase<TCore>, IStatSe
     // the hub's own Awake, and Unity does not order Awake across sibling GameObjects.
     protected BaseStatsSO StatsSO => _profile != null ? _profile : (_profile = ResolveProfile());
 
-    protected virtual BaseStatsSO ResolveProfile() => Core.Data.Stats;
+    protected virtual BaseStatsSO ResolveProfile() => Core.Data.Stats == null ? null : Core.Data.Stats;
 
     public int GetLevel() => StatsSO.Level;
     public Dictionary<StatType, StatsViewDTO> GetFullViewStats() => StatsSO.FullStatView();

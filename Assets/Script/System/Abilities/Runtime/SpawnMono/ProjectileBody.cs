@@ -7,13 +7,13 @@ using VContainer;
 public class ProjectileBody : MonoBehaviour
 {
     private Rigidbody2D _rb;
-    private IObjecPoolService _pool;
+    private IObjectPoolService _pool;
     private ProjectileConfig _config;
     private IProjectilePayload _payload;
     private float _lifetime;
 
     [Inject]
-    public void Construct(IObjecPoolService pool)
+    public void Construct(IObjectPoolService pool)
     {
         _pool = pool;
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class ObjectPoolManager : MonoBehaviour, IObjecPoolService
+public class ObjectPoolManager : MonoBehaviour, IObjectPoolService
 {
     public Dictionary<GameObject, Pool> pools { get; set; } = new Dictionary<GameObject, Pool>();
     private IObjectResolver resolver;
