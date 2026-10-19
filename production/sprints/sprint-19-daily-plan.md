@@ -11,7 +11,15 @@
 
 ## Status Verdict
 
-**OPEN — day 1 of 5 (2026-10-19, Mon). BLOCKED at open — `sprint-19` inherits the non-compiling
+**OPEN — day 1 of 5 (2026-10-19, Mon standup). BLOCKED on `sprint-19`, unblocked on `sprint-18`.**
+At 08:44 the owner pushed `cae75317` "add asset" + merge `0def62ab` to `origin/sprint-18`, and
+`compile-check.sh` **COMPILED** `0def62ab`. `sprint-19` (`2634dbb9`, cut from `ea11e017` two minutes
+later) does not contain it, so S19-02 is reduced to "merge `origin/sprint-18` into `sprint-19`". Same
+push carries S19-F1 content (Rain Arrows, class assets) and the BUG-072 `layerMask` (S19-05 part) —
+pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1 (S2,
+`EquipDefaultWeapon()` NRE). 0 / 8 Must-Have. Evidence `COMPILED` (`sprint-18` tip) + `LOG`.
+
+*Previous (kickoff):* OPEN — day 1 of 5 (2026-10-19, Mon). BLOCKED at open — `sprint-19` inherits the non-compiling
 `sprint-18` tip** (merge `f552f701`, NOTE-20261013-1). The owner's working tree compiles; S19-02
 (commit the fix) unblocks everything. Evidence `STATIC` (+ last standup `LOG`).
 
@@ -55,7 +63,7 @@
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S19-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 16th carry; working tree compiles, so it can run today |
-| S19-02 Commit + push build fix | 0.05d | ⬜ | `sprint-19` tip does not compile; gates every code task |
+| S19-02 Commit + push build fix | 0.05d | 🟡 (on `sprint-18` `0def62ab`, COMPILED; merge into `sprint-19` left) | `sprint-19` tip does not compile; gates every code task |
 | S19-03 BUG-096 zero-spawn branch | 0.1d | ⬜ | S1 — non-combat rooms sealed |
 | S19-04 BUG-097 | 0.05–0.2d | ⬜ | Run starts in the wrong room |
 
@@ -108,3 +116,27 @@
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-10-19 (Mon) — `/daily-standup --auto`
+
+- **Run timing:** fired ≈08:40 local, not 02:00, and overlapped `/weekly-kickoff` (which pushed
+  `2634dbb9` to `sprint-19` at 08:46 while this run was in progress) and an owner push (08:44). This
+  run re-fetched and writes on top of `origin/sprint-19`.
+- **Since last standup (Fri 2026-10-16):** `5c8245c9` "add logic for rain arrow skill" (2026-10-16 17:35,
+  other machine; `LightningController` → `DamageArea`, `RuneCircleController` → `CircleSummon`, new
+  `DamagesInManyPos` / `RainArrowsProjectile`), `cae75317` "add asset" (2026-10-19 08:43; Archer/Mage
+  weapons + data folders, Rain Arrows ability, `BaseStats.asset`, 20 `.cs` touched), merge `0def62ab`
+  onto `origin/sprint-18`. Stash `1bff4eb9` (2026-10-17). All off-plan feature work (S19-F1 territory);
+  it does include the build fix (S19-02) and BUG-072 `layerMask` (S19-05 part).
+- **Weekend:** Sat 2026-10-17 playtest sheet not filled; wrap-up and doc-sync did not run (no row);
+  kickoff ran Monday.
+- **Runtime:** compile-check run 1 **FAILED** (started on `ea11e017`, CS0535 `IWeaponHolder.GetWeapon`);
+  run 2 **COMPILED** `0def62ab` (clean tree). `editor-log.sh`: `Editor.log` 2026-10-17 18:03 — 6 `error CS`
+  (`CharacterData.DefaultWeapon`, mid-edit), 7 Play Mode entries, 4× NRE @ `PlayerState.cs:35`;
+  `Editor-prev.log` 2026-10-17 17:04 — 36 `error CS` (mid-edit, all gone at `0def62ab`), 11× NRE + 4×
+  `SerializedObjectNotCreatableException` @ `BaseStatsSO.cs:243`. Fix-survival (7 d): no fix commits.
+- **Inbox:** 6 open notes (+2 today: NOTE-20261019-1 S2, NOTE-20261019-2 S3; NOTE-20261013-1/2 and
+  NOTE-20261015-1 updated). NOTE-20261013-1/2 look resolved on `sprint-18` — for Saturday triage.
+- **Today:** S19-02 merge `origin/sprint-18` → `sprint-19` (0.05d) → S19-01 smoke on the merged tip
+  (0.3d) → S19-03 (0.1d) → S19-04 (≤0.2d); ≈0.6d.
+- **Verdict:** BLOCKED on `sprint-19` (one merge away from unblocked). Evidence `COMPILED` + `LOG`.
