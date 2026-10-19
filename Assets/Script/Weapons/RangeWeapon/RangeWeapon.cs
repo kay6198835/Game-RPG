@@ -6,7 +6,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
     [Header("Range")]
     [SerializeField] private Vector2 firePoint;
     [SerializeField] private float spawnOffset = 0.5f;
-    private IObjecPoolService _objecPoolService;
+    private IObjectPoolService _objecPoolService;
 
     private float nextFireTime;
 
@@ -14,7 +14,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
 
     [Inject]
-    public void Construct(IObjecPoolService objecPoolService)
+    public void Construct(IObjectPoolService objecPoolService)
     {
         _objecPoolService = objecPoolService;
     }

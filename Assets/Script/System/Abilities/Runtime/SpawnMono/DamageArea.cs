@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-public class LightningController : SpawnSummonBase
+public class DamageArea : SpawnSummonBase
 {
     [SerializeField] private float radius = 2f;
     [SerializeField] private LayerMask layerMask;

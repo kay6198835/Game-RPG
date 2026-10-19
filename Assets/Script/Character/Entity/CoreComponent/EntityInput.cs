@@ -48,6 +48,8 @@ public class EntityInput : CharacterInputBase<EntityCore>
     public Vector2 SpawnPoint { get => spawnPoint; }
     public SkillState State { get => state; }
     public SkillType Skill { get => skill; }
+
+    public override int AimDirectionIndex => DirectionLook;
     #endregion
 
     private EntityFindTarget entityFind;
