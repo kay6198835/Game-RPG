@@ -1,6 +1,7 @@
 # Sprint 18 — 2026-10-12 to 2026-10-16
 
-**Status: OPEN.** Opened 2026-10-09 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
+**Status: CLOSED — SLIPPED (2026-10-19, `pm-weekly-kickoff`).** See **Closure** at the end.
+Opened 2026-10-09 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
 fired on Friday evening, so the sprint starts next Monday).
 Branch `sprint-18`, created on the remote from the `sprint-17` tip (`d8962b8d`, "chore(kickoff): close
 sprint 17 2026-10-09"). `gh` CLI unavailable (`gh: command not found`) — draft PR **not** auto-created;
@@ -152,3 +153,41 @@ Should-Have total ≈ **1.0d**. Must + Should ≈ 2.3d of 4.0d.
 - Open bug-inbox notes (e.g. NOTE-20261009-2, NOTE-20261009-6) are **not** tasks; only bugs confirmed
   at Saturday triage are. They stay in the inbox for the next triage.
 - `production/sprint-status.yaml` not updated (`.md`-only run).
+
+---
+
+## Closure — 2026-10-19 (`pm-weekly-kickoff --auto`)
+
+> The Saturday 2026-10-17 `/weekly-wrapup` and `/doc-sync` slots left **no run-log row and no commit**,
+> so this closure is written by the kickoff from the tracker, `git log --all` and the playtest sheet.
+> No inbox triage happened this week. The kickoff fired Monday 2026-10-19, not Sunday 22:00.
+> Evidence: `STATIC` + the standups' `LOG` (no `RUNTIME`).
+
+**Verdict: SLIPPED — 0 / 8 Must-Have, planned velocity 0.0d of 4.0d.** `sprint-18` tip (`ea11e017`)
+has **not compiled since merge `f552f701`** (2026-10-13, NOTE-20261013-1, 15 `error CS` in
+`Editor.log`). The owner's working tree compiles, but the fix was never committed.
+
+| ID | Final status | Note |
+|----|--------------|------|
+| S18-01 Playtest / smoke | ❌ carried (**16th**) | `playtest-2026-10-17.md` empty; 0 Play Mode evidence on a committed tree |
+| S18-02 BUG-096 zero-spawn branch | ❌ carried | No `LoadRoom()` change |
+| S18-03 BUG-097 | ❌ carried | — |
+| S18-04 Editor block | 🟡 carried | BUG-072 `layerMask` (`m_Bits: 64`) set on `Lightning.prefab` in owner commit `cae75317` (local branch `feature/ui-flow-maingameplay`, **not pushed, not on `sprint-18`**); BUG-095 `Arrow.prefab` collider not checked in |
+| S18-05 BUG-092 residual | 🟡 in code on `sprint-18` (`51f8d2d4`: `[SerializeField]` on `perTime` + `timeCount`) | Not counted done: tip does not compile, no runtime check |
+| S18-06 BUG-066 + BUG-070 | 🟡 partial (`51f8d2d4` getter falls back to max) | `Reborn()` seeding audit not done; tip does not compile |
+| S18-07 BUG-065 + BUG-086 | ❌ carried | — |
+| S18-08 Process gate decision | ❌ carried (8th) | This sprint was the 4th committed build break |
+| S18-09…S18-14 (Should) | ❌ carried / deferred | — |
+| S18-F1 Feature (cap 0.5d) | ⏸️ never gated open | Owner worked on it anyway, off-plan |
+
+**Off-plan owner output (≈2.5–3d):** Mage / Archer art + animators (`e6bf8fc3`), `51f8d2d4` "polish"
+(Champion equip flow — the commit that broke the build), weapon architecture `b364c303` (feature branch),
+Rain Arrows ability logic `5c8245c9` (renames `LightningController` → `DamageArea`,
+`RuneCircleController` → `CircleSummon`, adds `DamagesInManyPos` / `RainArrowsProjectile`), and assets
+`cae75317` (Rain Arrows / Circle Summon prefabs, Archer / Mage / Paladin weapons and data). None of it is
+on `sprint-18` except `51f8d2d4`.
+
+**Playtest done: no** (16th consecutive week).
+**Carry-over to Sprint 19:** build-fix commit, S18-01…S18-08 (S18-05/06 reduced to verification /
+seeding audit), Should-Have S18-09…S18-14, plus BUG-103 / BUG-104 / BUG-105 from the 2026-10-10 triage.
+**Inbox:** 4 open notes (NOTE-20261013-1/2/3, NOTE-20261015-1) — untriaged, **not tasks**.
