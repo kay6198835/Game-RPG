@@ -5,10 +5,10 @@ using VContainer;
 public class ItemSpawner : MonoBehaviour
 {
     [SerializeField] private ItemController droppedItemPrefab;
-    [SerializeField] private IObjecPoolService objecPoolService;
+    [SerializeField] private IObjectPoolService objecPoolService;
     [SerializeField] private DepotItem depotItem;
     [Inject]
-    public void Construct(IObjecPoolService objecPoolService)
+    public void Construct(IObjectPoolService objecPoolService)
     {
         this.objecPoolService = objecPoolService;
     }

@@ -17,7 +17,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     private Animator animator;
     private ICharacter owner;
     private IObjectResolver resolver;
-    private ObjectPoolManager objectPoolManager;
+    private IObjectPoolService objectPoolManager;
 
     public Weapon Weapon => weapon;
     public Transform Transform => transform;
@@ -27,7 +27,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     private ICharacter Owner => owner ??= GetComponentInParent<ICharacter>();
 
     [Inject]
-    public void Construct(IObjectResolver resolver, ObjectPoolManager objectPoolManager)
+    public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolManager)
     {
         this.resolver = resolver;
         this.objectPoolManager = objectPoolManager;
@@ -44,12 +44,12 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     // carries a Weapon. A pooled character keeps it across re-spawns, so this never duplicates it.
     public void EquipDefaultWeapon()
     {
-        if (weapon != null) objectPoolManager.Release(weapon.gameobject);
-        WeaponSO weaponSO = Core.Data != null ? Core.Data.DefaultWeapon : null;
-        GameObject prefab = weaponSO != null ? weaponSO.Weapon : null;
-        if (prefab == null || !prefab.TryGetComponent(out Weapon _)) return;
-
-        GameObject instance = objectPoolManager.Spawn(prefab);
+        if (weapon != null)
+        {
+            weapon = null;
+            objectPoolManager.Release(weapon.gameObject);
+        }
+        GameObject instance = objectPoolManager.Spawn(Core.Data?.Weapon.gameObject, OwnerTransform.position, Quaternion.identity);
         instance.GetComponent<Weapon>().Equid(this);
     }
 

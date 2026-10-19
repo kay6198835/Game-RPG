@@ -14,6 +14,4 @@ public interface IWeaponHolder
     IAimProvider Aim { get; }
     Weapon Weapon { get; }
     void Equid_UnEquid(Weapon weapon);
-    // Need check and fix this logic late
-    void GetWeapon(Weapon weapon);
 }

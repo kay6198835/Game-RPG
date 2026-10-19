@@ -6,7 +6,7 @@ public class GameLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
+        builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjectPoolService>();
 
         // Player duoc spawn luc runtime boi PlayerManager (resolver.Instantiate inject ca hierarchy),
         // nen khong dang ky component nao cua player. Service cua player di qua PlayerManager.
