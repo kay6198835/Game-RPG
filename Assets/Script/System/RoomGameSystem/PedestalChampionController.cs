@@ -5,7 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(CircleCollider2D))]
-public class ChampitionController : InteractiveObjects
+public class PedestalChampionController : InteractiveObjects
 {
     [SerializeField] private PlayerData dataChampition;
     [SerializeField] private Sprite avatarChampition;

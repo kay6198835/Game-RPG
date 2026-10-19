@@ -1,5 +1,11 @@
 public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
 {
+    private Action actionResign;
+    
+    void OnDisable()
+    {
+        ClearResignChangeStat();
+    }
     // A profile assigned in the Inspector wins; otherwise the one on PlayerData.
     protected override BaseStatsSO ResolveProfile() => statsSO != null ? statsSO : base.ResolveProfile();
 
@@ -12,5 +18,16 @@ public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
     {
         // amount must be forwarded: Decrease/Revert pass a negative value.
         StatsSO.AddPrimaryPoint(statType, amount);
+    }
+
+    public void ResignChangeStat(Action<StatType> action)
+    {
+        actionResign += action;
+        statsSO.OnStatChanged += action;
+    }
+
+    private void ClearResignChangeStat()
+    {
+        statsSO.OnStatChanged -= actionResign;
     }
 }

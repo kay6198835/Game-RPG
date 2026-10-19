@@ -46,26 +46,13 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     {
         if (weapon != null)
         {
-            weapon = null;
             objectPoolManager.Release(weapon.gameObject);
+            weapon = null;
         }
         GameObject instance = objectPoolManager.Spawn(Core.Data?.Weapon.gameObject, OwnerTransform.position, Quaternion.identity);
+        resolver?.InjectGameObject(instance);
         instance.GetComponent<Weapon>().Equid(this);
-    }
-
-    // Every weapon reaches a character through here (default spawn and pickup alike), and none of them
-    // is known to the container, so the weapon's [Inject] dependencies are supplied on equip.
-    public void Equid_UnEquid(Weapon weapon)
-    {
-        if (this.weapon == null)
-        {
-            resolver?.InjectGameObject(weapon.gameObject);
-            this.weapon = weapon;
-        }
-        else
-        {
-            this.weapon = null;
-        }
+        this.weapon = weapon;
     }
 
     /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>
