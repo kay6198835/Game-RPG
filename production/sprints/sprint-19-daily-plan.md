@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**OPEN — day 1 of 5 (2026-10-19, Mon standup). BLOCKED on `sprint-19`, unblocked on `sprint-18`.**
+**OPEN — day 2 of 5 (2026-10-20, Tue standup). BLOCKED again — `sprint-19` tip does not compile.**
+S19-02 landed yesterday (owner merge `964be0a7`, COMPILED in the wrap-up re-check), then off-plan
+commit `3d768b3d` "add regen system" (17:09) broke the build — `compile-check.sh` FAILED, 5 errors in
+`RegenComponent.cs` / `StatHandler.cs` (NOTE-20261020-1, fifth sprint-branch break). The same commit
+leaves `WeaponHolderBase.weapon` null after equip (NOTE-20261020-2, S1 guess: no character can attack).
+Must-Have 1/9 (S19-02). S19-01 smoke still not run (16th carry). Evidence `COMPILED` (failed) + `LOG`.
+
+*Previous (Mon standup):* **OPEN — day 1 of 5 (2026-10-19, Mon standup). BLOCKED on `sprint-19`, unblocked on `sprint-18`.**
 At 08:44 the owner pushed `cae75317` "add asset" + merge `0def62ab` to `origin/sprint-18`, and
 `compile-check.sh` **COMPILED** `0def62ab`. `sprint-19` (`2634dbb9`, cut from `ea11e017` two minutes
 later) does not contain it, so S19-02 is reduced to "merge `origin/sprint-18` into `sprint-19`". Same
@@ -27,7 +34,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.4d | 0 | 1.4d |
+| Must Have (incl. Sat playtest 0.1d) | 1.4d | 0.05d (S19-02) | 1.35d (+ unplanned build fix ≈0.05d) |
 | Should Have | 1.0d | 0 | 1.0d |
 | Feature story S19-F1 (capped, gated by S19-01 + S19-02) | 0.5d | 0 | 0.5d |
 | Buffer | 1.0d | — | — |
@@ -63,7 +70,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S19-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 16th carry; working tree compiles, so it can run today |
-| S19-02 Commit + push build fix | 0.05d | 🟡 (on `sprint-18` `0def62ab`, COMPILED; merge into `sprint-19` left) | `sprint-19` tip does not compile; gates every code task |
+| S19-02 Commit + push build fix | 0.05d | ✅ (owner merge `964be0a7`, COMPILED 2026-10-19; re-broken by `3d768b3d` → NOTE-20261020-1) | `sprint-19` tip does not compile; gates every code task |
 | S19-03 BUG-096 zero-spawn branch | 0.1d | ⬜ | S1 — non-combat rooms sealed |
 | S19-04 BUG-097 | 0.05–0.2d | ⬜ | Run starts in the wrong room |
 
@@ -105,7 +112,8 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 ## Risks (live)
 
 - Playtest at 16th carry — Monday first; a signed accepted-risk note beats a silent carry.
-- `sprint-19` tip does not compile until S19-02 lands.
+- `sprint-19` tip does not compile until S19-02 lands. *2026-10-20:* S19-02 landed, then `3d768b3d`
+  broke it again (NOTE-20261020-1) — fifth break; S19-08 (pre-push compile gate) is the standing fix.
 - Owner work spread over an unpushed local commit (`cae75317`), a remote feature branch (`5c8245c9`,
   `b364c303`) and the working tree — merge onto `sprint-19` in the order S19-02 → S19-05 → S19-F1.
 - Saturday 2026-10-17 wrap-up and doc-sync did not run — 4 inbox notes untriaged; check the schedules.
@@ -140,3 +148,22 @@ _(appended by `/daily-standup`)_
 - **Today:** S19-02 merge `origin/sprint-18` → `sprint-19` (0.05d) → S19-01 smoke on the merged tip
   (0.3d) → S19-03 (0.1d) → S19-04 (≤0.2d); ≈0.6d.
 - **Verdict:** BLOCKED on `sprint-19` (one merge away from unblocked). Evidence `COMPILED` + `LOG`.
+
+### 2026-10-20 (Tue) — `/daily-standup --auto`
+
+- **Since last standup:** owner merge `964be0a7` (S19-02 done, COMPILED in the wrap-up re-check);
+  PM merges `e5ee8873` / `1d498da0` (doc-sync WIP + wrap-up onto `sprint-19`); `3d768b3d` "add regen
+  system" (2026-10-19 17:09, owner, other machine) — off-plan: new `RegenComponent` + `IRegenResource`,
+  `StatHandler.ResignChangeStat()`, `WeaponHolderBase.EquipDefaultWeapon()` rewrite (`Equid_UnEquid`
+  removed), `StartGameSystem/` → `RoomGameSystem/` (`PedestalChampionController`), empty `ShopController`.
+- **Planned Mon work:** S19-02 ✅; S19-01, S19-03, S19-04 not started (no commit, 0 Play Mode in Editor.log).
+- **Runtime:** compile-check **FAILED** on `3d768b3d` (5 errors, NOTE-20261020-1). `editor-log.sh`:
+  `Editor.log` 2026-10-19 19:59 — 0 `error CS`, 0 Play Mode (owner's local tree compiled at that point,
+  likely before / without the committed regen files); `Editor-prev.log` 2026-10-17 — already reported.
+  Fix-survival (7 d): no fix commits.
+- **Inbox:** 6 open notes (+4 today: NOTE-20261020-1 S1 compile, -2 S1 weapon never stored, -3 S3
+  regen defects, -4 S3 missing `.meta`).
+- **Today:** fix the build + commit the 3 `.meta` + NOTE-20261020-2 one-liner (≈0.1d, unplanned) →
+  S19-01 smoke (0.3d) → S19-05 (0.15d) → S19-06 (0.15d) → S19-08 (0.1d); ≈0.8d. S19-03/04 slide to Wed.
+- **Verdict:** BLOCKED (build broken by an off-plan commit; yesterday SLIPPED 3 of 4 tasks). Evidence
+  `COMPILED` (failed) + `LOG` + `STATIC`.
