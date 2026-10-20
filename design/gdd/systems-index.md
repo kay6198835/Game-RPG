@@ -43,7 +43,7 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 23 | Character Core / Hub Layer | Foundation | Foundation | MVP | **Implemented, undesigned** | *(none — `Assets/Script/Character/Base/`, BUG-052)* |
 | 24 | **Dependency Injection / Composition Root** | Foundation | Foundation | MVP | **Implemented, ADR only** | *(no GDD — `Assets/Script/System/LifetimeScope/`; **ADR-0004**)* |
 | 25 | **Abilities v2 (composition-based)** | Gameplay | Feature | MVP | **Implemented, undesigned** | *(no GDD — `Assets/Script/System/Abilities/`; `skill-ability-system.md` covers v1 only)* |
-| 26 | **Item / Depot / Drop Tables** | Progression | Feature | MVP | **Implemented, undesigned** | *(no GDD, no ADR — `Assets/Script/System/Item/`)* |
+| 26 | **Item / Depot / Drop Tables** | Progression | Feature | MVP | **Reverse-documented** (2026-10-20) | design/gdd/item-system.md *(no ADR — `Assets/Script/System/Item/`)* |
 
 > **Three systems added 2026-09-11.** All three shipped between 2026-08-22 and 2026-09-09 without
 > ever entering this index: DI (`aa4e620`), the Item system (`853fe39`, `9f1258c`) and Abilities v2

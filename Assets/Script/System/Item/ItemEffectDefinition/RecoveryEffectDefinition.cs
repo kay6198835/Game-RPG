@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Item SO/Effect/Recovery")]
-public class RecoveryEffectDefinition : ItemEffectDefinition
+public class RecoveryEffectDefinition : ItemEffectDefinitionSO
 {
     [SerializeField] private int amount;
 

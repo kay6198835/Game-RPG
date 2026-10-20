@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 [CreateAssetMenu(menuName = "Item SO/Effect/StatModifier")]
-public class StatModifierEffectDefinition: ItemEffectDefinition
+public class StatModifierEffectDefinition: ItemEffectDefinitionSO
 {
     [SerializeField] StatModifierGroup statModifierGroup;
     public override void Apply(ICharacter target)

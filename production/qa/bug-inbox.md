@@ -8,6 +8,7 @@
 
 | Note | Date | Source | Sev guess | Where | What | Evidence tier |
 |---|---|---|---|---|---|---|
+| NOTE-20261020-1 | 2026-10-20 | session | S3 | `Assets/Prefab/NPC/Merchant.prefab`, `Assets/Prefab/NPC/NPC.prefab` (added in `549b35e`, 2026-09-22) | Both prefabs carry MonoBehaviours whose script GUIDs resolve to no `.meta` in the tree or in any commit: `Merchant.prefab` → `fc1ed29122892f547a5676c047746b53` (no serialized fields) and `7a5a50304ffbae14788a47bb36ced296` (field `dialog.lines`: "Hello"); `NPC.prefab` → `7a5a5030…` (`dialog.lines`: "Hello There!", "Welcome to the Dream World"). The scripts were never committed, so both show Missing Script in the Editor. Needs owner: commit the scripts or remove the components | STATIC |
 | NOTE-20261015-1 | 2026-10-15 | editor-log | S3 | `Assets/Script/Character/Player/PlayerState.cs:35` | **Carried by the 2026-10-19 triage (Needs owner).** Full text and addenda in the 2026-10-19 archive below. 7 hits across four Play Mode sessions; `:35` is the `Debug.Log` of BUG-104, which cannot throw by itself — paste the full Console stack trace into the next playtest sheet (section D) | LOG |
 | NOTE-20261019-2 | 2026-10-19 | editor-log | S3 | `Assets/Script/System/StatSystem/BaseStatsSO.cs:243` | **Carried by the 2026-10-19 triage (Needs owner).** Full text in the 2026-10-19 archive below. Editor-time only (0 Play Mode); confirm which stat asset has duplicate `StatType` entries and paste the stack trace | LOG |
 
