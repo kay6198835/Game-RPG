@@ -555,13 +555,14 @@
           EnemySpawner.cs                       # Event-driven: ON_GET_SPAWN_POSITIONS / ON_SPAWN_EXTRA_ENEMY. Spawns via ObjectPoolManager,
                                                 # emits ON_DONE_SPAWN_ENEMY. ✅ BUG-033 FIXED. Now resolved through VContainer
         Item/                                   # ✅ NEW system (2026-09-04 `853fe39`, 2026-09-07 `9f1258c`) — NO GDD, NO ADR
-          ItemSO.cs                             # SO "Item SO/Item": ItemSprite, ItemName, StyleItem, List<ItemEffectDefinition>, Description. (Renamed from ItemOS.cs)
+          ItemSO.cs                             # SO "Item SO/Item": ItemSprite, ItemName, List<ItemEffectDefinitionSO>, Description, Id. (Renamed from ItemOS.cs;
+                                                # `StyleItem` removed 2026-10-20). GDD: design/gdd/item-system.md (no inventory, coin/Wallet planned)
           DepotItem.cs                          # SO "Item SO/Item Depot": weighted drop table by RarityTierItem; TryRollItem(), GetRandomItemByRarity().
                                                 # Also declares DepotItemSlot, DropRateItemSlot, RarityTierItem
           ItemController.cs, ItemSpawner.cs     # ItemSpawner takes IObjecPoolService via [Inject]
-          PrefabRandomItem.cs
+          # PrefabRandomItem.cs                 # DELETED 2026-10-20 (fully commented out)
           ItemEffectDefinition/
-            ItemEffectDefinitionSO.cs, RecoveryEffectDefinition.cs, StatModifierEffectDefinition.cs, CurrencyEffectDefinition.cs
+            ItemEffectDefinitionSO.cs (class `ItemEffectDefinitionSO` since 2026-10-20), RecoveryEffectDefinition.cs, StatModifierEffectDefinition.cs, CurrencyEffectDefinition.cs
         PlayerSystem/
           PlayerManager.cs                      # `: MonoBehaviour, IPlayerService`. ⚠️ **REWRITTEN 2026-10-05:** SPAWNS the player at runtime
                                                 # (`resolver.Instantiate(playerPrefab, spawnPoint)`, lazily via the `Player` property) and parents
@@ -1387,7 +1388,8 @@
   | Block | Right Mouse Button (Hold) — ⚠️ handler commented out in `PlayerInputHandler` since 2026-10-05 |
   | Ability Primary / Secondary / Utility / Ultimate | `1` / `2` / `3` / `4` (Hold) — was `E` (SkillWeapon → Utility) until 2026-10-05 |
   | Equip/Unequip | F |
-  | Interact | G |
+  | Interact (NPC) | G |
+| Pick up item | Q (`ResourceReceiver` → `PlayerResourceReceiverState`) |
   | Dash | Space |
 
   ---

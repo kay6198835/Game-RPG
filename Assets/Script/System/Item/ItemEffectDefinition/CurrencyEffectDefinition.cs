@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Item SO/Effect/Currency")]
-public class CurrencyEffectDefinition : ItemEffectDefinition
+public class CurrencyEffectDefinition : ItemEffectDefinitionSO
 {
     [SerializeField] private int amount;
 

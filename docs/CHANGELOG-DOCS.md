@@ -17,6 +17,25 @@ which code change caused it.
 
 ---
 
+## 2026-10-20 — Item system GDD + item cleanup (owner request)
+
+**Cause:** owner design decisions 2026-10-20 (no inventory; Wallet + coin-paid primary stats; no level
+system; per-run coin) and a code cleanup in `Assets/Script/System/Item/` (class `ItemEffectDefinition`
+→ `ItemEffectDefinitionSO`; `ItemSO.StyleItem` removed; `PrefabRandomItem.cs` deleted).
+
+| Document | Change |
+|---|---|
+| `design/gdd/item-system.md` | **New** — reverse-documented GDD + section 9 *Design Direction* |
+| `design/gdd/changelog/item-system.CHANGELOG.md` | **New** |
+| `design/gdd/systems-index.md` | Row 26: "Implemented, undesigned" → "Reverse-documented", links the GDD |
+| `docs/systems/items/README.md` | Pickup key G → **Q**; `IObjectPoolService` (`cae7531`); rename/removals; open issues (Currency no-op, BUG-100, TD-030, TD-054, Merchant/NPC missing scripts) |
+| `docs/systems/items/CHANGELOG.md` | Entries for `cae7531` and this change |
+| `docs/tech-debt-register.md` | **TD-054** — unify `RarityTierItem` and UIFlow `ItemRarity` |
+| `production/qa/bug-inbox.md` | **NOTE-20261020-1** — `Merchant.prefab` / `NPC.prefab` scripts never committed |
+| `CLAUDE.md` | Item lines in Repository Layout; Input Bindings gains "Pick up item — Q" |
+
+---
+
 ## 2026-10-10 — Remove redundant files (owner request)
 
 **Cause:** owner review of a redundancy scan (2026-10-10). Every item was checked for references
