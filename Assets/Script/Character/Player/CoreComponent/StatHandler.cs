@@ -1,7 +1,15 @@
 public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
 {
+    WalletComponent wallet;
     private Action actionResign;
-    
+    [SerializeField] private int requiredExp;
+    [SerializeField] private int maxLevel = GameConstants.SettingStats.LEVEL_MAX;
+
+    protected override void Start()
+    {
+        base.Start();
+        core.GetCoreComponent(out wallet);
+    }
     void OnDisable()
     {
         ClearResignChangeStat();
@@ -29,5 +37,23 @@ public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
     private void ClearResignChangeStat()
     {
         statsSO.OnStatChanged -= actionResign;
+    }
+    public bool TryLevelUp()
+    {
+        GetRequiredExpForNextLevel();
+        if (!wallet.TryPayCoin(requiredExp))
+            return false;
+        return true;
+    }
+
+    private int GetRequiredExpForNextLevel()
+    {
+        int currentLevel = GetLevel();
+        if (currentLevel < 1 || currentLevel >= maxLevel)
+            return 0;
+
+        requiredExp = Mathf.CeilToInt(35f * Mathf.Pow(currentLevel, 1.8f));
+
+        return requiredExp;
     }
 }

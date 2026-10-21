@@ -9,4 +9,5 @@ public interface ICore
     /// </summary>
     bool TryGetCapability<T>(out T capability) where T : class;
     void Setup();
+    void Reborn();
 }

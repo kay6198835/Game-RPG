@@ -14,7 +14,6 @@ public class GameLifetimeScope : LifetimeScope
         builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
 
         builder.RegisterComponentInHierarchy<EnemySpawner>();
-        builder.RegisterComponentInHierarchy<StatsUIController>();
         builder.RegisterComponentInHierarchy<ItemSpawner>();
         builder.RegisterComponentInHierarchy<RoomGeneraterController>();
         builder.RegisterComponentInHierarchy<RoomGridController>();
@@ -22,6 +21,8 @@ public class GameLifetimeScope : LifetimeScope
         // EntityInput song tren enemy prefab, spawn runtime qua ObjectPoolManager — khong nam
         // trong scene luc LifetimeScope.Configure() chay, RegisterComponentInHierarchy se throw.
         // ObjectPoolManager tu inject cho instance moi spawn (xem Pool.Spawn).
+        // UI stats cu (StatsUIController / StatsScreenUIController) khong con trong scene: bang chi so nam o tab
+        // Nhan vat cua GameplayUI (UIFlow.CharacterPanel), ghi diem qua StatPointSession — khong qua VContainer.
         //builder.RegisterComponentInHierarchy<StatsScreenUIController>();
         //builder.RegisterComponentInHierarchy<StatPointAllocator>();
     }

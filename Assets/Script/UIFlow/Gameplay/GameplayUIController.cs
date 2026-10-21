@@ -8,7 +8,7 @@ namespace UIFlow
 {
     /// <summary>
     /// Bộ điều khiển của scene GameplayUI (được load Additive chồng lên scene gameplay).
-    /// - Phím tắt: I = Túi đồ, K = Kỹ năng, J = Nhiệm vụ (đổi được trong Cài đặt). Esc do UIManager lo.
+    /// - Phím tắt: I = Túi đồ, C = Nhân vật / chỉ số, K = Kỹ năng, J = Nhiệm vụ (đổi được trong Cài đặt). Esc do UIManager lo.
     /// - Nghe UIEvents (hộp thoại, cửa hàng, thông báo, cooldown) và sự kiện chết của người chơi.
     /// </summary>
     public class GameplayUIController : MonoBehaviour
@@ -65,6 +65,7 @@ namespace UIFlow
             if (!free) return;
 
             if (UIInput.WasPressed(KeyBindings.Inventory)) ToggleTab(InventoryTab);
+            else if (UIInput.WasPressed(KeyBindings.Character)) ToggleTab(CharacterTab);
             else if (UIInput.WasPressed(KeyBindings.SkillTree)) ToggleTab(SkillTab);
             else if (UIInput.WasPressed(KeyBindings.QuestLog)) ToggleTab(QuestTab);
         }

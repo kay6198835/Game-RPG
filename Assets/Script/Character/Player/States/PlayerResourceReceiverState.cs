@@ -20,7 +20,6 @@ public class PlayerResourceReceiverState : PlayerUseWeaponState
         base.LogicUpdate();
         if (StatusAnimation.OnActivate <= Status && Status < StatusAnimation.OffActivate)
         {
-            Debug.Log("Call PlayerResourceReceiverState Trigger");
             resourceReceiver.Intertion();
             Status = StatusAnimation.OffActivate;
         }
