@@ -33,7 +33,7 @@ public class AbilityContext
         component = null;
         Component source = recipient == EffectRecipient.Target ? (Component)Target : Caster?.Transform;
         if (source == null) return false;
-        ICharacter character = source.GetComponentInParent<ICharacter>();
+        ICharacter<ICore> character = source.GetComponentInParent<ICharacter<ICore>>();
         if (character == null) return false;
         component = character.Transform.GetComponentInChildren<T>();
         return component != null;

@@ -11,11 +11,11 @@ public class PedestalChampionController : InteractiveObjects
     [SerializeField] private Sprite avatarChampition;
     [SerializeField] private CircleCollider2D circleCollider;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    ICharacter character;
+    ICharacter<ICore> character;
 
     public override bool Interact(Interact interactor)
     {
-        character = interactor.GetComponentInParent<ICharacter>();
+        character = interactor.GetComponentInParent<ICharacter<ICore>>();
         if (character != null)
         {
             DialogueLine dialogueLine = new DialogueLine

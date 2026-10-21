@@ -1,4 +1,6 @@
-public class WalletComponent : VitalStatsBase<Core>
+using UnityEngine;
+
+public class WalletComponent : CoreComponentBase<Core>, IWallet
 {
     [SerializeField] private int currentCoin;
 
@@ -7,24 +9,24 @@ public class WalletComponent : VitalStatsBase<Core>
         return currentCoin;
     }
 
-    public void AddCoins(float amount)
+    public void AddCoins(int amount)
     {
         currentCoin += amount;
     }
-    public void PayCoin(float amount)
+    public void PayCoin(int amount)
     {
         currentCoin -= amount;
     }
-    public bool TryPayCoin(float amountPay)
+    public bool TryPayCoin(int amountPay)
     {
         if (amountPay > currentCoin) return false;
         PayCoin(amountPay);
         return true;
     }
 
-    public override void ReLoadComponent()
+    public override void ReloadComponent()
     {
-        base.ReLoadComponent();
+        base.ReloadComponent();
         currentCoin = 0;
     }
 }

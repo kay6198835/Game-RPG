@@ -20,7 +20,7 @@ public abstract class CoreComponentBase<T> : MonoBehaviour, ICoreComponent<T> wh
         core = transform.GetComponentInParent<T>();
     }
 
-    public virtual void ReLoadComponent()
+    public virtual void ReloadComponent()
     {
         
     }

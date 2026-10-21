@@ -6,5 +6,5 @@ public interface IPlayerStatService : IStatService
 {
     void AddPrimaryPoint(StatType statType, int amount);
     int GetLevelUpStatsBonus();
-    int TryLevelup();
+    bool TryLevelup();
 }

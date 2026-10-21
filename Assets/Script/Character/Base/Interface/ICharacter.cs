@@ -6,8 +6,9 @@ using UnityEngine;
 /// TryGetComponent / GetComponent / GetComponentInParent / GetComponentInChildren, whichever fits its
 /// context — e.g. <c>hit.GetComponentInParent&lt;ICharacter&gt;().Transform.GetComponentInChildren&lt;IVitalComponent&gt;()</c>.
 /// </summary>
-public interface ICharacter
+public interface ICharacter<Tcore> where Tcore : ICore
 {
+    Tcore Core { get; }
     Transform Transform { get; }
     void SetCharacterData(CharacterData data);
     void Reborn();

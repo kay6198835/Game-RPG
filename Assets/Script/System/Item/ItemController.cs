@@ -28,7 +28,7 @@ public class ItemController : InteractiveObjects
             Debug.LogWarning("Interact: interactor is null");
             return false;
         }
-        ICharacter target = interactor.GetComponentInParent<ICharacter>();
+        ICharacter<ICore> target = interactor.GetComponentInParent<ICharacter<ICore>>();
         if (target == null)
         {
             Debug.LogWarning("Interact: interactor has no owning character");

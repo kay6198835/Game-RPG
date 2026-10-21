@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using UnityEngine;
+
 public class RegenComponent : MovementBase<Core>, IRegenResource
 {
     StatHandler statHandler;
@@ -63,6 +66,16 @@ public class RegenComponent : MovementBase<Core>, IRegenResource
             nextTimeRegen = 0,
             regenValue = statHandler.GetStatValue(StatType.HPRegen)
         });
+    }
+
+    public void OnChangeStatMax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    void IRegenResource.SetData()
+    {
+        SetData();
     }
 }
 

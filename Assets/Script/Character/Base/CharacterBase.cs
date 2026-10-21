@@ -4,7 +4,7 @@ using UnityEngine;
 /// Shared base of Player and Entity (the BaseGrid&lt;T&gt; of the character layer). Owns the typed core
 /// hub reference and marks the root as an <see cref="ICharacter"/>. It does not hand out components.
 /// </summary>
-public abstract class CharacterBase<TCore> : BaseEntity, ICharacter where TCore : CoreBase
+public abstract class CharacterBase<TCore> : BaseEntity, ICharacter<TCore> where TCore : CoreBase
 {
     [SerializeField] protected TCore core;
 
@@ -13,6 +13,6 @@ public abstract class CharacterBase<TCore> : BaseEntity, ICharacter where TCore 
     public abstract void SetCharacterData(CharacterData data);
     public virtual void Reborn()
     {
-        core.ReLoadCore();
+        core.ReloadCore();
     }
 }

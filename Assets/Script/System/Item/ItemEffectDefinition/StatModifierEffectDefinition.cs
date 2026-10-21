@@ -6,7 +6,8 @@ using UnityEngine;
 public class StatModifierEffectDefinition: ItemEffectDefinitionSO
 {
     [SerializeField] StatModifierGroup statModifierGroup;
-    public override void Apply(ICharacter target)
+    [SerializeField] StatImpactType impactType;
+    public override void Apply(ICharacter<ICore> target)
     {
         var vital = target.Transform.GetComponentInChildren<IVitalComponent>();
         if (vital != null) vital.ApplyBuffDebuff(statModifierGroup);
