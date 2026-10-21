@@ -52,7 +52,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         GameObject instance = objectPoolManager.Spawn(Core.Data?.Weapon.gameObject, OwnerTransform.position, Quaternion.identity);
         resolver?.InjectGameObject(instance);
         instance.GetComponent<Weapon>().Equid(this);
-        this.weapon = weapon;
+        this.weapon = Core.Data?.Weapon;
     }
 
     /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>

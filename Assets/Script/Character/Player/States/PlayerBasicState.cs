@@ -24,7 +24,6 @@ public class PlayerBasicState : PlayerState
         player.Core.GetCoreComponent(out playerMovement);
         player.Core.GetCoreComponent(out vitalStats);
         player.Core.GetCoreComponent(out resourceReceiver);
-        player.Core.GetCoreComponent(out resourceReceiver);
     }
     public override void LogicUpdate()
     {

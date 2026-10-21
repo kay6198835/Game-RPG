@@ -171,7 +171,6 @@ public class LevelManager : MonoBehaviour
     {
         if (dungeonRoomSO == null || index < 0 || index >= dungeonRoomSO.room.Count)
         {
-            Debug.LogWarning($"UpdateRoom: invalid index {index}");
             return;
         }
 
@@ -204,8 +203,6 @@ public class LevelManager : MonoBehaviour
         string filePath = dungeonRoomSO.room[index].filePath;
         string json = JsonUtility.ToJson(levelData, true);
         File.WriteAllText(Application.dataPath + filePath, json);
-
-        Debug.Log($"Updated: {dungeonRoomSO.room[index].roomName}");
     }
     #endregion
 
@@ -233,7 +230,6 @@ public class LevelManager : MonoBehaviour
     {
         if (roomModel == null)
         {
-            Debug.LogWarning("GetRoomSpawnSet: roomModel is null");
             return new List<EnemySpawnEntry>();
         }
         return roomModel.GetSpawnSet();
@@ -248,7 +244,6 @@ public class LevelManager : MonoBehaviour
         List<EnemySpawnEntry> set = GetRoomSpawnSet();
         if (set.Count == 0)
         {
-            Debug.LogWarning("SpawnRoomEnemies: nothing to spawn");
             return;
         }
 

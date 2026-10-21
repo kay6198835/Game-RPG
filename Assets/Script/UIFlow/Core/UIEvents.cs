@@ -17,8 +17,7 @@ namespace UIFlow
         /// <summary>Mở hộp thoại NPC. Callback onFinished chạy khi hộp thoại đóng.</summary>
         public static event Action<IReadOnlyList<DialogueLine>, Action> DialogueRequested;
         public static event Action<ConfirnData> OpenConfirnPanel;
-        public static event Action ConfirnRequest;
-
+        private static event Action ConfirnRequest;
         public static event Action ShopRequested;
 
         /// <summary>Thông báo tự ẩn góc màn hình.</summary>
@@ -60,7 +59,7 @@ namespace UIFlow
 
         public static void AccessAction()
         {
-            ConfirnRequest.Invoke();
+            ConfirnRequest?.Invoke();
             ConfirnRequest = null;
         }
     }

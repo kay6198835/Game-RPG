@@ -68,4 +68,12 @@ public abstract class CoreBase : MonoBehaviour, ICore
             AddCoreComponent((ICoreComponent<ICore>)comp);
         }
     }
+
+    public virtual void ReLoadCore()
+    {
+        foreach (var comp in coreComponents)
+        {
+            comp.ReloadComponent();
+        }
+    }
 }

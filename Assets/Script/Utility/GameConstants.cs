@@ -129,6 +129,7 @@ public static class GameConstants
         public static float GAME_SCALE = 3;
         public static float PADDING_DOOR_TELE_SCALE = 2f * LENGTH_ROOM / 10;
         public static float PADDING_NODE_VALUE = 0.15f;
+        public static int LEVEL_MAX = 50;
     }
     #endregion
 
