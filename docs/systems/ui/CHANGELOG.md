@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-21 — StatsPanel prefab; Character tab read-only again
+- **Branch:** `origin/feature/ui-stats-prefab` (from `origin/feature/ui-flow-maingameplay` `0fb3ed2`)
+- **Changed:** new `Gameplay/Windows/StatsPanel.cs` (`: UIPanel`, the stat-point logic moved out of `CharacterPanel`); `CharacterPanel` restored to the read-only version of `50d84e7`; `GameplayUIController` gains `statsPanel` + `openStatsButton`, key C toggles the panel; `UIFlowBuilder` builds `Assets/Prefab/UIFlow/StatsPanel.prefab` once and instantiates it in `GameplayUI`, adds a HUD "Chỉ số [C]" button and the menu **Tools/UI Flow/Rebuild Stats Panel Prefab**
+- **From → To:** stat allocation inside the Character tab, built by code → a separate pausing window with the old `Stats_UI_Controller` layout (two columns + Revert / Restore / Update footer) in UIFlow style, editable as a prefab
+- **Why:** owner request — keep the familiar stats UI as its own prefab in GameplayUI, consistent with the rest of UIFlow
+- **Requires:** run **Tools/UI Flow/Build GameplayUI Only** (creates the prefab on first run) and commit the scene and prefab
+
 ## 2026-10-21 — Stats panel moved from LoadRandomMap to the GameplayUI Character tab
 - **Branch:** `origin/feature/ui-stats-gameplayui` (from `origin/feature/ui-flow-maingameplay` `50d84e7`)
 - **Changed:** new `System/StatSystem/StatPointSession.cs` (allocation rules, plain class); `StatPointAllocator` now delegates to it; `IPlayerDataProvider` + `RealPlayerDataProvider` gain stat rows and session methods; new `StatRowData` DTO; `CharacterPanel` rewritten + new `StatRowView`; `KeyBindings.Character` (C); `UIFlowBuilder` builds the new Character page and `ConfirnPanel`, new menu **Tools/UI Flow/Build GameplayUI Only**, `GameplayRealPath` fixed; `LoadRandomMap.unity` loses the `Stats_UI_Controller` prefab instance and its Canvas; `GameLifetimeScope` drops `StatsUIController`
