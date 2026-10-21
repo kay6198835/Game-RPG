@@ -453,7 +453,9 @@
         LifetimeScope/                          # ✅ NEW — VContainer composition root (ADR-0004)
           GameLifetimeScope.cs                  # `: LifetimeScope`. ⚠️ **CHANGED 2026-10-05:** registers ObjectPoolManager, PlayerManager
                                                 # (AsSelf + IPlayerService), IPlayerStatService (factory → PlayerManager.StatService), EnemySpawner,
-                                                # StatsUIController, ItemSpawner, RoomGeneraterController, RoomGridController, LevelManager.
+                                                # ItemSpawner, RoomGeneraterController, RoomGridController, LevelManager.
+                                                # ⚠️ **2026-10-21:** `StatsUIController` no longer registered — the stats panel moved to the
+                                                # GameplayUI Character tab (`UIFlow.CharacterPanel` → `StatPointSession`)
                                                 # Player / StatHandler / AbilityHolder are NO LONGER registered — the player is spawned at runtime
           Interface/
             IObjecPoolService.cs                # (typo intentional in source) pooling façade
@@ -605,7 +607,8 @@
         Editor/                                 # UIFlowBuilder(.Gameplay) — builds the 3 UIFlow scenes; UIKit. (UIFlowSmokeTest DELETED 2026-10-05 with the mock scene)
       UI/                                       # NO GDD yet
         UIController.cs                         # Runtime UI Toolkit: MainMenu / Settings / Pause screens from .uxml
-        StatsUIController.cs                    # Stat panel driven by ON_*_STATS_*_UI events; resolved through VContainer
+        StatsUIController.cs                    # ⚠️ UNUSED since 2026-10-21 — removed from LoadRandomMap and GameLifetimeScope; replaced by the
+                                                # UIFlow Character tab (key C). *Was:* stat panel driven by ON_*_STATS_*_UI events, resolved through VContainer
         StatsScreenUIController.cs              # Full stats screen
         StatSlot.cs                             # One stat row, bound to a StatsViewDTO
 
@@ -732,8 +735,7 @@
   builder.RegisterComponentInHierarchy<PlayerManager>().AsSelf().As<IPlayerService>();
   builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
   builder.RegisterComponentInHierarchy<EnemySpawner>();
-  builder.RegisterComponentInHierarchy<StatsUIController>();
-  builder.RegisterComponentInHierarchy<ItemSpawner>();
+  builder.RegisterComponentInHierarchy<ItemSpawner>();       // StatsUIController removed 2026-10-21
   builder.RegisterComponentInHierarchy<RoomGeneraterController>();
   builder.RegisterComponentInHierarchy<RoomGridController>();
   builder.RegisterComponentInHierarchy<LevelManager>();
