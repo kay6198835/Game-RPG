@@ -6,6 +6,7 @@ using UnityEngine;
 public class StatModifierEffectDefinition: ItemEffectDefinitionSO
 {
     [SerializeField] StatModifierGroup statModifierGroup;
+    [SerializeField] StatImpactType impactType;
     public override void Apply(ICharacter target)
     {
         var vital = target.Transform.GetComponentInChildren<IVitalComponent>();

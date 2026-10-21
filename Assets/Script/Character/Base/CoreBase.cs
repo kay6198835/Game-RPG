@@ -69,7 +69,7 @@ public abstract class CoreBase : MonoBehaviour, ICore
         }
     }
 
-    public virtual void ReLoadCore()
+    public virtual void ReloadCore()
     {
         foreach (var comp in coreComponents)
         {

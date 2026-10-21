@@ -1,7 +1,10 @@
+using System;
+using UnityEngine;
+
 public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
 {
     WalletComponent wallet;
-    private Action actionResign;
+    private Action<StatType> actionResign;
     [SerializeField] private int requiredExp;
     [SerializeField] private int maxLevel = GameConstants.SettingStats.LEVEL_MAX;
 
@@ -38,7 +41,7 @@ public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
     {
         statsSO.OnStatChanged -= actionResign;
     }
-    public bool TryLevelUp()
+    public bool TryLevelup()
     {
         GetRequiredExpForNextLevel();
         if (!wallet.TryPayCoin(requiredExp))

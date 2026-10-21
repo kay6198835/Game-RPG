@@ -15,7 +15,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     protected IVitalComponent vital;
     protected ICharacterInput input;
     private Animator animator;
-    private ICharacter owner;
+    private ICharacter<TCore> owner;
     private IObjectResolver resolver;
     private IObjectPoolService objectPoolManager;
 
@@ -24,7 +24,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     public Transform OwnerTransform => Owner != null ? Owner.Transform : transform;
     public Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
     public IAimProvider Aim => input;
-    private ICharacter Owner => owner ??= GetComponentInParent<ICharacter>();
+    private ICharacter<TCore> Owner => owner ??= GetComponentInParent<ICharacter<TCore>>();
 
     [Inject]
     public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolManager)
