@@ -149,7 +149,7 @@ namespace UIFlow
 
         private void OnPlayerReady(object payload)
         {
-            if (payload is not ICharacter<ICore> character) return;
+            if (payload is not ICharacter character) return;
             // Chạy bên trong VitalStatsComponent.Reborn() của gameplay → không để lỗi UI ném ngược vào đó.
             try
             {
@@ -161,7 +161,7 @@ namespace UIFlow
             }
         }
 
-        private void Bind(ICharacter<ICore> character)
+        private void Bind(ICharacter character)
         {
             Unbind();
             Transform root = character.Transform;

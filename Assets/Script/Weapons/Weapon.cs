@@ -73,7 +73,7 @@ public abstract class Weapon : InteractiveObjects
     public override bool Interact(Interact interactor)
     {
         // Up to the character root, then down to whichever weapon holder it has.
-        ICharacter<ICore> owner = interactor.GetComponentInParent<ICharacter<ICore> >();
+        ICharacter owner = interactor.GetComponentInParent<ICharacter>();
         IWeaponHolder weaponHolder = owner?.Transform.GetComponentInChildren<IWeaponHolder>();
         if (weaponHolder == null) return false;
         Equid(weaponHolder);
@@ -95,7 +95,7 @@ public abstract class Weapon : InteractiveObjects
     // Up from the holder to the character root, then down to its stat profile.
     private static IStatService OwnerStats(IWeaponHolder weaponHolder)
     {
-        ICharacter<ICore> owner = weaponHolder.Transform.GetComponentInParent<ICharacter<ICore>>();
+        ICharacter owner = weaponHolder.Transform.GetComponentInParent<ICharacter>();
         return owner?.Transform.GetComponentInChildren<IStatService>();
     }
 

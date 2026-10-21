@@ -9,6 +9,7 @@ public abstract class CharacterBase<TCore> : BaseEntity, ICharacter<TCore> where
     [SerializeField] protected TCore core;
 
     public TCore Core => core;
+    ICore ICharacter.Core => core;
     public Transform Transform => transform;
     public abstract void SetCharacterData(CharacterData data);
     public virtual void Reborn()
