@@ -80,11 +80,12 @@ namespace UIFlow.EditorTools
             SettingsPanel settings = BuildSettings(canvas.transform);
             PausePanel pause = BuildPause(canvas.transform, settings);
             GameOverPanel gameOver = BuildGameOver(canvas.transform);
+            ConfirnPanel confirn = BuildConfirn(canvas.transform);
             settings.transform.SetAsLastSibling();
 
             Wire(manager, ("rootPanel", hud), ("escapeFallbackPanel", pause), ("controlsTimeScale", true));
             Wire(controller, ("uiManager", manager), ("hud", hud), ("tabWindow", tabWindow), ("dialoguePanel", dialogue),
-                 ("shopPanel", shop), ("gameOverPanel", gameOver));
+                 ("shopPanel", shop), ("gameOverPanel", gameOver), ("confirnPanel", confirn));
 
             GameObject numbers = new("DamageNumbers");
             DamageNumberSpawner spawner = numbers.AddComponent<DamageNumberSpawner>();
@@ -196,7 +197,7 @@ namespace UIFlow.EditorTools
             GameObject tabs = Node("Tabs", window);
             Place(tabs, TopLeft, TopLeft, new Vector2(30, -24), new Vector2(1200, 64));
             HLayout(tabs, 12, null, TextAnchor.MiddleLeft);
-            string[] titles = { "Túi đồ [I]", "Nhân vật", "Kỹ năng [K]", "Nhiệm vụ [J]" };
+            string[] titles = { "Túi đồ [I]", "Nhân vật [C]", "Kỹ năng [K]", "Nhiệm vụ [J]" };
             Button[] tabButtons = new Button[titles.Length];
             for (int i = 0; i < titles.Length; i++)
             {
@@ -286,12 +287,70 @@ namespace UIFlow.EditorTools
         private static CharacterPanel BuildCharacterPage(Transform window)
         {
             GameObject page = PageRoot(window, "CharacterPage");
+
+            // ── Cột trái: thông tin nhân vật + điểm + nút phiên cộng điểm
             TextMeshProUGUI header = Txt(page.transform, "Header", "", 32, TextAlignmentOptions.TopLeft);
-            Place(header.gameObject, TopLeft, TopLeft, Vector2.zero, new Vector2(700, 180));
-            TextMeshProUGUI stats = Txt(page.transform, "Stats", "", 26, TextAlignmentOptions.TopLeft);
-            Place(stats.gameObject, TopLeft, TopLeft, new Vector2(0, -200), new Vector2(700, 520));
+            Place(header.gameObject, TopLeft, TopLeft, Vector2.zero, new Vector2(500, 130));
+            TextMeshProUGUI vitals = Txt(page.transform, "Vitals", "", 26, TextAlignmentOptions.TopLeft);
+            Place(vitals.gameObject, TopLeft, TopLeft, new Vector2(0, -140), new Vector2(500, 90));
+            TextMeshProUGUI points = Txt(page.transform, "Points", "", 28, TextAlignmentOptions.Left);
+            Place(points.gameObject, TopLeft, TopLeft, new Vector2(0, -250), new Vector2(500, 50));
+
+            GameObject actions = Node("SessionButtons", page.transform);
+            Place(actions, TopLeft, TopLeft, new Vector2(0, -320), new Vector2(360, 250));
+            VLayout(actions, 14);
+            Button accept = Btn(actions.transform, "AcceptButton", "Xác nhận", 28, AccentColor);
+            Size(accept, preferredHeight: 70);
+            Button revert = Btn(actions.transform, "RevertButton", "Hoàn tác", 28);
+            Size(revert, preferredHeight: 70);
+            Button respec = Btn(actions.transform, "RespecButton", "Reset điểm", 28, new Color(0.7f, 0.25f, 0.25f, 0.8f));
+            Size(respec, preferredHeight: 70);
+
+            // ── Cột giữa: chỉ số chính (STR…LUK) có nút −/+
+            TextMeshProUGUI primaryLabel = Txt(page.transform, "PrimaryLabel", "Chỉ số chính", 28, TextAlignmentOptions.Left, MutedColor);
+            Place(primaryLabel.gameObject, TopLeft, TopLeft, new Vector2(540, 0), new Vector2(440, 40));
+            GameObject primary = Node("PrimaryStats", page.transform);
+            Place(primary, TopLeft, TopLeft, new Vector2(540, -50), new Vector2(440, 420));
+            VLayout(primary, 8);
+
+            Image primaryRow = Img(primary.transform, "PrimaryRowTemplate", new Color(1, 1, 1, 0.06f), Rounded);
+            Size(primaryRow, preferredHeight: 64);
+            TextMeshProUGUI primaryName = Txt(primaryRow.transform, "Name", "STR", 26, TextAlignmentOptions.MidlineLeft);
+            Place(primaryName.gameObject, MiddleLeft, MiddleLeft, new Vector2(16, 0), new Vector2(110, 56));
+            TextMeshProUGUI primaryValue = Txt(primaryRow.transform, "Value", "0", 26, TextAlignmentOptions.MidlineRight);
+            Place(primaryValue.gameObject, MiddleLeft, MiddleLeft, new Vector2(126, 0), new Vector2(90, 56));
+            TextMeshProUGUI primaryBonus = Txt(primaryRow.transform, "Bonus", "", 22, TextAlignmentOptions.MidlineLeft, MutedColor);
+            Place(primaryBonus.gameObject, MiddleLeft, MiddleLeft, new Vector2(226, 0), new Vector2(80, 56));
+            Button decrease = Btn(primaryRow.transform, "DecreaseButton", "-", 32);
+            Place(decrease.gameObject, MiddleRight, MiddleRight, new Vector2(-76, 0), new Vector2(56, 52));
+            Button increase = Btn(primaryRow.transform, "IncreaseButton", "+", 32, AccentColor);
+            Place(increase.gameObject, MiddleRight, MiddleRight, new Vector2(-12, 0), new Vector2(56, 52));
+            StatRowView primaryView = primaryRow.gameObject.AddComponent<StatRowView>();
+            Wire(primaryView, ("nameText", primaryName), ("valueText", primaryValue), ("bonusText", primaryBonus),
+                 ("decreaseButton", decrease), ("increaseButton", increase));
+
+            // ── Cột phải: chỉ số phụ (HP, Mana, Damage…), chỉ xem, cuộn được
+            TextMeshProUGUI derivedLabel = Txt(page.transform, "DerivedLabel", "Chỉ số phụ", 28, TextAlignmentOptions.Left, MutedColor);
+            Place(derivedLabel.gameObject, TopRight, TopRight, Vector2.zero, new Vector2(440, 40));
+            Transform derived = ScrollList(page.transform, "DerivedStats", 4);
+            Place(derived.parent.parent.gameObject, TopRight, TopRight, new Vector2(0, -50), new Vector2(440, 690));
+
+            Image derivedRow = Img(derived, "DerivedRowTemplate", new Color(1, 1, 1, 0.04f), Rounded);
+            Size(derivedRow, preferredHeight: 46);
+            TextMeshProUGUI derivedName = Txt(derivedRow.transform, "Name", "HP", 22, TextAlignmentOptions.MidlineLeft);
+            Stretch(derivedName.gameObject, 14, 200, 0, 0);
+            TextMeshProUGUI derivedBonus = Txt(derivedRow.transform, "Bonus", "", 20, TextAlignmentOptions.MidlineRight, MutedColor);
+            Place(derivedBonus.gameObject, MiddleRight, MiddleRight, new Vector2(-110, 0), new Vector2(90, 40));
+            TextMeshProUGUI derivedValue = Txt(derivedRow.transform, "Value", "0", 22, TextAlignmentOptions.MidlineRight);
+            Place(derivedValue.gameObject, MiddleRight, MiddleRight, new Vector2(-14, 0), new Vector2(96, 40));
+            StatRowView derivedView = derivedRow.gameObject.AddComponent<StatRowView>();
+            Wire(derivedView, ("nameText", derivedName), ("valueText", derivedValue), ("bonusText", derivedBonus));
+
             CharacterPanel character = page.AddComponent<CharacterPanel>();
-            Wire(character, ("headerText", header), ("statsText", stats));
+            Wire(character, ("headerText", header), ("vitalsText", vitals), ("pointsText", points),
+                 ("primaryContainer", primary.transform), ("derivedContainer", derived),
+                 ("primaryRowTemplate", primaryView), ("derivedRowTemplate", derivedView),
+                 ("acceptButton", accept), ("revertButton", revert), ("respecButton", respec));
             return character;
         }
 
@@ -428,6 +487,28 @@ namespace UIFlow.EditorTools
 
             Wire(panel, ("resumeButton", resume), ("saveButton", save), ("settingsButton", settingsButton),
                  ("mainMenuButton", menu), ("settingsPanel", settings));
+            return panel;
+        }
+
+        /// <summary>Hộp xác nhận (ví dụ chọn Champion ở phòng đầu). Trước đây dựng tay trong Editor (221d54b).</summary>
+        private static ConfirnPanel BuildConfirn(Transform canvas)
+        {
+            ConfirnPanel panel = Panel<ConfirnPanel>(canvas, "ConfirnPanel", DimColor, pausesGame: true);
+            RectTransform window = Window(panel.transform, "Window", new Vector2(900, 460), null);
+            TextMeshProUGUI title = Txt(window, "Title", "", 40, TextAlignmentOptions.Center, AccentColor);
+            Place(title.gameObject, TopCenter, TopCenter, new Vector2(0, -30), new Vector2(840, 60));
+            TextMeshProUGUI message = Txt(window, "Message", "", 28, TextAlignmentOptions.Center);
+            Place(message.gameObject, TopCenter, TopCenter, new Vector2(0, -110), new Vector2(820, 180));
+
+            GameObject row = Node("Buttons", window);
+            Place(row, BottomCenter, BottomCenter, new Vector2(0, 40), new Vector2(700, 84));
+            HLayout(row, 40);
+            Button confirm = Btn(row.transform, "ConfirmButton", "Đồng ý", 30, AccentColor);
+            Size(confirm, 300, 80);
+            Button cancel = Btn(row.transform, "CancelButton", "Hủy", 30);
+            Size(cancel, 300, 80);
+
+            Wire(panel, ("tileText", title), ("messText", message), ("confirmButton", confirm), ("cancelButton", cancel));
             return panel;
         }
 
