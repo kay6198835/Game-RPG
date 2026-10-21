@@ -35,6 +35,7 @@ namespace UIFlow
         public const string Pause = "pause";
         public const string Inventory = "inventory";
         public const string SkillTree = "skilltree";
+        public const string Character = "character";
         public const string QuestLog = "questlog";
         public const string TabLeft = "tab_left";
         public const string TabRight = "tab_right";
@@ -45,6 +46,7 @@ namespace UIFlow
             new() { id = Pause, displayName = "Tạm dừng / Quay lại", defaultKey = Key.Escape, isUiKey = true },
             new() { id = Inventory, displayName = "Túi đồ", defaultKey = Key.I, isUiKey = true },
             new() { id = SkillTree, displayName = "Cây kỹ năng", defaultKey = Key.K, isUiKey = true },
+            new() { id = Character, displayName = "Nhân vật / Chỉ số", defaultKey = Key.C, isUiKey = true },
             new() { id = QuestLog, displayName = "Nhiệm vụ", defaultKey = Key.J, isUiKey = true },
             new() { id = TabLeft, displayName = "Tab trước", defaultKey = Key.Q, isUiKey = true },
             new() { id = TabRight, displayName = "Tab sau", defaultKey = Key.E, isUiKey = true },

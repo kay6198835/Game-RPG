@@ -39,7 +39,8 @@ namespace UIFlow
         {
             "Mẹo: Nhấn 1 – 4 để dùng kỹ năng.",
             "Mẹo: Dọn hết quái trong phòng thì cửa mới mở.",
-            "Mẹo: Nhấn I, K hoặc J để mở túi đồ, kỹ năng, nhân vật.",
+            "Mẹo: Nhấn I, C, K hoặc J để mở túi đồ, nhân vật, kỹ năng, nhiệm vụ.",
+            "Mẹo: Lên cấp được điểm chỉ số — nhấn C để cộng.",
             "Mẹo: Nhấn Esc để tạm dừng và lưu game.",
             "Mẹo: Avatar of Light tốn cả máu — đừng dùng khi sắp chết.",
         };

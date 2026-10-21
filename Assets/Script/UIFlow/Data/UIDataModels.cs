@@ -77,6 +77,18 @@ namespace UIFlow
         public List<StatLine> attributes = new();
     }
 
+    /// <summary>Một dòng trong bảng chỉ số của tab Nhân vật. Chỉ số chính (STR…LUK) có nút cộng/trừ điểm.</summary>
+    [Serializable]
+    public class StatRowData
+    {
+        public StatType statType;
+        public string statName;
+        public float finalValue;
+        public float equipmentValue;
+        public bool isPrimary;
+        public int spentThisSession;   // Điểm đã cộng trong phiên đang mở — chỉ phần này được trừ lại
+    }
+
     [Serializable]
     public class SaveSlotData
     {

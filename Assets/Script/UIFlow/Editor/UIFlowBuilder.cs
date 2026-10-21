@@ -23,7 +23,7 @@ namespace UIFlow.EditorTools
         public const string MainGamePlayPath = "Assets/Scenes/Main/MainGamePlay.unity";
         public const string LoadingPath = "Assets/Scenes/Main/Loading.unity";
         public const string GameplayUIPath = "Assets/Scenes/Main/GameplayUI.unity";
-        public const string GameplayRealPath = "Assets/Scenes/Main/Test/LoadRandomMap.unity";
+        public const string GameplayRealPath = "Assets/Scenes/Main/LoadRandomMap.unity";
         public const string ConfigPath = "Assets/SO/UIFlow/UIDebugConfig.asset";
         public const string HealthBarPrefabPath = "Assets/Prefab/UIFlow/WorldHealthBar.prefab";
         public const string DamageNumberPrefabPath = "Assets/Prefab/UIFlow/DamageNumber.prefab";
@@ -58,6 +58,24 @@ namespace UIFlow.EditorTools
 
             AssetDatabase.SaveAssets();
             Debug.Log("[UIFlowBuilder] Đã dựng xong MainGamePlay, Loading, GameplayUI và cập nhật Build Settings.");
+        }
+
+        /// <summary>Chỉ dựng lại GameplayUI (HUD + cửa sổ in-game), không ghi đè MainGamePlay / Loading.</summary>
+        [MenuItem("Tools/UI Flow/Build GameplayUI Only")]
+        public static void BuildGameplayUIMenu()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            if (File.Exists(GameplayUIPath) && !EditorUtility.DisplayDialog("UI Flow",
+                    "Dựng lại sẽ GHI ĐÈ scene GameplayUI. Không đụng tới MainGamePlay, Loading hay LoadRandomMap. Tiếp tục?",
+                    "Dựng lại", "Hủy"))
+            {
+                return;
+            }
+            UIDebugConfig config = EnsureConfig();
+            BuildGameplayUI(config, BuildDamageNumberPrefab());
+            AssetDatabase.SaveAssets();
+            EditorSceneManager.OpenScene(GameplayUIPath);
+            Debug.Log("[UIFlowBuilder] Đã dựng lại GameplayUI.");
         }
 
         [MenuItem("Tools/UI Flow/Update Build Settings Only")]
