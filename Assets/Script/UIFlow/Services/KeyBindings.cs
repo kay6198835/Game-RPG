@@ -46,7 +46,7 @@ namespace UIFlow
             new() { id = Pause, displayName = "Tạm dừng / Quay lại", defaultKey = Key.Escape, isUiKey = true },
             new() { id = Inventory, displayName = "Túi đồ", defaultKey = Key.I, isUiKey = true },
             new() { id = SkillTree, displayName = "Cây kỹ năng", defaultKey = Key.K, isUiKey = true },
-            new() { id = Character, displayName = "Nhân vật / Chỉ số", defaultKey = Key.C, isUiKey = true },
+            new() { id = Character, displayName = "Bảng chỉ số", defaultKey = Key.C, isUiKey = true },
             new() { id = QuestLog, displayName = "Nhiệm vụ", defaultKey = Key.J, isUiKey = true },
             new() { id = TabLeft, displayName = "Tab trước", defaultKey = Key.Q, isUiKey = true },
             new() { id = TabRight, displayName = "Tab sau", defaultKey = Key.E, isUiKey = true },

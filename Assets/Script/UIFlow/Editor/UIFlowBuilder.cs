@@ -27,6 +27,7 @@ namespace UIFlow.EditorTools
         public const string ConfigPath = "Assets/SO/UIFlow/UIDebugConfig.asset";
         public const string HealthBarPrefabPath = "Assets/Prefab/UIFlow/WorldHealthBar.prefab";
         public const string DamageNumberPrefabPath = "Assets/Prefab/UIFlow/DamageNumber.prefab";
+        public const string StatsPanelPrefabPath = "Assets/Prefab/UIFlow/StatsPanel.prefab";
 
         [MenuItem("Tools/UI Flow/Build All")]
         public static void BuildAllMenu()
@@ -76,6 +77,20 @@ namespace UIFlow.EditorTools
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene(GameplayUIPath);
             Debug.Log("[UIFlowBuilder] Đã dựng lại GameplayUI.");
+        }
+
+        /// <summary>Dựng lại StatsPanel.prefab từ code (mất mọi chỉnh tay trong prefab). Scene giữ liên kết nên tự cập nhật.</summary>
+        [MenuItem("Tools/UI Flow/Rebuild Stats Panel Prefab")]
+        public static void RebuildStatsPanelPrefabMenu()
+        {
+            if (File.Exists(StatsPanelPrefabPath) && !EditorUtility.DisplayDialog("UI Flow",
+                    "Dựng lại sẽ GHI ĐÈ StatsPanel.prefab — mọi chỉnh tay trong prefab sẽ mất. Tiếp tục?", "Dựng lại", "Hủy"))
+            {
+                return;
+            }
+            BuildStatsPanelPrefab();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[UIFlowBuilder] Đã dựng lại " + StatsPanelPrefabPath);
         }
 
         [MenuItem("Tools/UI Flow/Update Build Settings Only")]
