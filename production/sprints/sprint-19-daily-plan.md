@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**OPEN — day 2 of 5 (2026-10-20, Tue standup). BLOCKED again — `sprint-19` tip does not compile.**
+**OPEN — day 3 of 5 (2026-10-21, Wed standup). BLOCKED — build still broken, day 2.**
+Tuesday's planned build fix (NOTE-20261020-1, 5 errors from `3d768b3d`) did not land: `compile-check.sh`
+FAILED again on `origin/sprint-19` `50d84e7a`, same 5 errors. Only commit since: `38516a2d` (item
+system GDD + item `.cs` cleanup, off-plan, merged `50d84e7a`). 0 of 5 Tue tasks done. Must-Have 1/9.
+S19-01 smoke 17th carry. 1.35d Must-Have remaining over 2.5 working days — still fits if the build is
+fixed today. Evidence `COMPILED` (failed) + `LOG`.
+
+*Previous (Tue standup):* **OPEN — day 2 of 5 (2026-10-20, Tue standup). BLOCKED again — `sprint-19` tip does not compile.**
 S19-02 landed yesterday (owner merge `964be0a7`, COMPILED in the wrap-up re-check), then off-plan
 commit `3d768b3d` "add regen system" (17:09) broke the build — `compile-check.sh` FAILED, 5 errors in
 `RegenComponent.cs` / `StatHandler.cs` (NOTE-20261020-1, fifth sprint-branch break). The same commit
@@ -45,7 +52,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 
 | ID | Task | Est. | Priority | Carries |
 |----|------|------|----------|---------|
-| S19-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **16th** |
+| S19-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **17th** |
 | S19-02 | Commit + push build fix | 0.05d | Must | 2nd |
 | S19-03 | BUG-096 zero-spawn branch | 0.1d | Must | 3rd |
 | S19-04 | BUG-097 start/boss order | 0.05–0.2d | Must | 3rd |
@@ -77,9 +84,9 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 ### Tue 2026-10-20 — Data block + vitals verification
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S19-05 Editor / data block | 0.15d | ⬜ | BUG-105 halves sword damage; BUG-072 fix is sitting unpushed |
-| S19-06 BUG-092 + BUG-066/070 verify | 0.15d | ⬜ | Code already on branch — needs one Play Mode check |
-| S19-08 Process gate decision | 0.1d | ⬜ | 8th carry; 4th build break last week |
+| S19-05 Editor / data block | 0.15d | ⬜ (slipped to Wed) | BUG-105 halves sword damage; BUG-072 fix is sitting unpushed |
+| S19-06 BUG-092 + BUG-066/070 verify | 0.15d | ⬜ (slipped to Wed) | Code already on branch — needs one Play Mode check |
+| S19-08 Process gate decision | 0.1d | ⬜ (slipped to Wed) | 8th carry; 4th build break last week |
 
 ### Wed 2026-10-21 — Death path + vitals Should-Have
 | Task | Est. | Status | Why now |
@@ -167,3 +174,19 @@ _(appended by `/daily-standup`)_
   S19-01 smoke (0.3d) → S19-05 (0.15d) → S19-06 (0.15d) → S19-08 (0.1d); ≈0.8d. S19-03/04 slide to Wed.
 - **Verdict:** BLOCKED (build broken by an off-plan commit; yesterday SLIPPED 3 of 4 tasks). Evidence
   `COMPILED` (failed) + `LOG` + `STATIC`.
+
+### 2026-10-21 (Wed) — `/daily-standup --auto`
+
+- **Run timing:** fired ≈11:55 local, not 02:00.
+- **Since last standup:** `38516a2d` "docs(items): item system GDD, README fixes and item code cleanup"
+  (2026-10-20, off-plan; touches 7 item `.cs`, deletes `PrefabRandomItem.cs`) and owner merge `50d84e7a`
+  onto `sprint-19`. No commit touched `RegenComponent.cs` / `StatHandler.cs` / `WeaponHolderBase.cs`.
+- **Planned Tue work:** build fix, `.meta` commit, NOTE-20261020-2, S19-01, S19-05, S19-06, S19-08 —
+  none done (0 commits on those files; Editor.log last written 2026-10-19, 0 Play Mode).
+- **Runtime:** compile-check **FAILED** at `50d84e7a` (same 5 errors; NOTE-20261020-1 updated).
+  `editor-log.sh`: nothing new since 2026-10-19. Fix-survival (7 d): no fix commits.
+- **Inbox:** 7 open rows, 0 new. ⚠️ `38516a2d` added a second row with ID `NOTE-20261020-1` (Merchant /
+  NPC missing scripts) — collision flagged in the row for Saturday triage.
+- **Today:** build fix + 3 `.meta` + NOTE-20261020-2 (≈0.1d) → S19-01 smoke (0.3d) → S19-07 (0.2d) →
+  S19-05 (0.15d) → S19-06 (0.15d); ≈0.9d. S19-03/04/08 and Wed Should-Haves slide to Thu.
+- **Verdict:** BLOCKED (build broken two days; Tue SLIPPED 100%). Evidence `COMPILED` (failed) + `LOG`.
