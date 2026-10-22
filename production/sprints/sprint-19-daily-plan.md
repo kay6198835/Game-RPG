@@ -11,7 +11,15 @@
 
 ## Status Verdict
 
-**OPEN — day 4 of 5 (2026-10-22, Thu standup). SLIPPED — unblocked, but 1.3d Must-Have left for 2 days.**
+**OPEN — day 5 of 5 (2026-10-23, Fri standup). SLIPPED — 1.3d Must-Have left for 1 day; Must-Have cannot close this sprint.**
+Thursday produced no commit on any planned file: only `5be2ed99` (Erika sprite sheets re-indexed, art, off-plan,
+merged to `sprint-19` by `d9552fbe`) and two epic docs on `feature/ui-flow-maingameplay` (`8a6961d5` / `2f78c75c`,
+stat-reduction epic, off-plan). No `.cs` changed since `a3f50c5e` (last COMPILED). `compile-check.sh` SKIPPED today
+(Editor open). `Editor-prev.log` (session ending 2026-10-22 15:02) shows the same 7 Play Mode entries and 2× NRE
+@ `BaseStatsSO.cs:243` already reported — no Play Mode after the Thu standup. No playtest sheet filled; S19-01
+19th carry. Must-Have 1/9. Saturday sheet ready: `production/qa/playtests/playtest-2026-10-24.md`. Evidence `LOG` + `STATIC`.
+
+*Previous (Thu standup):* **OPEN — day 4 of 5 (2026-10-22, Thu standup). SLIPPED — unblocked, but 1.3d Must-Have left for 2 days.**
 `compile-check.sh` **COMPILED** `origin/sprint-19` `a3f50c5e`: owner commits `ddb1d702` / `8a36bc3e` fixed
 NOTE-20261020-1 and committed the missing `.meta` (NOTE-20261020-4). NOTE-20261020-2 changed but not fixed
 (holder now stores the prefab's `Weapon`, not the spawned instance). Rest of Wed's output was off-plan:
@@ -52,6 +60,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 |--------|------|------|-----------|
 | Must Have (incl. Sat playtest 0.1d) | 1.4d | 0.05d (S19-02) + unplanned build re-fix ≈0.05d (2026-10-21) | 1.3d (+ NOTE-20261020-2 one-liner ≈0.02d) |
 | Off-plan (2026-10-21) | — | stats panel UI, wallet / level-up scaffolding, `ICharacter` fixes (≈1d) | — |
+| Off-plan (2026-10-22) | — | Erika sprite re-index (`5be2ed99`), stat-reduction epic + 12 stories (docs) | — |
 | Should Have | 1.0d | 0 | 1.0d |
 | Feature story S19-F1 (capped, gated by S19-01 + S19-02) | 0.5d | 0 | 0.5d |
 | Buffer | 1.0d | — | — |
@@ -62,7 +71,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 
 | ID | Task | Est. | Priority | Carries |
 |----|------|------|----------|---------|
-| S19-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **18th** |
+| S19-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **19th** |
 | S19-02 | Commit + push build fix | 0.05d | Must | 2nd |
 | S19-03 | BUG-096 zero-spawn branch | 0.1d | Must | 3rd |
 | S19-04 | BUG-097 start/boss order | 0.05–0.2d | Must | 3rd |
@@ -110,8 +119,8 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S19-F1 Class abilities / Champion equip (cap 0.5d) | ≤0.5d | ⏸️ gated on S19-01 + S19-02 | Brings `5c8245c9` / `cae75317` onto the sprint branch |
-| S19-11 BUG-068 + BUG-102 | 0.1d | ⬜ | Two one-liners |
-| S19-12 BUG-103 + BUG-104 | 0.1d | ⬜ | Two one-liners |
+| S19-11 BUG-068 + BUG-102 | 0.1d | ⬜ (slipped; Thu had no planned commit) | Two one-liners |
+| S19-12 BUG-103 + BUG-104 | 0.1d | ⬜ (BUG-104 log line removed in `ddb1d702` — triage) | Two one-liners |
 
 ### Fri 2026-10-23 — Editor cleanup + design
 | Task | Est. | Status | Why now |
@@ -123,7 +132,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 ### Sat 2026-10-24 — Weekly playtest
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet) | 0.1d | ⬜ (sheet ready: `production/qa/playtests/playtest-2026-10-24.md`) | Reserved every Saturday; feeds wrap-up |
 
 ---
 
@@ -220,3 +229,21 @@ _(appended by `/daily-standup`)_
   S19-05 (0.15d) → S19-06 (0.15d); ≈0.8d. S19-03/04/08 to Fri with the Fri plan; Should-Haves and S19-F1
   likely cut.
 - **Verdict:** SLIPPED (unblocked; Wed output real but off-plan). Evidence `COMPILED` + `LOG`.
+
+### 2026-10-23 (Fri) — `/daily-standup --auto`
+
+- **Since last standup:** `5be2ed99` "fix(anim): re-index Erika sprite sheets" (2026-10-22, 80 PNGs, no `.cs`)
+  merged onto `sprint-19` by owner merge `d9552fbe`; `8a6961d5` / `2f78c75c` stat-reduction epic + 12 stories
+  (docs, `feature/ui-flow-maingameplay` only). All off-plan. `git diff a3f50c5e d9552fbe -- Assets/Script` is empty.
+- **Planned Thu work:** NOTE-20261020-2 one-liner, S19-01, S19-07, S19-05, S19-06 — none done (no commit on
+  their files, no playtest sheet). 0 Play Mode after the Thu standup.
+- **Runtime:** compile-check **SKIPPED** (Editor open); last COMPILED `a3f50c5e`, and no `.cs` changed since.
+  `editor-log.sh`: `Editor.log` 2026-10-23 02:04 — 0 `error CS`, 0 Play Mode; `Editor-prev.log` 2026-10-22 15:02 —
+  0 `error CS`, 7 Play Mode, 2× NRE @ `BaseStatsSO.cs:243` (same session as reported Thu, no new hits).
+  Fix-survival skipped (no `.cs` in yesterday's commits).
+- **Inbox:** 11 open rows, 0 new, 0 addenda.
+- **Friday:** Saturday sheet written to `production/qa/playtests/playtest-2026-10-24.md` (sections A–D from the
+  script; section E lists four open notes that need a runtime answer). Branch line corrected to `sprint-19`.
+- **Today:** S19-01 smoke (0.3d — or play Saturday's sheet today) → NOTE-20261020-2 one-liner (0.02d) → S19-07
+  (0.2d) → S19-05 (0.15d); ≈0.7d. S19-03/04/06/08, all Should-Haves and S19-F1 carry to Sprint 20.
+- **Verdict:** SLIPPED (Thu 0% of plan; Must-Have 1/9 with one day left). Evidence `LOG` + `STATIC`.
