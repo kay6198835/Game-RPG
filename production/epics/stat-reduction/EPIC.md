@@ -59,6 +59,28 @@ Estimates are in days, on the scale used by `production/sprints/sprint-19.md`.
 |---|---|---|---|---|
 | SD-12 | `Assets/SO/Skill/Paladin/Ability/Avatar of Light/Effect/Gain For Time Effect.asset` has `duration: 0`, so its +15 HP buff is removed about one frame after it is applied. Set the intended duration | owner (Editor) | 0.02 | Buff lasts the authored duration |
 
+## Stories
+
+Created 2026-10-22 by `/create-stories stat-reduction` (review mode `lean`, so QL-STORY-READY was
+skipped; test cases come from `/qa-plan`). Nine stories are **Blocked** only because ADR-0001 and
+ADR-0005 are still `Proposed` — the code they describe is already in the project; accept them with
+`/architecture-decision accept`. No TR-ID exists for the stat system yet (`TR-stat-???`).
+
+| # | Story | Task | Type | Status | ADR |
+|---|-------|------|------|--------|-----|
+| 001 | [Debuff rules design](story-001-debuff-rules-design.md) | SD-00 | Config/Data | Ready | N/A |
+| 002 | [One definition of max](story-002-one-max-definition.md) | SD-01 | Logic | Blocked | ADR-0001 |
+| 003 | [Vitals hold resources only](story-003-vitals-resources-only.md) | SD-02 | Logic | Blocked | ADR-0005, ADR-0001 |
+| 004 | [One modifier source per application](story-004-modifier-source-per-application.md) | SD-03 | Logic | Blocked | ADR-0005 |
+| 005 | [Debuff lifecycle](story-005-debuff-lifecycle.md) | SD-04 | Logic | Blocked | ADR-0005 |
+| 006 | [Stat floors and caps](story-006-stat-floors-caps.md) | SD-05 | Logic | Blocked | ADR-0001 |
+| 007 | [Slow effect](story-007-slow-effect.md) | SD-06 | Integration | Blocked | ADR-0005 |
+| 008 | [Health bar on any HP change](story-008-health-bar-any-hp-change.md) | SD-07 | UI | Blocked | ADR-0005 |
+| 009 | [Player runtime stat clone](story-009-player-runtime-stat-clone.md) | SD-08 | Integration | Blocked | ADR-0005, ADR-0001 |
+| 010 | [Debuff content assets](story-010-debuff-content-assets.md) | SD-09 | Config/Data | Ready | N/A |
+| 011 | [Verification and docs](story-011-debuff-verification-and-docs.md) | SD-10 + SD-11 | Integration | Blocked | ADR-0005 |
+| 012 | [Avatar of Light buff duration](story-012-avatar-of-light-buff-duration.md) | SD-12 | Config/Data | Ready | N/A |
+
 ## Order
 
 1. SD-00 (design) in parallel with SD-01, SD-03, SD-08 (no dependency between them).
