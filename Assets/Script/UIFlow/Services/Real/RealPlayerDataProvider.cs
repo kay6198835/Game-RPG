@@ -10,6 +10,8 @@ namespace UIFlow
     /// - Hotbar từ CharacterData.AbilityBindings (4 ô Primary/Secondary/Utility/Ultimate = phím 1–4) và
     ///   cooldown thật từ AbilityHolderBase.AbilityCooldownStarted.
     /// - Sự kiện chết (ON_PLAYER_DEATH) → Game Over.
+    /// - Cộng điểm chỉ số ở tab Nhân vật qua StatPointSession (IPlayerStatService của chính Player) — thay UI stats cũ
+    ///   (StatsUIController) từng nằm trong Canvas của LoadRandomMap.
     ///
     /// Cách tìm Player mà không dùng FindObjectOfType: Player tự báo ON_PLAYER_READY (kèm ICharacter gốc)
     /// sau khi máu/mana được nạp. Provider được tạo sẵn từ UIBootstrap ở scene Menu/Loading, nên luôn nghe kịp
@@ -25,15 +27,19 @@ namespace UIFlow
         // Phím của từng ô, theo PlayerInput.inputactions (map Control): Primary = 1 … Ultimate = 4.
         private static readonly string[] SlotKeyLabels = { "1", "2", "3", "4" };
         private static readonly AbilitySlot[] Slots = (AbilitySlot[])Enum.GetValues(typeof(AbilitySlot));
+        // Thứ tự enum: chỉ số chính (0–4) trước, chỉ số phụ (100+) sau.
+        private static readonly StatType[] StatTypes = (StatType[])Enum.GetValues(typeof(StatType));
         private static readonly Color EmptySlotColor = new(1f, 1f, 1f, 0.08f);
         private static readonly Color BoundSlotColor = new(0.95f, 0.85f, 0.4f);
 
         private readonly PlayerStatsData _stats = new() { characterName = DefaultName, className = DefaultName, level = 1 };
         private readonly List<SkillSlotData> _hotbar = new();
         private readonly List<SkillNodeData> _skillTree = new();
+        private readonly List<StatRowData> _statRows = new();
         private IVitalComponent _vital;
         private IStatService _statService;
         private AbilityHolder _abilityHolder;
+        private StatPointSession _statSession;
         private bool _deathReported;
 
         public event Action<PlayerStatsData> StatsChanged;
@@ -67,6 +73,71 @@ namespace UIFlow
         public IReadOnlyList<SkillNodeData> GetSkillTree() => _skillTree;
 
         public bool TryUnlockSkill(string skillId) => false;
+
+        public int UnspentStatPoints => _statSession?.PointsRemaining ?? 0;
+
+        public int StatPointsAtOpen => _statSession?.PointsAtOpen ?? 0;
+
+        public bool CanRespec => _statSession != null && _statSession.CanRestore;
+
+        public IReadOnlyList<StatRowData> GetStatRows()
+        {
+            _statRows.Clear();
+            if (_statService == null) return _statRows;
+
+            // Đọc thẳng Stat, không qua StatsViewDTO: BaseStatsSO.RecalculateDerived() không cập nhật DTO của
+            // chỉ số phụ, nên DTO của HP/Damage… có thể cũ sau khi cộng VIT/STR.
+            foreach (StatType type in StatTypes)
+            {
+                Stat stat = _statService.GetStat(type);
+                if (stat == null) continue;
+                _statRows.Add(new StatRowData
+                {
+                    statType = type,
+                    statName = GameConstants.StatTypeName.TryGetValue(type, out string name) ? name : type.ToString(),
+                    finalValue = stat.FinalValue,
+                    equipmentValue = stat.EquipmentValue,
+                    isPrimary = type.IsPrimary(),
+                    spentThisSession = _statSession?.SpentThisSession(type) ?? 0,
+                });
+            }
+            return _statRows;
+        }
+
+        public void BeginStatSession()
+        {
+            if (_statSession == null) return;
+            _statSession.Begin();
+        }
+
+        public bool TryChangeStat(StatType statType, int delta)
+        {
+            if (_statSession == null || delta == 0) return false;
+            bool changed = delta > 0 ? _statSession.TryIncrease(statType) : _statSession.TryDecrease(statType);
+            if (changed) OnVitalsChanged();   // Max HP/Mana đổi theo VIT/INT → HUD và tab Nhân vật vẽ lại
+            return changed;
+        }
+
+        public void AcceptStats()
+        {
+            if (_statSession == null) return;
+            _statSession.Accept();
+            OnVitalsChanged();
+        }
+
+        public void RevertStats()
+        {
+            if (_statSession == null || !_statSession.HasChanges) return;
+            _statSession.Revert();
+            OnVitalsChanged();
+        }
+
+        public void RespecStats()
+        {
+            if (_statSession == null) return;
+            _statSession.Restore();
+            OnVitalsChanged();
+        }
 
         public void Respawn()
         {
@@ -104,6 +175,9 @@ namespace UIFlow
                 return;
             }
 
+            // IStatService chỉ là phần chung player/enemy; cộng điểm cần bản của player (IPlayerStatService).
+            if (_statService is IPlayerStatService playerStatService) _statSession = new StatPointSession(playerStatService);
+
             _deathReported = false;
             _vital.CurrentStatsChanged += OnVitalsChanged;
             if (_abilityHolder != null) _abilityHolder.AbilityCooldownStarted += OnCooldownStarted;
@@ -120,6 +194,7 @@ namespace UIFlow
             _vital = null;
             _statService = null;
             _abilityHolder = null;
+            _statSession = null;
         }
 
         private void OnVitalsChanged()

@@ -80,11 +80,18 @@ namespace UIFlow.EditorTools
             SettingsPanel settings = BuildSettings(canvas.transform);
             PausePanel pause = BuildPause(canvas.transform, settings);
             GameOverPanel gameOver = BuildGameOver(canvas.transform);
+            ConfirnPanel confirn = BuildConfirn(canvas.transform);
+            StatsPanel stats = PlaceStatsPanel(canvas.transform);
+
+            // Nút mở bảng chỉ số trên HUD — đúng chỗ nút "Open Stats UI" của UI cũ (góc trên-phải; minimap giữ chỗ ở đó đang tắt).
+            Button statsButton = Btn(hud.transform, "StatsButton", "Chỉ số [C]", 26, AccentColor);
+            Place(statsButton.gameObject, TopRight, TopRight, new Vector2(-30, -30), new Vector2(220, 64));
             settings.transform.SetAsLastSibling();
 
             Wire(manager, ("rootPanel", hud), ("escapeFallbackPanel", pause), ("controlsTimeScale", true));
             Wire(controller, ("uiManager", manager), ("hud", hud), ("tabWindow", tabWindow), ("dialoguePanel", dialogue),
-                 ("shopPanel", shop), ("gameOverPanel", gameOver));
+                 ("shopPanel", shop), ("gameOverPanel", gameOver), ("confirnPanel", confirn),
+                 ("statsPanel", stats), ("openStatsButton", statsButton));
 
             GameObject numbers = new("DamageNumbers");
             DamageNumberSpawner spawner = numbers.AddComponent<DamageNumberSpawner>();
@@ -428,6 +435,124 @@ namespace UIFlow.EditorTools
 
             Wire(panel, ("resumeButton", resume), ("saveButton", save), ("settingsButton", settingsButton),
                  ("mainMenuButton", menu), ("settingsPanel", settings));
+            return panel;
+        }
+
+        // ═════════════════════════ Bảng chỉ số (prefab) ═════════════════════════
+
+        /// <summary>
+        /// Đặt StatsPanel.prefab vào canvas, giữ liên kết prefab. Prefab chỉ được tạo khi chưa có file, nên chỉnh tay
+        /// trong Prefab Mode không bị ghi đè khi dựng lại scene; muốn dựng lại từ code thì dùng menu Rebuild Stats Panel Prefab.
+        /// </summary>
+        private static StatsPanel PlaceStatsPanel(Transform canvas)
+        {
+            StatsPanel prefab = AssetDatabase.LoadAssetAtPath<StatsPanel>(StatsPanelPrefabPath);
+            if (prefab == null) prefab = BuildStatsPanelPrefab();
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject, canvas);
+            Stretch(instance);
+            return instance.GetComponent<StatsPanel>();
+        }
+
+        /// <summary>Bố cục theo UI stats cũ (Stats_UI_Controller.prefab): Header · 2 cột Primary / Derived · Footer 3 nút.</summary>
+        private static StatsPanel BuildStatsPanelPrefab()
+        {
+            // Dựng dưới một canvas tạm để RectTransform / layout tính đúng kích thước rồi mới lưu prefab.
+            Canvas temp = ScreenCanvas("TempCanvas", 0);
+            StatsPanel panel = Panel<StatsPanel>(temp.transform, "StatsPanel", DimColor, pausesGame: true);
+            RectTransform window = Window(panel.transform, "Window", new Vector2(1400, 860), "Chỉ số nhân vật");
+            Button close = Btn(window, "CloseButton", "X", 30, new Color(0.7f, 0.25f, 0.25f, 0.8f));
+            Place(close.gameObject, TopRight, TopRight, new Vector2(-24, -24), new Vector2(64, 60));
+
+            // ── Body trái: chỉ số chính (STR…LUK) có nút −/+
+            Image primaryFrame = Img(window, "PrimaryStats", new Color(0f, 0f, 0f, 0.25f), Rounded);
+            Place(primaryFrame.gameObject, TopLeft, TopLeft, new Vector2(40, -100), new Vector2(560, 600));
+            TextMeshProUGUI primaryLabel = Txt(primaryFrame.transform, "Label", "Chỉ số chính", 30, TextAlignmentOptions.Left, MutedColor);
+            Place(primaryLabel.gameObject, TopLeft, TopLeft, new Vector2(24, -16), new Vector2(500, 44));
+            GameObject primaryBody = Node("Body", primaryFrame.transform);
+            Stretch(primaryBody, 20, 20, 76, 20);
+            VLayout(primaryBody, 12);
+
+            Image primaryRow = Img(primaryBody.transform, "PrimaryRowTemplate", new Color(1, 1, 1, 0.06f), Rounded);
+            Size(primaryRow, preferredHeight: 80);
+            TextMeshProUGUI primaryName = Txt(primaryRow.transform, "Name", "STR", 28, TextAlignmentOptions.MidlineLeft);
+            Place(primaryName.gameObject, MiddleLeft, MiddleLeft, new Vector2(20, 0), new Vector2(130, 70));
+            TextMeshProUGUI primaryValue = Txt(primaryRow.transform, "Value", "0", 30, TextAlignmentOptions.MidlineRight);
+            Place(primaryValue.gameObject, MiddleLeft, MiddleLeft, new Vector2(150, 0), new Vector2(100, 70));
+            TextMeshProUGUI primaryBonus = Txt(primaryRow.transform, "Bonus", "", 22, TextAlignmentOptions.MidlineLeft, MutedColor);
+            Place(primaryBonus.gameObject, MiddleLeft, MiddleLeft, new Vector2(264, 0), new Vector2(100, 70));
+            Button decrease = Btn(primaryRow.transform, "DecreaseButton", "-", 34);
+            Place(decrease.gameObject, MiddleRight, MiddleRight, new Vector2(-88, 0), new Vector2(64, 60));
+            Button increase = Btn(primaryRow.transform, "IncreaseButton", "+", 34, AccentColor);
+            Place(increase.gameObject, MiddleRight, MiddleRight, new Vector2(-14, 0), new Vector2(64, 60));
+            StatRowView primaryView = primaryRow.gameObject.AddComponent<StatRowView>();
+            Wire(primaryView, ("nameText", primaryName), ("valueText", primaryValue), ("bonusText", primaryBonus),
+                 ("decreaseButton", decrease), ("increaseButton", increase));
+
+            // ── Body phải: chỉ số phụ, lưới 2 cột như Derived_Stats cũ
+            Image derivedFrame = Img(window, "DerivedStats", new Color(0f, 0f, 0f, 0.25f), Rounded);
+            Place(derivedFrame.gameObject, TopRight, TopRight, new Vector2(-40, -100), new Vector2(740, 600));
+            TextMeshProUGUI derivedLabel = Txt(derivedFrame.transform, "Label", "Chỉ số phụ", 30, TextAlignmentOptions.Left, MutedColor);
+            Place(derivedLabel.gameObject, TopLeft, TopLeft, new Vector2(24, -16), new Vector2(680, 44));
+            GameObject derivedBody = Node("Body", derivedFrame.transform);
+            Stretch(derivedBody, 20, 20, 76, 20);
+            GridLayoutGroup grid = derivedBody.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(340, 70);
+            grid.spacing = new Vector2(16, 12);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 2;   // 12 chỉ số phụ = 2 cột × 6 hàng
+
+            Image derivedRow = Img(derivedBody.transform, "DerivedRowTemplate", new Color(1, 1, 1, 0.04f), Rounded);
+            TextMeshProUGUI derivedName = Txt(derivedRow.transform, "Name", "HP", 22, TextAlignmentOptions.MidlineLeft);
+            Stretch(derivedName.gameObject, 16, 160, 0, 0);
+            TextMeshProUGUI derivedValue = Txt(derivedRow.transform, "Value", "0", 24, TextAlignmentOptions.MidlineRight);
+            Place(derivedValue.gameObject, MiddleRight, MiddleRight, new Vector2(-80, 0), new Vector2(80, 60));
+            TextMeshProUGUI derivedBonus = Txt(derivedRow.transform, "Bonus", "", 18, TextAlignmentOptions.MidlineRight, MutedColor);
+            Place(derivedBonus.gameObject, MiddleRight, MiddleRight, new Vector2(-12, 0), new Vector2(70, 60));
+            StatRowView derivedView = derivedRow.gameObject.AddComponent<StatRowView>();
+            Wire(derivedView, ("nameText", derivedName), ("valueText", derivedValue), ("bonusText", derivedBonus));
+
+            // ── Footer: điểm còn lại + Revert / Restore / Update của UI cũ
+            TextMeshProUGUI points = Txt(window, "Points", "", 30, TextAlignmentOptions.MidlineLeft);
+            Place(points.gameObject, BottomLeft, BottomLeft, new Vector2(48, 50), new Vector2(520, 70));
+            GameObject footer = Node("Footer", window);
+            Place(footer, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 46), new Vector2(780, 80));
+            HLayout(footer, 20, null, TextAnchor.MiddleRight);
+            Button revert = Btn(footer.transform, "RevertButton", "Hoàn tác", 28);
+            Size(revert, 240, 76);
+            Button respec = Btn(footer.transform, "RespecButton", "Reset điểm", 28, new Color(0.7f, 0.25f, 0.25f, 0.8f));
+            Size(respec, 240, 76);
+            Button accept = Btn(footer.transform, "AcceptButton", "Xác nhận", 28, AccentColor);
+            Size(accept, 240, 76);
+
+            Wire(panel, ("pointsText", points), ("primaryContainer", primaryBody.transform), ("derivedContainer", derivedBody.transform),
+                 ("primaryRowTemplate", primaryView), ("derivedRowTemplate", derivedView),
+                 ("acceptButton", accept), ("revertButton", revert), ("respecButton", respec), ("closeButton", close));
+
+            SetLayerRecursive(panel.gameObject);
+            panel.transform.SetParent(null, false);
+            Object.DestroyImmediate(temp.gameObject);
+            return SavePrefab(panel.gameObject, StatsPanelPrefabPath).GetComponent<StatsPanel>();
+        }
+
+        /// <summary>Hộp xác nhận (ví dụ chọn Champion ở phòng đầu). Trước đây dựng tay trong Editor (221d54b).</summary>
+        private static ConfirnPanel BuildConfirn(Transform canvas)
+        {
+            ConfirnPanel panel = Panel<ConfirnPanel>(canvas, "ConfirnPanel", DimColor, pausesGame: true);
+            RectTransform window = Window(panel.transform, "Window", new Vector2(900, 460), null);
+            TextMeshProUGUI title = Txt(window, "Title", "", 40, TextAlignmentOptions.Center, AccentColor);
+            Place(title.gameObject, TopCenter, TopCenter, new Vector2(0, -30), new Vector2(840, 60));
+            TextMeshProUGUI message = Txt(window, "Message", "", 28, TextAlignmentOptions.Center);
+            Place(message.gameObject, TopCenter, TopCenter, new Vector2(0, -110), new Vector2(820, 180));
+
+            GameObject row = Node("Buttons", window);
+            Place(row, BottomCenter, BottomCenter, new Vector2(0, 40), new Vector2(700, 84));
+            HLayout(row, 40);
+            Button confirm = Btn(row.transform, "ConfirmButton", "Đồng ý", 30, AccentColor);
+            Size(confirm, 300, 80);
+            Button cancel = Btn(row.transform, "CancelButton", "Hủy", 30);
+            Size(cancel, 300, 80);
+
+            Wire(panel, ("tileText", title), ("messText", message), ("confirmButton", confirm), ("cancelButton", cancel));
             return panel;
         }
 

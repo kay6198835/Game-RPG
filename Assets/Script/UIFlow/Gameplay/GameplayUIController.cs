@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
 
 namespace UIFlow
 {
     /// <summary>
     /// Bộ điều khiển của scene GameplayUI (được load Additive chồng lên scene gameplay).
-    /// - Phím tắt: I = Túi đồ, K = Kỹ năng, J = Nhiệm vụ (đổi được trong Cài đặt). Esc do UIManager lo.
+    /// - Phím tắt: I = Túi đồ, C = Bảng chỉ số (StatsPanel), K = Kỹ năng, J = Nhiệm vụ (đổi được trong Cài đặt). Esc do UIManager lo.
     /// - Nghe UIEvents (hộp thoại, cửa hàng, thông báo, cooldown) và sự kiện chết của người chơi.
     /// </summary>
     public class GameplayUIController : MonoBehaviour
@@ -26,6 +27,8 @@ namespace UIFlow
         [SerializeField] private ShopPanel shopPanel;
         [SerializeField] private GameOverPanel gameOverPanel;
         [SerializeField] private ConfirnPanel confirnPanel;
+        [SerializeField] private StatsPanel statsPanel;
+        [SerializeField] private Button openStatsButton;
 
         private void OnEnable()
         {
@@ -49,6 +52,8 @@ namespace UIFlow
 
         private void Start()
         {
+            if (openStatsButton != null) openStatsButton.onClick.AddListener(ToggleStats);
+
             // Scene gameplay nào cũng nên có EventSystem riêng. Nếu thiếu (ví dụ mở thẳng scene GameplayUI),
             // tạo một cái để nút bấm vẫn hoạt động. Không tạo khi đã có → tránh cảnh báo "2 EventSystem".
             if (EventSystem.current == null)
@@ -61,10 +66,11 @@ namespace UIFlow
         private void Update()
         {
             // Không mở cửa sổ đè lên hộp thoại / Game Over / menu tạm dừng.
-            bool free = uiManager.IsAtRoot || uiManager.Top == tabWindow;
+            bool free = uiManager.IsAtRoot || uiManager.Top == tabWindow || uiManager.Top == statsPanel;
             if (!free) return;
 
             if (UIInput.WasPressed(KeyBindings.Inventory)) ToggleTab(InventoryTab);
+            else if (UIInput.WasPressed(KeyBindings.Character)) ToggleStats();
             else if (UIInput.WasPressed(KeyBindings.SkillTree)) ToggleTab(SkillTab);
             else if (UIInput.WasPressed(KeyBindings.QuestLog)) ToggleTab(QuestTab);
         }
@@ -77,11 +83,25 @@ namespace UIFlow
                 uiManager.Close(tabWindow);
                 return;
             }
+            if (statsPanel != null && uiManager.IsOpen(statsPanel)) uiManager.Close(statsPanel);
             uiManager.Open(tabWindow);
             tabWindow.SelectTab(tab);
         }
 
         public void OpenCharacter() => ToggleTab(CharacterTab);
+
+        /// <summary>Mở / đóng bảng chỉ số. Đang mở cửa sổ tab thì đóng nó trước, tránh hai cửa sổ dừng game chồng nhau.</summary>
+        public void ToggleStats()
+        {
+            if (statsPanel == null) return;
+            if (uiManager.IsOpen(statsPanel))
+            {
+                uiManager.Close(statsPanel);
+                return;
+            }
+            if (uiManager.IsOpen(tabWindow)) uiManager.Close(tabWindow);
+            uiManager.Open(statsPanel);
+        }
 
         private void OnDialogueRequested(IReadOnlyList<DialogueLine> lines, Action onFinished)
         {

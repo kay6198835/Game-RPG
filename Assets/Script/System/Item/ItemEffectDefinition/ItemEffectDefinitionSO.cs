@@ -8,4 +8,5 @@ public abstract class ItemEffectDefinitionSO : ScriptableObject
     /// <summary>Applies the item to any character. Each effect gets the component interface it needs from
     /// <c>target.Transform</c> itself — never a concrete Player/Entity type.</summary>
     public abstract void Apply(ICharacter target);
+    public ResourceType ResourceType = ResourceType.StatPotion;
 }

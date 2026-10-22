@@ -36,8 +36,14 @@ Settings), `UISample.unity` (2025), `Assets/Script/MainMenu/MainMenu.cs`, the em
 `Assets/Prefab/Core/CoreGame.prefab`). `UIController` and `StatsScreenUIController` (August 2026) are kept but
 no scene uses them now that `UISample` is gone.
 
-**Kept unchanged:** the UI that lives inside `LoadRandomMap` (stats panel via `StatsUIController`, minimap via
-`MapGridController`) and the enemy health bar (`EntityUIController`).
+**Kept unchanged:** the UI that lives inside `LoadRandomMap` (minimap via `MapGridController`) and the enemy
+health bar (`EntityUIController`).
+
+**Moved (2026-10-21):** the stats / stat-point panel. `LoadRandomMap` no longer carries the `Stats_UI_Controller`
+prefab or its Canvas, and `GameLifetimeScope` no longer registers `StatsUIController`. Stat allocation now lives
+in the GameplayUI **Stats panel** (`StatsPanel`, key C — see below; it was the Character tab until the
+`origin/feature/ui-stats-prefab` change). `StatsUIController`, `StatSlot` and the prefab are kept on disk,
+unused.
 
 UIFlow originally modified no gameplay file. To feed the HUD real data, three gameplay **events** were added
 (no behaviour change): `EventID.ON_PLAYER_READY`, `IVitalComponent.CurrentStatsChanged` and
@@ -226,14 +232,26 @@ stateDiagram-v2
 ```
 
 - **Hotkeys** (`GameplayUIController.Update`) only work when at the HUD or when the tab window is on top,
-  so I/K/J never open on top of dialogue, shop, pause or Game Over.
+  so I/C/K/J never open on top of dialogue, shop, pause or Game Over. C opens the Stats panel; the tab window and
+  the Stats panel close each other so two pausing windows never stack.
 - **Tab window** — tabs Inventory (0), Character (1), Skill tree (2), Quests (3). I/K/J open the matching
   tab; pressing the key of the tab already showing closes the window. Q/E cycle tabs (wrap-around).
   Pauses the game.
   - *Inventory:* 24-slot grid; drag-and-drop swaps slots (ghost icon has `raycastTarget = false`);
     right-click equips (the previously equipped item returns to that slot); hover tooltip coloured by rarity
     with a green/red stat comparison against the equipped item, flips at screen edges.
-  - *Character:* name, class, level, EXP, all attributes; refreshes on `StatsChanged`.
+  - *Character:* name, class, level, EXP, all attributes; read-only; refreshes on `StatsChanged`.
+- **Stats panel** (`Gameplay/Windows/StatsPanel`, prefab `Assets/Prefab/UIFlow/StatsPanel.prefab`) — opened by C or
+  the HUD "Chỉ số [C]" button (top-right, where the old "Open Stats UI" button sat). Layout follows the old
+  `Stats_UI_Controller` prefab in UIFlow style: header + close X, left column "Chỉ số chính" (STR…LUK rows with
+  −/+), right column "Chỉ số phụ" (2-column grid), footer with remaining points and Revert / Respec / Accept.
+  Pauses the game. Each open starts a stat-point session (`IPlayerDataProvider.BeginStatSession()`); closing
+  without Accept reverts it, like the old Close button. −/+ only show when the session opened with points; − is
+  enabled only for points spent in this session. Writes go through the gameplay-side `StatPointSession`, never
+  from the panel. Rows read `Stat` directly, not `StatsViewDTO`, because `BaseStatsSO.RecalculateDerived()`
+  does not refresh the derived DTOs. **The prefab is generated once** by `UIFlowBuilder` (only when the file is
+  missing) and placed into `GameplayUI` as a prefab instance, so hand edits in Prefab Mode survive scene rebuilds;
+  **Tools/UI Flow/Rebuild Stats Panel Prefab** regenerates it from code.
   - *Skill tree:* rows by tier; green = learned, white = learnable, grey = not enough points or missing
     prerequisite; "Learn" spends points via `TryUnlockSkill`.
   - *Quests:* list on the left, detail and objectives on the right, Track toggle feeds the HUD tracker.
