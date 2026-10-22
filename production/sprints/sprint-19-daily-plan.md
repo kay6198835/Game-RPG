@@ -11,7 +11,16 @@
 
 ## Status Verdict
 
-**OPEN — day 3 of 5 (2026-10-21, Wed standup). BLOCKED — build still broken, day 2.**
+**OPEN — day 4 of 5 (2026-10-22, Thu standup). SLIPPED — unblocked, but 1.3d Must-Have left for 2 days.**
+`compile-check.sh` **COMPILED** `origin/sprint-19` `a3f50c5e`: owner commits `ddb1d702` / `8a36bc3e` fixed
+NOTE-20261020-1 and committed the missing `.meta` (NOTE-20261020-4). NOTE-20261020-2 changed but not fixed
+(holder now stores the prefab's `Weapon`, not the spawned instance). Rest of Wed's output was off-plan:
+stats panel in the GameplayUI Character tab (`feature/ui-stats-prefab`, merged `a3f50c5e`), wallet / level-up
+scaffolding, `ICharacter` covariance fixes. BUG-104's log line removed in `ddb1d702` (for triage). 0 of the
+planned Must-Have stories (S19-01, -05, -06, -07) closed; S19-01 smoke 18th carry, although `Editor.log` shows
+7 Play Mode entries this morning. Must-Have 1/9. Evidence `COMPILED` + `LOG`.
+
+*Previous (Wed standup):* **OPEN — day 3 of 5 (2026-10-21, Wed standup). BLOCKED — build still broken, day 2.**
 Tuesday's planned build fix (NOTE-20261020-1, 5 errors from `3d768b3d`) did not land: `compile-check.sh`
 FAILED again on `origin/sprint-19` `50d84e7a`, same 5 errors. Only commit since: `38516a2d` (item
 system GDD + item `.cs` cleanup, off-plan, merged `50d84e7a`). 0 of 5 Tue tasks done. Must-Have 1/9.
@@ -41,7 +50,8 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.4d | 0.05d (S19-02) | 1.35d (+ unplanned build fix ≈0.05d) |
+| Must Have (incl. Sat playtest 0.1d) | 1.4d | 0.05d (S19-02) + unplanned build re-fix ≈0.05d (2026-10-21) | 1.3d (+ NOTE-20261020-2 one-liner ≈0.02d) |
+| Off-plan (2026-10-21) | — | stats panel UI, wallet / level-up scaffolding, `ICharacter` fixes (≈1d) | — |
 | Should Have | 1.0d | 0 | 1.0d |
 | Feature story S19-F1 (capped, gated by S19-01 + S19-02) | 0.5d | 0 | 0.5d |
 | Buffer | 1.0d | — | — |
@@ -52,7 +62,7 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 
 | ID | Task | Est. | Priority | Carries |
 |----|------|------|----------|---------|
-| S19-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **17th** |
+| S19-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **18th** |
 | S19-02 | Commit + push build fix | 0.05d | Must | 2nd |
 | S19-03 | BUG-096 zero-spawn branch | 0.1d | Must | 3rd |
 | S19-04 | BUG-097 start/boss order | 0.05–0.2d | Must | 3rd |
@@ -91,9 +101,10 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 ### Wed 2026-10-21 — Death path + vitals Should-Have
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S19-07 BUG-065 + BUG-086 | 0.2d | ⬜ | Last Must; precondition for BUG-087 |
-| S19-09 BUG-100 | 0.2d | ⬜ | Same file as S19-06 — one session |
-| S19-10 BUG-071 residual | 0.15d | ⬜ | Same file |
+| S19-07 BUG-065 + BUG-086 | 0.2d | ⬜ (slipped to Thu) | Last Must; precondition for BUG-087 |
+| S19-09 BUG-100 | 0.2d | ⬜ (slipped) | Same file as S19-06 — one session |
+| S19-10 BUG-071 residual | 0.15d | ⬜ (slipped) | Same file |
+| Build re-fix (NOTE-20261020-1) + `.meta` (NOTE-20261020-4) | ≈0.05d | ✅ (`ddb1d702` / `8a36bc3e`, COMPILED 2026-10-22) | Unplanned; gated every code task |
 
 ### Thu 2026-10-22 — Feature story + one-liners
 | Task | Est. | Status | Why now |
@@ -190,3 +201,22 @@ _(appended by `/daily-standup`)_
 - **Today:** build fix + 3 `.meta` + NOTE-20261020-2 (≈0.1d) → S19-01 smoke (0.3d) → S19-07 (0.2d) →
   S19-05 (0.15d) → S19-06 (0.15d); ≈0.9d. S19-03/04/08 and Wed Should-Haves slide to Thu.
 - **Verdict:** BLOCKED (build broken two days; Tue SLIPPED 100%). Evidence `COMPILED` (failed) + `LOG`.
+
+### 2026-10-22 (Thu) — `/daily-standup --auto`
+
+- **Since last standup:** owner `ddb1d702` / `8a36bc3e` "coding" (stat-point level-up via `WalletComponent`,
+  `CoinModifierEffect`, `UpgradeController`, build fix, `.meta` files), branch `feature/ui-stats-prefab`
+  (`1bc5d2ad`…`c6c4cf2a`: `StatPointSession`, GameplayUI `StatsPanel`, legacy stats UI removed from
+  `LoadRandomMap`), `ICharacter` fixes `ca90fbac` / `6c11bf6d`, merges `3498fb55` / `a3f50c5e` onto
+  `sprint-19`. Inbox notes NOTE-20261021-1…4 (stat-system review, session) landed with `aac995dc`.
+- **Planned Wed work:** build fix + `.meta` ✅; NOTE-20261020-2 attempted (still wrong, now holds the prefab);
+  S19-01, S19-05, S19-06, S19-07 not done (no commit on their files; no playtest sheet).
+- **Runtime:** compile-check **COMPILED** `a3f50c5e` (45 s). `editor-log.sh`: `Editor.log` 2026-10-22 09:42 —
+  0 `error CS`, 7 Play Mode entries, 2× NRE @ `BaseStatsSO.cs:243` (NOTE-20261019-2, now in Play Mode);
+  no NRE @ `PlayerState.cs:35` (log line removed in `ddb1d702`). Fix-survival (7 d): no fix commits.
+- **Inbox:** 11 open rows, 0 new; addenda on NOTE-20261020-1 (resolved?), -2 (still wrong), -4 (resolved?),
+  NOTE-20261019-2, NOTE-20261015-1 (close-as-duplicate candidate of BUG-104).
+- **Today:** NOTE-20261020-2 one-liner (0.02d) → S19-01 smoke + fill the sheet (0.3d) → S19-07 (0.2d) →
+  S19-05 (0.15d) → S19-06 (0.15d); ≈0.8d. S19-03/04/08 to Fri with the Fri plan; Should-Haves and S19-F1
+  likely cut.
+- **Verdict:** SLIPPED (unblocked; Wed output real but off-plan). Evidence `COMPILED` + `LOG`.
