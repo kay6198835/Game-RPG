@@ -6,6 +6,7 @@ Engine: Unity 2022.3.62f3 LTS
 | Epic | Layer | System | GDD | Stories | Status |
 |------|-------|--------|-----|---------|--------|
 | Enemy Spawn & Per-Room Management | Feature | Enemy Spawn & Per-Room Management | design/gdd/enemy-spawn-system.md | Not yet created | Ready (untraced reqs) — partially built ahead of stories |
+| [Stat Reduction (Debuff) Flow](stat-reduction/EPIC.md) | Foundation + Feature | Stat System + Abilities v2 effects | design/gdd/stat-system.md (debuff section pending, SD-00) | 13 tasks (SD-00…SD-12), added 2026-10-22 | Ready — not started |
 
 > **Audit note (2026-08-20).** No story files were ever created for this epic, but a
 > substantial part of it shipped anyway through un-storied commits: the `Tile_Spawn_Enemy`
