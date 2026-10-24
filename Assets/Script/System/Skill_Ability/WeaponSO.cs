@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[CreateAssetMenu(menuName = "Item SO/Enemy/Weapon")]
+[CreateAssetMenu(menuName = "WeaponData/WeaponSO")]
 public class WeaponSO : ItemSO
 {
     [SerializeField] private GameObject weapon;

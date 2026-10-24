@@ -32,7 +32,7 @@ namespace UIFlow
         public string id;
         public string displayName;
         [TextArea] public string description;
-        public Sprite icon;                 // null trong mock → UI tô màu iconColor thay thế
+        public Sprite icon;                 // null → UI tô màu iconColor thay thế
         public Color iconColor = Color.white;
         public ItemSlotType slotType;
         public ItemRarity rarity;
@@ -75,6 +75,18 @@ namespace UIFlow
         public int exp;
         public int expToNextLevel;
         public List<StatLine> attributes = new();
+    }
+
+    /// <summary>Một dòng trong bảng chỉ số của tab Nhân vật. Chỉ số chính (STR…LUK) có nút cộng/trừ điểm.</summary>
+    [Serializable]
+    public class StatRowData
+    {
+        public StatType statType;
+        public string statName;
+        public float finalValue;
+        public float equipmentValue;
+        public bool isPrimary;
+        public int spentThisSession;   // Điểm đã cộng trong phiên đang mở — chỉ phần này được trừ lại
     }
 
     [Serializable]

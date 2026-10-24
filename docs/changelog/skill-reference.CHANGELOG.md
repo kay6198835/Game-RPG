@@ -7,6 +7,19 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — PM routines redesigned (bug inbox, weekly playtest, doc-truth routine)
+
+- **Commit:** none yet (working tree on `origin/feature/update-bug-document`, HEAD `221d54be`)
+- **Changed:** §9 rows for `/doc-sync`, `/daily-standup`, `/weekly-kickoff`, `/weekly-wrapup`,
+  `/weekly-sprint`; new "Weekly PM cycle" note; header note on 81 skills / 39 agents.
+- **From → To:** "Daily 10:00 standup" → "Mon–Fri 02:00 … compile check + Unity log scan …";
+  wrap-up "playtest log, bug triage" → "reads the owner's playtest sheet, fix-survival sweep,
+  bug-inbox triage (the only bug-ID allocator)"; `/weekly-sprint` "superseded in practice" →
+  "No routine calls it since 2026-10-09".
+- **Why:** owner decision 2026-10-09 to close four review-process gaps (bug-ID authority, doc-vs-code
+  check, regression sweep, runtime evidence) and let `.md`-only routines run unattended. Sources:
+  `production/qa/reviews/skill-audit-2026-10-09.md`, `production/review-flow.md` v3.
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+3 / −3 lines)
 - **Sections touched:** “Studio Skill Reference”, “3. Architecture”

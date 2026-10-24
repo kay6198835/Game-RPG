@@ -1,6 +1,9 @@
 ---
-description: UI code standards — UIManager, HUD, health bar, menus
-globs: ["Assets/Script/Manager/UI/**/*.cs", "Assets/Script/MainMenu/**/*.cs"]
+# UI code standards — UIManager, HUD, health bar, menus
+paths:
+  - "Assets/Script/UIFlow/**/*.cs"
+  - "Assets/Script/UI/**/*.cs"
+  - "Assets/UI/**"
 ---
 
 # UI Code Standards
@@ -43,7 +46,8 @@ The Sprint 12 stat refactor split ownership; UI must read from the right side:
 `StatsSO` no longer exists; the profile type is `BaseStatsSO`.
 
 ## Dependency Injection (added 2026-09-11)
-- `StatsUIController` is registered in `GameLifetimeScope` and resolved through VContainer
+- `StatsUIController` is **no longer registered** (2026-10-21) and no longer placed in any scene; the stats
+  panel is the UIFlow `StatsPanel` (key C), which writes through `StatPointSession` (gameplay layer)
 - `StatsScreenUIController` and `StatPointAllocator` are **deliberately not registered** (both lines
   are commented out in `Configure()`) because they are not guaranteed to be in the scene hierarchy
   at `Awake()`. Do not uncomment them without confirming scene placement —

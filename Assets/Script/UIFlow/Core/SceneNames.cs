@@ -9,7 +9,6 @@ namespace UIFlow
         public const string MainGamePlay = "MainGamePlay";   // Scene menu (logo, đăng nhập, menu chính…)
         public const string Loading = "Loading";             // Màn hình loading dùng chung
         public const string GameplayReal = "LoadRandomMap";  // Scene dungeon thật (không sửa)
-        public const string GameplayMock = "GameplayMock";   // Scene giả để test HUD
         public const string GameplayUI = "GameplayUI";       // Scene chỉ chứa UI in-game, load kiểu Additive
     }
 }

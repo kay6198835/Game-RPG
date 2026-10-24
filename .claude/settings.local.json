@@ -1,6 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "Read(//d/Fork/Game-RPG-pm/**)",
+      "Edit(//d/Fork/Game-RPG-pm/**/*.md)",
+      "Write(//d/Fork/Game-RPG-pm/**/*.md)",
       "Bash(code --uninstall-extension ms-dotnettools.csdevkit)",
       "Bash(code --list-extensions)",
       "Bash(mkdir -p \"Assets/Script/Map\")",
@@ -93,11 +96,40 @@
       "Skill(module-quality-audit)",
       "Skill(module-quality-audit:*)",
       "Bash(rtk --version)",
-      "Bash(git symbolic-ref *)"
-      "mcp__Claude_Code_Remote__send_later"
+      "Bash(git symbolic-ref *)",
       "mcp__Claude_Code_Remote__send_later",
       "mcp__Claude_Code_Remote__delete_trigger",
-      "mcp__Claude_Code_Remote__unsubscribe_pr_activity"
+      "mcp__Claude_Code_Remote__unsubscribe_pr_activity",
+      "Bash(xargs grep -ohF \"CCGS Skill Testing Framework\")",
+      "Bash(grep -vE 'class |//')",
+      "Bash(node -e ' *)",
+      "Bash(node -)",
+      "Bash(grep -n '\\\\$PM\\\\|\\\\$NN\\\\|PowerShell' .claude/docs/pm-routine-protocol.md)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\);console.log\\('valid'\\)\")",
+      "Bash(git -C D:ForkGame-RPG-pm *)",
+      "Bash(git -C D:/Fork/Game-RPG fetch*)",
+      "PowerShell(git -C D:/Fork/Game-RPG-pm *)",
+      "PowerShell(git -C D:ForkGame-RPG-pm *)",
+      "PowerShell(git log*)",
+      "PowerShell(git status*)",
+      "PowerShell(git diff*)",
+      "PowerShell(git fetch*)",
+      "PowerShell(git branch*)",
+      "PowerShell(git rev-parse*)",
+      "PowerShell(git show*)",
+      "PowerShell(bash .claude/scripts/*)",
+      "Bash(py .claude/hooks/lint-mermaid.py*)",
+      "Bash(gh pr create --draft*)",
+      "PowerShell(cd D:/Fork/Game-RPG; git branch --show-current; git status --porcelain | Measure-Object | Select-Object -ExpandProperty Count; git status --porcelain | ForEach-Object { $_.Substring\\(0,2\\) } | Group-Object | Select-Object Name,Count; git log -1 --format=\"%h %s\"; git rev-parse origin/sprint-18; git merge-base HEAD origin/sprint-18; git rev-list --left-right --count HEAD...origin/sprint-18)",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name='git.exe'\")",
+      "Bash(wmic process *)",
+      "PowerShell(Get-Process git -ErrorAction SilentlyContinue)",
+      "PowerShell(\\(Get-Item D:\\\\Fork\\\\Game-RPG\\\\.git\\\\index.lock\\).LastWriteTime; Get-Date)",
+      "Bash(rm D:/Fork/Game-RPG/.git/index.lock)"
+    ],
+    "additionalDirectories": [
+      "D:/Fork/Game-RPG-pm"
     ]
   }
 }

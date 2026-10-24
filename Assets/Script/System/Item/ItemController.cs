@@ -6,7 +6,7 @@ public class ItemController : InteractiveObjects
 {
     [SerializeField] private SpriteRenderer ItemSprite;
     [SerializeField] private string NameItem;
-    [SerializeField] private IReadOnlyList<ItemEffectDefinition> effects;
+    [SerializeField] private IReadOnlyList<ItemEffectDefinitionSO> effects;
 
     protected override void Awake()
     {

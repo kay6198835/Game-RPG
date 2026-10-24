@@ -14,6 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityName: Gain For Time Effect
   SubConditions: []
+  SubEffects: []
+  Costs: []
   statModifierGroup:
-    authoredModifiers: []
+    authoredModifiers:
+    - targetStat: 100
+      type: 100
+      value: 15
   duration: 0
+  recipient: 0

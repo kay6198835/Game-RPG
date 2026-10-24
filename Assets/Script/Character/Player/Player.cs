@@ -78,6 +78,19 @@ public class Player : CharacterBase<Core>
     private void AnimationFinishTrigger() => stateMachine.CurrentState.AnimationFinishTrigger();
     private void AnimationEnd() => stateMachine.CurrentState.AnimationEnd();
 
+    public override void SetCharacterData(CharacterData data)
+    {
+        this.data = (PlayerData)data;
+        gameObject.name = data.name;
+        anim.runtimeAnimatorController = data.animationController;
+
+        // Need check and fix this logic late
+        core.GetCoreComponent(out WeaponHolder weaponHolder);
+        weaponHolder.EquipDefaultWeapon();
+        core.GetCoreComponent(out AbilityHolder abilityHolder);
+        abilityHolder.SetAbility();
+    }
+
 
     #endregion
 }

@@ -1,6 +1,7 @@
 ---
-description: Mermaid diagram syntax rules for every Markdown document (GDDs, ADRs, diagrams, system docs)
-globs: ["**/*.md"]
+# Mermaid diagram syntax rules for every Markdown document (GDDs, ADRs, diagrams, system docs)
+paths:
+  - "**/*.md"
 ---
 
 # Mermaid Diagram Standards

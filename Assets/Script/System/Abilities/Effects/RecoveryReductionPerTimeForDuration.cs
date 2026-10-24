@@ -3,9 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Recovery - Reduction Per Time For Duration")]
 public class RecoveryReductionPerTimeForDuration : StatsEffectBase
 {
-    private float perTime;
+    [SerializeField] private float perTime;
     [Range(1, 10)]
-    private int timeCount;
+    [SerializeField] private int timeCount;
     protected override void ApplyImpact(IVitalComponent vital, StatType statType, float impactValue)
     {
         switch (impactType)

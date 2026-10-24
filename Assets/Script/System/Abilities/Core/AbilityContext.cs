@@ -6,6 +6,7 @@ public class AbilityContext
     public IAbilityOwner Caster;
     public Vector3 Origin;
     public Vector3 Forward;
+    public int DirectionIndex;
     public Vector3 TargetPoint;
 
     public float HoldTime;
@@ -42,14 +43,14 @@ public class AbilityContext
 /// <summary>World-level services an ability needs. Character data is read from the characters themselves.</summary>
 public interface IAbilityServices
 {
-    IObjecPoolService Pool { get; }
+    IObjectPoolService Pool { get; }
 }
 
 public sealed class AbilityServices : IAbilityServices
 {
-    public IObjecPoolService Pool { get; }
+    public IObjectPoolService Pool { get; }
 
-    public AbilityServices(IObjecPoolService pool)
+    public AbilityServices(IObjectPoolService pool)
     {
         Pool = pool;
     }

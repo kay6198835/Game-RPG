@@ -39,7 +39,7 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
         for (int i = 0; i < SubEffects.Count; i++)
         {
             if (SubEffects[i] == null) continue;
-            SubEffects[i].Apply(currentContext);
+            SubEffects[i].Apply(currentContext);    
         }
     }
 

@@ -31,8 +31,6 @@ public class PlayerState : IState
         DoChecks();
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        //this.Status = StatusAnimation.Start;
-        Debug.Log("Enter State: " + animBoolName);
 
     }
     public virtual void Exit()

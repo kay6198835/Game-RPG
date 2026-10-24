@@ -17,6 +17,247 @@ which code change caused it.
 
 ---
 
+## 2026-10-20 — Item system GDD + item cleanup (owner request)
+
+**Cause:** owner design decisions 2026-10-20 (no inventory; Wallet + coin-paid primary stats; no level
+system; per-run coin) and a code cleanup in `Assets/Script/System/Item/` (class `ItemEffectDefinition`
+→ `ItemEffectDefinitionSO`; `ItemSO.StyleItem` removed; `PrefabRandomItem.cs` deleted).
+
+| Document | Change |
+|---|---|
+| `design/gdd/item-system.md` | **New** — reverse-documented GDD + section 9 *Design Direction* |
+| `design/gdd/changelog/item-system.CHANGELOG.md` | **New** |
+| `design/gdd/systems-index.md` | Row 26: "Implemented, undesigned" → "Reverse-documented", links the GDD |
+| `docs/systems/items/README.md` | Pickup key G → **Q**; `IObjectPoolService` (`cae7531`); rename/removals; open issues (Currency no-op, BUG-100, TD-030, TD-054, Merchant/NPC missing scripts) |
+| `docs/systems/items/CHANGELOG.md` | Entries for `cae7531` and this change |
+| `docs/tech-debt-register.md` | **TD-054** — unify `RarityTierItem` and UIFlow `ItemRarity` |
+| `production/qa/bug-inbox.md` | **NOTE-20261020-1** — `Merchant.prefab` / `NPC.prefab` scripts never committed |
+| `CLAUDE.md` | Item lines in Repository Layout; Input Bindings gains "Pick up item — Q" |
+
+---
+
+## 2026-10-10 — Remove redundant files (owner request)
+
+**Cause:** owner review of a redundancy scan (2026-10-10). Every item was checked for references
+(code, scene/prefab/asset GUIDs, routine prompts) before removal.
+
+| Removed | Why it was redundant |
+|---|---|
+| `.ccgs-staging/settings.json` | Byte-identical to the installed `.claude/settings.json` |
+| `.claude/worktrees/cool-noyce-af2d46`, `heuristic-moore-d8e6c8` | Empty gitlinks (mode 160000) left by earlier Claude sessions; not registered worktrees |
+| `Assets/Script/Character/Boss/` (+ folder metas), `Assets/Script/Handler/` | Only `.meta` files, residue of the reverted boss feature |
+| `Assets/Script/Interface/IReasourceReceiver` (+ `.meta`) | Empty file with no extension |
+| `Assets/SO/Skill/Conditions/Has Enough Mana Condition.asset` (+ folder) | Its script was deleted in `2a83469` (BUG-090); only the already-broken ShootSpirit assets (BUG-073) referenced it |
+| `.claude/scripts/godot-parse-check.gd` | Godot-only helper; referenced only in Godot branches of `/dev-story` and `/setup-engine` |
+| `.claude/skills/weekly-sprint/` | Legacy Mon/Fri ritual. Last caller was `pm-weekly-wrapup` until its 2026-10-09 rewrite; no active routine calls it |
+| `production/review-schedule.md` | Superseded by `production/review-flow.md` §7 |
+
+Updated: `production/review-flow.md` (§8, §9 #9, header), `docs/skill-reference.md` (header, §9 row).
+
+**Not removed — would break the project:** `Assets/Script/Map/Legacy/Door.cs` + `Room.cs` (attached to
+23 + 1 components in `Assets/Scenes/Main/SetLevel.unity`) and `Assets/Script/Manager/AnimationEventManager.cs`
+(`AnimationPlayerController.cs:17-29` registers on it; deleting it is a compile error). Owner decision pending.
+
+---
+
+## 2026-10-10 — Doc-truth pass: 221d54be reached sprint-18 (ON_OPEN_DOOR, scene move, Champion); bug table follows the 2026-10-10 triage (HEAD `617bb2bb`)
+
+**Cause.** `42a81260` "update flow" merged feature branch `221d54be` "logic open door at start room" into
+`sprint-18` (`c6cbc57a`): `EventID.ON_CLEAR_ENEMY` → `ON_OPEN_DOOR`, `LoadRandomMap.unity` moved out of
+`Main/Test/`, working `ChampitionController`, new `ConfirnPanel`, `ICharacter.SetCharacterData()`,
+`PlayerIntertorState.AnimationOnAction()`. The 2026-10-10 wrap-up triage (`ad0a7dd2`) moved BUG-064 to
+FIXED in code, BUG-087 to PARTIAL, and filed BUG-103/104/105. Claim sweep:
+`production/qa/doc-truth-2026-10-10.md` (587 claims, 92 flagged, 0 FALSE).
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry; main dev scene path (×2); `ICharacter`, `ChampitionController`, `ConfirnPanel`, `RoomCell`, `PlayerIntertorState` layout notes; map flow + Event System table → `ON_OPEN_DOOR`; Known Bugs BUG-064 / BUG-087 statuses from files, BUG-096 / BUG-102 re-checked, rows BUG-103/104/105 added; Bug #13 citation `:91` → `:90`; Demo Checklist 8, 26 (BUG-093 → BUG-103), new item 27 (BUG-105); conventions cite BUG-105 |
+| `memory/project_state.md` | Rewritten for `sprint-18` |
+| `docs/systems/{map,enemy,event-system,character,ui}/` | README + CHANGELOG entry each |
+| `design/gdd/map-system.md`, `design/gdd/enemy-spawn-system.md` | Re-synced banner (read `ON_CLEAR_ENEMY` as `ON_OPEN_DOOR`); body left as written |
+| `docs/architecture/adr-0002-…md` | Event-name note under Status; Decision untouched |
+| `docs/ui/ui-ux-flow.md` | Scene path; banner notes `ConfirnPanel` (sections 6-8 left Out of date) |
+| `docs/architecture/character-migration-plan.md` | Smoke-test scene path |
+| `.claude/rules/map-code.md` | Room Clear Condition → `ON_OPEN_DOOR` |
+| `.claude/rules/scriptableobject-data.md`, `.claude/skills/doc-sync/SKILL.md` | `attackDamege` lesson cites BUG-105 (was BUG-095, BUG-101 residue) |
+
+**Notable findings.** The start room can now be opened by the Champion, but only when one is placed;
+BUG-096 stays open for Boss / Buff / Rest / Shop. `ICharacter` gained a method while ADR-0005 Amendment 1
+still says "`Transform` only" — left for an owner Amendment. Root `README.md:101` and
+`Assets/Script/UIFlow/README.md:39` still name `Main/Test/LoadRandomMap` (outside the doc-sync set).
+
+## 2026-10-09 — Doc-truth pass: bug table follows the bug files; BUG-099 claims corrected (HEAD `cdf68555`)
+
+**Cause.** Routine `pm-weekly-doc-truth` (`/doc-sync --auto`). Phase 0 claim sweep:
+`production/qa/doc-truth-2026-10-09.md`. Code commits on `sprint-17` since the last sync (`cb0de496`):
+`7f632021` (StatModifierGroup `Apply`/`Remmove` deleted, `ChampitionController` stub),
+`5d1986db` (`IsCleared` moved into `OpenDoors()`, `PopupPanel` stub) and `f30b8343` (assets). Bug
+files BUG-096…BUG-102 (filed 2026-10-05…09) and BUG-101 (the ID collision) drove most of the edits.
+No `.cs` file was changed.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry. Known Bugs: BUG-064 → PARTIAL and BUG-087 → OPEN, to match their files. BUG-093/094/095 rewritten to the defects in their files (BUG-101). Rows BUG-096…BUG-102 added. Layout: `StartGameSystem/`, `Popup/` added; `Conditions/` marked gone; `Data/Json/Room/` door claim corrected (BUG-099). Checklist 24 citation corrected |
+| `memory/project_state.md` | Rewritten for `sprint-17` `cdf68555` |
+| `design/gdd/map-system.md` (+ change log) | Banner; edge-case row and acceptance criterion for marker-less rooms reset (BUG-096/099); BUG-097 note |
+| `design/gdd/attack-speed-system.md` (+ change log) | `StatsSO.cs:272` blocker marked cleared |
+| `design/gdd/character-system.md` (+ change log) | Two edge-case rows resolved (NEW-2, BUG-053); EventID count 20 → 24 |
+| `docs/systems/map/README.md` + `CHANGELOG.md` | Flow corrected (no zero-spawn branch); `IsCleared` move; BUG-096/097 listed |
+| `docs/systems/enemy/README.md` + `CHANGELOG.md` | Marker-less rooms *do* emit `ON_GET_SPAWN_POSITIONS` |
+| `docs/architecture/adr-0002-…md` (+ change log) | Path note under Status (`System/Enemy/`) |
+| `docs/architecture/adr-0005-…md` (+ change log) | ⚠️ Out of date banner — `StatModifierGroup.Apply/Remmove` deleted; Amendment left to owner |
+| ADR-0003, `enemy-spawn-system.md` change logs | ⚠️ Out of date — `RarityTier` (BUG-098) |
+| `.claude/rules/weapon-skill-code.md` | `Abilities/Conditions/` is gone, not empty |
+| `production/qa/bug-inbox.md` | NOTE-20261009-9…12 (bug-file status lag; the three BUG-101 orphan defects) |
+
+**Notable findings.**
+- Two doc syncs in a row wrote a fix as done on the strength of a commit message (BUG-099). Phase 0
+  now catches that, but only if its scripts exist: `pm-routine-protocol.md`, `doc-claims.sh` and
+  `bug-id.sh` are on an unmerged branch (`42a81260`) and not on `sprint-17`.
+- The `attackDamege` serialization loss (S2, likely silent) still has no bug ID because of the
+  BUG-101 collision. It is NOTE-20261009-12.
+
+---
+
+## 2026-10-09 — PM routines redesigned: bug inbox, weekly playtest, doc-truth routine (no code changed)
+
+**Cause:** owner review of run 2 (`production/qa/reviews/skill-audit-2026-10-09.md`) — four open
+process gaps (bug-ID authority, doc-vs-code check, regression sweep, runtime evidence), and routine
+runs stalling on approval prompts (2026-09-20, 2026-10-04, 2026-10-07) because
+`.claude/settings.local.json` was invalid JSON (missing commas, line 97), so every allow rule in it
+was ignored. Owner decisions: routines may write any `.md`, nothing else; push only to `sprint-*`,
+special changes via a branch merged into the sprint; headless compile at 02:00; doc-sync Sat 23:00;
+bug IDs only at Saturday triage; weekly ~30-min playtest on Saturday; bug-status lifecycle pending.
+
+| File | Change |
+|---|---|
+| `.claude/rules/bug-inbox.md` | **New.** Notes during the week, IDs only at Saturday triage |
+| `.claude/docs/pm-routine-protocol.md` | **New.** PM worktree `D:/Fork/Game-RPG-pm` (detached HEAD), `.md`-only writes, routine vs special commits, evidence tiers, run log |
+| `.claude/scripts/{bug-id,fix-survival,doc-claims,editor-log,compile-check,playtest-sheet}.sh` | **New**, read-only helpers |
+| `.claude/skills/daily-standup`, `weekly-wrapup`, `weekly-kickoff`, `doc-sync`, `module-quality-audit`, `bug-report`, `bug-triage` | Rewired to the inbox rule and protocol; `doc-sync` Phase 0 + `--auto`; wrap-up reads the playtest sheet and runs the fix-survival sweep; kickoff creates the sprint branch on the remote and guards the weekly playtest |
+| `.claude/settings.local.json` | JSON repaired (two missing commas, one duplicate removed) |
+| `.ccgs-staging/settings.json` | Staged allow rules for the routines (`.md` edits, scripts, PM worktree git, sprint/pm pushes, draft PR, PM skills). Direct edit of `.claude/settings.json` was refused by the auto-mode classifier; owner installs |
+| `~/.claude/scheduled-tasks/pm-*` | Prompts rewritten to call the skills with `--auto`; new `pm-weekly-doc-truth` (Sat 23:00); completion notifications on |
+| `production/qa/bug-inbox.md` | **New**, 3 notes (BUG-096 fix gone; two Editor-log findings) |
+| `production/session-state/routine-log.md` | **New** |
+| `tests/smoke/critical-paths.md` | **New** — 10-step weekly smoke list |
+| `production/qa/playtests/playtest-2026-10-10.md` | **New** — first weekly playtest sheet |
+| `production/review-flow.md` | v3 row; cadence table |
+| `docs/skill-reference.md` (+ changelog) | §9 PM skills re-synced; weekly cycle note |
+
+Verified on HEAD `221d54be`: `bug-id.sh next` → `BUG-103`; `bug-id.sh audit` → BUG-064/087/093/094/095
+status mismatches; `fix-survival.sh 30` → BUG-096 fix `40d2c793` GONE (1/4 lines); `doc-claims.sh` →
+567 claims, 86 STALE incl. `Main/Test/LoadRandomMap.unity` and 37× `ON_CLEAR_ENEMY`;
+`editor-log.sh` → today's Play Mode sessions; `compile-check.sh` → COMPILED (exit 0, 38 s, no file
+changed by Unity).
+
+---
+
+## 2026-10-09 — Full review run 2 + review flow v2 (no code changed)
+
+**Cause:** CCGS v1.1.2 install changed 257 files under `.claude/` after run 1 (`959268bd`, `7c90520b`,
+`d64047a8`, `ec44e9be`), and game commits `ada2c1a8` / `221d54be` landed unreviewed. Owner asked for a
+review of the skill set, a full review flow, and an assessment of design and feature state, docs only.
+
+| File | Change |
+|---|---|
+| `production/qa/reviews/skill-audit-2026-10-09.md` | **New.** R1 re-run: status of every 2026-10-08 finding, 7 new tooling findings (N-1…N-7), skill-to-phase map for all 81 skills |
+| `production/review-flow.md` | **v2.** R1 mandatory after any `.claude/` change; R3.5 contract-rename sweep; R3.6 static-event null-invoke check; cadence table corrected to the real cron (standup 02:00, not 10:00); §9 status; §10 revision history |
+| `production/qa/reviews/project-review-2026-10-09.md` | **New.** Run 2 (delta on run 1): verdict AT RISK (static); champion select coupled to BUG-097; doc drift from the `ON_CLEAR_ENEMY` → `ON_OPEN_DOOR` rename and the `LoadRandomMap` scene move |
+| `production/qa/bugs/BUG-102.md` | **New (S3).** Confirm-panel static events raised with `.Invoke()`; `SetConfirm()` field mapping |
+| `production/qa/bugs/BUG-097.md` | Re-verification note: champion tiles live in `BossRoom_ThroneArena.json`; fix order changed |
+
+Not edited (listed as drift for the next `/doc-sync`): `CLAUDE.md` (scene path, `ON_CLEAR_ENEMY`,
+BUG-093..095 IDs), `.claude/rules/map-code.md`, `design/gdd/map-system.md`,
+`docs/systems/{map,enemy,event-system}/README.md`, `docs/ui/ui-ux-flow.md`, `docs/skill-reference.md`.
+
+---
+
+## 2026-10-08 — Dissolve the vendored CCGS folder into the project
+
+**Cause.** Owner request: distribute `.claude/Claude-Code-Game-Studios-main/` into the project's own layout.
+Details and the per-file decision: `production/qa/reviews/ccgs-upgrade-2026-10-08.md` §11.
+
+| Document / file | Change |
+|---|---|
+| `.claude/Claude-Code-Game-Studios-main/` | **Removed** — duplicates of live files deleted, the rest moved |
+| `docs/ccgs/` | **New** — framework reference (README index, CHANGELOG, UPGRADING, LICENSE, guides, `rules-upstream/`) |
+| `docs/CLAUDE.md`, `design/CLAUDE.md` | **New** — upstream directory instructions, adapted to Unity 2022.3 and the project's 8-section GDD rule |
+| `docs/architecture/tr-registry.yaml`, `design/registry/entities.yaml` | **New** — empty registries read by the story pipeline and `/consistency-check` |
+| `.gitattributes`, `.gitignore` | LF for shell scripts and `.claude` Markdown; per-developer CCGS files ignored |
+| `production/qa/reviews/ccgs-rules-comparison-2026-10-08.md` | Source path updated to `docs/ccgs/rules-upstream/` |
+
+---
+
+## 2026-10-08 — Remove duplicated skills and agents from the vendored CCGS copy
+
+**Cause.** Owner request after the merge. `cmp` showed the vendored `.claude/skills` and `.claude/agents` were
+byte-identical to the live copies (130 files) plus 10 unmerged Godot/Unreal agents.
+
+| Document / file | Change |
+|---|---|
+| `.claude/Claude-Code-Game-Studios-main/.../.claude/skills/`, `.../.claude/agents/` | **Deleted** (140 files). Live `.claude/skills` (81) and `.claude/agents` (39) unchanged |
+| `.claude/skills/weekly-sprint/` | **Kept** — still invoked by the `pm-weekly-wrapup` and `weekly-monday-kickoff` scheduled routines |
+| `production/qa/reviews/ccgs-upgrade-2026-10-08.md` | §10 addendum |
+
+---
+
+## 2026-10-08 — CCGS upgrade, approval pass: rules scoping, filtered Unity reference, config finalize
+
+**Cause.** Owner approved the remaining upgrade items, asked to keep (and filter) the upstream Unity
+reference instead of dropping it, and asked for a detailed view of the eight upstream rules not merged.
+
+| Document / file | Change |
+|---|---|
+| `.claude/rules/*.md` (13 files) | Frontmatter `description:` + `globs:` → `paths:` with globs corrected to the current tree. Rules now load only when a matching file is touched. Bodies unchanged |
+| `docs/engine-reference/unity/` | **New:** `breaking-changes.md`, `deprecated-apis.md`, `current-best-practices.md`, `PLUGINS.md`, `modules/` (8), `plugins/` (3) from CCGS — written for Unity 6.3, each with a project banner and inline 2022.3 verdicts; **new** `UNITY-2022.3-FILTER.md` (summary table). `VERSION.md` links them and warns about `/setup-engine refresh` |
+| `docs/engine-reference/unity/changelog/VERSION.CHANGELOG.md` | Entry for the above |
+| `project.yaml` | `modes.review_mode: lean` re-added (equal to the `standard` expansion) so `--finalize` could verify it |
+| `production/review-mode.txt` | **Deleted** by `migrate-v1-config.sh --finalize` (value preserved in `project.yaml`) |
+| `production/qa/reviews/ccgs-rules-comparison-2026-10-08.md` | **New.** Item-by-item comparison of upstream `gameplay-code`, `ai-code`, `ui-code`, `engine-code`, `data-files`, `shader-code`, `narrative`, `network-code` vs the project rules, with which globs would fire here |
+| `production/qa/reviews/ccgs-upgrade-2026-10-08.md` | §9 addendum: hooks and settings still blocked by the session classifier; merged versions staged in `.ccgs-staging/` (not committed) with an install command |
+
+---
+
+## 2026-10-08 — CCGS framework upgrade to v1.1.2 (skills, agents, framework docs)
+
+**Cause.** Owner added the upstream Claude Code Game Studios v1.1.2 template in `df1d09d3`
+(`.claude/Claude-Code-Game-Studios-main/`) and asked for a detailed comparison and a merge. Local
+framework files dated from the 2026-05-01 import (`489c5510`) and, except for the files listed below,
+had never been edited. Full comparison: `production/qa/reviews/ccgs-upgrade-2026-10-08.md`.
+
+| Document / file | Change |
+|---|---|
+| `.claude/skills/*` (72 template skills) | Replaced with upstream v1.1.2; `settings` and `vertical-slice` added. Project-own skills (`daily-standup`, `weekly-kickoff`, `weekly-wrapup`, `weekly-sprint`, `module-quality-audit`, `doc-sync`, `ui-screen`) untouched |
+| `.claude/agents/*` | 26 updated, 13 added (closes the missing-agent finding); 10 Godot/Unreal specialists not taken |
+| `.claude/docs/*` | 48 updated, 56 added; `technical-preferences.md` kept local; `review-workflow.md` and `templates/skill-test-spec.md` kept. Local note in `director-gates.md` (`3e0ee09d`) superseded by the upstream rewrite |
+| `.claude/scripts/`, `.claude/statusline.sh` | **New** (upstream helpers) |
+| `.claude/rules/skill-authoring.md`, `.claude/rules/agent-memory.md` | **New** (upstream). Other upstream rules not taken — reasons in the comparison doc §5 |
+| `CCGS Skill Testing Framework/` | **New** at repo root; required by `skill-test` / `skill-improve` |
+| `project.yaml` | **New.** From `migrate-v1-config.sh`, completed by hand (engine version, specialists, naming, budgets, `modes.rigor: standard`, `project.stage: Production`) |
+| `production/migration-report.md` | **New** (script output). Legacy files not finalized |
+| `.claude/hooks/*`, `.claude/settings.json` | **Not changed** — blocked by the session permission classifier; owner plan in comparison doc §6. `yaml-helper.sh` is required by 68 upstream skills |
+| `docs/engine-reference/unity/` | Unchanged — upstream files target Unity 6.3, project pins 2022.3 |
+
+---
+
+## 2026-10-08 — Full review flow, skill audit and project review (review-only)
+
+**Cause.** Owner request: audit the project's skill set, design an end-to-end review flow, and assess
+the current design and feature state. HEAD `1b24ef7b` (`sprint-17`). No `.cs`, asset, scene, rule,
+skill or hook was changed; `CLAUDE.md` was not edited (its drift is listed for the next `/doc-sync`).
+
+| Document / file | Change |
+|---|---|
+| `production/review-flow.md` | **New.** Nine-phase review pipeline (R0 snapshot → R8 record), evidence tiers (`RUNTIME` / `COMPILED` / `STATIC` / `CLAIMED`), bug-ID authority rule, documentation-claim sweep, regression sweep, cadence mapped to the routines that actually run, and 8 recommended skill/hook changes |
+| `production/qa/reviews/skill-audit-2026-10-08.md` | **New.** Phase R1: 79 skills / 26 agents; 13 missing agents in 6 team skills; required inputs that do not exist (`design/registry/entities.yaml`, architecture master doc, smoke critical paths); 14 skills assume `src/`; hook defects; three process seams (ID authority, doc-claim verification, regression sweep) |
+| `production/qa/reviews/project-review-2026-10-08.md` | **New.** First run of the flow: demo verdict AT RISK (static only, 118 days since last playtest), feature matrix, design coverage (7 live systems without a GDD, 3 of 5 ADRs `Proposed` but implemented), review of unreviewed commits `5d1986db` / `7f632021`, documentation drift list, process metrics, ranked actions |
+| `production/qa/bugs/BUG-100.md` | **New, S2.** Timed buff expiry strips all modifiers sharing source `this` in `VitalStatsBase` (item buffs, overlapping Blessing casts) |
+| `production/qa/bugs/BUG-101.md` | **New, S3.** `CLAUDE.md` BUG-093/094/095 describe different defects than the bug files with those IDs |
+| `production/qa/reviews/` | **New directory** for dated full-review and tooling-audit snapshots |
+
+---
+
 ## 2026-10-05 — Mermaid lint guard
 
 **Cause.** A `;` inside a `sequenceDiagram` message (`character-architecture-diagrams.md` §10,

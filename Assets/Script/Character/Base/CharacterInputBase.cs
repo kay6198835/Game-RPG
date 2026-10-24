@@ -24,6 +24,8 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     public abstract Vector2 AimDirection { get; }
     public abstract Vector2 AimPoint { get; }
 
+    public abstract int AimDirectionIndex { get; }
+
     public virtual void OnTakeDamage(Vector2 attackPosition)
     {
         CancelInvoke(nameof(ResetTakeDamage));

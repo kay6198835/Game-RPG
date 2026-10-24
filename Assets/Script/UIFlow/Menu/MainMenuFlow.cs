@@ -73,7 +73,6 @@ namespace UIFlow
             SaveSlotData recent = UIServices.Save.GetMostRecent();
             if (recent == null) return;
             UIServices.Save.SelectedSlot = recent.slotIndex;
-            UIServices.OnSaveSelected();
             SceneFlow.EnterGameplay();
         }
 
@@ -85,7 +84,6 @@ namespace UIFlow
                 characterName = $"{DefaultClassName} {saves.GetSlots().Count + 1}",
                 classId = DefaultClassName,
             });
-            UIServices.OnSaveSelected();
             SceneFlow.EnterGameplay();
         }
 

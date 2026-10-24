@@ -7,6 +7,11 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — ⚠️ Out of date against code (found by doc-sync, not yet fixed)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Stale term:** every mention of the `RarityTier` enum. Code renamed it `RarityTierEnemy` in `853fe39` (`RoomModel.cs:110`).
+- **Why not fixed:** tracked as open bug **BUG-098** (S4). The rename also touches the Approved GDD `enemy-spawn-system.md`, so both documents are left for the owner or the BUG-098 fix.
+
 ## 2026-08-21 — docs(adr): amend ADR-0003 to the real budget behaviour, and correct my own bad statistic
 - **Commit:** `66b7604c` (+91 / −1 lines)
 - **Sections touched:** “Status”, “Related Decisions”

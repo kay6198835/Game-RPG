@@ -1,6 +1,10 @@
 ---
-description: ScriptableObject data authoring standards — PlayerData, EntityData, EnemySO, AttackSO, ActivateSkill subclasses
-globs: ["Assets/Script/**/*SO.cs", "Assets/Script/**/*Data.cs", "Assets/ScriptableObjects/**/*.asset"]
+# ScriptableObject data authoring standards — PlayerData, EntityData, EnemySO, AttackSO, ActivateSkill subclasses
+paths:
+  - "Assets/Script/**/*SO.cs"
+  - "Assets/Script/**/*Data.cs"
+  - "Assets/Script/Database-SO/**/*.cs"
+  - "Assets/SO/**/*.asset"
 ---
 
 # ScriptableObject / Data Standards
@@ -20,7 +24,7 @@ globs: ["Assets/Script/**/*SO.cs", "Assets/Script/**/*Data.cs", "Assets/Scriptab
 
 ## Field Naming
 - Fields must use `camelCase` matching their public property name. Preserve existing typos (`Resgister`, `currrentSA`, `deplayTime`…) to avoid serialization breaks
-- **Renaming a serialized field requires `[FormerlySerializedAs("oldName")]`.** `attackDamege` → `attackDamage` was renamed on 2026-09-01 without it, and the three `SnS_State*.asset` files silently lost their damage (BUG-095)
+- **Renaming a serialized field requires `[FormerlySerializedAs("oldName")]`.** `attackDamege` → `attackDamage` was renamed on 2026-09-01 without it, and the three `SnS_State*.asset` files silently lost their damage (BUG-105)
 - New fields: `camelCase` with `[SerializeField]`, `[Header("Section")]` for inspector grouping
 - Range validation: use `[Range(min, max)]` for all numeric fields to prevent invalid values in Editor
 
