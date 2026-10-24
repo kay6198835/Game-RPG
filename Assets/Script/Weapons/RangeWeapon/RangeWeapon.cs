@@ -6,7 +6,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
     [Header("Range")]
     [SerializeField] private Vector2 firePoint;
     [SerializeField] private float spawnOffset = 0.5f;
-    private IObjectPoolService _objecPoolService;
+    private IObjectPoolService _objectPoolService;
 
     private float nextFireTime;
 
@@ -14,14 +14,14 @@ public class RangeWeapon : Weapon, IProjectilePayload
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
 
     [Inject]
-    public void Construct(IObjectPoolService objecPoolService)
+    public void Construct(IObjectPoolService objectPoolService)
     {
-        _objecPoolService = objecPoolService;
+        _objectPoolService = objectPoolService;
     }
 
     public override bool CanAttack() =>
         base.CanAttack() && StatsRange != null
-        && _objecPoolService != null;
+        && _objectPoolService != null;
 
     public override bool CanChain()
     {
@@ -58,7 +58,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
         {
             float angle = stage.ProjectileCount > 1 ? startAngle + step * i : baseAngle;
             Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            GameObject go = _objecPoolService.Spawn(stage.ProjectilePrefab, firePoint, rotation);
+            GameObject go = _objectPoolService.Spawn(stage.ProjectilePrefab, firePoint, rotation);
 
             if (go != null && go.TryGetComponent(out ProjectileBody body))
                 body.Launch(rotation * Vector3.right, config, this);

@@ -18,14 +18,11 @@ MonoBehaviour:
   - <Type>k__BackingField: 0
     baseValue: 10
     levelUpValue: 0
-    equipmentValue: 2
+    equipmentValue: 0
     equipmentByPrimaryValue: 0
     adjustedValue: 10
-    finalValue: 12
-    modifiers:
-    - targetStat: 0
-      type: 100
-      value: 2
+    finalValue: 10
+    modifiers: []
   - <Type>k__BackingField: 1
     baseValue: 10
     levelUpValue: 0
@@ -61,10 +58,10 @@ MonoBehaviour:
   - <Type>k__BackingField: 100
     baseValue: 190
     levelUpValue: 80
-    equipmentValue: 4
-    equipmentByPrimaryValue: 4
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
     adjustedValue: 270
-    finalValue: 274
+    finalValue: 270
     modifiers: []
   - <Type>k__BackingField: 101
     baseValue: 140
@@ -77,14 +74,11 @@ MonoBehaviour:
   - <Type>k__BackingField: 102
     baseValue: 30
     levelUpValue: 12
-    equipmentValue: 14.400002
-    equipmentByPrimaryValue: 4.4
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
     adjustedValue: 42
-    finalValue: 56.4
-    modifiers:
-    - targetStat: 102
-      type: 100
-      value: 10
+    finalValue: 42
+    modifiers: []
   - <Type>k__BackingField: 103
     baseValue: 28
     levelUpValue: 12
@@ -96,10 +90,10 @@ MonoBehaviour:
   - <Type>k__BackingField: 104
     baseValue: 20
     levelUpValue: 6
-    equipmentValue: 1
-    equipmentByPrimaryValue: 1
+    equipmentValue: 0
+    equipmentByPrimaryValue: 0
     adjustedValue: 26
-    finalValue: 27
+    finalValue: 26
     modifiers: []
   - <Type>k__BackingField: 105
     baseValue: 0.95
@@ -244,4 +238,4 @@ MonoBehaviour:
       coefficient: 0.25
     - sourceStat: 4
       coefficient: 0.1
-  <isDevMode>k__BackingField: 0
+  <isDevMode>k__BackingField: 1

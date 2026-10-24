@@ -17,7 +17,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     [SerializeField] protected AbilityInstance currentAbility;
 
     private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
-    private IObjectPoolService objecPoolService;
+    private IObjectPoolService objectPoolService;
     private IAbilityServices services;
     private IVitalComponent vital;
     private ICharacterInput input;
@@ -32,7 +32,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     public event Action<AbilitySlot, float> AbilityCooldownStarted;
 
     // Lazy: a pooled enemy runs Awake before Pool.Spawn() injects it, so the pool is not known yet in Setup().
-    private IAbilityServices Services => services ??= new AbilityServices(objecPoolService);
+    private IAbilityServices Services => services ??= new AbilityServices(objectPoolService);
     private IVitalComponent Vital
     {
         get
@@ -54,7 +54,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     [Inject]
     public void Construct(IObjectPoolService pool)
     {
-        objecPoolService = pool;
+        objectPoolService = pool;
     }
 
     /// <summary>Where this character's slot → ability bindings are authored: CharacterData, never the weapon.</summary>
