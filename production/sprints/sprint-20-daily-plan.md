@@ -11,9 +11,12 @@
 
 ## Status Verdict
 
-**OPEN — not started (2026-10-25, kickoff).** Monday opens with the playtest (21st carry). Last
-COMPILED tip: `a3f50c5e` (2026-10-22); `05dcf630` touched `.cs` since and is not compile-checked.
-Evidence `STATIC` (+ wrap-up `LOG`).
+**ON-TRACK (day 1, 2026-10-26 standup)** — no planned task due before today. Sunday evening the
+owner landed S20-F1 (`feature/add-effect-component`, merge `9348d151` + `e156bdf4`) ahead of its
+S20-01 gate, plus `041292ce` (champion pick flow). `compile-check.sh` **COMPILED** `e156bdf4`.
+Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → player builds fail
+(NOTE-20261026-1, S1 guess). Evidence `COMPILED` + `LOG`.
+*Was (2026-10-25, kickoff):* OPEN — not started.
 
 ## Burn Summary
 
@@ -21,7 +24,7 @@ Evidence `STATIC` (+ wrap-up `LOG`).
 |--------|------|------|-----------|
 | Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 | 1.3d |
 | Should Have | 1.0d | 0 | 1.0d |
-| Feature story S20-F1 (capped, gated by S20-01) | 0.5d | 0 | 0.5d |
+| Feature story S20-F1 (capped, gated by S20-01) | 0.5d | 0.5d (landed early, unverified) | 0 |
 | Buffer | 1.0d | — | — |
 
 ---
@@ -73,7 +76,7 @@ Evidence `STATIC` (+ wrap-up `LOG`).
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S20-10 BUG-115 | 0.3d | ⬜ | Every Play Mode session can dirty committed stat assets |
-| S20-F1 Land `feature/add-effect-component` (cap 0.5d) | ≤0.5d | ⏸️ gated on S20-01 | Unblocks the deferred stat / vitals bugs |
+| S20-F1 Land `feature/add-effect-component` (cap 0.5d) | ≤0.5d | ✅ merged 2026-10-25 (`9348d151`, `e156bdf4`; COMPILED, not played) | Unblocks the deferred stat / vitals bugs |
 
 ### Fri 2026-10-30 — Verify + cleanup
 | Task | Est. | Status | Why now |
@@ -103,3 +106,18 @@ Evidence `STATIC` (+ wrap-up `LOG`).
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-10-26 (Mon, day 1) — ON-TRACK · evidence COMPILED + LOG
+- **Since kickoff (Sun evening):** `786c031b` effect component (EffectReceiverBase, IEffectReceiver,
+  Player/Entity effect receivers, `VitalStatsBase` −70 lines, item stat-modifier effects) merged
+  as `9348d151` + conflict fix `e156bdf4`; `041292ce` champion pick flow (`Player.SetCharacterData()`
+  re-seeds vitals via `ReloadComponent()`, interact fires on `AnimationEnd`, new
+  `FastTest/AttackFlowDebugger.cs`). S20-F1 done ahead of its S20-01 gate — off-order, not off-plan.
+- **Runtime:** `compile-check.sh` COMPILED `e156bdf4` (78 s). Editor.log 2026-10-25: 342 `error CS`
+  mid-merge (transient, NOTE-20261026-2), 12 Play Mode entries, 1× NRE @ `AttackFlowDebugger.cs:162`
+  (NOTE-20261026-3). `fix-survival.sh 7`: BUG-107 PRESENT.
+- **New notes:** NOTE-20261026-1 (S1 guess — `using UnityEditor.Animations` + `AnimatorController`
+  field in runtime `CharacterData`, player builds fail; `BaseData.asset` override controller drops
+  to null), -2, -3.
+- **Today:** S20-01 playtest first (22nd carry if skipped), then S20-02 BUG-108, S20-03 BUG-096.
+  S20-09 (vitals verify) is now unblocked by S20-F1.
