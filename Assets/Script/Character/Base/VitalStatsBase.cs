@@ -9,20 +9,24 @@ using UnityEngine;
 public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalComponent where TCore : CoreBase
 {
     protected Dictionary<StatType, float> currentStats = new();
-    protected IStatService statHandler;
-    [field: SerializeField] protected float _currentHP = 0;
 
     public event System.Action CurrentStatsChanged;
 
     protected override void Start()
     {
         base.Start();
-        Reborn();
     }
 
-    public virtual void Reborn()
+    public override void Setup()
     {
-        if (statHandler == null) Core.TryGetCapability(out statHandler);
+        base.Setup();
+        Core.TryGetCapability(out statHandler);
+        currentStats = statHandler.GetFullStat();
+    }
+
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
         currentStats = statHandler.GetFullStat();
         UpdateStatField();
     }
@@ -40,12 +44,6 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
             return valueStat;
         }
         return statHandler.GetStatValue(statType);
-    }
-
-    public void ApplyBuffDebuff(StatModifierGroup statModifierGroup)
-    {
-        statHandler.AddModifiersFromSource(this, statModifierGroup.Modifiers);
-        UpdateStatField();
     }
 
     public void Recovery(StatType statType, float amount)
@@ -75,53 +73,4 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         }
         UpdateStatField();
     }
-
-    #region Reduction/Recovery per timer for duration
-    // BUG-071: the iterators below are built but never started. Moved here unchanged.
-    public void ReductionPerTimeForDuration(StatType statType, float amount, float perTime, float timeCount)
-    {
-        StartCoroutine(ReductionPerTime(statType, amount, perTime, timeCount));
-    }
-
-    public void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float timeCount)
-    {
-        StartCoroutine(RecoveryPerTime(statType, amount, perTime, timeCount));
-    }
-
-    IEnumerator RecoveryPerTime(StatType statType, float amount, float perTime, float timeCount)
-    {
-        Recovery(statType, amount);
-        timeCount--;
-        if (timeCount > 0)
-        {
-            yield return new WaitForSeconds(perTime);
-            RecoveryPerTimeForDuration(statType, amount, perTime, timeCount);
-        }
-    }
-
-    IEnumerator ReductionPerTime(StatType statType, float amount, float perTime, float timeCount)
-    {
-        Reduction(statType, amount);
-        timeCount--;
-        if (timeCount > 0)
-        {
-            yield return new WaitForSeconds(perTime);
-            ReductionPerTimeForDuration(statType, amount, perTime, timeCount);
-        }
-    }
-    #endregion
-
-    #region Buff/Debuff for duration
-    public void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
-    {
-        StartCoroutine(ApplyDebuffForDuration(statModifierGroup, duration));
-    }
-
-    IEnumerator ApplyDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
-    {
-        statHandler.AddModifiersFromSource(this, statModifierGroup.Modifiers);
-        yield return new WaitForSeconds(duration);
-        statHandler.RemoveModifiersFromSource(this);
-    }
-    #endregion
 }

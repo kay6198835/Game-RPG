@@ -6,11 +6,12 @@ public abstract class StatsEffectBase : AbilityEffectDefinition
     [field: SerializeField] protected StatModifierGroup statModifier;
     [field: SerializeField] protected StatImpactType impactType;
     [SerializeField] protected EffectRecipient recipient = EffectRecipient.Caster;
-
+    
     public override void Apply(AbilityContext context)
     {
         // Same path for a player or an enemy: only IVitalComponent is touched.
         if (!context.TryGetRecipientComponent(recipient, out IVitalComponent vital)) return;
+        if (!context.TryGetRecipientComponent(recipient, out IEffectReceiver effectReceiver)) return;
 
         Dictionary<StatType, List<StatModifier>> grouped = new();
 
@@ -30,9 +31,9 @@ public abstract class StatsEffectBase : AbilityEffectDefinition
             float currentStatVital = vital.GetCurrentStatValue(currentStatTypeKey);
             float impactValue = Utility.ModifierStatsCalculate(kvp.Value, currentStatVital);
 
-            ApplyImpact(vital, currentStatTypeKey, impactValue);
+            ApplyImpact(effectReceiver, currentStatTypeKey, impactValue);
         }
     }
 
-    protected abstract void ApplyImpact(IVitalComponent vital, StatType statType, float impactValue);
+    protected abstract void ApplyImpact(IEffectReceiver effectReceiver, StatType statType, float impactValue);
 }
