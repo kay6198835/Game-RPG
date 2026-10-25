@@ -11,7 +11,16 @@
 
 ## Status Verdict
 
-**OPEN — day 5 of 5 (2026-10-23, Fri standup). SLIPPED — 1.3d Must-Have left for 1 day; Must-Have cannot close this sprint.**
+**CLOSED — weekly verdict SLIPPED (2026-10-25, `/weekly-wrapup --auto`, Saturday slot fired Sunday).**
+Must-Have 1/9 done (S19-02, 0.05d); planned velocity **0.05 / 4 = 0.01**. Off-plan output was large
+(regen / wallet / level-up scaffolding, GameplayUI stats panel, `ICharacter` covariance, Erika + Archer /
+Mage animation clips and ability assets in `05dcf630`, stat-reduction epic) but none of it is a sprint
+story. No playtest sheet filled (`playtest-2026-10-24.md` empty; S19-01 at 19 carries) → no `RUNTIME`
+evidence; verdict could not exceed CONCERNS anyway. Triage confirmed **BUG-110…115**; BUG-107 → PARTIAL,
+BUG-104 regressed. Evidence `LOG` + `STATIC`. **Handoff to Sunday kickoff:** playtest done: **no**;
+velocity **0.01**; carry-over in the Week close section below.
+
+*Previous (Fri standup):* **OPEN — day 5 of 5 (2026-10-23, Fri standup). SLIPPED — 1.3d Must-Have left for 1 day; Must-Have cannot close this sprint.**
 Thursday produced no commit on any planned file: only `5be2ed99` (Erika sprite sheets re-indexed, art, off-plan,
 merged to `sprint-19` by `d9552fbe`) and two epic docs on `feature/ui-flow-maingameplay` (`8a6961d5` / `2f78c75c`,
 stat-reduction epic, off-plan). No `.cs` changed since `a3f50c5e` (last COMPILED). `compile-check.sh` SKIPPED today
@@ -64,6 +73,36 @@ pushed ahead of S19-01, i.e. the feature gate was bypassed. New: NOTE-20261019-1
 | Should Have | 1.0d | 0 | 1.0d |
 | Feature story S19-F1 (capped, gated by S19-01 + S19-02) | 0.5d | 0 | 0.5d |
 | Buffer | 1.0d | — | — |
+| **Week close (2026-10-25)** | 2.9d planned | **0.05d planned + ≈0.05d unplanned build fix** | 1.3d Must + 1.0d Should + 0.5d Feature → carry |
+| Off-plan (2026-10-24) | — | `05dcf630` animation events + Archer / Mage ability assets; NOTE-20261020-2 default-weapon fix; BUG-104 log re-added | — |
+
+---
+
+## Week close (wrap-up 2026-10-25)
+
+### Final task status
+
+| ID | Status | Note |
+|----|--------|------|
+| S19-01 | ⬜ carry (20th) | Sheet `playtest-2026-10-24.md` empty; `Editor-prev.log` shows 3 Play Mode entries on 2026-10-24, no exception — not a playtest |
+| S19-02 | ✅ | Owner merge `964be0a7` |
+| S19-03 … S19-08 | ⬜ carry | No commit on their files |
+| S19-09 … S19-14 | ⬜ carry | Should-Have, untouched |
+| S19-F1 | ⏸️ carry | Gate (S19-01) never opened; Archer / Mage ability assets landed off-gate in `05dcf630` |
+| Saturday playtest | ⬜ not run | — |
+
+### Handoff values for `/weekly-kickoff`
+
+- **Playtest done:** no — put S19-01 first on Monday (or a signed accepted-risk note).
+- **Velocity:** 0.01 (0.05d of planned estimate / 4 working days). Off-plan ≈3d.
+- **Carry-over:** S19-01, S19-03, S19-04, S19-05, S19-06, S19-07, S19-08 (Must); S19-09…S19-14 (Should); S19-F1.
+- **New blocker bugs:** BUG-108 (S1, open, live on `sprint-19`), BUG-096 (S1); weapon trio BUG-106 / BUG-107 (PARTIAL) / **BUG-110** in one `WeaponHolderBase` session; **BUG-115** (stat assets corrupted in git). Stat-reduction epic stories 002/003/009 now map to **BUG-113 / BUG-114 / BUG-115**.
+
+### Retrospective (light)
+
+- **Went well:** the build was fixed within two days of the fifth break; NOTE-20261020-2 (default weapon never stored) fixed in `05dcf630`; the stat-system review produced a ready-made epic with stories for three of this week's bugs.
+- **Slipped:** 0 of 8 open Must-Have stories; the playtest (S19-01) is at its **20th** carry and S19-08 (pre-push compile gate) at its **9th** — both deferred for over a month. A fixed BUG-104 log line came back in the next commit.
+- **One improvement:** make the Monday kickoff open with a 15-minute S19-01 slot scheduled *before* any feature work, and treat a second skipped Saturday sheet as an owner decision (play it, or sign an accepted-risk note) rather than another silent carry.
 
 ---
 
@@ -247,3 +286,19 @@ _(appended by `/daily-standup`)_
 - **Today:** S19-01 smoke (0.3d — or play Saturday's sheet today) → NOTE-20261020-2 one-liner (0.02d) → S19-07
   (0.2d) → S19-05 (0.15d); ≈0.7d. S19-03/04/06/08, all Should-Haves and S19-F1 carry to Sprint 20.
 - **Verdict:** SLIPPED (Thu 0% of plan; Must-Have 1/9 with one day left). Evidence `LOG` + `STATIC`.
+
+### 2026-10-25 (Sun) — `/weekly-wrapup --auto`
+
+- **Run timing:** Saturday 22:00 slot fired Sunday 2026-10-25.
+- **Since Fri standup:** Erika idle sheet fixes `b814c032`…`46ea7140` (art, 2026-10-24) and owner `05dcf630`
+  "add animation event" (2026-10-24 19:59): Archer / Mage ability clips, override controllers and 8 ability
+  assets; `.cs` — `WeaponHolderBase.cs:54` now stores the spawned weapon (NOTE-20261020-2 default half
+  resolved), `objecPoolService` → `objectPoolService` renames, `PlayerState.cs:34,42` two new unguarded logs.
+- **Code review:** 67 `.cs` changed since the last wrap-up (`bf8d596e`); the stat / regen / weapon files
+  were reviewed by the week's standups and session; this run re-read `05dcf630` and the weapon pickup path →
+  NOTE-20261025-1 (BUG-104 regression), BUG-110.
+- **Playtest:** NOT RUN — sheet empty. `editor-log.sh`: `Editor.log` 2026-10-25 19:46 0 errors 0 Play Mode;
+  `Editor-prev.log` 2026-10-24 21:51 0 errors, 3 Play Mode, no `Assets/Script/` exception.
+- **Fix survival (30 d):** 1 row — BUG-064 PARTIAL 77% (renames; pickup path → BUG-110). 0 GONE.
+- **Triage:** 13 notes → 6 confirmed (BUG-110…115), 2 resolved, 3 duplicate, 1 not a bug, 1 needs owner.
+- **Verdict:** SLIPPED (week). Evidence `LOG` + `STATIC`. Commits: `5387712` + merge `0d7a8b8c`, then this commit.
