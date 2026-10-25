@@ -16,12 +16,18 @@ public class PlayerIntertorState : PlayerUseWeaponState
         player.Core.GetCoreComponent(out interactor);
     }
 
-    public override void AnimationOnAction()
+    public override void AnimationEnd()
     {
-        base.AnimationOnAction();
+        base.AnimationEnd();
         interactor.Intertion();
         Status = StatusAnimation.OffActivate;
     }
+
+    // public override void OffAnimationTrigger()
+    // {
+    //     base.OffAnimationTrigger();
+    //     Status = StatusAnimation.OffActivate;
+    // }
 
     public override void Exit()
     {

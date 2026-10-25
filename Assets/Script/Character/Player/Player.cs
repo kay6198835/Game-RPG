@@ -83,6 +83,7 @@ public class Player : CharacterBase<Core>
         this.data = (PlayerData)data;
         gameObject.name = data.name;
         anim.runtimeAnimatorController = data.animationController;
+        stateMachine.Initialize(idleState);
 
         // Need check and fix this logic late
         core.GetCoreComponent(out WeaponHolder weaponHolder);

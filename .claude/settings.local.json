@@ -126,7 +126,11 @@
       "Bash(wmic process *)",
       "PowerShell(Get-Process git -ErrorAction SilentlyContinue)",
       "PowerShell(\\(Get-Item D:\\\\Fork\\\\Game-RPG\\\\.git\\\\index.lock\\).LastWriteTime; Get-Date)",
-      "Bash(rm D:/Fork/Game-RPG/.git/index.lock)"
+      "Bash(rm D:/Fork/Game-RPG/.git/index.lock)",
+      "WebSearch",
+      "WebFetch(domain:community.gamedev.tv)",
+      "WebFetch(domain:docs.unity3d.com)",
+      "Bash(sed 's/.*m_Name: //')"
     ],
     "additionalDirectories": [
       "D:/Fork/Game-RPG-pm"

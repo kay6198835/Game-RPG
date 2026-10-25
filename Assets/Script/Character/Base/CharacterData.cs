@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -16,6 +17,6 @@ public abstract class CharacterData : ScriptableObject
     [SerializeField] protected List<AbilityBinding> abilityBindings = new List<AbilityBinding>();
     public BaseStatsSO Stats => stats;
     public List<AbilityBinding> AbilityBindings => abilityBindings;
-    [SerializeField] public AnimatorOverrideController animationController;
+    [SerializeField] public AnimatorController animationController;
     [field: SerializeField] public Weapon Weapon { get; set; }
 }
