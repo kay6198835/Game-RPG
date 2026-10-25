@@ -10,10 +10,15 @@ using UnityEngine;
 /// Look up the non-generic <see cref="ICharacter"/> from outside; use ICharacter&lt;TCore&gt; only where the
 /// concrete core type is known (e.g. WeaponHolderBase).
 /// </summary>
-public interface ICharacter<out Tcore> where Tcore : ICore
+public interface ICharacter
 {
     ICore Core { get; }
     Transform Transform { get; }
     void SetCharacterData(CharacterData data);
     void Reborn();
+}
+
+public interface ICharacter<out TCore> : ICharacter where TCore : ICore
+{
+    new TCore Core { get; }
 }

@@ -9,7 +9,7 @@ using UnityEngine;
 public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalComponent where TCore : CoreBase
 {
     protected Dictionary<StatType, float> currentStats = new();
-
+    protected IStatService statHandler;
     public event System.Action CurrentStatsChanged;
 
     protected override void Start()
@@ -33,7 +33,6 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     protected virtual void UpdateStatField()
     {
-        _currentHP = GetCurrentStatValue(StatType.HP);
         CurrentStatsChanged?.Invoke();
     }
 

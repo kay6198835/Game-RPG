@@ -90,6 +90,9 @@ public class Player : CharacterBase<Core>
         weaponHolder.EquipDefaultWeapon();
         core.GetCoreComponent(out AbilityHolder abilityHolder);
         abilityHolder.SetAbility();
+        // Re-seed vitals for the new character and re-notify the HUD; not Reborn(), which would also zero the wallet.
+        core.GetCoreComponent(out VitalStatsComponent vitalStats);
+        vitalStats.ReloadComponent();
     }
 
 

@@ -1,3 +1,6 @@
+using System.Collections;
+using UnityEngine;
+
 public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiver where TCore : CoreBase
 {
     protected IVitalComponent vital;
@@ -10,41 +13,41 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     }
     public void AdjustMaxToCurrentStats(StatModifierGroup statModifierGroup, bool isAdjustmentMaxStats = false, object obj = null)
     {
-        if (statType.IsPrimary()) return;
-        if (currentStats[statType] - amount <= 0)
-            foreach (var modifier in statModifierGroup.Modifiers)
-            {
-                currentStats[statType] = 0;
-                if (modifier.statType.IsPrimary()) continue;
+        // if (statType.IsPrimary()) return;
+        // if (currentStats[statType] - amount <= 0)
+        //     foreach (var modifier in statModifierGroup.Modifiers)
+        //     {
+        //         currentStats[statType] = 0;
+        //         if (modifier.statType.IsPrimary()) continue;
 
-                if (currentStats[modifier.statType] + amount >= statHandler.GetStatValue(modifier.statType))
-                {
-                    if (isAdjustmentMaxStats)
-                    {
-                        currentStats[modifier.statType] += amount;
-                    }
-                    else
-                    {
-                        currentStats[modifier.statType] = statHandler.GetStatValue(modifier.statType);
-                    }
-                }
-                else if (currentStats[modifier.statType] + amount <= 0)
-                {
-                    currentStats[modifier.statType] = 0;
-                }
-                else
-                {
-                    currentStats[modifier.statType] += amount;
-                }
-                UpdateStatField();
-            }
-        else
-            if (isAdjustmentMaxStats)
-            {
-                currentStats[statType] -= amount;
-                ModifierMaxStats(statModifierGroup, obj);
-            }
-        UpdateStatField();
+        //         if (currentStats[modifier.statType] + amount >= statHandler.GetStatValue(modifier.statType))
+        //         {
+        //             if (isAdjustmentMaxStats)
+        //             {
+        //                 currentStats[modifier.statType] += amount;
+        //             }
+        //             else
+        //             {
+        //                 currentStats[modifier.statType] = statHandler.GetStatValue(modifier.statType);
+        //             }
+        //         }
+        //         else if (currentStats[modifier.statType] + amount <= 0)
+        //         {
+        //             currentStats[modifier.statType] = 0;
+        //         }
+        //         else
+        //         {
+        //             currentStats[modifier.statType] += amount;
+        //         }
+        //         // UpdateStatField();
+        //     }
+        // else
+        //     if (isAdjustmentMaxStats)
+        //     {
+        //         currentStats[statType] -= amount;
+        //         ModifierMaxStats(statModifierGroup, obj);
+        //     }
+        // UpdateStatField();
     }
 
 
@@ -88,7 +91,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     public void ApplyBuffDebuff(StatModifierGroup statModifierGroup)
     {
         statHandler.AddModifiersFromSource(this, statModifierGroup.Modifiers);
-        UpdateStatField();
+        // UpdateStatField();
     }
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.
@@ -136,6 +139,16 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         statHandler.AddModifiersFromSource(this, statModifierGroup.Modifiers);
         yield return new WaitForSeconds(duration);
         statHandler.RemoveModifiersFromSource(this);
+    }
+
+    public void Recovery(StatType statType, float amount)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Reduction(StatType statType, float amount)
+    {
+        throw new System.NotImplementedException();
     }
     #endregion
 }

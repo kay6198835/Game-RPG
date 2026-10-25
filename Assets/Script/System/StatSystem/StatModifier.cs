@@ -42,7 +42,7 @@ public sealed class StatModifier
     /// Stat.CalculateFinalValue gom các PercentAdd LIÊN TIẾP dựa trên list đã sort theo Order,
     /// nên một Order tự đặt sẽ làm sai kết quả mà không báo lỗi.
     /// </summary>
-    public fint Order => (int)type;
+    public int Order => (int)type;
 
     /// <summary>Nguồn tạo ra modifier (item, buff, passive...); StatsSO gỡ theo nguồn bằng ReferenceEquals.</summary>
     public object Source => source;

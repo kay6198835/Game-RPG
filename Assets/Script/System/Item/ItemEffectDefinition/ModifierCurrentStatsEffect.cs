@@ -9,3 +9,9 @@ public abstract class ModifierCurrentStatsEffect : StatModifierEffect
 }
 
 public enum TypeModifier
+{
+    Add,
+    Subtract,
+    Multiply,
+    Divide
+}
