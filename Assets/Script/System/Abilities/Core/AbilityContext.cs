@@ -35,7 +35,7 @@ public class AbilityContext
         if (source == null) return false;
         ICharacter character = source.GetComponentInParent<ICharacter>();
         if (character == null) return false;
-        component = character.Transform.GetComponentInChildren<T>();
+        character.Core.TryGetCapability(out component);
         return component != null;
     }
 }

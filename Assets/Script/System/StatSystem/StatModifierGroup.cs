@@ -24,4 +24,13 @@ public class StatModifierGroup
     private List<StatModifier> authoredModifiers = new List<StatModifier>();
 
     public IReadOnlyList<StatModifier> Modifiers => authoredModifiers;
+
+    public void PrimaryFilter()
+    {
+        authoredModifiers = authoredModifiers.Where(x => x.TargetStat.IsPrimary() == true).ToList();
+    }
+    public void DerivedFilter()
+    {
+        authoredModifiers = authoredModifiers.Where(x => x.TargetStat.IsPrimary() == false).ToList();
+    }
 }

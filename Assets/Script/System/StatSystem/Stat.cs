@@ -215,6 +215,17 @@ public class Stat
                         percentAddSum = 0f;
                     }
                     break;
+                case ModifierType.PercentAdd:
+                    percentAddSum += mod.Value;
+                    // Cộng dồn hết các PercentAdd liên tiếp rồi mới nhân 1 lần
+                    bool isLastPercentAdd = i + 1 >= modifiers.Count
+                        || modifiers[i + 1].Type != ModifierType.PercentAdd;
+                    if (isLastPercentAdd)
+                    {
+                        finalValue *= 1f + percentAddSum;
+                        percentAddSum = 0f;
+                    }
+                    break;
 
                 case ModifierType.PercentMult:
                     finalValue *= 1f + mod.Value;
