@@ -1,6 +1,9 @@
 # Sprint 19 — 2026-10-19 to 2026-10-23
 
-**Status: OPEN.** Opened 2026-10-19 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
+**Status: CLOSED — SLIPPED (2026-10-25).** Must-Have 1/9 (S19-02), planned velocity 0.01, playtest
+done: no. Carry-over seeded `sprint-20.md`.
+
+*Was:* **OPEN.** Opened 2026-10-19 (`pm-weekly-kickoff`, autonomous run — no owner present; the run
 fired Monday 2026-10-19 instead of Sunday 22:00, so the sprint starts today).
 Branch `sprint-19`, created on the remote from the `sprint-18` tip (`ea11e017`, "chore(standup): daily
 standup 2026-10-16"). `gh` CLI unavailable (`gh: command not found`) — draft PR **not** auto-created;

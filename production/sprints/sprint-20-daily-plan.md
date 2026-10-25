@@ -1,0 +1,105 @@
+# Sprint 20 — Daily Plan & Progress Tracker
+
+> **Sprint**: 2026-10-26 (Mon) -> 2026-10-30 (Fri) · playtest Sat 2026-10-31
+> **Companion to**: `sprint-20.md` — day-by-day breakdown + live tracker
+> **Routines: Mon–Fri 02:00 /daily-standup · Sat 22:00 /weekly-wrapup · Sat 23:00 /doc-sync --auto · Sun 22:00 /weekly-kickoff**
+> **Opened**: 2026-10-25 (kickoff, autonomous). Branch `sprint-20` from `sprint-19` tip (`566a684d`).
+> Sprint 19 closed SLIPPED (Must-Have 1/9, planned velocity 0.01, ≈3d off-plan output, playtest
+> done: no). See `sprint-20.md` › Sprint 19 Closure.
+
+---
+
+## Status Verdict
+
+**OPEN — not started (2026-10-25, kickoff).** Monday opens with the playtest (21st carry). Last
+COMPILED tip: `a3f50c5e` (2026-10-22); `05dcf630` touched `.cs` since and is not compile-checked.
+Evidence `STATIC` (+ wrap-up `LOG`).
+
+## Burn Summary
+
+| Bucket | Est. | Done | Remaining |
+|--------|------|------|-----------|
+| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 | 1.3d |
+| Should Have | 1.0d | 0 | 1.0d |
+| Feature story S20-F1 (capped, gated by S20-01) | 0.5d | 0 | 0.5d |
+| Buffer | 1.0d | — | — |
+
+---
+
+## Task Estimates
+
+| ID | Task | Est. | Priority | Carries |
+|----|------|------|----------|---------|
+| S20-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | **21st** |
+| S20-02 | BUG-108 `[FormerlySerializedAs]` on `CharacterData` | 0.1d | Must | new (S1) |
+| S20-03 | BUG-096 zero-spawn branch | 0.1d | Must | 4th |
+| S20-04 | Weapon trio BUG-106 / 107 / 110 | 0.3d | Must | new |
+| S20-05 | BUG-097 start / boss order | 0.1d | Must | 4th |
+| S20-06 | Editor / data block (BUG-105, BUG-095, BUG-072 check) | 0.15d | Must | 4th |
+| S20-07 | Process gate decision | 0.1d | Must | **10th** |
+| — | Saturday playtest | 0.1d | Must | — |
+| S20-08 | BUG-065 + BUG-086 | 0.2d | Should | 11th / 6th |
+| S20-09 | BUG-092 + BUG-066/070 verify | 0.15d | Should | 6th / 11th |
+| S20-10 | BUG-115 runtime stat copy + asset revert | 0.3d | Should | new |
+| S20-11 | BUG-104 / 103 / 102 / 068 one-liners | 0.15d | Should | 2nd–5th |
+| S20-12 | BUG-073 / 090 / 112 missing scripts | 0.2d | Should | 7th / new |
+| S20-F1 | Land `feature/add-effect-component` | ≤0.5d | Feature | — |
+
+---
+
+## Day-by-Day Plan
+
+### Mon 2026-10-26 — Play first, then the S1 blockers
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S20-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 21st carry; no `RUNTIME` evidence for 17 weeks |
+| S20-02 BUG-108 | 0.1d | ⬜ | S1 — Knight enemies throw on first stat read; combat rooms cannot clear |
+| S20-03 BUG-096 | 0.1d | ⬜ | S1 — non-combat rooms stay sealed |
+
+### Tue 2026-10-27 — Weapon session
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S20-04 BUG-106 / 107 / 110 | 0.3d | ⬜ | One file (`WeaponHolderBase`), three bugs; enemies cannot attack |
+| S20-05 BUG-097 | 0.1d | ⬜ | Run starts in the boss room |
+
+### Wed 2026-10-28 — Data block + process gate
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S20-06 Editor / data block | 0.15d | ⬜ | BUG-105 drops sword stage damage to 0 |
+| S20-07 Process gate decision | 0.1d | ⬜ | 10th carry; 5 build breaks in 3 weeks |
+| S20-08 BUG-065 + BUG-086 | 0.2d | ⬜ | Death path; precondition for BUG-087 |
+
+### Thu 2026-10-29 — Stat asset safety + feature
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S20-10 BUG-115 | 0.3d | ⬜ | Every Play Mode session can dirty committed stat assets |
+| S20-F1 Land `feature/add-effect-component` (cap 0.5d) | ≤0.5d | ⏸️ gated on S20-01 | Unblocks the deferred stat / vitals bugs |
+
+### Fri 2026-10-30 — Verify + cleanup
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S20-09 BUG-092 + BUG-066/070 verify | 0.15d | ⬜ | After S20-F1 so it checks the new `VitalStatsBase` |
+| S20-11 One-liners | 0.15d | ⬜ | BUG-104 regressed |
+| S20-12 Missing-script assets | 0.2d | ⬜ | Missing Script warnings in every clone |
+| Buffer | 1d | — | — |
+
+### Sat 2026-10-31 — Weekly playtest
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+
+---
+
+## Risks (live)
+
+- Playtest at 21st carry — a second skipped Saturday is an owner decision, not a silent carry.
+- `feature/add-effect-component` (`786c031b`) rewrites `VitalStatsBase.cs`; stat / vitals bugs wait for it.
+- BUG-115: check `git status` for dirty `Assets/SO/Stat/*.asset` after Play Mode until S20-10 lands.
+- `05dcf630` changed `.cs` after the last COMPILED tip — Monday standup compile-check matters.
+- `gh` unavailable — draft PR not opened.
+
+---
+
+## Daily Log
+
+_(appended by `/daily-standup`)_
