@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 [Serializable]
 public class AbilityContext
@@ -16,6 +17,7 @@ public class AbilityContext
     public AbilityDefinition AbilityDefinition;
 
     [NonSerialized] public IAbilityServices Services;
+    [SerializeField] public EffectRecipient Recipient = EffectRecipient.Caster;
 
     /// <summary>
     /// The hurtbox collider a spawned object just hit. Set-then-invoke: the object that detects the hit

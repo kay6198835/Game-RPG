@@ -125,7 +125,7 @@ public class BaseStatsSO : ScriptableObject
             StatModifier authored = modifiers[i];
             if (authored == null) continue;
 
-            Stat stat = GetOrCreate(authored.TargetStat);
+            Stat stat = GetOrCreate(authored.TargetStatType);
             stat.AddModifier(authored.WithSource(source));
             OnStatChanged?.Invoke(stat.Type);
             if (stat.Type.IsPrimary()) primaryChanged = true;

@@ -28,10 +28,10 @@ public class StatModifierGroup
 
     public void PrimaryFilter()
     {
-        authoredModifiers = authoredModifiers.Where(x => x.TargetStat.IsPrimary() == true).ToList();
+        authoredModifiers = authoredModifiers.Where(x => x.TargetStatType.IsPrimary() == true).ToList();
     }
     public void DerivedFilter()
     {
-        authoredModifiers = authoredModifiers.Where(x => x.TargetStat.IsPrimary() == false).ToList();
+        authoredModifiers = authoredModifiers.Where(x => x.TargetStatType.IsPrimary() == false).ToList();
     }
 }

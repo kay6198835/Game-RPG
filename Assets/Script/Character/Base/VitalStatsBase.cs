@@ -45,7 +45,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         return statHandler.GetStatValue(statType);
     }
 
-    public void Recovery(StatType statType, float amount)
+    public void Recovery(StatType statType, float amount, bool isIgnoreMax = true)
     {
         if (statType.IsPrimary()) return;
         if (currentStats[statType] + amount >= statHandler.GetStatValue(statType))
@@ -59,7 +59,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         UpdateStatField();
     }
 
-    public void Reduction(StatType statType, float amount)
+    public void Reduction(StatType statType, float amount, bool isIgnoreMax = true)
     {
         if (statType.IsPrimary()) return;
         if (currentStats[statType] - amount <= 0)

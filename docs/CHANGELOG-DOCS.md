@@ -17,6 +17,31 @@ which code change caused it.
 
 ---
 
+## 2026-10-27 — Effect source plan (owner request)
+
+**Cause:** source read of `6e484f0c` "update logic effect" on `feature/add-effect-component`: timed stat buffs are
+added with a `null` source, no concrete `IEffectReceiver` is attached to any character, per-cast state sits on
+effect ScriptableObjects, and `StatModifier.targetStat` was renamed without `[FormerlySerializedAs]`. No `.cs`
+file was changed.
+
+| Document | Change |
+|---|---|
+| `docs/architecture/effect-source-plan.md` | **New** — proposed design (one pooled `SourceEffect` per applied effect), impact analysis, Play Mode checks. Status: Proposed, not an ADR |
+
+---
+
+## 2026-10-27 — Core component access plan (owner request)
+
+**Cause:** owner design discussion on internal vs external access to core components, read against
+source at HEAD `05dcf63`. No `.cs` file changed.
+
+| Document | Change |
+|---|---|
+| `docs/architecture/core-component-access-plan.md` | **New** — approved plan, not implemented |
+| `docs/architecture/changelog/core-component-access-plan.CHANGELOG.md` | **New** |
+
+---
+
 ## 2026-10-20 — Item system GDD + item cleanup (owner request)
 
 **Cause:** owner design decisions 2026-10-20 (no inventory; Wallet + coin-paid primary stats; no level

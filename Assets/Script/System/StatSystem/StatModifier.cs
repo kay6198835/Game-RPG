@@ -26,15 +26,16 @@ public enum ModifierType
 [System.Serializable]
 public sealed class StatModifier
 {
-    [SerializeField] private StatType targetStat;
+    [SerializeField] private StatType targetStatType;
     [SerializeField] private ModifierType type;
     [SerializeField] private float value;
 
     [NonSerialized] private object source;
 
     /// <summary>Chỉ số mà modifier này gắn vào.</summary>
-    public StatType TargetStat => targetStat;
+    public StatType TargetStatType => targetStatType;
     public ModifierType Type => type;
+    public StatImpactType ImpactType { get => value >= 0 ? StatImpactType.Recovery : StatImpactType.Reduction; }
     public float Value => value;
 
     /// <summary>
@@ -51,12 +52,12 @@ public sealed class StatModifier
 
     public StatModifier(StatType targetStat, float value, ModifierType type, object source = null)
     {
-        this.targetStat = targetStat;
+        this.targetStatType = targetStat;
         this.value = value;
         this.type = type;
         this.source = source;
     }
-    public void SetType (ModifierType updateType) => type = updateType;
+    public void SetType(ModifierType updateType) => type = updateType;
     /// <summary>Bản sao cùng dữ liệu nhưng đóng dấu nguồn mới (dùng khi apply một asset dùng chung).</summary>
-    public StatModifier WithSource(object newSource) => new StatModifier(targetStat, value, type, newSource);
+    public StatModifier WithSource(object newSource) => new StatModifier(targetStatType, value, type, newSource);
 }
