@@ -7,6 +7,8 @@ public abstract class AbilityEffectDefinition : ScriptableObject
     public List<AbilityConditionDefinition> SubConditions = new();
     public List<AbilityEffectDefinition> SubEffects = new();
     public List<StatCost> Costs = new();
+    [SerializeField] public EffectRecipient Recipient => recipient;
+    [SerializeField] private EffectRecipient recipient = EffectRecipient.Caster;
     public abstract void Apply(AbilityContext context);
     public virtual bool TryCast(AbilityContext context)
     {

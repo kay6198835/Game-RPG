@@ -127,7 +127,7 @@ public class AbilityInstance
             HoldRatio = holdRatio,
             AbilityDefinition = Definition,
             AbilityInstance = this,
-            Services = Services
+            Services = Services,
         };
     }
 
@@ -147,6 +147,7 @@ public class AbilityInstance
         {
             var effect = Definition.Effects[i];
             if (effect == null) continue;
+            context.Recipient = effect.Recipient;
             effect.Apply(context);
         }
     }

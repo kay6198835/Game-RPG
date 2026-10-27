@@ -6,10 +6,10 @@ public class BuffDebuffStatsForDuration : AbilityEffectDefinition
     public StatModifierGroup statModifierGroup;
     public float duration;
     IEffectReceiver effectReceiver;
-    public EffectRecipient recipient = EffectRecipient.Caster;
     public override void Apply(AbilityContext context)
     {
-        if (!context.TryGetRecipientComponent(recipient, out IVitalComponent vital)) return;
-        effectReceiver.BuffDebuffForDuration(statModifierGroup, duration);
+        if (!context.TryGetRecipientComponent(Recipient, out effectReceiver)) return;
+
+        effectReceiver.AdjustCurrentForDuration(statModifierGroup, duration);
     }
 }

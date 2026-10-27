@@ -1,9 +1,7 @@
 public interface IEffectReceiver
 {
-    void Recovery(StatType statType, float amount);
-    void Reduction(StatType statType, float amount);
-    void ApplyBuffDebuff(StatModifierGroup statModifierGroup);
-    void BuffDebuffForDuration(StatModifierGroup statModifierGroup, float duration);
-    void RecoveryPerTimeForDuration(StatType statType, float amount, float perTime, float duration);
-    void ReductionPerTimeForDuration(StatType statType, float amount, float perTime, float duration);
+    void AdjustMaxToCurrentStats(StatModifierGroup modifierGroup, bool isIgnoreMax = true, object obj = null);
+    void AdjustMaxStats(StatModifierGroup modifierGroup, object obj = null);
+    void AdjustCurrentForDuration(StatModifierGroup modifierGroup, float duration, object obj = null);
+    void AdjustCurrentPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, object obj = null);
 }
