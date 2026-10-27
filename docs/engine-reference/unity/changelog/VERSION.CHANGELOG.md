@@ -7,6 +7,14 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-08 — CCGS v1.1.2 upgrade: filtered Unity 6.3 reference docs added
+
+- **What:** `## Note` now warns before `/setup-engine refresh` (from: "run it if agents suggest
+  incorrect APIs" → to: "run with care; it rewrites every reference doc and would drop the filter
+  markers"). New section *Extended reference* links the upstream Unity docs and `UNITY-2022.3-FILTER.md`.
+- **Why:** owner asked to keep the upstream Unity reference and filter out the 6.3-only content rather
+  than drop it. The upgraded `/setup-engine refresh` (§10) rewrites all docs in this folder.
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+41 / −4 lines)
 - **Sections touched:** “Unity — Version Reference”, “Pinned Package Versions”, “VContainer 1.19.0 (added 2026-09-11)”, “UI Toolkit vs UGUI”, “Migration Notes”

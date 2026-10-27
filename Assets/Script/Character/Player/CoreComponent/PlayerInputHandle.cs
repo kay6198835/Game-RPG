@@ -84,6 +84,7 @@ public class PlayerInputHandler : CharacterInputBase<Core>
     public float AngleExternalityDirection { get => angleExternalityDirection; }
     public int DirectionExternality { get => directionExternality; }
     public bool BufferIsAttack { get => bufferIsAttack; }
+    public override int AimDirectionIndex { get => directionMouse; }
     #endregion
 
 

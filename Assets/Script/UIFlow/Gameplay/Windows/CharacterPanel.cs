@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UIFlow
 {
-    /// <summary>Trang Nhân vật: tên, class, level, exp và toàn bộ chỉ số.</summary>
+    /// <summary>Trang Nhân vật: tên, class, level, exp và toàn bộ chỉ số (chỉ xem — cộng điểm ở StatsPanel, phím C).</summary>
     public class CharacterPanel : TabPage
     {
         [SerializeField] private TMP_Text headerText;

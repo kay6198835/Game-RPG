@@ -7,6 +7,18 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-10 — Event rename banner (doc-sync --auto)
+- **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
+- **Changed:** Re-synced banner
+- **From → To:** body names `ON_CLEAR_ENEMY` → banner says read it as `ON_OPEN_DOOR`. Body left as written (Approved GDD).
+- **Why:** enum value renamed in code.
+- **Still ⚠️ Out of date:** `RarityTier` → code `RarityTierEnemy` (BUG-098), carried from 2026-10-09.
+
+## 2026-10-09 — ⚠️ Out of date against code (found by doc-sync, not yet fixed)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **Stale term:** `RarityTier`. The code enum is `RarityTierEnemy` (`RoomModel.cs:110`, `853fe39`). The 2026-09-11 banner (`:34`) says the `RarityTier` rules "still match".
+- **Why not fixed:** this is an Approved GDD and the drift is open bug **BUG-098**. It is left for the owner or the bug fix.
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+19 / −1 lines)
 - **Sections touched:** “Enemy Spawn & Per-Room Management System”, “Current Implementation (2026-07-13) — HISTORICAL, …”

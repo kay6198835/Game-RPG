@@ -4,4 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "newPLayerData", menuName = "Data/PLayer Data/Base Data")]
 public class PlayerData : CharacterData
 {
+    public void ResetData()
+    {
+        stats.Level = 1;
+    }
 }

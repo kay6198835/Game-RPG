@@ -1,6 +1,6 @@
 # Event System (EventManager)
 
-> **Status:** live · **Last verified:** 2026-10-05, HEAD `93ba6d8e` · **24 `EventID` values** (`ON_PLAYER_READY` added 2026-10-05, `cb0de496`)
+> **Status:** live · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb` · **24 `EventID` values** (`ON_PLAYER_READY` added 2026-10-05, `cb0de496`; `ON_CLEAR_ENEMY` renamed `ON_OPEN_DOOR`, `221d54be`)
 > History: [CHANGELOG.md](CHANGELOG.md) · Rules: `.claude/rules/manager-event-code.md`
 
 ## Purpose
@@ -23,7 +23,7 @@ public static class EventManager
 
 | Group | Values | Producers → consumers (where known) |
 |-------|--------|--------------------------------------|
-| Room / map | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`, `ON_CLEAR_ENEMY`, `ON_ROOM_CLEAR` | `DoorController` → `RoomGridController`, `MapGridController`; `ON_ROOM_CLEAR` has **no producer** |
+| Room / map | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`, `ON_OPEN_DOOR`, `ON_ROOM_CLEAR` | `DoorController` → `RoomGridController`, `MapGridController`; `ON_OPEN_DOOR`: `RoomCell` (count reaches 0), `ChampitionController` (Champion confirmed), `LevelManagerEditor` "Clear Enemy" button → `RoomGridController.DeleteDoorTileMap`; `ON_ROOM_CLEAR` has **no producer** |
 | Spawn | `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` | `RoomGeneraterController` → `EnemySpawner` → `RoomCell` |
 | Life cycle | `ON_PLAYER_DEATH`, `ON_ENEMY_DEATH`, `ON_REALOAD_GAME`, `ON_PLAYER_READY` | `VitalStatsComponent.Reborn()` → `ON_PLAYER_READY` (payload: player `ICharacter`) → `RealPlayerDataProvider`; `PlayerDeathState` (every frame, BUG-086) → `UIFlow.RealPlayerDataProvider` (only subscriber); `EntityDeathState` → `RoomCell`; `ON_REALOAD_GAME` 0 emitters, 0 subscribers |
 | Stats UI | `ON_OPEN_STATS_PLAYER_UI`, `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`, `ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`, `ON_REVERT_STATS_BY_UI`, `ON_RESTORE_STATS_BY_UI`, `ON_RESET_STATS_UI_SESSION` | Stats UI / `StatPointAllocator` |

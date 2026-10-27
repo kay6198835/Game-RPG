@@ -15,20 +15,22 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     protected IVitalComponent vital;
     protected ICharacterInput input;
     private Animator animator;
-    private ICharacter owner;
+    private ICharacter<TCore> owner;
     private IObjectResolver resolver;
+    private IObjectPoolService objectPoolManager;
 
     public Weapon Weapon => weapon;
     public Transform Transform => transform;
     public Transform OwnerTransform => Owner != null ? Owner.Transform : transform;
     public Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
     public IAimProvider Aim => input;
-    private ICharacter Owner => owner ??= GetComponentInParent<ICharacter>();
+    private ICharacter<TCore> Owner => owner ??= GetComponentInParent<ICharacter<TCore>>();
 
     [Inject]
-    public void Construct(IObjectResolver resolver)
+    public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolManager)
     {
         this.resolver = resolver;
+        this.objectPoolManager = objectPoolManager;
     }
 
     protected override void Start()
@@ -36,34 +38,21 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         base.Start();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out input);
-        if (weapon == null) EquipDefaultWeapon();
     }
 
     // Same for Player and Entity: CharacterData.DefaultWeapon is equipped once, and only when its prefab
     // carries a Weapon. A pooled character keeps it across re-spawns, so this never duplicates it.
-    private void EquipDefaultWeapon()
+    public void EquipDefaultWeapon()
     {
-        WeaponSO weaponSO = Core.Data != null ? Core.Data.DefaultWeapon : null;
-        GameObject prefab = weaponSO != null ? weaponSO.Weapon : null;
-        if (prefab == null || !prefab.TryGetComponent(out Weapon _)) return;
-
-        GameObject instance = Instantiate(prefab, transform.position, Quaternion.identity);
-        instance.GetComponent<Weapon>().Equid(this);
-    }
-
-    // Every weapon reaches a character through here (default spawn and pickup alike), and none of them
-    // is known to the container, so the weapon's [Inject] dependencies are supplied on equip.
-    public void Equid_UnEquid(Weapon weapon)
-    {
-        if (this.weapon == null)
+        if (weapon != null)
         {
-            resolver?.InjectGameObject(weapon.gameObject);
-            this.weapon = weapon;
+            objectPoolManager.Release(weapon.gameObject);
+            weapon = null;
         }
-        else
-        {
-            this.weapon = null;
-        }
+        GameObject instance = objectPoolManager.Spawn(Core.Data?.Weapon.gameObject, OwnerTransform.position, Quaternion.identity);
+        resolver?.InjectGameObject(instance);
+        this.weapon = instance.GetComponent<Weapon>();
+        weapon?.Equid(this);
     }
 
     /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>

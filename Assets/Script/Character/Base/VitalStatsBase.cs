@@ -35,12 +35,16 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     public float GetCurrentStatValue(StatType statType)
     {
-        return currentStats[statType];
+        if (currentStats.TryGetValue(statType, out float valueStat))
+        {
+            return valueStat;
+        }
+        return statHandler.GetStatValue(statType);
     }
 
     public void ApplyBuffDebuff(StatModifierGroup statModifierGroup)
     {
-        statModifierGroup.Apply(statHandler.AddModifiersFromSource, this);
+        statHandler.AddModifiersFromSource(this, statModifierGroup.Modifiers);
         UpdateStatField();
     }
 
@@ -115,9 +119,9 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     IEnumerator ApplyDebuffForDuration(StatModifierGroup statModifierGroup, float duration)
     {
-        statModifierGroup.Apply(statHandler.AddModifiersFromSource, this);
+        statHandler.AddModifiersFromSource(this, statModifierGroup.Modifiers);
         yield return new WaitForSeconds(duration);
-        statModifierGroup.Remmove(statHandler.RemoveModifiersFromSource, this);
+        statHandler.RemoveModifiersFromSource(this);
     }
     #endregion
 }

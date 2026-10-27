@@ -68,7 +68,7 @@ public class StatModifierTester : MonoBehaviour
             Debug.LogWarning("[StatModifierTester] modifierGroup chưa được gán.", this);
             return;
         }
-        modifierGroup.ApplyTo(statsSO, CurrentSource);
+        //modifierGroup.ApplyTo(statsSO, CurrentSource);
     }
 
     /// <summary>Gỡ mọi modifier đến từ nguồn đang chọn.</summary>

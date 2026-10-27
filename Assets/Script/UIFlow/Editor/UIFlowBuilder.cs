@@ -15,7 +15,7 @@ namespace UIFlow.EditorTools
     /// Vì sao dựng bằng code thay vì kéo thả tay?
     /// - Hàng trăm tham chiếu [SerializeField] được nối đúng, không sót ô nào.
     /// - Chạy lại bao nhiêu lần cũng ra cùng kết quả; sửa bố cục ở đây rồi chạy lại là xong.
-    /// ⚠️ Chạy lại sẽ GHI ĐÈ 4 scene UIFlow. Sửa tay trong scene thì đừng chạy lại (hoặc sửa luôn ở đây).
+    /// ⚠️ Chạy lại sẽ GHI ĐÈ 3 scene UIFlow. Sửa tay trong scene thì đừng chạy lại (hoặc sửa luôn ở đây).
     /// Không bao giờ đụng tới LoadRandomMap hay scene gameplay nào khác.
     /// </summary>
     public static partial class UIFlowBuilder
@@ -23,11 +23,11 @@ namespace UIFlow.EditorTools
         public const string MainGamePlayPath = "Assets/Scenes/Main/MainGamePlay.unity";
         public const string LoadingPath = "Assets/Scenes/Main/Loading.unity";
         public const string GameplayUIPath = "Assets/Scenes/Main/GameplayUI.unity";
-        public const string GameplayMockPath = "Assets/Scenes/Test/GameplayMock.unity";
-        public const string GameplayRealPath = "Assets/Scenes/Main/Test/LoadRandomMap.unity";
+        public const string GameplayRealPath = "Assets/Scenes/Main/LoadRandomMap.unity";
         public const string ConfigPath = "Assets/SO/UIFlow/UIDebugConfig.asset";
         public const string HealthBarPrefabPath = "Assets/Prefab/UIFlow/WorldHealthBar.prefab";
         public const string DamageNumberPrefabPath = "Assets/Prefab/UIFlow/DamageNumber.prefab";
+        public const string StatsPanelPrefabPath = "Assets/Prefab/UIFlow/StatsPanel.prefab";
 
         [MenuItem("Tools/UI Flow/Build All")]
         public static void BuildAllMenu()
@@ -35,7 +35,7 @@ namespace UIFlow.EditorTools
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             bool exists = File.Exists(MainGamePlayPath) || File.Exists(GameplayUIPath);
             if (exists && !EditorUtility.DisplayDialog("UI Flow",
-                    "Dựng lại sẽ GHI ĐÈ 4 scene: MainGamePlay, Loading, GameplayUI, GameplayMock.\n" +
+                    "Dựng lại sẽ GHI ĐÈ 3 scene: MainGamePlay, Loading, GameplayUI.\n" +
                     "Không đụng tới LoadRandomMap hay scene gameplay khác. Tiếp tục?", "Dựng lại", "Hủy"))
             {
                 return;
@@ -49,24 +49,55 @@ namespace UIFlow.EditorTools
         public static void BuildAll()
         {
             UIDebugConfig config = EnsureConfig();
-            WorldHealthBar healthBarPrefab = BuildHealthBarPrefab();
+            BuildHealthBarPrefab();
             DamageNumber damageNumberPrefab = BuildDamageNumberPrefab();
 
             BuildMainGamePlay(config);
             BuildLoading(config);
             BuildGameplayUI(config, damageNumberPrefab);
-            BuildGameplayMock(config, healthBarPrefab);
             UpdateBuildSettings();
 
             AssetDatabase.SaveAssets();
-            Debug.Log("[UIFlowBuilder] Đã dựng xong MainGamePlay, Loading, GameplayUI, GameplayMock và cập nhật Build Settings.");
+            Debug.Log("[UIFlowBuilder] Đã dựng xong MainGamePlay, Loading, GameplayUI và cập nhật Build Settings.");
+        }
+
+        /// <summary>Chỉ dựng lại GameplayUI (HUD + cửa sổ in-game), không ghi đè MainGamePlay / Loading.</summary>
+        [MenuItem("Tools/UI Flow/Build GameplayUI Only")]
+        public static void BuildGameplayUIMenu()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            if (File.Exists(GameplayUIPath) && !EditorUtility.DisplayDialog("UI Flow",
+                    "Dựng lại sẽ GHI ĐÈ scene GameplayUI. Không đụng tới MainGamePlay, Loading hay LoadRandomMap. Tiếp tục?",
+                    "Dựng lại", "Hủy"))
+            {
+                return;
+            }
+            UIDebugConfig config = EnsureConfig();
+            BuildGameplayUI(config, BuildDamageNumberPrefab());
+            AssetDatabase.SaveAssets();
+            EditorSceneManager.OpenScene(GameplayUIPath);
+            Debug.Log("[UIFlowBuilder] Đã dựng lại GameplayUI.");
+        }
+
+        /// <summary>Dựng lại StatsPanel.prefab từ code (mất mọi chỉnh tay trong prefab). Scene giữ liên kết nên tự cập nhật.</summary>
+        [MenuItem("Tools/UI Flow/Rebuild Stats Panel Prefab")]
+        public static void RebuildStatsPanelPrefabMenu()
+        {
+            if (File.Exists(StatsPanelPrefabPath) && !EditorUtility.DisplayDialog("UI Flow",
+                    "Dựng lại sẽ GHI ĐÈ StatsPanel.prefab — mọi chỉnh tay trong prefab sẽ mất. Tiếp tục?", "Dựng lại", "Hủy"))
+            {
+                return;
+            }
+            BuildStatsPanelPrefab();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[UIFlowBuilder] Đã dựng lại " + StatsPanelPrefabPath);
         }
 
         [MenuItem("Tools/UI Flow/Update Build Settings Only")]
         public static void UpdateBuildSettings()
         {
-            // Thứ tự: menu (0) → loading → gameplay thật → UI in-game → gameplay giả, rồi các scene cũ giữ nguyên.
-            string[] wanted = { MainGamePlayPath, LoadingPath, GameplayRealPath, GameplayUIPath, GameplayMockPath };
+            // Thứ tự: menu (0) → loading → gameplay thật → UI in-game, rồi các scene cũ giữ nguyên.
+            string[] wanted = { MainGamePlayPath, LoadingPath, GameplayRealPath, GameplayUIPath };
             List<EditorBuildSettingsScene> scenes = new();
             foreach (string path in wanted)
             {
@@ -211,7 +242,7 @@ namespace UIFlow.EditorTools
             Button settings = MenuButton(column.transform, "SettingsButton", "Cài đặt");
             Button quit = MenuButton(column.transform, "QuitButton", "Thoát");
 
-            TextMeshProUGUI version = Txt(panel.transform, "Version", "UI Flow · dữ liệu mock khi UIDebugConfig bật", 20, TextAlignmentOptions.Right, MutedColor);
+            TextMeshProUGUI version = Txt(panel.transform, "Version", "UI Flow", 20, TextAlignmentOptions.Right, MutedColor);
             Place(version.gameObject, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-30, 20), new Vector2(900, 40));
 
             Wire(panel, ("continueButton", continueButton), ("continueDetailText", continueDetail), ("newGameButton", newGame),

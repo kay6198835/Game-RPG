@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using VContainer;
 
 /// <summary>
 /// Owns every write into _playerStatService that the stats UI asks for. Lives in the gameplay layer,
-/// not the UI layer, so the screen stays a pure view (see .claude/rules/ui-code.md).
+/// not the UI layer, so the screen stays a pure view (see .claude/rules/ui-code.md). The rules themselves
+/// live in <see cref="StatPointSession"/>; this component only adapts them to EventManager.
 ///
 /// Commands in  : ON_OPEN_STATS_PLAYER_UI, ON_INCREASE_STATS_BY_UI, ON_DECREASE_STATS_BY_UI,
 ///                ON_UPDATE_STATS_BY_UI, ON_REVERT_STATS_BY_UI, ON_RESTORE_STATS_BY_UI
@@ -14,16 +13,11 @@ using VContainer;
 /// </summary>
 public class StatPointAllocator : MonoBehaviour
 {
-    private IPlayerStatService _playerStatService;
-    /// <summary>Points spent this session, per primary stat — the undo record for Revert.</summary>
-    private readonly Dictionary<StatType, int> _sessionGains = new();
-
-    private int _pointsAtOpen;
-    private int _pointsRemaining;
+    private StatPointSession _session;
     [Inject]
     public void Construct(IPlayerStatService playerStatService)
     {
-        _playerStatService = playerStatService;
+        _session = new StatPointSession(playerStatService);
     }
     private void OnEnable()
     {
@@ -49,85 +43,51 @@ public class StatPointAllocator : MonoBehaviour
 
     private void OnOpen(object _ = null)
     {
-        if (_playerStatService == null) return;
-        _sessionGains.Clear();
-        _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
-        _pointsRemaining = _pointsAtOpen;
+        if (_session == null) return;
+        _session.Begin();
         Broadcast();
     }
 
     private void OnIncrease(object obj)
     {
-        if (_playerStatService == null || obj == null) return;
-        StatType type = (StatType)obj;
-        if (!type.IsPrimary() || _pointsRemaining <= 0) return;
-
-        _playerStatService.AddPrimaryPoint(type, 1);
-        _sessionGains.TryGetValue(type, out int spent);
-        _sessionGains[type] = spent + 1;
-        _pointsRemaining--;
-        Broadcast();
+        if (_session == null || obj == null) return;
+        if (_session.TryIncrease((StatType)obj)) Broadcast();
     }
 
     private void OnDecrease(object obj)
     {
-        if (_playerStatService == null || obj == null) return;
-        StatType type = (StatType)obj;
-        // Only points spent in THIS session can be taken back — otherwise the player
-        // would strip levels they already committed. Full respec is Restore.
-        if (!_sessionGains.TryGetValue(type, out int spent) || spent <= 0) return;
-
-        _playerStatService.AddPrimaryPoint(type, -1);
-        _sessionGains[type] = spent - 1;
-        _pointsRemaining++;
-        Broadcast();
+        if (_session == null || obj == null) return;
+        if (_session.TryDecrease((StatType)obj)) Broadcast();
     }
 
     private void OnRevert(object _ = null)
     {
-        if (_playerStatService == null) return;
-        foreach (var (type, spent) in _sessionGains)
-        {
-            if (spent > 0) _playerStatService.AddPrimaryPoint(type, -spent);
-        }
-        _sessionGains.Clear();
-        _pointsRemaining = _pointsAtOpen;
+        if (_session == null) return;
+        _session.Revert();
         ResetSession();
     }
 
-    /// <summary>Full respec: hands every level-up point ever spent back to the pool.</summary>
     private void OnRestore(object _ = null)
     {
-        if (_playerStatService == null) return;
-        foreach (StatType type in Enum.GetValues(typeof(StatType)))
-        {
-            if (!type.IsPrimary()) continue;
-            Stat stat = _playerStatService.GetStat(type);
-            if (stat == null || stat.LevelUpValue == 0f) continue;
-            _playerStatService.AddPrimaryPoint(type, -(int)stat.LevelUpValue);
-        }
-        _sessionGains.Clear();
-        _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
-        _pointsRemaining = _pointsAtOpen;
+        if (_session == null) return;
+        _session.Restore();
         ResetSession();
     }
 
     private void OnAccept(object _ = null)
     {
-        if (_playerStatService == null) return;
-        _sessionGains.Clear();
-        _pointsAtOpen = _playerStatService.GetLevelUpStatsBonus();
-        _pointsRemaining = _pointsAtOpen;
+        if (_session == null) return;
+        _session.Accept();
         ResetSession();
     }
 
     // ---------- notifications ----------
 
-    private void Broadcast() => EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, _pointsRemaining);
+    private void Broadcast() => EventManager.Emit(EventID.ON_CHANGE_STATS_BY_UI_RUN_TIME, _session.PointsRemaining);
 
     private void ResetSession()
     {
-        EventManager.Emit(EventID.ON_RESET_STATS_UI_SESSION, _pointsRemaining);
+        EventManager.Emit(EventID.ON_RESET_STATS_UI_SESSION, _session.PointsRemaining);
         Broadcast();
     }
 }

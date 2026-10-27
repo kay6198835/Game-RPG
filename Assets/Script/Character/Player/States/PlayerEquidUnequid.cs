@@ -20,7 +20,6 @@ public class PlayerEquidUnequid : PlayerUseWeaponState
         base.LogicUpdate();
         if (StatusAnimation.OnActivate <= Status && Status < StatusAnimation.OffActivate)
         {
-            Debug.Log("Call PlayerEquidUnequid Trigger");
             weaponHolder.Intertion();
             Status = StatusAnimation.OffActivate;
         }

@@ -5,12 +5,12 @@ using VContainer;
 public class ItemSpawner : MonoBehaviour
 {
     [SerializeField] private ItemController droppedItemPrefab;
-    [SerializeField] private IObjecPoolService objecPoolService;
+    [SerializeField] private IObjectPoolService objectPoolService;
     [SerializeField] private DepotItem depotItem;
     [Inject]
-    public void Construct(IObjecPoolService objecPoolService)
+    public void Construct(IObjectPoolService objectPoolService)
     {
-        this.objecPoolService = objecPoolService;
+        this.objectPoolService = objectPoolService;
     }
     public void OnEnable()
     {
@@ -34,7 +34,7 @@ public class ItemSpawner : MonoBehaviour
         if (obj == null || depotItem == null) return;
         // Roll trượt (dải "không rơi") thì không spawn gì cả — nếu không SetDataItem sẽ nhận null và NRE.
         if (!depotItem.TryRollItem(out ItemSO rolled)) return;
-        var itemObject = objecPoolService.Spawn(droppedItemPrefab.gameObject, ((GameObject)obj).transform.position, Quaternion.identity);
+        var itemObject = objectPoolService.Spawn(droppedItemPrefab.gameObject, ((GameObject)obj).transform.position, Quaternion.identity);
         var itemController = itemObject.GetComponent<ItemController>();
         itemController.SetDataItem(rolled);
         itemObject.transform.DOScale(Vector3.one, 0.25f).SetEase(Ease.OutBack);
@@ -43,6 +43,6 @@ public class ItemSpawner : MonoBehaviour
 
     void CollectItem(object obj = null)
     {
-        objecPoolService.Release((GameObject)obj);
+        objectPoolService.Release((GameObject)obj);
     }
 }

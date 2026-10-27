@@ -32,6 +32,12 @@ supersedes: map-system.md "Agreed spawn architecture (2026-07-02) [PLANNED]" (En
 
 > 📜 Change log: [changelog/enemy-spawn-system.CHANGELOG.md](changelog/enemy-spawn-system.CHANGELOG.md)
 
+> **Re-synced 2026-10-10 against `sprint-18` `617bb2bb` (doc-truth pass) — event rename only.**
+> `221d54be` (merged into `sprint-18` by `42a81260`) renamed `EventID.ON_CLEAR_ENEMY` to **`ON_OPEN_DOOR`**
+> (same enum slot, same subscriber). **Read every `ON_CLEAR_ENEMY` below as `ON_OPEN_DOOR`**; the
+> body is left as written (Approved GDD, mostly dated text). `RoomCell` still emits it when the alive
+> count reaches 0. Still `⚠️ Out of date`: the `RarityTier` name (code: `RarityTierEnemy`, BUG-098).
+>
 > **Re-verified 2026-09-11 against HEAD `6d6a8e4`.** The selection algorithm, budget model and
 > `RarityTier` rules below still match `RoomModel.GetSpawnSet()` — this GDD did not drift on
 > substance. Four status corrections:

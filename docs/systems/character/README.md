@@ -1,6 +1,6 @@
 # Character Core — Shared Base + Player
 
-> **Status:** live · **Last verified:** 2026-10-05, HEAD `93ba6d8e` · **Governing ADR:** ADR-0005 (Amendments 1-3)
+> **Status:** live · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb` · **Governing ADR:** ADR-0005 (Amendments 1-3)
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -54,7 +54,7 @@ change (`UpdateStatField()`).
 ```
 PlayerBasicState → PlayerIdleState, PlayerMoveState
 PlayerUseWeaponState → PlayerAttackState, PlayerSkillWeaponState, PlayerEquidUnequid,
-                       PlayerIntertorState, PlayerResourceReceiverState
+                       PlayerIntertorState (`AnimationOnAction()` → `Interactor.Intertion()`, since `221d54be`), PlayerResourceReceiverState
 PlayerDisadvantageState → PlayerTakeDamageState, PlayerDeathState
 ```
 
@@ -76,7 +76,9 @@ Animation events call `AnimationStart` / `AnimationTrigger` / `AnimationOnAction
 
 - New behaviour = a new state class, never inline `if/else` in `Update`.
 - `Status` is durable: the state that acts on a value writes a new one to consume it.
-- `ICharacter` carries `Transform` only — never add component interfaces to it.
+- `ICharacter` carries `Transform` and, since `221d54be` (on `sprint-18` 2026-10-10), `void SetCharacterData(CharacterData)`
+  (abstract on `CharacterBase`; `Player` / `Entity` cast to `PlayerData` / `EntityData` unchecked — NOTE-20261009-6, Needs owner).
+  ⚠️ ADR-0005 Amendment 1 still says "`Transform` only"; the ADR has not been amended. Never add component interfaces to it.
 - Damage enters only through `INegativeReceiver.TakeDamage(float, Vector2)`.
 
 ## Open issues

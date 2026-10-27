@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-10-09 — Blocker note cleared (doc-sync --auto)
+- **Commit:** branch `pm/doc-sync-2026-10-09` (base `sprint-17` `cdf68555`)
+- **From → To:** "⚠️ Blocker: `StatsSO.RecalculateDerived()` skip-guard uses `||` (`StatsSO.cs:272`)" → "✅ blocker cleared". NEW-3 was fixed on `sprint-10`, and `StatsSO.cs` was deleted (`b0512f4`).
+- **Why:** the claim sweep (`production/qa/doc-truth-2026-10-09.md`) found the citation pointed at a deleted file.
+- **Bugs:** NEW-3 (fixed)
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+10 / −3 lines)
 - **Why:** Full documentation/code re-synchronisation (`docs/CHANGELOG-DOCS.md`)

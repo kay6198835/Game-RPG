@@ -9,7 +9,7 @@ using static UIFlow.EditorTools.UIKit;
 
 namespace UIFlow.EditorTools
 {
-    /// <summary>Phần dựng scene GameplayUI (HUD + cửa sổ in-game), GameplayMock và 2 prefab world-space.</summary>
+    /// <summary>Phần dựng scene GameplayUI (HUD + cửa sổ in-game) và 2 prefab world-space (thanh máu, số damage).</summary>
     public static partial class UIFlowBuilder
     {
         // ═════════════════════════ Prefab world-space ═════════════════════════
@@ -64,7 +64,7 @@ namespace UIFlow.EditorTools
 
         private static void BuildGameplayUI(UIDebugConfig config, DamageNumber damageNumberPrefab)
         {
-            // Scene này KHÔNG có Camera/EventSystem: nó được load Additive chồng lên scene gameplay (thật hoặc mock),
+            // Scene này KHÔNG có Camera/EventSystem: nó được load Additive chồng lên scene gameplay (LoadRandomMap),
             // dùng luôn camera và EventSystem của scene đó.
             Scene scene = NewScene();
             Bootstrap(config, applySavedSettings: false);
@@ -80,11 +80,18 @@ namespace UIFlow.EditorTools
             SettingsPanel settings = BuildSettings(canvas.transform);
             PausePanel pause = BuildPause(canvas.transform, settings);
             GameOverPanel gameOver = BuildGameOver(canvas.transform);
+            ConfirnPanel confirn = BuildConfirn(canvas.transform);
+            StatsPanel stats = PlaceStatsPanel(canvas.transform);
+
+            // Nút mở bảng chỉ số trên HUD — đúng chỗ nút "Open Stats UI" của UI cũ (góc trên-phải; minimap giữ chỗ ở đó đang tắt).
+            Button statsButton = Btn(hud.transform, "StatsButton", "Chỉ số [C]", 26, AccentColor);
+            Place(statsButton.gameObject, TopRight, TopRight, new Vector2(-30, -30), new Vector2(220, 64));
             settings.transform.SetAsLastSibling();
 
             Wire(manager, ("rootPanel", hud), ("escapeFallbackPanel", pause), ("controlsTimeScale", true));
             Wire(controller, ("uiManager", manager), ("hud", hud), ("tabWindow", tabWindow), ("dialoguePanel", dialogue),
-                 ("shopPanel", shop), ("gameOverPanel", gameOver));
+                 ("shopPanel", shop), ("gameOverPanel", gameOver), ("confirnPanel", confirn),
+                 ("statsPanel", stats), ("openStatsButton", statsButton));
 
             GameObject numbers = new("DamageNumbers");
             DamageNumberSpawner spawner = numbers.AddComponent<DamageNumberSpawner>();
@@ -431,6 +438,124 @@ namespace UIFlow.EditorTools
             return panel;
         }
 
+        // ═════════════════════════ Bảng chỉ số (prefab) ═════════════════════════
+
+        /// <summary>
+        /// Đặt StatsPanel.prefab vào canvas, giữ liên kết prefab. Prefab chỉ được tạo khi chưa có file, nên chỉnh tay
+        /// trong Prefab Mode không bị ghi đè khi dựng lại scene; muốn dựng lại từ code thì dùng menu Rebuild Stats Panel Prefab.
+        /// </summary>
+        private static StatsPanel PlaceStatsPanel(Transform canvas)
+        {
+            StatsPanel prefab = AssetDatabase.LoadAssetAtPath<StatsPanel>(StatsPanelPrefabPath);
+            if (prefab == null) prefab = BuildStatsPanelPrefab();
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab.gameObject, canvas);
+            Stretch(instance);
+            return instance.GetComponent<StatsPanel>();
+        }
+
+        /// <summary>Bố cục theo UI stats cũ (Stats_UI_Controller.prefab): Header · 2 cột Primary / Derived · Footer 3 nút.</summary>
+        private static StatsPanel BuildStatsPanelPrefab()
+        {
+            // Dựng dưới một canvas tạm để RectTransform / layout tính đúng kích thước rồi mới lưu prefab.
+            Canvas temp = ScreenCanvas("TempCanvas", 0);
+            StatsPanel panel = Panel<StatsPanel>(temp.transform, "StatsPanel", DimColor, pausesGame: true);
+            RectTransform window = Window(panel.transform, "Window", new Vector2(1400, 860), "Chỉ số nhân vật");
+            Button close = Btn(window, "CloseButton", "X", 30, new Color(0.7f, 0.25f, 0.25f, 0.8f));
+            Place(close.gameObject, TopRight, TopRight, new Vector2(-24, -24), new Vector2(64, 60));
+
+            // ── Body trái: chỉ số chính (STR…LUK) có nút −/+
+            Image primaryFrame = Img(window, "PrimaryStats", new Color(0f, 0f, 0f, 0.25f), Rounded);
+            Place(primaryFrame.gameObject, TopLeft, TopLeft, new Vector2(40, -100), new Vector2(560, 600));
+            TextMeshProUGUI primaryLabel = Txt(primaryFrame.transform, "Label", "Chỉ số chính", 30, TextAlignmentOptions.Left, MutedColor);
+            Place(primaryLabel.gameObject, TopLeft, TopLeft, new Vector2(24, -16), new Vector2(500, 44));
+            GameObject primaryBody = Node("Body", primaryFrame.transform);
+            Stretch(primaryBody, 20, 20, 76, 20);
+            VLayout(primaryBody, 12);
+
+            Image primaryRow = Img(primaryBody.transform, "PrimaryRowTemplate", new Color(1, 1, 1, 0.06f), Rounded);
+            Size(primaryRow, preferredHeight: 80);
+            TextMeshProUGUI primaryName = Txt(primaryRow.transform, "Name", "STR", 28, TextAlignmentOptions.MidlineLeft);
+            Place(primaryName.gameObject, MiddleLeft, MiddleLeft, new Vector2(20, 0), new Vector2(130, 70));
+            TextMeshProUGUI primaryValue = Txt(primaryRow.transform, "Value", "0", 30, TextAlignmentOptions.MidlineRight);
+            Place(primaryValue.gameObject, MiddleLeft, MiddleLeft, new Vector2(150, 0), new Vector2(100, 70));
+            TextMeshProUGUI primaryBonus = Txt(primaryRow.transform, "Bonus", "", 22, TextAlignmentOptions.MidlineLeft, MutedColor);
+            Place(primaryBonus.gameObject, MiddleLeft, MiddleLeft, new Vector2(264, 0), new Vector2(100, 70));
+            Button decrease = Btn(primaryRow.transform, "DecreaseButton", "-", 34);
+            Place(decrease.gameObject, MiddleRight, MiddleRight, new Vector2(-88, 0), new Vector2(64, 60));
+            Button increase = Btn(primaryRow.transform, "IncreaseButton", "+", 34, AccentColor);
+            Place(increase.gameObject, MiddleRight, MiddleRight, new Vector2(-14, 0), new Vector2(64, 60));
+            StatRowView primaryView = primaryRow.gameObject.AddComponent<StatRowView>();
+            Wire(primaryView, ("nameText", primaryName), ("valueText", primaryValue), ("bonusText", primaryBonus),
+                 ("decreaseButton", decrease), ("increaseButton", increase));
+
+            // ── Body phải: chỉ số phụ, lưới 2 cột như Derived_Stats cũ
+            Image derivedFrame = Img(window, "DerivedStats", new Color(0f, 0f, 0f, 0.25f), Rounded);
+            Place(derivedFrame.gameObject, TopRight, TopRight, new Vector2(-40, -100), new Vector2(740, 600));
+            TextMeshProUGUI derivedLabel = Txt(derivedFrame.transform, "Label", "Chỉ số phụ", 30, TextAlignmentOptions.Left, MutedColor);
+            Place(derivedLabel.gameObject, TopLeft, TopLeft, new Vector2(24, -16), new Vector2(680, 44));
+            GameObject derivedBody = Node("Body", derivedFrame.transform);
+            Stretch(derivedBody, 20, 20, 76, 20);
+            GridLayoutGroup grid = derivedBody.AddComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(340, 70);
+            grid.spacing = new Vector2(16, 12);
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 2;   // 12 chỉ số phụ = 2 cột × 6 hàng
+
+            Image derivedRow = Img(derivedBody.transform, "DerivedRowTemplate", new Color(1, 1, 1, 0.04f), Rounded);
+            TextMeshProUGUI derivedName = Txt(derivedRow.transform, "Name", "HP", 22, TextAlignmentOptions.MidlineLeft);
+            Stretch(derivedName.gameObject, 16, 160, 0, 0);
+            TextMeshProUGUI derivedValue = Txt(derivedRow.transform, "Value", "0", 24, TextAlignmentOptions.MidlineRight);
+            Place(derivedValue.gameObject, MiddleRight, MiddleRight, new Vector2(-80, 0), new Vector2(80, 60));
+            TextMeshProUGUI derivedBonus = Txt(derivedRow.transform, "Bonus", "", 18, TextAlignmentOptions.MidlineRight, MutedColor);
+            Place(derivedBonus.gameObject, MiddleRight, MiddleRight, new Vector2(-12, 0), new Vector2(70, 60));
+            StatRowView derivedView = derivedRow.gameObject.AddComponent<StatRowView>();
+            Wire(derivedView, ("nameText", derivedName), ("valueText", derivedValue), ("bonusText", derivedBonus));
+
+            // ── Footer: điểm còn lại + Revert / Restore / Update của UI cũ
+            TextMeshProUGUI points = Txt(window, "Points", "", 30, TextAlignmentOptions.MidlineLeft);
+            Place(points.gameObject, BottomLeft, BottomLeft, new Vector2(48, 50), new Vector2(520, 70));
+            GameObject footer = Node("Footer", window);
+            Place(footer, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 46), new Vector2(780, 80));
+            HLayout(footer, 20, null, TextAnchor.MiddleRight);
+            Button revert = Btn(footer.transform, "RevertButton", "Hoàn tác", 28);
+            Size(revert, 240, 76);
+            Button respec = Btn(footer.transform, "RespecButton", "Reset điểm", 28, new Color(0.7f, 0.25f, 0.25f, 0.8f));
+            Size(respec, 240, 76);
+            Button accept = Btn(footer.transform, "AcceptButton", "Xác nhận", 28, AccentColor);
+            Size(accept, 240, 76);
+
+            Wire(panel, ("pointsText", points), ("primaryContainer", primaryBody.transform), ("derivedContainer", derivedBody.transform),
+                 ("primaryRowTemplate", primaryView), ("derivedRowTemplate", derivedView),
+                 ("acceptButton", accept), ("revertButton", revert), ("respecButton", respec), ("closeButton", close));
+
+            SetLayerRecursive(panel.gameObject);
+            panel.transform.SetParent(null, false);
+            Object.DestroyImmediate(temp.gameObject);
+            return SavePrefab(panel.gameObject, StatsPanelPrefabPath).GetComponent<StatsPanel>();
+        }
+
+        /// <summary>Hộp xác nhận (ví dụ chọn Champion ở phòng đầu). Trước đây dựng tay trong Editor (221d54b).</summary>
+        private static ConfirnPanel BuildConfirn(Transform canvas)
+        {
+            ConfirnPanel panel = Panel<ConfirnPanel>(canvas, "ConfirnPanel", DimColor, pausesGame: true);
+            RectTransform window = Window(panel.transform, "Window", new Vector2(900, 460), null);
+            TextMeshProUGUI title = Txt(window, "Title", "", 40, TextAlignmentOptions.Center, AccentColor);
+            Place(title.gameObject, TopCenter, TopCenter, new Vector2(0, -30), new Vector2(840, 60));
+            TextMeshProUGUI message = Txt(window, "Message", "", 28, TextAlignmentOptions.Center);
+            Place(message.gameObject, TopCenter, TopCenter, new Vector2(0, -110), new Vector2(820, 180));
+
+            GameObject row = Node("Buttons", window);
+            Place(row, BottomCenter, BottomCenter, new Vector2(0, 40), new Vector2(700, 84));
+            HLayout(row, 40);
+            Button confirm = Btn(row.transform, "ConfirmButton", "Đồng ý", 30, AccentColor);
+            Size(confirm, 300, 80);
+            Button cancel = Btn(row.transform, "CancelButton", "Hủy", 30);
+            Size(cancel, 300, 80);
+
+            Wire(panel, ("tileText", title), ("messText", message), ("confirmButton", confirm), ("cancelButton", cancel));
+            return panel;
+        }
+
         private static GameOverPanel BuildGameOver(Transform canvas)
         {
             GameOverPanel panel = Panel<GameOverPanel>(canvas, "GameOverPanel", new Color(0.2f, 0.02f, 0.03f, 0.88f),
@@ -451,71 +576,6 @@ namespace UIFlow.EditorTools
 
             Wire(panel, ("respawnButton", respawn), ("mainMenuButton", menu));
             return panel;
-        }
-
-        // ═════════════════════════ GameplayMock ═════════════════════════
-
-        private static void BuildGameplayMock(UIDebugConfig config, WorldHealthBar healthBarPrefab)
-        {
-            Scene scene = NewScene();
-            Camera camera = CameraObject(new Color(0.12f, 0.14f, 0.13f), 6f);
-            EventSystemObject();
-            Bootstrap(config, applySavedSettings: false);
-
-            Block("Floor", new Vector2(0, 0), new Vector2(20, 11), new Color(0.18f, 0.2f, 0.19f), -10);
-            Block("Player (giả)", new Vector2(0, -2.5f), new Vector2(0.8f, 1.2f), new Color(0.35f, 0.55f, 1f), 0);
-            WorldLabel("Người chơi (giả)", new Vector2(0, -3.6f), 3f);
-            Block("NPC Thợ rèn", new Vector2(-6f, 2f), new Vector2(0.9f, 1.3f), new Color(0.95f, 0.8f, 0.3f), 0);
-            WorldLabel("Thợ rèn — nhấn T", new Vector2(-6f, 0.9f), 3f);
-            WorldLabel("GAMEPLAY MOCK — click quái · 1-5 kỹ năng · H/M/X · T nói chuyện · B shop · U nhiệm vụ · N thông báo",
-                       new Vector2(0, 5.2f), 3.2f);
-
-            Vector2[] enemyPositions = { new(3f, 2f), new(6f, -0.5f), new(3.5f, -3f) };
-            for (int i = 0; i < enemyPositions.Length; i++)
-            {
-                GameObject enemy = Block("Slime " + (i + 1), enemyPositions[i], new Vector2(1f, 1f), new Color(0.9f, 0.35f, 0.4f), 0);
-                enemy.AddComponent<BoxCollider2D>();   // Collider 1x1 khớp sprite 1x1 → click trúng mới tính
-
-                // Nạp lại prefab từ đĩa: tham chiếu giữ từ lúc tạo có thể bị Unity hủy sau khi mở scene mới.
-            GameObject barPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(HealthBarPrefabPath);
-            GameObject barObject = (GameObject)PrefabUtility.InstantiatePrefab(barPrefab);
-                barObject.name = enemy.name + " HealthBar";
-                MockEnemy mockEnemy = enemy.AddComponent<MockEnemy>();
-                Wire(mockEnemy, ("healthBar", barObject.GetComponent<WorldHealthBar>()), ("body", enemy.GetComponent<SpriteRenderer>()));
-            }
-
-            GameObject controllerObject = new("GameplayMockController");
-            GameplayMockController controller = controllerObject.AddComponent<GameplayMockController>();
-            Wire(controller, ("worldCamera", camera));
-
-            Save(scene, GameplayMockPath);
-        }
-
-        private static GameObject Block(string name, Vector2 position, Vector2 size, Color color, int sortingOrder)
-        {
-            GameObject go = new(name, typeof(SpriteRenderer));
-            go.transform.position = position;
-            go.transform.localScale = new Vector3(size.x, size.y, 1f);
-            SpriteRenderer renderer = go.GetComponent<SpriteRenderer>();
-            renderer.sprite = White;
-            renderer.color = color;
-            renderer.sortingOrder = sortingOrder;
-            return go;
-        }
-
-        private static void WorldLabel(string text, Vector2 position, float fontSize)
-        {
-            GameObject go = new(text.Length > 24 ? text.Substring(0, 24) : text);
-            TextMeshPro label = go.AddComponent<TextMeshPro>();
-            label.font = TMP_Settings.defaultFontAsset;
-            label.text = text;
-            label.fontSize = fontSize;
-            label.alignment = TextAlignmentOptions.Center;
-            label.enableWordWrapping = false;
-            label.color = MutedColor;
-            label.rectTransform.sizeDelta = new Vector2(20f, 1f);
-            label.GetComponent<MeshRenderer>().sortingOrder = 5;
-            go.transform.position = position;
         }
     }
 }

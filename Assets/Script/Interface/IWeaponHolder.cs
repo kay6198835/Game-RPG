@@ -13,5 +13,4 @@ public interface IWeaponHolder
     Animator Animator { get; }
     IAimProvider Aim { get; }
     Weapon Weapon { get; }
-    void Equid_UnEquid(Weapon weapon);
 }

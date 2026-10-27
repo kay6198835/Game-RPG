@@ -5,4 +5,11 @@
 /// </summary>
 public class ResourceReceiver : Interact
 {
+    
+}
+
+public enum ResourceType
+{
+    Coin,
+    StatPotion,
 }

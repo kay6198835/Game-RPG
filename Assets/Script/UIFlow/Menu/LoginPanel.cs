@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace UIFlow
 {
     /// <summary>
-    /// Đăng nhập + chọn server. Chỉ nói chuyện với ILoginService, không biết bản Mock hay Real.
+    /// Đăng nhập + chọn server. Chỉ nói chuyện với ILoginService, không biết lớp cài đặt cụ thể.
     /// </summary>
     public class LoginPanel : UIPanel
     {

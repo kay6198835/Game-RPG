@@ -31,14 +31,15 @@ public class PlayerState : IState
         DoChecks();
         player.Anim.SetBool(animBoolName, true);
         startTime = Time.time;
-        //this.Status = StatusAnimation.Start;
-        Debug.Log("Enter State: " + animBoolName);
+        Debug.Log(animBoolName+ ": Enter");
 
     }
     public virtual void Exit()
     {
         player.Anim.SetBool(animBoolName, false);
         this.Status = StatusAnimation.End;
+        
+        Debug.Log(animBoolName+ ": Exit");
     }
 
     public virtual void LogicUpdate()

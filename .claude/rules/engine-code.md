@@ -1,6 +1,13 @@
 ---
-description: Core engine/framework code standards — Core.cs, CoreComponent, EntityCore, state machine infrastructure
-globs: ["Assets/Script/Character/Player/Core/**/*.cs", "Assets/Script/Character/Entity/Core/**/*.cs", "Assets/Script/Character/Player/CoreComponent/**/*.cs", "Assets/Script/Character/Entity/CoreComponent/**/*.cs"]
+# Core engine/framework code standards — Core.cs, CoreComponent, EntityCore, state machine infrastructure
+paths:
+  - "Assets/Script/Character/Base/**/*.cs"
+  - "Assets/Script/Character/Player/Core/**/*.cs"
+  - "Assets/Script/Character/Entity/Core/**/*.cs"
+  - "Assets/Script/Character/Player/CoreComponent/**/*.cs"
+  - "Assets/Script/Character/Entity/CoreComponent/**/*.cs"
+  - "Assets/Script/System/LifetimeScope/**/*.cs"
+  - "Assets/Script/Interface/**/*.cs"
 ---
 
 # Engine / Core Code Standards

@@ -1,6 +1,9 @@
 ---
-description: Enemy AI code standards — Entity states, EntityInput, EntityMovement, EntityFindTarget
-globs: ["Assets/Script/Character/Entity/**/*.cs", "Assets/Script/Enemy/**/*.cs"]
+# Enemy AI code standards — Entity states, EntityInput, EntityMovement, EntityFindTarget
+paths:
+  - "Assets/Script/Character/Entity/**/*.cs"
+  - "Assets/Script/System/Enemy/**/*.cs"
+  - "Assets/Script/System/Pathfinding/**/*.cs"
 ---
 
 # AI / Enemy Code Standards

@@ -151,7 +151,6 @@ GameObject:
   - component: {fileID: 8146647203115557358}
   - component: {fileID: 4210541404234113733}
   - component: {fileID: 2031167604194848396}
-  - component: {fileID: 879482146237950515}
   m_Layer: 7
   m_Name: PlayerTest
   m_TagString: Player
@@ -334,24 +333,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  data: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
+  data: {fileID: 11400000, guid: e69fdba656510674daefcd451ac59afd, type: 2}
   anim: {fileID: 0}
   rigidbodyPlayer: {fileID: 0}
---- !u!114 &879482146237950515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3647546795979010557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c78798e410b9d94a81840a379f9e272, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 0}
-  movementAnimatorParameterName: Movement
-  idleAnimatorParameterName: Idle
 --- !u!1 &4722792706941364737
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,6 +375,7 @@ Transform:
   - {fileID: 2086516582107257348}
   - {fileID: 1152756422125806585}
   - {fileID: 9204253315871573555}
+  - {fileID: 7566764149828257259}
   m_Father: {fileID: 6345384194108746772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4030715832189692962
@@ -568,6 +553,7 @@ MonoBehaviour:
     AbilityContext:
       Origin: {x: 0, y: 0, z: 0}
       Forward: {x: 0, y: 0, z: 0}
+      DirectionIndex: 0
       TargetPoint: {x: 0, y: 0, z: 0}
       HoldTime: 0
       HoldRatio: 0
@@ -664,6 +650,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   core: {fileID: 0}
   statsSO: {fileID: 0}
+  requiredExp: 0
+  maxLevel: 50
 --- !u!1 &7526549872702926139
 GameObject:
   m_ObjectHideFlags: 0
@@ -778,9 +766,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9186174902540422970}
   - component: {fileID: 4708333821092122059}
-  - component: {fileID: 545617000182788525}
-  - component: {fileID: 6182536592416148168}
-  - component: {fileID: 5537870174276929911}
   m_Layer: 7
   m_Name: WeaponHolder
   m_TagString: Untagged
@@ -827,69 +812,50 @@ MonoBehaviour:
   - {fileID: 0}
   nearestObject: {fileID: 0}
   numFound: 0
---- !u!58 &545617000182788525
-CircleCollider2D:
+--- !u!1 &9208880066942891765
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9010334046371474003}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7566764149828257259}
+  - component: {fileID: 2670040114698213308}
+  m_Layer: 0
+  m_Name: Wallet
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7566764149828257259
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9208880066942891765}
   serializedVersion: 2
-  m_Radius: 0.5
---- !u!114 &6182536592416148168
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4525166674902496624}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2670040114698213308
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9010334046371474003}
+  m_GameObject: {fileID: 9208880066942891765}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec4990233ea255e4e944a55a192d327e, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b6d632621f9fb243b387e0ed7ec27c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 42ea56e61571fa949815576eac83fb82, type: 2}
-  pickupCollider: {fileID: 0}
-  maxTargetsPerSwing: 8
---- !u!114 &5537870174276929911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9010334046371474003}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95f06c0da7b6f2647bb5e96c10b7eff5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: e44243a84fc07d64a95db6d3e132f134, type: 2}
-  pickupCollider: {fileID: 0}
-  firePoint: {x: 0, y: 0}
-  spawnOffset: 0.5
+  core: {fileID: 0}
+  _currentHP: 0
+  currentCoin: 0

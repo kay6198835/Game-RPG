@@ -85,9 +85,8 @@ public abstract class Weapon : InteractiveObjects
         pickupCollider.enabled = false;
         holder = weaponHolder;
         aim = weaponHolder.Aim;
-        weaponHolder.Equid_UnEquid(this);
         IStatService ownerStats = OwnerStats(weaponHolder);
-        if (ownerStats != null) stats.StatModifiers.Apply(ownerStats.AddModifiersFromSource, this);
+        if (ownerStats != null) ownerStats.AddModifiersFromSource(this, stats.StatModifiers.Modifiers);
         else Debug.LogWarning($"[{name}] equipped by a holder with no character stats.", this);
         transform.SetParent(weaponHolder.Transform);
         transform.position = transform.parent.position;
@@ -109,8 +108,7 @@ public abstract class Weapon : InteractiveObjects
         transform.SetParent(null);
         pickupCollider.enabled = true;
         IStatService ownerStats = OwnerStats(weaponHolder);
-        if (ownerStats != null) stats.StatModifiers.Remmove(ownerStats.RemoveModifiersFromSource, this);
-        weaponHolder.Equid_UnEquid(this);
+        if (ownerStats != null) ownerStats.RemoveModifiersFromSource(this);
         aim = null;
         this.holder = null;
         CurrentStageIndex = 0;

@@ -9,9 +9,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float paddingPosition;
     [SerializeField] private float maxPadding;
     [SerializeField] private Vector2 positionRandom;
-    private IObjecPoolService objectPoolManager;
+    private IObjectPoolService objectPoolManager;
     [Inject]
-    public void Construct(IObjecPoolService objectPoolManager)
+    public void Construct(IObjectPoolService objectPoolManager)
     {
         this.objectPoolManager = objectPoolManager;
     }

@@ -1,0 +1,260 @@
+# Sprint 18 — Daily Plan & Progress Tracker
+
+> **Sprint**: 2026-10-12 (Mon) -> 2026-10-16 (Fri) · playtest Sat 2026-10-17
+> **Companion to**: `sprint-18.md` — day-by-day breakdown + live tracker
+> **Daily routine: 10:00 → `/daily-standup`** · Sat 22:00 `/weekly-wrapup` · Sun 22:00 `/weekly-kickoff`
+> **Opened**: 2026-10-09 (kickoff, autonomous). Branch `sprint-18` from `sprint-17` tip (`d8962b8d`).
+> Sprint 17 closed SLIPPED (Must-Have 0/8, planned velocity 0.05, ≈2.6–3.1d off-plan output,
+> playtest done: no). See `sprint-17.md`.
+
+---
+
+## Status Verdict
+
+**OPEN — day 5 of 5 (2026-10-16, Fri standup). BLOCKED — `sprint-18` still does not compile.**
+No commit to `sprint-18` since the 2026-10-15 standup (tip `9527c9aa`); the only new object on any ref
+is a stash index commit `820a8dec`. The owner's working tree compiles (`Editor.log` 2026-10-16 13:15:
+0 `error CS`; `Editor-prev.log` 2026-10-15 18:28: 0 `error CS`, 2 Play Mode entries, 2× NRE @
+`PlayerState.cs:35` — NOTE-20261015-1 recurs). The working-tree fix is still **uncommitted** and has
+grown (session snapshot: 14 modified files incl. `GameLifetimeScope.cs`, `ObjectPoolManager.cs`,
+`RangeWeapon.cs`, `PlayerTest.prefab`). 0 / 8 Must-Have; 0 of 4.0d burned; 1 day left / ≈2.9d
+remaining → Must-Have list will not finish this sprint; carry-over goes to Sunday's kickoff.
+Evidence `LOG` (batchmode `SKIPPED`).
+
+*Previous:* OPEN — day 4 of 5 (2026-10-15, Thu standup). BLOCKED — `sprint-18` still does not compile.
+No commit to `sprint-18` since the 2026-10-14 standup. The owner's working tree now compiles
+(`Editor.log` 2026-10-15 03:17: 0 `error CS`, 1 Play Mode entry), but the fix to
+`AbilityHolderBase.cs` / `WeaponHolderBase.cs` / `IWeaponHolder.cs` is still **uncommitted**. That one
+Play Mode session logged an NRE at `PlayerState.cs:35` (NOTE-20261015-1). 0 / 8 Must-Have; 0 of 4.0d
+burned; 2 days left / ≈2.9d remaining → the sprint cannot finish its Must-Have list as planned.
+Off-plan: `b364c303` (weapon architecture, feature branch only). Evidence `LOG` (batchmode `SKIPPED`).
+
+*Previous:* OPEN — day 3 of 5 (2026-10-14, Wed standup). BLOCKED — `sprint-18` does not compile. Merge
+`f552f701` (2026-10-13) brought `51f8d2d4` onto the sprint branch; `Editor.log` shows 15 `error CS`
+(NOTE-20261013-1, now `LOG`). 0 / 8 Must-Have; 0 of 4.0d burned; 3 days left / ≈2.9d remaining
+(2.8d plan + ≈0.1d build fix). No Play Mode entry in any Editor log → S18-01 still not run, and it
+cannot run until the build is fixed. Owner has uncommitted edits to the three failing files.
+Evidence `LOG` (batchmode `SKIPPED` — Editor open).
+
+*Previous:* OPEN — day 2 of 5 (2026-10-13, Tue standup). SLIPPED. 0 / 8 Must-Have; 0 of 4.0d burned,
+4 days left / 2.8d planned work remaining. Monday's S18-01..04 (≈0.7d) not done on `sprint-18`; the
+owner worked off-plan instead (Mage/Archer assets `e6bf8fc3`; feature commit `51f8d2d4` touching
+S18-05/06 files, which does not compile — NOTE-20261013-1). Evidence `COMPILED` (`sprint-18`
+`7b361725`) + `LOG` (0 Play Mode entries → S18-01 not run).
+
+*Previous:* OPEN — day 1 of 5 (2026-10-12, Mon standup). ON-TRACK (nominal — nothing due yet). Evidence `LOG`.
+
+**Weekly wrap-up 2026-10-10 (Sat) — verdict for the week ending 2026-10-10: SLIPPED** (evidence
+`LOG` + `STATIC`; capped at CONCERNS at best — playtest sheet empty). No `.cs` commit since the
+2026-10-09 wrap-up; Sprint 17 already closed SLIPPED (0/8 Must, velocity 0.05). Sprint 18 work has not
+started (begins Mon 2026-10-12).
+
+**Handoff to Sunday `/weekly-kickoff`:**
+- **playtest done: no** (15th consecutive week without runtime evidence) → S18-01 stays first on Monday
+- **velocity: 0.05** (unchanged; no estimate-days completed since the 2026-10-09 close)
+- **carry-over:** the whole Sprint 18 plan as written, plus newly confirmed **BUG-105** (S2, P1 —
+  `[FormerlySerializedAs("attackDamege")]` on `AttackSO.attackDamage` + re-save `SnS_State1-3.asset`;
+  ≈0.05d, recommend Must-Have next to S18-04) and **BUG-103** (S3, ranged `RecoveryTime` dead; bundle
+  with S18-04) and **BUG-104** (S4, bundle with any `PlayerState` edit)
+- **status changes to know:** BUG-064 now FIXED in code (awaiting playtest A6); BUG-087 now PARTIAL —
+  S18-14's design note starts from `RealPlayerDataProvider.Respawn()` (scene reload), not from zero
+- `221d54be` (BUG-096 start-room half) is already on `sprint-18` via `c6cbc57a` — S18-02 shrinks to the
+  zero-spawn branch in `LoadRoom()`
+
+## Burn Summary
+
+| Bucket | Est. | Done | Remaining |
+|--------|------|------|-----------|
+| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 | 1.3d |
+| Should Have | 1.0d | 0 | 1.0d |
+| Feature story S18-F1 (capped, gated by S18-01) | 0.5d | 0 | 0.5d |
+| Buffer | 1.0d | — | — |
+
+---
+
+## Task Estimates
+
+| ID | Task | Est. | Priority | Carries |
+|----|------|------|----------|---------|
+| S18-01 | Playtest / Play Mode smoke via menu | 0.3d | Must | 15th |
+| S18-02 | BUG-096 merge `221d54be` + zero-spawn branch | 0.1d | Must | 2nd |
+| S18-03 | BUG-097 start/boss order | 0.05–0.2d | Must | 2nd |
+| S18-04 | Lightning layerMask + Arrow collider | 0.1d | Must | 2nd |
+| S18-05 | BUG-092 residual | 0.05d | Must | 4th |
+| S18-06 | BUG-066 + BUG-070 | 0.15d | Must | 9th |
+| S18-07 | BUG-065 + BUG-086 | 0.2d | Must | 9th |
+| S18-08 | Process gate decision | 0.1d | Must | 7th |
+| — | Saturday playtest | 0.1d | Must | — |
+| S18-09 | BUG-100 buff source | 0.2d | Should | new |
+| S18-10 | BUG-071 residual | 0.15d | Should | 5th |
+| S18-11 | BUG-068 `:28` + BUG-102 | 0.1d | Should | 3rd / new |
+| S18-12 | BUG-073 + BUG-090 | 0.15d | Should | 5th |
+| S18-13 | Git LFS decision | 0.1d | Should | 2nd |
+| S18-14 | BUG-087 design note | 0.3d | Should | 3rd |
+| S18-F1 | Start room / Champion / shop feature | ≤0.5d | Feature | — |
+
+---
+
+## Day-by-Day Plan
+
+### Mon 2026-10-12 — Play first, then unlock the loop
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S18-01 Playtest / smoke through the menu | 0.3d | ⬜ (carried Tue) | playtest done: no; 15th carry; gates all feature work |
+| S18-02 BUG-096 on `sprint-18` | 0.1d | ⬜ (carried Tue) | S1 — non-combat rooms sealed |
+| S18-03 BUG-097 | 0.05–0.2d | ⬜ (carried Tue) | Run starts in the wrong room |
+| S18-04 Editor block | 0.1d | ⬜ (carried Tue) | Abilities / ranged weapon untestable without it |
+
+### Tue 2026-10-13 — Vitals + death path (one file session)
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S18-05 BUG-092 residual | 0.05d | 🟡 (on `sprint-18` via `f552f701`, branch not compiling) | Every HoT/DoT one tick |
+| S18-06 BUG-066 + BUG-070 | 0.15d | 🟡 (getter only, on `sprint-18` via `f552f701`, not compiling) | Live death path; precondition for S18-09/10 |
+| S18-07 BUG-065 + BUG-086 | 0.2d | ⬜ (carried Wed) | Precondition for BUG-087 |
+| S18-08 Process gate decision | 0.1d | ⬜ (carried Wed) | 7th carry — decide or drop; the 2026-10-13 merge of non-compiling code is the third build break this is meant to prevent |
+
+### Wed 2026-10-14 — Should-Have code
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| Build fix — commit the working-tree fix for NOTE-20261013-1 (+ NOTE-2 `IObjecPoolService`) | ≈0.1d | ⬜ (new, unplanned) | `sprint-18` does not compile; blocks everything below |
+| S18-09 BUG-100 | 0.2d | ⬜ (deferred behind Must) | S2; same file as S18-06 |
+| S18-10 BUG-071 residual | 0.15d | ⬜ (deferred behind Must) | Same file |
+| S18-11 BUG-068 + BUG-102 | 0.1d | ⬜ (deferred behind Must) | Two one-liners |
+
+### Thu 2026-10-15 — Feature story + Editor cleanup
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| Build fix — commit the working tree (compiles locally since 2026-10-15 03:17) | ≈0.05d | ⬜ (carried Thu) | `sprint-18` tip still broken; blocks every runtime check |
+| S18-01 smoke (+ S18-02/03/04) | ≈0.7d | ⬜ (carried Thu) | Must-Have; 15th carry |
+| S18-F1 Start room / Champion / shop (cap 0.5d) | ≤0.5d | ⏸️ (gated: S18-01 not filled) | Only after S18-01 is filled |
+| S18-12 BUG-073 + BUG-090 | 0.15d | ⬜ (deferred behind Must) | Missing-script warnings |
+| S18-13 Git LFS decision | 0.1d | ⬜ (deferred behind Must) | Before more `.fbx` |
+
+### Fri 2026-10-16 — Design + buffer
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| Build fix — commit the working tree (compiles locally; 14 files modified) | ≈0.05d | ⬜ (carried Fri) | `sprint-18` tip still broken; last day before the playtest |
+| S18-01 smoke (+ S18-02/03/04) | ≈0.7d | ⬜ (carried Fri) | Must-Have; 15th carry; Saturday sheet is ready |
+| S18-14 BUG-087 design note | 0.3d | ⬜ (deferred behind Must) | S18-07 not done |
+| Buffer | 1d | — | consumed by the build break |
+
+### Sat 2026-10-17 — Weekly playtest
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| Weekly playtest (`tests/smoke/critical-paths.md` — not present on `sprint-18`; use the `playtest-sheet.sh` sheet) | 0.1d | ⬜ (sheet `production/qa/playtests/playtest-2026-10-17.md` prepared Fri) | Reserved every Saturday; feeds wrap-up |
+
+---
+
+## Risks (live)
+
+- Smoke at 15th carry — Monday first, signed accepted-risk beats a silent carry.
+- BUG-096 partial fix lives on `feature/update-bug-document` only.
+- `VitalStatsBase.cs` is the target of four tasks — do them in one session, in order.
+- `pm-routine-protocol.md` not on the sprint branch.
+- `gh` unavailable — draft PR not opened.
+- **(2026-10-14) `sprint-18` tip does not compile** since merge `f552f701` — no playtest, no smoke and
+  no batchmode evidence is possible until the build fix is committed.
+
+---
+
+## Daily Log
+
+_(appended by `/daily-standup`)_
+
+### 2026-10-10 (Sat) — `/weekly-wrapup --auto`
+
+- **Code review:** 0 `.cs` files changed since the 2026-10-09 wrap-up (all branches). Nothing to review.
+- **Playtest:** `playtest-2026-10-10.md` present but empty → `NOT RUN`. Editor was opened twice today
+  (Play Mode once per session) — `editor-log.sh` clean: 0 compile errors, no project exception.
+- **Fix survival (30 d):** 16 PRESENT / 4 PARTIAL / 1 GONE — all already triaged 2026-10-09.
+- **Inbox triage:** 4 notes → 3 confirmed (**BUG-103** S3, **BUG-104** S4, **BUG-105** S2), 1 status
+  update (BUG-064 → fixed in code, BUG-087 → partial); NOTE-2 closed (not reproduced); NOTE-6 carried
+  (needs owner). Report: `production/qa/bug-triage-2026-10-10.md`.
+- **Doc drift:** 92 STALE claims of 587; 0 bug-ID status mismatches → `/doc-sync` 23:00.
+- **Retro:** went well — inbox flow worked end to end (notes written Fri, IDs allocated once, Sat);
+  slipped — playtest (15th week), all Sprint 17 Must-Haves; improve — the routines fired early on
+  Friday 2026-10-09 (wrap-up, doc-sync, kickoff all ran Fri), so Saturday's run had no new week to
+  close: check the schedule times of `pm-weekly-wrapup` / `pm-weekly-kickoff`.
+- **Verdict:** SLIPPED (`LOG`). Handoff above under Status Verdict.
+
+### 2026-10-12 (Mon) — `/daily-standup --auto`
+
+- **Since last standup (Fri 2026-10-09):** 0 owner commits on any branch; only PM routine commits
+  (wrap-up, doc-sync 2026-10-10). No `.cs` change → fix-survival check not needed.
+- **Weekend:** Saturday 2026-10-10 playtest sheet not filled (`NOT RUN`, already recorded by wrap-up).
+  Sunday kickoff did not re-run (sprint-18 was opened Friday 2026-10-09).
+- **Runtime:** compile-check `SKIPPED` (Unity Editor open, owner session). `editor-log.sh`: Editor.log
+  2026-10-12 03:22 and Editor-prev.log 2026-10-11 01:33 — 0 compile errors, 0 Play Mode entries,
+  no `Assets/Script/` exception. Owner opened the Editor but has not entered Play Mode.
+- **Inbox:** 0 open notes (+0 today).
+- **Today:** S18-01 (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d); ≈0.7d.
+- **Verdict:** ON-TRACK nominal (day 1, nothing due before today). Evidence `LOG`.
+
+### 2026-10-13 (Tue) — `/daily-standup --auto`
+
+- **Since last standup:** owner commits `e6bf8fc3` (Mage/Archer art, animations, controllers — off-plan),
+  `e2a896cb` / `7b361725` (settings, `.claude` docs), merge `6ba55dd4`; all now on `sprint-18`. Plus
+  `51f8d2d4` "polish" (2026-10-12 16:57, other machine) on a remote branch literally named
+  `origin/feature/ui-flow-maingameplay` — touches `VitalStatsBase.cs` (S18-06 getter guard),
+  `RecoveryReductionPerTimeForDuration.cs` (S18-05 `[SerializeField]`), weapon/ability equip on
+  Champion pick (S18-F1 area).
+- **Runtime:** compile-check **COMPILED** `sprint-18` `7b361725` (1286 s). `editor-log.sh`: Editor.log
+  2026-10-12 18:52 and Editor-prev 04:36 — 0 CS errors, 0 Play Mode entries → S18-01 not run.
+  Fix-survival (7 d): no fix commits in window.
+- **Static read of `51f8d2d4`:** four compile errors (NOTE-20261013-1), unresolvable `ObjectPoolManager`
+  injection (NOTE-20261013-2), enemies lose weapon + abilities (NOTE-20261013-3). Must be fixed before
+  merging into `sprint-18`.
+- **Inbox:** 3 open notes (+3 today).
+- **Today:** carry S18-01 (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d), then fix
+  `51f8d2d4` to finish S18-05/06 (≈0.2d); ≈0.9d — over one day, S18-07/08 slip to Wed.
+- **Verdict:** SLIPPED — 0.7d of Monday Must-Have not done; off-plan work instead. Evidence `COMPILED` + `LOG`.
+
+### 2026-10-14 (Wed) — `/daily-standup --auto`
+
+- **Since last standup:** `0b8ac0ba` "update" (`.claude/settings.local.json` only) and merge `f552f701`
+  (2026-10-13 10:30), which brought `51f8d2d4` "polish" onto `sprint-18`. No other owner commit on any
+  branch. No task finished.
+- **Runtime:** compile-check **SKIPPED** (Unity Editor open). `editor-log.sh`: `Editor.log` (2026-10-14)
+  has **15 `error CS`** — `AbilityHolderBase.cs(70,9)` CS0841, `WeaponHolderBase.cs(11,75)` CS0535,
+  `WeaponHolderBase.cs(52,55)` CS1503 — 0 Play Mode entries; `Editor-prev.log` (2026-10-12) clean.
+  This confirms NOTE-20261013-1 at tier `LOG`; the sprint branch tip does not compile. Owner's folder has
+  uncommitted edits to the three failing files (fix in progress, invisible to the routine).
+  Fix-survival: no bug-fix commit in the 7-day window touches the merged files → not run.
+- **Inbox:** 3 open notes (+0 new; NOTE-20261013-1/2/3 updated with the merge and the log evidence).
+- **Today:** build fix (≈0.1d) → S18-01 smoke (0.3d) → S18-02 (0.1d) → S18-03 (≤0.2d) → S18-04 (0.1d);
+  ≈0.8d. S18-07/08 and Wednesday's Should-Have slip again.
+- **Verdict:** BLOCKED — `sprint-18` does not compile. Evidence `LOG`.
+
+### 2026-10-15 (Thu) — `/daily-standup --auto`
+
+- **Since last standup:** 0 commits on `sprint-18` (tip `72b45dce` = yesterday's standup). One owner commit
+  off-plan: `b364c303` "need review new architecture" (2026-10-14 16:26) on
+  `origin/feature/update-weapon-architecture` — adds `IWeapon<TStat>` / `IWeaponStat`, a generic
+  `Weapon<TStat>` base owning the serialized `stats` field; `Weapon.Stats` → abstract `BaseStats`. Static
+  read: no remaining `Weapon.Stats` caller in `Assets/Script/`; not on `sprint-18`, not compiled by the
+  routine. No task finished.
+- **Runtime:** compile-check **SKIPPED** (Unity Editor open). `editor-log.sh`: `Editor.log` (2026-10-15
+  03:17) — **0 `error CS`**, 1 Play Mode entry, 1× `NullReferenceException` @ `PlayerState.cs:35`
+  (NOTE-20261015-1). `Editor-prev.log` (2026-10-14 17:16) — the same 15 `error CS` as NOTE-20261013-1.
+  So the owner's working-tree fix compiles; it is not committed (`AbilityHolderBase.cs`,
+  `WeaponHolderBase.cs`, `IWeaponHolder.cs`, `LoadRandomMap.unity`, `EditorBuildSettings.asset` modified).
+  Fix-survival: no bug-fix commit in the 7-day window touches the files `b364c303` changed → not run.
+- **Inbox:** 4 open notes (+1 today; NOTE-20261013-1 updated).
+- **Today:** commit build fix (≈0.05d) → S18-01 smoke via the playtest sheet (0.3d) → S18-02 (0.1d) →
+  S18-03 (≤0.2d) → S18-04 (0.1d); ≈0.75d. S18-F1 stays gated; Thu Should-Have slips.
+- **Verdict:** BLOCKED — fix exists only in the working tree. Evidence `LOG`.
+
+### 2026-10-16 (Fri) — `/daily-standup --auto`
+
+- **Since last standup:** 0 owner commits on any branch. Only `820a8dec` (a `git stash` index commit on
+  `refs/stash`, 2026-10-15 03:33 — not progress). `sprint-18` tip = `9527c9aa` (yesterday's standup).
+  No task finished. No `.cs` commit → fix-survival not run.
+- **Runtime:** compile-check **SKIPPED** (Unity Editor open). `editor-log.sh`: `Editor.log` (2026-10-16
+  13:15) — 0 `error CS`, 0 Play Mode entries, no project exception. `Editor-prev.log` (2026-10-15 18:28)
+  — 0 `error CS`, 2 Play Mode entries, 2× `NullReferenceException` @ `PlayerState.cs:35` (evidence added
+  to NOTE-20261015-1). The owner is playing the working tree, which compiles; nothing committed.
+- **Inbox:** 4 open notes (+0 new; NOTE-20261013-1 and NOTE-20261015-1 updated).
+- **Friday:** Saturday playtest sheet written to `production/qa/playtests/playtest-2026-10-17.md`.
+- **Today:** commit build fix (≈0.05d) → S18-01 smoke (0.3d) → S18-02/03/04 (≈0.4d). S18-14 and all
+  Should-Have slip to Sprint 19.
+- **Verdict:** BLOCKED — 5th day with `sprint-18` not compiling at tip; 0/8 Must-Have. Evidence `LOG`.
