@@ -30,6 +30,18 @@ file was changed.
 
 ---
 
+## 2026-10-27 — Core component access plan (owner request)
+
+**Cause:** owner design discussion on internal vs external access to core components, read against
+source at HEAD `05dcf63`. No `.cs` file changed.
+
+| Document | Change |
+|---|---|
+| `docs/architecture/core-component-access-plan.md` | **New** — approved plan, not implemented |
+| `docs/architecture/changelog/core-component-access-plan.CHANGELOG.md` | **New** |
+
+---
+
 ## 2026-10-20 — Item system GDD + item cleanup (owner request)
 
 **Cause:** owner design decisions 2026-10-20 (no inventory; Wallet + coin-paid primary stats; no level
