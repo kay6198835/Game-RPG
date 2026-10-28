@@ -11,7 +11,12 @@
 
 ## Status Verdict
 
-**SLIPPED (day 3, 2026-10-28 standup)** — Mon + Tue plan (S20-01…S20-05, 0.9d) not started; the
+**SLIPPED (day 4, 2026-10-29 standup)** — Must burned 0 / 1.3d with 2 days left. Wed output was
+a CombatTest harness (`87e053b4`, on `sprint-20`; fix `6f9d0971` on `combat-test-scene` only) —
+it serves S20-01 but is not the smoke itself. ⚠️ `sprint-20` tip expected not to compile in the
+Editor assembly (NOTE-20261029-1, STATIC). Owner's folder COMPILED (`6f9d0971` + 48 uncommitted);
+Editor.log shows 15 Play Mode entries. Evidence `COMPILED` + `LOG` + `STATIC`.
+*Was (2026-10-28):* **SLIPPED (day 3)** — Mon + Tue plan (S20-01…S20-05, 0.9d) not started; the
 only `.cs` commit is `6e484f0c` "update logic effect" (S20-F1 follow-up, off-plan). Must burned
 0 / 1.3d with 3 days left. `compile-check.sh` **COMPILED** `beca1bcc` (+1 uncommitted line).
 Evidence `COMPILED` + `LOG`.
@@ -26,7 +31,7 @@ Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → pl
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 (day 3; 0.9d was due by Tue) | 1.3d |
+| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 (day 4; 1.15d was due by Wed) | 1.3d |
 | Should Have | 1.0d | 0 | 1.0d |
 | Feature story S20-F1 (capped, gated by S20-01) | 0.5d | 0.5d (landed early, unverified) | 0 |
 | Buffer | 1.0d | — | — |
@@ -59,7 +64,7 @@ Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → pl
 ### Mon 2026-10-26 — Play first, then the S1 blockers
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S20-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 21st carry; no `RUNTIME` evidence for 17 weeks |
+| S20-01 Playtest / smoke through the menu | 0.3d | 🟡 harness only (CombatTest scene `87e053b4`; 15 Play Mode entries in Editor.log 10-28/29, no sheet) | playtest done: no; 21st carry; no `RUNTIME` evidence for 17 weeks |
 | S20-02 BUG-108 | 0.1d | ⬜ | S1 — Knight enemies throw on first stat read; combat rooms cannot clear |
 | S20-03 BUG-096 | 0.1d | ⬜ | S1 — non-combat rooms stay sealed |
 
@@ -143,3 +148,21 @@ _(appended by `/daily-standup`)_
 - **Today:** S20-01 playtest first (0.3d) — the effect / vitals refactor of the last three days has
   never run in Play Mode; then S20-02 BUG-108 + S20-03 BUG-096 (S1, 0.2d). Wed items S20-06 / S20-07
   move to Thu; S20-08 (Should) at risk.
+
+### 2026-10-29 (Thu, day 4) — SLIPPED · evidence COMPILED + LOG + STATIC
+- **Since 2026-10-28 standup:** `87e053b4` CombatTest scene builder (class pick via the three
+  Champion monuments, F1–F3 hotkeys, two `TrainingDummy` targets, lean `CombatTestLifetimeScope`)
+  pushed to `sprint-20`; `6f9d0971` (qualify `System.IO.Path`) on `combat-test-scene` only. Owner
+  stash `82e76292` on `combat-test-scene` shows uncommitted `CombatTest.unity`, `VitalModifier.cs`,
+  `SourceEffect.cs`, `tools/anim-viewer/`. No commit for S20-02…S20-07.
+- **Runtime:** `compile-check.sh` COMPILED `combat-test-scene` `6f9d0971` + 48 uncommitted paths
+  (115 s). `Editor.log` (02:12): 15 Play Mode entries, 1 distinct transient `error CS0311`
+  (`PlayerMoveState.cs:14`, uncommitted), 6× NRE @ `PlayerState.cs:42` (NOTE-20261029-2).
+  `Editor-prev.log` (10-28 22:06): clean. `fix-survival.sh` not run — yesterday's `.cs` commits only
+  add new files. Owner tree has modified `Assets/SO/Stat/Player/{Archer,Paladin}Stats.asset`
+  (BUG-115 watch — check before committing).
+- **New notes:** NOTE-20261029-1 (S1 guess — `sprint-20` tip does not compile: `Path` shadowing in
+  `CombatTestSceneBuilder.cs:86`; fix exists on `combat-test-scene`), NOTE-20261029-2.
+- **Today:** land `6f9d0971` on `sprint-20` (≈0d), then S20-01 — fill the smoke sheet using the
+  CombatTest scene plus one menu run (0.3d); then S20-02 BUG-108 + S20-03 BUG-096 (0.2d).
+  S20-10 BUG-115 (Should) moves to Fri; S20-06 / S20-07 still open.
