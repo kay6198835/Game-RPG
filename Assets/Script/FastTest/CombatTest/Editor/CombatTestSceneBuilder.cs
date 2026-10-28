@@ -83,7 +83,7 @@ public static class CombatTestSceneBuilder
         debugger.AddComponent<AttackFlowDebugger>();
         debugger.SetActive(false);
 
-        Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
+        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(ScenePath));
         EditorSceneManager.SaveScene(scene, ScenePath);
         Debug.Log($"[CombatTest] Built {ScenePath}. Press Play, walk to a monument, press G to pick a class (or F1/F2/F3).");
     }
