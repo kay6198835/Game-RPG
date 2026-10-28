@@ -11,7 +11,11 @@
 
 ## Status Verdict
 
-**ON-TRACK (day 1, 2026-10-26 standup)** — no planned task due before today. Sunday evening the
+**SLIPPED (day 3, 2026-10-28 standup)** — Mon + Tue plan (S20-01…S20-05, 0.9d) not started; the
+only `.cs` commit is `6e484f0c` "update logic effect" (S20-F1 follow-up, off-plan). Must burned
+0 / 1.3d with 3 days left. `compile-check.sh` **COMPILED** `beca1bcc` (+1 uncommitted line).
+Evidence `COMPILED` + `LOG`.
+*Was (2026-10-26):* **ON-TRACK (day 1)** — no planned task due before today. Sunday evening the
 owner landed S20-F1 (`feature/add-effect-component`, merge `9348d151` + `e156bdf4`) ahead of its
 S20-01 gate, plus `041292ce` (champion pick flow). `compile-check.sh` **COMPILED** `e156bdf4`.
 Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → player builds fail
@@ -22,7 +26,7 @@ Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → pl
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 | 1.3d |
+| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 (day 3; 0.9d was due by Tue) | 1.3d |
 | Should Have | 1.0d | 0 | 1.0d |
 | Feature story S20-F1 (capped, gated by S20-01) | 0.5d | 0.5d (landed early, unverified) | 0 |
 | Buffer | 1.0d | — | — |
@@ -121,3 +125,21 @@ _(appended by `/daily-standup`)_
   to null), -2, -3.
 - **Today:** S20-01 playtest first (22nd carry if skipped), then S20-02 BUG-108, S20-03 BUG-096.
   S20-09 (vitals verify) is now unblocked by S20-F1.
+
+### 2026-10-28 (Wed, day 3) — SLIPPED · evidence COMPILED + LOG
+- **No standup row for Tue 2026-10-27** in `routine-log.md` — that run did not happen; this entry
+  covers Mon 26 + Tue 27.
+- **Since 2026-10-26:** owner `6e484f0c` "update logic effect" (15 `.cs`: `EffectReceiverBase` −100
+  lines, `IEffectReceiver`, `IVitalComponent`, `AbilityContext.Recipient`, stat effects,
+  `StatModifier` / `StatModifierGroup`) merged into `sprint-20` as `beca1bcc`; interactive docs
+  `26c5b4e1` (core component access plan), `ef0d9c6f` / `3e90f323` (effect source plan). No commit
+  for S20-01…S20-05.
+- **Runtime:** `compile-check.sh` COMPILED `beca1bcc` + 1 uncommitted line in `EffectReceiverBase.cs`
+  (38 s). `Editor-prev.log` (2026-10-27 07:58): 6 `error CS` (`AbilityContext.Recipient` missing),
+  transient — `AbilityContext.cs:20` declares it at HEAD; `Editor.log` (20:35) 0 errors, 0 Play Mode.
+  `fix-survival.sh 7`: no fix commits in window. Owner working tree shows no dirty
+  `Assets/SO/Stat/*.asset` (BUG-115 watch). NOTE-20261026-1 still present (`CharacterData.cs:2,20`).
+- **New notes:** none.
+- **Today:** S20-01 playtest first (0.3d) — the effect / vitals refactor of the last three days has
+  never run in Play Mode; then S20-02 BUG-108 + S20-03 BUG-096 (S1, 0.2d). Wed items S20-06 / S20-07
+  move to Thu; S20-08 (Should) at risk.
