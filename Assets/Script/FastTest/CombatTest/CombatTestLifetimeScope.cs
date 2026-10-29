@@ -12,5 +12,6 @@ public class CombatTestLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjectPoolService>();
         builder.RegisterComponentInHierarchy<PlayerManager>().AsSelf().As<IPlayerService>();
         builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
+        builder.RegisterComponentInHierarchy<CombatTestEnemySpawner>();
     }
 }
