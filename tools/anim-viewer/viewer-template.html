@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archer Animation Check</title>
+<style>
+:root {
+  --bg: #f4f4f2; --panel: #ffffff; --panel-2: #ecebe7; --line: #d9d7d0;
+  --text: #1d1d1b; --muted: #6b6a64; --accent: #2f6fd6; --accent-soft: #dbe6fa;
+  --warn: #b8620a; --warn-soft: #fbeedd; --bad: #c0362c; --bad-soft: #f9e0dd; --ok: #2d8a4e;
+  --ev: #8a3fd1; --stage-a: #e6e5e1; --stage-b: #f2f1ee;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141413; --panel: #1d1d1b; --panel-2: #262624; --line: #34332f;
+    --text: #ecebe6; --muted: #9a998f; --accent: #6b9cf0; --accent-soft: #23314a;
+    --warn: #e8a24a; --warn-soft: #3a2b16; --bad: #ec6b60; --bad-soft: #3d1f1c; --ok: #5cc183;
+    --ev: #b98af0; --stage-a: #232321; --stage-b: #2b2b28;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141413; --panel: #1d1d1b; --panel-2: #262624; --line: #34332f;
+  --text: #ecebe6; --muted: #9a998f; --accent: #6b9cf0; --accent-soft: #23314a;
+  --warn: #e8a24a; --warn-soft: #3a2b16; --bad: #ec6b60; --bad-soft: #3d1f1c; --ok: #5cc183;
+  --ev: #b98af0; --stage-a: #232321; --stage-b: #2b2b28;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font: 13px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: grid; grid-template-columns: 290px 1fr; grid-template-rows: auto 1fr; height: 100vh;
+}
+header {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+header h1 { font-size: 15px; margin: 0; font-weight: 650; }
+header .stats { color: var(--muted); font-variant-numeric: tabular-nums; }
+header .spacer { flex: 1; }
+button, select {
+  font: inherit; color: var(--text); background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 9px; cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+aside { overflow: auto; border-right: 1px solid var(--line); background: var(--panel); padding: 8px 0 24px; }
+aside .filter { padding: 4px 12px 10px; display: flex; gap: 6px; align-items: center; color: var(--muted); }
+aside h2 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  margin: 14px 12px 4px; font-weight: 600;
+}
+.item {
+  display: flex; align-items: center; gap: 6px; padding: 5px 12px 5px 16px; cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.item:hover { background: var(--panel-2); }
+.item.sel { background: var(--accent-soft); border-left-color: var(--accent); }
+.item .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item .meta { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.badge { font-size: 10px; padding: 1px 5px; border-radius: 9px; font-weight: 600; }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.badge.bad { background: var(--bad-soft); color: var(--bad); }
+main { overflow: auto; padding: 14px 18px 28px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.titlebar { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.titlebar h2 { margin: 0; font-size: 18px; font-weight: 650; }
+.titlebar .path { color: var(--muted); font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.toolbar .sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+.toolbar label { color: var(--muted); display: flex; gap: 4px; align-items: center; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; align-items: start; }
+.stage-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.stage { display: grid; gap: 8px; }
+.stage.single { grid-template-columns: 1fr; }
+.stage.grid { grid-template-columns: repeat(3, 1fr); }
+.cell { position: relative; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; }
+.cell.cur { border-color: var(--accent); }
+.cell.empty { visibility: hidden; }
+.cell canvas { display: block; width: 100%; aspect-ratio: 1; }
+.cell .lbl {
+  position: absolute; left: 6px; top: 5px; font-size: 11px; color: var(--muted);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.cell .evflash {
+  position: absolute; right: 6px; top: 5px; font-size: 11px; font-weight: 650; color: #fff;
+  background: var(--ev); border-radius: 4px; padding: 1px 6px; opacity: 0; transition: opacity .35s;
+  pointer-events: none;
+}
+.cell .evflash.show { opacity: 1; transition: none; }
+.compass { display: grid; grid-template-columns: repeat(3, 34px); gap: 4px; }
+.compass button { padding: 4px 0; font-size: 12px; }
+.compass .mid { display: grid; place-items: center; color: var(--muted); font-size: 10px; }
+.timeline { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px 12px; }
+.tl-head { display: flex; justify-content: space-between; color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+.tl-head b { color: var(--text); font-weight: 600; }
+.track { position: relative; height: 70px; cursor: pointer; user-select: none; }
+.track .bar { position: absolute; left: 0; right: 0; top: 26px; height: 16px; background: var(--panel-2); border-radius: 4px; }
+.track .used { position: absolute; left: 0; top: 26px; height: 16px; background: var(--accent-soft); border-radius: 4px; }
+.track .hold { position: absolute; top: 26px; height: 16px; border-radius: 0 4px 4px 0;
+  background: repeating-linear-gradient(45deg, var(--warn-soft) 0 6px, transparent 6px 12px); }
+.track .key { position: absolute; top: 28px; width: 1px; height: 12px; background: var(--accent); opacity: .55; }
+.track .key.miss { background: var(--bad); opacity: 1; width: 2px; }
+.track .ev { position: absolute; top: 0; width: 0; height: 46px; border-left: 2px solid var(--ev); }
+.track .ev span {
+  position: absolute; left: 3px; font-size: 10px; color: var(--ev); white-space: nowrap; font-weight: 600;
+}
+.track .head { position: absolute; top: 20px; width: 2px; height: 28px; background: var(--text); margin-left: -1px; }
+.track .ticks { position: absolute; top: 50px; left: 0; right: 0; height: 16px; color: var(--muted); font-size: 10px; }
+.track .ticks span { position: absolute; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.side { display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.card h3 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; }
+dt { color: var(--muted); }
+dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+.evlist { list-style: none; margin: 0; padding: 0; }
+.evlist li { display: flex; gap: 8px; padding: 3px 4px; border-radius: 4px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.evlist li:hover { background: var(--panel-2); }
+.evlist li.past { color: var(--muted); }
+.evlist li.now { background: var(--ev); color: #fff; }
+.evlist .t { width: 52px; flex: none; }
+.issues { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.issues li { padding: 6px 8px; border-radius: 6px; }
+.issues li.warn { background: var(--warn-soft); color: var(--warn); }
+.issues li.bad { background: var(--bad-soft); color: var(--bad); }
+.issues li.ok { color: var(--ok); }
+.kbd { color: var(--muted); font-size: 11px; }
+@media (max-width: 900px) {
+  body { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+  aside { max-height: 34vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  .layout { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Archer Animation Check</h1>
+  <span class="stats" id="stats"></span>
+  <span class="spacer"></span>
+  <span class="kbd">Space play/pause · ←/→ frame · 0–7 hướng · G lưới 8 hướng</span>
+  <button id="themeBtn" title="Đổi theme">◐</button>
+</header>
+<aside>
+  <div class="filter"><label><input type="checkbox" id="onlyIssues"> Chỉ hiện clip có vấn đề</label></div>
+  <div id="list"></div>
+</aside>
+<main>
+  <div class="titlebar"><h2 id="title"></h2><span class="path" id="path"></span></div>
+  <div class="toolbar">
+    <button id="playBtn" class="on">⏸ Pause</button>
+    <button id="prevBtn">⏮ Frame</button>
+    <button id="nextBtn">Frame ⏭</button>
+    <button id="restartBtn">↺ Đầu clip</button>
+    <span class="sep"></span>
+    <label>Tốc độ <select id="speed"><option>0.1</option><option>0.25</option><option>0.5</option><option selected>1</option><option>2</option></select></label>
+    <label>Loop <select id="loopMode"><option value="force" selected>Luôn lặp</option><option value="clip">Theo clip</option></select></label>
+    <span class="sep"></span>
+    <button id="gridBtn">▦ 8 hướng</button>
+    <button id="pivotBtn" class="on">✛ Pivot</button>
+    <button id="boundsBtn">▢ Khung sprite</button>
+    <label>Nền <select id="bgMode"><option value="checker">Ô caro</option><option value="dark">Tối</option><option value="light">Sáng</option><option value="green">Xanh</option></select></label>
+    <label>Zoom <select id="zoom"><option>0.75</option><option selected>1</option><option>1.5</option><option>2</option></select></label>
+  </div>
+  <div class="layout">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div class="stage-wrap"><div class="stage single" id="stage"></div></div>
+      <div class="timeline">
+        <div class="tl-head">
+          <span>t = <b id="tNow">0.000</b>s / <span id="tStop"></span>s</span>
+          <span>frame <b id="fNow">0</b> / <span id="fTot"></span> · <span id="sprName" class="mono"></span></span>
+        </div>
+        <div class="track" id="track"></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <h3>Hướng (dir)</h3>
+        <div style="display:flex;gap:14px;align-items:center">
+          <div class="compass" id="compass"></div>
+          <div class="kbd" style="max-width:150px">Theo <span class="mono">DirectionResolver</span>: dir0 = dưới-trái, theo chiều kim đồng hồ.</div>
+        </div>
+      </div>
+      <div class="card"><h3>Clip</h3><dl id="info"></dl></div>
+      <div class="card"><h3>Animation events</h3><ul class="evlist" id="evlist"></ul></div>
+      <div class="card"><h3>Kiểm tra</h3><ul class="issues" id="issues"></ul></div>
+    </div>
+  </div>
+</main>
+<script>
+const DATA = /*__DATA__*/null;
+const EPS = 1e-4;
+// dir index -> [label, arrow, grid cell 0..8]; dir0 = down-left, clockwise (DirectionResolver)
+const DIRS = [
+  ['dưới-trái', '↙', 6], ['trái', '←', 3], ['trên-trái', '↖', 0], ['trên', '↑', 1],
+  ['trên-phải', '↗', 2], ['phải', '→', 5], ['dưới-phải', '↘', 8], ['dưới', '↓', 7],
+];
+
+const images = {};
+let pending = Object.keys(DATA.textures).length;
+for (const [g, t] of Object.entries(DATA.textures)) {
+  const img = new Image();
+  img.onload = img.onerror = () => { if (--pending === 0) onImagesReady(); };
+  img.src = t.src;
+  images[g] = img;
+}
+
+// opaque-pixel count per sprite rect; null when the page is opened via file:// (canvas is tainted)
+const coverage = {};
+let coverageOk = true;
+// each sprite is downsampled to 64x64 (1/16 of the pixels) before counting
+const MS = 64, mcv = document.createElement('canvas');
+mcv.width = mcv.height = MS;
+const mctx = mcv.getContext('2d', { willReadFrequently: true });
+function measureTexture(g) {
+  const img = images[g], t = DATA.textures[g];
+  if (!img.naturalWidth) return;
+  for (const [id, s] of Object.entries(t.sprites)) {
+    mctx.clearRect(0, 0, MS, MS);
+    mctx.drawImage(img, s.x, s.y, s.w, s.h, 0, 0, MS, MS);
+    const d = mctx.getImageData(0, 0, MS, MS).data;
+    let n = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i] > 10) n++;
+    coverage[g + ':' + id] = n * (s.w * s.h) / (MS * MS);
+  }
+}
+function onImagesReady() {
+  const queue = Object.keys(DATA.textures);
+  const step = () => {
+    if (!coverageOk || !queue.length) {
+      updateStats(); renderList(); if (state.folder) updateSide();
+      return;
+    }
+    try { measureTexture(queue.shift()); } catch (e) { coverageOk = false; }
+    setTimeout(step, 0);
+  };
+  step();
+}
+const EMPTY_PX = 200;
+function emptyFrames(c) {
+  if (!coverageOk) return null;
+  let n = 0, known = 0;
+  for (const f of c.frames) {
+    const v = coverage[f.g + ':' + f.id];
+    if (v === undefined) continue;
+    known++;
+    if (v < EMPTY_PX) n++;
+  }
+  return known ? n : null;
+}
+
+// group clips by folder
+const folders = new Map();
+for (const c of DATA.clips) {
+  const key = c.group + '|' + c.folder;
+  if (!folders.has(key)) folders.set(key, { key, group: c.group, folder: c.folder, clips: [] });
+  folders.get(key).clips[c.dir >= 0 ? c.dir : folders.get(key).clips.length] = c;
+}
+
+function lastKeyTime(c) { return c.frames.length ? c.frames[c.frames.length - 1].t : 0; }
+function analyze(c) {
+  const out = [];
+  if (!c) return out;
+  const lk = lastKeyTime(c);
+  const frameDur = 1 / c.sampleRate;
+  const miss = c.frames.filter(f => f.missing).length;
+  if (miss) out.push(['bad', `${miss} keyframe trỏ tới sprite không tìm thấy (GUID/fileID hỏng).`]);
+  if (!c.frames.length) out.push(['bad', 'Clip không có keyframe sprite nào.']);
+  const empty = emptyFrames(c);
+  if (empty) out.push([empty === c.frames.length ? 'bad' : 'warn',
+    `${empty}/${c.frames.length} frame gần như trống (< ${EMPTY_PX} pixel) — sprite sheet có thể sai hoặc chỉ chứa VFX.`]);
+  const hold = c.stop - (lk + frameDur);
+  if (hold > 0.05) out.push(['warn', `Clip dài ${c.stop.toFixed(2)}s nhưng keyframe cuối ở ${lk.toFixed(2)}s → đứng hình ${hold.toFixed(2)}s ở frame cuối.`]);
+  for (const e of c.events) {
+    if (e.t > c.stop + EPS) out.push(['bad', `Event ${e.fn} ở ${e.t.toFixed(2)}s nằm ngoài clip (${c.stop.toFixed(2)}s) → không bao giờ chạy.`]);
+    else if (e.t > lk + frameDur + EPS) out.push(['warn', `Event ${e.fn} ở ${e.t.toFixed(2)}s, sau frame cuối (${lk.toFixed(2)}s).`]);
+  }
+  const names = c.events.map(e => e.fn);
+  if (names.length && !c.loop) {
+    if (!names.includes('AnimationFinishTrigger') && !names.includes('AnimationEnd'))
+      out.push(['warn', 'Clip không lặp nhưng thiếu AnimationFinishTrigger / AnimationEnd — state có thể không thoát.']);
+  }
+  return out;
+}
+function folderIssues(f) {
+  const all = [];
+  f.clips.forEach((c, i) => { if (c) analyze(c).forEach(x => all.push([x[0], `dir${i}: ${x[1]}`])); });
+  for (let d = 0; d < 8; d++) if (!f.clips[d]) all.push(['bad', `Thiếu clip dir${d}.`]);
+  const stops = new Set(f.clips.filter(Boolean).map(c => c.stop.toFixed(3)));
+  if (stops.size > 1) all.push(['warn', `8 hướng có độ dài khác nhau: ${[...stops].join(', ')}s.`]);
+  const evSig = new Set(f.clips.filter(Boolean).map(c => c.events.map(e => e.fn + '@' + e.t.toFixed(2)).join(',')));
+  if (evSig.size > 1) all.push(['warn', 'Events không giống nhau giữa các hướng.']);
+  return all;
+}
+
+const state = {
+  folder: null, dir: 0, t: 0, playing: true, speed: 1, loop: 'force', grid: false,
+  pivot: true, bounds: false, bg: 'checker', zoom: 1,
+};
+
+// ---------- sidebar ----------
+const listEl = document.getElementById('list');
+function renderList() {
+  const only = document.getElementById('onlyIssues').checked;
+  listEl.innerHTML = '';
+  let lastGroup = null;
+  for (const f of folders.values()) {
+    const iss = folderIssues(f);
+    if (only && !iss.length) continue;
+    if (f.group !== lastGroup) {
+      const h = document.createElement('h2');
+      h.textContent = f.group;
+      listEl.appendChild(h);
+      lastGroup = f.group;
+    }
+    const c0 = f.clips.find(Boolean);
+    const div = document.createElement('div');
+    div.className = 'item' + (state.folder === f ? ' sel' : '');
+    const bad = iss.filter(i => i[0] === 'bad').length, warn = iss.filter(i => i[0] === 'warn').length;
+    div.innerHTML = `<span class="nm" title="${f.folder}">${f.folder}</span>` +
+      `<span class="meta">${c0.frames.length}f · ${c0.stop.toFixed(2)}s${c0.loop ? ' · ⟳' : ''}</span>` +
+      (bad ? `<span class="badge bad">${bad}</span>` : warn ? `<span class="badge warn">${warn}</span>` : '');
+    div.onclick = () => selectFolder(f);
+    listEl.appendChild(div);
+  }
+}
+document.getElementById('onlyIssues').onchange = renderList;
+
+// ---------- stage ----------
+const stageEl = document.getElementById('stage');
+let cells = [];
+function buildStage() {
+  stageEl.className = 'stage ' + (state.grid ? 'grid' : 'single');
+  stageEl.innerHTML = '';
+  cells = [];
+  const order = state.grid ? Array.from({ length: 9 }, (_, i) => DIRS.findIndex(d => d[2] === i)) : [state.dir];
+  for (const d of order) {
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (d < 0 ? ' empty' : '');
+    if (d >= 0) {
+      cell.innerHTML = `<canvas></canvas><span class="lbl">dir${d} ${DIRS[d][1]}</span><span class="evflash"></span>`;
+      cell.onclick = () => { state.dir = d; if (state.grid) refreshCur(); else buildStage(); updateSide(); };
+      cells.push({ d, el: cell, cv: cell.querySelector('canvas'), flash: cell.querySelector('.evflash'), lastT: 0 });
+    }
+    stageEl.appendChild(cell);
+  }
+  if (!state.grid) stageEl.style.maxWidth = (520 * state.zoom) + 'px'; else stageEl.style.maxWidth = '';
+  refreshCur();
+}
+function refreshCur() { for (const c of cells) c.el.classList.toggle('cur', state.grid && c.d === state.dir); }
+
+function clipTime(c, t) {
+  if (c.stop <= 0) return 0;
+  if (state.loop === 'force' || c.loop) return t % c.stop;
+  return Math.min(t, c.stop);
+}
+function frameAt(c, ct) {
+  let idx = 0;
+  for (let i = 0; i < c.frames.length; i++) if (c.frames[i].t <= ct + EPS) idx = i; else break;
+  return idx;
+}
+function drawCell(cell, t) {
+  const c = state.folder.clips[cell.d];
+  const cv = cell.cv;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement);
+  if (state.bg === 'checker') {
+    const a = css.getPropertyValue('--stage-a'), b = css.getPropertyValue('--stage-b'), s = 16;
+    for (let y = 0; y < H; y += s) for (let x = 0; x < W; x += s) {
+      ctx.fillStyle = ((x + y) / s) % 2 ? a : b; ctx.fillRect(x, y, s, s);
+    }
+  } else {
+    ctx.fillStyle = { dark: '#111', light: '#fafafa', green: '#3f7d4a' }[state.bg];
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (!c || !c.frames.length) return;
+  const ct = clipTime(c, t);
+  const f = c.frames[frameAt(c, ct)];
+  const tex = DATA.textures[f.g];
+  const spr = tex && tex.sprites[f.id];
+  const cx = W / 2, cy = H * 0.6;
+  const scale = W / 200;
+  if (spr && images[f.g].complete) {
+    const w = spr.w * scale, h = spr.h * scale;
+    const x = cx - spr.px * w, y = cy - (1 - spr.py) * h;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(images[f.g], spr.x, spr.y, spr.w, spr.h, x, y, w, h);
+    if (state.bounds) {
+      ctx.strokeStyle = css.getPropertyValue('--accent'); ctx.lineWidth = 1;
+      ctx.strokeRect(x + .5, y + .5, w - 1, h - 1);
+    }
+  } else if (!spr) {
+    ctx.fillStyle = css.getPropertyValue('--bad'); ctx.font = '600 13px system-ui';
+    ctx.textAlign = 'center'; ctx.fillText('SPRITE MISSING', cx, cy);
+  }
+  if (state.pivot) {
+    ctx.strokeStyle = 'rgba(232,60,60,.9)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx - 10, cy + .5); ctx.lineTo(cx + 10, cy + .5);
+    ctx.moveTo(cx + .5, cy - 10); ctx.lineTo(cx + .5, cy + 10); ctx.stroke();
+  }
+  // event flash: fire when clip time crosses an event
+  const prev = cell.lastT;
+  for (const e of c.events) {
+    const crossed = ct >= prev ? (e.t > prev + EPS && e.t <= ct + EPS) : (e.t > prev + EPS || e.t <= ct + EPS);
+    if (crossed && state.playing) {
+      cell.flash.textContent = e.fn.replace('Animation', '');
+      cell.flash.classList.add('show');
+      clearTimeout(cell.ft);
+      cell.ft = setTimeout(() => cell.flash.classList.remove('show'), 260);
+    }
+  }
+  cell.lastT = ct;
+}
+
+// ---------- timeline ----------
+const trackEl = document.getElementById('track');
+function buildTrack() {
+  const c = curClip();
+  trackEl.innerHTML = '<div class="bar"></div>';
+  if (!c) return;
+  const span = Math.max(c.stop, ...c.events.map(e => e.t), 0.001);
+  const pct = t => (t / span * 100) + '%';
+  const lk = lastKeyTime(c) + 1 / c.sampleRate;
+  trackEl.insertAdjacentHTML('beforeend', `<div class="used" style="width:${pct(Math.min(lk, c.stop))}"></div>`);
+  if (c.stop > lk + 0.05) trackEl.insertAdjacentHTML('beforeend', `<div class="hold" style="left:${pct(lk)};width:${pct(c.stop - lk)}" title="Đứng hình ở frame cuối"></div>`);
+  for (const f of c.frames) trackEl.insertAdjacentHTML('beforeend', `<div class="key${f.missing ? ' miss' : ''}" style="left:${pct(f.t)}"></div>`);
+  c.events.forEach((e, i) => {
+    const label = e.fn.replace('Animation', '');
+    trackEl.insertAdjacentHTML('beforeend', `<div class="ev" style="left:${pct(e.t)}" title="${e.fn} @ ${e.t.toFixed(3)}s"><span style="top:${(i % 2) * 12}px">${label}</span></div>`);
+  });
+  const step = span > 3 ? 0.5 : span > 1 ? 0.25 : 0.1;
+  let ticks = '<div class="ticks">';
+  for (let t = 0; t <= span + EPS; t += step) ticks += `<span style="left:${pct(t)}">${+t.toFixed(2)}</span>`;
+  trackEl.insertAdjacentHTML('beforeend', ticks + '</div><div class="head" id="head"></div>');
+  trackEl.dataset.span = span;
+}
+function seekFromEvent(ev) {
+  const r = trackEl.getBoundingClientRect();
+  const x = Math.min(Math.max(ev.clientX - r.left, 0), r.width);
+  state.t = x / r.width * +trackEl.dataset.span;
+  setPlaying(false);
+}
+trackEl.addEventListener('pointerdown', ev => {
+  seekFromEvent(ev);
+  const mv = e => seekFromEvent(e);
+  window.addEventListener('pointermove', mv);
+  window.addEventListener('pointerup', () => window.removeEventListener('pointermove', mv), { once: true });
+});
+
+// ---------- side panel ----------
+function curClip() { return state.folder && state.folder.clips[state.dir]; }
+function updateSide() {
+  const c = curClip(), f = state.folder;
+  document.getElementById('title').textContent = `${f.group} › ${f.folder}`;
+  document.getElementById('path').textContent = c ? c.file : '';
+  const comp = document.getElementById('compass');
+  comp.innerHTML = '';
+  for (let cellIdx = 0; cellIdx < 9; cellIdx++) {
+    const d = DIRS.findIndex(x => x[2] === cellIdx);
+    if (d < 0) { comp.insertAdjacentHTML('beforeend', '<div class="mid">dir</div>'); continue; }
+    const b = document.createElement('button');
+    b.textContent = DIRS[d][1] + d;
+    b.title = `dir${d} — ${DIRS[d][0]}`;
+    if (d === state.dir) b.className = 'on';
+    b.onclick = () => { state.dir = d; if (state.grid) refreshCur(); else buildStage(); updateSide(); };
+    comp.appendChild(b);
+  }
+  if (!c) return;
+  const lk = lastKeyTime(c);
+  const texs = [...new Set(c.frames.map(fr => DATA.textures[fr.g]?.src.replace('../../', '') || fr.g))];
+  document.getElementById('info').innerHTML = `
+    <dt>Tên</dt><dd class="mono">${c.name}</dd>
+    <dt>Hướng</dt><dd>dir${state.dir} — ${DIRS[state.dir][0]}</dd>
+    <dt>Sample rate</dt><dd>${c.sampleRate} fps</dd>
+    <dt>Keyframe</dt><dd>${c.frames.length} (cuối ở ${lk.toFixed(3)}s)</dd>
+    <dt>Độ dài clip</dt><dd>${c.stop.toFixed(3)}s</dd>
+    <dt>Loop</dt><dd>${c.loop ? 'Có' : 'Không'}</dd>
+    <dt>Sprite sheet</dt><dd class="mono">${texs.join('<br>')}</dd>`;
+  document.getElementById('fTot').textContent = c.frames.length;
+  document.getElementById('tStop').textContent = c.stop.toFixed(3);
+  const ev = document.getElementById('evlist');
+  ev.innerHTML = c.events.length ? '' : '<li class="past">Không có event</li>';
+  c.events.forEach(e => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="t">${e.t.toFixed(3)}s</span><span>${e.fn}</span>`;
+    li.onclick = () => { state.t = e.t; setPlaying(false); };
+    li.dataset.t = e.t;
+    ev.appendChild(li);
+  });
+  const iss = folderIssues(state.folder);
+  document.getElementById('issues').innerHTML = iss.length
+    ? iss.map(i => `<li class="${i[0]}">${i[1]}</li>`).join('')
+    : '<li class="ok">✓ Không phát hiện vấn đề (8 hướng đủ, events trong clip).</li>';
+  buildTrack();
+}
+
+function selectFolder(f) {
+  state.folder = f; state.t = 0;
+  for (const c of cells) c.lastT = 0;
+  renderList(); buildStage(); updateSide();
+  try { localStorage.setItem('archerAnimFolder', f.key); } catch (e) {}
+}
+
+// ---------- controls ----------
+const playBtn = document.getElementById('playBtn');
+function setPlaying(p) {
+  state.playing = p;
+  playBtn.textContent = p ? '⏸ Pause' : '▶ Play';
+  playBtn.classList.toggle('on', p);
+}
+playBtn.onclick = () => setPlaying(!state.playing);
+function stepFrame(delta) {
+  const c = curClip(); if (!c || !c.frames.length) return;
+  setPlaying(false);
+  const ct = clipTime(c, state.t);
+  let i = frameAt(c, ct) + delta;
+  i = (i + c.frames.length) % c.frames.length;
+  state.t = c.frames[i].t;
+}
+document.getElementById('prevBtn').onclick = () => stepFrame(-1);
+document.getElementById('nextBtn').onclick = () => stepFrame(1);
+document.getElementById('restartBtn').onclick = () => { state.t = 0; for (const c of cells) c.lastT = 0; };
+document.getElementById('speed').onchange = e => state.speed = +e.target.value;
+document.getElementById('loopMode').onchange = e => state.loop = e.target.value;
+document.getElementById('zoom').onchange = e => { state.zoom = +e.target.value; buildStage(); };
+document.getElementById('bgMode').onchange = e => state.bg = e.target.value;
+const toggle = (id, key, after) => {
+  const b = document.getElementById(id);
+  b.onclick = () => { state[key] = !state[key]; b.classList.toggle('on', state[key]); after && after(); };
+};
+toggle('gridBtn', 'grid', buildStage);
+toggle('pivotBtn', 'pivot');
+toggle('boundsBtn', 'bounds');
+document.getElementById('themeBtn').onclick = () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  r.dataset.theme = dark ? 'light' : 'dark';
+};
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); setPlaying(!state.playing); }
+  else if (e.key === 'ArrowLeft') stepFrame(-1);
+  else if (e.key === 'ArrowRight') stepFrame(1);
+  else if (e.key === 'g' || e.key === 'G') document.getElementById('gridBtn').click();
+  else if (/^[0-7]$/.test(e.key)) { state.dir = +e.key; if (state.grid) refreshCur(); else buildStage(); updateSide(); }
+  else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    const arr = [...folders.values()];
+    const i = arr.indexOf(state.folder) + (e.key === 'ArrowDown' ? 1 : -1);
+    if (arr[i]) { e.preventDefault(); selectFolder(arr[i]); }
+  }
+});
+
+// ---------- loop ----------
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.1); last = now;
+  const c = curClip();
+  if (state.playing && c) {
+    state.t += dt * state.speed;
+    if (state.loop === 'clip' && !c.loop && state.t >= c.stop) { state.t = c.stop; setPlaying(false); }
+  }
+  if (state.folder) {
+    for (const cell of cells) drawCell(cell, state.t);
+    if (c) {
+      const ct = clipTime(c, state.t);
+      const fi = frameAt(c, ct);
+      document.getElementById('tNow').textContent = ct.toFixed(3);
+      document.getElementById('fNow').textContent = fi + 1;
+      const spr = DATA.textures[c.frames[fi]?.g]?.sprites[c.frames[fi]?.id];
+      document.getElementById('sprName').textContent = spr ? spr.n : '—';
+      const head = document.getElementById('head');
+      if (head) head.style.left = (ct / +trackEl.dataset.span * 100) + '%';
+      document.querySelectorAll('#evlist li[data-t]').forEach(li => {
+        const t = +li.dataset.t;
+        li.className = Math.abs(t - ct) < 0.05 ? 'now' : t < ct ? 'past' : '';
+      });
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+// ---------- boot ----------
+function updateStats() {
+  const bad = [...folders.values()].filter(f => folderIssues(f).length).length;
+  document.getElementById('stats').textContent =
+    `${DATA.clips.length} clip · ${folders.size} nhóm · ${Object.keys(DATA.textures).length} sprite sheet · ${bad} nhóm có cảnh báo` +
+    (coverageOk ? '' : ' · (mở qua file:// nên không quét được frame trống)') +
+    ` · tạo lúc ${DATA.generated.slice(0, 16).replace('T', ' ')}`;
+}
+updateStats();
+let start = [...folders.values()][0];
+try { const k = localStorage.getItem('archerAnimFolder'); if (k && folders.has(k)) start = folders.get(k); } catch (e) {}
+selectFolder(start);
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
