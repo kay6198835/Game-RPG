@@ -13,6 +13,7 @@ public static class CombatTestSceneBuilder
     private const string PlayerPrefabPath = "Assets/Prefab/Player/PlayerTest.prefab";
     private const string MonumentPathFormat = "Assets/Prefab/Champion Monument/Champion_Monument_{0}.prefab";
     private const string PlayerDataPathFormat = "Assets/SO/Player/{0}/{0}.asset";
+    private const string EnemyPrefabPath = "Assets/Prefab/Enemy/EnemyPrefab.prefab";
     private const string UIDebugConfigPath = "Assets/SO/UIFlow/UIDebugConfig.asset";
     private static readonly string[] Classes = { "Paladin", "Archer", "Mage" };
 
@@ -78,6 +79,16 @@ public static class CombatTestSceneBuilder
 
         CreateDummy(square, "TrainingDummy", new Vector3(4f, 0f, 0f), 0f, new Color(0.85f, 0.7f, 0.45f));
         CreateDummy(square, "TrainingDummy_Armored", new Vector3(4f, -3f, 0f), 20f, new Color(0.55f, 0.6f, 0.7f));
+
+        // A real enemy prefab (same one RoomModel spawns), pinned in place by CombatTestEnemySpawner.
+        new GameObject("EnemyManager").AddComponent<EnemyManager>();
+        GameObject enemySpawnPoint = new("EnemySpawnPoint");
+        enemySpawnPoint.transform.position = new Vector3(-4f, 0f, 0f);
+        GameObject enemySpawnerObject = new("CombatTestEnemySpawner");
+        CombatTestEnemySpawner enemySpawner = enemySpawnerObject.AddComponent<CombatTestEnemySpawner>();
+        Wire(enemySpawner, "enemyPrefab", Require<GameObject>(EnemyPrefabPath));
+        Wire(enemySpawner, "spawnPoint", enemySpawnPoint.transform);
+        Wire(enemySpawner, "moveSpeedMultiplier", 0f);
 
         GameObject debugger = new("AttackFlowDebugger");
         debugger.AddComponent<AttackFlowDebugger>();

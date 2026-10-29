@@ -13,7 +13,7 @@ public abstract class CharacterData : ScriptableObject
     // FormerlySerializedAs keeps both sides' authored data: PlayerData used `stats` and an auto-property
     // backing field, EntityData used `statsSO`, `abilityBindings` and `weaponSO`.
     [Header("Character")]
-    [SerializeField] protected BaseStatsSO stats;
+    [SerializeField, FormerlySerializedAs("statsSO")] protected BaseStatsSO stats;
     [SerializeField] protected List<AbilityBinding> abilityBindings = new List<AbilityBinding>();
     public BaseStatsSO Stats => stats;
     public List<AbilityBinding> AbilityBindings => abilityBindings;
