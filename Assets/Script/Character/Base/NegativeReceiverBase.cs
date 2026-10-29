@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver where TCore : CoreBase
 {
-    protected IVitalComponent vital;
+    protected IVitalComponent<TCore> vital;
     protected IStatService stats;
     protected ICharacterInput input;
 
@@ -22,7 +22,7 @@ public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, IN
     {
         float finalDamage = Mitigate(amountDamage);
         if (finalDamage <= 0) return;
-        vital.Reduction(StatType.HP, finalDamage);
+        vital.Reduction(VitalStatType.HP, finalDamage);
         input?.OnTakeDamage(attackPosition);
         OnDamaged(finalDamage, attackPosition);
     }

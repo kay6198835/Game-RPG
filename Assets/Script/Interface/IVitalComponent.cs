@@ -9,7 +9,12 @@ public interface IVitalComponent
 {
     /// <summary>Raised after any current value changes (damage, heal, cost, buff, Reborn).</summary>
     event Action CurrentStatsChanged;
-    float GetCurrentStatValue(StatType statType);
-    void Recovery(StatType statType, float amount, bool isIgnoreMax = true);
-    void Reduction(StatType statType, float amount , bool isIgnoreMax = true);
+    float GetCurrentStatValue(VitalStatType vitalStatType);
+    void Recovery(VitalStatType vitalStatType, float amount);
+    void Reduction(VitalStatType vitalStatType, float amount);
+}
+
+public interface IVitalComponent<T> : IVitalComponent where T : CoreBase
+{
+
 }

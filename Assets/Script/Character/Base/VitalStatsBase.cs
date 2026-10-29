@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,11 +7,11 @@ using UnityEngine;
 /// Shared owner of a character's CURRENT stat values. Max values come from the sibling
 /// <see cref="IStatService"/>; modifiers are applied to that service, current values are kept here.
 /// </summary>
-public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalComponent where TCore : CoreBase
+public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalComponent<TCore> where TCore : CoreBase
 {
-    protected Dictionary<StatType, float> currentStats = new();
+    protected Dictionary<VitalStatType, float> currentStats = new();
     protected IStatService statHandler;
-    public event System.Action CurrentStatsChanged;
+    public event Action CurrentStatsChanged;
 
     protected override void Start()
     {
@@ -21,13 +22,13 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         base.Setup();
         Core.TryGetCapability(out statHandler);
-        currentStats = statHandler.GetFullStat();
+        LoadVitalStats();
     }
 
     public override void ReloadComponent()
     {
         base.ReloadComponent();
-        currentStats = statHandler.GetFullStat();
+        LoadVitalStats();
         UpdateStatField();
     }
 
@@ -36,39 +37,50 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         CurrentStatsChanged?.Invoke();
     }
 
-    public float GetCurrentStatValue(StatType statType)
+    void LoadVitalStats()
     {
-        if (currentStats.TryGetValue(statType, out float valueStat))
+        foreach (var stat in statHandler.GetFullStat())
+        {
+            VitalStatType vitalStatType = (VitalStatType)stat.Key;
+            currentStats[vitalStatType] = Enum.IsDefined(typeof(VitalStatType), vitalStatType)
+                ? statHandler.GetStatValue(stat.Key)
+                : 0f;
+        }
+    }
+
+    public float GetCurrentStatValue(VitalStatType vitalStatType)
+    {
+        if (currentStats.TryGetValue(vitalStatType, out float valueStat))
         {
             return valueStat;
         }
-        return statHandler.GetStatValue(statType);
+        return 0;
     }
 
-    public void Recovery(StatType statType, float amount, bool isIgnoreMax = true)
+    public void Recovery(VitalStatType vitalStatType, float amount)
     {
-        if (statType.IsPrimary()) return;
-        if (currentStats[statType] + amount >= statHandler.GetStatValue(statType))
+        StatType statType = (StatType)vitalStatType;
+        if (!Enum.IsDefined(typeof(StatType), statType)) return;
+        if (currentStats[vitalStatType] < statHandler.GetStatValue(statType))
         {
-            currentStats[statType] = statHandler.GetStatValue(statType);
+            currentStats[vitalStatType] += amount;
         }
         else
         {
-            currentStats[statType] += amount;
+            currentStats[vitalStatType] = statHandler.GetStatValue(statType);
         }
         UpdateStatField();
     }
 
-    public void Reduction(StatType statType, float amount, bool isIgnoreMax = true)
+    public void Reduction(VitalStatType vitalStatType, float amount)
     {
-        if (statType.IsPrimary()) return;
-        if (currentStats[statType] - amount <= 0)
+        if (currentStats[vitalStatType] - amount <= 0)
         {
-            currentStats[statType] = 0;
+            currentStats[vitalStatType] = 0;
         }
         else
         {
-            currentStats[statType] -= amount;
+            currentStats[vitalStatType] -= amount;
         }
         UpdateStatField();
     }

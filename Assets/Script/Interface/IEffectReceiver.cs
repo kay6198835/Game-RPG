@@ -1,7 +1,9 @@
+using System;
+
 public interface IEffectReceiver
 {
-    void AdjustMaxToCurrentStats(StatModifierGroup modifierGroup, bool isIgnoreMax = true, object obj = null);
-    void AdjustMaxStats(StatModifierGroup modifierGroup, object obj = null);
-    void AdjustCurrentForDuration(StatModifierGroup modifierGroup, float duration, object obj = null);
-    void AdjustCurrentPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, object obj = null);
+    void AdjustMaxStats(StatModifierGroup modifierGroup, AbilityContext context, object source, Action callback = null);
+    void AdjustCurrentStats(StatModifierGroup modifierGroup, AbilityContext context, Action callback = null);
+    void AdjustCurrentForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null);
+    void AdjustCurrentPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null);
 }

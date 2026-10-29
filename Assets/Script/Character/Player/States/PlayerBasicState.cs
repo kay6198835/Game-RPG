@@ -66,7 +66,7 @@ public class PlayerBasicState : PlayerState
         }
         if (inputHandler.IsTakeDamage)
         {
-            if (vitalStats.GetCurrentStatValue(StatType.HP) <= 0)
+            if (vitalStats.GetCurrentStatValue(VitalStatType.HP) <= 0)
             {
                 stateMachine.ChangeState(player.DeathState);
                 return;

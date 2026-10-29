@@ -5,6 +5,6 @@ public class RecoveryReductionStatsEffect : StatsEffectBase
 {
     protected override void ApplyImpact(IEffectReceiver effectReceiver, StatModifierGroup statModifierGroup, AbilityContext context)
     {
-        effectReceiver.AdjustMaxToCurrentStats(statModifierGroup, true, context.Caster);
+        effectReceiver.AdjustCurrentStats(statModifierGroup, context);
     }
 }

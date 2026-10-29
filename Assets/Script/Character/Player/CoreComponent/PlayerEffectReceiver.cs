@@ -1,4 +1,4 @@
-public class PlayerEffectReceiver : MovementBase<Core>
+public class PlayerEffectReceiver : EffectReceiverBase<Core>
 {
 
 }

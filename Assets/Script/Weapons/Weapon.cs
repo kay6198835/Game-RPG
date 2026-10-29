@@ -86,7 +86,7 @@ public abstract class Weapon : InteractiveObjects
         holder = weaponHolder;
         aim = weaponHolder.Aim;
         IStatService ownerStats = OwnerStats(weaponHolder);
-        if (ownerStats != null) ownerStats.AddModifiersFromSource(this, stats.StatModifiers.Modifiers);
+        if (ownerStats != null) ownerStats.AddModifiersFromSource(this, stats.StatModifiers.GetStatsModifiers);
         else Debug.LogWarning($"[{name}] equipped by a holder with no character stats.", this);
         transform.SetParent(weaponHolder.Transform);
         transform.position = transform.parent.position;

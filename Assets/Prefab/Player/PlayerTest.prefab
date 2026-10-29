@@ -136,7 +136,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  _currentHP: 0
 --- !u!1 &3647546795979010557
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,6 +375,7 @@ Transform:
   - {fileID: 1152756422125806585}
   - {fileID: 9204253315871573555}
   - {fileID: 7566764149828257259}
+  - {fileID: 5871379559388451885}
   m_Father: {fileID: 6345384194108746772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4030715832189692962
@@ -558,6 +558,7 @@ MonoBehaviour:
       HoldTime: 0
       HoldRatio: 0
       AbilityDefinition: {fileID: 0}
+      Recipient: 0
 --- !u!1 &5519547563718807823
 GameObject:
   m_ObjectHideFlags: 0
@@ -756,6 +757,52 @@ MonoBehaviour:
   isResourceReceiver: 0
   disadvantage: 0
   statusAnimation: 0
+--- !u!1 &8997367254086592062
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5871379559388451885}
+  - component: {fileID: 3282263910915662309}
+  m_Layer: 7
+  m_Name: EffectReceiver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5871379559388451885
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8997367254086592062}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4525166674902496624}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3282263910915662309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8997367254086592062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7138f2e489833ac48b6a347210b563f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  core: {fileID: 0}
+  sourceEffect: {fileID: 5452501252912437305, guid: 7f9082798fdabd94ba68557cd5d19ad5, type: 3}
 --- !u!1 &9010334046371474003
 GameObject:
   m_ObjectHideFlags: 0
@@ -857,5 +904,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  _currentHP: 0
   currentCoin: 0

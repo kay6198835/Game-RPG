@@ -12,7 +12,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
 {
     [SerializeField] protected Weapon weapon;
 
-    protected IVitalComponent vital;
+    protected IStatService statService;
     protected ICharacterInput input;
     private Animator animator;
     private ICharacter<TCore> owner;
@@ -36,7 +36,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     protected override void Start()
     {
         base.Start();
-        Core.TryGetCapability(out vital);
+        Core.TryGetCapability(out statService);
         Core.TryGetCapability(out input);
     }
 
@@ -80,10 +80,10 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
 
     protected virtual float CalculateCurrentDamage()
     {
-        float finalDamage = vital.GetCurrentStatValue(StatType.PhysicalDamage)
+        float finalDamage = statService.GetStatValue(StatType.PhysicalDamage)
             + weapon.CurrentStage.attackDamage;
-        if (Utility.RollChance(vital.GetCurrentStatValue(StatType.CritChance)))
-            finalDamage += vital.GetCurrentStatValue(StatType.CritDamage);
+        if (Utility.RollChance(statService.GetStatValue(StatType.CritChance)))
+            finalDamage += statService.GetStatValue(StatType.CritDamage);
         return finalDamage;
     }
 }

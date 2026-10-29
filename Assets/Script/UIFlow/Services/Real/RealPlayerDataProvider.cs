@@ -227,8 +227,9 @@ namespace UIFlow
             _stats.level = _statService.GetLevel();
             _stats.maxHP = _statService.GetStatValue(StatType.HP);
             _stats.maxMana = _statService.GetStatValue(StatType.Mana);
-            _stats.currentHP = full.ContainsKey(StatType.HP) ? _vital.GetCurrentStatValue(StatType.HP) : 0f;
-            _stats.currentMana = full.ContainsKey(StatType.Mana) ? _vital.GetCurrentStatValue(StatType.Mana) : 0f;
+            _stats.currentHP = _vital.GetCurrentStatValue(VitalStatType.HP);
+            _stats.currentMana = _vital.GetCurrentStatValue(VitalStatType.Mana);
+            //_stats.currentHP = full.ContainsKey(StatType.HP) ? _vital.GetCurrentStatValue(VitalStatType.HP) : 0f;
             // TODO: nối logic thật — gameplay chưa có EXP; expToNextLevel = 0 thì HUD ẩn thanh EXP.
             _stats.exp = 0;
             _stats.expToNextLevel = 0;

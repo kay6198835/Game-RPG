@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8587219888214358558}
   - component: {fileID: 12571246044482450}
   - component: {fileID: 167446185442601584}
+  - component: {fileID: 4959140711196221344}
   m_Layer: 0
   m_Name: Slash-VFX-GO
   m_TagString: Untagged
@@ -161,4 +162,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee605ad49f91dd74e9fab401de7d8cd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
+  speed: 15
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 64
+  blockMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  pierceCount: 0
+--- !u!114 &4959140711196221344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5687771613966579850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9f19ace277eb2147a14cce69961e86a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
