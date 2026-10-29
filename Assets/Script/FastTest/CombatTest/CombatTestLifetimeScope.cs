@@ -12,6 +12,9 @@ public class CombatTestLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjectPoolService>();
         builder.RegisterComponentInHierarchy<PlayerManager>().AsSelf().As<IPlayerService>();
         builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
-        builder.RegisterComponentInHierarchy<CombatTestEnemySpawner>();
+        // Optional: a scene built before the enemy spawner existed has none, and RegisterComponentInHierarchy
+        // would throw. RegisterComponent still injects the instance when it is there.
+        CombatTestEnemySpawner enemySpawner = FindObjectOfType<CombatTestEnemySpawner>(true);
+        if (enemySpawner != null) builder.RegisterComponent(enemySpawner);
     }
 }
