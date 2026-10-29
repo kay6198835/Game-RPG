@@ -4,8 +4,16 @@ using UnityEngine;
 public abstract class StatsEffectBase : AbilityEffectDefinition
 {
     [field: SerializeField] protected StatModifierGroup statModifier;
-    [field: SerializeField] protected StatImpactType impactType;
     
+    public override void OnValidate()
+    {
+        base.OnValidate();
+        // if (statModifier != null)
+        // {
+        //     statModifier.FilterByGroupType();
+        // }
+    }
+
 
     public override void Apply(AbilityContext context)
     {

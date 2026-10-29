@@ -30,7 +30,7 @@ public class EntityBasicState : EntityState
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
         if (entityInput.IsTakeDamage)
         {
-            if (entityVitalStats.GetCurrentStatValue(StatType.HP) <= 0)
+            if (entityVitalStats.GetCurrentStatValue(VitalStatType.HP) <= 0)
             {
                 stateMachine.ChangeState(entity.DeathState);
                 return;

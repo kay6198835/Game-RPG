@@ -21,17 +21,42 @@ public class StatModifierGroup
     // Đổi tên `modifiers` -> `authoredModifiers` (2026-08-21) để hai thứ không còn trùng tên;
     // FormerlySerializedAs giữ nguyên dữ liệu đã author trong SnS_Stat.asset.
     [SerializeField]
-    [FormerlySerializedAs("modifiers")]
-    private List<StatModifier> authoredModifiers = new List<StatModifier>();
+    private List<StatModifier> statsModifiers = new List<StatModifier>();
 
-    public IReadOnlyList<StatModifier> Modifiers => authoredModifiers;
+    public IReadOnlyList<StatModifier> GetStatsModifiers => statsModifiers;
+    [SerializeField]
+    private List<VitalModifier> vitalModifiers = new List<VitalModifier>();
 
-    public void PrimaryFilter()
-    {
-        authoredModifiers = authoredModifiers.Where(x => x.TargetStatType.IsPrimary() == true).ToList();
-    }
-    public void DerivedFilter()
-    {
-        authoredModifiers = authoredModifiers.Where(x => x.TargetStatType.IsPrimary() == false).ToList();
-    }
+    public IReadOnlyList<VitalModifier> GetVitalModifiers => vitalModifiers;
+
+    // [SerializeField] private StatModifierGroupType groupType = StatModifierGroupType.None;
+
+    // public void FilterByGroupType()
+    // {
+    //     if (groupType == StatModifierGroupType.Primary)
+    //     {
+    //         PrimaryFilter();
+    //     }
+    //     else if (groupType == StatModifierGroupType.Derived)
+    //     {
+    //         DerivedFilter();
+    //     }
+    // }
+    // public IReadOnlyList<StatModifier> PrimaryFilter()
+    // {
+    //     modifiers = modifiers.Where(x => x.TargetStatType.IsPrimary() == true).ToList();
+    //     return modifiers;
+    // }
+    // public IReadOnlyList<StatModifier> DerivedFilter()
+    // {
+    //     modifiers = modifiers.Where(x => x.TargetStatType.IsPrimary() == false).ToList();
+    //     return modifiers;
+    // }
 }
+
+// public enum StatModifierGroupType
+// {
+//     None,
+//     Primary,
+//     Derived
+// }

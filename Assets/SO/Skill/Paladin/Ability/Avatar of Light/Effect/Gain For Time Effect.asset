@@ -16,10 +16,10 @@ MonoBehaviour:
   SubConditions: []
   SubEffects: []
   Costs: []
-  statModifierGroup:
-    authoredModifiers:
-    - targetStat: 100
-      type: 100
-      value: 15
-  duration: 0
   recipient: 0
+  statModifier:
+    statsModifiers:
+    - targetStatType: 103
+      type: 100
+      value: 100000
+  duration: 20

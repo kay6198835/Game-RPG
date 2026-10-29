@@ -4,19 +4,21 @@ using UnityEngine;
 
 public class PlayerMoveState : PlayerBasicState
 {
+    protected IStatService statService;
     public PlayerMoveState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
     public override void Enter()
     {
         base.Enter();
+        player.Core.TryGetCapability(out statService);
         //stateStyle = StateStyle.Motion;
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
     }
     public override void LogicUpdate()
     {
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
-        playerMovement.SetVeclocity(inputHandler.MoveVector * vitalStats.GetCurrentStatValue(StatType.MoveSpeed));
+        playerMovement.SetVeclocity(inputHandler.MoveVector * statService.GetStatValue(StatType.MoveSpeed));
         if (inputHandler.MoveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);
@@ -27,6 +29,7 @@ public class PlayerMoveState : PlayerBasicState
     public override void Exit()
     {
         playerMovement.SetVeclocity(Vector2.zero);
+        statService = null;
         base.Exit();
     }
 }

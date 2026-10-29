@@ -35,7 +35,8 @@ public class SpawnSummonEffect : SpawnEffectBase
         if (currentContext.Target != null
             && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
         {
-            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.PhysicalDamage);
+            //need fix to flexible stat type
+            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.MagicDamage);
             negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
         }
         ApplyOnHitEffects(currentContext);

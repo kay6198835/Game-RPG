@@ -66,12 +66,12 @@ public class AbilityDefinition : ScriptableObject
         return true;
     }
 
-    public float GetCostValues(StatType statType)
+    public float GetCostValues(VitalStatType statType)
     {
         GetCostValues(statType, out float cost);
         return cost;
     }
-    public void GetCostValues(StatType statType, out float cost)
+    public void GetCostValues(VitalStatType statType, out float cost)
     {
         cost = 0f;
         foreach (var statCost in Costs)
@@ -88,7 +88,7 @@ public class AbilityDefinition : ScriptableObject
 public class StatCost
 {
     public float value;
-    public StatType statType;
+    public VitalStatType statType;
 }
 
 public enum AbilityState

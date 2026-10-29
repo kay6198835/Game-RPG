@@ -4,14 +4,14 @@ using UnityEngine;
 public class RegenComponent : MovementBase<Core>, IRegenResource
 {
     StatHandler statHandler;
-    VitalStatsComponent vitalStats;
-    public Dictionary<StatType, RegenData> _cacheDatas;
+    IVitalComponent<Core> vitalStats;
+    public Dictionary<VitalStatType, RegenData> _cacheDatas;
 
     public override void Setup()
     {
         base.Setup();
         Core.GetCoreComponent(out statHandler);
-        Core.GetCoreComponent(out vitalStats);
+        Core.TryGetCapability(out vitalStats);
         SetData();
     }
 
@@ -28,15 +28,14 @@ public class RegenComponent : MovementBase<Core>, IRegenResource
         }
     }
 
-    public void SetRegenDuration(StatType statType, float duration)
+    public void SetRegenDuration(VitalStatType statType, float duration)
     {
         _cacheDatas[statType].eachTime = duration;
     }
 
     void OnChangeStatMax(StatType statType)
     {
-        statHandler.GetStatValue(statType);
-        _cacheDatas[statType].maxValue = statHandler.GetStatValue(statType);
+        _cacheDatas[(VitalStatType)statType].maxValue = statHandler.GetStatValue(statType);
     }
 
     void SetData()
@@ -50,7 +49,7 @@ public class RegenComponent : MovementBase<Core>, IRegenResource
 
     void SeedRegenData()
     {
-        _cacheDatas.Add(StatType.Mana, new RegenData
+        _cacheDatas.Add(VitalStatType.Mana, new RegenData
         {
             maxValue = statHandler.GetStatValue(StatType.Mana),
             currentValue = statHandler.GetStatValue(StatType.Mana),
@@ -58,7 +57,7 @@ public class RegenComponent : MovementBase<Core>, IRegenResource
             nextTimeRegen = 0,
             regenValue = statHandler.GetStatValue(StatType.ManaRegen)
         });
-        _cacheDatas.Add(StatType.HP, new RegenData
+        _cacheDatas.Add(VitalStatType.HP, new RegenData
         {
             maxValue = statHandler.GetStatValue(StatType.HP),
             currentValue = statHandler.GetStatValue(StatType.HP),

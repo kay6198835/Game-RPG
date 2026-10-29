@@ -25,4 +25,9 @@ public abstract class StatHandlerBase<TCore> : CoreComponentBase<TCore>, IStatSe
     public void RemoveModifiersFromSource(object source) => StatsSO.RemoveModifiersFromSource(source);
     public void AddModifiersFromSource(object source, IReadOnlyList<StatModifier> modifiers)
         => StatsSO.AddModifiersFromSource(source, modifiers);
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
+        _profile = null;
+    }
 }

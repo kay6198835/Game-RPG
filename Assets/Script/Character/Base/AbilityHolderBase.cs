@@ -10,18 +10,19 @@ using VContainer;
 /// </summary>
 public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbilityOwner where TCore : CoreBase
 {
-    private static readonly AbilitySlot[] Slots = (AbilitySlot[])Enum.GetValues(typeof(AbilitySlot));
+    protected static readonly AbilitySlot[] Slots = (AbilitySlot[])Enum.GetValues(typeof(AbilitySlot));
 
     [SerializeField] protected List<AbilityBinding> abilityBindings = new();
-    [field: SerializeField] public bool IsHolding { get; private set; }
+    [field: SerializeField] public bool IsHolding { get; protected set; }
     [SerializeField] protected AbilityInstance currentAbility;
 
-    private readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
-    private IObjectPoolService objectPoolService;
-    private IAbilityServices services;
-    private IVitalComponent vital;
-    private ICharacterInput input;
-    private Animator animator;
+    protected readonly Dictionary<AbilitySlot, AbilityInstance> _equipped = new();
+    protected IObjectPoolService objectPoolService;
+    protected IAbilityServices services;
+    protected IVitalComponent<TCore> vital;
+    protected IStatService statService;
+    protected ICharacterInput input;
+    protected Animator animator;
 
     public Transform Transform => this.transform;
     public AbilityState CurrentAbilityState => currentAbility?.State ?? AbilityState.Start;
@@ -32,8 +33,8 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
     public event Action<AbilitySlot, float> AbilityCooldownStarted;
 
     // Lazy: a pooled enemy runs Awake before Pool.Spawn() injects it, so the pool is not known yet in Setup().
-    private IAbilityServices Services => services ??= new AbilityServices(objectPoolService);
-    private IVitalComponent Vital
+    protected IAbilityServices Services => services ??= new AbilityServices(objectPoolService);
+    protected IVitalComponent<TCore> Vital
     {
         get
         {
@@ -41,7 +42,15 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
             return vital;
         }
     }
-    private ICharacterInput CharacterInput
+    protected IStatService StatService
+    {
+        get
+        {
+            if (statService == null) Core.TryGetCapability(out statService);
+            return statService;
+        }
+    }
+    protected ICharacterInput CharacterInput
     {
         get
         {
@@ -49,7 +58,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
             return input;
         }
     }
-    private Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
+    protected Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
 
     [Inject]
     public void Construct(IObjectPoolService pool)
@@ -74,7 +83,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
             var binding = abilityBindings[i];
             if (binding.Ability == null) continue;
 
-            Equip(binding.Slot, binding.Ability);
+            Equip(binding);
         }
     }
 
@@ -89,11 +98,16 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
         }
     }
 
-    public float GetCurrentStatValue(StatType statType)
+    public float GetCurrentStatValue(VitalStatType statType)
     {
         return Vital.GetCurrentStatValue(statType);
     }
-    public void PayCost(StatType statType, float amount)
+
+    public float GetCurrentStatValue(StatType statType)
+    {
+        return StatService.GetStatValue(statType);
+    }
+    public void PayCost(VitalStatType statType, float amount)
     {
         Vital.Reduction(statType, amount);
     }
@@ -110,13 +124,13 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
         return CharacterInput.AimPoint;
     }
 
-    public void Equip(AbilitySlot slot, AbilityDefinition definition)
+    public void Equip(AbilityBinding binding)
     {
-        if (definition == null) return;
+        if (binding.Ability == null) return;
 
-        var instance = new AbilityInstance(definition, this, Services);
-        instance.CooldownStarted += duration => AbilityCooldownStarted?.Invoke(slot, duration);
-        _equipped[slot] = instance;
+        var instance = new AbilityInstance(binding.Ability, this, Services);
+        instance.CooldownStarted += duration => AbilityCooldownStarted?.Invoke(binding.Slot, duration);
+        _equipped[binding.Slot] = instance;
     }
 
     public void Unequip(AbilitySlot slot)
@@ -195,7 +209,7 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
         currentAbility.CancelHold();
     }
 
-    private void ApplyAnimatorOverride(AbilityDefinition definition)
+    protected void ApplyAnimatorOverride(AbilityDefinition definition)
     {
         if (definition.AnimatorOverride == null) return;
         Animator.runtimeAnimatorController = definition.AnimatorOverride;

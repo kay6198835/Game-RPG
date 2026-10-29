@@ -22,7 +22,7 @@ public class EntityNegativeReciver : NegativeReceiverBase<EntityCore>
 
     public float UpdateUIHealth()
     {
-        return vital.GetCurrentStatValue(StatType.HP) / stats.GetStatValue(StatType.HP);
+        return vital.GetCurrentStatValue(VitalStatType.HP) / stats.GetStatValue(StatType.HP);
     }
 
     public float DamageCalculate(float amoutDamage)

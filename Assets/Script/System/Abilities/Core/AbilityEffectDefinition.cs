@@ -33,7 +33,7 @@ public abstract class AbilityEffectDefinition : ScriptableObject
         return true;
     }
 
-    public void OnValidate()
+    public virtual void OnValidate()
     {
         if (string.IsNullOrEmpty(AbilityName)) AbilityName = name;
     }
