@@ -1,0 +1,20 @@
+{
+  "_comment": "A FAIL whose case id matches 'pattern' (regex) is reported as KNOWN instead of FAIL, only while production/qa/bugs/<bug>.md exists and its Status line is not Fixed/Closed. With 'findings' (regex), the case is KNOWN only if EVERY finding line of the FAIL matches the findings of some entry for that case; any other line keeps it FAIL. Never invent an id: only bug files allocated by /weekly-wrapup. Remove an entry once the bug is fixed and the case passes.",
+  "issues": [
+    { "pattern": "^QA-CMB-01\\.", "bug": "BUG-105", "note": "AttackSO stage damage lost (attackDamege key)" },
+    { "pattern": "^QA-CMB-04\\.", "bug": "BUG-095", "note": "Arrow prefab has no Collider2D" },
+    { "pattern": "^QA-CMB-05\\.", "bug": "BUG-103", "note": "RangeWeapon RecoveryTime never read" },
+    { "pattern": "^QA-ABL-01\\.Paladin\\.Utility$", "bug": "BUG-114", "note": "Paladin Blessing stat buff has no effect" },
+    { "pattern": "^QA-VIT-05$", "bug": "BUG-119", "note": "Recovery() adds without clamping to max" },
+    { "pattern": "^QA-VIT-08$", "bug": "BUG-086", "note": "ON_PLAYER_DEATH emitted every frame" },
+    { "pattern": "^QA-ENT-02$", "bug": "BUG-106", "note": "Default weapon only equipped by SetCharacterData" },
+    { "pattern": "^QA-STAT-10$", "bug": "BUG-115", "note": "Player mutates the shared stat asset" },
+    { "pattern": "^QA-STATIC-04$", "bug": "BUG-115", "note": "Runtime modifiers saved into stat assets (BUG-063 accepted/deferred)" },
+    { "pattern": "^QA-STATIC-05$", "bug": "BUG-116", "note": "CharacterData uses UnityEditor.Animations in runtime code" },
+    { "pattern": "^QA-STATIC-01$", "findings": "ShootSpirit", "bug": "BUG-073", "note": "ShootSpirit assets reference a deleted script" },
+    { "pattern": "^QA-STATIC-02$", "findings": "ShootSpirit|SpiritBomd", "bug": "BUG-090", "note": "ShootSpirit pair references the deleted Has Enough Mana Condition asset" },
+    { "pattern": "^QA-STATIC-03$", "findings": "attackDamege", "bug": "BUG-105", "note": "AttackSO assets still store attackDamege" },
+    { "pattern": "^QA-STATIC-03$", "findings": "authoredModifiers", "bug": "BUG-121", "note": "StatModifierGroup.authoredModifiers renamed without FormerlySerializedAs" },
+    { "pattern": "^QA-STATIC-03$", "findings": "weaponSO", "bug": "BUG-108", "note": "Knight EntityData assets still store weaponSO" }
+  ]
+}
