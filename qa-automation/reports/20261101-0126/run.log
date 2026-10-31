@@ -1,0 +1,9 @@
+[01:26:51] QA weekly run 20261101-0126, project D:\Fork\Game-RPG
+[01:26:57] sprint branch origin/sprint-20 at 09ca5d1905
+[01:27:01] merged origin/sprint-20 into qa/weekly-automation
+[01:27:13] change scan origin/sprint-19..origin/sprint-20 -> deep P2 for: ABL,CMB,ENT,ITEM,PLY,STAT,STATIC,UI,VIT
+[01:27:13] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261101-0126\unity-compile.log"
+[01:28:20] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261101-0126" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261101-0126\unity-run.log" -qaDeep ABL,CMB,ENT,ITEM,PLY,STAT,STATIC,UI,VIT
+[01:30:37] unity test run exit -1
+[01:30:37] RUNNER ERROR: Unity produced no results.json (exit -1) - read D:\Fork\Game-RPG\qa-automation\reports\20261101-0126\unity-run.log
+[01:30:37] at <ScriptBlock>, C:\Users\haoki\AppData\Local\Temp\qa-run-weekly.ps1: line 223

@@ -1,0 +1,111 @@
+{
+    "group": "VITALS",
+    "scene": "Assets/QA/Scenes/QA_Vitals.unity",
+    "started": "2026-11-01 01:29:14",
+    "finished": "2026-11-01 01:29:19",
+    "cases": [
+        {
+            "id": "QA-VIT-01",
+            "title": "ReloadComponent fills HP and Mana to max",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.00982809066772461,
+            "notes": [
+                "ok: HP 270 = max 270",
+                "ok: Mana 1070 = max 1070",
+                "ok: max HP is positive"
+            ]
+        },
+        {
+            "id": "QA-VIT-02",
+            "title": "Reduction lowers the value by exactly the amount and raises CurrentStatsChanged",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.009229183197021485,
+            "notes": [
+                "ok: HP 270 -> 260",
+                "ok: CurrentStatsChanged raised once"
+            ]
+        },
+        {
+            "id": "QA-VIT-03",
+            "title": "Reduction larger than the current value clamps at 0",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.009661197662353516,
+            "notes": [
+                "ok: Mana clamped at 0"
+            ]
+        },
+        {
+            "id": "QA-VIT-04",
+            "title": "Recovery below max restores exactly the amount",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.007110118865966797,
+            "notes": [
+                "ok: HP 240 -> 250"
+            ]
+        },
+        {
+            "id": "QA-VIT-05",
+            "title": "Recovery never pushes the value above max",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "FAIL",
+            "seconds": 0.007187843322753906,
+            "notes": [
+                "FAIL: HP 275 above max 270 after max-5 +10"
+            ]
+        },
+        {
+            "id": "QA-VIT-06",
+            "title": "Damage through the player hurtbox lowers HP, player survives",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.7936496734619141,
+            "notes": [
+                "ok: HP lost 27 of 27 sent",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-VIT-07",
+            "title": "Lethal damage puts the player in PlayerDeathState and emits ON_PLAYER_DEATH",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "FAIL",
+            "seconds": 2.6105360984802248,
+            "notes": [
+                "ok: HP = 0",
+                "ok: entered PlayerDeathState",
+                "FAIL: ON_PLAYER_DEATH not emitted within 4s of death",
+                "death clip Knight_Die_dir 1, events: AnimationOnAction (PlayerDeathState emits on StatusAnimation.EndRangeTrigger)"
+            ]
+        },
+        {
+            "id": "QA-VIT-08",
+            "title": "ON_PLAYER_DEATH is emitted once per death, not every frame",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "SKIP",
+            "seconds": 0.0012884140014648438,
+            "notes": [
+                "SKIP: the player never emitted ON_PLAYER_DEATH (see QA-VIT-07)"
+            ]
+        }
+    ]
+}

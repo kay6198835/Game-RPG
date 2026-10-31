@@ -1,0 +1,273 @@
+{
+    "group": "SYSTEMS",
+    "scene": "Assets/QA/Scenes/QA_Systems.unity",
+    "started": "2026-11-01 01:29:07",
+    "finished": "2026-11-01 01:29:09",
+    "cases": [
+        {
+            "id": "QA-EVT-01",
+            "title": "Emit delivers the payload to a registered listener",
+            "system": "EVT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.11496448516845703,
+            "notes": [
+                "ok: listener called once with the payload"
+            ]
+        },
+        {
+            "id": "QA-EVT-02",
+            "title": "UnResgister stops delivery",
+            "system": "EVT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.028957366943359376,
+            "notes": [
+                "ok: no call after UnResgister"
+            ]
+        },
+        {
+            "id": "QA-EVT-03",
+            "title": "Two listeners on one event both receive it; Emit with no listener is safe",
+            "system": "EVT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.012889862060546875,
+            "notes": [
+                "ok: both listeners called once",
+                "ok: Emit with every listener removed does not throw"
+            ]
+        },
+        {
+            "id": "QA-STAT-01",
+            "title": "Flat modifier adds its value to FinalValue",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.016323566436767579,
+            "notes": [
+                "ok: Defense 26 -> 31"
+            ]
+        },
+        {
+            "id": "QA-STAT-02",
+            "title": "PercentAdd modifiers sum before multiplying",
+            "system": "STAT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.014422416687011719,
+            "notes": [
+                "ok: +10% +20% -> 33.8 (x1.3)"
+            ]
+        },
+        {
+            "id": "QA-STAT-03",
+            "title": "PercentMult modifier multiplies",
+            "system": "STAT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.1134028434753418,
+            "notes": [
+                "ok: (base+4) x1.5 -> 45"
+            ]
+        },
+        {
+            "id": "QA-STAT-04",
+            "title": "RemoveModifiersFromSource restores the value",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.02496051788330078,
+            "notes": [
+                "ok: back to 26, 0 modifiers"
+            ]
+        },
+        {
+            "id": "QA-STAT-05",
+            "title": "Removing one source keeps another source's modifier",
+            "system": "STAT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.00981760025024414,
+            "notes": [
+                "ok: item modifier kept: 29"
+            ]
+        },
+        {
+            "id": "QA-STAT-06",
+            "title": "Working on an Instantiate copy leaves the stat asset unchanged",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.015238761901855469,
+            "notes": [
+                "ok: PaladinStats unchanged"
+            ]
+        },
+        {
+            "id": "QA-POOL-01",
+            "title": "Spawn returns an active instance at the requested position",
+            "system": "POOL",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.016382217407226564,
+            "notes": [
+                "ok: active instance returned",
+                "ok: at (3.00, -2.00)",
+                "ok: instance is not the template"
+            ]
+        },
+        {
+            "id": "QA-POOL-02",
+            "title": "Release deactivates; the next Spawn reuses the same instance",
+            "system": "POOL",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.015811443328857423,
+            "notes": [
+                "ok: released instance inactive",
+                "ok: same instance reused and re-activated"
+            ]
+        },
+        {
+            "id": "QA-POOL-03",
+            "title": "Two spawns without release give two distinct instances",
+            "system": "POOL",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.008896350860595703,
+            "notes": [
+                "ok: two distinct instances"
+            ]
+        },
+        {
+            "id": "QA-MAP-01",
+            "title": "Room clear: ON_OPEN_DOOR fires once, when the last spawned enemy dies",
+            "system": "MAP",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.009385108947753907,
+            "notes": [
+                "ok: no door event after 2 of 3 deaths",
+                "ok: ON_OPEN_DOOR once at the third death"
+            ]
+        },
+        {
+            "id": "QA-MAP-02",
+            "title": "Room clear counts an extra spawned enemy",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.008419036865234375,
+            "notes": [
+                "ok: door stays shut while the extra enemy lives",
+                "ok: door opens after the extra enemy"
+            ]
+        },
+        {
+            "id": "QA-MAP-03",
+            "title": "MapModel.GetRandomRoom deals every room once per cycle",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.010643959045410157,
+            "notes": [
+                "ok: 1 draws gave 1 distinct rooms",
+                "ok: a new cycle starts after the bag empties"
+            ]
+        },
+        {
+            "id": "QA-MAP-04",
+            "title": "RoomModel.GetSpawnSet stays within weight budget + overflow (20 seeds per room)",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.015177249908447266,
+            "notes": [
+                "ok: RoomModel: every seed spawned something",
+                "ok: RoomModel: worst total weight 45 <= 55 (budget 50 +10 %)"
+            ]
+        },
+        {
+            "id": "QA-MAP-05",
+            "title": "Every room JSON parses with matching tiles / poses / layers counts",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.09934711456298828,
+            "notes": [
+                "ok: 20 room files",
+                "rooms: BossRoom_ThroneArena, BuffRoom_PowerShrine, CombatRoom_CentralIsland, CombatRoom_Checkerboard, CombatRoom_Cross, CombatRoom_DiagonalWalls, CombatRoom_EliteGuard, CombatRoom_FourPillars, CombatRoom_GrandArena, CombatRoom_HiddenCorner, CombatRoom_NarrowBridges, CombatRoom_PracticeYard, CombatRoom_RoundArena, CombatRoom_SmallMaze, CombatRoom_Spiral, CombatRoom_TwinCorridors, CombatRoom_TwoHalls, RestRoom_Campfire, ShopRoom_Merchant, StartRoom_Entrance"
+            ]
+        },
+        {
+            "id": "QA-PATH-01",
+            "title": "A* finds a path of walkable, adjacent waypoints to the farthest reachable tile",
+            "system": "PATH",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.07049751281738281,
+            "notes": [
+                "CombatRoom_GrandArena.json: 668 walkable tiles of 900",
+                "ok: path found, 2 waypoints",
+                "ok: every waypoint walkable and adjacent to the previous",
+                "ok: ends at the target"
+            ]
+        },
+        {
+            "id": "QA-PATH-02",
+            "title": "A* to a wall tile fails cleanly",
+            "system": "PATH",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.025622844696044923,
+            "notes": [
+                "ok: no path to a wall tile"
+            ]
+        },
+        {
+            "id": "QA-PATH-03",
+            "title": "Same query twice gives the same path (search state cleared)",
+            "system": "PATH",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.0096588134765625,
+            "notes": [
+                "ok: identical results"
+            ]
+        },
+        {
+            "id": "QA-ITEM-01",
+            "title": "DepotItem rolls only items from its table; same seed gives same roll",
+            "system": "ITEM",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.011395454406738282,
+            "notes": [
+                "ok: 200/200 rolls gave an item, all from the table",
+                "ok: seed 42 -> Test twice"
+            ]
+        }
+    ]
+}
