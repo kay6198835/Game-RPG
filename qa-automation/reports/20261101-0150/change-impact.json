@@ -1,0 +1,1484 @@
+{
+    "base":  "566a684d47",
+    "head":  "09ca5d1905",
+    "baseRef":  "origin/sprint-19",
+    "headRef":  "origin/sprint-20",
+    "commits":  [
+                    {
+                        "sha":  "86b72074",
+                        "date":  "2026-10-31",
+                        "author":  "Kay",
+                        "subject":  "docs(doc-sync): doc-truth pass 2026-10-31 - sprint-20 renames, BUG-110..121 rows, 4 inbox notes",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/abilities/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/abilities/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/dependency-injection/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/dependency-injection/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/event-system/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/event-system/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/items/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/items/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/object-pooling/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/object-pooling/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/stats/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/stats/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/ui/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/ui/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/weapons/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/weapons/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "memory/project_state.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/doc-truth-2026-10-31.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e8baf251",
+                        "date":  "2026-10-31",
+                        "author":  "Kay",
+                        "subject":  "chore(wrapup): weekly wrap-up 2026-10-31",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-20-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b63b4a40",
+                        "date":  "2026-10-31",
+                        "author":  "Kay",
+                        "subject":  "chore(wrapup): triage 2026-10-31 - BUG-116..121, inbox emptied",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bug-triage-2026-10-31.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-100.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-116.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-117.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-118.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-119.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-120.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-121.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "343a3830",
+                        "date":  "2026-10-29",
+                        "author":  "Kay",
+                        "subject":  "coding",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  ".claude/launch.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Particle Effect/Slash-VFX-GO.prefab"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Particle Effect/SourceEffect.prefab"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Particle Effect/SourceEffect.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Player/PlayerTest.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Player/Archer/Archer.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Player/Mage/Mage.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Avatar of Light.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Effect/Gain For Time Effect.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Buff - Debuff Stat Effect.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Recovery Reduction Stats Effect.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/ArcherStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/PaladinStats.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Scenes/Test/CombatTest.unity"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Scenes/Test/CombatTest.unity.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/AbilityHolderBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/StatHandlerBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/WeaponHolderBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityBasicState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/RegenComponent.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/Player.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerBasicState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerMoveState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IVitalComponent.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityDefinition.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityEffectDefinition.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/IAbilityOwner.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/BuffDebuffStatsForDuration.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/RecoveryReductionPerTimeForDuration.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/RecoveryReductionStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/SpawnSummonEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/StatEffectBase.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/ImpactMono.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifierGroup.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/StatSystem/VitalModifier.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/StatSystem/VitalModifier.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/UIFlow/Services/Real/RealPlayerDataProvider.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/Weapon.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a787f234",
+                        "date":  "2026-10-29",
+                        "author":  "Claude",
+                        "subject":  "fix(test): make CombatTestEnemySpawner registration optional",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "ba8bcabc",
+                        "date":  "2026-10-29",
+                        "author":  "Kay",
+                        "subject":  "fix(anim): retarget Archer Hawk Eye clips to the erika_attack sheet",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir7.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/archer-animations.html"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/build-archer-viewer.js"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/viewer-template.html"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "fc98fa2a",
+                        "date":  "2026-10-29",
+                        "author":  "Claude",
+                        "subject":  "feat(test): real enemy in CombatTest, pinned in place; fix BUG-108 stats key",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterData.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestEnemySpawner.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestEnemySpawner.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor/CombatTestSceneBuilder.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "0b05f72d",
+                        "date":  "2026-10-29",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-10-29",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-20-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "6f9d0971",
+                        "date":  "2026-10-28",
+                        "author":  "Claude",
+                        "subject":  "fix(test): qualify System.IO.Path in CombatTestSceneBuilder",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor/CombatTestSceneBuilder.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "87e053b4",
+                        "date":  "2026-10-28",
+                        "author":  "Claude",
+                        "subject":  "feat(test): add CombatTest scene builder with class pick and training dummy",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestBootstrap.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestBootstrap.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor/CombatTestSceneBuilder.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor/CombatTestSceneBuilder.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/TrainingDummy.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/TrainingDummy.cs.meta"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "5b8789a1",
+                        "date":  "2026-10-28",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-10-28",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-20-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "3e90f323",
+                        "date":  "2026-10-27",
+                        "author":  "Claude",
+                        "subject":  "docs: log effect source plan in CHANGELOG-DOCS",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "ef0d9c6f",
+                        "date":  "2026-10-27",
+                        "author":  "Claude",
+                        "subject":  "docs: add effect source plan (SourceEffect per applied effect)",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/architecture/effect-source-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "26c5b4e1",
+                        "date":  "2026-10-27",
+                        "author":  "Claude",
+                        "subject":  "docs(architecture): add core component access plan (public vs internal interfaces)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/architecture/changelog/core-component-access-plan.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/architecture/core-component-access-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "6e484f0c",
+                        "date":  "2026-10-27",
+                        "author":  "Kay",
+                        "subject":  "update logic effect",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IVitalComponent.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityContext.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityEffectDefinition.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityInstance.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/IAbilityOwner.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/BuffDebuffStatsForDuration.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/RecoveryReductionPerTimeForDuration.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/RecoveryReductionStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/StatEffectBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/BaseStatsSO.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifier.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifierGroup.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "8f17c977",
+                        "date":  "2026-10-26",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-10-26",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-20-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e156bdf4",
+                        "date":  "2026-10-25",
+                        "author":  "Kay",
+                        "subject":  "fix conflict",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/Interface/ICharacter.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityEffectReceiver.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/VitalComponent.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/Player.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Interface/IEffectReceiver.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/Stat.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifier.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifierGroup.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "041292ce",
+                        "date":  "2026-10-25",
+                        "author":  "Kay",
+                        "subject":  "done flow pick champion",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/settings.local.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Ability-Skill/Kick-back Trap/Archer Kick-back Trap.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Ability-Skill/Piercing Shot/Archer Piercing Shot.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Ability-Skill/Volley/Archer Volley.overrideController"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/AnimationController/Player/Archer/Archer.controller"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/AnimationController/Player/Archer/Archer.controller.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Attack/Archer_ComboAttack/Archer_ComboAttack_State1.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Attack/Archer_ComboAttack/Archer_ComboAttack_State2.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Archer/Attack/Archer_ComboAttack/Archer_ComboAttack_State3.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Ability-Skill/Chain Lightning/Mage Chain Lightning.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Ability-Skill/Fireball/Mage Fireball.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Ability-Skill/Frost Nova/Mage Frost Nova.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Ability-Skill/Meteor/Mage Meteor.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Attack/Mage_ComboAttack/Mage_ComboAttack_State1.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Attack/Mage_ComboAttack/Mage_ComboAttack_State2.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Attack/Mage_ComboAttack/Mage_ComboAttack_State3.overrideController"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/AnimationController/Player/Mage/Mage.controller"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/AnimationController/Player/Mage/Mage.controller.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Ability-Skill/Blessing/Paladin_Blessing.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Ability-Skill/Block/Knight_Block.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Ability-Skill/Consecrate/Paladin_Consecrate.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Ability-Skill/Dash Ability/Paladin_Dash_Skill.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Ability-Skill/Dual Abilty/Knight_Dual_Ability_dir 0.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Ability-Skill/Knight_Slash_Skill/Paladin_Slash_Skill.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Attack/Knight_ComboAttack/Paladin_ComboAttack_State1.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Attack/Knight_ComboAttack/Paladin_ComboAttack_State2.overrideController"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Attack/Knight_ComboAttack/Paladin_ComboAttack_State3.overrideController"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Paladin.controller"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Paladin.controller.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Player/Archer/Archer.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Player/Mage/Mage.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Player/Paladin/Paladin.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/MainGamePlay.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterData.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/Player.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerIntertorState.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/AttackFlowDebugger.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/AttackFlowDebugger.cs.meta"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "7663aee7",
+                        "date":  "2026-10-25",
+                        "author":  "Kay",
+                        "subject":  "chore(kickoff): open sprint-20 2026-10-25",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-19.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/sprints/sprint-20-daily-plan.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/sprints/sprint-20.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "786c031b",
+                        "date":  "2026-10-25",
+                        "author":  "VIETUNION\\kiet.ho",
+                        "subject":  "add effec component",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/Interface/ICharacter.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Interface/IEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IVitalComponent.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityContext.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/BuffDebuffStatsForDuration.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/RecoveryReductionPerTimeForDuration.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/RecoveryReductionStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/StatEffectBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs"
+                                      },
+                                      {
+                                          "status":  "R",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffectDefinition.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/Stat.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifier.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifierGroup.cs"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  7,
+    "files":  182,
+    "systems":  {
+                    "ABL":  [
+                                "Assets/Script/Character/Base/AbilityHolderBase.cs",
+                                "Assets/Script/System/Abilities/Core/AbilityContext.cs",
+                                "Assets/Script/System/Abilities/Core/AbilityDefinition.cs",
+                                "Assets/Script/System/Abilities/Core/AbilityEffectDefinition.cs",
+                                "Assets/Script/System/Abilities/Core/AbilityInstance.cs",
+                                "Assets/Script/System/Abilities/Core/IAbilityOwner.cs",
+                                "Assets/Script/System/Abilities/Effects/BuffDebuffStatsForDuration.cs",
+                                "Assets/Script/System/Abilities/Effects/RecoveryReductionPerTimeForDuration.cs",
+                                "Assets/Script/System/Abilities/Effects/RecoveryReductionStatsEffect.cs",
+                                "Assets/Script/System/Abilities/Effects/SpawnSummonEffect.cs",
+                                "Assets/Script/System/Abilities/Effects/StatEffectBase.cs",
+                                "Assets/Script/System/Abilities/Runtime/ImpactMono.meta",
+                                "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs",
+                                "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs.meta",
+                                "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Avatar of Light.asset",
+                                "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Effect/Gain For Time Effect.asset",
+                                "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Buff - Debuff Stat Effect.asset",
+                                "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Recovery Reduction Stats Effect.asset"
+                            ],
+                    "CMB":  [
+                                "Assets/Script/Character/Base/WeaponHolderBase.cs",
+                                "Assets/Script/Weapons/Weapon.cs"
+                            ],
+                    "DOCS":  [
+                                 ".claude/launch.json",
+                                 ".claude/settings.local.json",
+                                 "CLAUDE.md",
+                                 "docs/architecture/changelog/core-component-access-plan.CHANGELOG.md",
+                                 "docs/architecture/core-component-access-plan.md",
+                                 "docs/architecture/effect-source-plan.md",
+                                 "docs/CHANGELOG-DOCS.md",
+                                 "docs/systems/abilities/CHANGELOG.md",
+                                 "docs/systems/abilities/README.md",
+                                 "docs/systems/dependency-injection/CHANGELOG.md",
+                                 "docs/systems/dependency-injection/README.md",
+                                 "docs/systems/event-system/CHANGELOG.md",
+                                 "docs/systems/event-system/README.md",
+                                 "docs/systems/items/CHANGELOG.md",
+                                 "docs/systems/items/README.md",
+                                 "docs/systems/map/CHANGELOG.md",
+                                 "docs/systems/map/README.md",
+                                 "docs/systems/object-pooling/CHANGELOG.md",
+                                 "docs/systems/object-pooling/README.md",
+                                 "docs/systems/stats/CHANGELOG.md",
+                                 "docs/systems/stats/README.md",
+                                 "docs/systems/ui/CHANGELOG.md",
+                                 "docs/systems/ui/README.md",
+                                 "docs/systems/weapons/CHANGELOG.md",
+                                 "docs/systems/weapons/README.md",
+                                 "memory/project_state.md",
+                                 "production/qa/bug-inbox.md",
+                                 "production/qa/bugs/BUG-100.md",
+                                 "production/qa/bugs/BUG-116.md",
+                                 "production/qa/bugs/BUG-117.md",
+                                 "production/qa/bugs/BUG-118.md",
+                                 "production/qa/bugs/BUG-119.md",
+                                 "production/qa/bugs/BUG-120.md",
+                                 "production/qa/bugs/BUG-121.md",
+                                 "production/qa/bug-triage-2026-10-31.md",
+                                 "production/qa/doc-truth-2026-10-31.md",
+                                 "production/session-state/routine-log.md",
+                                 "production/sprints/sprint-19.md",
+                                 "production/sprints/sprint-20.md",
+                                 "production/sprints/sprint-20-daily-plan.md"
+                             ],
+                    "ENT":  [
+                                "Assets/Script/Character/Entity/CoreComponent/EntityEffectReceiver.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityEffectReceiver.cs.meta",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityVitalStats.cs",
+                                "Assets/Script/Character/Entity/States/EntityBasicState.cs"
+                            ],
+                    "ITEM":  [
+                                 "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs.meta",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs.meta",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs.meta",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffectDefinition.cs"
+                             ],
+                    "OTHER":  [
+                                  "tools/anim-viewer/archer-animations.html",
+                                  "tools/anim-viewer/build-archer-viewer.js",
+                                  "tools/anim-viewer/viewer-template.html"
+                              ],
+                    "PLY":  [
+                                "Assets/Prefab/Player/PlayerTest.prefab",
+                                "Assets/Script/Character/Base/CharacterBase.cs",
+                                "Assets/Script/Character/Base/CharacterData.cs",
+                                "Assets/Script/Character/Base/Interface/ICharacter.cs",
+                                "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs",
+                                "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs.meta",
+                                "Assets/Script/Character/Player/Player.cs",
+                                "Assets/Script/Character/Player/States/PlayerBasicState.cs",
+                                "Assets/Script/Character/Player/States/PlayerIntertorState.cs",
+                                "Assets/Script/Character/Player/States/PlayerMoveState.cs",
+                                "Assets/Script/Interface/IEffectReceiver.cs",
+                                "Assets/Script/Interface/IEffectReceiver.cs.meta",
+                                "Assets/Script/Interface/IVitalComponent.cs",
+                                "Assets/SO/Player/Archer/Archer.asset",
+                                "Assets/SO/Player/Mage/Mage.asset",
+                                "Assets/SO/Player/Paladin/Paladin.asset"
+                            ],
+                    "QA":  [
+                               "Assets/Script/FastTest/AttackFlowDebugger.cs",
+                               "Assets/Script/FastTest/AttackFlowDebugger.cs.meta",
+                               "Assets/Script/FastTest/CombatTest.meta",
+                               "Assets/Script/FastTest/CombatTest/CombatTestBootstrap.cs",
+                               "Assets/Script/FastTest/CombatTest/CombatTestBootstrap.cs.meta",
+                               "Assets/Script/FastTest/CombatTest/CombatTestEnemySpawner.cs",
+                               "Assets/Script/FastTest/CombatTest/CombatTestEnemySpawner.cs.meta",
+                               "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs",
+                               "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs.meta",
+                               "Assets/Script/FastTest/CombatTest/Editor.meta",
+                               "Assets/Script/FastTest/CombatTest/Editor/CombatTestSceneBuilder.cs",
+                               "Assets/Script/FastTest/CombatTest/Editor/CombatTestSceneBuilder.cs.meta",
+                               "Assets/Script/FastTest/CombatTest/TrainingDummy.cs",
+                               "Assets/Script/FastTest/CombatTest/TrainingDummy.cs.meta"
+                           ],
+                    "STAT":  [
+                                 "Assets/Script/System/StatSystem/BaseStatsSO.cs",
+                                 "Assets/Script/System/StatSystem/Stat.cs",
+                                 "Assets/Script/System/StatSystem/StatModifier.cs",
+                                 "Assets/Script/System/StatSystem/StatModifierGroup.cs",
+                                 "Assets/Script/System/StatSystem/VitalModifier.cs",
+                                 "Assets/Script/System/StatSystem/VitalModifier.cs.meta",
+                                 "Assets/SO/Stat/Player/ArcherStats.asset",
+                                 "Assets/SO/Stat/Player/PaladinStats.asset"
+                             ],
+                    "STATIC":  [
+                                   "Assets/Prefab/Particle Effect/Slash-VFX-GO.prefab",
+                                   "Assets/Prefab/Particle Effect/SourceEffect.prefab",
+                                   "Assets/Prefab/Particle Effect/SourceEffect.prefab.meta",
+                                   "Assets/Scenes/Main/LoadRandomMap.unity",
+                                   "Assets/Scenes/Main/MainGamePlay.unity",
+                                   "Assets/Scenes/Test/CombatTest.unity",
+                                   "Assets/Scenes/Test/CombatTest.unity.meta"
+                               ],
+                    "UI":  [
+                               "Assets/Script/UIFlow/Services/Real/RealPlayerDataProvider.cs"
+                           ],
+                    "VISUAL":  [
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir0.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir1.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir2.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir3.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir4.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir5.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir6.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 1/erika_attack_arrow_State1_dir7.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir0.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir1.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir2.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir3.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir4.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir5.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir6.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 2/erika_attack_arrow_State2_dir7.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir0.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir1.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir2.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir3.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir4.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir5.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir6.anim",
+                                   "Assets/Animation/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye State 3/erika_attack_arrow_State3_dir7.anim",
+                                   "Assets/AnimationController/Player/Archer/Ability-Skill/Hawk Eye/Archer Hawk Eye.overrideController",
+                                   "Assets/AnimationController/Player/Archer/Ability-Skill/Kick-back Trap/Archer Kick-back Trap.overrideController",
+                                   "Assets/AnimationController/Player/Archer/Ability-Skill/Piercing Shot/Archer Piercing Shot.overrideController",
+                                   "Assets/AnimationController/Player/Archer/Ability-Skill/Volley/Archer Volley.overrideController",
+                                   "Assets/AnimationController/Player/Archer/Archer.controller",
+                                   "Assets/AnimationController/Player/Archer/Archer.controller.meta",
+                                   "Assets/AnimationController/Player/Archer/Attack/Archer_ComboAttack/Archer_ComboAttack_State1.overrideController",
+                                   "Assets/AnimationController/Player/Archer/Attack/Archer_ComboAttack/Archer_ComboAttack_State2.overrideController",
+                                   "Assets/AnimationController/Player/Archer/Attack/Archer_ComboAttack/Archer_ComboAttack_State3.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Ability-Skill/Chain Lightning/Mage Chain Lightning.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Ability-Skill/Fireball/Mage Fireball.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Ability-Skill/Frost Nova/Mage Frost Nova.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Ability-Skill/Meteor/Mage Meteor.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Attack/Mage_ComboAttack/Mage_ComboAttack_State1.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Attack/Mage_ComboAttack/Mage_ComboAttack_State2.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Attack/Mage_ComboAttack/Mage_ComboAttack_State3.overrideController",
+                                   "Assets/AnimationController/Player/Mage/Mage.controller",
+                                   "Assets/AnimationController/Player/Mage/Mage.controller.meta",
+                                   "Assets/AnimationController/Player/Paladin/Ability-Skill/Blessing/Paladin_Blessing.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Ability-Skill/Block/Knight_Block.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Ability-Skill/Consecrate/Paladin_Consecrate.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Ability-Skill/Dash Ability/Paladin_Dash_Skill.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Ability-Skill/Dual Abilty/Knight_Dual_Ability_dir 0.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Ability-Skill/Knight_Slash_Skill/Paladin_Slash_Skill.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Attack/Knight_ComboAttack/Paladin_ComboAttack_State1.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Attack/Knight_ComboAttack/Paladin_ComboAttack_State2.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Attack/Knight_ComboAttack/Paladin_ComboAttack_State3.overrideController",
+                                   "Assets/AnimationController/Player/Paladin/Paladin.controller",
+                                   "Assets/AnimationController/Player/Paladin/Paladin.controller.meta"
+                               ],
+                    "VIT":  [
+                                "Assets/Script/Character/Base/EffectReceiverBase.cs",
+                                "Assets/Script/Character/Base/EffectReceiverBase.cs.meta",
+                                "Assets/Script/Character/Base/NegativeReceiverBase.cs",
+                                "Assets/Script/Character/Base/StatHandlerBase.cs",
+                                "Assets/Script/Character/Base/VitalStatsBase.cs",
+                                "Assets/Script/Character/Player/CoreComponent/RegenComponent.cs",
+                                "Assets/Script/Character/Player/CoreComponent/VitalComponent.cs"
+                            ]
+                },
+    "deep":  [
+                 "ABL",
+                 "CMB",
+                 "ENT",
+                 "ITEM",
+                 "PLY",
+                 "STAT",
+                 "STATIC",
+                 "UI",
+                 "VIT"
+             ],
+    "risks":  [
+                  {
+                      "why":  "Shared by the player and enemies; the UIFlow hotbar binds to AbilityCooldownStarted",
+                      "alsoCheck":  [
+                                        "PLY",
+                                        "ENT",
+                                        "UI"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/AbilityHolderBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Serialized by every PlayerData / EntityData asset — a rename without [FormerlySerializedAs] empties fields (BUG-105/108/121)",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "CMB",
+                                        "ABL",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/CharacterBase.cs",
+                                    "Assets/Script/Character/Base/CharacterData.cs"
+                                ]
+                  },
+                  {
+                      "why":  "One base for player and enemy vitals; abilities pay costs and apply effects through it; the HUD reads CurrentStatsChanged",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "ABL",
+                                        "UI",
+                                        "STAT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/EffectReceiverBase.cs",
+                                    "Assets/Script/Character/Base/EffectReceiverBase.cs.meta",
+                                    "Assets/Script/Character/Base/NegativeReceiverBase.cs",
+                                    "Assets/Script/Character/Base/StatHandlerBase.cs",
+                                    "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Shared by the player and enemies; default weapon equip happens in SetCharacterData (BUG-106)",
+                      "alsoCheck":  [
+                                        "PLY",
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/WeaponHolderBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Cast gating and cooldowns drive the player skill state, enemy abilities and the hotbar",
+                      "alsoCheck":  [
+                                        "PLY",
+                                        "ENT",
+                                        "UI"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/Abilities/Core/AbilityContext.cs",
+                                    "Assets/Script/System/Abilities/Core/AbilityDefinition.cs",
+                                    "Assets/Script/System/Abilities/Core/AbilityEffectDefinition.cs",
+                                    "Assets/Script/System/Abilities/Core/AbilityInstance.cs",
+                                    "Assets/Script/System/Abilities/Core/IAbilityOwner.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Damage formulas, vitals max values and asset serialization all read the stat system",
+                      "alsoCheck":  [
+                                        "VIT",
+                                        "CMB",
+                                        "ENT",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/StatSystem/BaseStatsSO.cs",
+                                    "Assets/Script/System/StatSystem/Stat.cs",
+                                    "Assets/Script/System/StatSystem/StatModifier.cs",
+                                    "Assets/Script/System/StatSystem/StatModifierGroup.cs",
+                                    "Assets/Script/System/StatSystem/VitalModifier.cs",
+                                    "Assets/Script/System/StatSystem/VitalModifier.cs.meta"
+                                ]
+                  },
+                  {
+                      "why":  "Enemies attack through the same Weapon classes; AttackSO field renames break assets",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Weapons/Weapon.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Asset edits: missing script / orphaned key / saved-modifier checks",
+                      "alsoCheck":  [
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/SO/Player/Archer/Archer.asset",
+                                    "Assets/SO/Player/Mage/Mage.asset",
+                                    "Assets/SO/Player/Paladin/Paladin.asset",
+                                    "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Avatar of Light.asset",
+                                    "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Effect/Gain For Time Effect.asset",
+                                    "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Buff - Debuff Stat Effect.asset",
+                                    "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Recovery Reduction Stats Effect.asset",
+                                    "Assets/SO/Stat/Player/ArcherStats.asset",
+                                    "Assets/SO/Stat/Player/PaladinStats.asset"
+                                ]
+                  }
+              ],
+    "newScripts":  [
+                       "Assets/Script/Character/Base/EffectReceiverBase.cs",
+                       "Assets/Script/Character/Entity/CoreComponent/EntityEffectReceiver.cs",
+                       "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs",
+                       "Assets/Script/FastTest/AttackFlowDebugger.cs",
+                       "Assets/Script/FastTest/CombatTest/CombatTestBootstrap.cs",
+                       "Assets/Script/FastTest/CombatTest/CombatTestEnemySpawner.cs",
+                       "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs",
+                       "Assets/Script/FastTest/CombatTest/TrainingDummy.cs",
+                       "Assets/Script/Interface/IEffectReceiver.cs",
+                       "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs",
+                       "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs",
+                       "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs",
+                       "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs",
+                       "Assets/Script/System/StatSystem/VitalModifier.cs"
+                   ],
+    "newAssets":  [
+                      "Assets/Prefab/Particle Effect/SourceEffect.prefab"
+                  ],
+    "deleted":  [
+                    "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffectDefinition.cs"
+                ],
+    "uncoveredNewScripts":  [
+                                "Assets/Script/Character/Base/EffectReceiverBase.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityEffectReceiver.cs",
+                                "Assets/Script/Character/Player/CoreComponent/PlayerEffectReceiver.cs",
+                                "Assets/Script/FastTest/AttackFlowDebugger.cs",
+                                "Assets/Script/FastTest/CombatTest/CombatTestBootstrap.cs",
+                                "Assets/Script/FastTest/CombatTest/CombatTestEnemySpawner.cs",
+                                "Assets/Script/FastTest/CombatTest/CombatTestLifetimeScope.cs",
+                                "Assets/Script/FastTest/CombatTest/TrainingDummy.cs",
+                                "Assets/Script/Interface/IEffectReceiver.cs",
+                                "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs",
+                                "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs",
+                                "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs",
+                                "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs",
+                                "Assets/Script/System/StatSystem/VitalModifier.cs"
+                            ]
+}
