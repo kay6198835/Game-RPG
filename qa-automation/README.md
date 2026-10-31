@@ -52,7 +52,9 @@ What the script does to your folder `D:\Fork\Game-RPG`:
 1. If the working tree has changes, it commits them on your current branch as `coding need check`. The commit is local and never pushed.
 2. It checks out `qa/weekly-automation` and merges the newest `origin/sprint-NN` into it, locally.
 3. It runs the tests, then puts back any tracked file the run modified outside the QA folders.
-4. It commits the report on `qa/weekly-automation` and checks out your branch again.
+4. It commits the report on `qa/weekly-automation`, checks out your branch again, and pushes
+   `qa/weekly-automation` to `origin` as an off-machine backup (never forced; a failed push is logged
+   and does not change the exit code). Nothing else is pushed: not your branch, not the sprint branch.
 
 To undo the auto-commit while keeping your changes, run this on your branch: `git reset --soft HEAD~1`.
 

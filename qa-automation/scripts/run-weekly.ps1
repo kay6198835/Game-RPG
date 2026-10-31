@@ -291,6 +291,10 @@ finally {
         }
     }
     catch { Log "could not commit results: $($_.Exception.Message)" }
+    # Off-machine backup of the QA code and reports (owner decision 2026-11-01). Never forced: a rejected
+    # push is logged and the run's exit code is unchanged.
+    try { Git push origin "refs/heads/${QaBranch}:refs/heads/$QaBranch" | Out-Null; Log "pushed $QaBranch to origin" }
+    catch { Log "PUSH FAILED for ${QaBranch}: $($_.Exception.Message)"; $status.message += " | push of $QaBranch failed (see log)"; Save-LocalStatus }
     if ($switched -and $ownerRef) {
         # The QA scenes are build output (git-ignored on the QA branch only). Left behind they would sit
         # untracked on the owner's branch, where their scripts do not exist.
