@@ -26,11 +26,11 @@ Append a row to the **Open notes** table of `production/qa/bug-inbox.md`:
 | Field | Content |
 |---|---|
 | Note | `NOTE-YYYYMMDD-N` — date of writing + running number for that day. Never reused |
-| Source | who wrote it: `standup`, `wrapup`, `doc-sync`, `module-audit`, `compile-check`, `editor-log`, `fix-survival`, `playtest`, `owner`, `session` |
+| Source | who wrote it: `standup`, `wrapup`, `doc-sync`, `module-audit`, `compile-check`, `editor-log`, `fix-survival`, `playtest`, `owner`, `session`, `qa-auto` (Friday automated QA run, `qa/weekly-automation`) |
 | Severity guess | S1–S4 (a guess; triage decides) |
 | Where | `file:line`, asset path, or playtest step |
 | What | one or two sentences, evidence first |
-| Evidence tier | `STATIC` (read code) · `LOG` (Editor.log) · `COMPILED` (batchmode) · `RUNTIME` (played) |
+| Evidence tier | `STATIC` (read code) · `LOG` (Editor.log) · `COMPILED` (batchmode) · `RUNTIME` (played, by hand or by the automated QA run in Play Mode) |
 
 - Before adding, search the inbox and `production/qa/bugs/` for the same defect; if it is already
   there, add the new evidence to that note or bug instead.
