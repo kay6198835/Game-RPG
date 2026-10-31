@@ -1,0 +1,1409 @@
+{
+    "finished": "2026-11-01 01:10:22",
+    "unity": "2022.3.62f3",
+    "maxPriority": "P1",
+    "deep": "ABL,CMB,ENT,ITEM,PLY,STAT,STATIC,UI,VIT",
+    "seed": 20261031,
+    "groups": [
+        "ENEMY",
+        "PLAYER",
+        "STATIC",
+        "SYSTEMS",
+        "VITALS"
+    ],
+    "cases": [
+        {
+            "id": "QA-ENT-01",
+            "title": "Pool spawns the enemy prefab with its core components and full HP",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.23200559616088868,
+            "notes": [
+                "ok: enemy spawned and active",
+                "ok: Entity found",
+                "ok: vital, stat and hurtbox components found",
+                "ok: HP 270/270 full"
+            ]
+        },
+        {
+            "id": "QA-ENT-02",
+            "title": "Spawned enemy has its default weapon equipped",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "FAIL",
+            "seconds": 0.4783511161804199,
+            "notes": [
+                "FAIL: EntityWeaponHolder.Weapon is null 1s after spawn (no weapon, no attack)"
+            ]
+        },
+        {
+            "id": "QA-ENT-03",
+            "title": "Damage lowers HP by amount minus Defense",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.07797002792358399,
+            "notes": [
+                "ok: lost 27 = 53 - Defense 26",
+                "ok: damage below Defense deals 0"
+            ]
+        },
+        {
+            "id": "QA-ENT-04",
+            "title": "Lethal damage emits ON_ENEMY_DEATH once with the enemy as payload",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "FAIL",
+            "seconds": 3.384599208831787,
+            "notes": [
+                "FAIL: no ON_ENEMY_DEATH within 5s of lethal damage"
+            ]
+        },
+        {
+            "id": "QA-ENT-05",
+            "title": "Released then re-spawned enemy comes back with full HP",
+            "system": "ENT",
+            "priority": "P1",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.06266021728515625,
+            "notes": [
+                "ok: released enemy inactive",
+                "ok: pool reused the same instance",
+                "ok: HP 270/270 full after respawn"
+            ]
+        },
+        {
+            "id": "QA-ENT-06",
+            "title": "Enemy stat asset unchanged after spawn, damage and respawn",
+            "system": "ENT",
+            "priority": "P2",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.01656055450439453,
+            "notes": [
+                "ok: PaladinStats unchanged"
+            ]
+        },
+        {
+            "id": "QA-PLY-01",
+            "title": "Player spawns once at the spawn point",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.0062580108642578129,
+            "notes": [
+                "ok: PlayerManager spawned a player",
+                "ok: exactly 1 Player in the scene",
+                "ok: at the spawn point",
+                "ok: camera follows the player",
+                "ok: input, weapon, ability, stat and vital components found",
+                "data before pick: BaseData"
+            ]
+        },
+        {
+            "id": "QA-PLY-02",
+            "title": "Before a class is picked: attack and ability input",
+            "system": "PLY",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "OBSERVED",
+            "seconds": 0.9762210845947266,
+            "notes": [
+                "OBSERVED: design undecided: is an unpicked player meant to be unarmed?",
+                "weapon before pick: none",
+                "LMB entered PlayerAttackState: False",
+                "key 1 entered PlayerSkillWeaponState: False",
+                "HP 270 -> 270, Mana 170 -> 170"
+            ]
+        },
+        {
+            "id": "QA-PLY-03.Paladin",
+            "title": "Paladin: G at the monument opens the confirm panel",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.5606842041015625,
+            "notes": [
+                "ok: confirm panel opened",
+                "panel data: confirm='Xác nhận', cancel='Hủy'",
+                "ok: opened once"
+            ]
+        },
+        {
+            "id": "QA-PLY-04.Paladin",
+            "title": "Paladin: nothing changes before Confirm",
+            "system": "PLY",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.021907806396484376,
+            "notes": [
+                "ok: class not applied before Confirm",
+                "ok: door did not open before Confirm",
+                "the Cancel button itself is a manual case (MAN-PLY-03)"
+            ]
+        },
+        {
+            "id": "QA-PLY-05.Paladin",
+            "title": "Paladin: Confirm applies the class",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.7357378005981445,
+            "notes": [
+                "ok: Player.Data = Paladin",
+                "ok: GameObject renamed to the class",
+                "ok: animator controller = class controller",
+                "ok: weapon = PaladinWeapon",
+                "ok: 1 weapon under the player",
+                "ok: HP 270/270, Mana 1070/1070 full",
+                "ok: ON_OPEN_DOOR once",
+                "ok: game unpaused after Confirm",
+                "ok: confirm panel hidden"
+            ]
+        },
+        {
+            "id": "QA-UI-01.Paladin",
+            "title": "Paladin: hotbar shows every bound ability",
+            "system": "UI",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.01633453369140625,
+            "notes": [
+                "ok: hotbar shows 4 abilities",
+                "hotbar: [1] Paladin Blessed Slash Ability (1s, icon no), [2] Consecrate (1s, icon no), [3] Blessing (1s, icon no), [4] Avatar of Light (1s, icon no)"
+            ]
+        },
+        {
+            "id": "QA-CMB-01.Paladin",
+            "title": "Paladin: melee hit damage = PhysicalDamage + stage damage",
+            "system": "CMB",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 0.9858875274658203,
+            "notes": [
+                "ok: the hit reached the target",
+                "ok: damage 42 = PhysicalDamage 42 + stage 0",
+                "FAIL: stage 0 attackDamage = 0 (stage damage lost)"
+            ]
+        },
+        {
+            "id": "QA-CMB-02.Paladin",
+            "title": "Paladin: melee combo reaches every stage",
+            "system": "CMB",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 2.063570976257324,
+            "notes": [
+                "ok: reached stage 3/3",
+                "hits: 3"
+            ]
+        },
+        {
+            "id": "QA-CMB-03.Paladin",
+            "title": "Paladin: melee out of range deals no damage",
+            "system": "CMB",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 1.204148292541504,
+            "notes": [
+                "ok: 0 hits at 4.5 units"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Paladin.Primary",
+            "title": "Paladin Paladin Blessed Slash Ability: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 2.7772836685180666,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "ok: cooldown started (1s)",
+                "ok: cooldown = definition 1s",
+                "ok: cost paid HP 0 / Mana 5",
+                "effects: Paladin Spawn Slash Effect (SpawnProjectileEffect)",
+                "ok: target hit 1x, first 30"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Paladin.Primary",
+            "title": "Paladin Paladin Blessed Slash Ability: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 1.6504859924316407,
+            "notes": [
+                "ok: press with 0.57s left: no cast, no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Paladin.Primary",
+            "title": "Paladin Paladin Blessed Slash Ability: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 1.2909660339355469,
+            "notes": [
+                "ok: refused at HP 270 / Mana 4",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Paladin.Secondary",
+            "title": "Paladin Consecrate: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 2.858652114868164,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "ok: cooldown started (1s)",
+                "ok: cooldown = definition 1s",
+                "ok: cost paid HP 0 / Mana 15",
+                "effects: Paladin Spawn Consecrat Effect (SpawnSummonEffect)",
+                "ok: target hit 1x, first 295"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Paladin.Secondary",
+            "title": "Paladin Consecrate: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 2.1951332092285158,
+            "notes": [
+                "ok: press with 0.18s left: no cast, no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Paladin.Secondary",
+            "title": "Paladin Consecrate: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.9998188018798828,
+            "notes": [
+                "ok: refused at HP 270 / Mana 14",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Paladin.Utility",
+            "title": "Paladin Blessing: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 4.429800033569336,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 10",
+                "effects: Paladin Buff - Debuff Stat Effect (BuffDebuffStatsForDuration), Paladin Recovery Reduction Stats Effect (RecoveryReductionStatsEffect)",
+                "FAIL: no stat change and no recovery within 2.5s"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Paladin.Utility",
+            "title": "Paladin Blessing: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.281991958618164,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Paladin.Utility",
+            "title": "Paladin Blessing: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 1.2526626586914063,
+            "notes": [
+                "ok: refused at HP 270 / Mana 9",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Paladin.Ultimate",
+            "title": "Paladin Avatar of Light: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 4.5387115478515629,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 40 / Mana 50",
+                "effects: Recovery Stat Effect (RecoveryReductionStatsEffect), Gain For Time Effect (BuffDebuffStatsForDuration)",
+                "FAIL: no stat change and no recovery within 2.5s"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Paladin.Ultimate",
+            "title": "Paladin Avatar of Light: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.5469894409179689,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Paladin.Ultimate",
+            "title": "Paladin Avatar of Light: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "OBSERVED",
+            "seconds": 1.22955322265625,
+            "notes": [
+                "OBSERVED: HP set to 39 below its 40 cost (design open: should an HP cost be refused?)",
+                "ok: refused at HP 39 / Mana 49",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-PLY-03.Archer",
+            "title": "Archer: G at the monument opens the confirm panel",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.7754478454589844,
+            "notes": [
+                "ok: confirm panel opened",
+                "panel data: confirm='Xác nhận', cancel='Hủy'",
+                "ok: opened once"
+            ]
+        },
+        {
+            "id": "QA-PLY-04.Archer",
+            "title": "Archer: nothing changes before Confirm",
+            "system": "PLY",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.0627288818359375,
+            "notes": [
+                "ok: class not applied before Confirm",
+                "ok: door did not open before Confirm",
+                "the Cancel button itself is a manual case (MAN-PLY-03)"
+            ]
+        },
+        {
+            "id": "QA-PLY-05.Archer",
+            "title": "Archer: Confirm applies the class",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.8620491027832031,
+            "notes": [
+                "ok: Player.Data = Archer",
+                "ok: GameObject renamed to the class",
+                "ok: animator controller = class controller",
+                "ok: weapon = ArcherWeapon",
+                "ok: 1 weapon under the player",
+                "ok: HP 270/270, Mana 170/170 full",
+                "ok: ON_OPEN_DOOR once",
+                "ok: game unpaused after Confirm",
+                "ok: confirm panel hidden"
+            ]
+        },
+        {
+            "id": "QA-UI-01.Archer",
+            "title": "Archer: hotbar shows every bound ability",
+            "system": "UI",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.010791778564453125,
+            "notes": [
+                "ok: hotbar shows 4 abilities",
+                "hotbar: [1] Hawk Eye (1s, icon no), [2] Kick-back Trap (1s, icon no), [3] Volley (1s, icon no), [4] Rain Arrows (1s, icon no)"
+            ]
+        },
+        {
+            "id": "QA-CMB-04.Archer",
+            "title": "Archer: arrow hits and despawns",
+            "system": "CMB",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 4.295925140380859,
+            "notes": [
+                "FAIL: no arrow reached the target within 2.5s",
+                "FAIL: 1 projectiles still active 2s later"
+            ]
+        },
+        {
+            "id": "QA-CMB-05.Archer",
+            "title": "Archer: shots are at least RecoveryTime apart",
+            "system": "CMB",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 1.9250526428222657,
+            "notes": [
+                "FAIL: only 0 shot(s) landed in ~2s of clicking"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Archer.Primary",
+            "title": "Archer Hawk Eye: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 12.8841552734375,
+            "notes": [
+                "(carried over) player stuck in PlayerAttackState for 4s after the action",
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Archer.Primary",
+            "title": "Archer Hawk Eye: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.42510986328125,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Archer.Primary",
+            "title": "Archer Hawk Eye: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.00012969970703125,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Archer.Secondary",
+            "title": "Archer Kick-back Trap: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 9.207977294921875,
+            "notes": [
+                "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Archer.Secondary",
+            "title": "Archer Kick-back Trap: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.42999267578125,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Archer.Secondary",
+            "title": "Archer Kick-back Trap: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.00005340576171875,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Archer.Utility",
+            "title": "Archer Volley: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 7.493598937988281,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet",
+                "FAIL: player stuck in PlayerSkillWeaponState for 4s after the action"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Archer.Utility",
+            "title": "Archer Volley: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.8161544799804689,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Archer.Utility",
+            "title": "Archer Volley: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.0000457763671875,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Archer.Ultimate",
+            "title": "Archer Rain Arrows: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 7.9737091064453129,
+            "notes": [
+                "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                "entered PlayerSkillWeaponState: True",
+                "ok: cooldown started (1s)",
+                "ok: cooldown = definition 1s",
+                "ok: cost paid HP 0 / Mana 15",
+                "effects: Paladin Spawn Consecrat Effect (SpawnSummonEffect)",
+                "ok: target hit 1x, first 70"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Archer.Ultimate",
+            "title": "Archer Rain Arrows: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 1.817413330078125,
+            "notes": [
+                "ok: press with 0.18s left: no cast, no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Archer.Ultimate",
+            "title": "Archer Rain Arrows: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 1.2942123413085938,
+            "notes": [
+                "ok: refused at HP 270 / Mana 14",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-PLY-03.Mage",
+            "title": "Mage: G at the monument opens the confirm panel",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.5418167114257813,
+            "notes": [
+                "ok: confirm panel opened",
+                "panel data: confirm='Xác nhận', cancel='Hủy'",
+                "ok: opened once"
+            ]
+        },
+        {
+            "id": "QA-PLY-04.Mage",
+            "title": "Mage: nothing changes before Confirm",
+            "system": "PLY",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.02266693115234375,
+            "notes": [
+                "ok: class not applied before Confirm",
+                "ok: door did not open before Confirm",
+                "the Cancel button itself is a manual case (MAN-PLY-03)"
+            ]
+        },
+        {
+            "id": "QA-PLY-05.Mage",
+            "title": "Mage: Confirm applies the class",
+            "system": "PLY",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 0.0135650634765625,
+            "notes": [
+                "FAIL: exception NullReferenceException: Object reference not set to an instance of an object @ at WeaponHolderBase`1[TCore].EquipDefaultWeapon () [0x00032] in D:\\Fork\\Game-RPG\\Assets\\Script\\Character\\Base\\WeaponHolderBase.cs:52 <- at Player.SetCharacterData (CharacterData data) [0x00051] in D:\\Fork\\Game-RPG\\Assets\\Script\\Character\\Player\\Player.cs:90 <- at PedestalChampionController.SetCharacterData () [0x00001] in D:\\Fork\\Game-RPG\\Assets\\Script\\System\\RoomGameSystem\\PedestalChampionController.cs:41 <- at UIFlow.UIEvents.AccessAction () [0x00001] in D:\\Fork\\Game-RPG\\Assets\\Script\\UIFlow\\Core\\UIEvents.cs:62"
+            ]
+        },
+        {
+            "id": "QA-UI-01.Mage",
+            "title": "Mage: hotbar shows every bound ability",
+            "system": "UI",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.04245758056640625,
+            "notes": [
+                "ok: hotbar shows 4 abilities",
+                "hotbar: [1] Hawk Eye (1s, icon no), [2] Kick-back Trap (1s, icon no), [3] Volley (1s, icon no), [4] Rain Arrows (1s, icon no)"
+            ]
+        },
+        {
+            "id": "QA-CMB-06.Mage",
+            "title": "Mage: attack with no weapon",
+            "system": "CMB",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.44843292236328127,
+            "notes": [
+                "ok: no attack, no damage, no exception"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Mage.Primary",
+            "title": "Mage Fireball: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 7.545555114746094,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Mage.Primary",
+            "title": "Mage Fireball: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.4898300170898439,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Mage.Primary",
+            "title": "Mage Fireball: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.00006103515625,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Mage.Secondary",
+            "title": "Mage Chain Lightning: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 9.084861755371094,
+            "notes": [
+                "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Mage.Secondary",
+            "title": "Mage Chain Lightning: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.5143890380859377,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Mage.Secondary",
+            "title": "Mage Chain Lightning: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.00002288818359375,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Mage.Utility",
+            "title": "Mage Frost Nova: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 7.716377258300781,
+            "notes": [
+                "entered PlayerSkillWeaponState: True",
+                "FAIL: no cooldown event — the ability never reached Do",
+                "ok: cost paid HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet",
+                "FAIL: player stuck in PlayerSkillWeaponState for 4s after the action"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Mage.Utility",
+            "title": "Mage Frost Nova: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 2.5107269287109377,
+            "notes": [
+                "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Mage.Utility",
+            "title": "Mage Frost Nova: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.0001068115234375,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-01.Mage.Ultimate",
+            "title": "Mage Meteor: cast pays cost, starts cooldown, applies effect",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "FAIL",
+            "seconds": 7.485870361328125,
+            "notes": [
+                "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                "entered PlayerSkillWeaponState: True",
+                "ok: cooldown started (1s)",
+                "ok: cooldown = definition 1s",
+                "FAIL: paid HP 0 / Mana 15, definition costs HP 0 / Mana 0",
+                "SKIP: Effects list is empty — ability not implemented yet"
+            ]
+        },
+        {
+            "id": "QA-ABL-02.Mage.Ultimate",
+            "title": "Mage Meteor: no recast while on cooldown",
+            "system": "ABL",
+            "priority": "P1",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 2.11895751953125,
+            "notes": [
+                "ok: press with 0.18s left: no cast, no cost"
+            ]
+        },
+        {
+            "id": "QA-ABL-03.Mage.Ultimate",
+            "title": "Mage Meteor: refused when the cost cannot be paid",
+            "system": "ABL",
+            "priority": "P2",
+            "group": "PLAYER",
+            "verdict": "SKIP",
+            "seconds": 0.0000457763671875,
+            "notes": [
+                "SKIP: ability has no cost"
+            ]
+        },
+        {
+            "id": "QA-STAT-10",
+            "title": "Class stat assets unchanged after a full player run (BUG-115)",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "PLAYER",
+            "verdict": "PASS",
+            "seconds": 0.011566162109375,
+            "notes": [
+                "ok: PaladinStats unchanged",
+                "ok: ArcherStats unchanged",
+                "ok: MageStats unchanged"
+            ]
+        },
+        {
+            "id": "QA-STATIC-01",
+            "title": "No asset or prefab references a missing script",
+            "system": "STATIC",
+            "priority": "P0",
+            "group": "STATIC",
+            "verdict": "FAIL",
+            "seconds": 1.5242841243743897,
+            "notes": [
+                "FAIL: 83 finding(s)",
+                "Assets/Prefab/Bullet/BulletEnnemy.prefab: script guid 92b59311105d6b640bbae19ea60be7c2",
+                "Assets/Prefab/Bullet/BulletPlayer.prefab: script guid 92b59311105d6b640bbae19ea60be7c2",
+                "Assets/Prefab/Bullet/SpiritProjcetile.prefab: script guid 405e5c1b5d35de1428150d32c25b0bf1",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid 1a76f0427ff553c419f560d0fc0d03fe",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid 94c1121f7993220458a7cce8d02e297c",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid 8b08d677a0b3def4c9909b91e37cfa63",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid 4f2b0a3dc96f4f84987338a4debd4fe2",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid 25675b5d276b6d643a169924c067c990",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid 02276f3fe351e384cb3afbf2ab125024",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid f809f57d8424b0d4585cb043b9bbe92c",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid db7d354d7f8b2ab4699f7a89f3cb7d01",
+                "Assets/Prefab/Core/CoreGame.prefab: script guid fd3a9ce3e2ae11c44840482242f558f7",
+                "Assets/Prefab/Interactable Object/Chest.prefab: script guid ab354f7577716af47a269f3ec676715e",
+                "Assets/Prefab/Interactable Object/Portal.prefab: script guid 47d8421b87742b74283637dd81bb600d",
+                "Assets/Prefab/Interactable Object/Reset.prefab: script guid 174f03f351544e64dbba10da5b16c6a5",
+                "Assets/Prefab/NPC/Merchant.prefab: script guid fc1ed29122892f547a5676c047746b53",
+                "Assets/Prefab/NPC/Merchant.prefab: script guid 7a5a50304ffbae14788a47bb36ced296",
+                "Assets/Prefab/NPC/NPC.prefab: script guid 7a5a50304ffbae14788a47bb36ced296",
+                "Assets/Prefab/Pooling/PoolingManager.prefab: script guid e17e5972be4a5d04a9d62e6381836116",
+                "Assets/Prefab/SkillModel.prefab: script guid ef3c31014e5d2e84396ed2d2a54b9652",
+                "Assets/Prefab/Weapon/MeleeWp/SnS.prefab: script guid c0f0b0b3777869c4ca8e115a42c2a0f9",
+                "Assets/Prefab/Weapon/Pistol.prefab: script guid c0827525a8bc48b449eda7d7dad79ed9",
+                "Assets/Prefab/Weapon/Pistol.prefab: script guid 8d76525e9e94de7449b386e642419832",
+                "Assets/Prefab/Weapon/Rifle.prefab: script guid 8d76525e9e94de7449b386e642419832",
+                "Assets/Prefab/Weapon/Rifle.prefab: script guid c0827525a8bc48b449eda7d7dad79ed9",
+                "... 58 more"
+            ]
+        },
+        {
+            "id": "QA-STATIC-02",
+            "title": "No ScriptableObject under Assets/SO references a deleted asset",
+            "system": "STATIC",
+            "priority": "P1",
+            "group": "STATIC",
+            "verdict": "FAIL",
+            "seconds": 0.08694124221801758,
+            "notes": [
+                "FAIL: 27 finding(s)",
+                "Assets/SO/Database/Enemy/Assasin.asset: guid babc5d466b4a4854ca630ec23b670512",
+                "Assets/SO/Database/Enemy/Boss.asset: guid babc5d466b4a4854ca630ec23b670512",
+                "Assets/SO/Database/Enemy/FastSwarm.asset: guid babc5d466b4a4854ca630ec23b670512",
+                "Assets/SO/Database/Enemy/RangeCaster.asset: guid babc5d466b4a4854ca630ec23b670512",
+                "Assets/SO/Database/Enemy/Tank.asset: guid babc5d466b4a4854ca630ec23b670512",
+                "Assets/SO/Database/Enemy/TrashMelee.asset: guid babc5d466b4a4854ca630ec23b670512",
+                "Assets/SO/Dungeon/DungeonGenerationData.asset: guid 9685d7c5d07638141b8f66061e03308b",
+                "Assets/SO/Item/Effect/New Recovery Effect Definition.asset: guid 51ca99a6ec51ee34784f1c822fc5f496",
+                "Assets/SO/Room/RoomData.asset: guid 0c92c27b3b9f5b74a9a23897c1b2aa8b",
+                "Assets/SO/Skill/Dual Ability.asset: guid 3428f2d989af0a445a3b55d0087a9eca",
+                "Assets/SO/Skill/Dual Ability.asset: guid 05ed83e7443fbc94497294addc259fa7",
+                "Assets/SO/Skill/Dual Ability.asset: guid 76a09061e22eb6d4cb3f7cf43cfabcbe",
+                "Assets/SO/Skill/Dual Ability.asset: guid d78e7a691c1d1a54591ba2f94af533ab",
+                "Assets/SO/Skill/Dual Ability.asset: guid 2dcd0ae6b51935d4c938bfa1b17a06ed",
+                "Assets/SO/Skill/Dual Ability.asset: guid f7dca79c58bdc2a46a7c0085b93eaa19",
+                "Assets/SO/Skill/Dual Ability.asset: guid 3c83d44c69b8ce54093718916d8ca918",
+                "Assets/SO/Skill/Dual Ability.asset: guid d25864c121839cb468af6282498fab94",
+                "Assets/SO/Skill/Enemy - Knight.asset: guid 7dda44e0c8271114fb11d268809dbd99",
+                "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset: guid ac9ac7c011812d042ac992007bc0cf48",
+                "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset: guid 02cbacd1d0342774abb852a2ed63f9b4",
+                "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset: guid 02cbacd1d0342774abb852a2ed63f9b4",
+                "Assets/SO/Spawners/SpawnBat.asset: guid 64065a1d0a960aa43b9fedcde8017b2b",
+                "Assets/SO/Spawners/SpawnBat.asset: guid 57e7b0449e026ab43987fcb8b2496cf3",
+                "Assets/SO/Spawners/SpawnCrab.asset: guid 64065a1d0a960aa43b9fedcde8017b2b",
+                "Assets/SO/Spawners/SpawnCrab.asset: guid c47349318891b8b46a4b6fd6e49dd024",
+                "... 2 more"
+            ]
+        },
+        {
+            "id": "QA-STATIC-03",
+            "title": "No serialized key left behind by a field rename (missing [FormerlySerializedAs])",
+            "system": "STATIC",
+            "priority": "P1",
+            "group": "STATIC",
+            "verdict": "FAIL",
+            "seconds": 1.146413803100586,
+            "notes": [
+                "FAIL: 31 finding(s)",
+                "Assets/SO/Database/Room/RoomModel 2.asset (RoomModel): randomRatio",
+                "Assets/SO/Database/Room/RoomModel 3.asset (RoomModel): randomRatio",
+                "Assets/SO/Database/Room/RoomModel 4.asset (RoomModel): randomRatio",
+                "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): maxHealth, statsSO, weaponSO",
+                "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): maxHealth, statsSO, weaponSO",
+                "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): maxHealth, statsSO, weaponSO",
+                "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): maxHealth, statsSO, weaponSO",
+                "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): statsSO, weaponSO",
+                "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset (MeleeWeaponStats): <AbilityWeapon>k__BackingField, <SkillWeapon>k__BackingField, authoredModifiers",
+                "Assets/SO/Enemy/Weapon/EnemySword&Shiled.asset (WeaponSO): dropChance, itemSprite, nameItem, style, value",
+                "Assets/SO/Enemy/Weapon/Knight_Attack1.asset (AttackSO): ability",
+                "Assets/SO/Item/PlatiumOre 0.asset (ItemSO): dropChance, itemSprite, nameItem, value",
+                "Assets/SO/Item/PlatiumOre 1.asset (ItemSO): dropChance, itemSprite, nameItem, value",
+                "Assets/SO/Item/PlatiumOre 2.asset (ItemSO): dropChance, itemSprite, nameItem, value",
+                "Assets/SO/Item/PlatiumOre 3.asset (ItemSO): dropChance, itemSprite, nameItem, value",
+                "Assets/SO/Item/PlatiumOre 4.asset (ItemSO): dropChance, itemSprite, nameItem, value",
+                "Assets/SO/Item/PlatiumOre 5.asset (ItemSO): dropChance, itemSprite, nameItem, value",
+                "Assets/SO/Skill/Block Ability.asset (BlockAbility): currentTime, periodCastTime, player, starCastTime",
+                "Assets/SO/Skill/Dual Ability.asset (DualAbility): activeTime, animators, currentTime, damage, delayTime, manaLost, name, periodCastTime, playerClone, rangeAbility, sizeAttack, skillModel, timeStarCast, worldpositon",
+                "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Effect/Recovery Stat Effect.asset (RecoveryReductionStatsEffect): authoredModifiers, impactType",
+                "Assets/SO/Skill/Paladin/Ability/Blessed Slash/Effect/Paladin Recovery Reduction Stats Effect.asset (RecoveryReductionStatsEffect): authoredModifiers, impactType, targetStat, value",
+                "Assets/SO/Skill/Paladin/Ability/Blessing/Effect/Paladin Buff - Debuff Stat Effect.asset (BuffDebuffStatsForDuration): modifiers, targetStatType, value",
+                "Assets/SO/Stat/Player/ArcherStats.asset (BaseStatsSO): targetStatType, value",
+                "Assets/SO/Stat/Player/MageStats.asset (BaseStatsSO): value",
+                "Assets/SO/Weapons/ArcherWeapon/Range Weapon Stats.asset (RangeWeaponStats): authoredModifiers",
+                "Assets/SO/Weapons/PaladinWeapon/SnS_Stat.asset (MeleeWeaponStats): <AbilityWeapon>k__BackingField, <SkillWeapon>k__BackingField, authoredModifiers, targetStat, value",
+                "Assets/SO/Weapons/PaladinWeapon/SnS_State1.asset (AttackSO): ability, attackDamege, enemyLayers",
+                "Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset (AttackSO): ability, attackDamege, enemyLayers",
+                "Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset (AttackSO): ability, attackDamege, enemyLayers",
+                "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): firerate, StartTimeBtwShots, timeBtwShots, Type, value, weaponName, weaponPrefab",
+                "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): firerate, StartTimeBtwShots, timeBtwShots, Type, value, weaponName, weaponPrefab"
+            ]
+        },
+        {
+            "id": "QA-STATIC-04",
+            "title": "No runtime stat modifier saved into a stat asset",
+            "system": "STATIC",
+            "priority": "P0",
+            "group": "STATIC",
+            "verdict": "FAIL",
+            "seconds": 0.0873870849609375,
+            "notes": [
+                "FAIL: 2 finding(s)",
+                "Assets/SO/Stat/Player/ArcherStats.asset: 1 saved modifier(s)",
+                "Assets/SO/Stat/Player/MageStats.asset: 2 saved modifier(s)"
+            ]
+        },
+        {
+            "id": "QA-STATIC-05",
+            "title": "Runtime scripts do not use UnityEditor outside #if UNITY_EDITOR",
+            "system": "STATIC",
+            "priority": "P0",
+            "group": "STATIC",
+            "verdict": "FAIL",
+            "seconds": 0.5157923698425293,
+            "notes": [
+                "FAIL: 2 finding(s)",
+                "Assets/Script/Character/Base/CharacterData.cs:2: using UnityEditor.Animations;",
+                "Assets/TextMesh Pro/Examples & Extras/Scripts/TMP_TextInfoDebugTool.cs:4: using UnityEditor;"
+            ]
+        },
+        {
+            "id": "QA-STATIC-06",
+            "title": "Every enabled build scene exists",
+            "system": "STATIC",
+            "priority": "P0",
+            "group": "STATIC",
+            "verdict": "PASS",
+            "seconds": 0.004099369049072266,
+            "notes": [
+                "build scenes: Assets/Scenes/Main/MainGamePlay.unity, Assets/Scenes/Main/Loading.unity, Assets/Scenes/Main/LoadRandomMap.unity, Assets/Scenes/Main/GameplayUI.unity, Assets/Scenes/Main/SetLevel.unity",
+                "ok: 5 enabled scenes exist"
+            ]
+        },
+        {
+            "id": "QA-EVT-01",
+            "title": "Emit delivers the payload to a registered listener",
+            "system": "EVT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.12089109420776367,
+            "notes": [
+                "ok: listener called once with the payload"
+            ]
+        },
+        {
+            "id": "QA-EVT-02",
+            "title": "UnResgister stops delivery",
+            "system": "EVT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.01862192153930664,
+            "notes": [
+                "ok: no call after UnResgister"
+            ]
+        },
+        {
+            "id": "QA-EVT-03",
+            "title": "Two listeners on one event both receive it; Emit with no listener is safe",
+            "system": "EVT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.010184288024902344,
+            "notes": [
+                "ok: both listeners called once",
+                "ok: Emit with every listener removed does not throw"
+            ]
+        },
+        {
+            "id": "QA-STAT-01",
+            "title": "Flat modifier adds its value to FinalValue",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.015627384185791017,
+            "notes": [
+                "ok: Defense 26 -> 31"
+            ]
+        },
+        {
+            "id": "QA-STAT-02",
+            "title": "PercentAdd modifiers sum before multiplying",
+            "system": "STAT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.017981529235839845,
+            "notes": [
+                "ok: +10% +20% -> 33.8 (x1.3)"
+            ]
+        },
+        {
+            "id": "QA-STAT-03",
+            "title": "PercentMult modifier multiplies",
+            "system": "STAT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.10698556900024414,
+            "notes": [
+                "ok: (base+4) x1.5 -> 45"
+            ]
+        },
+        {
+            "id": "QA-STAT-04",
+            "title": "RemoveModifiersFromSource restores the value",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.008068084716796875,
+            "notes": [
+                "ok: back to 26, 0 modifiers"
+            ]
+        },
+        {
+            "id": "QA-STAT-05",
+            "title": "Removing one source keeps another source's modifier",
+            "system": "STAT",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.007888317108154297,
+            "notes": [
+                "ok: item modifier kept: 29"
+            ]
+        },
+        {
+            "id": "QA-STAT-06",
+            "title": "Working on an Instantiate copy leaves the stat asset unchanged",
+            "system": "STAT",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.016242504119873048,
+            "notes": [
+                "ok: PaladinStats unchanged"
+            ]
+        },
+        {
+            "id": "QA-POOL-01",
+            "title": "Spawn returns an active instance at the requested position",
+            "system": "POOL",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.015392780303955078,
+            "notes": [
+                "ok: active instance returned",
+                "ok: at (3.00, -2.00)",
+                "ok: instance is not the template"
+            ]
+        },
+        {
+            "id": "QA-POOL-02",
+            "title": "Release deactivates; the next Spawn reuses the same instance",
+            "system": "POOL",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.014185428619384766,
+            "notes": [
+                "ok: released instance inactive",
+                "ok: same instance reused and re-activated"
+            ]
+        },
+        {
+            "id": "QA-POOL-03",
+            "title": "Two spawns without release give two distinct instances",
+            "system": "POOL",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.008985519409179688,
+            "notes": [
+                "ok: two distinct instances"
+            ]
+        },
+        {
+            "id": "QA-MAP-01",
+            "title": "Room clear: ON_OPEN_DOOR fires once, when the last spawned enemy dies",
+            "system": "MAP",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.010074615478515625,
+            "notes": [
+                "ok: no door event after 2 of 3 deaths",
+                "ok: ON_OPEN_DOOR once at the third death"
+            ]
+        },
+        {
+            "id": "QA-MAP-02",
+            "title": "Room clear counts an extra spawned enemy",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.009459495544433594,
+            "notes": [
+                "ok: door stays shut while the extra enemy lives",
+                "ok: door opens after the extra enemy"
+            ]
+        },
+        {
+            "id": "QA-MAP-03",
+            "title": "MapModel.GetRandomRoom deals every room once per cycle",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.010766983032226563,
+            "notes": [
+                "ok: 1 draws gave 1 distinct rooms",
+                "ok: a new cycle starts after the bag empties"
+            ]
+        },
+        {
+            "id": "QA-MAP-04",
+            "title": "RoomModel.GetSpawnSet stays within weight budget + overflow (20 seeds per room)",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.014753341674804688,
+            "notes": [
+                "ok: RoomModel: every seed spawned something",
+                "ok: RoomModel: worst total weight 45 <= 55 (budget 50 +10 %)"
+            ]
+        },
+        {
+            "id": "QA-MAP-05",
+            "title": "Every room JSON parses with matching tiles / poses / layers counts",
+            "system": "MAP",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.08860540390014649,
+            "notes": [
+                "ok: 20 room files",
+                "rooms: BossRoom_ThroneArena, BuffRoom_PowerShrine, CombatRoom_CentralIsland, CombatRoom_Checkerboard, CombatRoom_Cross, CombatRoom_DiagonalWalls, CombatRoom_EliteGuard, CombatRoom_FourPillars, CombatRoom_GrandArena, CombatRoom_HiddenCorner, CombatRoom_NarrowBridges, CombatRoom_PracticeYard, CombatRoom_RoundArena, CombatRoom_SmallMaze, CombatRoom_Spiral, CombatRoom_TwinCorridors, CombatRoom_TwoHalls, RestRoom_Campfire, ShopRoom_Merchant, StartRoom_Entrance"
+            ]
+        },
+        {
+            "id": "QA-PATH-01",
+            "title": "A* finds a path of walkable, adjacent waypoints to the farthest reachable tile",
+            "system": "PATH",
+            "priority": "P0",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.0671544075012207,
+            "notes": [
+                "CombatRoom_GrandArena.json: 668 walkable tiles of 900",
+                "ok: path found, 2 waypoints",
+                "ok: every waypoint walkable and adjacent to the previous",
+                "ok: ends at the target"
+            ]
+        },
+        {
+            "id": "QA-PATH-02",
+            "title": "A* to a wall tile fails cleanly",
+            "system": "PATH",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.030365943908691407,
+            "notes": [
+                "ok: no path to a wall tile"
+            ]
+        },
+        {
+            "id": "QA-PATH-03",
+            "title": "Same query twice gives the same path (search state cleared)",
+            "system": "PATH",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.007588386535644531,
+            "notes": [
+                "ok: identical results"
+            ]
+        },
+        {
+            "id": "QA-ITEM-01",
+            "title": "DepotItem rolls only items from its table; same seed gives same roll",
+            "system": "ITEM",
+            "priority": "P1",
+            "group": "SYSTEMS",
+            "verdict": "PASS",
+            "seconds": 0.011577129364013672,
+            "notes": [
+                "ok: 200/200 rolls gave an item, all from the table",
+                "ok: seed 42 -> Test twice"
+            ]
+        },
+        {
+            "id": "QA-VIT-01",
+            "title": "ReloadComponent fills HP and Mana to max",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.010445594787597657,
+            "notes": [
+                "ok: HP 270 = max 270",
+                "ok: Mana 1070 = max 1070",
+                "ok: max HP is positive"
+            ]
+        },
+        {
+            "id": "QA-VIT-02",
+            "title": "Reduction lowers the value by exactly the amount and raises CurrentStatsChanged",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.006407260894775391,
+            "notes": [
+                "ok: HP 270 -> 260",
+                "ok: CurrentStatsChanged raised once"
+            ]
+        },
+        {
+            "id": "QA-VIT-03",
+            "title": "Reduction larger than the current value clamps at 0",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.008739948272705078,
+            "notes": [
+                "ok: Mana clamped at 0"
+            ]
+        },
+        {
+            "id": "QA-VIT-04",
+            "title": "Recovery below max restores exactly the amount",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.008179187774658203,
+            "notes": [
+                "ok: HP 240 -> 250"
+            ]
+        },
+        {
+            "id": "QA-VIT-05",
+            "title": "Recovery never pushes the value above max",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "FAIL",
+            "seconds": 0.007727146148681641,
+            "notes": [
+                "FAIL: HP 275 above max 270 after max-5 +10"
+            ]
+        },
+        {
+            "id": "QA-VIT-06",
+            "title": "Damage through the player hurtbox lowers HP, player survives",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "PASS",
+            "seconds": 0.8032941818237305,
+            "notes": [
+                "ok: HP lost 27 of 27 sent",
+                "ok: player alive"
+            ]
+        },
+        {
+            "id": "QA-VIT-07",
+            "title": "Lethal damage puts the player in PlayerDeathState and emits ON_PLAYER_DEATH",
+            "system": "VIT",
+            "priority": "P0",
+            "group": "VITALS",
+            "verdict": "FAIL",
+            "seconds": 2.924854278564453,
+            "notes": [
+                "ok: HP = 0",
+                "ok: entered PlayerDeathState",
+                "FAIL: ON_PLAYER_DEATH not emitted within 4s of death"
+            ]
+        },
+        {
+            "id": "QA-VIT-08",
+            "title": "ON_PLAYER_DEATH is emitted once per death, not every frame",
+            "system": "VIT",
+            "priority": "P1",
+            "group": "VITALS",
+            "verdict": "SKIP",
+            "seconds": 0.001941680908203125,
+            "notes": [
+                "SKIP: the player never emitted ON_PLAYER_DEATH (see QA-VIT-07)"
+            ]
+        }
+    ]
+}
