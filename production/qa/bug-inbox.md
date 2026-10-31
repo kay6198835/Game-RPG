@@ -8,6 +8,19 @@
 
 | Note | Date | Source | Sev guess | Where | What | Evidence tier |
 |---|---|---|---|---|---|---|
+
+_(empty after the 2026-10-31 triage)_
+
+## Note text archive (triaged 2026-10-31)
+
+| Note | Date | Source | Sev guess | Where | What | Evidence tier |
+|---|---|---|---|---|---|---|
+| NOTE-20261031-1 | 2026-10-31 | wrapup | S2 | `Assets/Script/System/StatSystem/VitalModifier.cs:4,15`; `Assets/Script/Character/Base/EffectReceiverBase.cs:44-52` | Review of the week's `.cs`: `VitalModifier` has no `[System.Serializable]`, so `StatModifierGroup.vitalModifiers` is never serialized (0 assets carry it); `ImpactType` is negative-value = Reduction but the negative value is passed straight to `Reduction()` (heals); the Reduction branch calls `vital.Reduction()` twice | STATIC |
+| NOTE-20261031-2 | 2026-10-31 | wrapup | S3 | `RecoveryReductionPerTimeForDuration.cs:11` → `EffectReceiverBase.cs:98-101` | `AdjustCurrentPerTimeForDuration()` is `throw new NotImplementedException()`; every HoT / DoT cast would throw. No asset uses the effect (GUID `4b98fd5a…` not in `Assets/SO`). Stale BUG-071 comment at `:65` | STATIC |
+| NOTE-20261031-3 | 2026-10-31 | wrapup | S3 | `Assets/Script/Character/Base/VitalStatsBase.cs:64-71` | `Recovery()` adds without an upper clamp — HP 95/100 + 10 → 105 | STATIC |
+| NOTE-20261031-4 | 2026-10-31 | wrapup | S2 | `Assets/Script/Character/Base/EffectReceiverBase.cs:86-91` | Timed buff adds / removes modifiers with source `context.Caster` — every timed buff from one caster shares a source (BUG-100 pattern, moved by the refactor) | STATIC |
+| NOTE-20261031-5 | 2026-10-31 | wrapup | S2 | `Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs:10-13`, `ModifierMaxStatsEffect.cs:5-6`, `ModifierCurrentStatsEffect.cs:5-6` | Item stat effects apply nothing: `Apply()` only resolves the receiver; both menus are on `abstract` classes; the two item effect assets bind (old GUID `fe7649a5…`) to the abstract `StatModifierEffect` | STATIC |
+| NOTE-20261031-6 | 2026-10-31 | wrapup | S2 | `Assets/Script/System/StatSystem/StatModifierGroup.cs:23-24` (`343a3830`) | Review-flow R3.5: `authoredModifiers` → `statsModifiers` with no `[FormerlySerializedAs]`; `SnS_Stat.asset`, Blessed Slash recovery effect and both item effects still store `authoredModifiers` and load empty | STATIC |
 | NOTE-20261019-2 | 2026-10-19 | editor-log | S3 | `Assets/Script/System/StatSystem/BaseStatsSO.cs:243` | **Carried by the 2026-10-25 triage (Needs owner, second carry).** Full text in the 2026-10-19 archive and the 2026-10-25 archive below. 2× NRE in Play Mode on 2026-10-22; **not** seen on 2026-10-24 (`Editor-prev.log`, 3 Play Mode entries, no `Assets/Script/` exception). Still needs the Console stack trace and the name of the stat asset with duplicate `StatType` entries | LOG |
 | NOTE-20261026-1 | 2026-10-26 | standup | S1 | `Assets/Script/Character/Base/CharacterData.cs:1,20` (`041292ce` "done flow pick champion"); `Assets/SO/Player/BaseData.asset:17` | `CharacterData` (runtime assembly, no `#if UNITY_EDITOR`) now has `using UnityEditor.Animations;` and the field `AnimatorController animationController` (was `AnimatorOverrideController`). `UnityEditor` does not exist in a Player build → every player build fails to compile (historical Bug #10 pattern). The Editor compiles it (`compile-check.sh` COMPILED `e156bdf4`), so it stays hidden until someone builds. Second effect: `BaseData.asset:17` references an `AnimatorOverrideController` (`fileID: 22100000`), which no longer matches the field type and loads as null; Paladin / Mage / Archer reference `.controller` assets (`9100000`) and are unaffected. Fix direction: field type `RuntimeAnimatorController`, drop the `using` | COMPILED (Editor) + STATIC |
 | NOTE-20261026-2 | 2026-10-26 | editor-log | S4 | `Editor.log` (2026-10-25 23:25): `CharacterBase.cs(12,11)` CS0305/CS0538, `EffectReceiverBase.cs(1,68)` CS0535, `:105,116,134` CS0246 `IEnumerator`, `EntityVitalStats.cs(15,26)` / `VitalComponent.cs(4,26)` CS0115 `Reborn()` | 342 `error CS` lines logged during the merge of `feature/add-effect-component` (`9348d151`) and its conflict fix (`e156bdf4`, 23:24). `compile-check.sh` **COMPILED** `e156bdf4` at 02:13, so these look like transient mid-merge states — candidate for "Resolved in week" at triage | LOG + COMPILED |
@@ -111,3 +124,15 @@ _(the four notes above were added by `/doc-sync --auto` on 2026-10-09, after tha
 | NOTE-20261021-4 | 2026-10-25 | Not a bug / by design (design debt) | Several design-debt items, no single runtime defect; already decomposed into the stat-reduction epic (`production/epics/stat-reduction/`, stories 002/004/006). Route remaining items to the tech-debt register at the next `/tech-debt` pass |
 | NOTE-20261025-1 | 2026-10-25 | Duplicate | **BUG-104** regressed (two logs re-added in `05dcf630`); evidence appended, status stays Open |
 | NOTE-20261025-2 | 2026-10-25 | Duplicate | Evidence appended to **BUG-064** (status unchanged) and covered by **BUG-110** (pickup path). Never reopened automatically |
+| NOTE-20261019-2 | 2026-10-31 | Not reproduced — closed | No NRE @ `BaseStatsSO.cs:243` in any log since 2026-10-22; 2026-10-31 `Editor.log` (14 Play Mode) + `Editor-prev.log` (2) have no `Assets/Script/` exception. Third carry ends here; re-open as a new note if it recurs |
+| NOTE-20261026-1 | 2026-10-31 | Confirmed | **BUG-116** (S1) — `CharacterData.cs:2,20` unchanged at `sprint-20` `2276049e` |
+| NOTE-20261026-2 | 2026-10-31 | Resolved in week | Transient mid-merge errors; `compile-check.sh` COMPILED `e156bdf4` (10-26) and `beca1bcc` (10-28); 2026-10-31 logs 0 `error CS` |
+| NOTE-20261026-3 | 2026-10-31 | Not reproduced — closed | Single hit on 2026-10-25; none in any later log (16 Play Mode entries on 2026-10-31). Debug-only harness |
+| NOTE-20261029-1 | 2026-10-31 | Resolved in week | Merge `2276049e` brought `combat-test-scene` into `sprint-20`; `CombatTestSceneBuilder.cs:97` now calls `System.IO.Path.GetDirectoryName`. Sixth sprint-branch build break → TD-051 |
+| NOTE-20261029-2 | 2026-10-31 | Not reproduced — closed | No NRE @ `PlayerState.cs` in the 16 Play Mode entries of 2026-10-31. The unguarded logs at `:34,42` stay tracked as **BUG-104** (regressed) |
+| NOTE-20261031-1 | 2026-10-31 | Confirmed | **BUG-117** (S2) |
+| NOTE-20261031-2 | 2026-10-31 | Confirmed | **BUG-118** (S3, dormant) |
+| NOTE-20261031-3 | 2026-10-31 | Confirmed | **BUG-119** (S3) |
+| NOTE-20261031-4 | 2026-10-31 | Duplicate | Evidence appended to **BUG-100** (status unchanged) |
+| NOTE-20261031-5 | 2026-10-31 | Confirmed | **BUG-120** (S2) |
+| NOTE-20261031-6 | 2026-10-31 | Confirmed | **BUG-121** (S2) |
