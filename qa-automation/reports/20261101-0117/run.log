@@ -1,0 +1,10 @@
+[01:17:25] QA weekly run 20261101-0117, project D:\Fork\Game-RPG
+[01:17:26] owner tree dirty (1 paths) on qa/player-flow-automation -> commit 'coding need check'
+[01:17:29] auto-commit 73128081 on qa/player-flow-automation (local, not pushed)
+[01:17:33] sprint branch origin/sprint-20 at 09ca5d1905
+[01:17:35] merged origin/sprint-20 into qa/weekly-automation
+[01:17:45] change scan origin/sprint-19..origin/sprint-20 -> deep P2 for: ABL,CMB,ENT,ITEM,PLY,STAT,STATIC,UI,VIT
+[01:17:45] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261101-0117\unity-compile.log"
+[01:19:01] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261101-0117" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261101-0117\unity-run.log" -qaDeep ABL,CMB,ENT,ITEM,PLY,STAT,STATIC,UI,VIT
+[01:22:40] unity test run exit 1
+[01:22:46] PASS 58 / FAIL 6 / KNOWN 9 / SKIP 23 / OBSERVED 2; new FAIL: 0
