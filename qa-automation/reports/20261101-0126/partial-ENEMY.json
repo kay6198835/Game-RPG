@@ -1,0 +1,88 @@
+{
+    "group": "ENEMY",
+    "scene": "Assets/QA/Scenes/QA_Combat.unity",
+    "started": "2026-11-01 01:29:25",
+    "finished": "2026-11-01 01:29:30",
+    "cases": [
+        {
+            "id": "QA-ENT-01",
+            "title": "Pool spawns the enemy prefab with its core components and full HP",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.23390579223632813,
+            "notes": [
+                "ok: enemy spawned and active",
+                "ok: Entity found",
+                "ok: vital, stat and hurtbox components found",
+                "ok: HP 270/270 full"
+            ]
+        },
+        {
+            "id": "QA-ENT-02",
+            "title": "Spawned enemy has its default weapon equipped",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "FAIL",
+            "seconds": 0.4763507843017578,
+            "notes": [
+                "FAIL: EntityWeaponHolder.Weapon is null 1s after spawn (no weapon, no attack)"
+            ]
+        },
+        {
+            "id": "QA-ENT-03",
+            "title": "Damage lowers HP by amount minus Defense",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.04633378982543945,
+            "notes": [
+                "ok: lost 27 = 53 - Defense 26",
+                "ok: damage below Defense deals 0"
+            ]
+        },
+        {
+            "id": "QA-ENT-04",
+            "title": "Lethal damage emits ON_ENEMY_DEATH once with the enemy as payload",
+            "system": "ENT",
+            "priority": "P0",
+            "group": "ENEMY",
+            "verdict": "FAIL",
+            "seconds": 3.633345127105713,
+            "notes": [
+                "FAIL: no ON_ENEMY_DEATH within 5s of lethal damage",
+                "HP 0; state EntityMoveState; animator Knight_Controller; clip Knight_Walk_dir1",
+                "clip events:  (EntityDeathState emits on StatusAnimation.OnActivate)"
+            ]
+        },
+        {
+            "id": "QA-ENT-05",
+            "title": "Released then re-spawned enemy comes back with full HP",
+            "system": "ENT",
+            "priority": "P1",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.08164405822753906,
+            "notes": [
+                "ok: released enemy inactive",
+                "ok: pool reused the same instance",
+                "ok: HP 270/270 full after respawn"
+            ]
+        },
+        {
+            "id": "QA-ENT-06",
+            "title": "Enemy stat asset unchanged after spawn, damage and respawn",
+            "system": "ENT",
+            "priority": "P2",
+            "group": "ENEMY",
+            "verdict": "PASS",
+            "seconds": 0.017630577087402345,
+            "notes": [
+                "ok: PaladinStats unchanged"
+            ]
+        }
+    ]
+}
