@@ -36,7 +36,7 @@ MainGamePlay: Splash → (Login, unless skipLogin) → MainMenu
   Continue / Load → SaveSelect → SceneFlow.EnterGameplay()
       → Loading → LoadRandomMap + GameplayUI (additive)
 In game: HUD root; panels pushed on UIManager's stack; Esc = Back / Pause
-Player ready: VitalStatsComponent.Reborn() → Emit(ON_PLAYER_READY, ICharacter) → RealPlayerDataProvider binds
+Player ready: VitalStatsComponent.ReloadComponent() → Emit(ON_PLAYER_READY, ICharacter) → RealPlayerDataProvider binds
   IVitalComponent.CurrentStatsChanged (HP/Mana), IStatService (max/level/stats), CharacterData.AbilityBindings (hotbar),
   AbilityHolderBase.AbilityCooldownStarted (cooldowns)
 Death: ON_PLAYER_DEATH → RealPlayerDataProvider.PlayerDied → GameOverPanel → Respawn() = reload gameplay scene

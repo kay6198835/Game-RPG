@@ -12,14 +12,14 @@ Reuse runtime-spawned objects (enemies, projectiles, summons, items) instead of 
 
 | File | Contents |
 |------|----------|
-| `ObjectPoolManager.cs` | `: MonoBehaviour, IObjecPoolService`. One `Pool` per prefab (`pools` dictionary). `Get(prefab)`, `Spawn(prefab, Vector2 pos, Quaternion rot, parent)` → `GameObject`, `Spawn(ObjectPoolRequest)`, `Release(go, parent)`. `[Inject] Construct(IObjectResolver)` |
+| `ObjectPoolManager.cs` | `: MonoBehaviour, IObjectPoolService`. One `Pool` per prefab (`pools` dictionary). `Get(prefab)`, `Spawn(prefab, Vector2 pos, Quaternion rot, parent)` → `GameObject`, `Spawn(ObjectPoolRequest)`, `Release(go, parent)`. `[Inject] Construct(IObjectResolver)` |
 | `Pool.cs` | Per-prefab queue. `Spawn()` reuses an inactive member or instantiates + `resolver.InjectGameObject(obj)`; `Release()` deactivates, reparents to the pool (or `parent`), enqueues |
 | `PoolMember.cs` | Back-reference to its `Pool`; `isInPool` flag guards double release |
-| `LifetimeScope/Interface/IObjecPoolService.cs` | The injected contract (typo in name is intentional) |
+| `LifetimeScope/Interface/IObjecPoolService.cs` | The injected contract `IObjectPoolService` (interface renamed in `cae75317`; the file name keeps the old typo) |
 
 ## Rules
 
-- Never `Instantiate` gameplay objects at runtime — go through `IObjecPoolService`.
+- Never `Instantiate` gameplay objects at runtime — go through `IObjectPoolService`.
 - Objects are injected **once**, when the pool first instantiates them. Pooled objects must reset
   their own state in `OnEnable` / `OnDisable` (`Entity.OnEnable`, `ProjectileBody.OnDisable` do).
 - Releasing twice is a no-op (`PoolMember.isInPool`).

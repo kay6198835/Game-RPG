@@ -12,13 +12,13 @@ Wire cross-system services into scene components and runtime-spawned objects wit
 | Path | Contents |
 |------|----------|
 | `System/LifetimeScope/GameLifetimeScope.cs` | Composition root (`: LifetimeScope`) |
-| `System/LifetimeScope/Interface/` | `IObjecPoolService`, `IPlayerService`, `IPlayerStatService : IStatService` |
+| `System/LifetimeScope/Interface/` | `IObjectPoolService` (file `IObjecPoolService.cs`; interface renamed in `cae75317`), `IPlayerService`, `IPlayerStatService : IStatService` |
 | `System/PlayerSystem/PlayerManager.cs` | `: MonoBehaviour, IPlayerService` — spawns and exposes the player |
 
 ## Registrations (`GameLifetimeScope.Configure()`)
 
 ```csharp
-builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjecPoolService>();
+builder.RegisterComponentInHierarchy<ObjectPoolManager>().As<IObjectPoolService>();
 builder.RegisterComponentInHierarchy<PlayerManager>().AsSelf().As<IPlayerService>();
 builder.Register<IPlayerStatService>(r => r.Resolve<PlayerManager>().StatService, Lifetime.Singleton);
 builder.RegisterComponentInHierarchy<EnemySpawner>();

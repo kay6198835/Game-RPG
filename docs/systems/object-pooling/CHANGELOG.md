@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history and `git log`.
 
+## 2026-10-31 — Pool interface renamed (doc-truth re-sync)
+- **Commit:** `cae75317` (on `origin/sprint-20`)
+- **Changed:** `IObjecPoolService` → `IObjectPoolService`; file name kept.
+- **From → To:** "typo in name is intentional" → interface fixed, only the file keeps the typo.
+- **Why:** not recorded in the commit.
+- **Bugs:** none.
+
 ## 2026-09-28 — Release reparent fix
 - **Commit:** `b7a0af5e`
 - **Changed:** `Pool.Release()`

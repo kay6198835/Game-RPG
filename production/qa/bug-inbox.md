@@ -8,8 +8,10 @@
 
 | Note | Date | Source | Sev guess | Where | What | Evidence tier |
 |---|---|---|---|---|---|---|
-
-_(empty after the 2026-10-31 triage)_
+| NOTE-20261031-7 | 2026-10-31 | doc-sync | S4 | `Assets/Script/Character/Base/CharacterData.cs:16`; `Assets/SO/Enemy/Enemy - Knight*.asset:25` | Relates to BUG-108 (file: Open). `fc98fa2a` restored `[FormerlySerializedAs("statsSO")]`, so enemy stats load again; the five Knight assets still store `weaponSO:`, which nothing reads (`Weapon` is an auto-property) — status looks PARTIAL in code | STATIC |
+| NOTE-20261031-8 | 2026-10-31 | doc-sync | S3 | `Assets/Script/Character/Base/VitalStatsBase.cs:51-58,63-83` | Relates to BUG-066 / BUG-070 (Open). `GetCurrentStatValue()` now returns `0` on a missing `VitalStatType` key (the 2026-10-19 max-stat fallback is gone) — on the HP death check that reads as death; `Recovery()` / `Reduction()` still index `currentStats[...]` unguarded | STATIC |
+| NOTE-20261031-9 | 2026-10-31 | doc-sync | S4 | `Assets/Script/UIFlow/Core/UIEvents.cs:56,62` | Relates to BUG-102 (Open). `:62` is now `ConfirnRequest?.Invoke()`; `:56` `OpenConfirnPanel.Invoke(data)` is still unguarded — half changed | STATIC |
+| NOTE-20261031-10 | 2026-10-31 | doc-sync | S3 | `Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs:6` | `CoinModifierEffect` is `abstract` and has no `[CreateAssetMenu]`, so no coin item effect can be authored; `WalletComponent.AddCoins()` has no reachable item path. Same shape as BUG-120 (stat effects), not covered by it | STATIC |
 
 ## Note text archive (triaged 2026-10-31)
 

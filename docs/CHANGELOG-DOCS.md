@@ -17,6 +17,31 @@ which code change caused it.
 
 ---
 
+## 2026-10-31 — Doc-truth pass (HEAD `e8baf251`, `origin/sprint-20`)
+
+**Cause.** 21 non-merge commits on `sprint-20` since `ec625d07` touched 145 files under
+`Assets/Script/` — chiefly `cae75317` / `5c8245c9` (the `sprint-18` renames and Rain Arrows, now on
+the sprint branch), `3d768b3d` (regen, wallet, item effects), `786c031b` / `6e484f0c` (effect
+receiver), `1bc5d2ad` / `24f72474` (`StatPointSession`), `041292ce` (pick champion), `87e053b4` /
+`fc98fa2a` (CombatTest), `343a3830`. The 2026-10-19 pass was interrupted (`2433b6ee`) before its
+README fixes landed. Claim sweep: `production/qa/doc-truth-2026-10-31.md`.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | Header entry; layout (pool interface, `DamageArea` / `CircleSummon` / Rain Arrows / `SourceEffect`, `RoomGameSystem/`, `EffectReceiverBase` + receivers, `RegenComponent`, `WalletComponent`, `VitalModifier`, `StatPointSession`, item effects, `CharacterData` / `CharacterBase`, `CombatTest/`, new interfaces); DI snippet; conventions (pool typo now file-only); event history note; Known Bugs: BUG-107 → PARTIAL, rows BUG-110…121, row notes 066/070/071/072/096/100/102/106/108/109; checklist items 28 (note), 29, 30 |
+| `docs/systems/{abilities,dependency-injection,object-pooling,weapons,items,stats,event-system,map,ui}/README.md` | Renamed classes / interface, deleted item effects, stat asset path, `ON_PLAYER_READY` emitter; items README `Last verified` |
+| matching `CHANGELOG.md` ×9 | One entry each |
+| `memory/project_state.md` | Rewritten for `sprint-20` |
+| `production/qa/bug-inbox.md` | NOTE-20261031-7…10 |
+
+**Findings.** Third silent serialized-rename loss in six weeks (BUG-121, after BUG-105 / BUG-108).
+BUG-116 (S1) blocks any Player build. `GetCurrentStatValue()` now returns `0` on a missing key.
+
+**Left out of date:** `ON_CLEAR_ENEMY` in `map-code.md`, `enemy-spawn-system.md`, `map-system.md`,
+ADR-0002; deleted `Conditions/` dirs in `prototype-code.md` / `weapon-skill-code.md`; ADR-0004 /
+ADR-0005 bodies; `docs/systems/character/README.md` vitals section (needs a rewrite for the
+`VitalStatsBase` / `EffectReceiverBase` split); `docs/tech-debt-register.md` TD-043 / TD-052.
+
 ## 2026-10-27 — Effect source plan (owner request)
 
 **Cause:** source read of `6e484f0c` "update logic effect" on `feature/add-effect-component`: timed stat buffs are

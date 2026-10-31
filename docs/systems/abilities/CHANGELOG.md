@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-10-31 — Summon renames + Rain Arrows reach the sprint branch (doc-truth re-sync)
+- **Commit:** `cae75317` "add asset", `5c8245c9` "add logic for rain arrow skill", `6e484f0c` "update logic effect" (on `origin/sprint-20`)
+- **Changed:** `LightningController` → `DamageArea`, `RuneCircleController` → `CircleSummon`; `DamagesInManyPos` + `RainArrowsProjectile` added; `Runtime/ImpactMono/SourceEffect` added. Stat effects now apply through `IEffectReceiver` (`EffectReceiverBase`) instead of `IVitalComponent`.
+- **From → To:** README runtime list named the old classes → names the current ones.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-072 (now `DamageArea`), BUG-109 (Rain Arrows), BUG-117, BUG-118.
+
 ## 2026-09-28 — Compile restored (BUG-092 partial)
 - **Commit:** `5b035b73` (verified with `git log -S"private float perTime"`)
 - **Changed:** `private float duration;` → `private float perTime;`
