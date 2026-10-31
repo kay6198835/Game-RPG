@@ -54,7 +54,14 @@ What the script does to your folder `D:\Fork\Game-RPG`:
 3. It runs the tests, then puts back any tracked file the run modified outside the QA folders.
 4. It commits the report on `qa/weekly-automation`, checks out your branch again, and pushes
    `qa/weekly-automation` to `origin` as an off-machine backup (never forced; a failed push is logged
-   and does not change the exit code). Nothing else is pushed: not your branch, not the sprint branch.
+   and does not change the exit code).
+5. When the tests ran (status PASS or FAIL, so the code compiled), it merges `qa/weekly-automation` into
+   the sprint branch it tested, in the PM worktree `D:\Fork\Game-RPG-pm`, and pushes the sprint branch.
+   Every new sprint is cut from the previous one, so it carries the QA code and reports. Never forced; a
+   conflict, a dirty PM worktree or a twice-rejected push leaves the sprint branch untouched and is
+   logged as `SPRINT MERGE FAILED`. `-NoSprintMerge` turns it off for one run.
+
+Your own branch is never pushed.
 
 To undo the auto-commit while keeping your changes, run this on your branch: `git reset --soft HEAD~1`.
 
