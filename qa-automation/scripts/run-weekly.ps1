@@ -279,6 +279,9 @@ finally {
     }
     catch { Log "could not commit results: $($_.Exception.Message)" }
     if ($switched -and $ownerRef) {
+        # The QA scenes are build output (git-ignored on the QA branch only). Left behind they would sit
+        # untracked on the owner's branch, where their scripts do not exist.
+        Remove-Item -Recurse -Force (Join-Path $Project 'Assets\QA\Scenes'), (Join-Path $Project 'Assets\QA\Scenes.meta') -ErrorAction SilentlyContinue
         try { Git checkout $ownerRef | Out-Null; Log "back on $ownerRef" }
         catch { Log "COULD NOT SWITCH BACK to ${ownerRef}: $($_.Exception.Message)"; $exitCode = 2 }
     }

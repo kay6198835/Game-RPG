@@ -12,7 +12,8 @@ param(
     [string]$RunInfoFile = '',
     [string]$KnownFile = '',
     [string]$HistoryFile = '',
-    [int]$FlakyWindow = 5
+    [int]$FlakyWindow = 5,
+    [switch]$WriteStaticBaseline
 )
 $ErrorActionPreference = 'Stop'
 # Defaults resolved here: $PSScriptRoot is empty inside a param block under Windows PowerShell 5.1.
@@ -43,6 +44,13 @@ function BugState([string]$bug) {
     return $state
 }
 
+# Static findings that predate the automation (legacy assets). They are debt, reported as a count, and do
+# not fail the run; a finding not in this list does. Rewrite with -WriteStaticBaseline after a triage.
+$baselineFile = Join-Path $qaRoot 'config\static-baseline.txt'
+$baseline = New-Object 'System.Collections.Generic.HashSet[string]'
+if (Test-Path $baselineFile) { Get-Content -Encoding UTF8 $baselineFile | Where-Object { $_ -and -not $_.StartsWith('#') } | ForEach-Object { [void]$baseline.Add($_) } }
+$newStaticFindings = New-Object System.Collections.ArrayList
+
 function FindingLines($case) {
     @($case.notes | Where-Object { $_ -notmatch '^ok:' -and $_ -notmatch '^FAIL: \d+ finding' -and $_ -notmatch '^build scenes:' -and $_ -notmatch '^\.\.\. ' -and $_ -notmatch '^(OBSERVED|SKIP):' })
 }
@@ -65,19 +73,31 @@ foreach ($c in $results.cases) {
         if ($plain.Count) {
             $verdict = 'KNOWN'; $bugs = @($plain | ForEach-Object bug)
         }
-        elseif ($byFinding.Count) {
-            $lines = FindingLines $c
+        elseif ($c.system -eq 'STATIC' -or $byFinding.Count) {
+            $all = FindingLines $c
+            $debt = @($all | Where-Object { $baseline.Contains($_) })
+            $lines = @($all | Where-Object { -not $baseline.Contains($_) })
             $unmatched = @($lines | Where-Object { $l = $_; -not ($byFinding | Where-Object { $l -match $_.findings }) })
-            if ($lines.Count -gt 0 -and $unmatched.Count -eq 0) {
+            if ($all.Count -gt 0 -and $unmatched.Count -eq 0) {
                 $verdict = 'KNOWN'
                 $bugs = @($byFinding | Where-Object { $f = $_.findings; $lines | Where-Object { $_ -match $f } } | ForEach-Object bug | Select-Object -Unique)
+                if ($debt.Count) { $bugs += "baseline debt ($($debt.Count))" }
             }
-            elseif ($lines.Count -gt 0) {
-                $remark = "$($unmatched.Count) finding(s) not covered by a known bug"
+            elseif ($all.Count -gt 0) {
+                $remark = "$($unmatched.Count) new finding(s) not covered by a known bug or the baseline ($($debt.Count) baseline)"
+                [void]$newStaticFindings.AddRange([string[]]$unmatched)
             }
         }
     }
     [void]$rows.Add([pscustomobject]@{ id = $c.id; title = $c.title; system = $c.system; priority = $c.priority; group = $c.group; raw = $c.verdict; verdict = $verdict; bugs = ($bugs -join ', '); remark = $remark; notes = @($c.notes) })
+}
+
+if ($WriteStaticBaseline) {
+    $lines = @('# Static findings accepted as legacy debt. One finding per line, exact text from QA-STATIC-* notes.') +
+        @($baseline) + @($newStaticFindings) | Select-Object -Unique
+    [IO.File]::WriteAllText($baselineFile, (($lines -join "`n") + "`n"), $utf8)
+    Write-Host "static baseline written: $($lines.Count - 1) findings -> $baselineFile"
+    exit 0
 }
 
 # --- history / diff / flaky ---------------------------------------------------------------------------

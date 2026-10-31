@@ -122,6 +122,16 @@ namespace QA.Automation
             bool died = false;
             yield return WaitUntil(() => _deaths.Count > 0, 5f, ok => died = ok);
             Check(died, "ON_ENEMY_DEATH emitted", "no ON_ENEMY_DEATH within 5s of lethal damage");
+            Entity entity = _enemy.GetComponentInChildren<Entity>(true);
+            if (!died && entity != null)
+            {
+                Animator anim = entity.Anim;
+                bool hasController = anim != null && anim.runtimeAnimatorController != null;
+                AnimatorClipInfo[] clips = hasController ? anim.GetCurrentAnimatorClipInfo(0) : new AnimatorClipInfo[0];
+                Note($"HP {Hp:0.#}; state {entity.StateMachine.CurrentState?.GetType().Name}; animator {(hasController ? anim.runtimeAnimatorController.name : "none")}; clip {(clips.Length > 0 ? clips[0].clip.name : "-")}");
+                if (clips.Length > 0)
+                    Note("clip events: " + string.Join(", ", clips[0].clip.events.Select(e => e.functionName)) + " (EntityDeathState emits on StatusAnimation.OnActivate)");
+            }
             if (!died) yield break;
             Check(_deaths[0] == _enemy, "payload is the enemy GameObject", $"payload {(_deaths[0] != null ? _deaths[0].name : "null")}");
             yield return Wait(1f);

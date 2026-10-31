@@ -76,7 +76,7 @@ namespace QA.Automation.Editor
 
         private static bool GuidExists(string guid) => !string.IsNullOrEmpty(AssetDatabase.GUIDToAssetPath(guid));
 
-        private static void Report(QACaseResult r, List<string> findings, string okMessage, int limit = 25)
+        private static void Report(QACaseResult r, List<string> findings, string okMessage, int limit = 2000)
         {
             if (findings.Count == 0)
             {
@@ -154,7 +154,7 @@ namespace QA.Automation.Editor
                 if (orphans.Count > 0) findings.Add($"{rel} ({asset.GetType().Name}): {string.Join(", ", orphans.OrderBy(k => k))}");
                 if (scanned % 50 == 0) EditorUtility.UnloadUnusedAssetsImmediate();
             }
-            Report(r, findings, $"{scanned} SO assets, no orphaned keys", 40);
+            Report(r, findings, $"{scanned} SO assets, no orphaned keys");
         }
 
         // BUG-063 / BUG-115: Stat.modifiers is serialized in the Editor, so a runtime buff can be saved into

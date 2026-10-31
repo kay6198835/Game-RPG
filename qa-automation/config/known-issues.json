@@ -3,6 +3,7 @@
   "issues": [
     { "pattern": "^QA-CMB-01\\.", "bug": "BUG-105", "note": "AttackSO stage damage lost (attackDamege key)" },
     { "pattern": "^QA-CMB-04\\.", "bug": "BUG-095", "note": "Arrow prefab has no Collider2D" },
+    { "pattern": "^QA-PLY-05\\.Mage$", "bug": "BUG-107", "note": "EquipDefaultWeapon dereferences Data.Weapon when the class has none (Mage)" },
     { "pattern": "^QA-CMB-05\\.", "bug": "BUG-103", "note": "RangeWeapon RecoveryTime never read" },
     { "pattern": "^QA-ABL-01\\.Paladin\\.Utility$", "bug": "BUG-114", "note": "Paladin Blessing stat buff has no effect" },
     { "pattern": "^QA-VIT-05$", "bug": "BUG-119", "note": "Recovery() adds without clamping to max" },

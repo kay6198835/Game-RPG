@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace QA.Automation
@@ -132,6 +133,10 @@ namespace QA.Automation
             bool emitted = false;
             yield return WaitUntil(() => _deathEvents > 0, 4f, ok => emitted = ok);
             Check(emitted, "ON_PLAYER_DEATH emitted", "ON_PLAYER_DEATH not emitted within 4s of death");
+            Animator anim = _rig.Player.Anim;
+            AnimatorClipInfo[] clips = anim != null && anim.runtimeAnimatorController != null ? anim.GetCurrentAnimatorClipInfo(0) : new AnimatorClipInfo[0];
+            if (!emitted && clips.Length > 0)
+                Note($"death clip {clips[0].clip.name}, events: {string.Join(", ", clips[0].clip.events.Select(e => e.functionName))} (PlayerDeathState emits on StatusAnimation.EndRangeTrigger)");
         }
 
         private IEnumerator CaseDeathOnce()

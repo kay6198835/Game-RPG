@@ -418,21 +418,30 @@ namespace QA.Automation
             }
             Dictionary<StatType, float> statsDuring = _rig.Stats.GetFullStat();
 
+            // An ability with no effect is not implemented yet (open design question): its cast flow is
+            // recorded for information, but nothing it does or fails to do is a verdict.
+            bool unimplemented = def.Effects == null || def.Effects.Count(e => e != null) == 0;
+            void Expect(bool condition, string pass, string fail)
+            {
+                if (!unimplemented) Check(condition, pass, fail);
+                else Note(condition ? "ok: " + pass : "not judged: " + fail);
+            }
+
             Note($"entered PlayerSkillWeaponState: {enteredSkill}");
-            Check(cooldown >= 0f, $"cooldown started ({cooldown:0.##}s)", "no cooldown event — the ability never reached Do");
+            Expect(cooldown >= 0f, $"cooldown started ({cooldown:0.##}s)", "no cooldown event — the ability never reached Do");
             if (cooldown >= 0f)
-                Check(Mathf.Approximately(cooldown, def.Cooldown), $"cooldown = definition {def.Cooldown:0.##}s", $"cooldown {cooldown:0.##}s, definition {def.Cooldown:0.##}s");
+                Expect(Mathf.Approximately(cooldown, def.Cooldown), $"cooldown = definition {def.Cooldown:0.##}s", $"cooldown {cooldown:0.##}s, definition {def.Cooldown:0.##}s");
 
             (float hpCost, float manaCost) = ExpectedCost(def);
             (float hpPaid, float manaPaid) = PaidInFirstFrame(vitalLog, hp0, mana0);
-            Check(Near(hpPaid, hpCost) && Near(manaPaid, manaCost),
+            Expect(Near(hpPaid, hpCost) && Near(manaPaid, manaCost),
                 $"cost paid HP {hpPaid:0.#} / Mana {manaPaid:0.#}",
                 $"paid HP {hpPaid:0.#} / Mana {manaPaid:0.#}, definition costs HP {hpCost:0.#} / Mana {manaCost:0.#}");
 
-            if (def.Effects == null || def.Effects.Count(e => e != null) == 0)
+            if (unimplemented)
             {
-                Skip("Effects list is empty — ability not implemented yet");
-                yield return WaitIdle(true);
+                yield return WaitIdle();
+                Skip("Effects list is empty — ability not implemented yet; the notes above are information only");
                 yield break;
             }
 
