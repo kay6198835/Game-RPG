@@ -15,7 +15,7 @@
 
   Exit codes: 0 no unknown FAIL | 1 unknown FAIL | 2 runner/git error | 3 skipped (Editor open) | 4 compile error.
   Every run leaves a log in %LOCALAPPDATA%\GameRPG-QA\logs and, when the branch could be reached, in
-  qa-automation/reports/<run>/run.log on qa/weekly-automation. The latest status is in
+  qa-automation/reports/<run>/run.log on qa/weekly-automation (pushed, then merged into the sprint branch). The latest status is in
   qa-automation/state/latest.json on that branch (git show qa/weekly-automation:qa-automation/state/latest.json).
 
 .EXAMPLE
@@ -30,7 +30,10 @@ param(
     [string]$MaxPriority = 'P1',
     [string]$Deep = '',
     [int]$CompileTimeoutMin = 40,
-    [int]$UnityTimeoutMin = 90
+    [int]$UnityTimeoutMin = 90,
+    # PM worktree used to merge the QA branch into the sprint branch without touching the owner's folder.
+    [string]$PmWorktree = 'D:\Fork\Game-RPG-pm',
+    [switch]$NoSprintMerge
 )
 $ErrorActionPreference = 'Stop'
 $utf8 = New-Object System.Text.UTF8Encoding $false
@@ -55,6 +58,47 @@ function Git {
     $ErrorActionPreference = $prev
     if ($code -ne 0) { throw "git $($GitArgs -join ' ') (exit $code): $($out -join ' | ')" }
     return $out
+}
+
+function PmGit {
+    $GitArgs = @($args)
+    $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $out = & git.exe -C $PmWorktree @GitArgs 2>&1 | ForEach-Object { "$_" }
+    $code = $LASTEXITCODE
+    $ErrorActionPreference = $prev
+    if ($code -ne 0) { throw "git(pm) $($GitArgs -join ' ') (exit $code): $($out -join ' | ')" }
+    return $out
+}
+
+# Merges the QA branch into the sprint branch in the PM worktree and pushes it (owner decision 2026-11-01),
+# so every new sprint carries the QA code. Only after a run whose tests ran (the compile check passed).
+# Never forced; a conflict or a dirty PM worktree leaves the sprint branch untouched and is logged.
+function Merge-IntoSprint([string]$sprintRef) {
+    $sprintName = $sprintRef -replace '^origin/', ''
+    if (-not (Test-Path $PmWorktree)) { throw "PM worktree $PmWorktree not found" }
+    if (@(PmGit status --porcelain | Where-Object { $_ }).Count -gt 0) { throw "PM worktree $PmWorktree is not clean" }
+    for ($attempt = 1; $attempt -le 2; $attempt++) {
+        PmGit fetch origin --prune | Out-Null
+        PmGit checkout --detach $sprintRef | Out-Null
+        $behind = @(PmGit rev-list "$sprintRef..$QaBranch" | Where-Object { $_ }).Count
+        if ($behind -eq 0) { Log "$sprintName already contains $QaBranch"; return }
+        try { PmGit merge --no-ff $QaBranch -m "Merge $QaBranch into $sprintName (QA run $run)" | Out-Null }
+        catch {
+            try { PmGit merge --abort | Out-Null } catch { }
+            PmGit checkout --detach $sprintRef | Out-Null
+            throw "merge of $QaBranch into $sprintName conflicted: $($_.Exception.Message)"
+        }
+        try {
+            PmGit push origin "HEAD:refs/heads/$sprintName" | Out-Null
+            Log "merged $QaBranch into $sprintName and pushed ($((PmGit rev-parse --short HEAD | Select-Object -Last 1).Trim()))"
+            return
+        }
+        catch {
+            Log "push to $sprintName rejected (attempt $attempt): $($_.Exception.Message)"
+            PmGit checkout --detach $sprintRef | Out-Null
+        }
+    }
+    throw "push to $sprintName rejected twice"
 }
 
 function TryGit {
@@ -295,6 +339,11 @@ finally {
     # push is logged and the run's exit code is unchanged.
     try { Git push origin "refs/heads/${QaBranch}:refs/heads/$QaBranch" | Out-Null; Log "pushed $QaBranch to origin" }
     catch { Log "PUSH FAILED for ${QaBranch}: $($_.Exception.Message)"; $status.message += " | push of $QaBranch failed (see log)"; Save-LocalStatus }
+    if (-not $NoSprintMerge -and $status.sprint -and $status.status -in @('PASS', 'FAIL')) {
+        try { Merge-IntoSprint $status.sprint }
+        catch { Log "SPRINT MERGE FAILED: $($_.Exception.Message)"; $status.message += " | merge into $($status.sprint) failed (see log)"; Save-LocalStatus }
+    }
+    elseif (-not $NoSprintMerge) { Log "sprint merge skipped: tests did not run (status $($status.status))" }
     if ($switched -and $ownerRef) {
         # The QA scenes are build output (git-ignored on the QA branch only). Left behind they would sit
         # untracked on the owner's branch, where their scripts do not exist.
