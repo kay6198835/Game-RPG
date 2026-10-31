@@ -51,5 +51,14 @@ None matched.
 
 ## 5. Suggested new cases
 
-Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
-the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+Filled in by the Friday Claude task (part C), 2026-11-01.
+
+No new cases this run. The change range `09ca5d19..0a8f24c0` holds only QA automation, PM routine docs
+and the bug inbox: no runtime script, scene, prefab or ScriptableObject changed, and section 4 lists no
+new script. The week's gameplay changes on `sprint-20` (before `09ca5d19`) were covered when the suite
+was written for the trial runs `20261101-0104`…`0150`.
+
+| Kind | Added | Note |
+|---|---|---|
+| AUTO | 0 | no new runtime behaviour |
+| MANUAL | 0 | `manual-weekly-checklist.md` Part 2 stays empty |
