@@ -137,6 +137,7 @@ namespace QA.Automation.Editor
                 SerializedObject so = new(asset);
                 SerializedProperty it = so.GetIterator();
                 while (it.Next(true)) known.Add(it.name);
+                known.UnionWith(FormerNames(asset.GetType()));
 
                 HashSet<string> orphans = new(StringComparer.Ordinal);
                 bool inBlock = false;
@@ -151,10 +152,37 @@ namespace QA.Automation.Editor
                     if (UnityKeys.Contains(key) || key.StartsWith("m_") || known.Contains(key)) continue;
                     orphans.Add(key);
                 }
-                if (orphans.Count > 0) findings.Add($"{rel} ({asset.GetType().Name}): {string.Join(", ", orphans.OrderBy(k => k))}");
+                // One line per key, so the static baseline and the known-issue patterns can match each one.
+                foreach (string key in orphans.OrderBy(k => k, StringComparer.Ordinal)) findings.Add($"{rel} ({asset.GetType().Name}): {key}");
                 if (scanned % 50 == 0) EditorUtility.UnloadUnusedAssetsImmediate();
             }
             Report(r, findings, $"{scanned} SO assets, no orphaned keys");
+        }
+
+        // Old names declared with [FormerlySerializedAs] are still read by Unity, so they are not orphans.
+        private static readonly Dictionary<Type, HashSet<string>> FormerNamesCache = new();
+
+        private static HashSet<string> FormerNames(Type type, int depth = 0)
+        {
+            if (FormerNamesCache.TryGetValue(type, out HashSet<string> cached)) return cached;
+            HashSet<string> names = new(StringComparer.Ordinal);
+            FormerNamesCache[type] = names;
+            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public |
+                                                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly;
+            for (Type t = type; t != null && t != typeof(ScriptableObject) && t != typeof(object); t = t.BaseType)
+            {
+                foreach (System.Reflection.FieldInfo field in t.GetFields(flags))
+                {
+                    foreach (UnityEngine.Serialization.FormerlySerializedAsAttribute a in field.GetCustomAttributes(typeof(UnityEngine.Serialization.FormerlySerializedAsAttribute), true))
+                        names.Add(a.oldName);
+                    Type fieldType = field.FieldType.IsArray ? field.FieldType.GetElementType()
+                        : field.FieldType.IsGenericType ? field.FieldType.GetGenericArguments()[0] : field.FieldType;
+                    if (depth < 3 && fieldType != null && fieldType.IsSerializable && !fieldType.IsPrimitive && fieldType != typeof(string)
+                        && !typeof(UnityEngine.Object).IsAssignableFrom(fieldType) && fieldType.Assembly == type.Assembly)
+                        names.UnionWith(FormerNames(fieldType, depth + 1));
+                }
+            }
+            return names;
         }
 
         // BUG-063 / BUG-115: Stat.modifiers is serialized in the Editor, so a runtime buff can be saved into

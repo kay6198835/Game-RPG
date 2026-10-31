@@ -144,10 +144,13 @@ try {
     if ((Test-Path (Join-Path $state 'MERGE_HEAD')) -or (Test-Path (Join-Path $state 'rebase-merge')) -or (Test-Path (Join-Path $state 'rebase-apply'))) {
         throw 'a merge or rebase is in progress in the owner folder - not touching it'
     }
-    $dirty = @(Git status --porcelain | Where-Object { $_ })
+    # QA build output (scenes) or a QA folder left untracked by an interrupted run is never the owner's
+    # work: exclude it from the auto-commit.
+    $exclude = @(':(exclude)Assets/QA', ':(exclude)Assets/QA.meta', ':(exclude)qa-automation')
+    $dirty = @(Git status --porcelain '--' . @exclude | Where-Object { $_ })
     if ($dirty.Count -gt 0) {
         Log "owner tree dirty ($($dirty.Count) paths) on $ownerBranch -> commit 'coding need check'"
-        Git add -A | Out-Null
+        Git add -A '--' . @exclude | Out-Null
         Git commit -m 'coding need check' | Out-Null
         $status.autoCommit = (Git rev-parse --short HEAD | Select-Object -Last 1).Trim()
         Log "auto-commit $($status.autoCommit) on $ownerBranch (local, not pushed)"
