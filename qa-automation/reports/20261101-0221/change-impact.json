@@ -1,0 +1,642 @@
+{
+    "base":  "09ca5d1905",
+    "head":  "0a8f24c052",
+    "baseRef":  "09ca5d1905",
+    "headRef":  "origin/sprint-20",
+    "commits":  [
+                    {
+                        "sha":  "7cc77969",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "docs(qa): README - sprint merge step",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/README.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "0fae2699",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): merge qa/weekly-automation into the tested sprint branch after a run whose tests ran",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f1685862",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): push qa/weekly-automation to origin after each run as a backup",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a9c09609",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "chore(qa-automation): weekly QA run feeds the inbox and the Saturday wrap-up 2026-11-01",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/docs/pm-routine-protocol.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/rules/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/skills/weekly-wrapup/SKILL.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "088a2568",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): static baseline completed, inbox proposals for run 20261101-0150",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/static-baseline.txt"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/inbox-proposals.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b207967d",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261101-0150 on origin/sprint-20 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0150/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "65cc5f6c",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): cap QA Play Mode at 60 fps, retry once when the Editor itself crashes",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/QAHarness.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "44dc8701",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261101-0126 on origin/sprint-20 - RUNNER_ERROR",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/partial-ENEMY.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/partial-STATIC.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/partial-SYSTEMS.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/partial-VITALS.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0126/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "7734ca07",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): static baseline for legacy asset debt, FormerlySerializedAs-aware orphan check, auto-commit excludes QA output",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/config/static-baseline.txt"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "79f08c54",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261101-0117 on origin/sprint-20 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0117/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "64e0fd51",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): unimplemented abilities SKIP, static baseline, death-event diagnostics, scene cleanup",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAVitalsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/known-issues.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/diff-results.ps1"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "61941a66",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261101-0104 on origin/sprint-20 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261101-0104/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a92804ca",
+                        "date":  "2026-11-01",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly QA automation - harness, suites, static checks, runner scripts",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/.gitignore"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor/QARunner.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor/QARunner.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor/QASceneBuilder.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor/QASceneBuilder.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAEmptyPathGrid.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAEmptyPathGrid.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAHarness.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAHarness.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAInputDriver.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAInputDriver.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAPlayerRig.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAPlayerRig.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAProbeTarget.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAProbeTarget.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QASuite.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QASuite.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QASystemsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QASystemsSuite.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAVitalsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAVitalsSuite.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/.gitignore"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/README.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/config/impact-map.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/config/known-issues.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/manual/manual-weekly-checklist.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/scripts/diff-results.ps1"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/scripts/scan-changes.ps1"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/state/README.md"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  2,
+    "files":  82,
+    "systems":  {
+                    "DOCS":  [
+                                 ".claude/docs/pm-routine-protocol.md",
+                                 ".claude/rules/bug-inbox.md",
+                                 ".claude/skills/weekly-wrapup/SKILL.md",
+                                 "production/qa/bug-inbox.md",
+                                 "production/session-state/routine-log.md"
+                             ],
+                    "QA":  [
+                               "Assets/QA/.gitignore",
+                               "Assets/QA/Editor.meta",
+                               "Assets/QA/Editor/QARunner.cs",
+                               "Assets/QA/Editor/QARunner.cs.meta",
+                               "Assets/QA/Editor/QASceneBuilder.cs",
+                               "Assets/QA/Editor/QASceneBuilder.cs.meta",
+                               "Assets/QA/Editor/QAStaticChecks.cs",
+                               "Assets/QA/Editor/QAStaticChecks.cs.meta",
+                               "Assets/QA/Runtime.meta",
+                               "Assets/QA/Runtime/QAEmptyPathGrid.cs",
+                               "Assets/QA/Runtime/QAEmptyPathGrid.cs.meta",
+                               "Assets/QA/Runtime/QAHarness.cs",
+                               "Assets/QA/Runtime/QAHarness.cs.meta",
+                               "Assets/QA/Runtime/QAInputDriver.cs",
+                               "Assets/QA/Runtime/QAInputDriver.cs.meta",
+                               "Assets/QA/Runtime/QAPlayerRig.cs",
+                               "Assets/QA/Runtime/QAPlayerRig.cs.meta",
+                               "Assets/QA/Runtime/QAProbeTarget.cs",
+                               "Assets/QA/Runtime/QAProbeTarget.cs.meta",
+                               "Assets/QA/Runtime/QASuite.cs",
+                               "Assets/QA/Runtime/QASuite.cs.meta",
+                               "Assets/QA/Runtime/Suites.meta",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs.meta",
+                               "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs",
+                               "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs.meta",
+                               "Assets/QA/Runtime/Suites/QASystemsSuite.cs",
+                               "Assets/QA/Runtime/Suites/QASystemsSuite.cs.meta",
+                               "Assets/QA/Runtime/Suites/QAVitalsSuite.cs",
+                               "Assets/QA/Runtime/Suites/QAVitalsSuite.cs.meta",
+                               "qa-automation/.gitignore",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/config/impact-map.json",
+                               "qa-automation/config/known-issues.json",
+                               "qa-automation/config/static-baseline.txt",
+                               "qa-automation/manual/manual-weekly-checklist.md",
+                               "qa-automation/README.md",
+                               "qa-automation/reports/20261101-0104/change-impact.json",
+                               "qa-automation/reports/20261101-0104/report.md",
+                               "qa-automation/reports/20261101-0104/results.json",
+                               "qa-automation/reports/20261101-0104/run.log",
+                               "qa-automation/reports/20261101-0104/run-info.json",
+                               "qa-automation/reports/20261101-0104/summary.json",
+                               "qa-automation/reports/20261101-0104/unity-report.md",
+                               "qa-automation/reports/20261101-0104/weekly-change-impact.md",
+                               "qa-automation/reports/20261101-0117/change-impact.json",
+                               "qa-automation/reports/20261101-0117/report.md",
+                               "qa-automation/reports/20261101-0117/results.json",
+                               "qa-automation/reports/20261101-0117/run.log",
+                               "qa-automation/reports/20261101-0117/run-info.json",
+                               "qa-automation/reports/20261101-0117/summary.json",
+                               "qa-automation/reports/20261101-0117/unity-report.md",
+                               "qa-automation/reports/20261101-0117/weekly-change-impact.md",
+                               "qa-automation/reports/20261101-0126/change-impact.json",
+                               "qa-automation/reports/20261101-0126/partial-ENEMY.json",
+                               "qa-automation/reports/20261101-0126/partial-STATIC.json",
+                               "qa-automation/reports/20261101-0126/partial-SYSTEMS.json",
+                               "qa-automation/reports/20261101-0126/partial-VITALS.json",
+                               "qa-automation/reports/20261101-0126/run.log",
+                               "qa-automation/reports/20261101-0126/weekly-change-impact.md",
+                               "qa-automation/reports/20261101-0150/change-impact.json",
+                               "qa-automation/reports/20261101-0150/inbox-proposals.md",
+                               "qa-automation/reports/20261101-0150/report.md",
+                               "qa-automation/reports/20261101-0150/results.json",
+                               "qa-automation/reports/20261101-0150/run.log",
+                               "qa-automation/reports/20261101-0150/run-info.json",
+                               "qa-automation/reports/20261101-0150/summary.json",
+                               "qa-automation/reports/20261101-0150/unity-report.md",
+                               "qa-automation/reports/20261101-0150/weekly-change-impact.md",
+                               "qa-automation/scripts/diff-results.ps1",
+                               "qa-automation/scripts/run-weekly.ps1",
+                               "qa-automation/scripts/scan-changes.ps1",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json",
+                               "qa-automation/state/README.md"
+                           ],
+                    "STATIC":  [
+                                   "Assets/QA.meta"
+                               ]
+                },
+    "deep":  [
+                 "STATIC"
+             ],
+    "risks":  [
+
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}
