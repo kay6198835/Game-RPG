@@ -40,7 +40,7 @@ The receiver then applies `Mitigate()` (enemy: subtract `Defense`, clamp at 0). 
 ```
 OnActivate(): firePoint = owner position + aimDirection * spawnOffset
   for i in ProjectileCount: angle fanned across SpreadAngle
-    go = IObjecPoolService.Spawn(stage.ProjectilePrefab, firePoint, rotation)
+    go = IObjectPoolService.Spawn(stage.ProjectilePrefab, firePoint, rotation)
     go.ProjectileBody.Launch(rotation * right, stage.ProjectileConfig, payload: this)
 ProjectileBody.OnTriggerEnter2D:
     layer in blockMask  → release

@@ -15,7 +15,7 @@ effects and conditions, run per owner by an `AbilityInstance`.
 | `System/Abilities/Core/` | `AbilityDefinition` (+ `AbilityActivationType`, `StatCost`, `AbilityState` enum Start/Cast/Do/Exit), `AbilityInstance`, `AbilityContext` (+ `IAbilityServices`, `EffectRecipient`), `AbilitySlot`, `AbilityEffectDefinition` (+ `StatImpactType`), `AbilityConditionDefinition`, `IAbilityOwner` |
 | `System/Abilities/Effects/` | `SpawnEffectBase` → `SpawnProjectileEffect`, `SpawnSummonEffect`; `StatsEffectBase` (file `StatEffectBase.cs`) → `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration`; `BuffDebuffStatsForDuration` |
 | `System/Abilities/Conditions/` | empty |
-| `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, LightningController, RuneCircleController, Interface/ISpawn}` |
+| `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (`DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `ImpactMono/SourceEffect` |
 | `System/Skill_Ability/` | v1: `ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual abilities, effect SOs, `InternalSkillSO`, `WeaponSO` |
 | Owners | `Character/Base/AbilityHolderBase.cs` → `AbilityHolder` (player), `EntityAbilityHolder` (enemy) |
 | Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live) |
@@ -47,7 +47,7 @@ from the target and skips if none.
   Direction: `SpawnProjectileEffect` now computes its own `dir` from `context.Forward`
   (removed from `SpawnEffectBase`).
 - **Summon** (`SpawnSummonBase`): payload fires from an Animation Event calling `Execute()`.
-  `LightningController.Execute()` does `OverlapCircleNonAlloc` and sets target + invokes once per hit.
+  `DamageArea.Execute()` (was `LightningController`) does `OverlapCircleNonAlloc` and sets target + invokes once per hit.
   Consecrate = RuneCircle telegraph (Cast) + Lightning strike (Do), by design.
 
 **Effect list order** is authored data: it sets execution order and resource priority.

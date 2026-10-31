@@ -1,9 +1,9 @@
 # Project State
 
-Updated **2026-10-10** (doc-truth pass `/doc-sync --auto` at `origin/sprint-18` `617bb2bb`).
+Updated **2026-10-31** (doc-truth pass `/doc-sync --auto` at `origin/sprint-20` `e8baf251`).
 Bug statuses below follow `production/qa/bugs/BUG-*.md`, which are the source of truth (after the
-2026-10-10 wrap-up triage). Claim sweep: `production/qa/doc-truth-2026-10-10.md`. Previous update:
-**2026-10-09** (`sprint-17` `cdf68555`).
+2026-10-31 wrap-up triage). Claim sweep: `production/qa/doc-truth-2026-10-31.md`. Previous update:
+**2026-10-10** (`sprint-18` `617bb2bb`; the 2026-10-19 pass was interrupted before it reached this file).
 
 Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs and change logs:
 `docs/systems/<system>/README.md` + `CHANGELOG.md`.
@@ -12,61 +12,58 @@ Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs a
 
 ## Build status
 
-✅ **Compiles** as far as last checked: the 2026-10-09 standup batchmode compile passed on `221d54be`,
-which is the code now on `sprint-18` (no `.cs` change since). Nothing compiles code automatically
-before a push (TD-048 / TD-051).
+⚠️ **Editor: expected to compile, not checked by this pass.** The `sprint-19` compile break
+(`51f8d2d4`) was fixed by `cae75317`, which is now on `sprint-20`. 🔴 **Player build: fails** —
+`CharacterData.cs:2` imports `UnityEditor.Animations` in runtime code (**BUG-116**, S1). Nothing
+compiles code automatically before a push (TD-048 / TD-051).
 
 ---
 
-## Structural changes since the last update (2026-10-09 → 2026-10-10, on `sprint-18`)
-
-Feature branch `221d54be` was merged into `sprint-18` by `42a81260` (`c6cbc57a`).
+## Structural changes since the last update (2026-10-10 → 2026-10-31)
 
 | # | Change | Commit(s) | Impact |
 |---|--------|-----------|--------|
-| R18 | `EventID.ON_CLEAR_ENEMY` renamed **`ON_OPEN_DOOR`** (same slot, still 24 values). Emitters: `RoomCell` (0 alive), `ChampitionController`, `LevelManagerEditor` button | `221d54be` | GDDs / ADR-0002 carry a read-as banner, body unchanged |
-| R19 | `ChampitionController : InteractiveObjects` — start-room Champion; interact → `ConfirnPanel` → `ICharacter.SetCharacterData()` + `ON_OPEN_DOOR` | `221d54be` | Opens the start room only if a Champion is placed (BUG-096 stays open); BUG-102 |
-| R20 | `UIFlow/Gameplay/Windows/ConfirnPanel.cs` + `ConfirnData`; `UIEvents.OnOpenConfirmPanel()` / `AccessAction()` | `221d54be` | BUG-102 |
-| R21 | `ICharacter.SetCharacterData(CharacterData)`, abstract on `CharacterBase` | `221d54be` | ADR-0005 Amendment 1 ("`Transform` only") not amended; NOTE-20261009-6 (Needs owner) |
-| R22 | `PlayerIntertorState.AnimationOnAction()` → `Interactor.Intertion()` | `221d54be` | Interact key now triggers interaction on the anim event |
-| R23 | Main dev scene moved: `Assets/Scenes/Main/LoadRandomMap.unity` (was `Main/Test/`) | `221d54be` | Build settings already updated; loaded by name |
+| R24 | `IObjecPoolService` → **`IObjectPoolService`** (file name kept) | `cae75317` | ADR-0004 body not amended |
+| R25 | `LightningController` → **`DamageArea`**, `RuneCircleController` → **`CircleSummon`**; Rain Arrows (`DamagesInManyPos`, `RainArrowsProjectile`) | `cae75317`, `5c8245c9` | BUG-072 now on `DamageArea`; BUG-109 |
+| R26 | `StartGameSystem/` → **`RoomGameSystem/`**: `PedestalChampionController` (was `ChampitionController`), `UpgradeController`, empty `ShopController` | `041292ce` and earlier | BUG-096, BUG-102 |
+| R27 | **`EffectReceiverBase`** + `PlayerEffectReceiver` / `EntityEffectReceiver` (`IEffectReceiver`): timed / per-tick stat effects moved out of `VitalStatsBase`; `SourceEffect` pooled visual | `786c031b`, `6e484f0c` | BUG-071, BUG-100, BUG-117, BUG-118 |
+| R28 | `VitalStatsBase` keyed by `VitalStatType`; `IVitalComponent` = current values only; `CharacterBase.Reborn()` → `core.ReloadCore()`; `ON_PLAYER_READY` from `VitalStatsComponent.ReloadComponent()` | `786c031b`, `6e484f0c` | BUG-066/070 shape changed, BUG-114, BUG-119 |
+| R29 | `RegenComponent` (`IRegenResource`), `WalletComponent` (`IWallet`), `VitalModifier` | `3d768b3d` | BUG-111, BUG-117 |
+| R30 | Item effects: `StatModifierEffect` (abstract), `ModifierMaxStatsEffect`, `ModifierCurrentStatsEffect`, `CoinModifierEffect`; old three deleted | `3d768b3d` | BUG-120; NOTE-20261031-10 |
+| R31 | `StatPointSession` extracted; stats panel in the GameplayUI Character tab (`StatsPanel`, `StatRowView`); `StatsUIController` unregistered | `1bc5d2ad`, `24f72474`, `da8275fc` | — |
+| R32 | `StatModifierGroup.authoredModifiers` → `statsModifiers` (no `[FormerlySerializedAs]`) | `343a3830` | BUG-121 |
+| R33 | `FastTest/CombatTest/` scene builder, `TrainingDummy`, `AttackFlowDebugger` | `87e053b4`, `fc98fa2a` | Test tooling only |
 
-Earlier structural changes (R5–R17) are recorded in `CLAUDE.md` history entries.
+Earlier structural changes (R5–R23) are recorded in `CLAUDE.md` history entries.
 
 ---
 
-## Open bugs (bug-file status, re-read 2026-10-10)
+## Open bugs (bug-file status, 2026-10-31)
 
 | # | Sev | Description | Location |
 |---|-----|-------------|----------|
-| BUG-096 | S1 | Marker-less rooms never open (fix `40d2c793` reverted). Start room opens only via the Champion | `RoomGeneraterController.cs:134` |
-| BUG-087 | S1 | PARTIAL: one UIFlow `ON_PLAYER_DEATH` subscriber; no `GameManager`, no player `Reborn()` caller | `PlayerDeathState.cs` |
-| BUG-105 | S2 | `attackDamege` → `attackDamage` rename without `[FormerlySerializedAs]`: sword stages load 0 | `AttackSO.cs:10` |
-| BUG-097 | S2 | Alphabetical `Maze_Storage.asset`: start cell = Boss room | `RoomGeneraterController.cs:55` |
-| BUG-095 | S2 | PARTIAL — `Arrow.prefab` has script + Rigidbody2D, still no `Collider2D` | `Arrow.prefab` |
-| BUG-100 | S2 | Timed buff expiry strips every modifier from the same source (item buffs too) | `VitalStatsBase.cs:120` |
-| BUG-092 | S3 | PARTIAL: `perTime` / `timeCount` not serialized → HoT/DoT runs one tick | `RecoveryReductionPerTimeForDuration.cs:6-8` |
-| BUG-072 | S2 | `Lightning.prefab` `layerMask` unset | `Lightning.prefab` |
-| BUG-066 / BUG-070 | S2 | Unguarded `currentStats[statType]` in `VitalStatsBase` | `VitalStatsBase.cs` |
-| BUG-086 | S2 | `ON_PLAYER_DEATH` emitted every frame | `PlayerDeathState.cs` |
-| BUG-084 | S2 | Zero `.asmdef`; `tests/` outside `Assets/` | — |
-| BUG-103 | S3 | `RangeWeapon.nextFireTime` never read — `RecoveryTime` dead | `RangeWeapon.cs:67` |
-| BUG-102 | S3 | `UIEvents` confirm events raised without `?.`; `ConfirnPanel` labels swapped (now on `sprint-18`) | `UIEvents.cs:57,63` |
-| BUG-065 | S3 | `PlayerDeathState.Enter()` does not stop movement | `PlayerDeathState.cs:10` |
-| BUG-099, BUG-101 | S3 | Doc drift / ID collision — live docs corrected; files still Open for the triage | — |
-| BUG-068, 071, 073, 079, 083, 090 | S3 | Unchanged — see `CLAUDE.md` | — |
-| BUG-104 | S4 | Unguarded `PlayerState.Enter()` log | `PlayerState.cs:35` |
-| BUG-098 | S4 | GDD/ADR-0003 still say `RarityTier` (code: `RarityTierEnemy`) | `RoomModel.cs:110` |
-| BUG-052 | DOC | Live subsystems with no ADR | — |
-| BUG-063 | — | ACCEPTED (deferred to demo prep) | `Stat.cs:63-66` |
-| 14, 15, 16, 17, 6 | — | Historical CLAUDE.md numbering, unchanged | see `CLAUDE.md` |
-
-**Fixed in code per file (confirm in Play Mode):** BUG-064 (sub-7 `RangeWeapon` DI, `5b035b73`),
-BUG-093 (ability projectile direction) and BUG-094 (ranged weapon root rotation), both in `b7a0af5`.
+| BUG-116 | S1 | Runtime `CharacterData` imports `UnityEditor.Animations` — Player build fails | `CharacterData.cs:2,20` |
+| BUG-108 | S1 | `CharacterData` serialized-key loss on enemy data (stats key restored in `fc98fa2a`; `weaponSO` still unread — NOTE-20261031-7) | `CharacterData.cs` |
+| BUG-096 | S1 | Marker-less rooms never open; start room only via the Champion | `RoomGeneraterController.cs` |
+| BUG-087 | S1 | PARTIAL: one UIFlow `ON_PLAYER_DEATH` subscriber; no `GameManager` | `PlayerDeathState.cs` |
+| BUG-121 | S2 | `authoredModifiers` → `statsModifiers` rename loses authored modifiers | `StatModifierGroup.cs:23-24` |
+| BUG-120 | S2 | Item stat effects apply nothing | `StatModifierEffect.cs` |
+| BUG-117 | S2 | `VitalModifier` not serializable, sign inverted, reduction applied twice | `VitalModifier.cs`, `EffectReceiverBase.cs:44-52` |
+| BUG-113 / 114 / 115 | S2 | Stat "max" has two meanings; vitals snapshot; player mutates the shared stat asset | `BaseStatsSO.cs`, `VitalStatsBase.cs` |
+| BUG-110 | S2 | Weapon drop / pickup bookkeeping removed | `WeaponHolderBase.cs` |
+| BUG-106 / 107 | S2 | Weapon + abilities only applied by `Player.SetCharacterData()`; 107 PARTIAL | `AbilityHolderBase.cs:77`, `WeaponHolderBase.cs` |
+| BUG-109 | S2 | Rain Arrows reads `_context` before `Launch()`; destroys a pooled object | `DamagesInManyPos.cs` |
+| BUG-105 | S2 | `attackDamege` → `attackDamage` without `[FormerlySerializedAs]` | `AttackSO.cs:10` |
+| BUG-100 | S2 | Timed buffs share one modifier source (now `context.Caster`) | `EffectReceiverBase.cs:86-91` |
+| BUG-097, 095, 072, 066/070, 086, 084 | S2 | Unchanged — see `CLAUDE.md` | — |
+| BUG-118, 119, 111, 112 | S3 | HoT/DoT throws; heal not clamped; regen breaks once wired; NPC prefabs missing scripts | see `CLAUDE.md` |
+| BUG-103, 102, 092, 071, 065, 099, 101, 068, 073, 079, 083, 090 | S3 | Unchanged / see row notes in `CLAUDE.md` | — |
+| BUG-104, 098 | S4 | Unchanged | — |
+| BUG-063 | — | ACCEPTED (deferred to demo prep) | `Stat.cs` |
 
 ---
 
-## EventID enum (current on `sprint-18` — 24 values)
+## EventID enum (current on `sprint-20` — 24 values, unchanged)
 
 `ON_PLAYER_ON_DOOR`, `ON_PLAYER_DEATH`, `ON_REALOAD_GAME`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`,
 `ON_OPEN_DOOR`, `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY`,
@@ -76,8 +73,7 @@ BUG-093 (ability projectile direction) and BUG-094 (ranged weapon root rotation)
 `ON_RESTORE_STATS_BY_UI`, `ON_RESET_STATS_UI_SESSION`, `ON_DROP_ITEM`, `ON_COLLECT_ITEM`,
 `ON_PLAYER_READY`
 
-`ON_OPEN_DOOR` was `ON_CLEAR_ENEMY` until `221d54be`. Still missing: `ON_PLAYER_TAKE_DAMAGE`.
-`ON_ROOM_CLEAR` has no producer.
+Still missing: `ON_PLAYER_TAKE_DAMAGE`. `ON_ROOM_CLEAR` has no producer.
 
 ---
 
@@ -85,29 +81,29 @@ BUG-093 (ability projectile direction) and BUG-094 (ranged weapon root rotation)
 
 | Contract | Was | Is now |
 |---|---|---|
-| Room-clear event | `ON_CLEAR_ENEMY` | **`ON_OPEN_DOOR`** (`221d54be`) |
-| Character root | `ICharacter { Transform }` | + `SetCharacterData(CharacterData)` (`221d54be`) |
-| Main dev scene | `Assets/Scenes/Main/Test/LoadRandomMap.unity` | `Assets/Scenes/Main/LoadRandomMap.unity` |
-| Modifier bundles | `StatModifierGroup.Apply(add, source)` / `.Remmove(remove, source)` | `stats.AddModifiersFromSource(source, group.Modifiers)` / `RemoveModifiersFromSource(source)` (`7f632021`) |
-| Room cleared flag | Set in `RoomCell.OnEnemyDeath()` at zero | Set in `RoomCell.OpenDoors()` (`5d1986db`) |
-| Player in scene | Placed + registered | Spawned by `PlayerManager`; not registered |
-| `IPlayerStatService` | `StatHandler` from hierarchy | Factory → `PlayerManager.StatService` |
-| Ranged projectile | `bullet.cs` + `BulletDataSO` | `ProjectileBody` + `ProjectileConfig` + `IProjectilePayload.OnHit()` |
-| `IAbilityServices` | Pool / Stats / ResourceReceiver / Vital / NegativeReceiver | `Pool` only; target via `AbilityContext.Target` |
+| Pool service | `IObjecPoolService` | `IObjectPoolService` (file `IObjecPoolService.cs`) |
+| Summon runtime | `LightningController`, `RuneCircleController` | `DamageArea`, `CircleSummon` |
+| Champion | `StartGameSystem/ChampitionController` | `RoomGameSystem/PedestalChampionController` |
+| Stat effects | `IVitalComponent.BuffDebuffForDuration()` etc. | `IEffectReceiver` (`EffectReceiverBase`) |
+| Current values | `IVitalComponent` keyed by `StatType` | keyed by `VitalStatType`; missing key → `0` |
+| Character reset | `VitalStatsComponent.Reborn()` | `ICharacter.Reborn()` → `CoreBase.ReloadCore()` → `ReloadComponent()` |
+| Modifier list field | `StatModifierGroup.authoredModifiers` | `statsModifiers` + `vitalModifiers` (BUG-121, BUG-117) |
+| Item effects | `Recovery` / `StatModifier` / `CurrencyEffectDefinition` | `StatModifierEffect` family, `CoinModifierEffect` |
+| Room-clear event | `ON_CLEAR_ENEMY` | `ON_OPEN_DOOR` (`221d54be`) |
 | `AttackSO` damage field | `attackDamege` | `attackDamage` — old assets keep the old key (BUG-105) |
 
 ---
 
 ## Stubs / unimplemented
 
+- `EffectReceiverBase.AdjustCurrentPerTimeForDuration()` — `throw new NotImplementedException()` (BUG-118)
+- `ShopController` — empty; `UpgradeController` — stub
+- `RegenComponent.Regenning()` — no caller (BUG-111)
+- `CoinModifierEffect`, `ModifierMaxStatsEffect`, `ModifierCurrentStatsEffect` — `abstract`, cannot be authored
 - `UIFlow/Gameplay/Popup/PopupPanel.cs` — empty `: UIPanel`
-- `ChampitionController` dialogue path commented out (`UIEvents.RequestDialogue`); confirm-only
 - UIFlow `RealLoginService`, `RealInventoryProvider`, `RealQuestProvider` — stubs
-- `Assets/Script/Interface/IReasourceReceiver` — empty extensionless orphan
 - `SpawnProjectileBase.pierceCount`, `RoomModel.overflowPercent` — serialized, never read
-- `PlayerUserItemState` — extends `MonoBehaviour` (TD-001)
-- `PlayerData.Reborn()` — no caller; `EnemySO` not consumed by `Entity` (TD-030); `TalentManagger` hardcoded (TD-018)
-- `Assets/Script/Character/Boss/`, `Assets/Script/Handler/` — `.meta`-only orphans
+- `PlayerUserItemState` — extends `MonoBehaviour` (TD-001); `TalentManagger` hardcoded (TD-018)
 - `tests/` — only `.gitkeep` (TD-014, blocked by BUG-084)
 
 ---
@@ -116,10 +112,11 @@ BUG-093 (ability projectile direction) and BUG-094 (ranged weapon root rotation)
 
 | System | Location | Gap |
 |--------|----------|-----|
+| Effect receiver / source effect | `Character/Base/EffectReceiverBase.cs`, `Runtime/ImpactMono/` | Plan doc only (`CHANGELOG-DOCS` 2026-10-27); no ADR |
+| Regen / Wallet | `RegenComponent.cs`, `WalletComponent.cs` | Wallet in the item GDD direction; no ADR |
+| Room game system (Champion / Upgrade / Shop) | `Assets/Script/System/RoomGameSystem/` | No GDD |
 | UIFlow | `Assets/Script/UIFlow/` | No GDD, no ADR |
-| Start-game / Champion select | `Assets/Script/System/StartGameSystem/` | No GDD, no story (NOTE-20261009-6, needs owner) |
 | Projectile layer | `ProjectileBody.cs`, `IProjectilePayload.cs` | No ADR |
-| Item / Depot | `Assets/Script/System/Item/` | No GDD, no ADR |
 | Abilities v2 | `Assets/Script/System/Abilities/` | No GDD of its own |
 | Pathfinding, Object pooling | `System/Pathfinding/`, `System/PoolableService/` | No GDD (BUG-052) |
 
@@ -127,12 +124,12 @@ BUG-093 (ability projectile direction) and BUG-094 (ranged weapon root rotation)
 
 ## Demo fix priority
 
-1. **BUG-096** — zero-spawn branch in `LoadRoom()` for Boss / Buff / Rest / Shop (the start room now opens via the Champion, if one is placed) (S1).
-2. **BUG-105** — `[FormerlySerializedAs("attackDamege")]`; confirm sword damage in Play Mode (S2).
-3. **BUG-097** — select start/end by `RoomType`, not list position.
-4. **BUG-095** collider on `Arrow.prefab` and **BUG-072** `layerMask` on `Lightning.prefab`. Both are Inspector fields.
-5. **BUG-092 residual** — `[SerializeField]` on `perTime` / `timeCount`.
-6. **BUG-100** — use a distinct modifier source per timed buff.
-7. **Play Mode smoke** — Champion confirm, Paladin abilities, ranged weapon, one enemy kill, one full room transition.
+1. **BUG-116** — runtime `CharacterData` must not import `UnityEditor` (blocks every Player build).
+2. **BUG-121 / BUG-105 / BUG-108 residual** — restore the lost serialized keys; decide a guard for the rename pattern.
+3. **BUG-096** — zero-spawn branch in `LoadRoom()` for Boss / Buff / Rest / Shop.
+4. **BUG-106 / BUG-110 / BUG-107** — weapon + ability setup outside `SetCharacterData()`; weapon swap bookkeeping.
+5. **Stat-reduction epic** — BUG-115 → BUG-113 → BUG-114, with BUG-117 / BUG-119.
+6. **BUG-120** and NOTE-20261031-10 — make item effects concrete.
+7. **Play Mode smoke** (CombatTest scene now available) — Champion confirm, abilities, ranged weapon, one kill, one room transition.
 8. **BUG-066/070**, then death path BUG-086 → BUG-065 → BUG-087.
 9. **Bug #15** before the first standalone build; **BUG-084** before TD-014.

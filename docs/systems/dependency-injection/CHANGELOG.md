@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, ADR-0004 and `git log`.
 
+## 2026-10-31 — Pool interface renamed (doc-truth re-sync)
+- **Commit:** `cae75317` (on `origin/sprint-20`)
+- **Changed:** `IObjecPoolService` → `IObjectPoolService`; the file name `IObjecPoolService.cs` is kept.
+- **From → To:** README "`IObjecPoolService`" → "`IObjectPoolService`" (table + registration snippet).
+- **Why:** not recorded in the commit.
+- **Bugs:** none. ⚠️ ADR-0004 body still names the old interface (needs an Amendment; not edited).
+
 ## 2026-10-02 — LevelManager and RoomGridController registered
 - **Commit:** `0bc36406`
 - **Changed:** `GameLifetimeScope`

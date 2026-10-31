@@ -2,6 +2,13 @@
 
 Newest first. Entries reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-31 — Item effect files replaced (doc-truth re-sync)
+- **Commit:** `3d768b3d` "add regen system", `343a3830` "coding" (recorded by doc-sync on `origin/sprint-20` `e8baf251`)
+- **Changed:** `RecoveryEffectDefinition`, `StatModifierEffectDefinition`, `CurrencyEffectDefinition` deleted; `StatModifierEffect` (abstract), `ModifierMaxStatsEffect`, `ModifierCurrentStatsEffect`, `CoinModifierEffect` added. Effects reach the character through `IEffectReceiver` / `IWallet`.
+- **From → To:** README listed the three deleted files → README lists the four current ones; BUG-100 row re-pointed at `EffectReceiverBase.cs:86-91`; BUG-112, BUG-120, BUG-121 rows added.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-120, BUG-121, BUG-112; inbox NOTE-20261031-10 (`CoinModifierEffect` cannot be authored).
+
 ## 2026-10-20 — Cleanup + GDD
 - **Commit:** this change (branch `origin/feature/ui-flow-maingameplay`)
 - **Changed:** `ItemEffectDefinition` class renamed `ItemEffectDefinitionSO` (matches its file; `.meta` GUID kept, so assets are unaffected) and its five references updated; `ItemSO.StyleItem` / `Style` removed (no reader) and the stale `<Style>k__BackingField` key stripped from `Comsuable/BaseOrds.asset` and `Test.asset`; `PrefabRandomItem.cs` deleted (fully commented out, unreferenced). README corrected: pickup key is **Q**, not G. New GDD `design/gdd/item-system.md`.

@@ -50,7 +50,7 @@ RoomGeneraterController.LoadRoom(index, cell):
   else → OpenDoors()
   (no zero-spawn branch: a room with no marker never gets ON_OPEN_DOOR from RoomCell — BUG-096)
 
-ChampitionController (start room, Champion confirmed) → Emit(ON_OPEN_DOOR)
+PedestalChampionController (start room, Champion confirmed) → Emit(ON_OPEN_DOOR)
 ON_OPEN_DOOR → RoomGridController.DeleteDoorTileMap (returns early if IsCleared) → RoomCell.OpenDoors
   (OpenDoors() sets IsCleared = true since 5d1986db)
 DoorController.OnTriggerEnter2D (Player, OPEN) → Emit(ON_PLAYER_ON_DOOR, dir)

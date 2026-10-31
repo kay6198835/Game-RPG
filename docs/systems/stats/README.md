@@ -25,7 +25,7 @@ and abilities stack on top. Max values live here; current values live in the vit
 
 Access: `IStatService` (`Interface/IStatService.cs`) implemented by `StatHandlerBase<T>`;
 `IPlayerStatService : IStatService` is resolved from `PlayerManager.StatService`.
-Assets: `Assets/SO/Stat/PlayerStats.asset`, `Enemy/*Stats.asset`, `Enemy/Boss/BossStats.asset`.
+Assets: `Assets/SO/Stat/Player/{Paladin,Archer,Mage}Stats.asset` (Paladin was `PlayerStats.asset` until `ada2c1a8`), `Enemy/*Stats.asset`, `Enemy/Boss/BossStats.asset`.
 
 ## Rules
 

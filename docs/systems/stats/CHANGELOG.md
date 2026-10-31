@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-31 — Player stat asset paths (doc-truth re-sync)
+- **Commit:** `ada2c1a8` (rename), `e6bf8fc3` (Archer / Mage)
+- **Changed:** README asset list.
+- **From → To:** `Assets/SO/Stat/PlayerStats.asset` → `Assets/SO/Stat/Player/{Paladin,Archer,Mage}Stats.asset`.
+- **Why:** the 2026-10-19 doc-truth pass listed this fix but was interrupted before it landed (`2433b6ee`).
+- **Bugs:** BUG-113, BUG-114, BUG-115, BUG-121 (filed 2026-10-25 / 10-31) — not yet described in the README. ⚠️ README not re-verified against `StatPointSession`, `VitalModifier`, `StatModifierGroup.statsModifiers` this pass.
+
 ## 2026-09-25 — Modifier delta
 - **Commit:** `b0b13379`
 - **Changed:** `Utility.ModifierStatsCalculate`

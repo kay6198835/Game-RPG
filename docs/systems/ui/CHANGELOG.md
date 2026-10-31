@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-31 — `ON_PLAYER_READY` emitter (doc-truth re-sync)
+- **Commit:** `786c031b` / `6e484f0c` (on `origin/sprint-20`)
+- **Changed:** the player-ready event is emitted from `VitalStatsComponent.ReloadComponent()`; `Reborn()` is now `CharacterBase.Reborn()` → `core.ReloadCore()`.
+- **From → To:** "`VitalStatsComponent.Reborn()` → Emit" → "`VitalStatsComponent.ReloadComponent()` → Emit".
+- **Why:** not recorded in the commit.
+- **Bugs:** none.
+
 ## 2026-10-21 — StatsPanel prefab; Character tab read-only again
 - **Branch:** `origin/feature/ui-stats-prefab` (from `origin/feature/ui-flow-maingameplay` `0fb3ed2`)
 - **Changed:** new `Gameplay/Windows/StatsPanel.cs` (`: UIPanel`, the stat-point logic moved out of `CharacterPanel`); `CharacterPanel` restored to the read-only version of `50d84e7`; `GameplayUIController` gains `statsPanel` + `openStatsButton`, key C toggles the panel; `UIFlowBuilder` builds `Assets/Prefab/UIFlow/StatsPanel.prefab` once and instantiates it in `GameplayUI`, adds a HUD "Chỉ số [C]" button and the menu **Tools/UI Flow/Rebuild Stats Panel Prefab**

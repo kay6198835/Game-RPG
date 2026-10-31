@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-31 — Pool interface name in the ranged flow (doc-truth re-sync)
+- **Commit:** `cae75317` (on `origin/sprint-20`)
+- **Changed:** ranged-attack pseudo-code now names `IObjectPoolService`.
+- **From → To:** `IObjecPoolService.Spawn(…)` → `IObjectPoolService.Spawn(…)`.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-110 (weapon drop / pickup bookkeeping, filed 2026-10-25) — not yet described in the README.
+
 ## 2026-09-28 — Ranged weapon rebuilt on ProjectileBody; v1 ability fields removed
 - **Commits:** `5b035b73`, `b7a0af5e`, `7c637c0e`
 - **Changed:** `RangeWeapon`, `RangeAttackSO`, `RangeWeaponStats`, `Weapon`, `WeaponStats`, `AttackSO`, `WeaponHolderBase`; `bullet.cs` and `BulletDataSO.cs` deleted

@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-10-31 — Champion controller renamed (doc-truth re-sync)
+- **Commit:** on `origin/sprint-20` (`StartGameSystem/` → `RoomGameSystem/`, `041292ce` "done flow pick champion")
+- **Changed:** `ChampitionController` → `PedestalChampionController`; `UpgradeController` and an empty `ShopController` added in the same folder.
+- **From → To:** door-flow diagram names the new class.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-096 (Champion still the only start-room door opener).
+
 ## 2026-10-10 — ON_CLEAR_ENEMY renamed ON_OPEN_DOOR; Champion opens the start room
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** `EventManager.cs` (enum), `RoomCell.cs:60`, `RoomGridController.cs:31,40`, `LevelManagerEditor.cs:29`, new emitter `ChampitionController.cs:42`

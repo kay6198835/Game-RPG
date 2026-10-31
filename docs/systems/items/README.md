@@ -1,6 +1,6 @@
 # Items
 
-> **Status:** live · **Last verified:** 2026-10-20, branch `origin/feature/ui-flow-maingameplay` · **GDD:** [design/gdd/item-system.md](../../../design/gdd/item-system.md) (reverse-documented 2026-10-20) · **No ADR**
+> **Status:** live · **Last verified:** 2026-10-31, HEAD `e8baf251` (`origin/sprint-20`), effect files only · **GDD:** [design/gdd/item-system.md](../../../design/gdd/item-system.md) (reverse-documented 2026-10-20) · **No ADR**
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -18,9 +18,12 @@ is picked up (owner decision 2026-10-20 — see the GDD, *Design Direction*).
 | `ItemController.cs` | `: InteractiveObjects`. `SetDataItem(ItemSO)`; `Interact(interactor)` → `GetComponentInParent<ICharacter>()` → `effect.Apply(character)` for each effect → `Emit(ON_COLLECT_ITEM, gameObject)` |
 | `ItemSpawner.cs` | `[Inject] Construct(IObjectPoolService)` (renamed from `IObjecPoolService` in `cae7531`). `ON_ENEMY_DEATH` → `DropItem()` (roll, pool-spawn, DOTween scale-in); `ON_COLLECT_ITEM` → release to pool |
 | `ItemEffectDefinition/ItemEffectDefinitionSO.cs` | Abstract SO `ItemEffectDefinitionSO` (renamed from `ItemEffectDefinition` 2026-10-20 to match its file), `Apply(ICharacter)` |
-| `ItemEffectDefinition/RecoveryEffectDefinition.cs` | "Item SO/Effect/Recovery" — `IVitalComponent.Recovery(StatType.HP, amount)` |
-| `ItemEffectDefinition/StatModifierEffectDefinition.cs` | "Item SO/Effect/StatModifier" — `IVitalComponent.ApplyBuffDebuff(group)` (permanent) |
-| `ItemEffectDefinition/CurrencyEffectDefinition.cs` | "Item SO/Effect/Currency" — **no-op**: body is `// player.Wallet.Add(amount);`; no Wallet exists yet |
+| `ItemEffectDefinition/StatModifierEffect.cs` | Abstract; holds a `StatModifierGroup`; `Apply()` only resolves `IEffectReceiver` and applies nothing — **BUG-120** |
+| `ItemEffectDefinition/ModifierMaxStatsEffect.cs`, `ModifierCurrentStatsEffect.cs` | `: StatModifierEffect`, empty, declared `abstract` with a `[CreateAssetMenu]` ("Item SO/Effect/StatModifier/…") — cannot be instantiated (**BUG-120**). `ModifierCurrentStatsEffect.cs` also declares `enum TypeModifier` |
+| `ItemEffectDefinition/CoinModifierEffect.cs` | Abstract, no `[CreateAssetMenu]`; `Apply()` → `IWallet.AddCoins(coinAmount)` (`WalletComponent`) |
+
+*`RecoveryEffectDefinition`, `StatModifierEffectDefinition` and `CurrencyEffectDefinition` were deleted
+in `3d768b3d` and replaced by the four files above (re-checked 2026-10-31 at `sprint-20` `e8baf251`).*
 | `Assets/Editor/DepotItemEditor.cs` | Custom drop-table Inspector |
 | Assets | `Assets/SO/Item/` (PlatiumOre 0-5, Depot Item 1, Comsuable/{BaseOrds,Test}, Effect/New Recovery Effect Definition) |
 
@@ -52,9 +55,11 @@ Effects reach the character's components from the `ICharacter` root
 | — | `ItemSpawner.CheckRate()` always returns `true` (stub) |
 | — | `ItemController.effects` is an `IReadOnlyList` marked `[SerializeField]` — Unity cannot serialize it (runtime-only, harmless) |
 | — | `ON_DROP_ITEM` declared, never used |
-| — | `CurrencyEffectDefinition.Apply()` is a no-op until the Wallet exists (GDD, *Design Direction*) |
-| BUG-100 | Permanent stat items (`StatModifierEffectDefinition`) share the modifier source `this` with timed buffs; a timed buff expiring strips them |
+| BUG-120 | Item stat effects apply nothing; both concrete menus point at `abstract` classes; the two item effect assets bind to the abstract script |
+| BUG-121 | `StatModifierGroup.authoredModifiers` → `statsModifiers` with no `[FormerlySerializedAs]` — both item effects load empty |
+| inbox | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item can be authored (NOTE-20261031-10) |
+| BUG-100 | Timed buffs share one modifier source (now `context.Caster`, `EffectReceiverBase.cs:86-91`); a timed buff expiring can strip other modifiers from that source |
 | TD-030 | One global `DepotItem` on `ItemSpawner`; `EnemySO.depotItem` is never read. Kept on purpose for now (owner, 2026-10-20) |
 | TD-054 | `RarityTierItem` (drop table) and UIFlow `ItemRarity` are two rarity enums; unify later |
-| inbox | `Assets/Prefab/NPC/Merchant.prefab` and `NPC.prefab` carry scripts that were never committed (Missing Script) — see `production/qa/bug-inbox.md` |
+| BUG-112 | `Assets/Prefab/NPC/Merchant.prefab` and `NPC.prefab` carry scripts that were never committed (Missing Script) |
 | BUG-052 | No ADR |

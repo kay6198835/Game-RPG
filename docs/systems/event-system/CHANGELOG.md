@@ -2,6 +2,13 @@
 
 Newest first. Entries reconstructed from the count history in `CLAUDE.md` and `git log`.
 
+## 2026-10-31 — Champion emitter renamed (doc-truth re-sync)
+- **Commit:** on `origin/sprint-20` (`StartGameSystem/` → `RoomGameSystem/`)
+- **Changed:** `ON_OPEN_DOOR` emitter `ChampitionController` → `PedestalChampionController` (`:42`). `ON_PLAYER_READY` is now emitted by `VitalStatsComponent.ReloadComponent()`. Still 24 values.
+- **From → To:** README producer column updated.
+- **Why:** not recorded in the commit.
+- **Bugs:** none.
+
 ## 2026-10-10 — ON_CLEAR_ENEMY renamed ON_OPEN_DOOR (still 24 values)
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** `EventManager.cs:46`
