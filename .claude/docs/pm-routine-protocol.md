@@ -95,7 +95,7 @@ Every verdict a routine writes carries the strongest tier it rests on:
 | `STATIC` | reading code and docs |
 | `LOG` | `.claude/scripts/editor-log.sh` (Unity Editor.log of the owner's sessions) |
 | `COMPILED` | `.claude/scripts/compile-check.sh` passed |
-| `RUNTIME` | a filled playtest sheet in `production/qa/playtests/` |
+| `RUNTIME` | a filled playtest sheet in `production/qa/playtests/`, or the Friday automated QA run (Play Mode, `qa/weekly-automation:qa-automation/reports/`) |
 
 A step that could not run says so by name (`SKIPPED — Editor open`, `NOT RUN — no sheet`), never
 silently (`.claude/rules/skill-authoring.md`).

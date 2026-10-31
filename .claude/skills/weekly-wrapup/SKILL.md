@@ -27,6 +27,11 @@ routine, after the owner's ~30-minute playtest. You **never write game code**.
    (`git log --all --grep '^chore(wrapup)' -1`), fallback last 7 days.
 3. This week's playtest sheet: `production/qa/playtests/playtest-<today>.md`.
 4. `production/qa/bug-inbox.md`, `production/qa/bugs/`.
+5. Friday's automated QA run (`qa-weekly-automation`, Fri 23:00): `git -C D:/Fork/Game-RPG-pm show
+   qa/weekly-automation:qa-automation/state/latest.json` → its `reportDir` → `report.md` and
+   `weekly-change-impact.md` there (read with `git show qa/weekly-automation:<path>`). Missing,
+   older than this Friday, or `status` not `PASS`/`FAIL` → `NOT RUN — <status or reason>` in the
+   digest; the run's own inbox notes are already in the inbox (Source `qa-auto`).
 
 ---
 
@@ -47,6 +52,11 @@ routine, after the owner's ~30-minute playtest. You **never write game code**.
   - Missing or empty → `NOT RUN — no playtest this week`; the weekly verdict is capped at
     `CONCERNS`; flag it for Sunday's kickoff.
 - Also run `bash .claude/scripts/editor-log.sh`; new findings → inbox notes (Source `editor-log`).
+- Automated QA (input 5): record totals, new FAIL / fixed / flaky and the deep-run systems. An
+  automated PASS never replaces the playtest sheet (it checks numbers, not feel), so the
+  `CONCERNS` cap above still applies without a sheet. If tonight's triage closes a bug that
+  `qa-automation/config/known-issues.json` maps a case to, list that entry for removal in the digest
+  (QA work on `qa/weekly-automation`, not done here).
 
 ### 3. Fix survival (regression sweep)
 - `bash .claude/scripts/fix-survival.sh 30`.
@@ -90,6 +100,7 @@ existing bug) · **Not a bug / by design** (reason) · **Needs owner** (carry, l
 ✅ Done this week: <tasks> (velocity <X>/4 d)
 ⤵️ Carry-over:     <tasks>
 🧪 Playtest:       <PASS n / FAIL n / not run>  — section B confirmed: <bugs>
+🤖 Auto QA (Fri):  <PASS n / FAIL n / KNOWN n / SKIP n, new FAIL n> | <NOT RUN — reason>
 🔍 Code review:    <N files, top finding>
 ♻️ Fix survival:   <n PRESENT / n PARTIAL / n GONE>
 📥 Inbox triage:   <n confirmed → BUG-xxx…> · <n resolved> · <n duplicate> · <n needs owner>
