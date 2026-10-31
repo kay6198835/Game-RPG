@@ -110,6 +110,10 @@ namespace QA.Automation
             // Fixed 60 fps game time: every Time.deltaTime is 1/60 whatever the machine load, so timed
             // waits and animation progress do not depend on how fast the run machine is.
             Time.captureFramerate = 60;
+            // Without a cap the Editor renders as fast as it can; on 2026-11-01 that ended in a D3D11 device
+            // reset (GPU timeout) that killed the run. 60 fps real time matches the fixed game time anyway.
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 0;
             UnityEngine.Random.InitState(_config.seed);
 
             QASuite[] suites = GetComponents<QASuite>();

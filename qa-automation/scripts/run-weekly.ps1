@@ -220,7 +220,17 @@ try {
     if ($deepList) { $qaArgs += " -qaDeep $deepList" }
     $code = Run-Unity $unity $qaArgs $UnityTimeoutMin
     Log "unity test run exit $code"
-    if (-not (Test-Path (Join-Path $out 'results.json'))) { throw "Unity produced no results.json (exit $code) - read $runLog" }
+    if (-not (Test-Path (Join-Path $out 'results.json'))) {
+        # A crash of the Editor itself (GPU device reset, out of memory) is not a test result: retry once
+        # and keep the first log, so the report still shows that it happened.
+        $crash = if (Test-Path $runLog) { @(Select-String -Path $runLog -Pattern 'device reset/removed|unrecoverable error|Crash!!!|Out of memory' | Select-Object -First 1 | ForEach-Object { $_.Line.Trim() }) } else { @() }
+        Log "no results.json; crash line: $(if ($crash.Count) { $crash[0] } else { 'none found' }) - retrying once"
+        Get-Process Unity -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        if (Test-Path $runLog) { Move-Item $runLog (Join-Path $out 'unity-run-attempt1.log') -Force }
+        $code = Run-Unity $unity $qaArgs $UnityTimeoutMin
+        Log "unity test run (retry) exit $code"
+        if (-not (Test-Path (Join-Path $out 'results.json'))) { throw "Unity produced no results.json after a retry (exit $code) - read $runLog" }
+    }
 
     # 7. Hygiene: nothing outside the QA folders may stay modified
     $reverted = New-Object System.Collections.ArrayList
