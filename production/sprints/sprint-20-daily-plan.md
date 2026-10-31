@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**SLIPPED (day 4, 2026-10-29 standup)** — Must burned 0 / 1.3d with 2 days left. Wed output was
+**FINAL — SLIPPED (weekly wrap-up 2026-10-31)** — Must Have burned 0 / 1.3d; no commit for
+S20-02…S20-07. Only S20-F1 (0.5d) landed, plus off-plan work: effect-component follow-ups
+(`6e484f0c`, `343a3830`) and the CombatTest harness (`87e053b4`, `fc98fa2a`, `a787f234`, merged
+`2276049e`). No playtest sheet for 2026-10-31 (S20-01 22nd carry), although `Editor.log` shows
+16 Play Mode entries today with no script exception. Triage confirmed 6 new bugs (BUG-116 S1,
+BUG-117/120/121 S2, BUG-118/119 S3). Evidence `STATIC` + `LOG` (no `RUNTIME`; verdict capped at
+CONCERNS anyway).
+*Was:* **SLIPPED (day 4, 2026-10-29 standup)** — Must burned 0 / 1.3d with 2 days left. Wed output was
 a CombatTest harness (`87e053b4`, on `sprint-20`; fix `6f9d0971` on `combat-test-scene` only) —
 it serves S20-01 but is not the smoke itself. ⚠️ `sprint-20` tip expected not to compile in the
 Editor assembly (NOTE-20261029-1, STATIC). Owner's folder COMPILED (`6f9d0971` + 48 uncommitted);
@@ -31,10 +38,13 @@ Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → pl
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 (day 4; 1.15d was due by Wed) | 1.3d |
-| Should Have | 1.0d | 0 | 1.0d |
+| Must Have (incl. Sat playtest 0.1d) | 1.3d | 0 (final) | 1.3d |
+| Should Have | 1.0d | 0 (final) | 1.0d |
 | Feature story S20-F1 (capped, gated by S20-01) | 0.5d | 0.5d (landed early, unverified) | 0 |
 | Buffer | 1.0d | — | — |
+
+**Week close (2026-10-31):** planned estimate-days completed 0.5 → **velocity 0.5 / 4 = 0.13**.
+Off-plan output ≈ 1.5d (effect follow-ups + CombatTest harness).
 
 ---
 
@@ -98,7 +108,7 @@ Risk: `041292ce` puts `UnityEditor.Animations` in runtime `CharacterData` → pl
 ### Sat 2026-10-31 — Weekly playtest
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet) | 0.1d | ❌ no sheet (16 Play Mode entries in Editor.log, unrecorded) | Reserved every Saturday; feeds wrap-up |
 
 ---
 
@@ -166,3 +176,43 @@ _(appended by `/daily-standup`)_
 - **Today:** land `6f9d0971` on `sprint-20` (≈0d), then S20-01 — fill the smoke sheet using the
   CombatTest scene plus one menu run (0.3d); then S20-02 BUG-108 + S20-03 BUG-096 (0.2d).
   S20-10 BUG-115 (Should) moves to Fri; S20-06 / S20-07 still open.
+
+### 2026-10-31 (Sat, weekly wrap-up) — FINAL: SLIPPED · evidence STATIC + LOG
+- **No standup row for Fri 2026-10-30** in `routine-log.md` — that run did not happen, so no
+  playtest sheet was generated either.
+- **Since 2026-10-29 standup:** `fc98fa2a` real enemy in CombatTest, `a787f234` optional spawner
+  registration, `ba8bcabc` Archer Hawk Eye clips, `343a3830` "coding" (effect / stat-group rework),
+  all merged into `sprint-20` as `2276049e` (also lands `6f9d0971`, closing NOTE-20261029-1).
+  No commit for S20-02…S20-12.
+- **Runtime:** `editor-log.sh` — `Editor.log` (20:17) 0 `error CS`, 14 Play Mode, no script
+  exception; `Editor-prev.log` (17:44) 0 / 2 / none. No filled sheet → `RUNTIME` not reached.
+  `fix-survival.sh 30`: 3 PRESENT, 1 GONE (BUG-096 `40d2c793`, known).
+- **Triage:** 12 notes → 6 confirmed (**BUG-116** S1 `UnityEditor` in runtime `CharacterData`;
+  **BUG-117** vital modifiers not serializable / sign inverted; **BUG-118** per-time effect throws;
+  **BUG-119** recovery overshoots max; **BUG-120** item stat effects no-op; **BUG-121**
+  `authoredModifiers` rename without `[FormerlySerializedAs]`), 1 duplicate (BUG-100), 2 resolved,
+  3 not reproduced. Inbox empty. Report: `production/qa/bug-triage-2026-10-31.md`.
+
+## Retrospective (2026-10-31)
+
+- **Went well:** the CombatTest harness gives a fast class-pick + training-dummy loop for S20-01;
+  sprint tip compiles again after merge `2276049e`; 16 Play Mode sessions today with no script
+  exception.
+- **Slipped:** every Must task S20-02…S20-07; the effect-component refactor kept growing off-plan
+  and introduced five of this week's six bugs. Deferred multiple weeks: **S20-01 playtest (22nd
+  carry)**, **S20-07 process gate (10th)**, BUG-065 (11th), BUG-066/070 (11th), BUG-096 / BUG-097 /
+  BUG-105 (4th).
+- **One improvement:** spend the first 15 minutes of a Play Mode session filling the sheet
+  (`tests/smoke/critical-paths.md`) — the owner already plays; the evidence is just not written down.
+  Second candidate for S20-07: a serialized-rename check (third `[FormerlySerializedAs]` loss:
+  BUG-105, BUG-108, BUG-121).
+
+## Handoff to Sunday kickoff
+
+| Field | Value |
+|---|---|
+| Final verdict | **SLIPPED** (evidence STATIC + LOG) |
+| Velocity | 0.5 estimate-days / 4 = **0.13** (S20-F1 only) |
+| Playtest done | **no** (no sheet; 16 unrecorded Play Mode entries) |
+| Carry-over | S20-01…S20-12 (all); new blockers **BUG-116** (S1, P1) and **BUG-121** (S2, P1); also BUG-117 / BUG-120 (S2, P2) |
+| Owner attention | BUG-108 looks partly fixed (`statsSO` attribute restored) — verify Knight enemies in Play Mode; BUG-121 must be fixed **before** any stat asset is re-saved |
