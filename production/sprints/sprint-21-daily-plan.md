@@ -11,7 +11,8 @@
 
 ## Status Verdict
 
-**OPEN — not started (kickoff 2026-11-01).**
+**ON-TRACK — day 1 (Mon 2026-11-02), nothing due yet** (evidence: COMPILED + LOG). 4.0 working
+days left / 2.9d planned work remaining (Must 1.45d + Should 0.95d + F1 cap 0.5d).
 
 ## Burn Summary
 
@@ -105,3 +106,18 @@
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-11-02 (Mon) — standup 02:12, evidence COMPILED + LOG
+- **Sync**: SKIPPED — owner branch `origin/feature/add-effect-component` (`f37d6202`) is already
+  an ancestor of `origin/sprint-21`.
+- **Since Fri**: no owner game commits; weekend commits are routines only (QA automation run
+  `20261101-0221`, wrap-up duplicate skipped, kickoff `f37d6202`).
+- **Compile**: `compile-check.sh` COMPILED (31 s) on `f37d6202` + 15 uncommitted owner paths
+  (`AbilityHolderBase`, `CharacterData`, `EffectReceiverBase`, `StatHandlerBase`, `RegenComponent`,
+  `IEffectReceiver`, `BuffDebuffStatsForDuration`, `RecoveryReductionPerTimeForDuration`,
+  `DamagesInManyPos`, `BaseStatsSO`, …) — looks like S21-F1 effect-source work, which is gated
+  behind S21-01 + S21-03. Uncommitted work is not counted as progress.
+- **Editor log**: 0 `error CS`; 14 Play Mode entries (Editor-prev.log, 2026-10-31); no
+  `Assets/Script/` exception. Inbox: 7 open notes, 0 new.
+- **Fix-survival**: not run — no game `.cs` committed since Fri.
+- **Today**: S21-01 playtest (0.3d) → S21-02 BUG-116 (0.1d) → S21-03 BUG-121 (0.1d).
