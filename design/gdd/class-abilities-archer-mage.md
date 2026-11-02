@@ -7,7 +7,7 @@ verified-by: pending owner approval
 
 # Class Abilities — Archer and Mage
 
-> **Status**: In Design — awaiting owner approval (Phase 1 stop) · **[PLANNED]** — no section of this document is implemented yet
+> **Status**: Approved by owner 2026-11-02 (Q1, Q2, Q3, Q5 decided as recommended) · **[PLANNED]** — temporary ability assets exist for 5 of 8 abilities (see the task log); no new behaviour is implemented in code yet
 > **Author**: Kay (owner) + Claude (design-system skill, systems math)
 > **Last Updated**: 2026-11-02
 > **Last Verified**: 2026-11-02 (branch `sprint-21`, HEAD `5f70bfd9`)
@@ -649,11 +649,11 @@ Each criterion is checked in Play Mode in `LoadRandomMap` or the `FastTest/Comba
 
 | # | Question | Why it matters | Owner | Target |
 |---|---|---|---|---|
-| Q1 | Keep flat Defense subtraction, add a 20% damage floor, or adopt multiplicative armour (`raw × 100 / (100 + Def)`)? | Decides whether multi-hit kits can damage Tank/Boss at all (outlier 1). Changes Paladin too. **Recommended: 20% floor** (smallest change, keeps Defense meaningful). | Kay | Before Phase 2 |
-| Q2 | Mage has no weapon. Confirm "Fireball is the basic attack (free)", or give the Mage a staff weapon? | If a staff is added, Fireball must cost Mana again and the Mage numbers drop ~15%. **Recommended: Fireball = free basic attack.** | Kay | Before Phase 2 |
-| Q3 | `Piercing Shot` (animated, unbound) vs `Hawk Eye` (bound to Primary): merge (Hawk Eye full charge already pierces), swap names, or keep Piercing Shot for a future upgrade? | Avoids two shells for one fantasy. **Recommended: merge — Hawk Eye full charge is the piercing shot; keep the Piercing Shot clips for Hawk Eye.** | Kay | Before Phase 2 |
+| Q1 | Keep flat Defense subtraction, add a 20% damage floor, or adopt multiplicative armour (`raw × 100 / (100 + Def)`)? | Decides whether multi-hit kits can damage Tank/Boss at all (outlier 1). Changes Paladin too. **✅ Decided 2026-11-02 (owner): 20% floor** (smallest change, keeps Defense meaningful). Needs a code change + Paladin re-check; not implemented. | Kay | Before Phase 2 |
+| Q2 | Mage has no weapon. Confirm "Fireball is the basic attack (free)", or give the Mage a staff weapon? | If a staff is added, Fireball must cost Mana again and the Mage numbers drop ~15%. **✅ Decided 2026-11-02 (owner): Fireball = free basic attack.** | Kay | Before Phase 2 |
+| Q3 | `Piercing Shot` (animated, unbound) vs `Hawk Eye` (bound to Primary): merge (Hawk Eye full charge already pierces), swap names, or keep Piercing Shot for a future upgrade? | Avoids two shells for one fantasy. **✅ Decided 2026-11-02 (owner): merge — Hawk Eye full charge is the piercing shot; Hawk Eye uses the Piercing Shot clips.** | Kay | Before Phase 2 |
 | Q4 | Archer basic arrow ignores `PhysicalDamage` and crit today (`RangeWeapon.OnHit`). Intended? | The whole Archer balance assumes it; if arrows start scaling, Archer L10 rises ~+35%. | Kay | Sprint 21 |
-| Q5 | Should abilities ever crit (e.g. Hawk Eye full charge)? Crit adds a flat +158, which would double most ability hits. | Burst ceiling. **Recommended: no ability crit** (Core Rule 7 already assumes it). | Kay | Before Phase 2 |
+| Q5 | Should abilities ever crit (e.g. Hawk Eye full charge)? Crit adds a flat +158, which would double most ability hits. | Burst ceiling. **✅ Decided 2026-11-02 (owner): no ability crit** (Core Rule 7). | Kay | Before Phase 2 |
 | Q6 | Status effects (slow/root/freeze/stun/knockback/burn) need their own GDD or a section in `character-system.md`. Which? | Six effects are specified here provisionally. | Kay | Sprint 22 |
 | Q7 | Ability animation clips are 2.3–5.0 s; this design needs 0.4–0.75 s. Re-time clips or use a playback multiplier? | Without it every ability feels 5× too slow. | Kay | Phase 2 |
 | Q8 | Class stat profiles: `ArcherStats` / `MageStats` are identical to `BaseStats` (all primaries 10). Should the Archer start DEX-leaning and the Mage INT-leaning? | Today class identity comes only from the ability kit. | Kay | Sprint 22 |

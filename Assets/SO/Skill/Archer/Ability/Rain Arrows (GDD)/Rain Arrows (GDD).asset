@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d6bd5f01056914cb578b97e53e17f7, type: 3}
+  m_Name: Rain Arrows (GDD)
+  m_EditorClassIdentifier:
+  id: 11709314-b8a4-4ba4-8f04-3fbbafb882e0
+  DisplayName: Rain Arrows
+  Icon: {fileID: 0}
+  ActivationType: 0
+  Cooldown: 35
+  Costs:
+  - value: 50
+    statType: 101
+  MaxHoldTime: 0
+  Conditions: []
+  Effects:
+  - {fileID: 11400000, guid: 3299a941309649a88559ac421949c4fd, type: 2}
+  <AnimatorOverride>k__BackingField: {fileID: 22100000, guid: 8b72a884ef9dc164ab6ae244f8a1beeb, type: 2}
