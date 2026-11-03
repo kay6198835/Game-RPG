@@ -155,8 +155,15 @@ machine*.
 
 | Part | What it does | Blocks the push? |
 |---|---|---|
-| **C** `.githooks/static-check.sh` | (1) A serialized field removed or renamed while a committed `.asset` / `.prefab` / `.unity` still stores its key, with no `[FormerlySerializedAs("old")]` — the BUG-105 / 108 / 121 class. Also catches a deleted `[FormerlySerializedAs]` (BUG-108). (2) `using UnityEditor` / `UnityEditor.` outside `#if UNITY_EDITOR` in `Assets/Script/` runtime code — the BUG-116 class. Runs on the `.cs` files changed in the pushed range; ~0.1 s; no Unity | Yes, on any branch, for an ERROR. Warnings never block |
-| **B** `.claude/scripts/compile-check.sh` | Headless Unity batchmode compile of this checkout (`PROJECT_PATH` = repo root). Skipped when a Unity Editor is open (project lock) | Yes, for pushes to `sprint-*`, `main`, `release/*`; warning only on other branches |
+| **C** `.githooks/static-check.sh` | (1) A serialized field removed or renamed while a committed `.asset` / `.prefab` / `.unity` still stores its key, with no `[FormerlySerializedAs("old")]` — the BUG-105 / 108 / 121 class. Also catches a deleted `[FormerlySerializedAs]` (BUG-108). (2) `using UnityEditor` / `UnityEditor.` outside `#if UNITY_EDITOR` in `Assets/Script/` runtime code — the BUG-116 class. Runs on the `.cs` files changed in the pushed range; ~0.1 s; no Unity | Yes, for an ERROR. Warnings never block |
+| **B** `.claude/scripts/compile-check.sh` | Headless Unity batchmode compile of this checkout (`PROJECT_PATH` = repo root). Skipped when a Unity Editor is open (project lock) | Yes |
+
+**Scope (owner, 2026-11-03, same day):** the hook checks **pushes to `main` only**; pushes to any
+other branch are not checked. Widen it with `git config gate.branches "main sprint-*"` (patterns,
+space-separated) or `GATE_BRANCHES=...` for one push. ⚠️ Accepted trade-off: `main` was last updated
+2026-10-05 and daily work lands on `sprint-NN`, so the commits behind BUG-105 / 108 / 116 / 121
+(all pushed to sprint or feature branches) would **not** have been checked under this scope. A merge
+made with the GitHub "Merge" button is never checked by a local hook.
 
 **Install (once per clone):** `git config core.hooksPath .githooks`
 

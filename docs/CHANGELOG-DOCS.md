@@ -28,6 +28,7 @@ always) and `.claude/scripts/compile-check.sh` (headless compile when the Editor
 | `production/sprints/sprint-21.md` | New section "S21-09 Decision"; Definition of Done item ticked |
 | `production/sprints/sprint-21-daily-plan.md` | S21-09 row → done |
 | `docs/tech-debt-register.md` | TD-048, TD-051 → In progress (see its CHANGELOG) |
+| `production/sprints/sprint-21.md` (same day) | Hook scope narrowed to pushes to `main` (owner); trade-off recorded |
 
 ## 2026-10-31 — Doc-truth pass (HEAD `e8baf251`, `origin/sprint-20`)
 

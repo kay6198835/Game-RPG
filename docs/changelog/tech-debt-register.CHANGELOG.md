@@ -17,6 +17,7 @@ append entries by hand (template in `docs/systems/README.md`).
   `.claude/scripts/compile-check.sh` (headless compile when the Editor is closed). Validated against
   the commits behind BUG-105, BUG-108, BUG-116 and BUG-121 — all four would have been blocked
 - **Bugs:** none closed. TD-048 / TD-051 close after one week with the hook installed and no compile break
+- **Same day:** owner narrowed the hook to pushes to `main` only; the TD-048 / TD-051 note now says so
 
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
