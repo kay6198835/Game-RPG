@@ -11,16 +11,18 @@
 
 ## Status Verdict
 
-**SLIPPED — day 2 (Tue 2026-11-03)** (evidence: STATIC + LOG; batchmode exit 1). Monday's
-S21-01/02/03 (0.5d) not done; Monday output was off-plan (Archer/Mage ability GDD + temporary
-assets). 4.0 working days left (Tue–Fri) / 2.9d planned work remaining.
+**SLIPPED, narrowing — end of day 2 (Tue 2026-11-03, evening update)** (evidence: COMPILED +
+LOG + STATIC). Owner commit `1370136c` closes S21-02 (BUG-116) and S21-03 (BUG-121 list key) in
+code and makes partial progress on S21-05, S21-06 and S21-12; S21-09 done. S21-01 playtest still
+not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work remaining.
+*Was (Tue morning):* SLIPPED — day 2, 0 / 0.5d burned, batchmode exit 1.
 *Was (2026-11-02):* ON-TRACK — day 1, nothing due yet.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.45d | 0 | 1.45d |
+| Must Have (incl. Sat playtest 0.1d) | 1.45d | 0.3d (S21-02, S21-03, S21-09) + partials | 1.15d |
 | Should Have | 0.95d | 0 | 0.95d |
 | Feature story S21-F1 (capped, gated by S21-01 + S21-03) | 0.5d | 0 | 0.5d |
 | Buffer | 1.0d | — | — |
@@ -55,21 +57,21 @@ assets). 4.0 working days left (Tue–Fri) / 2.9d planned work remaining.
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S21-01 Playtest / smoke through the menu | 0.3d | ⬜ → carried to Tue | playtest done: no; 23rd carry; QA automation now covers part of the sheet |
-| S21-02 BUG-116 | 0.1d | ⬜ → carried to Tue | S1 — every Player build fails (still `using UnityEditor.Animations` at `CharacterData.cs:2` on `6c61ccdb`) |
-| S21-03 BUG-121 | 0.1d | ⬜ → carried to Tue | Must land before anyone re-saves stat / weapon assets |
+| S21-02 BUG-116 | 0.1d | ✅ in code Tue (`1370136c`) | `using UnityEditor.Animations` removed; field is `RuntimeAnimatorController`. Not build-verified |
+| S21-03 BUG-121 | 0.1d | ✅ in code Tue (`1370136c`) | `[FormerlySerializedAs("authoredModifiers")]` + 4 assets re-saved. ⚠️ `targetStat` → `targetStatType` half still open (NOTE-20261103-2) |
 | (off-plan) Archer/Mage ability GDD + temporary assets | — | ✅ committed `ae0d6e82`, `6c61ccdb` | Not in sprint plan; burned from buffer |
 
 ### Tue 2026-11-03 — Dungeon S1 blockers
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S21-04 BUG-108 finish + Knight check | 0.1d | ⬜ | S1 — same pattern as S21-03, do it while the context is warm |
-| S21-05 BUG-096 | 0.1d | ⬜ | S1 — non-combat rooms stay sealed |
+| S21-04 BUG-108 finish + Knight check | 0.1d | ⬜ (new `Knight.asset` + `KnightWeapon` in `1370136c`; old `Enemy - Knight*` keys not checked) | S1 — same pattern as S21-03, do it while the context is warm |
+| S21-05 BUG-096 | 0.1d | 🟡 `1370136c` | Shop / Rest / Treasure now emit `ON_OPEN_DOOR` on load (`RoomGeneraterController.cs` `AutoOpenRoomTypes`); Buff / Boss not in the set |
 | S21-07 BUG-097 | 0.1d | ⬜ | Run starts in the boss room |
 
 ### Wed 2026-11-04 — Weapon session
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S21-06 BUG-106 / 107 / 110 | 0.3d | ⬜ | One file (`WeaponHolderBase`), three bugs; enemies cannot attack |
+| S21-06 BUG-106 / 107 / 110 | 0.3d | 🟡 `1370136c` (BUG-107 null-`Weapon` guard + `UnEquid` before release) | One file (`WeaponHolderBase`), three bugs; enemies cannot attack |
 | S21-08 Editor / data block | 0.15d | ⬜ | BUG-105 drops sword stage damage to 0 |
 
 ### Thu 2026-11-05 — Process gate + effect bugs
@@ -83,7 +85,7 @@ assets). 4.0 working days left (Tue–Fri) / 2.9d planned work remaining.
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S21-11 BUG-065 + BUG-086 | 0.2d | ⬜ | Death path; read NOTE-20261101-1/2 first |
-| S21-12 BUG-115 | 0.3d | ⬜ | Every Play Mode session can dirty committed stat assets |
+| S21-12 BUG-115 | 0.3d | 🟡 `1370136c` (`CharacterData.CreateRuntimeStats()` clone used by `StatHandlerBase`; asset revert not checked) | Every Play Mode session can dirty committed stat assets |
 | S21-13 One-liners | 0.15d | ⬜ | Small, carried 3–6 weeks |
 | Buffer | 1d | — | — |
 
@@ -139,3 +141,21 @@ _(appended by `/daily-standup`)_
 - **Fix-survival**: not run — yesterday's commits touched no `.cs`.
 - **Today** (Tue plan + Monday carry): S21-02 BUG-116 → S21-03 BUG-121 → fix NOTE-20261103-1 metas
   (owner call) → S21-01 playtest → S21-04 / S21-05 / S21-07 as time allows. Total 0.8d+ on a 1d day.
+
+### 2026-11-03 (Tue) — second standup firing ~23:10 (evening update), evidence COMPILED + LOG
+- **Duplicate firing:** the 02:00 slot already ran (~09:00, `f9d19cc7`). Kept as an evening update,
+  not a new day; Wednesday's 02:00 standup still owns the Wed plan.
+- **Sync**: SKIPPED — owner branch `origin/feature/add-effect-component` (`f1549094`) is already in
+  `origin/sprint-21` (owner merged it in `f1549094`).
+- **Today (owner)**: `1370136c` "fix bug add skill" (47 files, 29 `.cs`): BUG-116 fixed in code
+  (S21-02 ✅), BUG-121 list key fixed in code (S21-03 ✅, `targetStat` half open — NOTE-20261103-2
+  addendum), BUG-096 partial (Shop/Rest/Treasure auto-open; Buff/Boss not), BUG-107 item 2 guard,
+  BUG-113 (`GetStatValue()` → `FinalValue`), BUG-115 runtime stat clone, new Knight enemy + weapon
+  assets. Bug files not updated — Saturday triage. Process: S21-09 gate (`3e3f6f10`, `c7fbd69e`, `01717ace`).
+- **Compile**: `compile-check.sh` COMPILED (58 s) on `f1549094` + 17 uncommitted owner paths
+  (`Entity`, `EntityData`, `EntityAbilityState`, `EntityAttackState`, `EnemyRoleScaffolder`, enemy role
+  assets — in-progress, not counted). 0 `Unable to parse file` lines this time (NOTE-20261103-1 addendum).
+- **Editor log**: 0 `error CS`, 0 Play Mode entries, 0 `Assets/Script/` exceptions. Inbox: 10 open, 0 new.
+- **Fix-survival**: `fix-survival.sh 7` → no fix commits in window.
+- **Burn**: Must 0.3d / 1.45d done + partials. Still no Play Mode run this sprint — S21-01 is the first
+  thing Wednesday, before S21-06 weapon work.
