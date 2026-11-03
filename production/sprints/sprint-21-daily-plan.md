@@ -11,8 +11,10 @@
 
 ## Status Verdict
 
-**ON-TRACK — day 1 (Mon 2026-11-02), nothing due yet** (evidence: COMPILED + LOG). 4.0 working
-days left / 2.9d planned work remaining (Must 1.45d + Should 0.95d + F1 cap 0.5d).
+**SLIPPED — day 2 (Tue 2026-11-03)** (evidence: STATIC + LOG; batchmode exit 1). Monday's
+S21-01/02/03 (0.5d) not done; Monday output was off-plan (Archer/Mage ability GDD + temporary
+assets). 4.0 working days left (Tue–Fri) / 2.9d planned work remaining.
+*Was (2026-11-02):* ON-TRACK — day 1, nothing due yet.
 
 ## Burn Summary
 
@@ -52,9 +54,10 @@ days left / 2.9d planned work remaining (Must 1.45d + Should 0.95d + F1 cap 0.5d
 ### Mon 2026-11-02 — Play first, then the two one-line P1 fixes
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S21-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 23rd carry; QA automation now covers part of the sheet |
-| S21-02 BUG-116 | 0.1d | ⬜ | S1 — every Player build fails |
-| S21-03 BUG-121 | 0.1d | ⬜ | Must land before anyone re-saves stat / weapon assets |
+| S21-01 Playtest / smoke through the menu | 0.3d | ⬜ → carried to Tue | playtest done: no; 23rd carry; QA automation now covers part of the sheet |
+| S21-02 BUG-116 | 0.1d | ⬜ → carried to Tue | S1 — every Player build fails (still `using UnityEditor.Animations` at `CharacterData.cs:2` on `6c61ccdb`) |
+| S21-03 BUG-121 | 0.1d | ⬜ → carried to Tue | Must land before anyone re-saves stat / weapon assets |
+| (off-plan) Archer/Mage ability GDD + temporary assets | — | ✅ committed `ae0d6e82`, `6c61ccdb` | Not in sprint plan; burned from buffer |
 
 ### Tue 2026-11-03 — Dungeon S1 blockers
 | Task | Est. | Status | Why now |
@@ -121,3 +124,18 @@ _(appended by `/daily-standup`)_
   `Assets/Script/` exception. Inbox: 7 open notes, 0 new.
 - **Fix-survival**: not run — no game `.cs` committed since Fri.
 - **Today**: S21-01 playtest (0.3d) → S21-02 BUG-116 (0.1d) → S21-03 BUG-121 (0.1d).
+
+### 2026-11-03 (Tue) — standup ~09:00 (fired late, slot is 02:00), evidence STATIC + LOG
+- **Sync**: SKIPPED — owner branch `sprint-21` (`6c61ccdb`) is already in `origin/sprint-21`.
+- **Yesterday**: two owner commits, both off-plan — `ae0d6e82` design(gdd) Archer/Mage class
+  abilities (Phase 1), `6c61ccdb` temporary Archer/Mage ability assets (Phase 2, 30 `.asset`/`.meta`).
+  No sprint task moved: S21-01/02/03 (0.5d) carried. Burned 0 / 0.5d planned → **SLIPPED**.
+- **Compile**: `compile-check.sh` exit 1 (65 s) on `6c61ccdb`, committed state only — 0 `error CS`
+  (C# compiled); the exit comes from 12 unparseable `.meta` files of the Phase 2 assets →
+  NOTE-20261103-1 (S2). The owner's working tree changed while Unity ran (owner active ~09:00); not
+  reverted, owner to judge.
+- **Editor log**: 0 `error CS`, 0 Play Mode entries, 0 `Assets/Script/` exceptions (Editor.log
+  2026-11-03 07:50, Editor-prev.log 2026-11-02 17:02). Inbox: 8 open notes (+1).
+- **Fix-survival**: not run — yesterday's commits touched no `.cs`.
+- **Today** (Tue plan + Monday carry): S21-02 BUG-116 → S21-03 BUG-121 → fix NOTE-20261103-1 metas
+  (owner call) → S21-01 playtest → S21-04 / S21-05 / S21-07 as time allows. Total 0.8d+ on a 1d day.
