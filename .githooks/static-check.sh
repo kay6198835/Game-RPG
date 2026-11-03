@@ -88,6 +88,22 @@ script_guids() {
   printf '%s\n' "$files" | while IFS= read -r f; do git show "$tip:$f.meta" 2>/dev/null | grep -m1 -oE '[0-9a-f]{32}'; done
 }
 
+# Serialized fields declared by the base classes of a .cs file (three levels), so a field moved up
+# into a parent class (same key, still loads) is not reported as removed.
+ancestor_fields() {
+  local tip="$1" src="$2" bases level f
+  for level in 1 2 3; do
+    bases=$(printf '%s\n' "$src" | grep -oE 'class[[:space:]]+[A-Za-z_][A-Za-z0-9_]*(<[^>]*>)?[[:space:]]*:[[:space:]]*[A-Za-z_][A-Za-z0-9_]*' \
+            | sed -E 's/.*:[[:space:]]*//' | sort -u)
+    [ -z "$bases" ] && break
+    src=$(for b in $bases; do
+            for f in $(git grep -lE "class[[:space:]]+$b\\b" "$tip" -- '*.cs' | sed "s/^[^:]*://"); do git show "$tip:$f"; done
+          done)
+    [ -z "$src" ] && break
+    printf '%s\n' "$src" | extract_fields
+  done | sort -u
+}
+
 is_runtime() { case "$1" in Assets/Script/*) case "$1" in */Editor/*) return 1 ;; *) return 0 ;; esac ;; *) return 1 ;; esac; }
 
 errors=0
@@ -132,9 +148,11 @@ while IFS=$'\t' read -r status p1 p2; do
                      <(printf '%s\n' "$newsrc" | extract_fields))
   [ -z "$removed" ] && continue
   formerly=$(printf '%s\n' "$newsrc" | extract_formerly)
+  inherited=$(ancestor_fields "$tip" "$newsrc")
   while IFS= read -r key; do
     [ -z "$key" ] && continue
     printf '%s\n' "$formerly" | grep -qxF "$key" && continue
+    printf '%s\n' "$inherited" | grep -qxF "$key" && continue
     # Deliberate deletion: GATE_ALLOW_REMOVED="duration,perTime" git push
     case ",${GATE_ALLOW_REMOVED:-}," in *",$key,"*) echo "  allow  $new: '$key' removed on purpose (GATE_ALLOW_REMOVED)"; continue ;; esac
     esc=$(printf '%s' "$key" | sed 's/[][\.*^$<>]/\\&/g')
