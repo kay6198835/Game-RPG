@@ -11,8 +11,11 @@
 
 ## Status Verdict
 
-**SLIPPED, narrowing — end of day 2 (Tue 2026-11-03, evening update)** (evidence: COMPILED +
-LOG + STATIC). Owner commit `1370136c` closes S21-02 (BUG-116) and S21-03 (BUG-121 list key) in
+**SLIPPED, narrowing — start of day 3 (Wed 2026-11-04 standup)** (evidence: COMPILED + LOG +
+STATIC). No owner commit since the Tue evening update; 17 uncommitted owner paths (enemy roles)
+still compile. 3.0 working days left (Wed–Fri) / ≈2.6d planned work remaining; Tue carry
+(S21-04, S21-07) lands on Wed. S21-01 playtest is still the gate (24th day without a Play Mode run).
+*Was (Tue evening):* SLIPPED, narrowing — end of day 2. Owner commit `1370136c` closes S21-02 (BUG-116) and S21-03 (BUG-121 list key) in
 code and makes partial progress on S21-05, S21-06 and S21-12; S21-09 done. S21-01 playtest still
 not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work remaining.
 *Was (Tue morning):* SLIPPED — day 2, 0 / 0.5d burned, batchmode exit 1.
@@ -159,3 +162,18 @@ _(appended by `/daily-standup`)_
 - **Fix-survival**: `fix-survival.sh 7` → no fix commits in window.
 - **Burn**: Must 0.3d / 1.45d done + partials. Still no Play Mode run this sprint — S21-01 is the first
   thing Wednesday, before S21-06 weapon work.
+
+### 2026-11-04 (Wed) — standup ~02:13, evidence COMPILED + LOG
+- **Sync**: SKIPPED — owner branch `origin/feature/add-effect-component` (`f1549094`) is already an
+  ancestor of `origin/sprint-21` (`bf757c74`); `log origin/sprint-21..<branch>` is empty.
+- **Since the Tue evening update**: no new commits on any branch (only `bf757c74`, the evening
+  standup). Tuesday's full owner output is `1370136c` (recorded above). Tue plan: S21-05 🟡, S21-04 ⬜,
+  S21-07 ⬜ → S21-04 / S21-07 carried to Wed. Day-2 burn 0.3d done + partials vs 0.3d Tue plan.
+- **Compile**: `compile-check.sh` COMPILED (80 s) on `f1549094` + 17 uncommitted owner paths
+  (`Entity`, `EntityData`, `EntityAbilityState`, `EntityAttackState`, `EnemyRoleScaffolder`, enemy role
+  assets) — in progress, not counted.
+- **Editor log**: `Editor.log` (2026-11-03 16:49) and `Editor-prev.log` (07:50): 0 `error CS`,
+  0 Play Mode entries, 0 `Assets/Script/` exceptions. Inbox: 10 open, 0 new.
+- **Fix-survival**: not re-run — no `.cs` commit since the Tue evening run (no fix commits in window).
+- **Today** (Wed plan + Tue carry): S21-01 playtest (0.3d) → S21-06 weapon trio remainder (≈0.2d) →
+  S21-04 BUG-108 Knight keys (0.1d) → S21-07 BUG-097 (0.1d) → S21-08 data block (0.15d). ≈0.85d on a 1d day.
