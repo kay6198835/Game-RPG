@@ -147,6 +147,41 @@ Should-Have total = **0.95d**. Must + Should = 2.4d of 4.0d.
 - Owner Unity Editor time (S21-01, S21-04, S21-07, S21-08) — nothing can be verified without it.
 - `gh` CLI install for automated PRs.
 
+## S21-09 Decision — process gate (2026-11-03, owner)
+
+**Chosen: C + B, enforced as a committed git `pre-push` hook.** Closes the 11-sprint carry of the
+gate decision. TD-048 / TD-051 move from Backlog to *In place — pending install on the owner's
+machine*.
+
+| Part | What it does | Blocks the push? |
+|---|---|---|
+| **C** `.githooks/static-check.sh` | (1) A serialized field removed or renamed while a committed `.asset` / `.prefab` / `.unity` still stores its key, with no `[FormerlySerializedAs("old")]` — the BUG-105 / 108 / 121 class. Also catches a deleted `[FormerlySerializedAs]` (BUG-108). (2) `using UnityEditor` / `UnityEditor.` outside `#if UNITY_EDITOR` in `Assets/Script/` runtime code — the BUG-116 class. Runs on the `.cs` files changed in the pushed range; ~0.1 s; no Unity | Yes, on any branch, for an ERROR. Warnings never block |
+| **B** `.claude/scripts/compile-check.sh` | Headless Unity batchmode compile of this checkout (`PROJECT_PATH` = repo root). Skipped when a Unity Editor is open (project lock) | Yes, for pushes to `sprint-*`, `main`, `release/*`; warning only on other branches |
+
+**Install (once per clone):** `git config core.hooksPath .githooks`
+
+**Escape hatches:** `GATE_ALLOW_REMOVED=<field>[,<field>]` for a field deleted on purpose;
+`GATE_SKIP_COMPILE=1` to skip part B; `git push --no-verify` for an emergency — record the reason in
+this file.
+
+**Validated against history (static analysis, 2026-11-03):**
+
+| Commit | Bug | Result |
+|---|---|---|
+| `ddcc0a5c` | BUG-105 `attackDamege` | ERROR — would have blocked |
+| `cae75317` | BUG-108 `statsSO`, `weaponSO` (+ `defaultWeapon` on `Mage.asset`) | ERROR — would have blocked |
+| `343a3830` | BUG-121 `authoredModifiers` | ERROR — would have blocked. Also flags `impactType` (deliberate: recovery / reduction is now the sign of `VitalModifier.value`, BUG-117) — the case `GATE_ALLOW_REMOVED` exists for |
+| `041292c` | BUG-116 `using UnityEditor.Animations` | ERROR — would have blocked |
+| `f37d620..5f70bfd` | (clean range) | PASS |
+
+**Known limits:** part C matches YAML keys by name, so a key shared by two classes is downgraded to a
+warning unless an asset bound to the changed script (or a subclass) stores it. Part B cannot run
+while the Editor is open, which is most of the owner's day — part C is the half that always runs.
+The whole-tree mode `static-check.sh --all` currently reports one runtime ERROR: BUG-116
+(`CharacterData.cs:2`), fixed by S21-02. A TextMesh Pro sample
+(`TMP_TextInfoDebugTool.cs:4`) has the same unguarded `using UnityEditor` but is vendor code and out
+of scope.
+
 ---
 
 ## Definition of Done for this Sprint
@@ -156,7 +191,7 @@ Should-Have total = **0.95d**. Must + Should = 2.4d of 4.0d.
 - [ ] S21-04, S21-05 on `sprint-21` — no S1 open on the dungeon loop
 - [ ] S21-06 enemies attack; weapon pickup works
 - [ ] S21-07, S21-08 committed
-- [ ] S21-09 decision recorded
+- [x] S21-09 decision recorded (2026-11-03 — see "S21-09 Decision" below)
 - [ ] Saturday 2026-11-07 playtest sheet filled
 
 ## QA Plan

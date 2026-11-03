@@ -17,6 +17,18 @@ which code change caused it.
 
 ---
 
+## 2026-11-03 — S21-09 process gate (owner decision C + B)
+
+**Cause.** S21-09 (11th carry) asked for a process-gate decision. The owner chose C + B: a committed
+`.githooks/pre-push` running `.githooks/static-check.sh` (serialized-rename and Editor-API checks,
+always) and `.claude/scripts/compile-check.sh` (headless compile when the Editor is closed).
+
+| Document | Change |
+|---|---|
+| `production/sprints/sprint-21.md` | New section "S21-09 Decision"; Definition of Done item ticked |
+| `production/sprints/sprint-21-daily-plan.md` | S21-09 row → done |
+| `docs/tech-debt-register.md` | TD-048, TD-051 → In progress (see its CHANGELOG) |
+
 ## 2026-10-31 — Doc-truth pass (HEAD `e8baf251`, `origin/sprint-20`)
 
 **Cause.** 21 non-merge commits on `sprint-20` since `ec625d07` touched 145 files under

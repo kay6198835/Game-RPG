@@ -75,7 +75,7 @@ assets). 4.0 working days left (Tue–Fri) / 2.9d planned work remaining.
 ### Thu 2026-11-05 — Process gate + effect bugs
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S21-09 Process gate decision | 0.1d | ⬜ | 11th carry; third serialized-rename loss this month |
+| S21-09 Process gate decision | 0.1d | ✅ 2026-11-03 | Decided C + B; `.githooks/pre-push` landed — owner runs `git config core.hooksPath .githooks` once |
 | S21-10 BUG-117 + BUG-120 | 0.3d | ⬜ | Heal / damage and stat items are no-ops |
 | S21-F1 Effect-source work (cap 0.5d) | ≤0.5d | ⬜ | Only after S21-01 + S21-03 |
 

@@ -7,6 +7,17 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-03 — TD-048 / TD-051 gate landed (S21-09)
+- **Commit:** `sprint-21` (this change)
+- **Changed:**
+  - **From → To:** TD-048 status Backlog → In progress; description gains the 2026-11-03 gate note
+  - **From → To:** TD-051 status Backlog → In progress; same note
+- **Why:** S21-09 decision (owner, option C + B): committed `.githooks/pre-push` running
+  `.githooks/static-check.sh` (serialized-rename and Editor-API checks) and
+  `.claude/scripts/compile-check.sh` (headless compile when the Editor is closed). Validated against
+  the commits behind BUG-105, BUG-108, BUG-116 and BUG-121 — all four would have been blocked
+- **Bugs:** none closed. TD-048 / TD-051 close after one week with the hook installed and no compile break
+
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
 - **Changed:** corrected every statement found stale against HEAD `93ba6d8e`. Each item reads *was stale → now says*:
