@@ -7,6 +7,6 @@ public class BuffDebuffStatsForDuration : StatsEffectBase
 
     protected override void ApplyImpact(IEffectReceiver effectReceiver, StatModifierGroup statModifierGroup, AbilityContext context)
     {
-        effectReceiver.AdjustCurrentForDuration(statModifierGroup, duration, context);
+        effectReceiver.AdjustMaxForDuration(statModifierGroup, duration, context);
     }
 }

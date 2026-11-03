@@ -10,7 +10,7 @@ using UnityEngine;
 public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalComponent<TCore> where TCore : CoreBase
 {
     protected Dictionary<VitalStatType, float> currentStats = new();
-    protected IStatService statHandler;
+    protected IStatService<TCore> statHandler;
     public event Action CurrentStatsChanged;
 
     protected override void Start()
@@ -22,7 +22,13 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         base.Setup();
         Core.TryGetCapability(out statHandler);
+        statHandler?.ResignStatsChange(OnMaxStatChanged);
         LoadVitalStats();
+    }
+
+    protected virtual void OnDestroy()
+    {
+        statHandler?.UnResignStatsChange(OnMaxStatChanged);
     }
 
     public override void ReloadComponent()
@@ -37,15 +43,26 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         CurrentStatsChanged?.Invoke();
     }
 
+    // Seeds only the vital stats backed by a StatType (HP, Mana); Coin has no StatType.
     void LoadVitalStats()
     {
-        foreach (var stat in statHandler.GetFullStat())
+        currentStats.Clear();
+        foreach (VitalStatType vitalStatType in Enum.GetValues(typeof(VitalStatType)))
         {
-            VitalStatType vitalStatType = (VitalStatType)stat.Key;
-            currentStats[vitalStatType] = Enum.IsDefined(typeof(VitalStatType), vitalStatType)
-                ? statHandler.GetStatValue(stat.Key)
-                : 0f;
+            StatType statType = (StatType)(int)vitalStatType;
+            if (!Enum.IsDefined(typeof(StatType), statType)) continue;
+            currentStats[vitalStatType] = statHandler.GetStatValue(statType);
         }
+    }
+
+    // A lowered max clamps the current value down; a raised max leaves it as is.
+    void OnMaxStatChanged(StatType statType)
+    {
+        VitalStatType vitalStatType = (VitalStatType)(int)statType;
+        if (!currentStats.TryGetValue(vitalStatType, out float current)) return;
+        float max = statHandler.GetStatValue(statType);
+        if (current > max) currentStats[vitalStatType] = max;
+        UpdateStatField();
     }
 
     public float GetCurrentStatValue(VitalStatType vitalStatType)

@@ -1,16 +1,17 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class RegenComponent : MovementBase<Core>, IRegenResource
 {
-    StatHandler statHandler;
+    IStatService<Core> statHandler;
     IVitalComponent<Core> vitalStats;
     public Dictionary<VitalStatType, RegenData> _cacheDatas;
 
     public override void Setup()
     {
         base.Setup();
-        Core.GetCoreComponent(out statHandler);
+        Core.TryGetCapability(out statHandler);
         Core.TryGetCapability(out vitalStats);
         SetData();
     }
@@ -35,17 +36,22 @@ public class RegenComponent : MovementBase<Core>, IRegenResource
 
     void OnChangeStatMax(StatType statType)
     {
-        _cacheDatas[(VitalStatType)statType].maxValue = statHandler.GetStatValue(statType);
+        if (Enum.IsDefined(typeof(VitalStatType), statType))
+        {
+            _cacheDatas[(VitalStatType)statType].maxValue = statHandler.GetStatValue(statType);
+        }
     }
 
     void SetData()
     {
         SeedRegenData();
-        foreach (var data in _cacheDatas)
-        {
-            statHandler.ResignChangeStat(OnChangeStatMax);
-        }
-    }    
+        statHandler.ResignStatsChange(OnChangeStatMax);
+    }
+
+    void OnDestroy()
+    {
+        statHandler?.UnResignStatsChange(OnChangeStatMax);
+    }
 
     void SeedRegenData()
     {

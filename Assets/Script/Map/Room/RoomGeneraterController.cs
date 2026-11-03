@@ -134,8 +134,11 @@ public class RoomGeneraterController : MonoBehaviour
         if (!nextRoomCell.IsCleared)
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
-            EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
             pathfindingGrid.BuildGrid(Data, nextRoomCell.transform.position);
+            if (AutoOpenRoomTypes.Contains(_dungeonRoomSO.room[index].roomType))
+                EventManager.Emit(EventID.ON_OPEN_DOOR);
+            else
+                EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
         }
         else
         {
@@ -210,4 +213,10 @@ public class RoomGeneraterController : MonoBehaviour
             indexToLayer.Clear();
         }
     }
+    private static readonly HashSet<RoomType> AutoOpenRoomTypes = new HashSet<RoomType>
+    {
+        RoomType.ShopRoom,
+        RoomType.RestRoom,
+        RoomType.TreasureRoom,
+    };
 }

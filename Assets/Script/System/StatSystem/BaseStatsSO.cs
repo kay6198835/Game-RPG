@@ -194,7 +194,7 @@ public class BaseStatsSO : ScriptableObject
     public float GetStatValue(StatType type)
     {
         Stat stat = GetOrCreate(type);
-        return stat.AdjustedValue;
+        return stat.FinalValue;
     }
     public Stat GetStat(StatType type)
     {

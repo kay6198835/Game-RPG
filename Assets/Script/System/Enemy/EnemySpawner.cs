@@ -88,7 +88,8 @@ public class EnemySpawner : MonoBehaviour
             {
                 positionRandom = Vector2Int.RoundToInt(spawnPosition[Random.Range(0, spawnPosition.Count)]);
 
-                objectPoolManager.Spawn(entry.enemy.Prefab, positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity);
+                GameObject enemy = objectPoolManager.Spawn(entry.enemy.Prefab, positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity);
+                ApplyData(enemy, entry.enemy.Data);
                 //check late 
                 //positionRandom = origin positionRandom or enemy spawn position
 
@@ -104,7 +105,18 @@ public class EnemySpawner : MonoBehaviour
     public void SpawnExtraEnemy(object obj = null)
     {
         RequestSpawnEnemy spawnEnemy = (RequestSpawnEnemy)obj;
-        objectPoolManager.Spawn(spawnEnemy.prefab, spawnEnemy.positionSpawn, Quaternion.identity);
+        GameObject enemy = objectPoolManager.Spawn(spawnEnemy.prefab, spawnEnemy.positionSpawn, Quaternion.identity);
+        ApplyData(enemy, null);
+    }
+
+    // Runs after the pool re-enabled the enemy (EntityVitalStats.OnEnable() reset its modifiers), so the
+    // weapon and abilities from the data are equipped on top of a clean stat profile.
+    private void ApplyData(GameObject enemy, EntityData data)
+    {
+        if (enemy == null || !enemy.TryGetComponent(out Entity entity)) return;
+        EntityData applied = data != null ? data : entity.Data;
+        if (applied == null) return;
+        entity.SetCharacterData(applied);
     }
 }
 

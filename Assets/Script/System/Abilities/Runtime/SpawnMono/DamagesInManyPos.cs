@@ -23,8 +23,9 @@ public class DamagesInManyPos : SpawnSummonBase
         _hitBuffer = new Collider2D[Mathf.Max(1, maxTargetsPerPoint)];
     }
 
-    private void OnEnable()
+    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> currentContext)
     {
+        base.Launch(lifetime, context, currentContext);
         SetDir(_context.DirectionIndex);
     }
 
@@ -53,6 +54,7 @@ public class DamagesInManyPos : SpawnSummonBase
     }
     private void DamageEnemiesInWave(int waveIndex)
     {
+
         var wave = waves[waveIndex];
         float radius = wave.radius > 0f ? wave.radius : arrowRadius;
         _hitThisWave.Clear();

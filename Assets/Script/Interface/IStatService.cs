@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -15,4 +16,14 @@ public interface IStatService
     float GetStatValue(StatType statType);
     void RemoveModifiersFromSource(object source);
     void AddModifiersFromSource(object source, IReadOnlyList<StatModifier> modifiers);
+}
+
+/// <summary>
+/// Inner view for core components of the SAME character, resolved with Core.TryGetCapability.
+/// </summary>
+public interface IStatService<TCore> : IStatService where TCore : CoreBase
+{
+    /// <summary>Subscribes to max-stat changes; survives the runtime clone being rebuilt.</summary>
+    void ResignStatsChange(Action<StatType> action);
+    void UnResignStatsChange(Action<StatType> action);
 }

@@ -1,10 +1,8 @@
-using System;
 using UnityEngine;
 
 public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
 {
     WalletComponent wallet;
-    private Action<StatType> actionResign;
     [SerializeField] private int requiredExp;
     [SerializeField] private int maxLevel = GameConstants.SettingStats.LEVEL_MAX;
 
@@ -13,13 +11,6 @@ public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
         base.Start();
         core.GetCoreComponent(out wallet);
     }
-    void OnDisable()
-    {
-        ClearResignChangeStat();
-    }
-    // A profile assigned in the Inspector wins; otherwise the one on PlayerData.
-    protected override BaseStatsSO ResolveProfile() => statsSO != null ? statsSO : base.ResolveProfile();
-
     public int GetLevelUpStatsBonus()
     {
         return StatsSO.GetStatUnusedBonus();
@@ -31,16 +22,6 @@ public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
         StatsSO.AddPrimaryPoint(statType, amount);
     }
 
-    public void ResignChangeStat(Action<StatType> action)
-    {
-        actionResign += action;
-        statsSO.OnStatChanged += action;
-    }
-
-    private void ClearResignChangeStat()
-    {
-        statsSO.OnStatChanged -= actionResign;
-    }
     public bool TryLevelup()
     {
         GetRequiredExpForNextLevel();

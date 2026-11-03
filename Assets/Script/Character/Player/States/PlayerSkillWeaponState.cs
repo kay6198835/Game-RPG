@@ -17,6 +17,7 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
         base.Enter();
         stateIndex = 0;
         player.Anim.SetFloat("StateSkill", stateIndex);
+        player.Anim.SetBool("DoAB", false);
     }
 
     public override void AnimationStart()
@@ -27,23 +28,12 @@ public class PlayerSkillWeaponState : PlayerUseWeaponState
     public override void AnimationOnAction()
     {
         base.AnimationOnAction();
-        if (abilityHolder.CurrentAbilityState == AbilityState.Cast)
+        // DoAB opens Cast -> Do; it must stay closed until Cast's own OnAction has run.
+        switch (abilityHolder.CurrentAbilityState)
         {
-            if (abilityHolder.IsHolding)
-            {
-                player.Anim.SetBool("DoAB", false);
-            }
-            else
-            {
-                player.Anim.SetBool("DoAB", true);
-            }
+            case AbilityState.Start: player.Anim.SetBool("DoAB", false); break;
+            case AbilityState.Cast: player.Anim.SetBool("DoAB", !abilityHolder.IsHolding); break;
         }
-        else
-        {
-
-            player.Anim.SetBool("DoAB", true);
-        }
-
         abilityHolder.HandleInput();
         Status = StatusAnimation.OffActivate;
     }

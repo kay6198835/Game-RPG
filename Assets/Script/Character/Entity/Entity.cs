@@ -75,9 +75,15 @@ public class Entity : CharacterBase<EntityCore>
     private void AnimationFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
     private void AnimationEnd() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.End);
 
+    // Called by EnemySpawner on every spawn, pooled re-use included, after EntityVitalStats.OnEnable() has
+    // reset the modifiers, so the weapon's stat bonus survives. States cache entityData, so rebuild them.
     public override void SetCharacterData(CharacterData data)
     {
         this.data = (EntityData)data;
         gameObject.name = data.name;
+        anim.runtimeAnimatorController = this.data.Aima;
+        LoadState();
+        ApplyCharacterData();
+        stateMachine.Initialize(idleState);
     }
 }
