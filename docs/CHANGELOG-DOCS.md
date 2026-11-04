@@ -17,6 +17,111 @@ which code change caused it.
 
 ---
 
+## 2026-11-04 — Lethal-hit death; buff room auto-opens
+
+**Cause.** Owner decisions (uncommitted working tree): `NegativeReceiverBase.TakeDamage()` sends a hit with
+damage ≥ current HP straight to the death state; `BuffRoom_PowerShrine` retyped `TreasureRoom` in
+`Maze_Storage.asset`; damage calculation and crit pending; enemies use no abilities by design.
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | New "Death on a lethal hit" section; no-ability design note |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+| `docs/systems/map/CHANGELOG.md` | New entry (buff room) |
+| `production/qa/bug-inbox.md` | NOTE-20261101-2 marked fixed in working tree; NOTE-20261104-2/-3/-4 marked owner-pending |
+
+---
+
+## 2026-11-04 — Abilities v1 deleted; enemy sight and health bar
+
+**Cause.** Owner request (uncommitted working tree): Abilities v1 (`System/Skill_Ability/`, six SO assets,
+`EntityWeapon`, `Spell` + prefab, `IEffectable`) and `EntityEffectStats` deleted; `WeaponSO` moved to
+`System/Item/`; enemy sight from `rangeCheckFieldOfView`; enemy health bar redraws on stat change.
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/README.md` | Title, status, code table and v1 section mark v1 deleted |
+| `docs/systems/README.md` | Abilities row drops `System/Skill_Ability/` |
+| `docs/systems/enemy/README.md` | Component list, sight paragraph, open-issue row for `EntityWeapon` removed |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+
+⚠️ **Not updated here** (left for the next `/doc-sync`): `CLAUDE.md` and `.claude/rules/{gameplay-code,
+weapon-skill-code,scriptableobject-data,prototype-code}.md` still describe v1 as present.
+
+---
+
+## 2026-11-04 — Enemy sight range and temporary sprites
+
+**Cause.** Owner request: `EntityFindTarget` sight range reads `MaxRangeAttack`; enemy role clips borrow
+Paladin sprites until real art exists (uncommitted working tree).
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | Placeholders bullet (sprites) and range paragraph (sight range) |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+
+---
+
+## 2026-11-04 — MoveSpeed and attack-range stats
+
+**Cause.** Owner request: enemy and player movement read `StatType.MoveSpeed`; new derived stats
+`MaxRangeAttack` / `MinRangeAttack` replace the prefab-wide `EntityFindTarget` ranges; two dead
+`EntityData` fields commented out (uncommitted working tree).
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | New paragraph + per-role range table |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+| `docs/systems/stats/README.md` | `StatType` row lists 112 / 113 |
+| `production/qa/bug-inbox.md` | NOTE-20261104-5 (`RegenComponent : MovementBase`), NOTE-20261104-6 (`EntityFindTarget.range` 0 on the prefab) |
+
+---
+
+## 2026-11-04 — Enemy room presets (four tiers)
+
+**Cause.** Owner request for more varied room models. Seven new `RoomModel` assets under
+`Assets/SO/Database/Room/Role/`, all listed in `MapModel.asset` (uncommitted).
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | Spawn chain rewritten; new room-preset table with simulated enemy counts |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+
+---
+
+## 2026-11-04 — Enemy roster: Brute, Sniper, Scatter, Elite
+
+**Cause.** Owner request for more enemy roles with balanced data. Working-tree assets (uncommitted):
+four new roles cloned from TrashMelee / RangedCaster and tuned; `RoomModel_Roles` now lists nine roles.
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | Roster table + balance-target table for the four roles; spawn chain now nine roles |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+| `production/qa/bug-inbox.md` | NOTE-20261104-1…4 (enemy speed not data-driven, flat crit damage, Tank immune to Paladin melee, ranged ignores stats) |
+
+---
+
+## 2026-11-04 — Enemy role roster replaces Knight
+
+**Cause.** Owner decision: the six enemy stat profiles (TrashMelee, FastSwarm, Tank, Assasin,
+RangedCaster, Boss) are the enemy set and Knight is no longer used. Working-tree changes on
+`origin/feature/add-effect-component` (uncommitted): enemy animator moved from `EntityData.aima` to
+`CharacterData.animationController`; per-role assets generated under `*/Enemy/Role/`; `MapModel` now lists
+only `RoomModel_Roles`; `EnemyPrefab.data` defaults to `TrashMeleeEntityData`; the `EnemySpawner.roomModel`
+initial value in `LoadRandomMap.unity` points to `RoomModel_Roles`; `EntityEffectReceiver`
+rebased on `EffectReceiverBase` and added to `EnemyPrefab`.
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | New section "Content — role roster": roster table, asset layout, spawn chain, placeholders, Knight retired (files kept) |
+| `docs/systems/enemy/CHANGELOG.md` | New entry 2026-11-04 |
+
+Not changed, by design: ADR-0005, `docs/architecture/character-migration-plan.md` and
+`design/gdd/animation-system.md` mention Knight only as historical content or naming examples.
+
+---
+
 ## 2026-11-03 — S21-09 process gate (owner decision C + B)
 
 **Cause.** S21-09 (11th carry) asked for a process-gate decision. The owner chose C + B: a committed

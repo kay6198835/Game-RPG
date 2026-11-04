@@ -1,8 +1,17 @@
+using UnityEngine;
+
 public class PlayerMovement : MovementBase<Core>
 {
     // Kept under its original (misspelt) name: five player states call it.
-    public void SetVeclocity(UnityEngine.Vector2 velocity)
+    public void SetVeclocity(Vector2 velocity)
     {
         SetVelocity(velocity);
+    }
+
+    // NEED CHECK: new 2026-11-04 — moves along a direction at the MoveSpeed stat (was computed in PlayerMoveState).
+    /// <summary>Sets the velocity to direction × MoveSpeed stat; pass Vector2.zero to stop.</summary>
+    public void Move(Vector2 direction)
+    {
+        SetVelocity(direction * MoveSpeed);
     }
 }

@@ -17,7 +17,10 @@ public abstract class CharacterData : ScriptableObject
     // The authored asset. Never write modifiers to it; use CreateRuntimeStats() for a per-character copy.
     public BaseStatsSO Stats => stats;
     public List<AbilityBinding> AbilityBindings => abilityBindings;
-    [SerializeField] public RuntimeAnimatorController animationController;
+    // NEED CHECK: now shared by enemies too (was EntityData.aima). FormerlySerializedAs("aima") carries old
+    // EntityData assets over on load; keep it until every enemy asset has been re-saved. Confirm Knight.asset
+    // still shows its controller in the Inspector after recompile.
+    [SerializeField, FormerlySerializedAs("aima")] public RuntimeAnimatorController animationController;
     [field: SerializeField] public Weapon Weapon { get; set; }
 
     // The caller owns the clone and must Destroy it: this SO is shared by every character built from it,

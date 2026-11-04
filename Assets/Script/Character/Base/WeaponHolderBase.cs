@@ -88,7 +88,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         float finalDamage = statService.GetStatValue(StatType.PhysicalDamage)
             + weapon.CurrentStage.attackDamage;
         if (Utility.RollChance(statService.GetStatValue(StatType.CritChance)))
-            finalDamage += statService.GetStatValue(StatType.CritDamage);
+            finalDamage += finalDamage * statService.GetStatValue(StatType.CritDamage) / 100;
         return finalDamage;
     }
 }

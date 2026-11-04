@@ -48,6 +48,10 @@ MonoBehaviour:
     baseValue: 0.42000002
   - <Type>k__BackingField: 111
     baseValue: 0.24000001
+  - <Type>k__BackingField: 112
+    baseValue: 1.40
+  - <Type>k__BackingField: 113
+    baseValue: 0.30
   statFormulas:
   - targetStat: 100
     baseConstant: 80
@@ -135,3 +139,11 @@ MonoBehaviour:
       coefficient: 0.05
     - sourceStat: 4
       coefficient: 0.02
+  - targetStat: 112
+    baseConstant: 1.4
+    perLevel: 0
+    contributions: []
+  - targetStat: 113
+    baseConstant: 0.3
+    perLevel: 0
+    contributions: []

@@ -1,6 +1,8 @@
 public interface IRegenResource
 {
     void Regenning();
-    void OnChangeStatMax();
-    void SetData();
+}
+
+public interface IRegenResource<TCore> : IRegenResource where TCore : ICore
+{
 }

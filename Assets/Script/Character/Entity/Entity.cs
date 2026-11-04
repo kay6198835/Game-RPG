@@ -50,7 +50,8 @@ public class Entity : CharacterBase<EntityCore>
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         particle = GetComponentInChildren<ParticleSystem>();
-        anim.runtimeAnimatorController = data.Aima;
+        // NEED CHECK: was data.Aima.
+        anim.runtimeAnimatorController = data.animationController;
     }
     private void LoadState()
     {
@@ -81,7 +82,8 @@ public class Entity : CharacterBase<EntityCore>
     {
         this.data = (EntityData)data;
         gameObject.name = data.name;
-        anim.runtimeAnimatorController = this.data.Aima;
+        // NEED CHECK: was this.data.Aima.
+        anim.runtimeAnimatorController = this.data.animationController;
         LoadState();
         ApplyCharacterData();
         stateMachine.Initialize(idleState);
