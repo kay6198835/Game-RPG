@@ -11,10 +11,13 @@
 
 ## Status Verdict
 
-**SLIPPED, narrowing — start of day 3 (Wed 2026-11-04 standup)** (evidence: COMPILED + LOG +
-STATIC). No owner commit since the Tue evening update; 17 uncommitted owner paths (enemy roles)
-still compile. 3.0 working days left (Wed–Fri) / ≈2.6d planned work remaining; Tue carry
-(S21-04, S21-07) lands on Wed. S21-01 playtest is still the gate (24th day without a Play Mode run).
+**SLIPPED — start of day 4 (Thu 2026-11-05 standup)** (evidence: COMPILED + LOG + STATIC).
+Wednesday's owner output `6094aa10` (1830 files, 36 `.cs`) is almost entirely off-plan: enemy role
+scaffolding + assets, rooms, deletion of Abilities v1, and code fixes for five inbox notes. No
+planned Wed task moved to ✅; S21-01 playtest still not run (0 Play Mode entries in the Editor log).
+2.0 working days left (Thu–Fri) / ≈2.4d planned work remaining (Must ≈1.0d, Should ≈0.9d,
+S21-F1 0.5d) — Should Have and S21-F1 will not all fit.
+*Was (Wed):* SLIPPED, narrowing — start of day 3; 3.0 days left / ≈2.6d remaining.
 *Was (Tue evening):* SLIPPED, narrowing — end of day 2. Owner commit `1370136c` closes S21-02 (BUG-116) and S21-03 (BUG-121 list key) in
 code and makes partial progress on S21-05, S21-06 and S21-12; S21-09 done. S21-01 playtest still
 not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work remaining.
@@ -28,6 +31,7 @@ not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work 
 | Must Have (incl. Sat playtest 0.1d) | 1.45d | 0.3d (S21-02, S21-03, S21-09) + partials | 1.15d |
 | Should Have | 0.95d | 0 | 0.95d |
 | Feature story S21-F1 (capped, gated by S21-01 + S21-03) | 0.5d | 0 | 0.5d |
+| Off-plan (Wed `6094aa10`: enemy roles, rooms, v1 deletion, note fixes) | — | ≈1d | — |
 | Buffer | 1.0d | — | — |
 
 ---
@@ -74,8 +78,9 @@ not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work 
 ### Wed 2026-11-04 — Weapon session
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S21-06 BUG-106 / 107 / 110 | 0.3d | 🟡 `1370136c` (BUG-107 null-`Weapon` guard + `UnEquid` before release) | One file (`WeaponHolderBase`), three bugs; enemies cannot attack |
-| S21-08 Editor / data block | 0.15d | ⬜ | BUG-105 drops sword stage damage to 0 |
+| S21-06 BUG-106 / 107 / 110 | 0.3d | 🟡 `1370136c` (BUG-107 null-`Weapon` guard + `UnEquid` before release); `6094aa10` touched only the crit line → carried to Thu | One file (`WeaponHolderBase`), three bugs; enemies cannot attack |
+| S21-08 Editor / data block | 0.15d | ⬜ → carried to Thu | BUG-105 drops sword stage damage to 0 |
+| (off-plan) `6094aa10` enemy roles + rooms + v1 deletion + fixes for NOTE-20261101-2, NOTE-20261104-1/2/5/6 | — | ✅ committed (not Play-Mode verified) | Burned from buffer; bug/note status for Saturday triage |
 
 ### Thu 2026-11-05 — Process gate + effect bugs
 | Task | Est. | Status | Why now |
@@ -177,3 +182,27 @@ _(appended by `/daily-standup`)_
 - **Fix-survival**: not re-run — no `.cs` commit since the Tue evening run (no fix commits in window).
 - **Today** (Wed plan + Tue carry): S21-01 playtest (0.3d) → S21-06 weapon trio remainder (≈0.2d) →
   S21-04 BUG-108 Knight keys (0.1d) → S21-07 BUG-097 (0.1d) → S21-08 data block (0.15d). ≈0.85d on a 1d day.
+
+### 2026-11-05 (Thu) — standup ~02:15, evidence COMPILED + LOG
+- **Sync**: SKIPPED — owner branch `sprint-21` (`ea00b3a4`) is already in `origin/sprint-21`
+  (owner merged and pushed Wed 21:26).
+- **Yesterday**: `6094aa10` "fix bug, add asset room, enemy, data" (1830 files, +149.7k/−1.4k;
+  36 `.cs`), `1da76e9a` pre-push gate now blocks pushes to `main` only (owner decision), merge
+  `ea00b3a4`. Code highlights: `NegativeReceiverBase` lethal-hit → death state (NOTE-20261101-2);
+  `MovementBase.MoveSpeed` from `StatType.MoveSpeed` (NOTE-20261104-1); crit as percent
+  (NOTE-20261104-2); `RegenComponent` base fixed (NOTE-20261104-5); `EntityFindTarget` range from
+  `EntityData.rangeCheckFieldOfView` + new `StatType.MaxRangeAttack` / `MinRangeAttack` (112/113)
+  (NOTE-20261104-6); `EnemyRoleScaffolder` editor tool + role assets; **Abilities v1
+  (`System/Skill_Ability/`) deleted**, `WeaponSO` moved to `System/Item/`; `EntityWeapon`,
+  `EntityEffectStats`, `Spell`, `IEffectable` deleted; `[FormerlySerializedAs("aima")]` on
+  `CharacterData.animationController`. Planned Wed tasks: none moved to ✅ → S21-01, S21-04,
+  S21-06, S21-07, S21-08 carried. Burned ≈0 / 0.85d planned (≈1d off-plan) → **SLIPPED**.
+- **Compile**: `compile-check.sh` COMPILED (82 s) on `ea00b3a4`, committed state only.
+- **Editor log**: `Editor.log` (2026-11-04 21:30), `Editor-prev.log` (11-03 16:49): 0 `error CS`,
+  0 Play Mode entries, 0 `Assets/Script/` exceptions. Inbox: 12 open (+1 today, NOTE-20261105-1).
+- **Fix-survival**: `fix-survival.sh 7` → no fix commits in window.
+- **Spot check**: no asset under `Assets/` references the GUIDs of deleted `EffectSkillSO` /
+  `SlashAbility`; all new enemy stat assets carry 112/113 entries.
+- **Today** (Thu plan + Wed carry): S21-01 playtest (0.3d, now also verifies `6094aa10`) →
+  S21-06 remainder (0.2d) → S21-04 (0.1d) → S21-07 (0.1d) → S21-08 (0.15d) → S21-10 (0.3d) if
+  time. S21-F1 stays gated. ≈1.15d on a 1d day.
