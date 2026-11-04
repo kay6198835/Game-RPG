@@ -2,10 +2,13 @@
 # pre-push — process gate decided in S21-09 (C + B). Install once per clone:
 #   git config core.hooksPath .githooks
 #
-# C  static-check.sh — always runs, seconds, no Unity. Blocks the push on any ERROR.
+# Owner decision 2026-11-04: the gate blocks pushes to `main` ONLY.
+#   main          C + B run; any ERROR or compile failure blocks the push.
+#   other branch  C runs as a warning only (seconds, never blocks); B is skipped.
+#
+# C  static-check.sh — no Unity, seconds. Flags removed/renamed serialized fields still stored in assets.
 # B  compile-check.sh — headless Unity compile of this checkout. Runs only when no Unity Editor is
-#    open (the Editor holds the project lock). A compile failure blocks pushes to sprint-*/main/release/*
-#    and only warns on other branches. Skip it with GATE_SKIP_COMPILE=1.
+#    open (the Editor holds the project lock). Skip it with GATE_SKIP_COMPILE=1.
 #
 # Escape hatch for an emergency: git push --no-verify (record why in the sprint file).
 set -u
@@ -16,7 +19,8 @@ strict=0
 
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "$zero" ] && continue
-  case "$remote_ref" in refs/heads/sprint-*|refs/heads/main|refs/heads/release/*) strict=1 ;; esac
+  ref_strict=0
+  case "$remote_ref" in refs/heads/main) ref_strict=1; strict=1 ;; esac
 
   if [ "$remote_sha" != "$zero" ] && git cat-file -e "$remote_sha^{commit}" 2>/dev/null; then
     base="$remote_sha"
@@ -27,14 +31,25 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 
   echo "== process gate: ${remote_ref#refs/heads/} =="
-  bash "$root/.githooks/static-check.sh" "$base" "$local_sha" || fail=1
+  if ! bash "$root/.githooks/static-check.sh" "$base" "$local_sha"; then
+    if [ "$ref_strict" -eq 1 ]; then
+      fail=1
+    else
+      echo "warning: static-check errors, allowed because this is not main."
+    fi
+  fi
 done
 
 if [ "$fail" -ne 0 ]; then
   echo
-  echo "Push blocked by static-check (S21-09). Fix the ERROR lines above, or use"
+  echo "Push to main blocked by static-check (S21-09). Fix the ERROR lines above, or use"
   echo "GATE_ALLOW_REMOVED=<field> for a field deleted on purpose."
   exit 1
+fi
+
+if [ "$strict" -eq 0 ]; then
+  echo "compile-check: skipped (not pushing to main)"
+  exit 0
 fi
 
 if [ "${GATE_SKIP_COMPILE:-0}" = "1" ]; then
@@ -47,11 +62,8 @@ result=$(printf '%s\n' "$out" | grep -m1 -E 'Result' | sed -E 's/.*Result[^A-Za-
 echo "compile-check: ${result:-no result}"
 if printf '%s\n' "$out" | grep -q 'FAILED'; then
   printf '%s\n' "$out" | grep -E '^- `' | head -15
-  if [ "$strict" -eq 1 ]; then
-    echo
-    echo "Push blocked: the project does not compile (TD-048). Fix the errors, or push to a feature branch."
-    exit 1
-  fi
-  echo "warning: compile errors, allowed because this is not a sprint/main/release branch."
+  echo
+  echo "Push to main blocked: the project does not compile (TD-048). Fix the errors first."
+  exit 1
 fi
 exit 0
