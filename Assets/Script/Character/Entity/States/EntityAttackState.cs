@@ -57,7 +57,8 @@ public class EntityAttackState : EntityBasicState
     {
         weaponHolder.EndDamage();
         // The weapon stage swapped the animator controller; restore the enemy's own.
-        entity.Anim.runtimeAnimatorController = entityData.Aima;
+        // NEED CHECK: was entityData.Aima.
+        entity.Anim.runtimeAnimatorController = entityData.animationController;
         base.Exit();
     }
 }

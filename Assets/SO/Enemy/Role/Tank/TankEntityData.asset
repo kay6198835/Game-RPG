@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c1885a8510419428a2ca2e42353c8d, type: 3}
+  m_Name: TankEntityData
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: ba2a99dc95edf494d91c12b9132cfae5, type: 2}
+  abilityBindings: []
+  animationController: {fileID: 9100000, guid: 7c224c893f079bb4d81e9aa2dcc837ba, type: 2}
+  <Weapon>k__BackingField: {fileID: 1247331660701095708, guid: 4ffb035b26d3e854a8f7d34f932bc348, type: 3}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  rangeCheckFieldOfView: 4
+  idleDurationTime: 1
+  moveDurationTime: 5
+  movementVelocities: 5
+  rangeCheckAttack: 3

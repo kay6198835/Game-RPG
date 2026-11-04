@@ -16,8 +16,17 @@ public class EntityNegativeReciver : NegativeReceiverBase<EntityCore>
 
     protected override void OnDamaged(float finalDamage, Vector2 attackPosition)
     {
-        entityUIController.UpdateUIHealth(UpdateUIHealth());
+        // NEED CHECK: removed — EntityUIController now redraws on IVitalComponent.CurrentStatsChanged.
+        //entityUIController.UpdateUIHealth(UpdateUIHealth());
         entityMovement.SetPositionToCheck(attackPosition);
+    }
+
+    // NEED CHECK: new 2026-11-04 — lethal hit goes straight to EntityDeathState (see NegativeReceiverBase.TakeDamage).
+    protected override void OnLethalHit()
+    {
+        Entity entity = Core.Entity;
+        if (entity == null || entity.StateMachine.CurrentState == entity.DeathState) return;
+        entity.StateMachine.ChangeState(entity.DeathState);
     }
 
     public float UpdateUIHealth()

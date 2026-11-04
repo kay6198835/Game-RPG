@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c1885a8510419428a2ca2e42353c8d, type: 3}
+  m_Name: EliteEntityData
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: 92a411a162736b64dd7d8a4df3f50159, type: 2}
+  abilityBindings: []
+  animationController: {fileID: 9100000, guid: fbba6795695af0572b1e999bd1f42ecf, type: 2}
+  <Weapon>k__BackingField: {fileID: 1247331660701095708, guid: 8800d491ad585e0521dd1bbaae97fc53, type: 3}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  rangeCheckFieldOfView: 7
+  idleDurationTime: 0.6
+  moveDurationTime: 5
+  movementVelocities: 5
+  rangeCheckAttack: 2.5

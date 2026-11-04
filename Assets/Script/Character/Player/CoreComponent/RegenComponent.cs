@@ -1,94 +1,48 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RegenComponent : MovementBase<Core>, IRegenResource
+// NEED CHECK: also implements IRegenResource — IRegenResource<Core> is empty and does not extend it, so
+// Regenning() was unreachable through the interface.
+public class RegenComponent : CoreComponent<Core>, IRegenResource<Core>
 {
     IStatService<Core> statHandler;
     IVitalComponent<Core> vitalStats;
-    public Dictionary<VitalStatType, RegenData> _cacheDatas;
+    // NEED CHECK: holds timing only. Max, regen amount and current value are read live each tick (was cached
+    // maxValue / regenValue, stale after a class change because a new stat clone raises no StatChanged).
+    public Dictionary<VitalStatType, RegenData> _cacheDatas = new()
+    {
+        { VitalStatType.HP, new RegenData { eachTime = 1 } },   // default 1s
+        { VitalStatType.Mana, new RegenData { eachTime = 1 } },
+    };
 
     public override void Setup()
     {
         base.Setup();
         Core.TryGetCapability(out statHandler);
         Core.TryGetCapability(out vitalStats);
-        SetData();
     }
 
-
+    /// <summary>Recovers HP / Mana by their regen stat, once per eachTime, while below the max stat.</summary>
     public void Regenning()
     {
+        if (statHandler == null || vitalStats == null) return;
         foreach (var stat in _cacheDatas)
         {
-            if (stat.Value.nextTimeRegen >= Time.time
-            || stat.Value.currentValue == stat.Value.maxValue) continue;
-            vitalStats.Recovery(stat.Key, stat.Value.regenValue);
-            stat.Value.currentValue = vitalStats.GetCurrentStatValue(stat.Key);
+            if (stat.Value.nextTimeRegen >= Time.time) continue;
+            StatType maxType = (StatType)(int)stat.Key;
+            StatType regenType = stat.Key == VitalStatType.HP ? StatType.HPRegen : StatType.ManaRegen;
+            if (vitalStats.GetCurrentStatValue(stat.Key) >= statHandler.GetStatValue(maxType)) continue;
+            vitalStats.Recovery(stat.Key, statHandler.GetStatValue(regenType));
             stat.Value.nextTimeRegen = Time.time + stat.Value.eachTime;
         }
-    }
-
-    public void SetRegenDuration(VitalStatType statType, float duration)
-    {
-        _cacheDatas[statType].eachTime = duration;
-    }
-
-    void OnChangeStatMax(StatType statType)
-    {
-        if (Enum.IsDefined(typeof(VitalStatType), statType))
-        {
-            _cacheDatas[(VitalStatType)statType].maxValue = statHandler.GetStatValue(statType);
-        }
-    }
-
-    void SetData()
-    {
-        SeedRegenData();
-        statHandler.ResignStatsChange(OnChangeStatMax);
-    }
-
-    void OnDestroy()
-    {
-        statHandler?.UnResignStatsChange(OnChangeStatMax);
-    }
-
-    void SeedRegenData()
-    {
-        _cacheDatas.Add(VitalStatType.Mana, new RegenData
-        {
-            maxValue = statHandler.GetStatValue(StatType.Mana),
-            currentValue = statHandler.GetStatValue(StatType.Mana),
-            eachTime = 1, // default 1s
-            nextTimeRegen = 0,
-            regenValue = statHandler.GetStatValue(StatType.ManaRegen)
-        });
-        _cacheDatas.Add(VitalStatType.HP, new RegenData
-        {
-            maxValue = statHandler.GetStatValue(StatType.HP),
-            currentValue = statHandler.GetStatValue(StatType.HP),
-            eachTime = 1, // default 1s
-            nextTimeRegen = 0,
-            regenValue = statHandler.GetStatValue(StatType.HPRegen)
-        });
-    }
-
-    public void OnChangeStatMax()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    void IRegenResource.SetData()
-    {
-        SetData();
     }
 }
 
 public class RegenData
 {
-    public float maxValue;
-    public float currentValue;
+    // NEED CHECK: removed — read live in Regenning().
+    //public float maxValue;
+    //public float regenValue;
     public float eachTime;
     public float nextTimeRegen;
-    public float regenValue;
 }

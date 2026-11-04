@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e696c6a78a8d489ea352f2f363c4e41c, type: 3}
+  m_Name: SniperAttackStage1
+  m_EditorClassIdentifier: 
+  nameState: Sniper_Attack1
+  attackRange: 10
+  attackDamage: 48
+  attackRate: 2.5
+  directionAttackAnimatorOV: {fileID: 22100000, guid: a47cc86fdabaef36e172a15cbd331205, type: 2}
+  <ProjectilePrefab>k__BackingField: {fileID: 7718158654528199060, guid: 0218bb39349de8fdbc8ea322ff436f50, type: 3}
+  <ProjectileCount>k__BackingField: 1
+  <SpreadAngle>k__BackingField: 0
+  <RecoveryTime>k__BackingField: 0.3
+  <ProjectileConfig>k__BackingField:
+    speed: 6
+    lifetime: 3
+    targetMask:
+      serializedVersion: 2
+      m_Bits: 128
+    blockMask:
+      serializedVersion: 2
+      m_Bits: 0

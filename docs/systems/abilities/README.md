@@ -1,6 +1,6 @@
-# Abilities — v2 (live) + v1 (legacy)
+# Abilities — v2 (v1 deleted 2026-11-04)
 
-> **Status:** v2 live for player and enemy; v1 legacy, enemy weapon only · **Last verified:** 2026-10-05, HEAD `93ba6d8e`
+> **Status:** v2 live for player and enemy; v1 deleted 2026-11-04 (working tree) · **Last verified:** 2026-10-05, HEAD `93ba6d8e`
 > History: [CHANGELOG.md](CHANGELOG.md) · Diagrams: `docs/diagrams/ability-system-diagrams.md`
 
 ## Purpose
@@ -16,7 +16,7 @@ effects and conditions, run per owner by an `AbilityInstance`.
 | `System/Abilities/Effects/` | `SpawnEffectBase` → `SpawnProjectileEffect`, `SpawnSummonEffect`; `StatsEffectBase` (file `StatEffectBase.cs`) → `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration`; `BuffDebuffStatsForDuration` |
 | `System/Abilities/Conditions/` | empty |
 | `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (`DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `ImpactMono/SourceEffect` |
-| `System/Skill_Ability/` | v1: `ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual abilities, effect SOs, `InternalSkillSO`, `WeaponSO` |
+| ~~`System/Skill_Ability/`~~ | **Deleted 2026-11-04.** v1 (`ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual, effect SOs, `InternalSkillSO`) removed with its six SO assets, `EntityWeapon`, `Spell` + `Spell.prefab`, `IEffectable`. `WeaponSO` moved to `System/Item/` |
 | Owners | `Character/Base/AbilityHolderBase.cs` → `AbilityHolder` (player), `EntityAbilityHolder` (enemy) |
 | Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live) |
 
@@ -54,9 +54,8 @@ from the target and skips if none.
 
 ## v1 (legacy)
 
-`ActivateSkill` SO, lifecycle `Enter → Activate → Cast → Do → Exit`. Since 2026-10-05 referenced
-only by `EntityWeapon.currentAbilitySO`; the player weapon fields that pointed at it were deleted.
-Do not add new `ActivateSkill` subclasses.
+**Deleted 2026-11-04 (owner request).** Nothing referenced it any more except the abstract, unused
+`EntityWeapon` and `EntityEffectStats` (which wrote the shared stat asset). All v2 now; there is no v1 path.
 
 ## Open issues
 

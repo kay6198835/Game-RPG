@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-04 — Buff room auto-opens
+- **Commit:** none yet (working tree on `origin/feature/add-effect-component`)
+- **Changed:** `Assets/SO/Dungeon/Maze_Storage.asset` — `BuffRoom_PowerShrine.roomType` `0` (`NormalRoom`) → `4` (`TreasureRoom`)
+- **From → To:** the buff room has no `Tile_Spawn_Enemy` marker; as a `NormalRoom` it asked the spawner for enemies,
+  got none, and stayed sealed. `TreasureRoom` is in `RoomGeneraterController.AutoOpenRoomTypes`, so it now opens on load.
+  Data only — no code change.
+- **Why:** owner decision.
+- **Still open:** `BossRoom_ThroneArena` / `StartRoom_Entrance` can also be drawn mid-maze and are not auto-open
+  (BUG-097 — start/end chosen by list position).
+
 ## 2026-10-31 — Champion controller renamed (doc-truth re-sync)
 - **Commit:** on `origin/sprint-20` (`StartGameSystem/` → `RoomGameSystem/`, `041292ce` "done flow pick champion")
 - **Changed:** `ChampitionController` → `PedestalChampionController`; `UpgradeController` and an empty `ShopController` added in the same folder.

@@ -19,7 +19,7 @@ entry says so rather than inventing one.
 |--------|--------|---------------|------------|
 | Character core (shared base + player) | [character/](character/README.md) | `Assets/Script/Character/Base/`, `Character/Player/` | `design/gdd/character-system.md`, ADR-0005 |
 | Enemy (AI + spawning) | [enemy/](enemy/README.md) | `Character/Entity/`, `System/Enemy/` | `design/gdd/enemy-spawn-system.md`, ADR-0002, ADR-0003 |
-| Abilities (v2 + legacy v1) | [abilities/](abilities/README.md) | `System/Abilities/`, `System/Skill_Ability/` | `design/gdd/skill-ability-system.md` (v1 only) |
+| Abilities (v2; v1 deleted 2026-11-04) | [abilities/](abilities/README.md) | `System/Abilities/` | `design/gdd/skill-ability-system.md` (v1 only) |
 | Weapons + projectiles | [weapons/](weapons/README.md) | `Weapons/`, `System/Abilities/Runtime/SpawnMono/ProjectileBody.cs` | `design/gdd/weapons-system.md` |
 | Stats | [stats/](stats/README.md) | `System/StatSystem/` | `design/gdd/stat-system.md`, ADR-0001 |
 | Map / dungeon / level editor | [map/](map/README.md) | `Map/`, `LevelEdit/`, `Assets/Data/Json/Room/` | `design/gdd/map-system.md` |

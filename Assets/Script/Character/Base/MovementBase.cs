@@ -21,10 +21,22 @@ public abstract class MovementBase<TCore> : CoreComponentBase<TCore>, IMovement 
     public bool CanMove => locks.Count == 0 && !IsKnockedBack;
     public float SpeedMultiplier => speedMultiplier;
 
+    // NEED CHECK: new 2026-11-04 — Player and Entity both move at StatType.MoveSpeed (was: PlayerMoveState
+    // multiplied it in; EntityMovement used its own serialized `speed`, 0 on EnemyPrefab). 0 until Start().
+    protected IStatService statService;
+    /// <summary>Current MoveSpeed stat in world units per second; 0 when the character has no stat service.</summary>
+    public float MoveSpeed => statService != null ? statService.GetStatValue(StatType.MoveSpeed) : 0f;
+
     protected override void Awake()
     {
         base.Awake();
         rb = GetComponentInParent<Rigidbody2D>();
+    }
+
+    protected override void Start()
+    {
+        base.Start();
+        Core.TryGetCapability(out statService);
     }
 
     protected virtual void FixedUpdate()

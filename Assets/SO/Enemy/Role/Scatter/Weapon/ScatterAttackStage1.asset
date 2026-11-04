@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e696c6a78a8d489ea352f2f363c4e41c, type: 3}
+  m_Name: ScatterAttackStage1
+  m_EditorClassIdentifier: 
+  nameState: Scatter_Attack1
+  attackRange: 6
+  attackDamage: 27
+  attackRate: 1.8
+  directionAttackAnimatorOV: {fileID: 22100000, guid: 45248dc5d9bf2a44d8a63d9df37f727f, type: 2}
+  <ProjectilePrefab>k__BackingField: {fileID: 7718158654528199060, guid: c7524069d32aa7739476686631bbb0ca, type: 3}
+  <ProjectileCount>k__BackingField: 3
+  <SpreadAngle>k__BackingField: 45
+  <RecoveryTime>k__BackingField: 0.3
+  <ProjectileConfig>k__BackingField:
+    speed: 2.5
+    lifetime: 2.5
+    targetMask:
+      serializedVersion: 2
+      m_Bits: 128
+    blockMask:
+      serializedVersion: 2
+      m_Bits: 0

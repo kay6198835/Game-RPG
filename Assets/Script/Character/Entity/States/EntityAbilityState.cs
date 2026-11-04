@@ -68,7 +68,8 @@ public class EntityAbilityState : EntityState
     {
         if (abilityHolder != null && abilityHolder.IsHolding) abilityHolder.CancelHold();
         // An ability's AnimatorOverride replaced the controller; restore the enemy's own.
-        entity.Anim.runtimeAnimatorController = entityData.Aima;
+        // NEED CHECK: was entityData.Aima.
+        entity.Anim.runtimeAnimatorController = entityData.animationController;
         base.Exit();
         abilityHolder = null;
         entityMovement = null;

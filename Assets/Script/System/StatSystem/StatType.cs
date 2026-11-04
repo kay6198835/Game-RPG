@@ -29,6 +29,10 @@ public enum StatType
     HPRegen = 109,  // HP / giây
     ManaRegen = 110,  // Mana / giây
     Evasion = 111,  // đơn vị %
+    // NEED CHECK: new 2026-11-04. Distances in world units. Enemy AI reads them in EntityFindTarget
+    // (was EntityFindTarget.minRange / maxRange on the prefab). Every BaseStatsSO asset carries a formula for both.
+    MaxRangeAttack = 112,  // attack when the target is at most this far
+    MinRangeAttack = 113,  // back off when the target is closer than this
 }
 
 public static class StatTypeExtensions
