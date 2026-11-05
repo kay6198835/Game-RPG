@@ -1,0 +1,138 @@
+{
+    "base":  "4097be4cce",
+    "head":  "92f53a6ecb",
+    "baseRef":  "4097be4cce",
+    "headRef":  "origin/sprint-21",
+    "commits":  [
+                    {
+                        "sha":  "1c3a34fc",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "fix flow",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterInputBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/ICharacterInput.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "74f45752",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261105-1219 on origin/sprint-21 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1219/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  2,
+    "files":  14,
+    "systems":  {
+                    "PLY":  [
+                                "Assets/Script/Character/Base/CharacterInputBase.cs",
+                                "Assets/Script/Interface/ICharacterInput.cs"
+                            ],
+                    "QA":  [
+                               "qa-automation/reports/20261105-1219/change-impact.json",
+                               "qa-automation/reports/20261105-1219/report.md",
+                               "qa-automation/reports/20261105-1219/results.json",
+                               "qa-automation/reports/20261105-1219/run.log",
+                               "qa-automation/reports/20261105-1219/run-info.json",
+                               "qa-automation/reports/20261105-1219/summary.json",
+                               "qa-automation/reports/20261105-1219/unity-report.md",
+                               "qa-automation/reports/20261105-1219/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ],
+                    "VIT":  [
+                                "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                            ]
+                },
+    "deep":  [
+                 "ABL",
+                 "ENT",
+                 "PLY",
+                 "STAT",
+                 "UI",
+                 "VIT"
+             ],
+    "risks":  [
+                  {
+                      "why":  "One base for player and enemy vitals; abilities pay costs and apply effects through it; the HUD reads CurrentStatsChanged",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "ABL",
+                                        "UI",
+                                        "STAT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                ]
+                  }
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}
