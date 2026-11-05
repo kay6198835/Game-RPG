@@ -136,5 +136,23 @@
 
 ## 5. Suggested new cases
 
-Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
-the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+Filled in by the Friday Claude task (part C), 2026-11-05.
+
+| Behaviour (commit) | Type | Case | Where |
+|---|---|---|---|
+| Enemy move speed = `StatType.MoveSpeed`, attack range = `MaxRangeAttack` / `MinRangeAttack`, detection = `EntityData.rangeCheckFieldOfView` (`6094aa10`) | AUTO | QA-ENT-07 (P1) | `QAEnemySuite` |
+| 10 enemy role `EntityData` assets: weapon set, move speed > 0, `0 <= MinRange < MaxRange <= FOV` (`6094aa10`) | AUTO | QA-STATIC-07 (P1) | `QAStaticChecks` |
+| Role animations in 8 directions | MANUAL | MAN-ENT-04 | checklist Part 2 |
+| Role speed / range feel | MANUAL | MAN-ENT-05 | checklist Part 2 |
+| Ranged role projectiles | MANUAL | MAN-ENT-06 | checklist Part 2 |
+| Enemy death in a real room (looping death clip) | MANUAL | MAN-ENT-07 | checklist Part 2 |
+| Crit as a percent | MANUAL | MAN-CMB-05 | checklist Part 2 |
+| Role room sets (`RoomModel_Roles`, T1-T4) | MANUAL | MAN-MAP-04 | checklist Part 2 |
+| Lethal hit goes straight to the death state | covered | QA-ENT-04, QA-VIT-07 | existing |
+
+No case for `Assets/Script/FastTest/QAProbe/QAInputDriver.cs` and `QAProbeTarget.cs`: they are test tooling
+(input driver and dummy target for the player-flow probe), not game behaviour.
+
+Other part C changes: `config/static-baseline.txt` accepts the 35 QA-STATIC-03 orphan keys of fields deleted on
+purpose in `6094aa10` (values moved to role stat assets; Abilities v1 removed); `config/known-issues.json` maps
+QA-MAP-06 to BUG-096 (Boss room has no spawn marker and no door-open path).

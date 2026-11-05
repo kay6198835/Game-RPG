@@ -67,6 +67,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-ENT-04 | P0 | Lethal damage emits `ON_ENEMY_DEATH` once, payload = enemy | once, within 5 s | |
 | QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | |
 | QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | |
+| QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | |
 | QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | |
 | QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | |
 | QA-EVT-03 | P1 | Two listeners both receive; Emit with no listener is safe | 1 + 1, no throw | |
@@ -84,7 +85,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-MAP-03 | P1 | `MapModel.GetRandomRoom` deals every room once per cycle | N draws = N distinct rooms | |
 | QA-MAP-04 | P1 | `RoomModel.GetSpawnSet` within weight budget + overflow (20 seeds × room) | never empty, total weight ≤ budget × (1 + overflow) (ADR-0003) | |
 | QA-MAP-05 | P1 | Every room JSON parses with matching tiles / poses / layers counts | equal and > 0 | |
-| QA-MAP-06 | P2 | Combat and boss rooms carry a spawn marker | ≥ 1 `Tile_Spawn_Enemy`; others reported (BUG-096 context) | |
+| QA-MAP-06 | P2 | Combat and boss rooms carry a spawn marker | ≥ 1 `Tile_Spawn_Enemy`; others reported (BUG-096 context) | BUG-096 (Boss room) |
 | QA-PATH-01 | P0 | A* finds a path to the farthest reachable tile | success, waypoints walkable and adjacent, ends at target | |
 | QA-PATH-02 | P1 | A* to a wall tile fails cleanly | `Success == false`, no exception | |
 | QA-PATH-03 | P1 | Same query twice gives the same path | identical waypoints | |
@@ -95,6 +96,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-STATIC-04 | P0 | No runtime stat modifier saved into a stat asset | no non-empty `modifiers:` list | BUG-115 (BUG-063 deferred) |
 | QA-STATIC-05 | P0 | Runtime scripts use `UnityEditor` only inside `#if UNITY_EDITOR` | none | BUG-116 |
 | QA-STATIC-06 | P0 | Every enabled build scene exists | all files present | |
+| QA-STATIC-07 | P1 | Every enemy role `EntityData` (`Assets/SO/Enemy/Role`) has a weapon, a move speed and a consistent attack range (added 2026-11-05, `6094aa10`) | `Weapon` set; `MoveSpeed` > 0; 0 ≤ `MinRangeAttack` < `MaxRangeAttack` ≤ `rangeCheckFieldOfView` | |
 | QA-LOG.<group> | P0 | Errors logged outside a case | none (created only when it happens) | |
 | QA-RUNNER.<group> | P0 | Group finished Play Mode and wrote its results | created only when a group crashed | |
 

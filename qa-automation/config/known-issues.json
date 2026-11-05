@@ -16,6 +16,7 @@
     { "pattern": "^QA-STATIC-02$", "findings": "ShootSpirit|SpiritBomd", "bug": "BUG-090", "note": "ShootSpirit pair references the deleted Has Enough Mana Condition asset" },
     { "pattern": "^QA-STATIC-03$", "findings": "attackDamege", "bug": "BUG-105", "note": "AttackSO assets still store attackDamege" },
     { "pattern": "^QA-STATIC-03$", "findings": "authoredModifiers", "bug": "BUG-121", "note": "StatModifierGroup.authoredModifiers renamed without FormerlySerializedAs" },
-    { "pattern": "^QA-STATIC-03$", "findings": "weaponSO", "bug": "BUG-108", "note": "Knight EntityData assets still store weaponSO" }
+    { "pattern": "^QA-STATIC-03$", "findings": "weaponSO", "bug": "BUG-108", "note": "Knight EntityData assets still store weaponSO" },
+    { "pattern": "^QA-MAP-06$", "findings": "BossRoom|BUG-096", "bug": "BUG-096", "note": "Boss room has no spawn marker and no other door-open path; non-combat rooms reported for BUG-096 context" }
   ]
 }

@@ -191,3 +191,39 @@ Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset (AttackSO): ability
 Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset (AttackSO): enemyLayers
 Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset (AttackSO): ability
 Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset (AttackSO): enemyLayers
+# 2026-11-05 (run 20261105-1002): orphan keys of fields deleted on purpose in 6094aa10 - EntityData.movementVelocities / rangeCheckAttack (values moved to StatType.MoveSpeed / MaxRangeAttack / MinRangeAttack in the role stat assets) and the Abilities v1 fields (WeaponStats.AbilityWeapon / SkillWeapon, AttackSO.ability). No data lost.
+Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Enemy - Knight.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Enemy - Knight.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Knight/Knight.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Knight/Knight.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): movementVelocities
+Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): rangeCheckAttack
+Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset (MeleeWeaponStats): <AbilityWeapon>k__BackingField
+Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset (MeleeWeaponStats): <SkillWeapon>k__BackingField
+Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset (AttackSO): ability

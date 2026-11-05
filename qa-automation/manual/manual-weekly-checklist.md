@@ -59,9 +59,16 @@ Filled in by the Friday QA task from `weekly-change-impact.md` (section 4) when 
 One row per new visual / feel / layout / audio behaviour. Clear the table at the start of each week after
 moving any row that should stay into Part 1.
 
+Week of 2026-11-05 (run `20261105-1002`, `sprint-21` `04cfb53d`).
+
 | ID | Feature (commit) | Preconditions | Steps | Expected | Actual | Pass/Fail |
 |---|---|---|---|---|---|---|
-| | | | | | | |
+| MAN-ENT-04 | 10 enemy roles, animations (`6094aa10`) | MainGamePlay, enter combat rooms until you have met Assasin, Brute, Elite, FastSwarm, Tank, TrashMelee, RangedCaster, Scatter, Sniper (Boss if reachable) | Watch each role idle, walk, attack and die, from several directions | Each role uses its own sprites; animation faces the move / attack direction in all 8 directions; no T-pose, no frozen frame, no missing clip | | |
+| MAN-ENT-05 | Role move speed and attack range from stats (`6094aa10`) | Same rooms | Walk toward and away from each role | FastSwarm / Assasin visibly faster than Tank / Brute; melee roles close in and swing at contact range; ranged roles stop at a distance and back off when you walk into them (MinRangeAttack) | | |
+| MAN-ENT-06 | Ranged role projectiles (`6094aa10`) | Rooms with RangedCaster, Scatter, Sniper | Stand in their line of fire, then sidestep | Projectile leaves the enemy toward you, points along its flight, hits and disappears; Scatter fires a spread; a dodged projectile disappears at a wall (Arrow-style no-collider defect = BUG-095) | | |
+| MAN-ENT-07 | Enemy death in a real room (`6094aa10`) | Combat room with 2+ enemies | Kill the enemies one by one; kill the last one with a single big hit if possible | Each death animation plays once, the body goes away, one item drop at most per enemy; doors open only after the **last** enemy (QA-ENT-04 saw `ON_ENEMY_DEATH` twice from a looping death clip) | | |
+| MAN-CMB-05 | Crit as a percent (`6094aa10`) | Any class, a trash enemy | Take 20 hits from the enemy | No single hit takes most of your HP; crits look like a moderate bump, not a one-shot (was NOTE-20261104-2) | | |
+| MAN-MAP-04 | Role room sets (`6094aa10`, `RoomModel_Roles`, `RoomModel_T1…T4`) | MainGamePlay, New Game | Clear 4–5 combat rooms | Enemy mix changes between rooms and gets harder deeper in; no room spawns 0 enemies and then stays locked | | |
 
 ## Open design questions (decide the expected result of some rows)
 
