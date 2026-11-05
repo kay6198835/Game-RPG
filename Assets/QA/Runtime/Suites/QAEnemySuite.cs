@@ -59,6 +59,10 @@ namespace QA.Automation
         private IEnumerator Spawn()
         {
             _enemy = pool.Spawn(enemyPrefab, spawnPoint.position, Quaternion.identity);
+            // Same as EnemySpawner.ApplyData() since 6094aa10: the spawner applies the EntityData after the pool
+            // re-enabled the enemy, and that is what equips the default weapon and abilities.
+            if (_enemy != null && _enemy.TryGetComponent(out Entity spawned) && spawned.Data != null)
+                spawned.SetCharacterData(spawned.Data);
             yield return Frames(3);
             if (_enemy == null) yield break;
             _vital = _enemy.GetComponentInChildren<EntityVitalStats>(true);
