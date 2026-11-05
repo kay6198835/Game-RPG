@@ -39,5 +39,8 @@ None matched.
 
 ## 5. Suggested new cases
 
-Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
-the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+Filled in by the Friday Claude task (part C), 2026-11-05.
+
+No new runtime script, asset or gameplay change in this range: the two commits touch only QA code, QA
+reports and docs. No AUTO case and no MANUAL row added. Part 2 of `manual/manual-weekly-checklist.md`
+keeps the rows written for this week by run `20261105-1002` (MAN-ENT-04/05/06).
