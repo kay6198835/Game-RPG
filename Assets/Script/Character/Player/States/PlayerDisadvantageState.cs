@@ -17,6 +17,12 @@ public class PlayerDisadvantageState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        // PlayerDeathState derives from this class but overrides LogicUpdate without calling base.
+        if (inputHandler.IsDeath)
+        {
+            stateMachine.ChangeState(player.DeathState);
+            return;
+        }
         if (Status == StatusAnimation.EndRangeTrigger)
         {
             if (inputHandler.MoveVector == Vector2.zero)

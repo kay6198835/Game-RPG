@@ -21,14 +21,6 @@ public class EntityNegativeReciver : NegativeReceiverBase<EntityCore>
         entityMovement.SetPositionToCheck(attackPosition);
     }
 
-    // NEED CHECK: new 2026-11-04 — lethal hit goes straight to EntityDeathState (see NegativeReceiverBase.TakeDamage).
-    protected override void OnLethalHit()
-    {
-        Entity entity = Core.Entity;
-        if (entity == null || entity.StateMachine.CurrentState == entity.DeathState) return;
-        entity.StateMachine.ChangeState(entity.DeathState);
-    }
-
     public float UpdateUIHealth()
     {
         return vital.GetCurrentStatValue(VitalStatType.HP) / stats.GetStatValue(StatType.HP);

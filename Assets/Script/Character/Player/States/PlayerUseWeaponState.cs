@@ -29,6 +29,11 @@ public class PlayerUseWeaponState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (inputHandler.IsDeath)
+        {
+            stateMachine.ChangeState(player.DeathState);
+            return;
+        }
         if (Status == StatusAnimation.End)
         {
             if (inputHandler.MoveVector == Vector2.zero)

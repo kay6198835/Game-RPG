@@ -32,11 +32,10 @@ public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, IN
         vital.Reduction(VitalStatType.HP, finalDamage);
         input?.OnTakeDamage(attackPosition);
         OnDamaged(finalDamage, attackPosition);
-        if (lethal) OnLethalHit();
+        // NEED CHECK: 2026-11-05 — was OnLethalHit() calling StateMachine.ChangeState(DeathState) from this
+        // component. The states now read ICharacterInput.IsDeath and switch themselves.
+        if (lethal) input?.OnDeath();
     }
-
-    /// <summary>Called once, after HP was reduced to zero by a hit: switch the character to its death state.</summary>
-    protected abstract void OnLethalHit();
 
     /// <summary>Damage reduction before HP is touched. Default: none.</summary>
     protected virtual float Mitigate(float amountDamage) => amountDamage;

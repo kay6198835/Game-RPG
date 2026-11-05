@@ -8,6 +8,7 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
 {
     [Header("Shared State")]
     [SerializeField] protected bool isTakeDamage;
+    [SerializeField] protected bool isDeath;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
     [SerializeField] protected float takeDamageFlagDuration = 0.1f;
@@ -18,6 +19,7 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     [SerializeField] protected int hitDirection;
 
     public bool IsTakeDamage => isTakeDamage;
+    public bool IsDeath => isDeath;
     public bool IsAttack => isAttack;
     public bool IsSkill => isSkill;
 
@@ -33,6 +35,21 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isTakeDamage = true;
+    }
+
+    // NEED CHECK: new 2026-11-05 — the lethal-hit signal lives on the input like every other state trigger;
+    // the receiver no longer changes state itself. Sticky until ReloadComponent() (respawn / Reborn).
+    public virtual void OnDeath()
+    {
+        isDeath = true;
+    }
+
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
+        CancelInvoke(nameof(ResetTakeDamage));
+        isTakeDamage = false;
+        isDeath = false;
     }
 
     // Protected, not private: Invoke() resolves the name on the runtime type and cannot see a

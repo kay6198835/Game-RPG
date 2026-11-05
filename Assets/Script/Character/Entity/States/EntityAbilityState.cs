@@ -11,6 +11,7 @@ public class EntityAbilityState : EntityState
 {
     private EntityAbilityHolder abilityHolder;
     private EntityMovement entityMovement;
+    private EntityInput entityInput;
     private float holdStartTime;
     private bool castDispatched;
 
@@ -23,6 +24,7 @@ public class EntityAbilityState : EntityState
         base.Enter();
         entity.Core.GetCoreComponent(out abilityHolder);
         entity.Core.GetCoreComponent(out entityMovement);
+        entity.Core.GetCoreComponent(out entityInput);
         entityMovement.Stop();
         abilityHolder.StartHold();
         holdStartTime = Time.time;
@@ -32,6 +34,11 @@ public class EntityAbilityState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (entityInput.IsDeath)
+        {
+            stateMachine.ChangeState(entity.DeathState);
+            return;
+        }
         abilityHolder.Processing();
 
         switch (abilityHolder.CurrentAbilityState)
@@ -73,5 +80,6 @@ public class EntityAbilityState : EntityState
         base.Exit();
         abilityHolder = null;
         entityMovement = null;
+        entityInput = null;
     }
 }

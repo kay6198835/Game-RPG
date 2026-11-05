@@ -20,6 +20,11 @@ public class EntityTakeDamageState : EntityDisadvantageState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (entityInput.IsDeath)
+        {
+            stateMachine.ChangeState(entity.DeathState);
+            return;
+        }
         if (Status == StatusAnimation.EndRangeTrigger)
         {
             stateMachine.ChangeState(entity.MoveState);

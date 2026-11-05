@@ -23,6 +23,8 @@ public abstract class CharacterBase<TCore> : BaseEntity, ICharacter<TCore> where
         if (core.TryGetCapability(out AbilityHolderBase<TCore> abilities)) abilities.SetAbility();
         if (core.TryGetCapability(out VitalStatsBase<TCore> vitals)) vitals.ReloadComponent();
         if (core.TryGetCapability(out EffectReceiverBase<TCore> effects)) effects.ReloadComponent();
+        // NEED CHECK: 2026-11-05 — clears IsDeath / IsTakeDamage so a pooled enemy respawns alive.
+        if (core.TryGetCapability(out CharacterInputBase<TCore> input)) input.ReloadComponent();
     }
 
     public virtual void Reborn()

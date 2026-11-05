@@ -18,6 +18,12 @@ public class EntityAttackState : EntityBasicState
     }
     public override void LogicUpdate()
     {
+        // Does not call base.LogicUpdate(), so it reads the death flag itself.
+        if (entityInput.IsDeath)
+        {
+            stateMachine.ChangeState(entity.DeathState);
+            return;
+        }
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
 
         switch (Status)
