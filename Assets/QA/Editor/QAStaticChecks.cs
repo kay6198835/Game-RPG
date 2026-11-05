@@ -36,6 +36,7 @@ namespace QA.Automation.Editor
             Add(file, config, "QA-STATIC-05", QAPriority.P0, "Runtime scripts do not use UnityEditor outside #if UNITY_EDITOR", EditorUsings);
             Add(file, config, "QA-STATIC-06", QAPriority.P0, "Every enabled build scene exists", BuildScenes);
             Add(file, config, "QA-STATIC-07", QAPriority.P1, "Every enemy role has a weapon, a move speed and a consistent attack range", EnemyRoleData);
+            Add(file, config, "QA-STATIC-08", QAPriority.P1, "Every enemy role weapon can hit the player: attack clips carry the damage event, masks include the player hurtbox", EnemyAttackWiring);
             file.finished = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             return file;
         }
@@ -301,6 +302,94 @@ namespace QA.Automation.Editor
                 }
             }
             Report(r, findings, $"{guids.Length} role EntityData assets consistent");
+            if (findings.Count == 0) r.notes.AddRange(info);
+        }
+
+        private const string PlayerPrefabPath = "Assets/Prefab/Player/PlayerTest.prefab";
+
+        // The static half of QA-ENT-08. Weapon.OnAttackEnter() swaps the animator to the stage's
+        // directionAttackAnimatorOV and plays its "Attack" clips; EntityAttackState deals damage only on the
+        // clip's AnimationOnAction event and leaves only on AnimationFinishTrigger / AnimationEnd.
+        // MeleeWeapon hits WeaponStats.LayerMask; RangeWeapon's projectile hits ProjectileConfig.targetMask.
+        private static void EnemyAttackWiring(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            string[] guids = AssetDatabase.FindAssets("t:EntityData", new[] { "Assets/SO/Enemy/Role" });
+            GameObject playerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PlayerPrefabPath);
+            NegativeReciver hurtbox = playerPrefab != null ? playerPrefab.GetComponentInChildren<NegativeReciver>(true) : null;
+            if (guids.Length == 0 || hurtbox == null)
+            {
+                r.verdict = nameof(QAVerdict.SKIP);
+                r.notes.Add(guids.Length == 0 ? "SKIP: no EntityData under Assets/SO/Enemy/Role" : $"SKIP: no NegativeReciver on {PlayerPrefabPath}");
+                return;
+            }
+            int playerLayer = hurtbox.gameObject.layer;
+            int playerBit = 1 << playerLayer;
+            info.Add($"player hurtbox layer {LayerMask.LayerToName(playerLayer)} ({playerLayer})");
+
+            foreach (string path in guids.Select(AssetDatabase.GUIDToAssetPath).OrderBy(p => p, StringComparer.Ordinal))
+            {
+                EntityData data = AssetDatabase.LoadAssetAtPath<EntityData>(path);
+                if (data == null) continue;
+                string role = System.IO.Path.GetFileNameWithoutExtension(path);
+                if (data.Weapon == null)
+                {
+                    findings.Add($"{role}: no Weapon (see QA-STATIC-07)");
+                    continue;
+                }
+                WeaponStats stats = data.Weapon.Stats;
+                if (stats == null || stats.StageCount == 0)
+                {
+                    findings.Add($"{role}: weapon {data.Weapon.name} has no WeaponStats or no attack stage");
+                    continue;
+                }
+                if (stats.Type == WeaponType.MeleeWP && (stats.LayerMask.value & playerBit) == 0)
+                    findings.Add($"{role}: melee {stats.name} LayerMask {stats.LayerMask.value} does not include the player hurtbox layer");
+
+                int stageIndex = 0;
+                foreach (AttackSO stage in stats.AttackStages)
+                {
+                    string where = $"{role}: {stats.name} stage {stageIndex++}";
+                    if (stage == null)
+                    {
+                        findings.Add($"{where} is empty");
+                        continue;
+                    }
+                    if (stage is RangeAttackSO ranged)
+                    {
+                        if ((ranged.ProjectileConfig.targetMask.value & playerBit) == 0)
+                            findings.Add($"{where} ({stage.name}): projectile targetMask {ranged.ProjectileConfig.targetMask.value} does not include the player hurtbox layer");
+                        if (ranged.ProjectilePrefab == null)
+                            findings.Add($"{where} ({stage.name}): no ProjectilePrefab");
+                        else if (ranged.ProjectilePrefab.GetComponentInChildren<Collider2D>(true) == null)
+                            findings.Add($"{where} ({stage.name}): projectile {ranged.ProjectilePrefab.name} has no Collider2D (never triggers a hit)");
+                    }
+                    AnimatorOverrideController ov = stage.directionAttackAnimatorOV;
+                    if (ov == null)
+                    {
+                        findings.Add($"{where} ({stage.name}): no directionAttackAnimatorOV (the animator is set to null on attack)");
+                        continue;
+                    }
+                    List<AnimationClip> clips = Utility.GetOverrideClips(ov, "Attack")
+                        .Select(p => p.Value != null ? p.Value : p.Key).Where(c => c != null).Distinct().ToList();
+                    if (clips.Count == 0)
+                    {
+                        findings.Add($"{where} ({stage.name}): {ov.name} has no clip named *Attack*");
+                        continue;
+                    }
+                    foreach (AnimationClip clip in clips)
+                    {
+                        HashSet<string> events = new(AnimationUtility.GetAnimationEvents(clip).Select(e => e.functionName));
+                        if (!events.Contains("AnimationOnAction"))
+                            findings.Add($"{where}: clip {clip.name} has no AnimationOnAction event (attack plays, no damage)");
+                        if (!events.Contains("AnimationFinishTrigger") && !events.Contains("AnimationEnd"))
+                            findings.Add($"{where}: clip {clip.name} has no AnimationFinishTrigger / AnimationEnd event (enemy stuck in EntityAttackState)");
+                    }
+                    info.Add($"{where} ({stage.name}): {clips.Count} attack clip(s) checked in {ov.name}");
+                }
+            }
+            Report(r, findings, $"{guids.Length} role weapons can hit the player");
             if (findings.Count == 0) r.notes.AddRange(info);
         }
     }

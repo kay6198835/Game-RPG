@@ -41,7 +41,7 @@ The numbers behind these cases are already checked by the Friday automated run. 
 | MAN-ABL-03 | Paladin 3 / 4 | Full Mana | Press 3, then 4 | Buff / heal VFX on the player; Stats panel (C) shows the change and it reverts when the buff ends | | |
 | MAN-ABL-04 | Archer 4 Rain Arrows | Full Mana | Cast twice at two different places | Arrows fall over the area at the mouse each time, not at the previous cast's position (BUG-109) | | |
 | MAN-ENT-01 | Enemy chase | MainGamePlay, a combat room | Walk away from an enemy | Enemy follows around walls, does not walk through walls or get stuck on corners | | |
-| MAN-ENT-02 | Enemy attack | Combat room | Stand next to an enemy for 5 s | Enemy attack animation plays and the player loses HP in step with the animation | | |
+| MAN-ENT-02 | Enemy attack (look and timing; "the player loses HP" is AUTO in QA-ENT-08 / QA-STATIC-08) | Combat room | Stand next to an enemy for 5 s | Attack animation faces the player; the HP bar drops on the visible impact frame, not before or after; hit feedback (flash / knockback) shows | | |
 | MAN-ENT-03 | Enemy death | Combat room | Kill an enemy | Death animation, body disappears, nothing left floating; HP bar removed | | |
 | MAN-UI-01 | HUD | Any class picked | Look at the HUD | HP / Mana bars full and labelled; 4 hotbar icons in slot order 1–4 | | |
 | MAN-UI-02 | Hotbar cooldown | Cast any ability | Watch the hotbar | Cooldown overlay starts at cast and empties in step with the real cooldown | | |

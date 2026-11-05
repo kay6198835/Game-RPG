@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -20,6 +21,7 @@ namespace QA.Automation.Editor
         private const string StatsAssetPath = "Assets/SO/Stat/Player/PaladinStats.asset";
         private const string MapModelPath = "Assets/SO/Database/Map/MapModel.asset";
         private const string DepotItemPath = "Assets/SO/Item/Depot Item 1.asset";
+        private const string EnemyRoleFolder = "Assets/SO/Enemy/Role";
         private static readonly string[] Classes = { "Paladin", "Archer", "Mage" };
 
         public static readonly string[] PlayModeGroups = { "SYSTEMS", "VITALS", "ENEMY", "PLAYER" };
@@ -79,7 +81,7 @@ namespace QA.Automation.Editor
 
         private static void BuildEnemy(GameObject harness)
         {
-            ObjectPoolManager pool = PlayerInfrastructure(out _, out Transform playerSpawn);
+            ObjectPoolManager pool = PlayerInfrastructure(out PlayerManager playerManager, out Transform playerSpawn);
             playerSpawn.position = new Vector3(-8f, 0f, 0f);
             new GameObject("EnemyManager").AddComponent<EnemyManager>();
             GameObject enemySpawn = new("EnemySpawnPoint");
@@ -88,6 +90,12 @@ namespace QA.Automation.Editor
             Wire(suite, "enemyPrefab", Require<GameObject>(EnemyPrefabPath));
             Wire(suite, "pool", pool);
             Wire(suite, "spawnPoint", enemySpawn.transform);
+            // QA-ENT-08: the player is the target; each role EntityData is applied to the spawned enemy in turn.
+            Wire(suite, "playerManager", playerManager);
+            Wire(suite, "playerClass", Require<PlayerData>(string.Format(PlayerDataPathFormat, "Paladin")));
+            WireArray(suite, "roles", AssetDatabase.FindAssets("t:EntityData", new[] { EnemyRoleFolder })
+                .Select(AssetDatabase.GUIDToAssetPath).OrderBy(p => p, System.StringComparer.Ordinal)
+                .Select(p => (Object)AssetDatabase.LoadAssetAtPath<EntityData>(p)).Where(d => d != null).ToArray());
             // EntityMovement.Start reads EnemyManager.Instance.Grid; an empty grid answers every query with a
             // failure, which the movement code handles (same as CombatTestEnemySpawner).
             harness.AddComponent<QAEmptyPathGrid>();

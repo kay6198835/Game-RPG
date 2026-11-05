@@ -68,6 +68,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | |
 | QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | |
 | QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | |
+| QA-ENT-08.<Role> | P0 | Enemy attacks the player in range (added 2026-11-05; was only MAN-ENT-02). One run per `EntityData` in `Assets/SO/Enemy/Role`: enemy pinned, player held mid attack range for 8 s | enters `EntityAttackState`; player HP drops; two attack entries ≥ min `attackRate` apart. Notes on failure: target lock / distance / `CallAttack`, attack clip events, mask vs player hurtbox layer | |
 | QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | |
 | QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | |
 | QA-EVT-03 | P1 | Two listeners both receive; Emit with no listener is safe | 1 + 1, no throw | |
@@ -97,6 +98,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-STATIC-05 | P0 | Runtime scripts use `UnityEditor` only inside `#if UNITY_EDITOR` | none | BUG-116 |
 | QA-STATIC-06 | P0 | Every enabled build scene exists | all files present | |
 | QA-STATIC-07 | P1 | Every enemy role `EntityData` (`Assets/SO/Enemy/Role`) has a weapon, a move speed and a consistent attack range (added 2026-11-05, `6094aa10`) | `Weapon` set; `MoveSpeed` > 0; 0 ≤ `MinRangeAttack` < `MaxRangeAttack` ≤ `rangeCheckFieldOfView` | |
+| QA-STATIC-08 | P1 | Every enemy role weapon can hit the player (added 2026-11-05, static half of QA-ENT-08) | melee `LayerMask` / projectile `targetMask` include the `PlayerTest.prefab` hurtbox layer; projectile prefab has a `Collider2D`; every stage has `directionAttackAnimatorOV`; every `*Attack*` clip in it has `AnimationOnAction` and `AnimationFinishTrigger` or `AnimationEnd` | |
 | QA-LOG.<group> | P0 | Errors logged outside a case | none (created only when it happens) | |
 | QA-RUNNER.<group> | P0 | Group finished Play Mode and wrote its results | created only when a group crashed | |
 
