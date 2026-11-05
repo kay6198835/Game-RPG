@@ -39,8 +39,10 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
 
     // NEED CHECK: new 2026-11-05 — the lethal-hit signal lives on the input like every other state trigger;
     // the receiver no longer changes state itself. Sticky until ReloadComponent() (respawn / Reborn).
-    public virtual void OnDeath()
+    public virtual void OnDeath(Vector2 attackPosition)
     {
+        hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
+        AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isDeath = true;
     }
 

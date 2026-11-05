@@ -12,5 +12,5 @@ public interface ICharacterInput : IAimProvider
     /// <summary>Set once by the damage receiver on a lethal hit; states read it to enter their death state.</summary>
     bool IsDeath { get; }
     void OnTakeDamage(Vector2 attackPosition);
-    void OnDeath();
+    void OnDeath(Vector2 attackPosition);
 }
