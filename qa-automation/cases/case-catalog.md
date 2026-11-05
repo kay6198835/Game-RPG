@@ -64,7 +64,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-ENT-01 | P0 | Pool spawns the enemy prefab with core components and full HP | active, Entity + vital + stat + hurtbox, HP = max | |
 | QA-ENT-02 | P0 | Spawned enemy has its default weapon (spawn applies `EntityData` like `EnemySpawner.ApplyData()` since 2026-11-05) | `EntityWeaponHolder.Weapon != null` within 1 s | BUG-106 |
 | QA-ENT-03 | P0 | Damage lowers HP by amount − Defense; below Defense = 0 | exact | |
-| QA-ENT-04 | P0 | Lethal damage emits `ON_ENEMY_DEATH` once, payload = enemy | once, within 5 s | |
+| QA-ENT-04 | P0 | Lethal damage emits `ON_ENEMY_DEATH` once, payload = enemy; the suite releases the enemy on that emit like `EnemySpawner.ReleaseEnemy()` (spawn-system contract, owner decision 2026-11-05) | once within 5 s; enemy inactive after the emit; still once 1 s later | |
 | QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | |
 | QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | |
 | QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | |

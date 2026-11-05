@@ -139,6 +139,7 @@ namespace QA.Automation
             }
             if (!died) yield break;
             Check(_deaths[0] == _enemy, "payload is the enemy GameObject", $"payload {(_deaths[0] != null ? _deaths[0].name : "null")}");
+            Check(!_enemy.activeSelf, "released to the pool on the first emit (spawn-system contract)", "enemy still active after the spawn-system release");
             yield return Wait(1f);
             Check(_deaths.Count == 1, "emitted once", $"emitted {_deaths.Count} times");
         }
@@ -200,9 +201,16 @@ namespace QA.Automation
                 $"detection range {finder.Range:0.##} >= MaxRange", $"detection range {finder.Range:0.##} below MaxRange {finder.MaxRange:0.##} (sees the player only inside attack range)");
         }
 
+        // Mirrors EnemySpawner.ReleaseEnemy(): by design (owner, 2026-11-05) the spawn system releases a dead enemy
+        // on the first ON_ENEMY_DEATH, and that release is what stops the looping death clip from emitting again.
+        // Any spawner, custom or test, must do the same.
         private void OnEnemyDeath(object payload)
         {
-            if (payload is GameObject go) _deaths.Add(go);
+            if (payload is GameObject go)
+            {
+                _deaths.Add(go);
+                if (pool != null) pool.Release(go);
+            }
             else _deaths.Add(null);
         }
     }
