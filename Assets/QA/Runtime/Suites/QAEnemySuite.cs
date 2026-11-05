@@ -43,6 +43,7 @@ namespace QA.Automation
             yield return Case("QA-ENT-04", "ENT", QAPriority.P0, "Lethal damage emits ON_ENEMY_DEATH once with the enemy as payload", Guard(CaseDeath()));
             yield return Case("QA-ENT-05", "ENT", QAPriority.P1, "Released then re-spawned enemy comes back with full HP", CaseRespawn());
             yield return Case("QA-ENT-06", "ENT", QAPriority.P2, "Enemy stat asset unchanged after spawn, damage and respawn", CaseAssetClean());
+            yield return Case("QA-ENT-07", "ENT", QAPriority.P1, "Spawned enemy reads move speed and attack range from its stats", Guard(CaseStatDriven()));
         }
 
         private IEnumerator Guard(IEnumerator body)
@@ -167,6 +168,32 @@ namespace QA.Automation
             List<string> changed = _assetSnapshot.Where(p => !now.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value))
                 .Select(p => $"{p.Key} {p.Value:0.##}->{(now.TryGetValue(p.Key, out float v) ? v.ToString("0.##") : "missing")}").ToList();
             Check(changed.Count == 0, $"{_statsAsset.name} unchanged", $"{_statsAsset.name} changed in memory: {string.Join(", ", changed)}");
+        }
+
+        // 6094aa10: MovementBase.MoveSpeed = StatType.MoveSpeed, EntityFindTarget.MaxRange / MinRange =
+        // StatType.MaxRangeAttack / MinRangeAttack, EntityFindTarget.Range = EntityData.rangeCheckFieldOfView.
+        // Was: serialized prefab fields left at 0 (inbox NOTE-20261104-1 / NOTE-20261104-6).
+        private IEnumerator CaseStatDriven()
+        {
+            yield return Frames(2);
+            EntityMovement movement = _enemy.GetComponentInChildren<EntityMovement>(true);
+            EntityFindTarget finder = _enemy.GetComponentInChildren<EntityFindTarget>(true);
+            if (movement == null || finder == null)
+            {
+                Fail($"components missing: movement={movement != null} findTarget={finder != null}");
+                yield break;
+            }
+            float statMove = _stats.GetStatValue(StatType.MoveSpeed);
+            float statMax = _stats.GetStatValue(StatType.MaxRangeAttack);
+            float statMin = _stats.GetStatValue(StatType.MinRangeAttack);
+            Check(movement.MoveSpeed > 0f && Near(movement.MoveSpeed, statMove),
+                $"MoveSpeed {movement.MoveSpeed:0.##} = stat", $"MoveSpeed {movement.MoveSpeed:0.##}, stat {statMove:0.##}");
+            Check(finder.MaxRange > 0f && Near(finder.MaxRange, statMax),
+                $"MaxRange {finder.MaxRange:0.##} = stat", $"MaxRange {finder.MaxRange:0.##}, stat {statMax:0.##}");
+            Check(Near(finder.MinRange, statMin) && finder.MinRange < finder.MaxRange,
+                $"MinRange {finder.MinRange:0.##} below MaxRange", $"MinRange {finder.MinRange:0.##} (stat {statMin:0.##}), MaxRange {finder.MaxRange:0.##}");
+            Check(finder.Range >= finder.MaxRange,
+                $"detection range {finder.Range:0.##} >= MaxRange", $"detection range {finder.Range:0.##} below MaxRange {finder.MaxRange:0.##} (sees the player only inside attack range)");
         }
 
         private void OnEnemyDeath(object payload)

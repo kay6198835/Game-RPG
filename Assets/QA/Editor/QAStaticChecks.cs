@@ -35,6 +35,7 @@ namespace QA.Automation.Editor
             Add(file, config, "QA-STATIC-04", QAPriority.P0, "No runtime stat modifier saved into a stat asset", SavedModifiers);
             Add(file, config, "QA-STATIC-05", QAPriority.P0, "Runtime scripts do not use UnityEditor outside #if UNITY_EDITOR", EditorUsings);
             Add(file, config, "QA-STATIC-06", QAPriority.P0, "Every enabled build scene exists", BuildScenes);
+            Add(file, config, "QA-STATIC-07", QAPriority.P1, "Every enemy role has a weapon, a move speed and a consistent attack range", EnemyRoleData);
             file.finished = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             return file;
         }
@@ -253,6 +254,54 @@ namespace QA.Automation.Editor
             r.notes.Add("build scenes: " + string.Join(", ", scenes.Where(s => s.enabled).Select(s => s.path)));
             if (!scenes.Any(s => s.enabled)) findings.Add("no enabled build scene");
             Report(r, findings, $"{scenes.Count(s => s.enabled)} enabled scenes exist");
+        }
+
+        // Since 6094aa10 enemy move speed and attack range come from the role's stat asset
+        // (StatType.MoveSpeed / MaxRangeAttack / MinRangeAttack) and detection from EntityData.rangeCheckFieldOfView.
+        // A zero there means an enemy that never moves, never attacks or never sees the player.
+        private static void EnemyRoleData(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            string[] guids = AssetDatabase.FindAssets("t:EntityData", new[] { "Assets/SO/Enemy/Role" });
+            if (guids.Length == 0)
+            {
+                r.verdict = nameof(QAVerdict.SKIP);
+                r.notes.Add("SKIP: no EntityData under Assets/SO/Enemy/Role");
+                return;
+            }
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                EntityData data = AssetDatabase.LoadAssetAtPath<EntityData>(path);
+                if (data == null) continue;
+                string name = System.IO.Path.GetFileNameWithoutExtension(path);
+                if (data.Weapon == null) findings.Add($"{name}: no Weapon");
+                if (data.Stats == null)
+                {
+                    findings.Add($"{name}: no stat asset");
+                    continue;
+                }
+                BaseStatsSO copy = UnityEngine.Object.Instantiate(data.Stats);
+                try
+                {
+                    float move = copy.GetStatValue(StatType.MoveSpeed);
+                    float max = copy.GetStatValue(StatType.MaxRangeAttack);
+                    float min = copy.GetStatValue(StatType.MinRangeAttack);
+                    float fov = data.RangeCheckFieldOfView;
+                    info.Add($"{name}: MoveSpeed {move:0.##}, range {min:0.##}-{max:0.##}, FOV {fov:0.##}");
+                    if (move <= 0f) findings.Add($"{name}: MoveSpeed {move:0.##} (never moves)");
+                    if (max <= 0f) findings.Add($"{name}: MaxRangeAttack {max:0.##} (never attacks)");
+                    if (min < 0f || min >= max) findings.Add($"{name}: MinRangeAttack {min:0.##} not below MaxRangeAttack {max:0.##}");
+                    if (fov < max) findings.Add($"{name}: rangeCheckFieldOfView {fov:0.##} below MaxRangeAttack {max:0.##}");
+                }
+                finally
+                {
+                    UnityEngine.Object.DestroyImmediate(copy);
+                }
+            }
+            Report(r, findings, $"{guids.Length} role EntityData assets consistent");
+            if (findings.Count == 0) r.notes.AddRange(info);
         }
     }
 }
