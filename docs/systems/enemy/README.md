@@ -1,6 +1,6 @@
 # Enemy — AI + Spawning
 
-> **Status:** live · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb` · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
+> **Status:** live · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (Attack paragraph; the owner's 2026-11-04 edits landed in `6094aa10`) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -32,7 +32,8 @@ EntityBasicState — direction, take-damage, death, attack check
 ```
 
 **Attack.** Only through `EntityWeaponHolder` + a `Weapon` prefab named by
-`EntityData.DefaultWeapon` / `WeaponSO`. No weapon, no attack. Enemy `AttackSO`s need animator
+`CharacterData.Weapon` (inherited by `EntityData`), equipped by `EnemySpawner` → `Entity.SetCharacterData()`
+→ `ApplyCharacterData()` on every spawn (`6094aa10`). No weapon, no attack. Enemy `AttackSO`s need animator
 overrides built on the enemy controller and a `LayerMask` that hits the player hurtbox.
 Optional: `EntityAbilityHolder` casts Abilities v2 from `EntityData.AbilityBindings` (cast range =
 attack range).

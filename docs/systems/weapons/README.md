@@ -1,6 +1,6 @@
 # Weapons + Projectiles
 
-> **Status:** live (melee + ranged, player and enemy) · **Last verified:** 2026-10-05, HEAD `93ba6d8e`
+> **Status:** live (melee + ranged, player and enemy) · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (Equip paragraph only; rest 2026-10-05, HEAD `93ba6d8e`)
 > History: [CHANGELOG.md](CHANGELOG.md) · GDD: `design/gdd/weapons-system.md`
 
 ## Purpose
@@ -23,10 +23,12 @@ pooled projectile used by ranged weapons and projectile abilities.
 
 ## How it works
 
-**Equip.** `CharacterData.DefaultWeapon` (`WeaponSO`) names a prefab carrying a `Weapon`.
-`WeaponHolderBase.Equid()` calls `resolver.InjectGameObject(weapon.gameObject)` (VContainer) and
-stores the weapon; a second call unequips. So every weapon — default spawn or pickup — receives its
-`[Inject]` dependencies at equip time.
+**Equip.** `CharacterData.Weapon` (a `Weapon` prefab component; *was* `DefaultWeapon` / `WeaponSO`
+until `cae75317`) is spawned from the pool by `WeaponHolderBase.EquipDefaultWeapon()`, which first
+unequips and releases the previous weapon, returns when the data has no weapon, then calls
+`resolver.InjectGameObject(instance)` (VContainer) and `Equid()`. It runs from
+`CharacterBase.ApplyCharacterData()` on every `SetCharacterData()` — player (Champion pick) and enemy
+(every spawn, `EnemySpawner`) — since `6094aa10`. Floor pickup does not reach this path (BUG-110).
 
 **Melee.** `PlayerAttackState [OnActivate]` → `WeaponHolder.MakeDamage()` → `MeleeWeapon.OnActivate()`
 → `OverlapCircleNonAlloc(pos, attackRange, buffer, LayerMask)` → `INegativeReceiver.TakeDamage(finalDamage, pos)`.

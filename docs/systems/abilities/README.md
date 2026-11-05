@@ -1,6 +1,6 @@
 # Abilities — v2 (v1 deleted 2026-11-04)
 
-> **Status:** v2 live for player and enemy; v1 deleted 2026-11-04 (working tree) · **Last verified:** 2026-10-05, HEAD `93ba6d8e`
+> **Status:** v2 live for player and enemy; v1 deleted 2026-11-04 (`6094aa10`, on `sprint-21`) · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (status, code table, assets row only)
 > History: [CHANGELOG.md](CHANGELOG.md) · Diagrams: `docs/diagrams/ability-system-diagrams.md`
 
 ## Purpose
@@ -18,7 +18,7 @@ effects and conditions, run per owner by an `AbilityInstance`.
 | `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (`DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `ImpactMono/SourceEffect` |
 | ~~`System/Skill_Ability/`~~ | **Deleted 2026-11-04.** v1 (`ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual, effect SOs, `InternalSkillSO`) removed with its six SO assets, `EntityWeapon`, `Spell` + `Spell.prefab`, `IEffectable`. `WeaponSO` moved to `System/Item/` |
 | Owners | `Character/Base/AbilityHolderBase.cs` → `AbilityHolder` (player), `EntityAbilityHolder` (enemy) |
-| Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live) |
+| Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live); `Assets/SO/Skill/{Archer,Mage}/` (temporary class abilities, `6c61ccdb`, GDD Phase 1 `ae0d6e82`); `Assets/SO/Skill/ShootSpirit/` (legacy, BUG-073 / BUG-090) |
 
 ## How it works (v2)
 
