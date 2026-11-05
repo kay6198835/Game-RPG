@@ -17,6 +17,30 @@ which code change caused it.
 
 ---
 
+## 2026-11-05 — Doc-truth pass: Abilities v1 deleted, EventID 25, ApplyCharacterData (HEAD `028fdb90`)
+
+**Cause.** `79ad79b2` (QA probe), `1370136c` "fix bug add skill", `6094aa10` "fix bug, add asset room,
+enemy, data" (merged into `sprint-21` by `ea00b3a4`). Routine `pm-weekly-doc-truth`, fired Thursday;
+claim sweep in `production/qa/doc-truth-2026-11-05.md`. No `.cs` file changed.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry; layout (Skill_Ability / EntityWeapon / EntityEffectStats / Spell / IEffectable deleted, WeaponSO moved, QAProbe, StatHandlerBase, CharacterData, EntityData, StatType 112/113, EventManager 25); enemy wiring; Abilities section → one framework; map flow (auto-open, ON_ROOM_CLEARED, ApplyData); Event System 25 values; Enemy Definitions; convention "Skills"; checklist 18 resolved in code, 29 note; Known Bugs row notes #16, BUG-096/100/106/107/108/115/116/118/121 (statuses unchanged, per files) |
+| `docs/systems/event-system/README.md` + CHANGELOG | 25 values, `ON_ROOM_CLEARED` producer, auto-open `ON_OPEN_DOOR` producer |
+| `docs/systems/abilities/README.md` + CHANGELOG | Status "working tree" → committed; assets row (Archer / Mage / ShootSpirit) |
+| `docs/systems/map/README.md` + CHANGELOG | Room-open flow, Bug #16 / BUG-096 rows |
+| `docs/systems/weapons/README.md` + CHANGELOG | Equip paragraph: `CharacterData.Weapon` + `EquipDefaultWeapon()` |
+| `docs/systems/enemy/README.md` + CHANGELOG | Attack paragraph; records that the 2026-11-04 "none yet" entries landed in `6094aa10` |
+| `docs/systems/character/README.md` + CHANGELOG | Data paragraph (runtime clone, `animationController`, `ApplyCharacterData`) |
+| `memory/project_state.md` | Header, build status, R34–R41 |
+| `production/qa/bug-inbox.md` | NOTE-20261105-2 (triage hint) |
+
+**Findings.** Seven Open bug files look fixed or partly fixed in code (BUG-096, 100, 106, 107, 115,
+116, 121) — left for Saturday's triage. Still **Out of date**: `design/gdd/skill-ability-system.md`
+and `character-system.md` (describe v1), `ON_CLEAR_ENEMY` in Approved GDDs / ADR-0002 / `map-code.md`,
+`Conditions/` paths in two rule files, ADR-0004 / ADR-0005 bodies, character README vitals section,
+stats README (runtime clone), `docs/tech-debt-register.md`.
+
 ## 2026-11-04 — Lethal-hit death; buff room auto-opens
 
 **Cause.** Owner decisions (uncommitted working tree): `NegativeReceiverBase.TakeDamage()` sends a hit with

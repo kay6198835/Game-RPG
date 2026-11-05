@@ -42,8 +42,12 @@ the player-specific states, input and vitals on top of it.
 `VitalStatsBase` also mirrors current HP into a serialized debug field `_currentHP` after every
 change (`UpdateStatField()`).
 
-**Data.** `CharacterData` (SO) holds `Stats` (`BaseStatsSO`), `AbilityBindings`, `DefaultWeapon`
-(`WeaponSO`). `PlayerData` / `EntityData` derive from it.
+**Data.** `CharacterData` (SO) holds `Stats` (`BaseStatsSO`, the authored asset — never written;
+`CreateRuntimeStats()` returns a per-character clone used by `StatHandlerBase`), `AbilityBindings`,
+`animationController` (`RuntimeAnimatorController`, `[FormerlySerializedAs("aima")]`) and `Weapon`
+(a `Weapon` prefab component). `PlayerData` / `EntityData` derive from it.
+`CharacterBase.ApplyCharacterData()` applies it: stats → weapon → abilities → vitals → effects
+(`6094aa10`). *Was:* `DefaultWeapon` (`WeaponSO`).
 
 **Player spawn.** The player is **not placed in the scene**. `PlayerManager` (see
 [dependency-injection](../dependency-injection/README.md)) spawns it with

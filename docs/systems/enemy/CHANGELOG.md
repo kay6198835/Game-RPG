@@ -2,6 +2,12 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-05 — The 2026-11-04 working-tree entries are committed (doc-truth re-sync)
+- **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04), merged into `sprint-21` by `ea00b3a4`. Every 2026-11-04 entry below that says "none yet (working tree)" landed in this commit.
+- **Changed (README):** Attack paragraph — `EntityData.DefaultWeapon` / `WeaponSO` → `CharacterData.Weapon`, equipped through `Entity.SetCharacterData()` on every spawn.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-106 (enemy half looks fixed in code), BUG-108; NOTE-20261101-2 / NOTE-20261104-1/-2/-5/-6 (see NOTE-20261105-1).
+
 ## 2026-11-04 — Lethal hit goes straight to death
 - **Commit:** none yet (working tree)
 - **Changed:** `NegativeReceiverBase.cs` (lethal check + abstract `OnLethalHit()`), `EntityNegativeReciver.cs`,

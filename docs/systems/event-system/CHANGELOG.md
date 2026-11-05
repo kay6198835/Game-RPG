@@ -2,6 +2,13 @@
 
 Newest first. Entries reconstructed from the count history in `CLAUDE.md` and `git log`.
 
+## 2026-11-05 — ON_ROOM_CLEARED (24 → 25 values)
+- **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04, merged into `sprint-21` by `ea00b3a4`)
+- **Changed:** `EventManager.cs:47` (inserted after `ON_OPEN_DOOR`, so every later member's integer value shifts — no serialized `EventID` field exists); `RoomCell.cs:60-67` emits it before `ON_OPEN_DOOR` in a `try` / `finally`; `RoomGeneraterController.LoadRoom()` now also emits `ON_OPEN_DOOR` for Shop / Rest / Treasure rooms.
+- **From → To:** 24 values → 25. `ON_ROOM_CLEARED` has zero subscribers today.
+- **Why:** not recorded in the commit.
+- **Bugs:** relates to BUG-096 (auto-open rooms).
+
 ## 2026-10-31 — Champion emitter renamed (doc-truth re-sync)
 - **Commit:** on `origin/sprint-20` (`StartGameSystem/` → `RoomGameSystem/`)
 - **Changed:** `ON_OPEN_DOOR` emitter `ChampitionController` → `PedestalChampionController` (`:42`). `ON_PLAYER_READY` is now emitted by `VitalStatsComponent.ReloadComponent()`. Still 24 values.

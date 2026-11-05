@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-05 — ApplyCharacterData, runtime stat clone (doc-truth re-sync, Data paragraph only)
+- **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04, on `sprint-21`)
+- **Changed:** `CharacterBase.ApplyCharacterData()` (stats → weapon → abilities → vitals → effects) used by `Player` and `Entity` `SetCharacterData()`; `CharacterData.CreateRuntimeStats()`; `StatHandlerBase` on a runtime clone with `IStatService<TCore>.ResignStatsChange()`; `VitalStatsBase` clamps current values when a max drops; `CharacterData.animationController` → `RuntimeAnimatorController` + `[FormerlySerializedAs("aima")]`; `MovementBase.MoveSpeed` from `StatType.MoveSpeed`.
+- **From → To:** README Data paragraph named `DefaultWeapon` (`WeaponSO`) → `Weapon`, `animationController`, runtime clone. ⚠️ The vitals section (`VitalStatsBase` / `EffectReceiverBase` split) is still not rewritten from source — carried "Out of date" from 2026-10-31.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-106, BUG-115, BUG-116 (look fixed in code; files Open).
+
 ## 2026-10-10 — ICharacter.SetCharacterData; PlayerIntertorState triggers interaction
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** `ICharacter.cs:12`, `CharacterBase.cs:13`, `Player.cs:81-85`, `Entity.cs:78-82`, `PlayerIntertorState.cs`
