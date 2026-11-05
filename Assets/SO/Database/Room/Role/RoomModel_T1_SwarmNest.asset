@@ -16,13 +16,13 @@ MonoBehaviour:
   nameEnity: Swarm Nest
   enemiesOfRoom:
   - Prefab: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
-    Data: {fileID: 11400000, guid: e0690ec768d9cfc4199d99881903c2dd, type: 2}
-    weight: 3
-    rarityTier: 50
-  - Prefab: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
     Data: {fileID: 11400000, guid: a4445a66de6977948b8c8e679465b621, type: 2}
     weight: 5
     rarityTier: 50
+  - Prefab: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
+    Data: {fileID: 11400000, guid: 6862564eeb6e3874cb623b6ebd4c99c0, type: 2}
+    weight: 6
+    rarityTier: 30
   candidateEnemies: []
   weightBudget: 30
   overflowPercent: 0.1
