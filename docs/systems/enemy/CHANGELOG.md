@@ -2,6 +2,20 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-05 — Role clips use per-role sprite models
+- **Commit:** none yet (working tree on `feature/new-asset-enemy`)
+- **Changed:** 288 clips under `Assets/Animation/Enemy/Role/{Assasin,Tank,RangedCaster,Sniper}/` — sprite keys, `m_SampleRate` (30), `m_StopTime`; Die event times scaled. Events otherwise unchanged (128 per role before and after).
+- **From → To:** Paladin placeholder sprites → Vampire (Assasin), Warrok (Tank), Maw (RangedCaster), Erika (Sniper). TrashMelee keeps Paladin. Idle / Walk / Run take the source length; Attack / SpinAttack / TakeDamage keep the role length; Die = min(source, 1.5 s).
+- **Why:** owner decision — the demo is built around these five roles; art is temporary.
+- **Open:** Vampire / Warrok / Maw sheets are 128 px vs Paladin 256 px, so those roles render at about half size against Paladin-sized colliders. Not checked in Play Mode.
+
+## 2026-11-05 — Room presets limited to the five demo roles
+- **Commit:** none yet (working tree on `feature/new-asset-enemy`)
+- **Changed:** the eight presets in `Assets/SO/Database/Room/Role/` (all of `MapModel.fullRoomList`) — `enemiesOfRoom` rewritten; budgets unchanged; `RoomModel_Boss` untouched.
+- **From → To:** nine roles across the presets → TrashMelee, Assasin, Tank, RangedCaster, Sniper only. FastSwarm, Brute, Elite, Scatter entries removed (assets kept). Each removed entry was replaced by the closest demo role (Scatter → RangedCaster, Brute → Tank or Assasin, FastSwarm → TrashMelee or Assasin, Elite dropped).
+- **Why:** owner decision — the demo is built around these five roles.
+- **Open:** Tank (Defense 43.4) is now in five presets; with sword stage damage lost to BUG-105 the Paladin may deal 0 damage to it. Damage calculation is pending (owner).
+
 ## 2026-11-05 — The 2026-11-04 working-tree entries are committed (doc-truth re-sync)
 - **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04), merged into `sprint-21` by `ea00b3a4`. Every 2026-11-04 entry below that says "none yet (working tree)" landed in this commit.
 - **Changed (README):** Attack paragraph — `EntityData.DefaultWeapon` / `WeaponSO` → `CharacterData.Weapon`, equipped through `Entity.SetCharacterData()` on every spawn.

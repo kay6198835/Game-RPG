@@ -162,28 +162,46 @@ Assets/SO/Database/Room/Role/RoomModel_Roles.asset, RoomModel_T<N>_<Theme>.asset
 combat room gets a different preset until all eight have been used.
 
 **Room presets** (`Assets/SO/Database/Room/Role/`). Tier = `weightBudget`. A role's rarity is set per
-preset, so one role can be common in one room and rare in another. Enemy counts are a 5,000-run
-simulation of `RoomModel.GetSpawnSet()` (mean, min–max):
+preset, so one role can be common in one room and rare in another. **Since 2026-11-05 every preset uses
+only the five demo roles** (TrashMelee, Assasin, Tank, RangedCaster, Sniper — owner decision); FastSwarm,
+Brute, Elite and Scatter were removed from all presets (their assets are kept). Enemy counts are an
+estimate (budget ÷ mean entry weight), not a simulation; the 2026-11-04 simulated counts no longer apply:
 
-| Preset | Tier / budget | Entries (weight / rarity %) | Enemies | Theme |
-|--------|---------------|-----------------------------|---------|-------|
-| `RoomModel_T1_SwarmNest` | T1 / 30 | FastSwarm 3/50, TrashMelee 5/50 | 7.1 (6–9) | many weak melee — teaches dodging crowds |
-| `RoomModel_T1_Outpost` | T1 / 30 | TrashMelee 5/50, Scatter 5/50, Sniper 6/30 | 5.7 (5–6) | first ranged mix |
-| `RoomModel_Roles` | T2 / 50 | all nine roles (original weights) | 8.4 (3–12) | mixed, Elite rare |
-| `RoomModel_T2_Ambush` | T2 / 50 | Assasin 6/30, FastSwarm 3/50, Sniper 6/30 | 10.2 (8–14) | fast flankers covered by a sniper |
-| `RoomModel_T2_FiringLine` | T2 / 50 | RangedCaster 5/50, Sniper 6/50, Scatter 5/50, Tank 8/30 | 8.3 (6–9) | ranged line behind a tank |
-| `RoomModel_T3_HeavySiege` | T3 / 70 | Tank 8/50, Brute 7/50, RangedCaster 5/30, Scatter 5/30 | 10.0 (8–12) | slow heavies with support fire |
-| `RoomModel_T3_Warband` | T3 / 70 | TrashMelee 5/50, Scatter 5/50, Brute 7/30, Assasin 6/30, Elite 15/15 | 10.6 (5–13) | broad mix, Elite possible |
-| `RoomModel_T4_ChampionGuard` | T4 / 90 | Elite 15/30, Tank 8/30, Sniper 6/30, TrashMelee 5/50, Brute 7/15 | 10.9 (6–16) | about two Elites with an escort |
+| Preset | Tier / budget | Entries (weight / rarity %) | Enemies (≈) | Theme |
+|--------|---------------|-----------------------------|-------------|-------|
+| `RoomModel_T1_SwarmNest` | T1 / 30 | TrashMelee 5/50, Assasin 6/30 | 5 | weak melee, an occasional flanker |
+| `RoomModel_T1_Outpost` | T1 / 30 | TrashMelee 5/50, RangedCaster 5/50, Sniper 6/30 | 6 | first ranged mix |
+| `RoomModel_Roles` | T2 / 50 | all five demo roles | 8 | mixed |
+| `RoomModel_T2_Ambush` | T2 / 50 | Assasin 6/30, TrashMelee 5/50, Sniper 6/30 | 9 | flankers covered by a sniper |
+| `RoomModel_T2_FiringLine` | T2 / 50 | RangedCaster 5/50, Sniper 6/50, Tank 8/30 | 8 | ranged line behind a tank |
+| `RoomModel_T3_HeavySiege` | T3 / 70 | Tank 8/50, RangedCaster 5/30, Assasin 6/30 | 11 | tanks with support fire |
+| `RoomModel_T3_Warband` | T3 / 70 | TrashMelee 5/50, RangedCaster 5/50, Assasin 6/30, Tank 8/30 | 12 | broad mix |
+| `RoomModel_T4_ChampionGuard` | T4 / 90 | Tank 8/30, Sniper 6/30, TrashMelee 5/50, Assasin 6/30, RangedCaster 5/30 | 15 | every role, largest room |
 
 ⚠️ The draw ignores tier: a T4 preset can be the first combat room. Ordering presets by depth needs code
 in `MapModel` / `EnemySpawner` (no depth input exists today).
 
 **Placeholders.**
-- Clips carry the original keyframe timing and the six entity animation events. **Sprites are temporary
-  Paladin art** (2026-11-04): every role clip's sprite keys were copied from the matching Paladin clip
-  (Idle / Walk / Run / Die / Take Damage, Attack ← `Paladin_ComboAttack_State1`, SpinAttack ←
-  `Paladin_SpinAttack_State1-3`) after checking the key times match; events were kept. Replace per role later.
+- Clips carry the original entity animation events. **Sprites are temporary art** taken from character
+  models, one model per role (2026-11-05, owner mapping; the demo focuses on these five roles):
+
+  | Role | Sprite model | Source clips |
+  |---|---|---|
+  | TrashMelee | Paladin | Paladin clips (2026-11-04, unchanged) |
+  | Assasin | Vampire | `Sprite/Vampire/Animations2D/vampire_*_dir<N>.anim` |
+  | Tank | Warrok | `Sprite/Warrok/Animations2D/warrok_*` |
+  | RangedCaster | Maw | `Sprite/Maw/Animations2D/maw_*` |
+  | Sniper | Erika (same art as the player Archer) | `Sprite/Erika/Animations2D/erika_*` (non-arrow sheets) |
+
+  State mapping: Idle ← idle, Walk ← move, Run ← run (Erika) or move, Attack and SpinAttack State1-3 ←
+  attack, TakeDamage ← takedamage, Die ← death. Timing rules: loop clips with no events (Idle / Walk / Run)
+  take the source length; Attack, SpinAttack and TakeDamage keep the role clip length (events untouched,
+  source frames sampled evenly, so they play faster than the source); Die is set to min(source, 1.5 s) and
+  its event times are scaled by the same factor. All four models were checked against the project direction
+  convention (dir0 = down-left, clockwise; dir3 = back, dir7 = front) and match. Brute, Elite, Boss,
+  FastSwarm and Scatter still use Paladin art.
+- ⚠️ Vampire, Warrok and Maw sheets are 128 px cells at 100 PPU; Paladin and Erika are 256 px. Those three
+  roles render at about half the Paladin size while their prefab colliders were fitted to Paladin.
 - Melee stage damage is 10 for every role; RangedCaster stage damage is 35 (copied from the Archer
   stage). FOV / attack range 3 / 3 for melee roles.
 - `RoomModel_Boss` is referenced by nothing: `MapModel.GetRandomRoom()` ignores room type, and the boss
