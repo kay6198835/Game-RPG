@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**SLIPPED — start of day 4 (Thu 2026-11-05 standup)** (evidence: COMPILED + LOG + STATIC).
+**SLIPPED — start of day 5, last working day (Fri 2026-11-06 standup)** (evidence: COMPILED + LOG + STATIC).
+Thursday's owner output is mostly unplanned-but-useful: death now read from `ICharacterInput.IsDeath`
+(`4097be4c`, `1c3a34fc` — targets NOTE-20261101-1/2), serialized-key data fix (`fbab752a` — BUG-105
+sword damage and the BUG-121 `targetStatType` half), player body collider layer (`6f5322f6`), new
+`Maw` art, and seven QA-automation runs (Play Mode, automated). S21-08 moved to 🟡; S21-01 owner
+playtest still not run (0 Editor Play Mode entries). 1.0 working day left / ≈2.3d planned work
+remaining (Must ≈0.85d + Sat 0.1d, Should ≈0.9d, S21-F1 0.5d) — only Must Have can still fit.
+*Was (Thu):* SLIPPED — start of day 4; 2.0 days left / ≈2.4d remaining.
 Wednesday's owner output `6094aa10` (1830 files, 36 `.cs`) is almost entirely off-plan: enemy role
 scaffolding + assets, rooms, deletion of Abilities v1, and code fixes for five inbox notes. No
 planned Wed task moved to ✅; S21-01 playtest still not run (0 Play Mode entries in the Editor log).
@@ -28,10 +35,11 @@ not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work 
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.45d | 0.3d (S21-02, S21-03, S21-09) + partials | 1.15d |
-| Should Have | 0.95d | 0 | 0.95d |
+| Must Have (incl. Sat playtest 0.1d) | 1.45d | 0.3d (S21-02, S21-03, S21-09) + partials (S21-05, S21-06, S21-08) | ≈0.95d |
+| Should Have | 0.95d | 0 (S21-11 death inputs touched by `4097be4c`) | ≈0.9d |
 | Feature story S21-F1 (capped, gated by S21-01 + S21-03) | 0.5d | 0 | 0.5d |
 | Off-plan (Wed `6094aa10`: enemy roles, rooms, v1 deletion, note fixes) | — | ≈1d | — |
+| Off-plan (Thu: death-flag flow, `Maw` art, QA-automation enemy suite, collider layer) | — | ≈0.7d | — |
 | Buffer | 1.0d | — | — |
 
 ---
@@ -79,20 +87,21 @@ not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work 
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S21-06 BUG-106 / 107 / 110 | 0.3d | 🟡 `1370136c` (BUG-107 null-`Weapon` guard + `UnEquid` before release); `6094aa10` touched only the crit line → carried to Thu | One file (`WeaponHolderBase`), three bugs; enemies cannot attack |
-| S21-08 Editor / data block | 0.15d | ⬜ → carried to Thu | BUG-105 drops sword stage damage to 0 |
+| S21-08 Editor / data block | 0.15d | 🟡 Thu `fbab752a` (BUG-105 `attackDamege` keys renamed in `SnS_State1-3`; BUG-095 collider / BUG-072 `layerMask` not checked; owner to re-save the eight assets) | BUG-105 drops sword stage damage to 0 |
 | (off-plan) `6094aa10` enemy roles + rooms + v1 deletion + fixes for NOTE-20261101-2, NOTE-20261104-1/2/5/6 | — | ✅ committed (not Play-Mode verified) | Burned from buffer; bug/note status for Saturday triage |
 
 ### Thu 2026-11-05 — Process gate + effect bugs
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S21-09 Process gate decision | 0.1d | ✅ 2026-11-03 | Decided C + B; `.githooks/pre-push` landed — owner runs `git config core.hooksPath .githooks` once |
-| S21-10 BUG-117 + BUG-120 | 0.3d | ⬜ | Heal / damage and stat items are no-ops |
+| S21-10 BUG-117 + BUG-120 | 0.3d | ⬜ → carried to Fri | Heal / damage and stat items are no-ops |
 | S21-F1 Effect-source work (cap 0.5d) | ≤0.5d | ⬜ | Only after S21-01 + S21-03 |
+| (off-plan) death read from `ICharacterInput.IsDeath` (`4097be4c`, `1c3a34fc`); data key fix (`fbab752a`, also closes S21-03's `targetStat` half in data); body collider layer (`6f5322f6`); `Maw` art (`06204474`, `dd1ec12d`) | — | ✅ committed (not owner Play-Mode verified) | Targets NOTE-20261101-1/2 and NOTE-20261105-4; status for Saturday triage |
 
 ### Fri 2026-11-06 — Death path + cleanup
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S21-11 BUG-065 + BUG-086 | 0.2d | ⬜ | Death path; read NOTE-20261101-1/2 first |
+| S21-11 BUG-065 + BUG-086 | 0.2d | ⬜ (death states' inputs reworked Thu `4097be4c`; `PlayerDeathState` itself not touched) | Death path; read NOTE-20261101-1/2 first |
 | S21-12 BUG-115 | 0.3d | 🟡 `1370136c` (`CharacterData.CreateRuntimeStats()` clone used by `StatHandlerBase`; asset revert not checked) | Every Play Mode session can dirty committed stat assets |
 | S21-13 One-liners | 0.15d | ⬜ | Small, carried 3–6 weeks |
 | Buffer | 1d | — | — |
@@ -206,3 +215,28 @@ _(appended by `/daily-standup`)_
 - **Today** (Thu plan + Wed carry): S21-01 playtest (0.3d, now also verifies `6094aa10`) →
   S21-06 remainder (0.2d) → S21-04 (0.1d) → S21-07 (0.1d) → S21-08 (0.15d) → S21-10 (0.3d) if
   time. S21-F1 stays gated. ≈1.15d on a 1d day.
+
+### 2026-11-06 (Fri) — standup ~13:00 (fired late, slot is 02:00), evidence COMPILED + LOG
+- **Sync**: SKIPPED — the owner's folder is on `pm/doc-sync-2026-11-05` (a `pm/*` branch), and its tip
+  `26492eea` is already `origin/sprint-21` (owner merged `feature/new-asset-enemy` and the doc-sync
+  branch and pushed).
+- **Yesterday**: owner + interactive sessions — `4097be4c` + `1c3a34fc` death read from
+  `ICharacterInput.IsDeath` (states own the transition; targets NOTE-20261101-1/2), `fbab752a`
+  serialized-key data fix (BUG-105 `attackDamege` → `attackDamage` in `SnS_State1-3`; BUG-121
+  `targetStat` → `targetStatType`; Blessing `modifiers` → `statsModifiers`; owner to re-save the
+  eight assets in Unity), `6f5322f6` `PlayerTest.prefab` body collider Player → Default layer
+  (NOTE-20261105-4, owner check needed), `06204474` / `dd1ec12d` new `Maw` art, doc-sync `7f590cec`,
+  and seven QA-automation runs (QA-ENT-02…08, QA-STATIC-07/08). Thu plan: S21-08 🟡; S21-01, S21-04,
+  S21-06, S21-07, S21-10 not moved → carried. Burned ≈0.1d planned / 1.15d (≈0.7d off-plan) → **SLIPPED**.
+- ⚠️ **Death fix not yet confirmed**: QA run `20261105-1417` (on `8140a56d`, after `4097be4c` +
+  `1c3a34fc`) still FAILs QA-VIT-07 = NOTE-20261101-1 (player death, 9 of 9 runs). Evidence is in the
+  note; triage Saturday.
+- **Compile**: `compile-check.sh` COMPILED (222 s) on `26492eea`, committed state only.
+- **Editor log**: `Editor.log` (2026-11-05 16:01), `Editor-prev.log` (13:24): 0 `error CS`,
+  0 Play Mode entries, 0 `Assets/Script/` exceptions. Inbox: 20 rows under Open notes, 0 new today.
+- **Fix-survival**: `fix-survival.sh 7` → no fix commits in window (bug-titled fix commits only).
+- **Playtest sheet**: `production/qa/playtests/playtest-2026-11-07.md` written, with part B2 added for
+  Thursday's four owner fixes.
+- **Today** (last working day): S21-01 playtest via the sheet (0.3d — now also confirms `4097be4c`,
+  `fbab752a`, `6f5322f6`) → S21-06 remainder (0.2d) → S21-04 (0.1d) → S21-07 (0.1d) → S21-08
+  remainder (0.05d). Should Have and S21-F1 go to carry-over unless the Must list finishes early.
