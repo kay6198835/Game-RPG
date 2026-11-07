@@ -1,6 +1,6 @@
 # Character Core — Shared Base + Player
 
-> **Status:** live · **Last verified:** 2026-10-10, `sprint-18` `617bb2bb` · **Governing ADR:** ADR-0005 (Amendments 1-3)
+> **Status:** live · **Last verified:** 2026-11-07, `sprint-21` `c6f3ccf2` (death flow and open issues only; vitals section not re-checked) · **Governing ADR:** ADR-0005 (Amendments 1-3)
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -66,6 +66,13 @@ Animation events call `AnimationStart` / `AnimationTrigger` / `AnimationOnAction
 `AnimationOffAction` / `AnimationFinishTrigger` / `AnimationEnd` on `Player`, each setting
 `CurrentState.SetAnimationStatus(StatusAnimation.X)`; states branch on `Status`.
 
+**Death (since `4097be4c`, 2026-11-05).** `NegativeReceiverBase.TakeDamage()` calls
+`ICharacterInput.OnDeath()` on a lethal hit (else `OnTakeDamage()`); `CharacterInputBase.IsDeath` stays set
+until `ReloadComponent()`. `PlayerBasicState`, `PlayerUseWeaponState` and `PlayerDisadvantageState` read it
+first and change to `PlayerDeathState` (the enemy states do the same — see [enemy](../enemy/README.md)).
+`PlayerDeathState` emits `ON_PLAYER_DEATH` on `EndRangeTrigger`, which no Paladin Die clip sends — **BUG-122**.
+`CharacterBase.Reborn()` calls `core.ReloadCore()`, which also reloads the input component.
+
 **Input** (`PlayerInput.inputactions`):
 
 | Action | Binding |
@@ -90,10 +97,11 @@ Animation events call `AnimationStart` / `AnimationTrigger` / `AnimationOnAction
 | Bug | Summary |
 |-----|---------|
 | BUG-066 / BUG-070 | `VitalStatsBase` indexes `currentStats[statType]` with no key guard (`:35,47,49,53,61,63,67`) |
+| BUG-122 | S1 — `ON_PLAYER_DEATH` never fires: no Die clip sends `EndRangeTrigger` |
 | BUG-065 | `PlayerDeathState.Enter()` does not stop movement |
 | BUG-086 | `PlayerDeathState.LogicUpdate()` emits `ON_PLAYER_DEATH` every frame |
 | BUG-087 | PARTIAL — no `GameManager`, no player `Reborn()` caller |
-| BUG-094 | `PlayerState.Enter()` logs every state change, unguarded |
+| BUG-104 | `PlayerState.Enter()` logs every state change, unguarded (was cited here as BUG-094 — BUG-101 ID collision) |
 | BUG-071 | HoT/DoT tick chain in `VitalStatsBase` cannot be stopped |
 | Bug #6 | `PlayerData.currentHealth` never written; `PlayerData.Reborn()` has no caller |
 

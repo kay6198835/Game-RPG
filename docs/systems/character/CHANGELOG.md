@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-07 — Death read from the input flag (doc-truth re-sync)
+- **Commit:** `4097be4c` "Read death from the input flag instead of switching state in the receiver", `1c3a34fc` "fix flow" (2026-11-05, on `sprint-21`)
+- **Changed:** `ICharacterInput` gains `IsDeath` / `OnDeath(Vector2)`; `CharacterInputBase` implements them and overrides `ReloadComponent()` (clears `isTakeDamage` / `isDeath`); `NegativeReceiverBase.TakeDamage()` calls `OnDeath()` on a lethal hit and the abstract `OnLethalHit()` is deleted (player `NegativeReciver` is now an empty shim); `PlayerBasicState` / `PlayerUseWeaponState` / `PlayerDisadvantageState` check `IsDeath` first and no longer read HP; `CharacterBase.Reborn()` reloads the input.
+- **From → To:** README gains a "Death" paragraph; Open issues gain BUG-122 and the BUG-094 citation is corrected to BUG-104.
+- **Why:** commit title. ⚠️ The vitals section is still not rewritten from source (carried).
+- **Bugs:** BUG-122 (S1), BUG-086, BUG-087.
+
 ## 2026-11-05 — ApplyCharacterData, runtime stat clone (doc-truth re-sync, Data paragraph only)
 - **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04, on `sprint-21`)
 - **Changed:** `CharacterBase.ApplyCharacterData()` (stats → weapon → abilities → vitals → effects) used by `Player` and `Entity` `SetCharacterData()`; `CharacterData.CreateRuntimeStats()`; `StatHandlerBase` on a runtime clone with `IStatService<TCore>.ResignStatsChange()`; `VitalStatsBase` clamps current values when a max drops; `CharacterData.animationController` → `RuntimeAnimatorController` + `[FormerlySerializedAs("aima")]`; `MovementBase.MoveSpeed` from `StatType.MoveSpeed`.

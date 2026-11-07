@@ -2,6 +2,12 @@
 
 Newest first. Entries reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-07 — Item effect data restored; coin effect not authorable (doc-truth re-sync)
+- **Commit:** `fbab752a` "fix(data): move values from renamed serialized keys into the new fields" (2026-11-05) — `New Stat Modifier Effect Definition.asset` and its copy; earlier `1370136c`.
+- **Changed (README):** Open issues — BUG-121 marked FIXED (awaiting runtime) per the 2026-11-07 triage; BUG-123 added.
+- **Why:** commit title; triage 2026-11-07.
+- **Bugs:** BUG-121, BUG-123, BUG-120 (unchanged).
+
 ## 2026-10-31 — Item effect files replaced (doc-truth re-sync)
 - **Commit:** `3d768b3d` "add regen system", `343a3830` "coding" (recorded by doc-sync on `origin/sprint-20` `e8baf251`)
 - **Changed:** `RecoveryEffectDefinition`, `StatModifierEffectDefinition`, `CurrencyEffectDefinition` deleted; `StatModifierEffect` (abstract), `ModifierMaxStatsEffect`, `ModifierCurrentStatsEffect`, `CoinModifierEffect` added. Effects reach the character through `IEffectReceiver` / `IWallet`.
