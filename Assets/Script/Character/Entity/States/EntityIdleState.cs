@@ -15,13 +15,23 @@ public class EntityIdleState : EntityBasicState
     {
         base.Enter();
         idleDurationTime = entityData.IdleDurationTime;
-        // Should set by entityData
-        idleDurationTime = 3;
     }
     public override void LogicUpdate()
     {
         idleTime += Time.deltaTime;
-        if (idleTime >= idleDurationTime || entityFindTarget.OutOfRange() || entityFindTarget.IsNearPlayer())
+        bool leave;
+        if (entityFindTarget.HasTarget)
+        {
+            // Locked: hold position while the target stays in the attack band; face it so the
+            // next attack and the view cone point at the player, not at the last waypoint.
+            entityInput.SetTarget(entityInput.TargetPosition());
+            leave = !entityFindTarget.IsInRangeAttack();
+        }
+        else
+        {
+            leave = idleTime >= idleDurationTime;
+        }
+        if (leave)
         {
             idleTime = 0;
             entity.StateMachine.ChangeState(entity.MoveState);

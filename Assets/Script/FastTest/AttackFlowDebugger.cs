@@ -7,6 +7,21 @@ public class AttackFlowDebugger : MonoBehaviour
 {
     [SerializeField] private string attackParam = "Attack";
     [SerializeField] private bool logEveryChange = true;
+    [Header("Frame trace (stage hand-off)")]
+    [Tooltip("Logs every animation event with the clip and time it came from.")]
+    [SerializeField] private bool logAnimationEvents = true;
+    [Tooltip("On every controller swap, dumps the frames before it and traces the frames after it.")]
+    [SerializeField] private bool traceFrames = true;
+    [SerializeField, Min(1)] private int traceWindow = 6;
+    [Tooltip("A frame longer than this is flagged as a HITCH.")]
+    [SerializeField, Min(1f)] private float hitchMs = 25f;
+
+    private SpriteRenderer spriteRenderer;
+    private AttackFlowEventProbe probe;
+    private string[] ring;
+    private int ringHead;
+    private int ringCount;
+    private int traceFramesLeft;
 
     private Player player;
     private Animator anim;
@@ -53,7 +68,69 @@ public class AttackFlowDebugger : MonoBehaviour
         player.Core.GetCoreComponent(out input);
         player.Core.GetCoreComponent(out weaponHolder);
         lastController = null;
-        Log($"bound to '{player.name}' (input={(input != null)}, weaponHolder={(weaponHolder != null)}, animator={(anim != null)})");
+        spriteRenderer = anim != null ? anim.GetComponent<SpriteRenderer>() : null;
+        ring = new string[Mathf.Max(1, traceWindow)];
+        ringHead = ringCount = traceFramesLeft = 0;
+        if (anim != null && logAnimationEvents)
+        {
+            if (!anim.TryGetComponent(out probe)) probe = anim.gameObject.AddComponent<AttackFlowEventProbe>();
+            probe.OnEvent = OnAnimationEvent;
+        }
+        Log($"bound to '{player.name}' (input={(input != null)}, weaponHolder={(weaponHolder != null)}, animator={(anim != null)}, " +
+            $"sprite={(spriteRenderer != null)}, eventProbe={(probe != null)})");
+    }
+
+    private void OnDestroy()
+    {
+        if (probe != null) Destroy(probe);
+    }
+
+    private void OnAnimationEvent(string name, AnimationEvent e)
+    {
+        string clip = e.animatorClipInfo.clip != null ? e.animatorClipInfo.clip.name : "<none>";
+        Log($"EVENT {name} @ {e.time:F3}s clip='{clip}' w={e.animatorClipInfo.weight:F2} | state={StateName()} " +
+            $"status={player.StateMachine.CurrentState?.Status} | sprite={SpriteName()}");
+    }
+
+    // One line per frame: how long the frame was, which sprite is on screen, which clip and where in it.
+    private string FrameLine()
+    {
+        AnimatorStateInfo info = anim.GetCurrentAnimatorStateInfo(0);
+        AnimatorClipInfo[] clips = anim.GetCurrentAnimatorClipInfo(0);
+        string clip = clips.Length > 0 && clips[0].clip != null ? clips[0].clip.name : "<none>";
+        float length = info.length > 0f ? info.length : 0f;
+        float norm = info.normalizedTime;
+        float dtMs = Time.deltaTime * 1000f;
+        string hitch = dtMs > hitchMs ? " HITCH" : "";
+        string blend = clips.Length > 1 ? $" (+{clips.Length - 1} blended)" : "";
+        return $"f{Time.frameCount} dt={dtMs:F1}ms{hitch} | sprite={SpriteName()} | clip='{clip}'{blend} " +
+               $"t={norm * length:F3}s n={norm:F3} | anim={(info.IsName(attackParam) ? "Attack" : "other")} " +
+               $"transition={anim.IsInTransition(0)} | state={StateName()} status={player.StateMachine.CurrentState?.Status}";
+    }
+
+    private string SpriteName() =>
+        spriteRenderer != null && spriteRenderer.sprite != null ? spriteRenderer.sprite.name : "<none>";
+
+    private void TraceFrame(bool controllerChanged)
+    {
+        if (!traceFrames || ring == null) return;
+        string line = FrameLine();
+        if (controllerChanged)
+        {
+            int start = (ringHead - ringCount + ring.Length) % ring.Length;
+            for (int i = 0; i < ringCount; i++) Log("TRACE pre  " + ring[(start + i) % ring.Length]);
+            ringCount = 0;
+            traceFramesLeft = traceWindow;
+        }
+        if (traceFramesLeft > 0)
+        {
+            traceFramesLeft--;
+            Log("TRACE post " + line, line.Contains(" HITCH") ? LogType.Warning : LogType.Log);
+            return;
+        }
+        ring[ringHead] = line;
+        ringHead = (ringHead + 1) % ring.Length;
+        if (ringCount < ring.Length) ringCount++;
     }
 
     private void LateUpdate()
@@ -61,7 +138,9 @@ public class AttackFlowDebugger : MonoBehaviour
         if (player == null || anim == null || input == null || weaponHolder == null) return;
 
         // Weapon.OnAttackEnter swaps runtimeAnimatorController on every stage, and SetCharacterData swaps it on pick.
-        if (anim.runtimeAnimatorController != lastController)
+        bool controllerChanged = anim.runtimeAnimatorController != lastController;
+        TraceFrame(controllerChanged);
+        if (controllerChanged)
         {
             lastController = anim.runtimeAnimatorController;
             paramExists = HasParam(anim, attackParamHash);

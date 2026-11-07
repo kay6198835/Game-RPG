@@ -23,7 +23,11 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
     public Transform Transform => transform;
     public Transform OwnerTransform => Owner != null ? Owner.Transform : transform;
     public Animator Animator => animator != null ? animator : (animator = GetComponentInParent<Animator>());
-    public IAimProvider Aim => input;
+    // Resolved lazily: EnemySpawner calls SetCharacterData() -> EquipDefaultWeapon() right after spawn,
+    // before Start() has run, and the weapon reads Aim inside Equid().
+    public IAimProvider Aim => Input;
+    protected ICharacterInput Input => input ??= Core != null && Core.TryGetCapability(out ICharacterInput i) ? i : null;
+    protected IStatService StatService => statService ??= Core != null && Core.TryGetCapability(out IStatService s) ? s : null;
     private ICharacter<TCore> Owner => owner ??= GetComponentInParent<ICharacter<TCore>>();
 
     [Inject]
@@ -85,10 +89,11 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
 
     protected virtual float CalculateCurrentDamage()
     {
-        float finalDamage = statService.GetStatValue(StatType.PhysicalDamage)
+        IStatService stats = StatService;
+        float finalDamage = (stats != null ? stats.GetStatValue(StatType.PhysicalDamage) : 0f)
             + weapon.CurrentStage.attackDamage;
-        if (Utility.RollChance(statService.GetStatValue(StatType.CritChance)))
-            finalDamage += finalDamage * statService.GetStatValue(StatType.CritDamage) / 100;
+        if (stats != null && Utility.RollChance(stats.GetStatValue(StatType.CritChance)))
+            finalDamage += finalDamage * stats.GetStatValue(StatType.CritDamage) / 100;
         return finalDamage;
     }
 }

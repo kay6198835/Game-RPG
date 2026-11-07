@@ -9,28 +9,29 @@ public class EntityData : CharacterData
     [SerializeField] private LayerMask layerMask;
     // NEED CHECK: removed — the enemy controller now lives on CharacterData.animationController (player style).
     //[SerializeField] private AnimatorOverrideController aima;
-    [Header("Idle State")]
-    [SerializeField] private float rangeCheckFieldOfView;
+    [SerializeField] private float rangeView;
+    [SerializeField] private float angleView;
     [SerializeField] private float idleDurationTime;
-    [Header("Move State")]
     [SerializeField] private float moveDurationTime;
-    // NEED CHECK: removed — had no reader. Move speed is StatType.MoveSpeed (MovementBase.MoveSpeed),
-    // attack range is StatType.MaxRangeAttack / MinRangeAttack (EntityFindTarget).
-    //[SerializeField] private float movementVelocities = 10f;
-    //[SerializeField] private float rangeCheckAttack;
 
-    //public float MaxHealth { get => maxHealth; }
+    [Header("Multipliers")]
+
+    [SerializeField] private float rangeViewMultiplier = 1.2f;
+    [SerializeField] private float angleMultiplier = 1.5f;
+    [SerializeField] private float idleMultiplier = 0.1f;
+    [SerializeField] private float moveMultiplier = 0.5f;
+
+
     public LayerMask LayerMask { get => layerMask; }
-    // NEED CHECK: removed with `aima`; callers read animationController instead.
-    //public AnimatorOverrideController Aima { get => aima;}
-    public float RangeCheckFieldOfView { get => rangeCheckFieldOfView;}
-    public float IdleDurationTime { get => idleDurationTime;}
-    // NEED CHECK: removed with the fields above.
-    //public float MovementVelocities { get => movementVelocities;}
-    //public float RangeCheckAttack { get => rangeCheckAttack; }
-    public float MoveDurationTime { get => moveDurationTime;}
+    public float RangeView { get => rangeView; }
+    public float AngleView { get => angleView; }
+    public float IdleDurationTime { get => idleDurationTime; }
+    public float MoveDurationTime { get => moveDurationTime; }
     private void OnValidate()
     {
-        
+        rangeView = Stats.GetStatValue(StatType.MaxRangeAttack) * rangeViewMultiplier;
+        angleView = Stats.GetStatValue(StatType.INT) * angleMultiplier > 360f ? 360f : Stats.GetStatValue(StatType.INT) * angleMultiplier;
+        idleDurationTime = Stats.GetStatValue(StatType.STR) * idleMultiplier;
+        moveDurationTime = Stats.GetStatValue(StatType.STR) * moveMultiplier;
     }
 }
