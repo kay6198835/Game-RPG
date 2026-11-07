@@ -36,6 +36,8 @@ public class Entity : CharacterBase<EntityCore>
     {
         if (stateMachine.CurrentState is not EntityIdleState)
             stateMachine.Initialize(idleState);
+
+        core.ReloadCore();
     }
     public override void Start()
     {

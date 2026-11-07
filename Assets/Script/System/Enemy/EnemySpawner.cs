@@ -90,10 +90,6 @@ public class EnemySpawner : MonoBehaviour
 
                 GameObject enemy = objectPoolManager.Spawn(entry.enemy.Prefab, positionRandom + Utility.RandomPaddingDistace(-maxPadding, maxPadding), Quaternion.identity);
                 ApplyData(enemy, entry.enemy.Data);
-                //check late 
-                //positionRandom = origin positionRandom or enemy spawn position
-
-                //entityInput.SetSpawnPoint(positionRandom);
                 enemyCount++;
             }
         }
