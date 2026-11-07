@@ -1,22 +1,15 @@
 {
-    "run":  "20261105-1417",
-    "status":  "FAIL",
-    "exitCode":  1,
-    "sprint":  "origin/sprint-21",
-    "head":  "8140a56de7",
-    "base":  "92f53a6ecb",
-    "ownerBranch":  "pm/doc-sync-2026-11-05",
+    "run":  "20261107-1434",
+    "status":  "SKIPPED",
+    "exitCode":  3,
+    "sprint":  "",
+    "head":  "",
+    "base":  "",
+    "ownerBranch":  "",
     "autoCommit":  "",
-    "reportDir":  "qa-automation/reports/20261105-1417",
-    "totals":  {
-                   "total":  86,
-                   "PASS":  60,
-                   "FAIL":  1,
-                   "KNOWN":  10,
-                   "SKIP":  13,
-                   "OBSERVED":  2
-               },
-    "message":  "PASS 60 / FAIL 1 / KNOWN 10 / SKIP 13 / OBSERVED 2; new FAIL: 0",
-    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261105-1417.log",
-    "finished":  "2026-11-05 14:27:48"
+    "reportDir":  "",
+    "totals":  null,
+    "message":  "Unity Editor is open (pid 2028); the run did not touch git or the project. Close the Editor and run qa-automation/scripts/run-weekly.ps1 by hand.",
+    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261107-1434.log",
+    "finished":  "2026-11-07 14:34:18"
 }
