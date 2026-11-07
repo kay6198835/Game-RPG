@@ -1,11 +1,25 @@
 # Project State
 
-Updated **2026-11-05** (doc-truth pass `/doc-sync --auto` at `origin/sprint-21` `028fdb90`).
-Bug statuses below follow `production/qa/bugs/BUG-*.md`, which are the source of truth (unchanged
-since the 2026-10-31 triage — no wrap-up has run since). Claim sweep:
-`production/qa/doc-truth-2026-11-05.md`. Previous update: **2026-10-31** (`sprint-20` `e8baf251`).
-This pass added the "2026-10-31 → 2026-11-05" table and build status; the sections below it are the
-2026-10-31 snapshot plus that delta.
+Updated **2026-11-07** (doc-truth pass `/doc-sync --auto` at `origin/sprint-21` `c6f3ccf2`, after the
+2026-11-07 wrap-up triage). Bug statuses follow `production/qa/bugs/BUG-*.md`, the source of truth.
+Claim sweep: `production/qa/doc-truth-2026-11-07.md`. Previous update: **2026-11-05** (`028fdb90`).
+This pass added the "2026-11-05 → 2026-11-07" section; the sections below it are the earlier
+snapshots plus their deltas.
+
+## Delta 2026-11-05 → 2026-11-07
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R42 | Death is a sticky input flag: `ICharacterInput.IsDeath` / `OnDeath()`; `NegativeReceiverBase` calls it on a lethal hit; player and enemy states read it first; `OnLethalHit()` deleted; `CharacterInputBase.ReloadComponent()` clears it | `4097be4c`, `1c3a34fc` | Enemy death and respawn path; player death state reached from any state |
+| R43 | `Entity.OnEnable()` calls `core.ReloadCore()`; `EntityInput.ReloadComponent()` re-records `spawnPoint` | `d2d45973` | BUG-124 |
+| R44 | Renamed serialized keys migrated in data (`SnS_State1-3`, `SnS_Stat`, stat effect assets) | `fbab752a` | BUG-105, BUG-121 FIXED (awaiting runtime) |
+| R45 | Player body collider moved off the Player layer | `6f5322f6` | Owner check pending |
+| R46 | Room presets limited to five demo roles; Tank clips re-sprited (other assets in `06204474` not checked) | `dd1ec12d` | Content |
+
+**Triage 2026-11-07:** FIXED (awaiting runtime / Player build) — BUG-105, 107, 116, 121. PARTIAL —
+BUG-106, 108, 115. New — **BUG-122** (S1: `ON_PLAYER_DEATH` never fires, no Die clip sends
+`EndRangeTrigger`), BUG-123 (S3), BUG-124 (S3). Top demo blockers: BUG-122, BUG-096 (Boss room
+sealed), BUG-097 (run starts in the boss room).
 
 Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs and change logs:
 `docs/systems/<system>/README.md` + `CHANGELOG.md`.

@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-07 — Death read from the input flag; respawn anchor (doc-truth re-sync)
+- **Commit:** `4097be4c` "Read death from the input flag instead of switching state in the receiver" and `1c3a34fc` "fix flow" (2026-11-05); `d2d45973` "coding need check" (2026-11-07, `Entity.OnEnable()` / `EntityInput.ReloadComponent()`). All on `sprint-21`.
+- **Changed:** `NegativeReceiverBase.cs`, `CharacterInputBase.cs`, `ICharacterInput.cs`, `CharacterBase.cs`, `EntityNegativeReciver.cs`, `NegativeReciver.cs`, entity states (Basic / Attack / UseWeapon / TakeDamage / Ability), player states (Basic / UseWeapon / Disadvantage), `Entity.cs`, `EntityInput.cs`, `EnemySpawner.cs` (dead comment removed).
+- **From → To:** lethal hit → `OnLethalHit()` switches the state from the receiver → lethal hit → `ICharacterInput.OnDeath()` sets sticky `IsDeath`; each state reads it first and enters its death state; `ReloadComponent()` clears it. README section "Death on a lethal hit" rewritten. `Entity.OnEnable()` now calls `core.ReloadCore()`; `EntityInput.ReloadComponent()` re-records `spawnPoint`.
+- **Why:** commit title — "Read death from the input flag instead of switching state in the receiver"; code comment: "the lethal-hit signal lives on the input like every other state trigger".
+- **Bugs:** BUG-124 (anchor recorded at the previous death position). The two 2026-11-05 working-tree entries below look committed: `dd1ec12d` "update asset" carries the eight preset assets and the Tank clips (other roles' clips not checked by this pass).
+
 ## 2026-11-05 — Role clips use per-role sprite models
 - **Commit:** none yet (working tree on `feature/new-asset-enemy`)
 - **Changed:** 288 clips under `Assets/Animation/Enemy/Role/{Assasin,Tank,RangedCaster,Sniper}/` — sprite keys, `m_SampleRate` (30), `m_StopTime`; Die event times scaled. Events otherwise unchanged (128 per role before and after).

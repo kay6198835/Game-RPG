@@ -17,6 +17,27 @@ which code change caused it.
 
 ---
 
+## 2026-11-07 — Doc-truth pass: death input flag, 2026-11-07 triage statuses (HEAD `c6f3ccf2`)
+
+**Cause.** `4097be4c` / `1c3a34fc` (death read from `ICharacterInput.IsDeath`, `OnLethalHit()` deleted),
+`d2d45973` (`Entity.OnEnable()` → `core.ReloadCore()`, `EntityInput` re-records `spawnPoint`),
+`fbab752a` (renamed serialized keys migrated in data), `6f5322f6`, `dd1ec12d`; and the 2026-11-07
+bug triage (`5e77ef55`: 7 status changes, BUG-122…124 filed). Claim sweep:
+`production/qa/doc-truth-2026-11-07.md`. No `.cs` file changed.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | Header entry; Damage Chain (enemy + player death via `IsDeath`); layout + state-machine notes on `PlayerDeathState` (BUG-122); Known Bugs: BUG-105/107/116/121 → FIXED, BUG-106/108/115 → PARTIAL per files, rows BUG-122/123/124 added, row #8 note; checklist 27 done, 29/30 notes, item 31 added |
+| `docs/systems/enemy/README.md` + CHANGELOG | "Death on a lethal hit" rewritten (input flag, `ReloadComponent()`), respawn anchor + BUG-124 |
+| `docs/systems/character/README.md` + CHANGELOG | Death paragraph; BUG-122 added; BUG-094 citation corrected to BUG-104 |
+| `docs/systems/event-system/README.md` + CHANGELOG | `ON_PLAYER_DEATH` producer note: never emitted today (BUG-122) |
+| `docs/systems/items/README.md` + CHANGELOG | BUG-121 FIXED (awaiting runtime), BUG-123 added |
+| `memory/project_state.md` | Header + 2026-11-05 → 2026-11-07 delta |
+
+**Notable.** The Phase 0 scripts ran from the owner's folder at `acacdf6c`, which predates the
+triage commit, so `bug-id.sh audit` reported 0 mismatches; the seven mismatches were found by reading
+the bug files in the PM worktree and are fixed above.
+
 ## 2026-11-05 — Doc-truth pass: Abilities v1 deleted, EventID 25, ApplyCharacterData (HEAD `028fdb90`)
 
 **Cause.** `79ad79b2` (QA probe), `1370136c` "fix bug add skill", `6094aa10` "fix bug, add asset room,

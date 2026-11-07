@@ -1,6 +1,6 @@
 # Enemy — AI + Spawning
 
-> **Status:** live · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (Attack paragraph; the owner's 2026-11-04 edits landed in `6094aa10`) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
+> **Status:** live · **Last verified:** 2026-11-07, `sprint-21` `c6f3ccf2` (death flow, respawn anchor; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -40,7 +40,7 @@ attack range).
 
 **Damage received.** `EntityNegativeReciver` (via `NegativeReceiverBase`) → `DamageCalculate()`
 subtracts `StatType.Defense`, clamps at 0 → `EntityVitalStats.ReceiveReduction(HP)` →
-`EntityInput.OnTakeDamage()` → `EntityUIController.UpdateUIHealth()`.
+`EntityInput.OnTakeDamage()` (or `OnDeath()` on a lethal hit — see below) → `EntityUIController.UpdateUIHealth()`.
 
 **Movement.** `EntityMovement` requests A* paths from `EnemyManager.Instance`;
 `SetPositionToCheck()` lerps toward the target by `Random.Range(30,75)/100f`.
@@ -64,13 +64,21 @@ zero-spawn branch (re-checked at `sprint-18` `617bb2bb`). `OnGetSpawnPositions()
 **Prefab wiring.** `Entity` + child `EntityCore` + all core components as descendants; assign an
 `EntityData`. A scene `EnemyManager` is required.
 
-## Death on a lethal hit (2026-11-04)
+## Death on a lethal hit (2026-11-05)
 
 `NegativeReceiverBase.TakeDamage()` compares the mitigated damage with current HP before reducing it. A hit
-with damage ≥ current HP calls `OnLethalHit()`, which switches the character straight to its death state
-(`EntityDeathState` / `PlayerDeathState`) from any state; a character at 0 HP ignores further hits. Before,
-death was noticed only by the basic state while the 0.1 s take-damage flag was up, so a lethal hit during the
-take-damage animation left the character alive at 0 HP (inbox NOTE-20261101-2).
+with damage ≥ current HP calls `ICharacterInput.OnDeath()` instead of `OnTakeDamage()`; that sets the sticky
+`CharacterInputBase.IsDeath` flag. Every state that can be interrupted reads the flag first and enters its
+death state: `EntityBasicState`, `EntityAttackState`, `EntityUseWeaponState`, `EntityTakeDamageState`,
+`EntityAbilityState` (player side: `PlayerBasicState`, `PlayerUseWeaponState`, `PlayerDisadvantageState`).
+A character at 0 HP ignores further hits. The flag (and `IsTakeDamage`) is cleared by
+`CharacterInputBase.ReloadComponent()`, which `CharacterBase.Reborn()` and `Entity.OnEnable()` →
+`core.ReloadCore()` reach, so a pooled enemy respawns alive. The receiver no longer changes state itself:
+the 2026-11-04 `OnLethalHit()` hook was removed in `4097be4c`.
+
+**Respawn anchor.** `EntityInput.ReloadComponent()` re-records `spawnPoint` from the current position
+(`d2d45973`). Because `Pool.Reload()` activates the object before moving it, the anchor is the previous
+death position — **BUG-124** (S3).
 
 ## Content — role roster
 
@@ -224,6 +232,7 @@ or `EnemyPrefab`. Do not build new content on them.
 | Bug | Summary |
 |-----|---------|
 | BUG-066 | Unguarded `currentStats[statType]` in the shared `VitalStatsBase` (same site as BUG-070) |
+| BUG-124 | Pooled re-use records the wander anchor at the previous death position |
 | BUG-ES-2 | Two parallel spawn drivers |
 | — | `RoomModel.overflowPercent` serialized, never read; `retry > 4` fallback breaks ADR-0003's budget |
 | TD-030 | `EnemySO` not consumed by `Entity` |

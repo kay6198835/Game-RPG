@@ -56,7 +56,8 @@ Effects reach the character's components from the `ICharacter` root
 | — | `ItemController.effects` is an `IReadOnlyList` marked `[SerializeField]` — Unity cannot serialize it (runtime-only, harmless) |
 | — | `ON_DROP_ITEM` declared, never used |
 | BUG-120 | Item stat effects apply nothing; both concrete menus point at `abstract` classes; the two item effect assets bind to the abstract script |
-| BUG-121 | `StatModifierGroup.authoredModifiers` → `statsModifiers` with no `[FormerlySerializedAs]` — both item effects load empty |
+| BUG-121 | FIXED in code and data, awaiting runtime (2026-11-07 triage): `[FormerlySerializedAs("authoredModifiers")]` (`1370136c`) + values moved into the new keys (`fbab752a`). *Was:* both item effects load empty |
+| BUG-123 | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item effect can be authored |
 | inbox | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item can be authored (NOTE-20261031-10) |
 | BUG-100 | Timed buffs share one modifier source (now `context.Caster`, `EffectReceiverBase.cs:86-91`); a timed buff expiring can strip other modifiers from that source |
 | TD-030 | One global `DepotItem` on `ItemSpawner`; `EnemySO.depotItem` is never read. Kept on purpose for now (owner, 2026-10-20) |
