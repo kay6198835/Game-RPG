@@ -11,7 +11,15 @@
 
 ## Status Verdict
 
-**SLIPPED — start of day 5, last working day (Fri 2026-11-06 standup)** (evidence: COMPILED + LOG + STATIC).
+**FINAL (week closed, Sat 2026-11-07 wrap-up): SLIPPED** (evidence: RUNTIME (automated QA only) +
+LOG + STATIC; no owner playtest sheet, so the cap is CONCERNS at best). Planned Must Have 0.3d / 1.45d
+done (S21-02, S21-03, S21-09) plus partials (S21-05, S21-06, S21-08, S21-12); Should Have 0 / 0.95d;
+S21-F1 not started; ≈1.7d of useful off-plan output (enemy roles, rooms, v1 deletion, death flag,
+data keys, collider layer, `Maw` art). Playtest S21-01 not run (24th carry). Triage confirmed one new
+S1 blocker, **BUG-122** (player death event never fires). **Velocity 0.08** (0.3 estimate-days / 4).
+**Playtest done: no.** Handoff values for Sunday's kickoff are in the Daily Log entry of 2026-11-07.
+
+*Was (Fri 2026-11-06 standup):* **SLIPPED — start of day 5, last working day** (evidence: COMPILED + LOG + STATIC).
 Thursday's owner output is mostly unplanned-but-useful: death now read from `ICharacterInput.IsDeath`
 (`4097be4c`, `1c3a34fc` — targets NOTE-20261101-1/2), serialized-key data fix (`fbab752a` — BUG-105
 sword damage and the BUG-121 `targetStatType` half), player body collider layer (`6f5322f6`), new
@@ -109,7 +117,8 @@ not done (23rd carry). 3.0 working days left (Wed–Fri) / ≈2.6d planned work 
 ### Sat 2026-11-07 — Weekly playtest
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri 23:00 QA run as input) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri 23:00 QA run as input) | 0.1d | ❌ not run (sheet blank at 22:00; 21 Editor Play Mode entries today were the owner's debugging on an uncommitted tree, not the sheet) | Reserved every Saturday; feeds wrap-up |
+| Weekly wrap-up + triage | — | ✅ 2026-11-07 | BUG-122…124 confirmed; 7 bug statuses updated; `production/qa/bug-triage-2026-11-07.md` |
 
 ---
 
@@ -240,3 +249,38 @@ _(appended by `/daily-standup`)_
 - **Today** (last working day): S21-01 playtest via the sheet (0.3d — now also confirms `4097be4c`,
   `fbab752a`, `6f5322f6`) → S21-06 remainder (0.2d) → S21-04 (0.1d) → S21-07 (0.1d) → S21-08
   remainder (0.05d). Should Have and S21-F1 go to carry-over unless the Must list finishes early.
+
+### 2026-11-07 (Sat) — weekly wrap-up ~22:00, evidence RUNTIME (automated) + LOG + STATIC
+- **Since Fri standup**: one game commit, `d2d45973` "coding need check" (auto-committed from the
+  owner's tree by QA run `20261107-1437`): `Entity.OnEnable()` → `core.ReloadCore()`,
+  `EntityInput.ReloadComponent()` re-anchors `spawnPoint` → review finding **BUG-124** (pooled
+  re-spawn anchors at the old death position). No Friday task moved to ✅.
+- **Playtest**: NOT RUN — `playtest-2026-11-07.md` blank (sections A, B, B2, C). Section-B bugs
+  confirmed by hand: none.
+- **Automated QA** (run `20261107-1437`, Sat 14:37 on `5a3256e7`; the 14:34 run SKIPPED, Editor open):
+  PASS 76 / FAIL 2 / KNOWN 9 / SKIP 20 / OBSERVED 4 of 111. New FAIL QA-STATIC-01 (18 new
+  missing-script refs, NOTE-20261107-4); still FAIL QA-VIT-07 (= **BUG-122**); fixed
+  QA-ABL-01.Paladin.Utility; all 10 QA-ENT-08 roles PASS (collider fix `6f5322f6` holds); flaky 0.
+- **Editor log**: 0 `error CS`; 21 Play Mode entries; NREs @ `PlayerState.cs:42`,
+  `AttackFlowDebugger.cs:162/241`, `BaseStatsSO.cs:243` → NOTE-20261107-2 / -3 (Needs owner).
+- **Fix-survival** (30 d): 1 row, BUG-107 PARTIAL 49% — method rewritten, substance present.
+- **Triage**: 24 notes → 3 confirmed (**BUG-122** S1, **BUG-123** S3, **BUG-124** S3) · 7 resolved in
+  week · 4 duplicate · 4 not a bug · 1 not reproduced · 5 needs owner. Status updates: BUG-105, 107,
+  116, 121 → fixed in code/data (awaiting runtime); BUG-106, 108, 115 → PARTIAL.
+- **Doc drift**: doc-claims 106 STALE / 699; bug-id audit 6 historical IDs only → doc-sync 23:00.
+- **Retro** — *went well*: the owner fixed or narrowed 11 inbox notes inside the week, and automated
+  QA verified most of them at runtime (enemy death, move speed, range, ranged hits, Avatar of Light);
+  the S21-09 pre-push gate landed. *Slipped*: planned Must work (S21-04/05/06/07/08) yielded to large
+  off-plan commits again (`6094aa10`, 1830 files); the owner playtest is at its 24th carry
+  (S21-01) and S21-13 one-liners are at their 4th–7th carry; QA-VIT-07 has failed 10 runs in a row
+  without a bug ID until tonight. *Improve*: put the playtest sheet's section A/B/B2 into the same
+  sitting as the owner's own Play Mode debugging (21 entries today, none recorded) — one filled row
+  beats zero.
+- **Handoff for Sunday's kickoff**:
+  - **Carry-over**: S21-01 playtest (24th), S21-04 BUG-108 remainder, S21-05 BUG-096 (Boss room),
+    S21-06 BUG-106 player half / BUG-110, S21-07 BUG-097, S21-08 remainder (BUG-095 collider,
+    BUG-072 `layerMask`, re-save the eight assets), S21-10 BUG-117 + BUG-120 (+ BUG-123), S21-11
+    BUG-065 + BUG-086, S21-12 BUG-115 asset cleanup, S21-13 one-liners, S21-F1; **new blocker
+    BUG-122** (S1, P1).
+  - **Velocity**: 0.08 (0.3 estimate-days done / 4).
+  - **Playtest done: no.**
