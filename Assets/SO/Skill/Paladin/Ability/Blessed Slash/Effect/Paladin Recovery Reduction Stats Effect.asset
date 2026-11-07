@@ -15,8 +15,8 @@ MonoBehaviour:
   AbilityName: Paladin Recovery Reduction Stats Effect
   SubConditions: []
   statModifier:
-    authoredModifiers:
-    - targetStat: 100
+    statsModifiers:
+    - targetStatType: 100
       type: 100
       value: 30
   impactType: 0

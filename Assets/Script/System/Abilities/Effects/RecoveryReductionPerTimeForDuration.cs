@@ -8,6 +8,6 @@ public class RecoveryReductionPerTimeForDuration : StatsEffectBase
     [SerializeField] private int timeCount;
     protected override void ApplyImpact(IEffectReceiver effectReceiver, StatModifierGroup statModifierGroup, AbilityContext context)
     {
-        effectReceiver.AdjustCurrentPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
+        effectReceiver.AdjustMaxPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
     }
 }

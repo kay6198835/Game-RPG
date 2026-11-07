@@ -7,7 +7,6 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
-    protected Dictionary<StatType, float> currentStats = new();
     [SerializeField] protected SourceEffect sourceEffect;
     [Inject] protected IObjectPoolService _objectPoolManager;
     public void Construct(IObjectPoolService objectPoolManager)
@@ -35,7 +34,6 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     public override void ReloadComponent()
     {
         base.ReloadComponent();
-        currentStats = statHandler.GetFullStat();
     }
     public void AdjustCurrentStats(StatModifierGroup statModifierGroup, AbilityContext context, Action callback = null)
     {
@@ -43,11 +41,6 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         {
             if (modifier.ImpactType == StatImpactType.Reduction)
             {
-                VitalStatType vitalStatType = (VitalStatType)modifier.TargetStatType;
-                if (System.Enum.IsDefined(typeof(VitalStatType), vitalStatType))
-                {
-                    vital.Reduction(modifier.TargetStatType, modifier.Value);
-                }
                 vital.Reduction(modifier.TargetStatType, modifier.Value);
             }
             else if (modifier.ImpactType == StatImpactType.Recovery)
@@ -83,19 +76,20 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     #region Buff/Debuff for duration
 
 
-    IEnumerator ApplyAdjustCurrentForDuration(StatModifierGroup statModifierGroup, float duration, AbilityContext context)
+    IEnumerator ApplyAdjustCurrentForDuration(StatModifierGroup statModifierGroup, float duration, AbilityContext context, Action callback = null)
     {
-        statHandler.AddModifiersFromSource(context.Caster, statModifierGroup.GetStatsModifiers);
+        var sourceEffect = SetEffectSource(context, callback);
+        statHandler.AddModifiersFromSource(sourceEffect, statModifierGroup.GetStatsModifiers);
         yield return new WaitForSeconds(duration);
-        statHandler.RemoveModifiersFromSource(context.Caster);
+        statHandler.RemoveModifiersFromSource(sourceEffect);
     }
 
-    public void AdjustCurrentForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
+    public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
     {
         StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context));
     }
 
-    public void AdjustCurrentPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
+    public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
         throw new System.NotImplementedException();
     }

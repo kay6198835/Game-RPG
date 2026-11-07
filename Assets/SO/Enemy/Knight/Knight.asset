@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c1885a8510419428a2ca2e42353c8d, type: 3}
+  m_Name: Knight
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: 42fa61179e05e9f478f83828e1a2d276, type: 2}
+  abilityBindings: []
+  animationController: {fileID: 22100000, guid: d0db906fa3b190741b840055b37a6db1, type: 2}
+  <Weapon>k__BackingField: {fileID: 1247331660701095708, guid: 4175b4162cfd32a0b609869d6cb75612, type: 3}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  aima: {fileID: 22100000, guid: d0db906fa3b190741b840055b37a6db1, type: 2}
+  rangeCheckFieldOfView: 3
+  idleDurationTime: 1
+  moveDurationTime: 5
+  movementVelocities: 5
+  rangeCheckAttack: 3

@@ -66,6 +66,13 @@ public class EntityInput : CharacterInputBase<EntityCore>
         this.spawnPoint = this.transform.position;
         targetTransform = _playerService.GetPlayerTransform();
     }
+
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
+        
+        spawnPoint = this.transform.position;
+    }
     public void DirectionMethod()
     {
         // if (targetTransform != null)

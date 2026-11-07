@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-05 — Abilities v1 deleted (doc-truth re-sync)
+- **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04, merged into `sprint-21` by `ea00b3a4`); Archer / Mage assets `6c61ccdb`
+- **Changed:** `System/Skill_Ability/` deleted (`ActivateSkill`, `AbstractSkillSO`, Dash / Slash / Block / Dual, `EffectSkill*`, `InternalSkillSO`) with its SO assets, plus `EntityWeapon`, `Spell`, `IEffectable`; `WeaponSO` moved to `System/Item/`. `AbilityHolderBase.SetAbility()` now clears `_equipped` and `currentAbility` first; new `ChangeNextState()`. `EffectReceiverBase.AdjustCurrentForDuration` / `AdjustCurrentPerTimeForDuration` renamed `AdjustMaxForDuration` / `AdjustMaxPerTimeForDuration` (the latter still throws, BUG-118).
+- **From → To:** README status said "v1 deleted 2026-11-04 (working tree)" → committed on `sprint-21`; assets row lists Archer / Mage / ShootSpirit.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-106 (enemy half), BUG-118.
+
 ## 2026-10-31 — Summon renames + Rain Arrows reach the sprint branch (doc-truth re-sync)
 - **Commit:** `cae75317` "add asset", `5c8245c9` "add logic for rain arrow skill", `6e484f0c` "update logic effect" (on `origin/sprint-20`)
 - **Changed:** `LightningController` → `DamageArea`, `RuneCircleController` → `CircleSummon`; `DamagesInManyPos` + `RainArrowsProjectile` added; `Runtime/ImpactMono/SourceEffect` added. Stat effects now apply through `IEffectReceiver` (`EffectReceiverBase`) instead of `IVitalComponent`.

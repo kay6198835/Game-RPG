@@ -2,6 +2,23 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-05 — Auto-open rooms and ON_ROOM_CLEARED committed (doc-truth re-sync)
+- **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04), merged into `sprint-21` by `ea00b3a4`. This is the commit the 2026-11-04 entry below calls "none yet".
+- **Changed:** `RoomGeneraterController.cs:138-141,216` — `AutoOpenRoomTypes` {ShopRoom, RestRoom, TreasureRoom} emit `ON_OPEN_DOOR` on load instead of `ON_GET_SPAWN_POSITIONS`; `RoomCell.cs:60-67` emits `ON_ROOM_CLEARED` before `ON_OPEN_DOOR`; `EnemySpawner` applies `EnemySpawnEntry.Data` through `Entity.SetCharacterData()` on every spawn.
+- **From → To:** README said Start/Boss/Rest/Shop/Buff never open → only Boss stays sealed in code (Start opens through the Champion). README flow and open-issues rows updated.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-096 (file still Open; triage hint NOTE-20261105-2), Bug #16 (narrowed), BUG-097 (unchanged).
+
+## 2026-11-04 — Buff room auto-opens
+- **Commit:** none yet (working tree on `origin/feature/add-effect-component`)
+- **Changed:** `Assets/SO/Dungeon/Maze_Storage.asset` — `BuffRoom_PowerShrine.roomType` `0` (`NormalRoom`) → `4` (`TreasureRoom`)
+- **From → To:** the buff room has no `Tile_Spawn_Enemy` marker; as a `NormalRoom` it asked the spawner for enemies,
+  got none, and stayed sealed. `TreasureRoom` is in `RoomGeneraterController.AutoOpenRoomTypes`, so it now opens on load.
+  Data only — no code change.
+- **Why:** owner decision.
+- **Still open:** `BossRoom_ThroneArena` / `StartRoom_Entrance` can also be drawn mid-maze and are not auto-open
+  (BUG-097 — start/end chosen by list position).
+
 ## 2026-10-31 — Champion controller renamed (doc-truth re-sync)
 - **Commit:** on `origin/sprint-20` (`StartGameSystem/` → `RoomGameSystem/`, `041292ce` "done flow pick champion")
 - **Changed:** `ChampitionController` → `PedestalChampionController`; `UpgradeController` and an empty `ShopController` added in the same folder.

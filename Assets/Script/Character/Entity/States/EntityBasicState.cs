@@ -28,18 +28,16 @@ public class EntityBasicState : EntityState
         base.LogicUpdate();
         entityInput.DirectionMethod();
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
+        // NEED CHECK: 2026-11-05 — death is read from the input flag, no longer from EntityVitalStats HP.
+        if (entityInput.IsDeath)
+        {
+            stateMachine.ChangeState(entity.DeathState);
+            return;
+        }
         if (entityInput.IsTakeDamage)
         {
-            if (entityVitalStats.GetCurrentStatValue(VitalStatType.HP) <= 0)
-            {
-                stateMachine.ChangeState(entity.DeathState);
-                return;
-            }
-            else
-            {
-                stateMachine.ChangeState(entity.TakeDamageState);
-                return;
-            }
+            stateMachine.ChangeState(entity.TakeDamageState);
+            return;
         }
         // Optional component: enemies without EntityAbilityHolder behave exactly as before.
         if (abilityHolder != null)

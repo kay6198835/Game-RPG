@@ -1,0 +1,138 @@
+{
+    "base":  "e22cd6ab59",
+    "head":  "4b2133fb2d",
+    "baseRef":  "e22cd6ab59",
+    "headRef":  "origin/sprint-21",
+    "commits":  [
+                    {
+                        "sha":  "7addb4bc",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261105-1053 on origin/sprint-21 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1053/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "5252a2b7",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): run 20261105-1002 part C - QA-ENT-07, QA-STATIC-07, manual Part 2, baseline and known issues",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/known-issues.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/static-baseline.txt"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/manual/manual-weekly-checklist.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/reports/20261105-1002/weekly-change-impact.md"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  2,
+    "files":  18,
+    "systems":  {
+                    "QA":  [
+                               "Assets/QA/Editor/QAStaticChecks.cs",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/config/known-issues.json",
+                               "qa-automation/config/static-baseline.txt",
+                               "qa-automation/manual/manual-weekly-checklist.md",
+                               "qa-automation/reports/20261105-1002/weekly-change-impact.md",
+                               "qa-automation/reports/20261105-1053/change-impact.json",
+                               "qa-automation/reports/20261105-1053/report.md",
+                               "qa-automation/reports/20261105-1053/results.json",
+                               "qa-automation/reports/20261105-1053/run.log",
+                               "qa-automation/reports/20261105-1053/run-info.json",
+                               "qa-automation/reports/20261105-1053/summary.json",
+                               "qa-automation/reports/20261105-1053/unity-report.md",
+                               "qa-automation/reports/20261105-1053/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ]
+                },
+    "deep":  [
+
+             ],
+    "risks":  [
+
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}

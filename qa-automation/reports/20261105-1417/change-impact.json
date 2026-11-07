@@ -1,0 +1,125 @@
+{
+    "base":  "92f53a6ecb",
+    "head":  "8140a56de7",
+    "baseRef":  "92f53a6ecb",
+    "headRef":  "origin/sprint-21",
+    "commits":  [
+                    {
+                        "sha":  "8140a56d",
+                        "date":  "2026-11-05",
+                        "author":  "Claude",
+                        "subject":  "test(qa): QA-ENT-04 releases the dead enemy like EnemySpawner (by design)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/rules/ai-code.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "27c33665",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261105-1327 on origin/sprint-21 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1327/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  1,
+    "files":  15,
+    "systems":  {
+                    "DOCS":  [
+                                 ".claude/rules/ai-code.md",
+                                 "production/qa/bug-inbox.md"
+                             ],
+                    "QA":  [
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/reports/20261105-1327/change-impact.json",
+                               "qa-automation/reports/20261105-1327/report.md",
+                               "qa-automation/reports/20261105-1327/results.json",
+                               "qa-automation/reports/20261105-1327/run.log",
+                               "qa-automation/reports/20261105-1327/run-info.json",
+                               "qa-automation/reports/20261105-1327/summary.json",
+                               "qa-automation/reports/20261105-1327/unity-report.md",
+                               "qa-automation/reports/20261105-1327/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ]
+                },
+    "deep":  [
+
+             ],
+    "risks":  [
+
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}

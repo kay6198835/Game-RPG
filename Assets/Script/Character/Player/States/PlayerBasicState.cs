@@ -28,6 +28,12 @@ public class PlayerBasicState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        // NEED CHECK: 2026-11-05 — death is read from the input flag, first, no longer from VitalStatsComponent HP.
+        if (inputHandler.IsDeath)
+        {
+            stateMachine.ChangeState(player.DeathState);
+            return;
+        }
         abilityHolder.Processing();
         if (inputHandler.IsEquip_Unequip)
         {
@@ -66,16 +72,8 @@ public class PlayerBasicState : PlayerState
         }
         if (inputHandler.IsTakeDamage)
         {
-            if (vitalStats.GetCurrentStatValue(VitalStatType.HP) <= 0)
-            {
-                stateMachine.ChangeState(player.DeathState);
-                return;
-            }
-            else
-            {
-                stateMachine.ChangeState(player.TakeDamageState);
-                return;
-            }
+            stateMachine.ChangeState(player.TakeDamageState);
+            return;
         }
     }
     public override void PhysicsUpdate()

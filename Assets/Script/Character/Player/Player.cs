@@ -84,15 +84,7 @@ public class Player : CharacterBase<Core>
         gameObject.name = data.name;
         anim.runtimeAnimatorController = data.animationController;
         stateMachine.Initialize(idleState);
-
-        // Need check and fix this logic late
-        core.GetCoreComponent(out WeaponHolder weaponHolder);
-        weaponHolder.EquipDefaultWeapon();
-        core.GetCoreComponent(out AbilityHolder abilityHolder);
-        abilityHolder.SetAbility();
-        // Re-seed vitals for the new character and re-notify the HUD; not Reborn(), which would also zero the wallet.
-        core.GetCoreComponent(out VitalStatsComponent vitalStats);
-        core.ReloadCore();
+        ApplyCharacterData();
     }
 
 

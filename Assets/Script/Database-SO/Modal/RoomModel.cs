@@ -103,6 +103,8 @@ public class EnemySpawnEntry
 public class EnemyModal
 {
     public GameObject Prefab;
+    // Applied by EnemySpawner on every spawn, the way a Champion pick applies PlayerData. Null keeps the prefab's own data.
+    public EntityData Data;
     [Range(1, 100)] public int weight;
     public RarityTierEnemy rarityTier;
 }

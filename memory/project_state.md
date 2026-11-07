@@ -1,9 +1,25 @@
 # Project State
 
-Updated **2026-10-31** (doc-truth pass `/doc-sync --auto` at `origin/sprint-20` `e8baf251`).
-Bug statuses below follow `production/qa/bugs/BUG-*.md`, which are the source of truth (after the
-2026-10-31 wrap-up triage). Claim sweep: `production/qa/doc-truth-2026-10-31.md`. Previous update:
-**2026-10-10** (`sprint-18` `617bb2bb`; the 2026-10-19 pass was interrupted before it reached this file).
+Updated **2026-11-07** (doc-truth pass `/doc-sync --auto` at `origin/sprint-21` `c6f3ccf2`, after the
+2026-11-07 wrap-up triage). Bug statuses follow `production/qa/bugs/BUG-*.md`, the source of truth.
+Claim sweep: `production/qa/doc-truth-2026-11-07.md`. Previous update: **2026-11-05** (`028fdb90`).
+This pass added the "2026-11-05 → 2026-11-07" section; the sections below it are the earlier
+snapshots plus their deltas.
+
+## Delta 2026-11-05 → 2026-11-07
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R42 | Death is a sticky input flag: `ICharacterInput.IsDeath` / `OnDeath()`; `NegativeReceiverBase` calls it on a lethal hit; player and enemy states read it first; `OnLethalHit()` deleted; `CharacterInputBase.ReloadComponent()` clears it | `4097be4c`, `1c3a34fc` | Enemy death and respawn path; player death state reached from any state |
+| R43 | `Entity.OnEnable()` calls `core.ReloadCore()`; `EntityInput.ReloadComponent()` re-records `spawnPoint` | `d2d45973` | BUG-124 |
+| R44 | Renamed serialized keys migrated in data (`SnS_State1-3`, `SnS_Stat`, stat effect assets) | `fbab752a` | BUG-105, BUG-121 FIXED (awaiting runtime) |
+| R45 | Player body collider moved off the Player layer | `6f5322f6` | Owner check pending |
+| R46 | Room presets limited to five demo roles; Tank clips re-sprited (other assets in `06204474` not checked) | `dd1ec12d` | Content |
+
+**Triage 2026-11-07:** FIXED (awaiting runtime / Player build) — BUG-105, 107, 116, 121. PARTIAL —
+BUG-106, 108, 115. New — **BUG-122** (S1: `ON_PLAYER_DEATH` never fires, no Die clip sends
+`EndRangeTrigger`), BUG-123 (S3), BUG-124 (S3). Top demo blockers: BUG-122, BUG-096 (Boss room
+sealed), BUG-097 (run starts in the boss room).
 
 Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs and change logs:
 `docs/systems/<system>/README.md` + `CHANGELOG.md`.
@@ -12,10 +28,28 @@ Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs a
 
 ## Build status
 
-⚠️ **Editor: expected to compile, not checked by this pass.** The `sprint-19` compile break
-(`51f8d2d4`) was fixed by `cae75317`, which is now on `sprint-20`. 🔴 **Player build: fails** —
-`CharacterData.cs:2` imports `UnityEditor.Animations` in runtime code (**BUG-116**, S1). Nothing
-compiles code automatically before a push (TD-048 / TD-051).
+✅ **Editor: COMPILED** — the 2026-11-05 standup batchmode run on the committed `ea00b3a4`
+(`028fdb90` adds only `.md`). **Player build: not run.**
+`CharacterData.cs` no longer imports `UnityEditor.Animations` (`6094aa10`), so BUG-116 looks fixed in
+code; the bug file is still Open. A pre-push static gate now exists for pushes to `main`
+(`3e3f6f10`, `c7fbd69e`, `1da76e9a`).
+
+---
+
+## Structural changes 2026-10-31 → 2026-11-05
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R34 | **Abilities v1 deleted** (`System/Skill_Ability/` + SO assets); `WeaponSO` → `System/Item/`; `EntityWeapon`, `EntityEffectStats`, `Spell`, `IEffectable` deleted | `6094aa10` | v2 is the only ability path; checklist 18 resolved in code, no ADR |
+| R35 | `EventID` 24 → **25** (`ON_ROOM_CLEARED`, emitted by `RoomCell`, 0 subscribers) | `6094aa10` | — |
+| R36 | `CharacterBase.ApplyCharacterData()`; `Entity.SetCharacterData()` called by `EnemySpawner` on every spawn (`EnemySpawnEntry.Data`) | `6094aa10` | BUG-106 enemy half, BUG-107 item 2 look fixed |
+| R37 | `StatHandlerBase` on a per-character runtime clone (`CharacterData.CreateRuntimeStats()`); `IStatService<TCore>`; vitals clamp on a lowered max | `6094aa10` | BUG-115 runtime path looks fixed |
+| R38 | `CharacterData.animationController` → `RuntimeAnimatorController` + `[FormerlySerializedAs("aima")]`; `EntityData.aima` / `movementVelocities` / `rangeCheckAttack` removed; `StatType.MaxRangeAttack` 112 / `MinRangeAttack` 113; move speed from `StatType.MoveSpeed` | `6094aa10` | BUG-116 looks fixed; BUG-108 |
+| R39 | `AutoOpenRoomTypes` (Shop / Rest / Treasure) open doors on load; Buff room authored as `TreasureRoom` | `6094aa10` | BUG-096: only Boss left |
+| R40 | `[FormerlySerializedAs("authoredModifiers")]` on `StatModifierGroup.statsModifiers` | `1370136c` | BUG-121 half fixed |
+| R41 | `FastTest/QAProbe/` automated player-flow probe | `79ad79b2` | Test tooling only |
+
+Triage hints for Saturday: inbox NOTE-20261105-1 (standup) and NOTE-20261105-2 (this pass).
 
 ---
 

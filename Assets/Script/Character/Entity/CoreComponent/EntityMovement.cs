@@ -9,7 +9,8 @@ public class EntityMovement : MovementBase<EntityCore>
     [SerializeField] protected Vector2 targetPosition;
     [SerializeField] protected Vector2 endPosition;
     [SerializeField] protected int indexWaypoints;
-    [SerializeField] protected float speed;
+    // NEED CHECK: removed — was 0 on EnemyPrefab and assigned nowhere. Speed is MovementBase.MoveSpeed (StatType.MoveSpeed).
+    //[SerializeField] protected float speed;
     [SerializeField] protected int maxRadiusSpawnPoint;
     [SerializeField] protected float distance;
     [SerializeField] protected Vector2 forwardDirection;
@@ -120,7 +121,8 @@ public class EntityMovement : MovementBase<EntityCore>
     {
         if (targetPosition == Vector2.zero || !CanMove) return;
         forwardDirection = (targetPosition - (Vector2)Core.Entity.transform.position).normalized;
-        rb.MovePosition(rb.position + forwardDirection * speed * SpeedMultiplier * Time.fixedDeltaTime);
+        // NEED CHECK: was `speed`.
+        rb.MovePosition(rb.position + forwardDirection * MoveSpeed * SpeedMultiplier * Time.fixedDeltaTime);
         entityInput.SetTarget(targetPosition);
     }
 

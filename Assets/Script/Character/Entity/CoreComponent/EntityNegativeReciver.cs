@@ -16,7 +16,8 @@ public class EntityNegativeReciver : NegativeReceiverBase<EntityCore>
 
     protected override void OnDamaged(float finalDamage, Vector2 attackPosition)
     {
-        entityUIController.UpdateUIHealth(UpdateUIHealth());
+        // NEED CHECK: removed — EntityUIController now redraws on IVitalComponent.CurrentStatsChanged.
+        //entityUIController.UpdateUIHealth(UpdateUIHealth());
         entityMovement.SetPositionToCheck(attackPosition);
     }
 

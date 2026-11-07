@@ -151,6 +151,10 @@ MonoBehaviour:
     adjustedValue: 0
     finalValue: 0
     modifiers: []
+  - <Type>k__BackingField: 112
+    baseValue: 1.50
+  - <Type>k__BackingField: 113
+    baseValue: 0
   statFormulas:
   - targetStat: 100
     baseConstant: 50
@@ -158,4 +162,12 @@ MonoBehaviour:
     contributions:
     - sourceStat: 0
       coefficient: 2
+  - targetStat: 112
+    baseConstant: 1.5
+    perLevel: 0
+    contributions: []
+  - targetStat: 113
+    baseConstant: 0
+    perLevel: 0
+    contributions: []
   <isDevMode>k__BackingField: 0

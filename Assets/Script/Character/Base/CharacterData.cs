@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -15,8 +14,22 @@ public abstract class CharacterData : ScriptableObject
     [Header("Character")]
     [SerializeField, FormerlySerializedAs("statsSO")] protected BaseStatsSO stats;
     [SerializeField] protected List<AbilityBinding> abilityBindings = new List<AbilityBinding>();
+    // The authored asset. Never write modifiers to it; use CreateRuntimeStats() for a per-character copy.
     public BaseStatsSO Stats => stats;
     public List<AbilityBinding> AbilityBindings => abilityBindings;
-    [SerializeField] public AnimatorController animationController;
+    // NEED CHECK: now shared by enemies too (was EntityData.aima). FormerlySerializedAs("aima") carries old
+    // EntityData assets over on load; keep it until every enemy asset has been re-saved. Confirm Knight.asset
+    // still shows its controller in the Inspector after recompile.
+    [SerializeField, FormerlySerializedAs("aima")] public RuntimeAnimatorController animationController;
     [field: SerializeField] public Weapon Weapon { get; set; }
+
+    // The caller owns the clone and must Destroy it: this SO is shared by every character built from it,
+    // so a clone cached here would be shared too and outlive Play Mode.
+    public BaseStatsSO CreateRuntimeStats()
+    {
+        if (stats == null) return null;
+        var clone = Instantiate(stats);
+        clone.name = stats.name + " (Runtime)";
+        return clone;
+    }
 }

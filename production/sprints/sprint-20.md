@@ -1,6 +1,8 @@
 # Sprint 20 — 2026-10-26 to 2026-10-30
 
-**Status: OPEN.** Opened 2026-10-25 (`pm-weekly-kickoff`, autonomous run — no owner present).
+**Status: CLOSED — SLIPPED (2026-11-01 kickoff).** Must-Have 0 / 1.3d; velocity 0.5 / 4 = 0.13
+(S20-F1 only); playtest done: no. All S20-01…S20-12 carried into `sprint-21.md`.
+*Was:* **OPEN.** Opened 2026-10-25 (`pm-weekly-kickoff`, autonomous run — no owner present).
 Branch `sprint-20`, created on the remote from the `sprint-19` tip (`566a684d`, "chore(wrapup): weekly
 wrap-up 2026-10-25"). `gh` CLI unavailable (`gh: program not found`) — draft PR **not** auto-created;
 run manually:

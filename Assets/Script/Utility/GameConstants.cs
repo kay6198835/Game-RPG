@@ -177,5 +177,8 @@ public static class GameConstants
         { StatType.HPRegen, "HP Regen" },
         { StatType.ManaRegen, "Mana Regen" },
         { StatType.Evasion, "Evasion" },
+        // NEED CHECK: StatsViewDTO indexes this dictionary unguarded — every StatType needs an entry.
+        { StatType.MaxRangeAttack, "Max Attack Range" },
+        { StatType.MinRangeAttack, "Min Attack Range" },
     };
 }

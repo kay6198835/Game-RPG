@@ -36,6 +36,15 @@ paths:
 > before shipping" was removed on 2026-09-11: that bug (#7) was fixed long ago.
 > `EntityDeathState : EntityBasicState` and emits `ON_ENEMY_DEATH` on `EndRangeTrigger`.
 
+## Spawning and Release (added 2026-11-05, owner decision)
+
+- Enemies are spawned and released only through the spawn system: `ObjectPoolManager` spawn, then
+  `EnemySpawner.ApplyData()` (`Entity.SetCharacterData()`), and release on `ON_ENEMY_DEATH`
+  (`EnemySpawner.ReleaseEnemy()`). A custom or test spawner must follow the same contract
+- `EntityDeathState` emits `ON_ENEMY_DEATH` on every `OnActivate` of a looping death clip; it relies on
+  the release at the first emit. An enemy that is never released emits again every loop — that is a
+  spawner that broke the contract, not a death-state defect (NOTE-20261105-3)
+
 ## Damage Reception (added 2026-09-11)
 
 - `EntityNegativeReciver` is the **single** `INegativeReceiver` implementer on an enemy. Do not add
