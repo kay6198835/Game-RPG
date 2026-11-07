@@ -1,9 +1,11 @@
 # Project State
 
-Updated **2026-10-31** (doc-truth pass `/doc-sync --auto` at `origin/sprint-20` `e8baf251`).
-Bug statuses below follow `production/qa/bugs/BUG-*.md`, which are the source of truth (after the
-2026-10-31 wrap-up triage). Claim sweep: `production/qa/doc-truth-2026-10-31.md`. Previous update:
-**2026-10-10** (`sprint-18` `617bb2bb`; the 2026-10-19 pass was interrupted before it reached this file).
+Updated **2026-11-05** (doc-truth pass `/doc-sync --auto` at `origin/sprint-21` `028fdb90`).
+Bug statuses below follow `production/qa/bugs/BUG-*.md`, which are the source of truth (unchanged
+since the 2026-10-31 triage — no wrap-up has run since). Claim sweep:
+`production/qa/doc-truth-2026-11-05.md`. Previous update: **2026-10-31** (`sprint-20` `e8baf251`).
+This pass added the "2026-10-31 → 2026-11-05" table and build status; the sections below it are the
+2026-10-31 snapshot plus that delta.
 
 Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs and change logs:
 `docs/systems/<system>/README.md` + `CHANGELOG.md`.
@@ -12,10 +14,28 @@ Snapshot of actual code state. Long form: `CLAUDE.md`. Per-system current docs a
 
 ## Build status
 
-⚠️ **Editor: expected to compile, not checked by this pass.** The `sprint-19` compile break
-(`51f8d2d4`) was fixed by `cae75317`, which is now on `sprint-20`. 🔴 **Player build: fails** —
-`CharacterData.cs:2` imports `UnityEditor.Animations` in runtime code (**BUG-116**, S1). Nothing
-compiles code automatically before a push (TD-048 / TD-051).
+✅ **Editor: COMPILED** — the 2026-11-05 standup batchmode run on the committed `ea00b3a4`
+(`028fdb90` adds only `.md`). **Player build: not run.**
+`CharacterData.cs` no longer imports `UnityEditor.Animations` (`6094aa10`), so BUG-116 looks fixed in
+code; the bug file is still Open. A pre-push static gate now exists for pushes to `main`
+(`3e3f6f10`, `c7fbd69e`, `1da76e9a`).
+
+---
+
+## Structural changes 2026-10-31 → 2026-11-05
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R34 | **Abilities v1 deleted** (`System/Skill_Ability/` + SO assets); `WeaponSO` → `System/Item/`; `EntityWeapon`, `EntityEffectStats`, `Spell`, `IEffectable` deleted | `6094aa10` | v2 is the only ability path; checklist 18 resolved in code, no ADR |
+| R35 | `EventID` 24 → **25** (`ON_ROOM_CLEARED`, emitted by `RoomCell`, 0 subscribers) | `6094aa10` | — |
+| R36 | `CharacterBase.ApplyCharacterData()`; `Entity.SetCharacterData()` called by `EnemySpawner` on every spawn (`EnemySpawnEntry.Data`) | `6094aa10` | BUG-106 enemy half, BUG-107 item 2 look fixed |
+| R37 | `StatHandlerBase` on a per-character runtime clone (`CharacterData.CreateRuntimeStats()`); `IStatService<TCore>`; vitals clamp on a lowered max | `6094aa10` | BUG-115 runtime path looks fixed |
+| R38 | `CharacterData.animationController` → `RuntimeAnimatorController` + `[FormerlySerializedAs("aima")]`; `EntityData.aima` / `movementVelocities` / `rangeCheckAttack` removed; `StatType.MaxRangeAttack` 112 / `MinRangeAttack` 113; move speed from `StatType.MoveSpeed` | `6094aa10` | BUG-116 looks fixed; BUG-108 |
+| R39 | `AutoOpenRoomTypes` (Shop / Rest / Treasure) open doors on load; Buff room authored as `TreasureRoom` | `6094aa10` | BUG-096: only Boss left |
+| R40 | `[FormerlySerializedAs("authoredModifiers")]` on `StatModifierGroup.statsModifiers` | `1370136c` | BUG-121 half fixed |
+| R41 | `FastTest/QAProbe/` automated player-flow probe | `79ad79b2` | Test tooling only |
+
+Triage hints for Saturday: inbox NOTE-20261105-1 (standup) and NOTE-20261105-2 (this pass).
 
 ---
 

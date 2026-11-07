@@ -18,6 +18,12 @@ public class EntityAttackState : EntityBasicState
     }
     public override void LogicUpdate()
     {
+        // Does not call base.LogicUpdate(), so it reads the death flag itself.
+        if (entityInput.IsDeath)
+        {
+            stateMachine.ChangeState(entity.DeathState);
+            return;
+        }
         entity.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, entityInput.DirectionLook);
 
         switch (Status)
@@ -57,7 +63,8 @@ public class EntityAttackState : EntityBasicState
     {
         weaponHolder.EndDamage();
         // The weapon stage swapped the animator controller; restore the enemy's own.
-        entity.Anim.runtimeAnimatorController = entityData.Aima;
+        // NEED CHECK: was entityData.Aima.
+        entity.Anim.runtimeAnimatorController = entityData.animationController;
         base.Exit();
     }
 }

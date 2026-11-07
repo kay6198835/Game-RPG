@@ -36,6 +36,8 @@ public class Entity : CharacterBase<EntityCore>
     {
         if (stateMachine.CurrentState is not EntityIdleState)
             stateMachine.Initialize(idleState);
+
+        core.ReloadCore();
     }
     public override void Start()
     {
@@ -50,7 +52,8 @@ public class Entity : CharacterBase<EntityCore>
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         particle = GetComponentInChildren<ParticleSystem>();
-        anim.runtimeAnimatorController = data.Aima;
+        // NEED CHECK: was data.Aima.
+        anim.runtimeAnimatorController = data.animationController;
     }
     private void LoadState()
     {
@@ -75,9 +78,16 @@ public class Entity : CharacterBase<EntityCore>
     private void AnimationFinishTrigger() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.EndRangeTrigger);
     private void AnimationEnd() => stateMachine.CurrentState.SetAnimationStatus(StatusAnimation.End);
 
+    // Called by EnemySpawner on every spawn, pooled re-use included, after EntityVitalStats.OnEnable() has
+    // reset the modifiers, so the weapon's stat bonus survives. States cache entityData, so rebuild them.
     public override void SetCharacterData(CharacterData data)
     {
         this.data = (EntityData)data;
         gameObject.name = data.name;
+        // NEED CHECK: was this.data.Aima.
+        anim.runtimeAnimatorController = this.data.animationController;
+        LoadState();
+        ApplyCharacterData();
+        stateMachine.Initialize(idleState);
     }
 }

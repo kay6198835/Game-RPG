@@ -18,9 +18,10 @@ public class StatModifierGroup
 {
     // Dữ liệu do designer author — BẮT BUỘC serialize. Đây là điểm khác biệt then chốt với
     // Stat.modifiers (danh sách runtime, không được serialize) — xem comment ở Stat.cs.
-    // Đổi tên `modifiers` -> `authoredModifiers` (2026-08-21) để hai thứ không còn trùng tên;
-    // FormerlySerializedAs giữ nguyên dữ liệu đã author trong SnS_Stat.asset.
+    // Đổi tên `modifiers` -> `authoredModifiers` (2026-08-21) -> `statsModifiers` (343a3830).
+    // GIỮ VĨNH VIỄN FormerlySerializedAs: asset trên branch chưa merge vẫn lưu key cũ (BUG-121).
     [SerializeField]
+    [FormerlySerializedAs("authoredModifiers")]
     private List<StatModifier> statsModifiers = new List<StatModifier>();
 
     public IReadOnlyList<StatModifier> GetStatsModifiers => statsModifiers;

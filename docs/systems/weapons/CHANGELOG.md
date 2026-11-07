@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-05 — Default weapon equipped from ApplyCharacterData (doc-truth re-sync)
+- **Commit:** `6094aa10` (2026-11-04, on `sprint-21`); the field rename itself is `cae75317`
+- **Changed:** `WeaponHolderBase.EquipDefaultWeapon()` unequips before release, guards a missing `CharacterData.Weapon`, and is called from `CharacterBase.ApplyCharacterData()` for player and enemy; crit adds `finalDamage × CritDamage / 100` instead of a flat `CritDamage`; `Weapon.FinalDamage()` added.
+- **From → To:** README said `CharacterData.DefaultWeapon` (`WeaponSO`) + `Equid()` → `CharacterData.Weapon` + `EquipDefaultWeapon()`.
+- **Why:** not recorded in the commit.
+- **Bugs:** BUG-106 (enemy half), BUG-107 item 2, BUG-110 (pickup path unchanged), NOTE-20261104-2 (crit).
+
 ## 2026-10-31 — Pool interface name in the ranged flow (doc-truth re-sync)
 - **Commit:** `cae75317` (on `origin/sprint-20`)
 - **Changed:** ranged-attack pseudo-code now names `IObjectPoolService`.

@@ -1,0 +1,260 @@
+{
+    "base":  "4b2133fb2d",
+    "head":  "4097be4cce",
+    "baseRef":  "4b2133fb2d",
+    "headRef":  "origin/sprint-21",
+    "commits":  [
+                    {
+                        "sha":  "4097be4c",
+                        "date":  "2026-11-05",
+                        "author":  "Claude",
+                        "subject":  "Read death from the input flag instead of switching state in the receiver",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterInputBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityAbilityState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityAttackState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityBasicState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityTakeDamageState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityUseWeaponState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerBasicState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerDisadvantageState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerUseWeaponState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/ICharacterInput.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "7cee3bf6",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "chore(qa-auto): weekly QA run 20261105-1002 - 1 inbox notes 2026-11-05",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "850ce7bb",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): inbox proposals for run 20261105-1002",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1002/inbox-proposals.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f05e2980",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261105-1102 on origin/sprint-21 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261105-1102/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "8b6f6721",
+                        "date":  "2026-11-05",
+                        "author":  "Kay",
+                        "subject":  "test(qa): enemy suite spawns like EnemySpawner.ApplyData (QA-ENT-02 test defect)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  3,
+    "files":  30,
+    "systems":  {
+                    "DOCS":  [
+                                 "production/qa/bug-inbox.md",
+                                 "production/session-state/routine-log.md"
+                             ],
+                    "ENT":  [
+                                "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs",
+                                "Assets/Script/Character/Entity/States/EntityAbilityState.cs",
+                                "Assets/Script/Character/Entity/States/EntityAttackState.cs",
+                                "Assets/Script/Character/Entity/States/EntityBasicState.cs",
+                                "Assets/Script/Character/Entity/States/EntityTakeDamageState.cs",
+                                "Assets/Script/Character/Entity/States/EntityUseWeaponState.cs"
+                            ],
+                    "PLY":  [
+                                "Assets/Script/Character/Base/CharacterBase.cs",
+                                "Assets/Script/Character/Base/CharacterInputBase.cs",
+                                "Assets/Script/Character/Player/States/PlayerBasicState.cs",
+                                "Assets/Script/Character/Player/States/PlayerDisadvantageState.cs",
+                                "Assets/Script/Character/Player/States/PlayerUseWeaponState.cs",
+                                "Assets/Script/Interface/ICharacterInput.cs"
+                            ],
+                    "QA":  [
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/reports/20261105-1002/inbox-proposals.md",
+                               "qa-automation/reports/20261105-1102/change-impact.json",
+                               "qa-automation/reports/20261105-1102/report.md",
+                               "qa-automation/reports/20261105-1102/results.json",
+                               "qa-automation/reports/20261105-1102/run.log",
+                               "qa-automation/reports/20261105-1102/run-info.json",
+                               "qa-automation/reports/20261105-1102/summary.json",
+                               "qa-automation/reports/20261105-1102/unity-report.md",
+                               "qa-automation/reports/20261105-1102/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ],
+                    "VIT":  [
+                                "Assets/Script/Character/Base/NegativeReceiverBase.cs",
+                                "Assets/Script/Character/Player/CoreComponent/NegativeReciver.cs"
+                            ]
+                },
+    "deep":  [
+                 "ABL",
+                 "CMB",
+                 "ENT",
+                 "PLY",
+                 "STAT",
+                 "STATIC",
+                 "UI",
+                 "VIT"
+             ],
+    "risks":  [
+                  {
+                      "why":  "Serialized by every PlayerData / EntityData asset — a rename without [FormerlySerializedAs] empties fields (BUG-105/108/121)",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "CMB",
+                                        "ABL",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/CharacterBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "One base for player and enemy vitals; abilities pay costs and apply effects through it; the HUD reads CurrentStatsChanged",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "ABL",
+                                        "UI",
+                                        "STAT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                ]
+                  }
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}

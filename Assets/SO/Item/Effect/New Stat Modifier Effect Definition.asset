@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: New Stat Modifier Effect Definition
   m_EditorClassIdentifier: 
   statModifierGroup:
-    authoredModifiers:
-    - targetStat: 0
+    statsModifiers:
+    - targetStatType: 0
       type: 100
       value: 3
-    - targetStat: 2
+    - targetStatType: 2
       type: 100
       value: 1

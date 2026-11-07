@@ -1,0 +1,8 @@
+[14:17:23] QA weekly run 20261105-1417, project D:\Fork\Game-RPG
+[14:17:25] sprint branch origin/sprint-21 at 8140a56de7
+[14:17:27] merged origin/sprint-21 into qa/weekly-automation
+[14:17:31] change scan 92f53a6ecb..origin/sprint-21 -> deep P2 for: none
+[14:17:31] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261105-1417\unity-compile.log"
+[14:18:15] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261105-1417" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261105-1417\unity-run.log"
+[14:27:38] unity test run exit 1
+[14:27:48] PASS 60 / FAIL 1 / KNOWN 10 / SKIP 13 / OBSERVED 2; new FAIL: 0

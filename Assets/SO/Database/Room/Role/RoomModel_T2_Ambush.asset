@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 123b66f152e89f14a96592999f7d8937, type: 3}
+  m_Name: RoomModel_T2_Ambush
+  m_EditorClassIdentifier: 
+  id: 687561582
+  nameEnity: Assassin Ambush
+  enemiesOfRoom:
+  - Prefab: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
+    Data: {fileID: 11400000, guid: 6862564eeb6e3874cb623b6ebd4c99c0, type: 2}
+    weight: 6
+    rarityTier: 30
+  - Prefab: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
+    Data: {fileID: 11400000, guid: a4445a66de6977948b8c8e679465b621, type: 2}
+    weight: 5
+    rarityTier: 50
+  - Prefab: {fileID: 332806021852981584, guid: ab1960eba80261845b0b32248f014e27, type: 3}
+    Data: {fileID: 11400000, guid: 8b7370c83b8e4b3535f730a079fed506, type: 2}
+    weight: 6
+    rarityTier: 30
+  candidateEnemies: []
+  weightBudget: 50
+  overflowPercent: 0.1

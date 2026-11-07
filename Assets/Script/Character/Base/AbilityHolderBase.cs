@@ -74,8 +74,11 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
         base.Start();
     }
 
+    /// <summary>Re-equips every slot from CharacterData.AbilityBindings, dropping the previous data's abilities first.</summary>
     public void SetAbility()
     {
+        _equipped.Clear();
+        currentAbility = null;
         List<AbilityBinding> bindings = ResolveBindings();
         if (bindings != null) abilityBindings = bindings;
         for (int i = 0; i < abilityBindings.Count; i++)
@@ -192,6 +195,26 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
                 break;
             case AbilityState.Exit:
                 instance.Exit();
+                break;
+        }
+    }
+
+    public void ChangeNextState()
+    {
+        if (currentAbility == null) return;
+        var instance = currentAbility;
+        switch (instance.State)
+        {
+            case AbilityState.Start:
+                instance.ChangeState(AbilityState.Cast);
+                break;
+            case AbilityState.Cast:
+                instance.ChangeState(AbilityState.Do);
+                break;
+            case AbilityState.Do:
+                instance.ChangeState(AbilityState.Exit);
+                break;
+            case AbilityState.Exit:
                 break;
         }
     }

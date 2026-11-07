@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c1885a8510419428a2ca2e42353c8d, type: 3}
+  m_Name: BruteEntityData
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: aa7f953cbf2b943bf433893ba08700ac, type: 2}
+  abilityBindings: []
+  animationController: {fileID: 9100000, guid: 26c88641cd754ad199b4c779f5712ad7, type: 2}
+  <Weapon>k__BackingField: {fileID: 1247331660701095708, guid: 920eec8cd9a9379337415f9096b55eb8, type: 3}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  rangeCheckFieldOfView: 4.5
+  idleDurationTime: 1.5
+  moveDurationTime: 5
+  movementVelocities: 5
+  rangeCheckAttack: 2

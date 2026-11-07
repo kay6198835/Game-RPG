@@ -1,0 +1,149 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ddbf4281c7bbc0409c19795f09a2ec5, type: 3}
+  m_Name: SniperStats
+  m_EditorClassIdentifier: 
+  level: 1
+  stats:
+  - <Type>k__BackingField: 0
+    baseValue: 2
+  - <Type>k__BackingField: 1
+    baseValue: 12
+  - <Type>k__BackingField: 2
+    baseValue: 4
+  - <Type>k__BackingField: 3
+    baseValue: 6
+  - <Type>k__BackingField: 4
+    baseValue: 2
+  - <Type>k__BackingField: 100
+    baseValue: 72.50
+  - <Type>k__BackingField: 101
+    baseValue: 103
+  - <Type>k__BackingField: 102
+    baseValue: 8.50
+  - <Type>k__BackingField: 103
+    baseValue: 21.50
+  - <Type>k__BackingField: 104
+    baseValue: 5.20
+  - <Type>k__BackingField: 105
+    baseValue: 0.64
+  - <Type>k__BackingField: 106
+    baseValue: 3.76
+  - <Type>k__BackingField: 107
+    baseValue: 150
+  - <Type>k__BackingField: 108
+    baseValue: 2.64
+  - <Type>k__BackingField: 109
+    baseValue: 0.65
+  - <Type>k__BackingField: 110
+    baseValue: 2
+  - <Type>k__BackingField: 111
+    baseValue: 1.90
+  - <Type>k__BackingField: 112
+    baseValue: 8.04
+  - <Type>k__BackingField: 113
+    baseValue: 4.50
+  statFormulas:
+  - targetStat: 100
+    baseConstant: 20
+    perLevel: 3.5
+    contributions:
+    - sourceStat: 0
+      coefficient: 0.5
+    - sourceStat: 3
+      coefficient: 8
+  - targetStat: 101
+    baseConstant: 40
+    perLevel: 4
+    contributions:
+    - sourceStat: 2
+      coefficient: 14
+    - sourceStat: 3
+      coefficient: 0.5
+  - targetStat: 102
+    baseConstant: 0
+    perLevel: 0.5
+    contributions:
+    - sourceStat: 0
+      coefficient: 1
+    - sourceStat: 1
+      coefficient: 0.5
+  - targetStat: 103
+    baseConstant: 5
+    perLevel: 1.5
+    contributions:
+    - sourceStat: 2
+      coefficient: 3.6
+    - sourceStat: 4
+      coefficient: 0.3
+  - targetStat: 104
+    baseConstant: 0
+    perLevel: 0.2
+    contributions:
+    - sourceStat: 0
+      coefficient: 0.1
+    - sourceStat: 3
+      coefficient: 0.8
+  - targetStat: 105
+    baseConstant: 0.5
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.012
+  - targetStat: 106
+    baseConstant: 3
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.03
+    - sourceStat: 4
+      coefficient: 0.2
+  - targetStat: 107
+    baseConstant: 150
+    perLevel: 0
+    contributions: []
+  - targetStat: 108
+    baseConstant: 2.5
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.012
+  - targetStat: 109
+    baseConstant: 0.3
+    perLevel: 0.05
+    contributions:
+    - sourceStat: 3
+      coefficient: 0.05
+  - targetStat: 110
+    baseConstant: 1.5
+    perLevel: 0.1
+    contributions:
+    - sourceStat: 2
+      coefficient: 0.1
+  - targetStat: 111
+    baseConstant: 0
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.15
+    - sourceStat: 4
+      coefficient: 0.05
+  - targetStat: 112
+    baseConstant: 7.8
+    perLevel: 0
+    contributions:
+    - sourceStat: 1
+      coefficient: 0.02
+  - targetStat: 113
+    baseConstant: 4.5
+    perLevel: 0
+    contributions: []

@@ -5,8 +5,13 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     [Header("Target")]
     [SerializeField] private Transform target;
 
+    // NEED CHECK: was a serialized field, 0 on EnemyPrefab and assigned nowhere, so IsInFOV() never saw a
+    // target (inbox NOTE-20261104-6). Detection range is EntityData.rangeCheckFieldOfView, per role
+    // (owner decision 2026-11-04; briefly MaxRange the same day). Must stay >= MaxRangeAttack.
+    //[SerializeField] private float range;
+    private float range => Core != null && Core.Entity != null && Core.Entity.Data != null ? Core.Entity.Data.RangeCheckFieldOfView : 0f;
+
     [Header("Detection")]
-    [SerializeField] private float range;
     [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
 
     [SerializeField] private LayerMask player;
@@ -15,14 +20,20 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     [SerializeField] private Collider2D collider;
     [SerializeField] private float distanceToPlayer;
 
-    [Header("Attack Range")]
-    [Range(0, 20)]
-    [SerializeField] private float minRange;
-
-    [Range(0, 20)]
-    [SerializeField] private float maxRange;
+    // NEED CHECK: removed — one value on the shared EnemyPrefab (0.5 / 1) for every role. Now per-role stats.
+    //[Header("Attack Range")]
+    //[Range(0, 20)]
+    //[SerializeField] private float minRange;
+    //[Range(0, 20)]
+    //[SerializeField] private float maxRange;
 
     [SerializeField] private EntityInput entityInput;
+    private IStatService statService;
+
+    /// <summary>StatType.MinRangeAttack: the entity backs off when the target is closer than this.</summary>
+    public float MinRange => statService != null ? statService.GetStatValue(StatType.MinRangeAttack) : 0f;
+    /// <summary>StatType.MaxRangeAttack: the entity attacks when the target is at most this far.</summary>
+    public float MaxRange => statService != null ? statService.GetStatValue(StatType.MaxRangeAttack) : 0f;
 
     public Transform Target => target;
 
@@ -39,6 +50,8 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         base.Start();
 
         Core.GetCoreComponent(out entityInput);
+        // NEED CHECK: new — range stats (MinRange / MaxRange).
+        Core.TryGetCapability(out statService);
     }
 
     protected void OnEnable()
@@ -70,20 +83,21 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
 
     public bool IsNearPlayer()
     {
-        var isNearPlayer = distanceToPlayer < minRange;
+        // NEED CHECK: minRange / maxRange -> MinRange / MaxRange (stats) in the three checks below.
+        var isNearPlayer = distanceToPlayer < MinRange;
         return isNearPlayer;
     }
 
     public bool OutOfRange()
     {
-        var isOutOfRange = distanceToPlayer > maxRange;
+        var isOutOfRange = distanceToPlayer > MaxRange;
         return isOutOfRange;
     }
 
     public bool IsInRangeAttack()
     {
-        var isInRangeAttack = distanceToPlayer >= minRange
-                             && distanceToPlayer <= maxRange;
+        var isInRangeAttack = distanceToPlayer >= MinRange
+                             && distanceToPlayer <= MaxRange;
         return isInRangeAttack;
     }
 

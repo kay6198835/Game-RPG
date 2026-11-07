@@ -17,6 +17,148 @@ which code change caused it.
 
 ---
 
+## 2026-11-05 — Doc-truth pass: Abilities v1 deleted, EventID 25, ApplyCharacterData (HEAD `028fdb90`)
+
+**Cause.** `79ad79b2` (QA probe), `1370136c` "fix bug add skill", `6094aa10` "fix bug, add asset room,
+enemy, data" (merged into `sprint-21` by `ea00b3a4`). Routine `pm-weekly-doc-truth`, fired Thursday;
+claim sweep in `production/qa/doc-truth-2026-11-05.md`. No `.cs` file changed.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry; layout (Skill_Ability / EntityWeapon / EntityEffectStats / Spell / IEffectable deleted, WeaponSO moved, QAProbe, StatHandlerBase, CharacterData, EntityData, StatType 112/113, EventManager 25); enemy wiring; Abilities section → one framework; map flow (auto-open, ON_ROOM_CLEARED, ApplyData); Event System 25 values; Enemy Definitions; convention "Skills"; checklist 18 resolved in code, 29 note; Known Bugs row notes #16, BUG-096/100/106/107/108/115/116/118/121 (statuses unchanged, per files) |
+| `docs/systems/event-system/README.md` + CHANGELOG | 25 values, `ON_ROOM_CLEARED` producer, auto-open `ON_OPEN_DOOR` producer |
+| `docs/systems/abilities/README.md` + CHANGELOG | Status "working tree" → committed; assets row (Archer / Mage / ShootSpirit) |
+| `docs/systems/map/README.md` + CHANGELOG | Room-open flow, Bug #16 / BUG-096 rows |
+| `docs/systems/weapons/README.md` + CHANGELOG | Equip paragraph: `CharacterData.Weapon` + `EquipDefaultWeapon()` |
+| `docs/systems/enemy/README.md` + CHANGELOG | Attack paragraph; records that the 2026-11-04 "none yet" entries landed in `6094aa10` |
+| `docs/systems/character/README.md` + CHANGELOG | Data paragraph (runtime clone, `animationController`, `ApplyCharacterData`) |
+| `memory/project_state.md` | Header, build status, R34–R41 |
+| `production/qa/bug-inbox.md` | NOTE-20261105-2 (triage hint) |
+
+**Findings.** Seven Open bug files look fixed or partly fixed in code (BUG-096, 100, 106, 107, 115,
+116, 121) — left for Saturday's triage. Still **Out of date**: `design/gdd/skill-ability-system.md`
+and `character-system.md` (describe v1), `ON_CLEAR_ENEMY` in Approved GDDs / ADR-0002 / `map-code.md`,
+`Conditions/` paths in two rule files, ADR-0004 / ADR-0005 bodies, character README vitals section,
+stats README (runtime clone), `docs/tech-debt-register.md`.
+
+## 2026-11-04 — Lethal-hit death; buff room auto-opens
+
+**Cause.** Owner decisions (uncommitted working tree): `NegativeReceiverBase.TakeDamage()` sends a hit with
+damage ≥ current HP straight to the death state; `BuffRoom_PowerShrine` retyped `TreasureRoom` in
+`Maze_Storage.asset`; damage calculation and crit pending; enemies use no abilities by design.
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | New "Death on a lethal hit" section; no-ability design note |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+| `docs/systems/map/CHANGELOG.md` | New entry (buff room) |
+| `production/qa/bug-inbox.md` | NOTE-20261101-2 marked fixed in working tree; NOTE-20261104-2/-3/-4 marked owner-pending |
+
+---
+
+## 2026-11-04 — Abilities v1 deleted; enemy sight and health bar
+
+**Cause.** Owner request (uncommitted working tree): Abilities v1 (`System/Skill_Ability/`, six SO assets,
+`EntityWeapon`, `Spell` + prefab, `IEffectable`) and `EntityEffectStats` deleted; `WeaponSO` moved to
+`System/Item/`; enemy sight from `rangeCheckFieldOfView`; enemy health bar redraws on stat change.
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/README.md` | Title, status, code table and v1 section mark v1 deleted |
+| `docs/systems/README.md` | Abilities row drops `System/Skill_Ability/` |
+| `docs/systems/enemy/README.md` | Component list, sight paragraph, open-issue row for `EntityWeapon` removed |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+
+⚠️ **Not updated here** (left for the next `/doc-sync`): `CLAUDE.md` and `.claude/rules/{gameplay-code,
+weapon-skill-code,scriptableobject-data,prototype-code}.md` still describe v1 as present.
+
+---
+
+## 2026-11-04 — Enemy sight range and temporary sprites
+
+**Cause.** Owner request: `EntityFindTarget` sight range reads `MaxRangeAttack`; enemy role clips borrow
+Paladin sprites until real art exists (uncommitted working tree).
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | Placeholders bullet (sprites) and range paragraph (sight range) |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+
+---
+
+## 2026-11-04 — MoveSpeed and attack-range stats
+
+**Cause.** Owner request: enemy and player movement read `StatType.MoveSpeed`; new derived stats
+`MaxRangeAttack` / `MinRangeAttack` replace the prefab-wide `EntityFindTarget` ranges; two dead
+`EntityData` fields commented out (uncommitted working tree).
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | New paragraph + per-role range table |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+| `docs/systems/stats/README.md` | `StatType` row lists 112 / 113 |
+| `production/qa/bug-inbox.md` | NOTE-20261104-5 (`RegenComponent : MovementBase`), NOTE-20261104-6 (`EntityFindTarget.range` 0 on the prefab) |
+
+---
+
+## 2026-11-04 — Enemy room presets (four tiers)
+
+**Cause.** Owner request for more varied room models. Seven new `RoomModel` assets under
+`Assets/SO/Database/Room/Role/`, all listed in `MapModel.asset` (uncommitted).
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | Spawn chain rewritten; new room-preset table with simulated enemy counts |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+
+---
+
+## 2026-11-04 — Enemy roster: Brute, Sniper, Scatter, Elite
+
+**Cause.** Owner request for more enemy roles with balanced data. Working-tree assets (uncommitted):
+four new roles cloned from TrashMelee / RangedCaster and tuned; `RoomModel_Roles` now lists nine roles.
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | Roster table + balance-target table for the four roles; spawn chain now nine roles |
+| `docs/systems/enemy/CHANGELOG.md` | New entry |
+| `production/qa/bug-inbox.md` | NOTE-20261104-1…4 (enemy speed not data-driven, flat crit damage, Tank immune to Paladin melee, ranged ignores stats) |
+
+---
+
+## 2026-11-04 — Enemy role roster replaces Knight
+
+**Cause.** Owner decision: the six enemy stat profiles (TrashMelee, FastSwarm, Tank, Assasin,
+RangedCaster, Boss) are the enemy set and Knight is no longer used. Working-tree changes on
+`origin/feature/add-effect-component` (uncommitted): enemy animator moved from `EntityData.aima` to
+`CharacterData.animationController`; per-role assets generated under `*/Enemy/Role/`; `MapModel` now lists
+only `RoomModel_Roles`; `EnemyPrefab.data` defaults to `TrashMeleeEntityData`; the `EnemySpawner.roomModel`
+initial value in `LoadRandomMap.unity` points to `RoomModel_Roles`; `EntityEffectReceiver`
+rebased on `EffectReceiverBase` and added to `EnemyPrefab`.
+
+| Document | Change |
+|---|---|
+| `docs/systems/enemy/README.md` | New section "Content — role roster": roster table, asset layout, spawn chain, placeholders, Knight retired (files kept) |
+| `docs/systems/enemy/CHANGELOG.md` | New entry 2026-11-04 |
+
+Not changed, by design: ADR-0005, `docs/architecture/character-migration-plan.md` and
+`design/gdd/animation-system.md` mention Knight only as historical content or naming examples.
+
+---
+
+## 2026-11-03 — S21-09 process gate (owner decision C + B)
+
+**Cause.** S21-09 (11th carry) asked for a process-gate decision. The owner chose C + B: a committed
+`.githooks/pre-push` running `.githooks/static-check.sh` (serialized-rename and Editor-API checks,
+always) and `.claude/scripts/compile-check.sh` (headless compile when the Editor is closed).
+
+| Document | Change |
+|---|---|
+| `production/sprints/sprint-21.md` | New section "S21-09 Decision"; Definition of Done item ticked |
+| `production/sprints/sprint-21-daily-plan.md` | S21-09 row → done |
+| `docs/tech-debt-register.md` | TD-048, TD-051 → In progress (see its CHANGELOG) |
+| `production/sprints/sprint-21.md` (same day) | Hook scope narrowed to pushes to `main` (owner); trade-off recorded |
+
 ## 2026-10-31 — Doc-truth pass (HEAD `e8baf251`, `origin/sprint-20`)
 
 **Cause.** 21 non-merge commits on `sprint-20` since `ec625d07` touched 145 files under

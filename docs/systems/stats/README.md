@@ -13,7 +13,7 @@ and abilities stack on top. Max values live here; current values live in the vit
 
 | File | Contents |
 |------|----------|
-| `StatType.cs` | Primary STR/DEX/INT/VIT/LUK (0-4); derived HP, Mana, PhysicalDamage, MagicDamage, Defense, AttackSpeed, CritChance, CritDamage, MoveSpeed, HPRegen, ManaRegen, Evasion (100-111) |
+| `StatType.cs` | Primary STR/DEX/INT/VIT/LUK (0-4); derived HP, Mana, PhysicalDamage, MagicDamage, Defense, AttackSpeed, CritChance, CritDamage, MoveSpeed, HPRegen, ManaRegen, Evasion (100-111), MaxRangeAttack (112), MinRangeAttack (113) — added 2026-11-04; every `BaseStatsSO` asset has a formula for both (role constant, plus DEX × 0.02 on ranged profiles) |
 | `Stat.cs` | BaseValue / LevelUpValue / EquipmentValue / EquipmentByPrimaryValue / AdjustedValue / FinalValue + runtime modifier list |
 | `StatModifier.cs` | Authored `targetStat` / `type` / `value` + runtime `Source` (`[NonSerialized]`, stamped by `WithSource()`) |
 | `StatModifierGroup.cs` | `[Serializable]` bundle (`authoredModifiers`), embedded in `WeaponStats` and effects |

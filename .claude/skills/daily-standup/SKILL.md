@@ -38,6 +38,33 @@ write game code**.
 
 ## Steps
 
+### S. Sync the owner's latest commits into `sprint-NN` (run before everything else)
+Without this, the standup reads `origin/sprint-NN` only and misses work the owner committed on
+another branch that day (owner decision 2026-10-31). Only **committed** work is merged; the owner's
+uncommitted changes stay invisible. One command per tool call, literal paths (protocol §2).
+
+1. `git -C D:/Fork/Game-RPG-pm fetch origin --prune`, then `git -C D:/Fork/Game-RPG-pm status --porcelain`
+   (must be empty, else stop the sync and report).
+2. Find the owner's branch: `git -C D:/Fork/Game-RPG-pm worktree list --porcelain` → the `branch
+   refs/heads/<name>` line of the `D:/Fork/Game-RPG` entry. The worktrees share one repository, so
+   the owner's **local** branch ref is readable from the PM worktree, pushed or not.
+3. **Skip** (say `SYNC SKIPPED — <reason>` in the digest) when: that entry is `detached`; the branch
+   is `main` / `master` or starts with `pm/`; or
+   `git -C D:/Fork/Game-RPG-pm merge-base --is-ancestor <name> origin/sprint-NN` exits 0 (nothing new).
+4. `git -C D:/Fork/Game-RPG-pm checkout --detach origin/sprint-NN`, then:
+   - `<name>` is `sprint-NN` itself → `git -C D:/Fork/Game-RPG-pm merge --ff-only sprint-NN`
+     (not fast-forwardable → `SYNC SKIPPED — local sprint-NN diverged from origin`).
+   - otherwise → `git -C D:/Fork/Game-RPG-pm merge --no-ff <name> -m "Merge <name> into sprint-NN (standup sync <YYYY-MM-DD>)"`.
+5. **Conflict** → `git -C D:/Fork/Game-RPG-pm merge --abort`, `git -C D:/Fork/Game-RPG-pm checkout --detach origin/sprint-NN`,
+   add an inbox note (Source `standup`, Sev guess S2, the conflicting paths), and report
+   `SYNC FAILED — conflict` as the first line of the digest. Never resolve a conflict; never edit a file.
+6. Success → `git -C D:/Fork/Game-RPG-pm push origin HEAD:sprint-NN` (rejected → protocol §3
+   "Push rejected"; never force-push). List what came in with
+   `git -C D:/Fork/Game-RPG-pm log --oneline origin/sprint-NN..<name>` (run it **before** the merge) for step 1.
+7. The rest of the run (tracker, routine commit) works on this new HEAD. Exception to protocol §1:
+   the merge commit carries the owner's committed non-`.md` files — allowed for this step only; the
+   routine still never **edits** a non-`.md` file.
+
 ### 0. Runtime evidence (run first)
 - `bash .claude/scripts/compile-check.sh` — headless compile when no Unity Editor is running.
   `FAILED` → add an inbox note (Source `compile-check`, Sev guess S1, first `error CS` line) **and**
@@ -83,7 +110,8 @@ remaining, Status Verdict, a dated Daily Log entry.
 ### 8. Output (chat, Vietnamese) — under ~30 lines
 ```
 📋 Standup — <weekday> <date>      evidence: <STATIC|LOG|COMPILED>
-🔴 <compile FAILED line — only if compile-check failed>
+🔴 <SYNC FAILED / compile FAILED line — only if one failed>
+🔀 Sync: merged <branch> (<N> commits) into sprint-NN <hash> | SYNC SKIPPED — <reason>
 
 ⏪ Yesterday
   • Summary:    …
@@ -120,7 +148,9 @@ Chat in Vietnamese with key English terms in parentheses on first use
 (`.claude/rules/language-reporting.md`). Stored `.md` files stay **English only**.
 
 ## Do not
-- Do not write or modify `.cs` or any game asset; do not stage anything but `*.md`.
+- Do not write or modify `.cs` or any game asset; do not stage anything but `*.md` (the step S merge
+  commit is the only commit that may carry the owner's non-`.md` files).
+- Do not resolve a merge conflict or merge any branch other than the owner's current one.
 - Do not create bug files or allocate bug IDs — inbox notes only.
 - Do not check out branches in `D:/Fork/Game-RPG`.
 - Do not invent progress that git/tracker doesn't support.

@@ -22,6 +22,11 @@ public class EntityUseWeaponState : EntityState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (entityInput.IsDeath)
+        {
+            stateMachine.ChangeState(entity.DeathState);
+            return;
+        }
         if (Status == StatusAnimation.None)
         {
             // if (inputHandler.MoveVector == Vector2.zero)

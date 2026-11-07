@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# pre-push — process gate decided in S21-09 (C + B). Install once per clone:
+#   git config core.hooksPath .githooks
+#
+# Runs ONLY for pushes to the branches in GATE_BRANCHES (default: main, owner decision 2026-11-03).
+# Pushes to any other branch are not checked. To widen it, e.g. to the sprint branches:
+#   git config gate.branches "main sprint-*"
+#
+# C  static-check.sh — seconds, no Unity. Blocks the push on any ERROR.
+# B  compile-check.sh — headless Unity compile of this checkout. Runs only when no Unity Editor is
+#    open (the Editor holds the project lock). Blocks the push on a compile error. Skip it with
+#    GATE_SKIP_COMPILE=1.
+#
+# Not covered: a merge done with the GitHub "Merge" button — a local hook never sees it.
+# Escape hatch for an emergency: git push --no-verify (record why in the sprint file).
+set -u
+root=$(git rev-parse --show-toplevel)
+zero=0000000000000000000000000000000000000000
+branches="${GATE_BRANCHES:-$(git config --get gate.branches || echo main)}"
+fail=0
+checked=0
+
+gated() {
+  local b="${1#refs/heads/}" p
+  for p in $branches; do
+    # shellcheck disable=SC2254
+    case "$b" in $p) return 0 ;; esac
+  done
+  return 1
+}
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue
+  gated "$remote_ref" || continue
+  checked=1
+
+  if [ "$remote_sha" != "$zero" ] && git cat-file -e "$remote_sha^{commit}" 2>/dev/null; then
+    base="$remote_sha"
+  else
+    oldest=$(git rev-list "$local_sha" --not --remotes | tail -1)
+    [ -z "$oldest" ] && continue
+    base=$(git rev-parse -q --verify "$oldest^") || base=$(git hash-object -t tree /dev/null)
+  fi
+
+  echo "== process gate: ${remote_ref#refs/heads/} =="
+  bash "$root/.githooks/static-check.sh" "$base" "$local_sha" || fail=1
+done
+
+[ "$checked" -eq 0 ] && exit 0
+
+if [ "$fail" -ne 0 ]; then
+  echo
+  echo "Push blocked by static-check (S21-09). Fix the ERROR lines above, or use"
+  echo "GATE_ALLOW_REMOVED=<field> for a field deleted on purpose."
+  exit 1
+fi
+
+if [ "${GATE_SKIP_COMPILE:-0}" = "1" ]; then
+  echo "compile-check: skipped (GATE_SKIP_COMPILE=1)"
+  exit 0
+fi
+
+out=$(PROJECT_PATH="$root" bash "$root/.claude/scripts/compile-check.sh" 2>&1)
+result=$(printf '%s\n' "$out" | grep -m1 -E 'Result' | sed -E 's/.*Result[^A-Za-z*]*//; s/[*|]//g; s/ +$//')
+echo "compile-check: ${result:-no result}"
+if printf '%s\n' "$out" | grep -q 'FAILED'; then
+  printf '%s\n' "$out" | grep -E '^- `' | head -15
+  echo
+  echo "Push blocked: the project does not compile (TD-048). Fix the errors first."
+  exit 1
+fi
+exit 0

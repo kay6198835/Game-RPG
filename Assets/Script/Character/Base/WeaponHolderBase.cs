@@ -40,19 +40,24 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         Core.TryGetCapability(out input);
     }
 
-    // Same for Player and Entity: CharacterData.DefaultWeapon is equipped once, and only when its prefab
-    // carries a Weapon. A pooled character keeps it across re-spawns, so this never duplicates it.
+    /// <summary>Replaces the held weapon with CharacterData.Weapon; leaves the character unarmed when the data has none.</summary>
+    // Same for Player and Entity. Called on every SetCharacterData(), so the old weapon is unequipped
+    // (drops its stat bonus, clears holder/aim) before it goes back to the pool.
     public void EquipDefaultWeapon()
     {
         if (weapon != null)
         {
+            weapon.UnEquid(this);
             objectPoolManager.Release(weapon.gameObject);
             weapon = null;
         }
-        GameObject instance = objectPoolManager.Spawn(Core.Data?.Weapon.gameObject, OwnerTransform.position, Quaternion.identity);
+        Weapon prefab = Core.Data != null ? Core.Data.Weapon : null;
+        if (prefab == null) return;
+        GameObject instance = objectPoolManager.Spawn(prefab.gameObject, OwnerTransform.position, Quaternion.identity);
+        if (instance == null || !instance.TryGetComponent(out Weapon spawned)) return;
         resolver?.InjectGameObject(instance);
-        this.weapon = instance.GetComponent<Weapon>();
-        weapon?.Equid(this);
+        weapon = spawned;
+        weapon.Equid(this);
     }
 
     /// <summary>Starts one attack stage on the equipped weapon. Safe to call repeatedly to chain.</summary>
@@ -83,7 +88,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         float finalDamage = statService.GetStatValue(StatType.PhysicalDamage)
             + weapon.CurrentStage.attackDamage;
         if (Utility.RollChance(statService.GetStatValue(StatType.CritChance)))
-            finalDamage += statService.GetStatValue(StatType.CritDamage);
+            finalDamage += finalDamage * statService.GetStatValue(StatType.CritDamage) / 100;
         return finalDamage;
     }
 }
