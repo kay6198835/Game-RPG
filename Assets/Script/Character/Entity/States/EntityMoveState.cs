@@ -16,7 +16,7 @@ public class EntityMoveState : EntityBasicState
     public override void Enter()
     {
         base.Enter();
-        moveDurationTime = entityData.MoveDurationTime;
+        moveDurationTime = entityData.MoveDurationTime(entityStats);
         moveTime = startTime + moveDurationTime;
     }
     public override void LogicUpdate()

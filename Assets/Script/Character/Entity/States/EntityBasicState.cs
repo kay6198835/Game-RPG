@@ -10,6 +10,7 @@ public class EntityBasicState : EntityState
     protected EntityFindTarget entityFindTarget;
     protected EntityVitalStats entityVitalStats;
     protected EntityAbilityHolder abilityHolder;
+    protected EntityStatsHandler entityStats;
     public EntityBasicState(Entity etity, EntityStateMachine stateMachine, EntityData entityData, string animBoolName) : base(etity, stateMachine, entityData, animBoolName)
     {
     }
@@ -22,6 +23,7 @@ public class EntityBasicState : EntityState
         entity.Core.GetCoreComponent(out entityFindTarget);
         entity.Core.GetCoreComponent(out entityVitalStats);
         entity.Core.GetCoreComponent(out abilityHolder);
+        entity.Core.GetCoreComponent(out entityStats);
     }
     public override void LogicUpdate()
     {

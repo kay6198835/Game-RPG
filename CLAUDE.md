@@ -403,7 +403,8 @@
                                                 # `[FormerlySerializedAs("aima")]`, and `using UnityEditor.Animations` is gone — BUG-116 looks fixed
                                                 # in code (file still Open). `CreateRuntimeStats()` returns a per-character clone of `Stats`.
                                                 # *Was:* 🔴 `using UnityEditor.Animations` + `AnimatorController` field (`:2,20`) — Player build fails (**BUG-116**, S1)
-          StatHandlerBase.cs                    # ✅ **2026-11-05:** max-stat façade over a per-character runtime clone (`CreateRuntimeProfile()`,
+          StatHandlerBase.cs                    # ⚠️ **2026-11-09 (stat split):** owns one `StatSheet` per character (no SO clone); read-only Debug list in Play Mode.
+                                                # *Was:* ✅ **2026-11-05:** max-stat façade over a per-character runtime clone (`CreateRuntimeProfile()`,
                                                 # destroyed on reload / OnDestroy); `IStatService<TCore>` adds `ResignStatsChange` / `UnResignStatsChange`
           VitalStatsBase.cs                     # ⚠️ **2026-10-31:** current values only, keyed by `VitalStatType`; Recovery / Reduction / GetCurrentStatValue.
                                                 # Timed / per-tick effects moved to EffectReceiverBase (`786c031b`, `6e484f0c`)
@@ -636,7 +637,13 @@
           StatPointSession.cs                   # ✅ NEW (`1bc5d2ad`) — plain-class stat-point session (Accept / Revert), extracted from StatPointAllocator;
                                                 # used by `UIFlow.StatsPanel`
           DerivedStatFormula.cs                 # baseConstant + level×perLevel + Σ(primary × coefficient)
-          BaseStatsSO.cs                        # ✅ **Replaces the deleted `StatsSO`** (`b0512f4` deleted it, `1c0742e` added this).
+          StatSheet.cs                          # ✅ **NEW 2026-11-09 (stat split, uncommitted):** plain-class calculator `: IStatService`,
+                                                # `new StatSheet(profile)`; every value computed in `RecalculateAll()`; declares StatsViewDTO.
+                                                # Stat.cs is now a runtime result record (not serialized). See docs/systems/stats/README.md
+          PrimaryStatEntry.cs                   # ✅ NEW 2026-11-09 — authored primary row (Type, baseValue)
+          BaseStatsSO.cs                        # ⚠️ **2026-11-09 (stat split): DATA ONLY** — level, primaryStats, derivedStats (formulas);
+                                                # no calculation, no runtime state. The entry below is history:
+                                                # ✅ **Replaces the deleted `StatsSO`** (`b0512f4` deleted it, `1c0742e` added this).
                                                 # Same API surface: Level, Get/GetStat/GetStatValue, AddModifiersFromSource /
                                                 # RemoveModifiersFromSource, AddPrimaryPoint, GetStatUnusedBonus, OnStatChanged,
                                                 # SeedAllStats, FullStatsValue, FullStatView. Also declares StatsViewDTO

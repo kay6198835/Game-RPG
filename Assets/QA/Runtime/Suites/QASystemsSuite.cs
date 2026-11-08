@@ -125,15 +125,15 @@ namespace QA.Automation
             return false;
         }
 
-        // FinalValue = (Base + LevelUp, then modifiers in Order) + EquipmentByPrimary (Stat.CalculateFinalValue).
+        // FinalValue = (Base + LevelUp, then modifiers in Order) + PrimaryBonus (StatSheet.ApplyModifiers).
         private static float Expected(Stat stat, float flat, float percentAdd, float percentMult)
-            => ((stat.BaseValue + stat.LevelUpValue + flat) * (1f + percentAdd)) * (1f + percentMult) + stat.EquipmentByPrimaryValue;
+            => ((stat.BaseValue + stat.LevelUpValue + flat) * (1f + percentAdd)) * (1f + percentMult) + stat.PrimaryBonus;
 
         private IEnumerator CaseStatFlat()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             float before = stat.FinalValue;
             object source = new();
             stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 5f, ModifierType.Flat) });
@@ -145,9 +145,8 @@ namespace QA.Automation
         private IEnumerator CaseStatPercentAdd()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
-            stat.BaseValue = Mathf.Max(stat.BaseValue, 10f);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             stats.AddModifiersFromSource(new object(), new[]
             {
                 new StatModifier(Probe, 0.1f, ModifierType.PercentAdd),
@@ -161,9 +160,8 @@ namespace QA.Automation
         private IEnumerator CaseStatPercentMult()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
-            stat.BaseValue = Mathf.Max(stat.BaseValue, 10f);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             stats.AddModifiersFromSource(new object(), new[]
             {
                 new StatModifier(Probe, 4f, ModifierType.Flat),
@@ -177,8 +175,8 @@ namespace QA.Automation
         private IEnumerator CaseStatRemove()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             float before = stat.FinalValue;
             object source = new();
             stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 7f, ModifierType.Flat), new StatModifier(Probe, 0.25f, ModifierType.PercentAdd) });
@@ -191,8 +189,8 @@ namespace QA.Automation
         private IEnumerator CaseStatSourceIsolation()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             object item = new(), buff = new();
             stats.AddModifiersFromSource(item, new[] { new StatModifier(Probe, 3f, ModifierType.Flat) });
             stats.AddModifiersFromSource(buff, new[] { new StatModifier(Probe, 8f, ModifierType.Flat) });
@@ -206,15 +204,15 @@ namespace QA.Automation
         private IEnumerator CaseStatAssetUntouched()
         {
             if (!StatReady()) yield break;
-            Dictionary<StatType, float> before = statsAsset.FullStatsValue();
-            int modifiersBefore = statsAsset.Get(Probe)?.Modifiers.Count ?? 0;
-            BaseStatsSO stats = Copy(statsAsset);
+            // A fresh sheet from the asset must read the same numbers after another sheet was buffed.
+            Dictionary<StatType, float> before = new StatSheet(statsAsset).GetFullStat();
+            StatSheet stats = new StatSheet(statsAsset);
             stats.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat) });
             stats.AddPrimaryPoint(StatType.STR, 3f);
             yield return null;
-            Dictionary<StatType, float> after = statsAsset.FullStatsValue();
+            Dictionary<StatType, float> after = new StatSheet(statsAsset).GetFullStat();
             List<string> changed = before.Where(p => !after.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value)).Select(p => p.Key.ToString()).ToList();
-            Check(changed.Count == 0 && (statsAsset.Get(Probe)?.Modifiers.Count ?? 0) == modifiersBefore,
+            Check(changed.Count == 0,
                 $"{statsAsset.name} unchanged", $"{statsAsset.name} changed: {string.Join(", ", changed)}");
         }
 

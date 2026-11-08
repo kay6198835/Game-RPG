@@ -14,7 +14,7 @@ public class EntityIdleState : EntityBasicState
     public override void Enter()
     {
         base.Enter();
-        idleDurationTime = entityData.IdleDurationTime;
+        idleDurationTime = entityData.IdleDurationTime(entityStats);
     }
     public override void LogicUpdate()
     {

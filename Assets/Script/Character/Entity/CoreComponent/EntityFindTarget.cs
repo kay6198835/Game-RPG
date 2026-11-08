@@ -9,8 +9,8 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     // target (inbox NOTE-20261104-6). Detection range is EntityData.rangeCheckFieldOfView, per role
     // (owner decision 2026-11-04; briefly MaxRange the same day). Must stay >= MaxRangeAttack.
     //[SerializeField] private float range;
-    private float range => Core.Entity.Data.RangeView;
-    [SerializeField] private float fieldOfView => Core.Entity.Data.AngleView;
+    private float range => Core.Entity.Data.RangeView(statService);
+    private float fieldOfView => Core.Entity.Data.AngleView(statService);
     // Inner margin of the attack band used to stop moving; Idle only leaves when the band itself is left.
     [SerializeField, Range(0f, 2f)] private float rangeHysteresis = 0.25f;
     [SerializeField, Range(1f, 2f)] private float loseTargetRangeMultiplier = 1.5f;
@@ -248,7 +248,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     #region Catch Enemy Death
     private void CheckRangeCapNoti()
     {
-        float rangeCapNoti = Core.Entity.Data.RangeView;
+        float rangeCapNoti = range;
         if (DistanceToPlayer() < rangeCapNoti)
         {
             entityInput.SetLockTarget(true);

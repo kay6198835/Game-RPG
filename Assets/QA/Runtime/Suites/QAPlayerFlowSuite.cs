@@ -61,7 +61,7 @@ namespace QA.Automation
         {
             _input = new QAInputDriver();
             foreach (PlayerData data in classes)
-                if (data != null && data.Stats != null) _assetSnapshots[data.Stats] = data.Stats.FullStatsValue();
+                if (data != null && data.Stats != null) _assetSnapshots[data.Stats] = new StatSheet(data.Stats).GetFullStat();
 
             // GameplayUI is loaded additively by CombatTestBootstrap.Start; give it time to register its listeners.
             yield return Wait(1.5f);
@@ -546,7 +546,7 @@ namespace QA.Automation
             yield return null;
             foreach (KeyValuePair<BaseStatsSO, Dictionary<StatType, float>> pair in _assetSnapshots)
             {
-                Dictionary<StatType, float> now = pair.Key.FullStatsValue();
+                Dictionary<StatType, float> now = new StatSheet(pair.Key).GetFullStat();
                 List<string> changed = pair.Value.Where(p => !now.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value))
                     .Select(p => $"{p.Key} {p.Value:0.##}->{(now.TryGetValue(p.Key, out float v) ? v.ToString("0.##") : "missing")}").ToList();
                 Check(changed.Count == 0, $"{pair.Key.name} unchanged", $"{pair.Key.name} changed in memory: {string.Join(", ", changed)}");
