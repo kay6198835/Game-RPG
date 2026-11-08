@@ -74,6 +74,12 @@ public abstract class AbilityHolderBase<TCore> : CoreComponentBase<TCore>, IAbil
         base.Start();
     }
 
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
+        IsHolding = false;
+    }
+
     /// <summary>Re-equips every slot from CharacterData.AbilityBindings, dropping the previous data's abilities first.</summary>
     public void SetAbility()
     {
