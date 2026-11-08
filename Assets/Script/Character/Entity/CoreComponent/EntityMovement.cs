@@ -20,6 +20,13 @@ public class EntityMovement : MovementBase<EntityCore>
     [SerializeField] protected Vector2[] allDirection;
     [SerializeField] protected EntityInput entityInput;
     [SerializeField] protected EntityFindTarget entityFindTarget;
+    [Header("Path")]
+    // Minimum time between two path requests, so a moving player does not trigger one per frame.
+    [SerializeField, Range(0.05f, 1f)] protected float repathInterval = 0.25f;
+    [SerializeField, Range(0.5f, 10f)] protected float fleeDistance = 3f;
+    protected float nextRepathTime;
+    protected bool hasPlayerNode;
+    protected bool isFleeing;
 
     protected override void Start()
     {
@@ -54,6 +61,8 @@ public class EntityMovement : MovementBase<EntityCore>
     public void SendResquestPath()
     {
         if (endPosition == Vector2.zero) return;
+        if (Time.time < nextRepathTime) return;
+        nextRepathTime = Time.time + repathInterval;
         PathRequest request = new PathRequest(transform.position, endPosition, GetPath);
         EnemyManager.Instance.RequestPath(request);
     }
@@ -61,8 +70,12 @@ public class EntityMovement : MovementBase<EntityCore>
     public void FleeTarget()
     {
         if (!entityFindTarget.IsNearPlayer()) return;
+        // Keep the current flee point until it is reached; picking a new one every frame makes the path flicker.
+        if (isFleeing && !CheckNearPostion(endPosition)) return;
+        isFleeing = true;
+        hasPlayerNode = false;
         var fleePosition = Core.Entity.transform.position +
-        ((Core.Entity.transform.position - entityInput.TargetPosition()).normalized * 3);
+        ((Core.Entity.transform.position - entityInput.TargetPosition()).normalized * fleeDistance);
         Node validNode = EnemyManager.Instance.GetNodeByPositionWorld((Vector2)fleePosition);
 
         if (validNode != null && validNode.Walkable)
@@ -74,15 +87,36 @@ public class EntityMovement : MovementBase<EntityCore>
             validNode = SetNodeRandom((Vector2)fleePosition);
             endPosition = validNode != null ? validNode.WorldPosition : Core.Entity.transform.position;
         }
-
+        // The old chase path still points at the player: drop it and path to the flee point now.
+        Waypoints.Clear();
+        targetPosition = Vector2.zero;
+        nextRepathTime = 0f;
+        SendResquestPath();
     }
+
+    /// <summary>Paths to a point at the preferred attack distance from the locked target; repaths only when the player changes grid cell.</summary>
     public void ChaseToTarget()
     {
-        if (CheckPlayerPosition())
+        bool wasFleeing = isFleeing;
+        isFleeing = false;
+        if (!CheckPlayerPosition() && !wasFleeing) return;
+
+        Vector2 playerPosition = entityInput.TargetPosition();
+        Vector2 self = Core.Entity.transform.Position2D();
+        Vector2 away = self - playerPosition;
+        Vector2 standOff = away.sqrMagnitude > Mathf.Epsilon
+            ? playerPosition + away.normalized * entityFindTarget.PreferredDistance
+            : playerPosition;
+
+        Node node = EnemyManager.Instance.GetNodeByPositionWorld(standOff);
+        endPosition = node != null && node.Walkable ? node.WorldPosition : playerPosition;
+        if (wasFleeing)
         {
-            endPosition = entityInput.TargetPosition();
-            SendResquestPath();
+            Waypoints.Clear();
+            targetPosition = Vector2.zero;
+            nextRepathTime = 0f;
         }
+        SendResquestPath();
     }
 
     private bool CheckNearPostion(Vector2 positionCheck)
@@ -95,14 +129,18 @@ public class EntityMovement : MovementBase<EntityCore>
     {
         if (Waypoints.Count == 0)
         {
-            SendResquestPath();
+            if (!CheckNearPostion(endPosition)) SendResquestPath();
             return;
         }
         if (CheckNearPostion(targetPosition)) indexWaypoints++;
 
         if (indexWaypoints > Waypoints.Count - 1)
         {
-            SendResquestPath();
+            // Arrived: stand still instead of re-requesting a path to the point already reached.
+            Waypoints.Clear();
+            indexWaypoints = 0;
+            targetPosition = Vector2.zero;
+            if (!CheckNearPostion(endPosition)) SendResquestPath();
             return;
         }
         SetPointToForward(Waypoints[indexWaypoints]);
@@ -110,19 +148,28 @@ public class EntityMovement : MovementBase<EntityCore>
 
     private bool CheckPlayerPosition()
     {
+        if (grid == null) return false;
         SearchNode node = grid.GetNodeFromWorld(entityInput.TargetPosition());
         if (node == null) return false;
         currentPlayerNodePosition = node.TileMapPosition;
-        //player changed grid cell → need new path
-        return Vector2.Distance(entityInput.TargetPosition(), currentPlayerNodePosition) > 0.1f;
+        // Repath only when the player moved to another grid cell (or on the first chase frame).
+        if (hasPlayerNode && currentPlayerNodePosition == _lastPlayerNodePosition) return false;
+        hasPlayerNode = true;
+        _lastPlayerNodePosition = currentPlayerNodePosition;
+        return true;
     }
 
     public void MoveForwardToTarget()
     {
         if (targetPosition == Vector2.zero || !CanMove) return;
-        forwardDirection = (targetPosition - (Vector2)Core.Entity.transform.position).normalized;
-        // NEED CHECK: was `speed`.
-        rb.MovePosition(rb.position + forwardDirection * MoveSpeed * SpeedMultiplier * Time.fixedDeltaTime);
+        Vector2 toTarget = targetPosition - rb.position;
+        if (toTarget.sqrMagnitude <= Mathf.Epsilon) return;
+        float step = MoveSpeed * SpeedMultiplier * Time.fixedDeltaTime;
+        forwardDirection = toTarget.normalized;
+        // Clamp the last step onto the point; a full step overshoots and the entity bounces back every frame.
+        rb.MovePosition(toTarget.sqrMagnitude <= step * step
+            ? targetPosition
+            : rb.position + forwardDirection * step);
         entityInput.SetTarget(targetPosition);
     }
 
@@ -189,6 +236,9 @@ public class EntityMovement : MovementBase<EntityCore>
         indexWaypoints = 0;
         endPosition = Vector2.zero;
         targetPosition = Vector2.zero;
+        hasPlayerNode = false;
+        isFleeing = false;
+        nextRepathTime = 0f;
     }
 
     private void OnDrawGizmosSelected()

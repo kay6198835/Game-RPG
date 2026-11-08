@@ -289,7 +289,7 @@ namespace QA.Automation.Editor
                     float move = copy.GetStatValue(StatType.MoveSpeed);
                     float max = copy.GetStatValue(StatType.MaxRangeAttack);
                     float min = copy.GetStatValue(StatType.MinRangeAttack);
-                    float fov = data.RangeCheckFieldOfView;
+                    float fov = data.RangeView;
                     info.Add($"{name}: MoveSpeed {move:0.##}, range {min:0.##}-{max:0.##}, FOV {fov:0.##}");
                     if (move <= 0f) findings.Add($"{name}: MoveSpeed {move:0.##} (never moves)");
                     if (max <= 0f) findings.Add($"{name}: MaxRangeAttack {max:0.##} (never attacks)");

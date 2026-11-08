@@ -33,6 +33,13 @@ public class EntityMoveState : EntityBasicState
         }
         if (entityInput.IsLockTarget)
         {
+            // Inside the attack band (with margin): stop and wait for the weapon in Idle instead of
+            // chasing through MinRange and fleeing back out again.
+            if (entityFindTarget.IsInComfortRange())
+            {
+                entity.StateMachine.ChangeState(entity.IdleState);
+                return;
+            }
             if (entityFindTarget.IsNearPlayer())
             {
                 entityMovement.FleeTarget();

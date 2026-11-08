@@ -19,8 +19,11 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 128
-  rangeCheckFieldOfView: 4
+  rangeView: 4.0039997
+  angleView: 69.99
   idleDurationTime: 1
   moveDurationTime: 5
-  movementVelocities: 5
-  rangeCheckAttack: 3
+  rangeViewMultiplier: 2.86
+  angleMultiplier: 23.33
+  idleMultiplier: 0.1
+  moveMultiplier: 0.5
