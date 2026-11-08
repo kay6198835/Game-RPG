@@ -11,7 +11,11 @@
 
 ## Status Verdict
 
-**ON-TRACK — day 0** (sprint opens Monday; nothing due yet). Evidence: STATIC.
+**ON-TRACK — day 1 (Mon 2026-11-09, 02:00)** — nothing was due before today; S22-F1 merged by the
+standup sync (`a5d671c2`). Compile not verified (SKIPPED — Editor open); Editor log 0 errors.
+Evidence: LOG + STATIC.
+
+*Was:* ON-TRACK — day 0 (sprint opens Monday; nothing due yet). Evidence: STATIC.
 
 ## Burn Summary
 
@@ -19,7 +23,7 @@
 |--------|------|------|-----------|
 | Must Have (incl. Sat playtest 0.1d) | 1.05d | 0 | 1.05d |
 | Should Have | 0.8d | 0 | 0.8d |
-| Feature story S22-F1 (capped, gated by S22-01) | 0.5d | 0 | 0.5d |
+| Feature story S22-F1 (capped, gated by S22-01) | 0.5d | 0.5d (merged by sync) | 0 (compile / runtime check rides on S22-01) |
 | Buffer | 1.0d | — | — |
 
 ---
@@ -64,7 +68,7 @@
 ### Wed 2026-11-11 — Weapon + owner branch
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S22-F1 Merge `feature/polish-game` (cap 0.5d) | ≤0.5d | ⬜ | Only after S22-01; touches `WeaponHolderBase` — merge before S22-06 |
+| S22-F1 Merge `feature/polish-game` (cap 0.5d) | ≤0.5d | ✅ merged 2026-11-09 by the standup sync (`a5d671c2`: `38d40925`, `0f3644bd`, `bd75d17c`) — not compile-checked; verify in S22-01 | Touches `WeaponHolderBase` — now merged before S22-06 as planned |
 | S22-06 BUG-106 player half + BUG-110 | 0.2d | ⬜ | Same file as the polish branch |
 
 ### Thu 2026-11-12 — Effects and items
@@ -100,3 +104,19 @@
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-11-09 (Mon) — standup 02:00, evidence LOG + STATIC
+- **Sync**: merged owner branch `origin/feature/polish-game` (local ref
+  `refs/heads/origin/feature/polish-game`, 3 commits: `38d40925` Paladin combo attack,
+  `0f3644bd` Mage animation + weapon attack, `bd75d17c` save asset) into `sprint-22` → `a5d671c2`.
+  This is S22-F1; it landed before S22-01 (the plan's gate) because the standup sync is owner-mandated.
+- **Weekend**: the three commits above (off-plan for sprint 21, planned as S22-F1). Gameplay changes:
+  `WeaponHolderBase` lazy `Input` / `StatService` (null-safe damage), `Weapon.aim` read through the
+  holder + `chainWindowGrace` 0.15 s, `PlayerAttackState` chain moved from `AnimationFinishTrigger` to
+  `AnimationEnd`, enemy idle/move "comfort range" hold, `EntityInput.ReloadComponent()` clears the
+  lock. New Mage weapon data (`MageWeapon`, 3 attack stages, `MagicBolt.prefab`).
+- Owner also has a large uncommitted stat-split change set (stash `5ba9091f` "pre-stat-split",
+  2026-11-09 01:08) — invisible to this run; not a sprint task.
+- **Runtime**: compile SKIPPED (Editor open); Editor.log 0 `error CS`, 0 exceptions with an
+  `Assets/Script/` frame (11 Play Mode entries). Fix-survival 7 d: BUG-106 / BUG-107 PRESENT.
+- **Today**: S22-01 playtest (25th carry) → S22-02 BUG-122 → S22-09 BUG-065 + BUG-086. No new inbox notes.
