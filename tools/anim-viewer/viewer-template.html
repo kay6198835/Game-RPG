@@ -472,7 +472,7 @@ function updateSide() {
   }
   if (!c) return;
   const lk = lastKeyTime(c);
-  const texs = [...new Set(c.frames.map(fr => DATA.textures[fr.g]?.src.replace('../../', '') || fr.g))];
+  const texs = [...new Set(c.frames.map(fr => (DATA.textures[fr.g]?.file || DATA.textures[fr.g]?.src)?.replace('../../', '') || fr.g))];
   document.getElementById('info').innerHTML = `
     <dt>Tên</dt><dd class="mono">${c.name}</dd>
     <dt>Hướng</dt><dd>dir${state.dir} — ${DIRS[state.dir][0]}</dd>
