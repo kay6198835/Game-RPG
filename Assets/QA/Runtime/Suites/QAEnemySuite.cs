@@ -42,7 +42,7 @@ namespace QA.Automation
         {
             Entity entity = enemyPrefab != null ? enemyPrefab.GetComponentInChildren<Entity>(true) : null;
             _statsAsset = entity != null && entity.Data != null ? entity.Data.Stats : null;
-            _assetSnapshot = _statsAsset != null ? _statsAsset.FullStatsValue() : null;
+            _assetSnapshot = _statsAsset != null ? new StatSheet(_statsAsset).GetFullStat() : null;
 
             yield return Case("QA-ENT-01", "ENT", QAPriority.P0, "Pool spawns the enemy prefab with its core components and full HP", CaseSpawn());
             yield return Case("QA-ENT-02", "ENT", QAPriority.P0, "Spawned enemy has its default weapon equipped", Guard(CaseWeapon()));
@@ -197,7 +197,7 @@ namespace QA.Automation
                 Skip("enemy prefab has no EntityData.Stats asset to compare");
                 yield break;
             }
-            Dictionary<StatType, float> now = _statsAsset.FullStatsValue();
+            Dictionary<StatType, float> now = new StatSheet(_statsAsset).GetFullStat();
             List<string> changed = _assetSnapshot.Where(p => !now.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value))
                 .Select(p => $"{p.Key} {p.Value:0.##}->{(now.TryGetValue(p.Key, out float v) ? v.ToString("0.##") : "missing")}").ToList();
             Check(changed.Count == 0, $"{_statsAsset.name} unchanged", $"{_statsAsset.name} changed in memory: {string.Join(", ", changed)}");

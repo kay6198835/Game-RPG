@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 [CreateAssetMenu(fileName = "newEntityData", menuName = "Data/Entity Data/Base Data")]
 public class EntityData : CharacterData
 {
@@ -9,29 +8,29 @@ public class EntityData : CharacterData
     [SerializeField] private LayerMask layerMask;
     // NEED CHECK: removed — the enemy controller now lives on CharacterData.animationController (player style).
     //[SerializeField] private AnimatorOverrideController aima;
-    [SerializeField] private float rangeView;
-    [SerializeField] private float angleView;
-    [SerializeField] private float idleDurationTime;
-    [SerializeField] private float moveDurationTime;
 
-    [Header("Multipliers")]
+    // NEED CHECK: 2026-11-09 (stat split) — rangeView / angleView / idleDurationTime / moveDurationTime were
+    // cached here by OnValidate from the authored asset (and read 0 when the asset was not recalculated yet).
+    // They are now computed from the enemy's own stats, so buffs and debuffs reach them.
+    [Header("Multipliers (value = stat × multiplier)")]
+    [SerializeField] private float rangeViewMultiplier = 1.2f;   // × MaxRangeAttack
+    [SerializeField] private float angleMultiplier = 1.5f;       // × INT, capped at 360
+    [SerializeField] private float idleMultiplier = 0.1f;        // × STR
+    [SerializeField] private float moveMultiplier = 0.5f;        // × STR
 
-    [SerializeField] private float rangeViewMultiplier = 1.2f;
-    [SerializeField] private float angleMultiplier = 1.5f;
-    [SerializeField] private float idleMultiplier = 0.1f;
-    [SerializeField] private float moveMultiplier = 0.5f;
+    public LayerMask LayerMask => layerMask;
 
+    /// <summary>Detection range: MaxRangeAttack × multiplier, from the given character's stats.</summary>
+    public float RangeView(IStatService stats) => Read(stats, StatType.MaxRangeAttack) * rangeViewMultiplier;
 
-    public LayerMask LayerMask { get => layerMask; }
-    public float RangeView { get => rangeView; }
-    public float AngleView { get => angleView; }
-    public float IdleDurationTime { get => idleDurationTime; }
-    public float MoveDurationTime { get => moveDurationTime; }
-    private void OnValidate()
-    {
-        rangeView = Stats.GetStatValue(StatType.MaxRangeAttack) * rangeViewMultiplier;
-        angleView = Stats.GetStatValue(StatType.INT) * angleMultiplier > 360f ? 360f : Stats.GetStatValue(StatType.INT) * angleMultiplier;
-        idleDurationTime = Stats.GetStatValue(StatType.STR) * idleMultiplier;
-        moveDurationTime = Stats.GetStatValue(StatType.STR) * moveMultiplier;
-    }
+    /// <summary>View cone in degrees: INT × multiplier, capped at 360.</summary>
+    public float AngleView(IStatService stats) => Mathf.Min(360f, Read(stats, StatType.INT) * angleMultiplier);
+
+    /// <summary>Idle time in seconds: STR × multiplier.</summary>
+    public float IdleDurationTime(IStatService stats) => Read(stats, StatType.STR) * idleMultiplier;
+
+    /// <summary>Wander time in seconds: STR × multiplier.</summary>
+    public float MoveDurationTime(IStatService stats) => Read(stats, StatType.STR) * moveMultiplier;
+
+    private static float Read(IStatService stats, StatType type) => stats != null ? stats.GetStatValue(type) : 0f;
 }

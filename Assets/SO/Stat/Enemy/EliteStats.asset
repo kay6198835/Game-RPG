@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EliteStats
   m_EditorClassIdentifier: 
   level: 8
-  stats:
+  primaryStats:
   - <Type>k__BackingField: 0
     baseValue: 12
   - <Type>k__BackingField: 1
@@ -24,35 +24,7 @@ MonoBehaviour:
     baseValue: 12
   - <Type>k__BackingField: 4
     baseValue: 2
-  - <Type>k__BackingField: 100
-    baseValue: 252
-  - <Type>k__BackingField: 101
-    baseValue: 28
-  - <Type>k__BackingField: 102
-    baseValue: 45.20
-  - <Type>k__BackingField: 103
-    baseValue: 3.20
-  - <Type>k__BackingField: 104
-    baseValue: 18.80
-  - <Type>k__BackingField: 105
-    baseValue: 0.92
-  - <Type>k__BackingField: 106
-    baseValue: 3.64
-  - <Type>k__BackingField: 107
-    baseValue: 150
-  - <Type>k__BackingField: 108
-    baseValue: 2.82
-  - <Type>k__BackingField: 109
-    baseValue: 1.30
-  - <Type>k__BackingField: 110
-    baseValue: 0.50
-  - <Type>k__BackingField: 111
-    baseValue: 1.30
-  - <Type>k__BackingField: 112
-    baseValue: 2.30
-  - <Type>k__BackingField: 113
-    baseValue: 0.50
-  statFormulas:
+  derivedStats:
   - targetStat: 100
     baseConstant: 30
     perLevel: 6

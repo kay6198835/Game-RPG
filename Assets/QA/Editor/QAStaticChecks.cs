@@ -283,23 +283,16 @@ namespace QA.Automation.Editor
                     findings.Add($"{name}: no stat asset");
                     continue;
                 }
-                BaseStatsSO copy = UnityEngine.Object.Instantiate(data.Stats);
-                try
-                {
-                    float move = copy.GetStatValue(StatType.MoveSpeed);
-                    float max = copy.GetStatValue(StatType.MaxRangeAttack);
-                    float min = copy.GetStatValue(StatType.MinRangeAttack);
-                    float fov = data.RangeView;
-                    info.Add($"{name}: MoveSpeed {move:0.##}, range {min:0.##}-{max:0.##}, FOV {fov:0.##}");
-                    if (move <= 0f) findings.Add($"{name}: MoveSpeed {move:0.##} (never moves)");
-                    if (max <= 0f) findings.Add($"{name}: MaxRangeAttack {max:0.##} (never attacks)");
-                    if (min < 0f || min >= max) findings.Add($"{name}: MinRangeAttack {min:0.##} not below MaxRangeAttack {max:0.##}");
-                    if (fov < max) findings.Add($"{name}: rangeCheckFieldOfView {fov:0.##} below MaxRangeAttack {max:0.##}");
-                }
-                finally
-                {
-                    UnityEngine.Object.DestroyImmediate(copy);
-                }
+                StatSheet sheet = new StatSheet(data.Stats);
+                float move = sheet.GetStatValue(StatType.MoveSpeed);
+                float max = sheet.GetStatValue(StatType.MaxRangeAttack);
+                float min = sheet.GetStatValue(StatType.MinRangeAttack);
+                float fov = data.RangeView(sheet);
+                info.Add($"{name}: MoveSpeed {move:0.##}, range {min:0.##}-{max:0.##}, FOV {fov:0.##}");
+                if (move <= 0f) findings.Add($"{name}: MoveSpeed {move:0.##} (never moves)");
+                if (max <= 0f) findings.Add($"{name}: MaxRangeAttack {max:0.##} (never attacks)");
+                if (min < 0f || min >= max) findings.Add($"{name}: MinRangeAttack {min:0.##} not below MaxRangeAttack {max:0.##}");
+                if (fov < max) findings.Add($"{name}: view range {fov:0.##} below MaxRangeAttack {max:0.##}");
             }
             Report(r, findings, $"{guids.Length} role EntityData assets consistent");
             if (findings.Count == 0) r.notes.AddRange(info);

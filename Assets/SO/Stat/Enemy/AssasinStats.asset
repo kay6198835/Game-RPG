@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AssasinStats
   m_EditorClassIdentifier: 
   level: 1
-  stats:
+  primaryStats:
   - <Type>k__BackingField: 0
     baseValue: 7
   - <Type>k__BackingField: 1
@@ -24,35 +24,7 @@ MonoBehaviour:
     baseValue: 5
   - <Type>k__BackingField: 4
     baseValue: 12
-  - <Type>k__BackingField: 100
-    baseValue: 62
-  - <Type>k__BackingField: 101
-    baseValue: 27
-  - <Type>k__BackingField: 102
-    baseValue: 34.9
-  - <Type>k__BackingField: 103
-    baseValue: 6.2999997
-  - <Type>k__BackingField: 104
-    baseValue: 4.4
-  - <Type>k__BackingField: 105
-    baseValue: 1.2919999
-  - <Type>k__BackingField: 106
-    baseValue: 16.32
-  - <Type>k__BackingField: 107
-    baseValue: 184.4
-  - <Type>k__BackingField: 108
-    baseValue: 4.16
-  - <Type>k__BackingField: 109
-    baseValue: 0.6
-  - <Type>k__BackingField: 110
-    baseValue: 0.45000002
-  - <Type>k__BackingField: 111
-    baseValue: 6.6000004
-  - <Type>k__BackingField: 112
-    baseValue: 1.30
-  - <Type>k__BackingField: 113
-    baseValue: 0
-  statFormulas:
+  derivedStats:
   - targetStat: 100
     baseConstant: 20
     perLevel: 3.5

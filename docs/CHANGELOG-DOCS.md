@@ -17,6 +17,15 @@ which code change caused it.
 
 ---
 
+## 2026-11-09 — Stat split: data-only BaseStatsSO + StatSheet (uncommitted working tree)
+
+**Cause.** Local stat-system refactor (owner request, not committed): `BaseStatsSO` reduced to data
+(`level`, `primaryStats`, `derivedStats`), new `StatSheet` calculator and `PrimaryStatEntry`, `StatHandlerBase`
+owns a sheet instead of an `Instantiate`d clone, `EntityData` AI values take the enemy `IStatService`.
+
+**Changed.** `docs/systems/stats/README.md` (rewritten for the new design), `docs/systems/stats/CHANGELOG.md`,
+`CLAUDE.md` Repository Layout entries for `StatSheet`, `PrimaryStatEntry`, `BaseStatsSO`, `StatHandlerBase`.
+
 ## 2026-11-07 — Doc-truth pass: death input flag, 2026-11-07 triage statuses (HEAD `c6f3ccf2`)
 
 **Cause.** `4097be4c` / `1c3a34fc` (death read from `ICharacterInput.IsDeath`, `OnLethalHit()` deleted),

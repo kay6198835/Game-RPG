@@ -13,13 +13,13 @@ public class StatHandler : StatHandlerBase<Core>, IPlayerStatService
     }
     public int GetLevelUpStatsBonus()
     {
-        return StatsSO.GetStatUnusedBonus();
+        return Sheet != null ? Sheet.GetLevelUpStatsBonus() : 0;
     }
 
     public void AddPrimaryPoint(StatType statType, int amount)
     {
         // amount must be forwarded: Decrease/Revert pass a negative value.
-        StatsSO.AddPrimaryPoint(statType, amount);
+        Sheet?.AddPrimaryPoint(statType, amount);
     }
 
     public bool TryLevelup()
