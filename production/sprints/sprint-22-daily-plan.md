@@ -11,18 +11,21 @@
 
 ## Status Verdict
 
-**ON-TRACK — day 1 (Mon 2026-11-09, 02:00)** — nothing was due before today; S22-F1 merged by the
-standup sync (`a5d671c2`). Compile not verified (SKIPPED — Editor open); Editor log 0 errors.
-Evidence: LOG + STATIC.
+**SLIPPED — day 2 (Tue 2026-11-10, 02:00)** — none of Monday's three tasks (S22-01 playtest,
+S22-02 BUG-122, S22-09) moved; Monday went to off-plan work (stat split `a0e250fb`, item key
+migration `094ec9df`) plus S22-05 done early (`b33dedf9`). Must burned 0.05d / 1.05d with 4 days
+left; the work still fits the 1d buffer, but the S1 death fix and the 25th-carry playtest have not
+started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED + LOG + STATIC.
 
-*Was:* ON-TRACK — day 0 (sprint opens Monday; nothing due yet). Evidence: STATIC.
+*Was:* ON-TRACK — day 1 (Mon 2026-11-09). *Before that:* ON-TRACK — day 0. Evidence: STATIC.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 1.05d | 0 | 1.05d |
-| Should Have | 0.8d | 0 | 0.8d |
+| Must Have (incl. Sat playtest 0.1d) | 1.05d | 0.05d (S22-05) | 1.0d |
+| Should Have | 0.8d | 0 (S22-11 looks done by `a0e250fb`, unverified) | 0.8d |
+| Off-plan (2026-11-09) | — | ≈1d (stat split, item key migration, anim-viewer tools) | — |
 | Feature story S22-F1 (capped, gated by S22-01) | 0.5d | 0.5d (merged by sync) | 0 (compile / runtime check rides on S22-01) |
 | Buffer | 1.0d | — | — |
 
@@ -53,16 +56,16 @@ Evidence: LOG + STATIC.
 ### Mon 2026-11-09 — Play first, then the S1 death fix
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S22-01 Playtest / smoke through the menu | 0.3d | ⬜ | playtest done: no; 25th carry; seven bugs wait on runtime confirmation |
-| S22-02 BUG-122 | 0.1d | ⬜ | S1 P1; QA-VIT-07 failed 10 runs in a row |
-| S22-09 BUG-065 + BUG-086 | 0.2d | ⬜ | Same file as S22-02; fixing BUG-122 makes BUG-086 fire every frame |
+| S22-01 Playtest / smoke through the menu | 0.3d | ⬜ → carried to Tue | playtest done: no; 25th carry; seven bugs wait on runtime confirmation |
+| S22-02 BUG-122 | 0.1d | ⬜ → carried to Tue | S1 P1; QA-VIT-07 failed 10 runs in a row |
+| S22-09 BUG-065 + BUG-086 | 0.2d | ⬜ → carried to Tue | Same file as S22-02; fixing BUG-122 makes BUG-086 fire every frame |
 
 ### Tue 2026-11-10 — Room path
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S22-04 BUG-097 | 0.1d | ⬜ | Run starts in the boss room; 6th carry |
 | S22-03 BUG-096 Boss room | 0.05d | ⬜ | Last sealed room type |
-| S22-05 BUG-124 | 0.05d | ⬜ | One-line ordering fix; every pooled re-spawn |
+| S22-05 BUG-124 | 0.05d | ✅ 2026-11-09 `b33dedf9` (`Pool.Reload()` places before `SetActive(true)`; awaiting runtime) | One-line ordering fix; every pooled re-spawn |
 | S22-07 Editor / data block | 0.15d | ⬜ | Inspector-only work, 6th carry |
 
 ### Wed 2026-11-11 — Weapon + owner branch
@@ -75,7 +78,7 @@ Evidence: LOG + STATIC.
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S22-10 BUG-117 + BUG-120 + BUG-123 | 0.35d | ⬜ | Heal / damage and stat / coin items are no-ops |
-| S22-11 BUG-115 asset cleanup | 0.1d | ⬜ | QA-STATIC-04 still FAILs |
+| S22-11 BUG-115 asset cleanup | 0.1d | 🟡 `a0e250fb` rewrote the player stat assets as data only (modifier lists gone); confirm with QA-STATIC-04 | QA-STATIC-04 still FAILs |
 
 ### Fri 2026-11-13 — Cleanup + buffer
 | Task | Est. | Status | Why now |
@@ -98,6 +101,9 @@ Evidence: LOG + STATIC.
   done in parallel.
 - Needs-owner notes NOTE-20261107-2/-3 (NREs at `PlayerState.cs:42`, `BaseStatsSO.cs:243`) — not tasks.
 - `gh` unavailable — draft PR not opened.
+- (2026-11-10) Owner's `production/weekly-todo-2026-11-09.md` (`4e14862b`) adds feature work not in
+  this sprint (room unification + level expansion, boss, bonfire, dash, animation review). Item 1
+  (death → replay) matches S22-02 / S22-09; the rest is scope beyond the plan and the 1d buffer.
 
 ---
 
@@ -120,3 +126,24 @@ _(appended by `/daily-standup`)_
 - **Runtime**: compile SKIPPED (Editor open); Editor.log 0 `error CS`, 0 exceptions with an
   `Assets/Script/` frame (11 Play Mode entries). Fix-survival 7 d: BUG-106 / BUG-107 PRESENT.
 - **Today**: S22-01 playtest (25th carry) → S22-02 BUG-122 → S22-09 BUG-065 + BUG-086. No new inbox notes.
+
+### 2026-11-10 (Tue) — standup 02:00, evidence COMPILED + LOG + STATIC
+- **Sync**: SKIPPED — owner branch `sprint-22` already contained in `origin/sprint-22` (`58601f57`).
+- **Yesterday** (after the 02:16 standup, all by the owner, merged via `58601f57`):
+  `a0e250fb` stat split (`BaseStatsSO` data only + `StatSheet` calculator; 15 stat assets migrated;
+  Paladin INT 100→10, Boss HP 4450→1080) — off-plan, closes the runtime path of BUG-063 / BUG-115;
+  `b33dedf9` BUG-124 pool ordering + pooled-state reset on `ReloadComponent()` + enemy Defense as
+  `damage * 100 / (100 + Defense)` (= S22-05); `094ec9df` ItemSO key migration + audit script
+  (off-plan, 4th serialized-rename loss caught statically); `b47f7a62` anim-viewer tools;
+  `4e14862b` owner weekly to-do.
+- **Analysis**: Monday planned 0.6d (S22-01 / 02 / 09), burned 0 of it; 0.05d Must done early (S22-05);
+  ≈1d off-plan. Verdict SLIPPED — the S1 death fix and the playtest did not start.
+- **Runtime**: compile COMPILED at `58601f57` (+4 uncommitted owner paths, 42 s); Editor.log /
+  Editor-prev.log 0 `error CS`, 0 exceptions with an `Assets/Script/` frame (12 Play Mode entries).
+  Fix-survival 7 d: BUG-106 PRESENT; BUG-107 / 115 / 116 / 121 PARTIAL (76 %) — all four cite the
+  multi-file commit `1370136c`, re-touched by `a0e250fb` / `b33dedf9`. Spot-checked: BUG-116
+  (`RuntimeAnimatorController`, `CharacterData.cs:23`) and BUG-121 (`[FormerlySerializedAs("authoredModifiers")]`,
+  `StatModifierGroup.cs:24`) intact; BUG-115's runtime-clone fix is superseded by the `StatSheet`
+  design, not reverted. No note.
+- **Inbox**: 0 new notes; NOTE-20261107-3 got evidence (site deleted by `a0e250fb`, candidate resolved).
+- **Today**: carry S22-01 → S22-02 → S22-09 first, then Tue's S22-04 BUG-097 / S22-03 / S22-07.
