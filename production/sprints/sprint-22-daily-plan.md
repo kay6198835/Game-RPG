@@ -11,7 +11,17 @@
 
 ## Status Verdict
 
-**SLIPPED — day 2 (Tue 2026-11-10, 02:00)** — none of Monday's three tasks (S22-01 playtest,
+**SLIPPED — day 3 (Wed 2026-11-11, 02:00)** — no commit on any branch on Tuesday (only the standup
+commit `5e30cf72`), so no sprint task moved: S22-01 playtest (25th carry), S22-02 BUG-122 (S1),
+S22-09 and Tuesday's room tasks S22-04 / S22-03 / S22-07 are all still ⬜. Must burned 0.05d / 1.05d
+with 3 days left; 1.0d Must + 0.8d Should remain against 3 days + 1d buffer — still feasible, but
+the buffer is now the plan. The owner's folder holds uncommitted room-interaction work
+(`InteractiveObjectsRoom.cs` new, `PedestalChampionController`, `UIEvents`, `GameplayUIController`,
+`Entity.cs`, `LoadRandomMap.unity`) — off-plan (weekly to-do, room unification), not counted.
+Compile COMPILED at `58601f57` + 9 uncommitted owner paths (34 s); Editor log 1 distinct transient
+`error CS0534` (NOTE-20261111-1), 0 exceptions. Evidence: COMPILED + LOG + STATIC.
+
+*Was:* SLIPPED — day 2 (Tue 2026-11-10, 02:00) — none of Monday's three tasks (S22-01 playtest,
 S22-02 BUG-122, S22-09) moved; Monday went to off-plan work (stat split `a0e250fb`, item key
 migration `094ec9df`) plus S22-05 done early (`b33dedf9`). Must burned 0.05d / 1.05d with 4 days
 left; the work still fits the 1d buffer, but the S1 death fix and the 25th-carry playtest have not
@@ -63,10 +73,10 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 ### Tue 2026-11-10 — Room path
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S22-04 BUG-097 | 0.1d | ⬜ | Run starts in the boss room; 6th carry |
-| S22-03 BUG-096 Boss room | 0.05d | ⬜ | Last sealed room type |
+| S22-04 BUG-097 | 0.1d | ⬜ → carried to Wed | Run starts in the boss room; 6th carry |
+| S22-03 BUG-096 Boss room | 0.05d | ⬜ → carried to Wed | Last sealed room type |
 | S22-05 BUG-124 | 0.05d | ✅ 2026-11-09 `b33dedf9` (`Pool.Reload()` places before `SetActive(true)`; awaiting runtime) | One-line ordering fix; every pooled re-spawn |
-| S22-07 Editor / data block | 0.15d | ⬜ | Inspector-only work, 6th carry |
+| S22-07 Editor / data block | 0.15d | ⬜ → carried to Wed | Inspector-only work, 6th carry |
 
 ### Wed 2026-11-11 — Weapon + owner branch
 | Task | Est. | Status | Why now |
@@ -147,3 +157,22 @@ _(appended by `/daily-standup`)_
   design, not reverted. No note.
 - **Inbox**: 0 new notes; NOTE-20261107-3 got evidence (site deleted by `a0e250fb`, candidate resolved).
 - **Today**: carry S22-01 → S22-02 → S22-09 first, then Tue's S22-04 BUG-097 / S22-03 / S22-07.
+
+### 2026-11-11 (Wed) — standup 02:00, evidence COMPILED + LOG + STATIC
+- **Sync**: SKIPPED — owner branch `sprint-22` (`58601f57`) already contained in `origin/sprint-22` (`5e30cf72`).
+- **Yesterday**: no commit on any branch except the standup commit `5e30cf72`. The owner's folder has
+  9 uncommitted paths: new `System/RoomGameSystem/InteractiveObjectsRoom.cs` (+ `.meta`), modified
+  `PedestalChampionController.cs`, `UIEvents.cs`, `GameplayUIController.cs`, `Entity.cs`,
+  `LoadRandomMap.unity`, two generated `tools/anim-viewer/*.html`. Reads as room-interaction work
+  from the owner's weekly to-do (off-plan); uncommitted work is not counted as progress.
+- **Analysis**: Tuesday planned 0.3d (S22-04 / 03 / 07) plus 0.6d carried from Monday; burned 0.
+  Must 0.05d / 1.05d after 2 of 5 days. Verdict SLIPPED — nothing planned has started.
+- **Runtime**: compile COMPILED at `58601f57` + 9 uncommitted owner paths (34 s). `Editor.log`
+  (2026-11-10 17:22, 2 Play Mode entries): 3 `error CS` lines, 1 distinct —
+  `InteractiveObjectsRoom.cs(3,14)` CS0534 (`InteractiveObjects.Interact(Interact)` not
+  implemented); the later batchmode compile of the same tree passed, so it was transient
+  (NOTE-20261111-1). 0 exceptions with an `Assets/Script/` frame. `Editor-prev.log` clean.
+  Fix-survival: NOT RUN — no `.cs` commit yesterday.
+- **Inbox**: 1 new note (NOTE-20261111-1, S4, candidate "Resolved in week").
+- **Today**: S22-01 playtest → S22-02 BUG-122 + S22-09 → S22-04 / S22-03 → S22-06 (Wed's own task)
+  if time remains; S22-07 slides to Thu.
