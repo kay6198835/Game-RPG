@@ -11,7 +11,18 @@
 
 ## Status Verdict
 
-**SLIPPED — day 3 (Wed 2026-11-11, 02:00)** — no commit on any branch on Tuesday (only the standup
+**SLIPPED — day 4 (Thu 2026-11-12, 02:00)** — second day in a row with no commit on any branch
+(only the standup commit `e5c4e1d8`), so no sprint task moved: S22-01 playtest (25th carry), S22-02
+BUG-122 (S1), S22-09, S22-04 / S22-03 / S22-07 and Wednesday's S22-06 are all still ⬜. Must burned
+0.05d / 1.05d with 2 days left (Thu, Fri); 1.0d Must + 0.8d Should remain against 2 days — Must still
+fits only if both days go to the plan; Should is at risk. The owner's uncommitted change set grew
+from 9 to 19 paths: new `BonfireController.cs`, `InteractiveNotifi.cs`, `Assets/Prefab/Interactive/`,
+modified `HUDPanel.cs` and three Champion Monument prefabs on top of Tuesday's room-interaction
+files — off-plan (weekly to-do: room unification, bonfire), not counted. Compile SKIPPED (Editor
+open); Editor log 02:07 has 6 distinct `error CS` in the uncommitted files (NOTE-20261112-1, reads
+as mid-edit: the files on disk at 02:20 no longer show those shapes), 0 exceptions. Evidence: LOG + STATIC.
+
+*Was:* SLIPPED — day 3 (Wed 2026-11-11, 02:00) — no commit on any branch on Tuesday (only the standup
 commit `5e30cf72`), so no sprint task moved: S22-01 playtest (25th carry), S22-02 BUG-122 (S1),
 S22-09 and Tuesday's room tasks S22-04 / S22-03 / S22-07 are all still ⬜. Must burned 0.05d / 1.05d
 with 3 days left; 1.0d Must + 0.8d Should remain against 3 days + 1d buffer — still feasible, but
@@ -82,7 +93,7 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S22-F1 Merge `feature/polish-game` (cap 0.5d) | ≤0.5d | ✅ merged 2026-11-09 by the standup sync (`a5d671c2`: `38d40925`, `0f3644bd`, `bd75d17c`) — not compile-checked; verify in S22-01 | Touches `WeaponHolderBase` — now merged before S22-06 as planned |
-| S22-06 BUG-106 player half + BUG-110 | 0.2d | ⬜ | Same file as the polish branch |
+| S22-06 BUG-106 player half + BUG-110 | 0.2d | ⬜ → carried to Thu | Same file as the polish branch |
 
 ### Thu 2026-11-12 — Effects and items
 | Task | Est. | Status | Why now |
@@ -176,3 +187,26 @@ _(appended by `/daily-standup`)_
 - **Inbox**: 1 new note (NOTE-20261111-1, S4, candidate "Resolved in week").
 - **Today**: S22-01 playtest → S22-02 BUG-122 + S22-09 → S22-04 / S22-03 → S22-06 (Wed's own task)
   if time remains; S22-07 slides to Thu.
+
+### 2026-11-12 (Thu) — standup 02:00, evidence LOG + STATIC
+- **Sync**: SKIPPED — owner branch `sprint-22` (`e5c4e1d8`) already contained in `origin/sprint-22` (`e5c4e1d8`).
+- **Yesterday**: no commit on any branch except the standup commit `e5c4e1d8` (second day running).
+  The owner's folder now has 19 uncommitted paths (was 9): new `BonfireController.cs`,
+  `InteractiveNotifi.cs` (+ `.meta`), `Assets/Prefab/Interactive/`; modified `HUDPanel.cs`, three
+  `Champion Monument/*.prefab`, plus Tuesday's `InteractiveObjectsRoom.cs`,
+  `PedestalChampionController.cs`, `UIEvents.cs`, `GameplayUIController.cs`, `Entity.cs`,
+  `LoadRandomMap.unity`. Reads as the interact-prompt + bonfire work from the owner's weekly to-do
+  (off-plan); uncommitted work is not counted as progress.
+- **Analysis**: Wednesday planned 0.2d (S22-06) plus 0.9d carried; burned 0. Must 0.05d / 1.05d after
+  3 of 5 days. Verdict SLIPPED — nothing planned has started; 2 days left for 1.0d Must.
+- **Runtime**: compile SKIPPED — Editor open (owner session). `Editor.log` (2026-11-12 02:07, 1 Play
+  Mode entry): 18 `error CS` lines, 6 distinct, all in uncommitted files — `InteractiveObjectsRoom.cs(28)`
+  CS0103 `UIEvents` / CS0246 `InteractData`, `UIEvents.cs(40,87)` CS0246 `InteractData`,
+  `InteractiveNotifi.cs(6,16)` CS0246 `Sprite`, `(9,17)` CS0116 / CS0501. The files on disk at 02:20
+  differ (`InteractData` is declared in `namespace UIFlow`, the two call sites are commented out),
+  so the log shows a mid-edit state; not batchmode-confirmed (NOTE-20261112-1). 0 exceptions with an
+  `Assets/Script/` frame. `Editor-prev.log` (2026-11-11 17:01) clean, 0 Play Mode.
+  Fix-survival: NOT RUN — no `.cs` commit yesterday.
+- **Inbox**: 1 new note (NOTE-20261112-1, S4, candidate "Resolved in week"); 7 open.
+- **Today**: S22-02 BUG-122 + S22-09 (0.3d, S1) → S22-01 playtest (0.3d) → S22-04 / S22-03 (0.15d);
+  S22-06, S22-07 and Thursday's own S22-10 / S22-11 move to Fri + buffer.
