@@ -11,7 +11,20 @@
 
 ## Status Verdict
 
-**SLIPPED — day 4 (Thu 2026-11-12, 02:00)** — second day in a row with no commit on any branch
+**SLIPPED — day 5 (Fri 2026-11-13, 02:00)** — Thursday had commits again, none on a planned task:
+`chore/asmdef-test-setup` (`9c11c672` assembly definitions + first EditMode test, `e555e9da` DOTween
+Modules assembly, `d9776bb8` `Path` → `NavPath`; relates to BUG-084, merged into `sprint-22` by today's
+sync → `3a750ca8`), `285e6900` Rain Arrows wiring (relates to BUG-109, merged by the owner `28ed4382`)
+and QA-harness work (`c35cdf3c`; `e7fb161e` / `47f66ddb` on `qa/weekly-automation`). S22-01 playtest
+(25th carry), S22-02 BUG-122 (S1), S22-09, S22-04 / 03 / 07, S22-06, S22-10 and S22-12 are all still
+⬜. Must burned 0.05d / 1.05d with 1 working day left (Fri) plus Saturday's playtest; 1.0d Must
+remains — it fits only if all of Friday goes to the plan, and Should (0.8d) will carry. Off-plan
+output this week ≈2.5d. Compile COMPILED at `d9776bb8` + 29 uncommitted owner paths (148 s) — the
+first batchmode pass of the asmdef split and of the bonfire / interact-prompt working tree. Editor
+logs show only pre-fix transient errors (NOTE-20261113-1, NOTE-20261112-1), 0 exceptions.
+Evidence: COMPILED + LOG + STATIC.
+
+*Was:* SLIPPED — day 4 (Thu 2026-11-12, 02:00) — second day in a row with no commit on any branch
 (only the standup commit `e5c4e1d8`), so no sprint task moved: S22-01 playtest (25th carry), S22-02
 BUG-122 (S1), S22-09, S22-04 / S22-03 / S22-07 and Wednesday's S22-06 are all still ⬜. Must burned
 0.05d / 1.05d with 2 days left (Thu, Fri); 1.0d Must + 0.8d Should remain against 2 days — Must still
@@ -47,6 +60,7 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 | Must Have (incl. Sat playtest 0.1d) | 1.05d | 0.05d (S22-05) | 1.0d |
 | Should Have | 0.8d | 0 (S22-11 looks done by `a0e250fb`, unverified) | 0.8d |
 | Off-plan (2026-11-09) | — | ≈1d (stat split, item key migration, anim-viewer tools) | — |
+| Off-plan (2026-11-12) | — | ≈1.5d (asmdef + EditMode tests / BUG-084, Rain Arrows wiring / BUG-109, QA cases) | — |
 | Feature story S22-F1 (capped, gated by S22-01) | 0.5d | 0.5d (merged by sync) | 0 (compile / runtime check rides on S22-01) |
 | Buffer | 1.0d | — | — |
 
@@ -98,7 +112,7 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 ### Thu 2026-11-12 — Effects and items
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S22-10 BUG-117 + BUG-120 + BUG-123 | 0.35d | ⬜ | Heal / damage and stat / coin items are no-ops |
+| S22-10 BUG-117 + BUG-120 + BUG-123 | 0.35d | ⬜ → carried to Fri (likely next sprint) | Heal / damage and stat / coin items are no-ops |
 | S22-11 BUG-115 asset cleanup | 0.1d | 🟡 `a0e250fb` rewrote the player stat assets as data only (modifier lists gone); confirm with QA-STATIC-04 | QA-STATIC-04 still FAILs |
 
 ### Fri 2026-11-13 — Cleanup + buffer
@@ -210,3 +224,35 @@ _(appended by `/daily-standup`)_
 - **Inbox**: 1 new note (NOTE-20261112-1, S4, candidate "Resolved in week"); 7 open.
 - **Today**: S22-02 BUG-122 + S22-09 (0.3d, S1) → S22-01 playtest (0.3d) → S22-04 / S22-03 (0.15d);
   S22-06, S22-07 and Thursday's own S22-10 / S22-11 move to Fri + buffer.
+
+### 2026-11-13 (Fri) — standup 02:00, evidence COMPILED + LOG + STATIC
+- **Sync**: merged owner branch `chore/asmdef-test-setup` (3 commits: `9c11c672`, `e555e9da`,
+  `d9776bb8`) into `sprint-22` → `3a750ca8`, pushed. No conflict. The branch was cut from
+  `28ed4382`, so the merged tree equals the owner's committed tree.
+- **Yesterday** (first commits since Monday, none on a planned task):
+  `285e6900` Rain Arrows wired to `RainArrows.prefab` + `DespawnOneSelf` event on 8 clips +
+  `DamagesInManyPos.SetDir` sets the Animator `Dir` (relates to BUG-109; merged by the owner,
+  `28ed4382`); `9c11c672` `GameRPG.asmdef`, three Editor assemblies, `GameRPG.EditModeTests` +
+  `StatSheetTests.cs` (relates to BUG-084, NOTE-20261112-2); `e555e9da` DOTween Modules assembly;
+  `d9776bb8` game `Path` class → `NavPath` (`AStar`, `PathRequest`, `PathRequestManager`,
+  `EntityMovement`); `c35cdf3c` QA-ENT-09..15 / QA-ITEM-02..04. On `qa/weekly-automation` only:
+  `e7fb161e`, `47f66ddb`, `b7bac279`, `4ee57687` (EditMode tests in the weekly run).
+  The owner's folder still holds 29 uncommitted paths (bonfire, interact prompt, Boss room JSON,
+  Champion Monument prefabs, `Tile_Spawn_Bonfire`) — not counted.
+- **Analysis**: Thursday planned 0.45d (S22-10 / S22-11) plus 1.0d Must carried; burned 0.
+  Must 0.05d / 1.05d after 4 of 5 days; ≈1.5d off-plan output on Thursday. Verdict SLIPPED.
+- **Runtime**: compile **COMPILED** `d9776bb8` + 29 uncommitted paths (148 s). `Editor.log`
+  (2026-11-12 17:00, 2 Play Mode entries): 120 `error CS` lines in `Assets/Plugins/Demigiant/DOTween/Modules/`
+  (CS1729 `Path`, CS0411, CS1929) — the asmdef split exposed the game's global `Path` class to
+  DOTween; fixed by `e555e9da` + `d9776bb8`, later batchmode pass → transient (NOTE-20261113-1).
+  `Editor-prev.log` (2026-11-12 04:24, 25 Play Mode entries): 30 `error CS` lines in the uncommitted
+  interact-prompt files, new shapes in `BonfireController.cs(11,97)` CS1002 / `(14,38)` CS0103 and
+  `GameplayUIController.cs(39,51)` CS0123 — same tree now compiles (evidence added to
+  NOTE-20261112-1). 0 exceptions with an `Assets/Script/` frame. Fix-survival 7 d: no fix commits
+  in window.
+- **Inbox**: 1 new note (NOTE-20261113-1, S4, candidate "Resolved in week"); evidence added to
+  NOTE-20261112-1 and NOTE-20261112-2; 9 open.
+- **Playtest sheet**: `production/qa/playtests/playtest-2026-11-14.md` generated for Saturday.
+- **Today**: S22-02 BUG-122 + S22-09 (0.3d, S1) → S22-01 playtest through the menu (0.3d) →
+  S22-04 / S22-03 (0.15d) → S22-06 (0.2d). S22-07, S22-10, S22-11 check and S22-12 are carry
+  candidates for the Saturday wrap-up.
