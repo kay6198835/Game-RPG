@@ -9,6 +9,7 @@
     { "pattern": "^QA-VIT-05$", "bug": "BUG-119", "note": "Recovery() adds without clamping to max" },
     { "pattern": "^QA-VIT-08$", "bug": "BUG-086", "note": "ON_PLAYER_DEATH emitted every frame" },
     { "pattern": "^QA-ENT-02$", "bug": "BUG-106", "note": "Default weapon only equipped by SetCharacterData" },
+    { "pattern": "^QA-ENT-14$", "findings": "negative vital modifier", "bug": "BUG-117", "note": "A negative VitalModifier heals: EffectReceiverBase passes the signed value to Reduction()" },
     { "pattern": "^QA-STAT-10$", "bug": "BUG-115", "note": "Player mutates the shared stat asset" },
     { "pattern": "^QA-STATIC-04$", "bug": "BUG-115", "note": "Runtime modifiers saved into stat assets (BUG-063 accepted/deferred)" },
     { "pattern": "^QA-STATIC-05$", "bug": "BUG-116", "note": "CharacterData uses UnityEditor.Animations in runtime code" },

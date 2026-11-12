@@ -11,7 +11,9 @@ A retired case keeps its row with status **Retired**; its ID is never reused.
 - **Priority**: P0 smoke (always runs) · P1 regression (always runs) · P2 deep (runs only in a week when the
   change scan touches that system, or with `-Deep ALL`).
 - **Group**: the QA scene that runs it (STATIC runs in Edit Mode with no scene).
-- **Source**: where the case code lives. Each suite file lists its cases in `Run()` in this order.
+- **Source**: where the case code lives. Each suite file lists its cases in `Run()` in this order. Exception:
+  `QAEnemySuite` runs QA-ENT-09…14, then QA-ITEM-02…04, then QA-ENT-15 and QA-ENT-08 last (those let the
+  enemy hit the player).
 
 ## Systems
 
@@ -22,13 +24,13 @@ A retired case keeps its row with status **Retired**; its ID is never reused.
 | ABL | Abilities v2: cast, cost, cooldown, effects | PLAYER / `QA_PlayerFlow` | `QAPlayerFlowSuite` | `System/Abilities/`, `AbilityHolderBase` |
 | UI | In-game HUD bound to the player | PLAYER / `QA_PlayerFlow` | `QAPlayerFlowSuite` | `UIFlow/` (`RealPlayerDataProvider`, hotbar) |
 | VIT | Current HP / Mana, damage into the player, death | VITALS / `QA_Vitals` | `QAVitalsSuite` | `VitalStatsBase`, `NegativeReceiverBase`, `PlayerDeathState` |
-| ENT | Enemy: pooled spawn, weapon, damage, death, respawn | ENEMY / `QA_Combat` | `QAEnemySuite` | `Character/Entity/` |
+| ENT | Enemy: pooled spawn, weapon, damage, death, respawn; states (idle, move, take damage, death, attack); effect receiver | ENEMY / `QA_Combat` | `QAEnemySuite` (+ `QAEnemySuite.Behaviour.cs`) | `Character/Entity/`, `EffectReceiverBase` |
 | EVT | Event bus | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `Manager/EventManager.cs` |
 | STAT | Stat modifiers, asset hygiene | SYSTEMS / `QA_Systems` (+ STAT-10 in PLAYER) | `QASystemsSuite` | `System/StatSystem/` |
 | POOL | Object pool | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/PoolableService/` |
 | MAP | Room clear counter, map / room models, room JSON | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `Map/`, `Database-SO/Modal/`, `Assets/Data/Json/Room/` |
 | PATH | A* pathfinding | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/Pathfinding/` |
-| ITEM | Item drop table | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/Item/` |
+| ITEM | Item drop table; drop on enemy death; player pickup | SYSTEMS / `QA_Systems` (+ ITEM-02…04 in ENEMY) | `QASystemsSuite`, `QAEnemySuite` | `System/Item/`, `ResourceReceiver`, `PlayerResourceReceiverState` |
 | STATIC | Asset and source hygiene | STATIC (Edit Mode) | `QAStaticChecks` | `Assets/**` |
 
 The path → system map used by the weekly change scan is `qa-automation/config/impact-map.json`.
@@ -63,12 +65,19 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-VIT-08 | P1 | `ON_PLAYER_DEATH` emitted once per death | exactly 1 | BUG-086 |
 | QA-ENT-01 | P0 | Pool spawns the enemy prefab with core components and full HP | active, Entity + vital + stat + hurtbox, HP = max | |
 | QA-ENT-02 | P0 | Spawned enemy has its default weapon (spawn applies `EntityData` like `EnemySpawner.ApplyData()` since 2026-11-05) | `EntityWeaponHolder.Weapon != null` within 1 s | BUG-106 |
-| QA-ENT-03 | P0 | Damage lowers HP by amount − Defense; below Defense = 0 | exact | |
+| QA-ENT-03 | P0 | Damage lowers HP by amount × 100 / (100 + Defense); a 1-damage hit still lands (percent mitigation since `b33d1870`, 2026-11-08; was amount − Defense) | exact | |
 | QA-ENT-04 | P0 | Lethal damage emits `ON_ENEMY_DEATH` once, payload = enemy; the suite releases the enemy on that emit like `EnemySpawner.ReleaseEnemy()` (spawn-system contract, owner decision 2026-11-05) | once within 5 s; enemy inactive after the emit; still once 1 s later | |
 | QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | |
 | QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | |
 | QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | |
 | QA-ENT-08.<Role> | P0 | Enemy attacks the player in range (added 2026-11-05; was only MAN-ENT-02). One run per `EntityData` in `Assets/SO/Enemy/Role`: enemy pinned, player held mid attack range for 8 s | enters `EntityAttackState`; player HP drops; two attack entries ≥ min `attackRate` apart. Notes on failure: target lock / distance / `CallAttack`, attack clip events, mask vs player hurtbox layer | |
+| QA-ENT-09 | P0 | Idle (added 2026-11-12): free enemy, player parked out of sight | starts in `EntityIdleState`, animator `Idle` true, no target, does not move; leaves for `EntityMoveState` after `IdleDurationTime` | |
+| QA-ENT-10 | P0 | Move, wander (added 2026-11-12): no target, open floor grid (`QAFloorPathGrid`) | enters `EntityMoveState`, animator `Move` true, moves ≥ 0.5; average speed ≤ `MoveSpeed`; never locks the parked player | |
+| QA-ENT-11 | P0 | TakeDamage (added 2026-11-12): one hit of 10 % HP | enters `EntityTakeDamageState` within 0.25 s, animator `TakeDamage` true, HP −10 %, alive, does not move; leaves within 3 s (clip `AnimationFinishTrigger`) back to `EntityMoveState` | |
+| QA-ENT-12 | P0 | Death state (added 2026-11-12): lethal hit from Idle, then lethal hit during the take-damage state | enters `EntityDeathState` within 0.25 s both times, HP 0, animator `Death` true, a hit on a dead enemy is ignored, does not move, `ON_ENEMY_DEATH` follows | |
+| QA-ENT-13 | P1 | Effect receiver, max stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustMaxStats` Defense +5 flat applies; removing the source restores; `AdjustMaxForDuration` 0.5 s applies then expires | |
+| QA-ENT-14 | P1 | Effect receiver, current stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustCurrentStats`: a +20 % HP vital modifier heals exactly, a −20 % one damages exactly | BUG-117 |
+| QA-ENT-15 | P0 | Move, chase (added 2026-11-12): player held in the view cone, then moved out of attack range | locks the player within 3 s; enters `EntityMoveState`; closes to `MaxRangeAttack`; keeps the lock; enters `EntityAttackState` within 4 s | |
 | QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | |
 | QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | |
 | QA-EVT-03 | P1 | Two listeners both receive; Emit with no listener is safe | 1 + 1, no throw | |
@@ -91,6 +100,9 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-PATH-02 | P1 | A* to a wall tile fails cleanly | `Success == false`, no exception | |
 | QA-PATH-03 | P1 | Same query twice gives the same path | identical waypoints | |
 | QA-ITEM-01 | P1 | DepotItem rolls only table items; same seed same item | 0 foreign items; deterministic | |
+| QA-ITEM-02 | P0 | Enemy death drops an item (added 2026-11-12, ENEMY scene, the game's `ItemSpawner` + `Depot Item 1`, roll fixed by seed) | exactly one item, at the death position, with the rolled item's name and sprite, on a layer inside the player's pickup mask; a no-drop roll drops nothing (only when the table can miss) | |
+| QA-ITEM-03 | P0 | Player picks up the dropped item with Q (added 2026-11-12) | enters `PlayerResourceReceiverState`; `ON_COLLECT_ITEM` once, payload = the item; item released to the pool; player back to Idle / Move. What the item gave is recorded as a note, not judged (BUG-120) | |
+| QA-ITEM-04 | P1 | Q with no item in reach (added 2026-11-12) | no pickup state, no `ON_COLLECT_ITEM` | |
 | QA-STATIC-01 | P0 | No asset / prefab / scene references a missing script | every `m_Script` guid resolves | BUG-073 (ShootSpirit) |
 | QA-STATIC-02 | P1 | No SO under `Assets/SO` references a deleted asset | every guid resolves | BUG-090 (ShootSpirit pair) |
 | QA-STATIC-03 | P1 | No serialized key left by a field rename | every YAML key is a serialized property of the type | BUG-105, BUG-108, BUG-121 |
