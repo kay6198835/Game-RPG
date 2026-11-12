@@ -454,7 +454,7 @@ namespace QA.Automation
             if (_walkable.Count < 2) { Fail("fewer than 2 walkable tiles"); yield break; }
             Node start = _walkable[0];
             Node goal = Farthest(start);
-            Path path = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
+            NavPath path = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             Check(path.Success, $"path found, {path.Waypoints.Count} waypoints", $"no path from {start.WorldPosition} to reachable {goal.WorldPosition}");
             if (!path.Success) yield break;
             int bad = 0;
@@ -480,7 +480,7 @@ namespace QA.Automation
                 if (n != null && !n.Walkable) wall = n;
             }
             if (wall == null) { Skip("room has no unwalkable tile"); yield break; }
-            Path path = null;
+            NavPath path = null;
             bool threw = false;
             try { path = AStar.FindPath(_grid, _walkable[0].WorldPosition, wall.WorldPosition); }
             catch (System.Exception e) { threw = true; Fail($"FindPath threw {e.GetType().Name}: {e.Message}"); }
@@ -494,8 +494,8 @@ namespace QA.Automation
             if (_walkable.Count < 2) { Fail("fewer than 2 walkable tiles"); yield break; }
             Node start = _walkable[0];
             Node goal = Farthest(start);
-            Path a = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
-            Path b = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
+            NavPath a = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
+            NavPath b = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             Check(a.Success == b.Success && a.Waypoints.SequenceEqual(b.Waypoints), "identical results", $"first {a.Waypoints.Count} waypoints, second {b.Waypoints.Count}");
             yield return null;
         }

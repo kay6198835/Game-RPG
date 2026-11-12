@@ -178,7 +178,7 @@ public class EntityMovement : MovementBase<EntityCore>
         this.targetPosition = targetPosition;
     }
 
-    private void GetPath(Path path)
+    private void GetPath(NavPath path)
     {
         if (!path.Success || path.Waypoints.Count == 0) return;
         Waypoints.Clear();
