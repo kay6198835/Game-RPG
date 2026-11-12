@@ -19,19 +19,17 @@ paths:
 | Config/Data (SO tuning) | Smoke check — enter Play, verify behaviour | ADVISORY |
 
 ## Unity Test Naming
-- File: `[System]Tests.cs` in `tests/EditMode/` or `tests/PlayMode/`
+- File: `[System]Tests.cs` in `Assets/Tests/EditMode/` (PlayMode tests: `Assets/Tests/PlayMode/`, not created yet)
 
-> ⚠️ **Those two paths do not work, and no test can be written to them today (BUG-084, verified
-> 2026-09-22).** `tests/` is a *sibling* of `Assets/`, and Unity compiles only what is under
-> `Assets/` and `Packages/` — nothing in `tests/EditMode` or `tests/PlayMode` is ever seen by the
-> compiler. Separately, `find Assets -name "*.asmdef"` returns **0**: with no assembly definition,
-> nothing can reference `UnityEngine.TestRunner` / `UnityEditor.TestRunner`, so Unity Test Runner
-> cannot discover a test even if one were placed under `Assets/`.
->
-> The location above is therefore **not** a settled convention — it is an unvalidated assumption
-> this file has carried since it was written. Resolve BUG-084 (decide the location, add a runtime
-> `.asmdef` and a test `.asmdef`) and correct this line to whatever is decided, before estimating
-> any story that involves writing a test.
+> **Changed 2026-11-12 (branch `chore/asmdef-test-setup`, BUG-084).** Tests live under `Assets/Tests/`,
+> because Unity compiles only `Assets/` and `Packages/`. Gameplay code is the `GameRPG` assembly
+> (`Assets/Script/GameRPG.asmdef`; `Assets/SO/Dungeon/` joins it through `GameRPG.asmref`), and
+> `Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef` references it and the Test Runner assemblies.
+> First test: `StatSheetTests.cs`. `tests/EditMode/` and `tests/PlayMode/` outside `Assets/` are never
+> compiled — do not put test code there (`tests/playtest/` and `tests/smoke/` hold manual evidence only).
+> ⚠️ Written without a Unity Editor: the assemblies were not compiled when this note was written. Until
+> the owner confirms a clean compile and a green Test Runner run, treat the setup as unverified.
+> A package newly used by gameplay code must be added to `references` in `GameRPG.asmdef`.
 - Method: `[MethodName]_[Scenario]_[ExpectedResult]()` e.g. `TakeDamage_BelowZero_TriggersDeathState()`
 
 ## Determinism
