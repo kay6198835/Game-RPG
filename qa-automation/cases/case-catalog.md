@@ -30,6 +30,7 @@ A retired case keeps its row with status **Retired**; its ID is never reused.
 | PATH | A* pathfinding | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/Pathfinding/` |
 | ITEM | Item drop table | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/Item/` |
 | STATIC | Asset and source hygiene | STATIC (Edit Mode) | `QAStaticChecks` | `Assets/**` |
+| UNIT | EditMode unit tests (NUnit, no scene). One case per test, ID `QA-UNIT.<Class>.<Test>`, always P0; added 2026-11-12 | UNIT (Unity Test Runner, EditMode) | `Assets/Tests/EditMode/*.cs` | `GameRPG` assembly |
 
 The path → system map used by the weekly change scan is `qa-automation/config/impact-map.json`.
 
