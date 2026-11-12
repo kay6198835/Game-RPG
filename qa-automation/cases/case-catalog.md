@@ -36,72 +36,80 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 
 ## AUTO cases
 
-| ID | Pri | Case | Expected | Known bug |
-|---|---|---|---|---|
-| QA-PLY-01 | P0 | Player spawns once at the spawn point | 1 Player, at the spawn point, camera parented, input/weapon/ability/stat/vital components found | |
-| QA-PLY-02 | P2 | Before a class is picked: attack and ability input | OBSERVED — design open: is an unpicked player meant to be unarmed? | |
-| QA-PLY-03.<Class> | P0 | G at the monument opens the confirm panel | `UIEvents.OpenConfirnPanel` raised exactly once | |
-| QA-PLY-04.<Class> | P1 | Nothing changes before Confirm | `Player.Data` unchanged, no `ON_OPEN_DOOR` | |
-| QA-PLY-05.<Class> | P0 | Confirm applies the class | Data, name, animator controller, weapon (exactly one), HP/Mana full, `ON_OPEN_DOOR` once, unpaused, panel hidden | |
-| QA-UI-01.<Class> | P1 | Hotbar shows every bound ability | named hotbar slots = bound abilities | |
-| QA-CMB-01.<Class> | P0 | Melee hit damage = PhysicalDamage + stage damage (+ CritDamage on crit) | exact value; stage damage > 0 | BUG-105 |
-| QA-CMB-02.<Class> | P1 | Melee combo reaches every stage | highest stage = StageCount | |
-| QA-CMB-03.<Class> | P1 | Melee out of range deals no damage | 0 hits at range + 2.5 | |
-| QA-CMB-04.<Class> | P0 | Arrow hits and despawns | hit within 2.5 s; no live `ProjectileBody` 2 s later | BUG-095 |
-| QA-CMB-05.<Class> | P1 | Shots are at least RecoveryTime apart | min interval ≥ `RangeAttackSO.RecoveryTime` | BUG-103 |
-| QA-CMB-06.<Class> | P1 | Attack with no weapon | no attack state, no damage, no exception | |
-| QA-ABL-01.<Class>.<Slot> | P0 Primary / P1 others | Cast pays cost, starts cooldown, applies effect | cooldown event = definition; cost paid in the activation frame; spawn effect hits / stat effect visible | BUG-114 (Paladin Utility) |
-| QA-ABL-02.<Class>.<Slot> | P1 | No recast while on cooldown | second press: no cast, no cost | |
-| QA-ABL-03.<Class>.<Slot> | P2 | Refused when the cost cannot be paid | no cast, no cost, player alive; HP costs OBSERVED | |
-| QA-STAT-10 | P0 | Class stat assets unchanged after a full player run | in-memory `FullStatsValue()` of every class stat asset equal before/after | BUG-115 |
-| QA-VIT-01 | P0 | `ReloadComponent` fills HP and Mana to max | current = `StatHandler.GetStatValue` max | |
-| QA-VIT-02 | P0 | Reduction lowers by exactly the amount, raises `CurrentStatsChanged` once | exact | |
-| QA-VIT-03 | P1 | Reduction larger than current clamps at 0 | 0 | |
-| QA-VIT-04 | P1 | Recovery below max restores exactly the amount | exact | |
-| QA-VIT-05 | P1 | Recovery never pushes above max | ≤ max | BUG-119 |
-| QA-VIT-06 | P0 | Damage through the player hurtbox lowers HP, player survives | 0 < lost ≤ sent | |
-| QA-VIT-07 | P0 | Lethal damage → `PlayerDeathState` + `ON_PLAYER_DEATH` | HP 0, state entered, event emitted | |
-| QA-VIT-08 | P1 | `ON_PLAYER_DEATH` emitted once per death | exactly 1 | BUG-086 |
-| QA-ENT-01 | P0 | Pool spawns the enemy prefab with core components and full HP | active, Entity + vital + stat + hurtbox, HP = max | |
-| QA-ENT-02 | P0 | Spawned enemy has its default weapon (spawn applies `EntityData` like `EnemySpawner.ApplyData()` since 2026-11-05) | `EntityWeaponHolder.Weapon != null` within 1 s | BUG-106 |
-| QA-ENT-03 | P0 | Damage lowers HP by amount − Defense; below Defense = 0 | exact | |
-| QA-ENT-04 | P0 | Lethal damage emits `ON_ENEMY_DEATH` once, payload = enemy; the suite releases the enemy on that emit like `EnemySpawner.ReleaseEnemy()` (spawn-system contract, owner decision 2026-11-05) | once within 5 s; enemy inactive after the emit; still once 1 s later | |
-| QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | |
-| QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | |
-| QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | |
-| QA-ENT-08.<Role> | P0 | Enemy attacks the player in range (added 2026-11-05; was only MAN-ENT-02). One run per `EntityData` in `Assets/SO/Enemy/Role`: enemy pinned, player held mid attack range for 8 s | enters `EntityAttackState`; player HP drops; two attack entries ≥ min `attackRate` apart. Notes on failure: target lock / distance / `CallAttack`, attack clip events, mask vs player hurtbox layer | |
-| QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | |
-| QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | |
-| QA-EVT-03 | P1 | Two listeners both receive; Emit with no listener is safe | 1 + 1, no throw | |
-| QA-STAT-01 | P0 | Flat modifier adds its value | `(base + level + flat) + equipmentByPrimary` | |
-| QA-STAT-02 | P1 | PercentAdd modifiers sum before multiplying | ×(1 + Σ) once | |
-| QA-STAT-03 | P1 | PercentMult multiplies | ×(1 + v) after flat | |
-| QA-STAT-04 | P0 | `RemoveModifiersFromSource` restores the value | back to before, 0 modifiers | |
-| QA-STAT-05 | P1 | Removing one source keeps another source's modifier | other source kept (BUG-100 pattern) | |
-| QA-STAT-06 | P0 | Working on an Instantiate copy leaves the stat asset unchanged | asset values equal | |
-| QA-POOL-01 | P0 | Spawn returns an active instance at the position | active, at position, not the template | |
-| QA-POOL-02 | P0 | Release deactivates; next Spawn reuses the same instance | reused | |
-| QA-POOL-03 | P1 | Two spawns without release are distinct | distinct | |
-| QA-MAP-01 | P0 | Room clear: `ON_OPEN_DOOR` once, at the last death | 0 after 2/3 deaths, 1 after 3/3 | |
-| QA-MAP-02 | P1 | Room clear counts an extra spawned enemy | door shut until the extra one dies | |
-| QA-MAP-03 | P1 | `MapModel.GetRandomRoom` deals every room once per cycle | N draws = N distinct rooms | |
-| QA-MAP-04 | P1 | `RoomModel.GetSpawnSet` within weight budget + overflow (20 seeds × room) | never empty, total weight ≤ budget × (1 + overflow) (ADR-0003) | |
-| QA-MAP-05 | P1 | Every room JSON parses with matching tiles / poses / layers counts | equal and > 0 | |
-| QA-MAP-06 | P2 | Combat and boss rooms carry a spawn marker | ≥ 1 `Tile_Spawn_Enemy`; others reported (BUG-096 context) | BUG-096 (Boss room) |
-| QA-PATH-01 | P0 | A* finds a path to the farthest reachable tile | success, waypoints walkable and adjacent, ends at target | |
-| QA-PATH-02 | P1 | A* to a wall tile fails cleanly | `Success == false`, no exception | |
-| QA-PATH-03 | P1 | Same query twice gives the same path | identical waypoints | |
-| QA-ITEM-01 | P1 | DepotItem rolls only table items; same seed same item | 0 foreign items; deterministic | |
-| QA-STATIC-01 | P0 | No asset / prefab / scene references a missing script | every `m_Script` guid resolves | BUG-073 (ShootSpirit) |
-| QA-STATIC-02 | P1 | No SO under `Assets/SO` references a deleted asset | every guid resolves | BUG-090 (ShootSpirit pair) |
-| QA-STATIC-03 | P1 | No serialized key left by a field rename | every YAML key is a serialized property of the type | BUG-105, BUG-108, BUG-121 |
-| QA-STATIC-04 | P0 | No runtime stat modifier saved into a stat asset | no non-empty `modifiers:` list | BUG-115 (BUG-063 deferred) |
-| QA-STATIC-05 | P0 | Runtime scripts use `UnityEditor` only inside `#if UNITY_EDITOR` | none | BUG-116 |
-| QA-STATIC-06 | P0 | Every enabled build scene exists | all files present | |
-| QA-STATIC-07 | P1 | Every enemy role `EntityData` (`Assets/SO/Enemy/Role`) has a weapon, a move speed and a consistent attack range (added 2026-11-05, `6094aa10`) | `Weapon` set; `MoveSpeed` > 0; 0 ≤ `MinRangeAttack` < `MaxRangeAttack` ≤ `rangeCheckFieldOfView` | |
-| QA-STATIC-08 | P1 | Every enemy role weapon can hit the player (added 2026-11-05, static half of QA-ENT-08) | melee `LayerMask` / projectile `targetMask` include the `PlayerTest.prefab` hurtbox layer; projectile prefab has a `Collider2D`; every stage has `directionAttackAnimatorOV`; every `*Attack*` clip in it has `AnimationOnAction` and `AnimationFinishTrigger` or `AnimationEnd` | |
-| QA-LOG.<group> | P0 | Errors logged outside a case | none (created only when it happens) | |
-| QA-RUNNER.<group> | P0 | Group finished Play Mode and wrote its results | created only when a group crashed | |
+| ID | Pri | Case | Expected | Known bug | Unit mirror |
+|---|---|---|---|---|---|
+| QA-PLY-01 | P0 | Player spawns once at the spawn point | 1 Player, at the spawn point, camera parented, input/weapon/ability/stat/vital components found | | |
+| QA-PLY-02 | P2 | Before a class is picked: attack and ability input | OBSERVED — design open: is an unpicked player meant to be unarmed? | | |
+| QA-PLY-03.<Class> | P0 | G at the monument opens the confirm panel | `UIEvents.OpenConfirnPanel` raised exactly once | | |
+| QA-PLY-04.<Class> | P1 | Nothing changes before Confirm | `Player.Data` unchanged, no `ON_OPEN_DOOR` | | |
+| QA-PLY-05.<Class> | P0 | Confirm applies the class | Data, name, animator controller, weapon (exactly one), HP/Mana full, `ON_OPEN_DOOR` once, unpaused, panel hidden | | |
+| QA-UI-01.<Class> | P1 | Hotbar shows every bound ability | named hotbar slots = bound abilities | | |
+| QA-CMB-01.<Class> | P0 | Melee hit damage = PhysicalDamage + stage damage (+ CritDamage on crit) | exact value; stage damage > 0 | BUG-105 | |
+| QA-CMB-02.<Class> | P1 | Melee combo reaches every stage | highest stage = StageCount | | |
+| QA-CMB-03.<Class> | P1 | Melee out of range deals no damage | 0 hits at range + 2.5 | | |
+| QA-CMB-04.<Class> | P0 | Arrow hits and despawns | hit within 2.5 s; no live `ProjectileBody` 2 s later | BUG-095 | |
+| QA-CMB-05.<Class> | P1 | Shots are at least RecoveryTime apart | min interval ≥ `RangeAttackSO.RecoveryTime` | BUG-103 | |
+| QA-CMB-06.<Class> | P1 | Attack with no weapon | no attack state, no damage, no exception | | |
+| QA-ABL-01.<Class>.<Slot> | P0 Primary / P1 others | Cast pays cost, starts cooldown, applies effect | cooldown event = definition; cost paid in the activation frame; spawn effect hits / stat effect visible | BUG-114 (Paladin Utility) | |
+| QA-ABL-02.<Class>.<Slot> | P1 | No recast while on cooldown | second press: no cast, no cost | | |
+| QA-ABL-03.<Class>.<Slot> | P2 | Refused when the cost cannot be paid | no cast, no cost, player alive; HP costs OBSERVED | | |
+| QA-STAT-10 | P0 | Class stat assets unchanged after a full player run | in-memory `FullStatsValue()` of every class stat asset equal before/after | BUG-115 | |
+| QA-VIT-01 | P0 | `ReloadComponent` fills HP and Mana to max | current = `StatHandler.GetStatValue` max | | |
+| QA-VIT-02 | P0 | Reduction lowers by exactly the amount, raises `CurrentStatsChanged` once | exact | | |
+| QA-VIT-03 | P1 | Reduction larger than current clamps at 0 | 0 | | |
+| QA-VIT-04 | P1 | Recovery below max restores exactly the amount | exact | | |
+| QA-VIT-05 | P1 | Recovery never pushes above max | ≤ max | BUG-119 | |
+| QA-VIT-06 | P0 | Damage through the player hurtbox lowers HP, player survives | 0 < lost ≤ sent | | |
+| QA-VIT-07 | P0 | Lethal damage → `PlayerDeathState` + `ON_PLAYER_DEATH` | HP 0, state entered, event emitted | | |
+| QA-VIT-08 | P1 | `ON_PLAYER_DEATH` emitted once per death | exactly 1 | BUG-086 | |
+| QA-ENT-01 | P0 | Pool spawns the enemy prefab with core components and full HP | active, Entity + vital + stat + hurtbox, HP = max | | |
+| QA-ENT-02 | P0 | Spawned enemy has its default weapon (spawn applies `EntityData` like `EnemySpawner.ApplyData()` since 2026-11-05) | `EntityWeaponHolder.Weapon != null` within 1 s | BUG-106 | |
+| QA-ENT-03 | P0 | Damage lowers HP by amount − Defense; below Defense = 0 | exact | | |
+| QA-ENT-04 | P0 | Lethal damage emits `ON_ENEMY_DEATH` once, payload = enemy; the suite releases the enemy on that emit like `EnemySpawner.ReleaseEnemy()` (spawn-system contract, owner decision 2026-11-05) | once within 5 s; enemy inactive after the emit; still once 1 s later | | |
+| QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | | |
+| QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | | |
+| QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | | |
+| QA-ENT-08.<Role> | P0 | Enemy attacks the player in range (added 2026-11-05; was only MAN-ENT-02). One run per `EntityData` in `Assets/SO/Enemy/Role`: enemy pinned, player held mid attack range for 8 s | enters `EntityAttackState`; player HP drops; two attack entries ≥ min `attackRate` apart. Notes on failure: target lock / distance / `CallAttack`, attack clip events, mask vs player hurtbox layer | | |
+| QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | | `EventManagerTests.Emit_DeliversPayloadOnceToRegisteredListener` |
+| QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | | `EventManagerTests.UnResgister_StopsDelivery` |
+| QA-EVT-03 | P1 | Two listeners both receive; Emit with no listener is safe | 1 + 1, no throw | | `EventManagerTests.Emit_CallsEveryListenerOfTheEventOnce`<br>`EventManagerTests.Emit_AfterEveryListenerRemoved_DoesNotThrow` |
+| QA-STAT-01 | P0 | Flat modifier adds its value | `(base + level + flat) + equipmentByPrimary` | | `StatSheetTests.FlatModifier_AddsItsValueToFinalValue` |
+| QA-STAT-02 | P1 | PercentAdd modifiers sum before multiplying | ×(1 + Σ) once | | `StatSheetTests.PercentAddModifiers_SumBeforeMultiplyingOnce` |
+| QA-STAT-03 | P1 | PercentMult multiplies | ×(1 + v) after flat | | `StatSheetTests.PercentMultModifier_MultipliesAfterFlat` |
+| QA-STAT-04 | P0 | `RemoveModifiersFromSource` restores the value | back to before, 0 modifiers | | `StatSheetTests.RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier` |
+| QA-STAT-05 | P1 | Removing one source keeps another source's modifier | other source kept (BUG-100 pattern) | | `StatSheetTests.RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier` |
+| QA-STAT-06 | P0 | Working on an Instantiate copy leaves the stat asset unchanged | asset values equal | | `StatSheetTests.CommittedStatAssets_AreUnchangedAfterASheetIsBuffed` |
+| QA-POOL-01 | P0 | Spawn returns an active instance at the position | active, at position, not the template | | `ObjectPoolManagerTests.Spawn_ReturnsActiveInstanceAtRequestedPosition` |
+| QA-POOL-02 | P0 | Release deactivates; next Spawn reuses the same instance | reused | | `ObjectPoolManagerTests.Release_DeactivatesAndNextSpawnReusesTheSameInstance` |
+| QA-POOL-03 | P1 | Two spawns without release are distinct | distinct | | `ObjectPoolManagerTests.Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances` |
+| QA-MAP-01 | P0 | Room clear: `ON_OPEN_DOOR` once, at the last death | 0 after 2/3 deaths, 1 after 3/3 | | |
+| QA-MAP-02 | P1 | Room clear counts an extra spawned enemy | door shut until the extra one dies | | |
+| QA-MAP-03 | P1 | `MapModel.GetRandomRoom` deals every room once per cycle | N draws = N distinct rooms | | `MapModelTests.CommittedMapModel_DealsEveryRoomOncePerCycle`<br>`MapModelTests.GetRandomRoom_DealsEveryRoomOncePerCycle` |
+| QA-MAP-04 | P1 | `RoomModel.GetSpawnSet` within weight budget + overflow (20 seeds × room) | never empty, total weight ≤ budget × (1 + overflow) (ADR-0003) | | `RoomModelTests.CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow` |
+| QA-MAP-05 | P1 | Every room JSON parses with matching tiles / poses / layers counts | equal and > 0 | | `RoomJsonTests.EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers` |
+| QA-MAP-06 | P2 | Combat and boss rooms carry a spawn marker | ≥ 1 `Tile_Spawn_Enemy`; others reported (BUG-096 context) | BUG-096 (Boss room) | |
+| QA-PATH-01 | P0 | A* finds a path to the farthest reachable tile | success, waypoints walkable and adjacent, ends at target | | `AStarTests.CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget` |
+| QA-PATH-02 | P1 | A* to a wall tile fails cleanly | `Success == false`, no exception | | `AStarTests.CommittedRoom_PathToAWallTile_FailsCleanly`<br>`AStarTests.FindPath_ToAWallTile_FailsCleanly` |
+| QA-PATH-03 | P1 | Same query twice gives the same path | identical waypoints | | `AStarTests.CommittedRoom_SameQueryTwice_GivesTheSamePath`<br>`AStarTests.FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath` |
+| QA-ITEM-01 | P1 | DepotItem rolls only table items; same seed same item | 0 foreign items; deterministic | | `DepotItemTests.CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed` |
+| QA-STATIC-01 | P0 | No asset / prefab / scene references a missing script | every `m_Script` guid resolves | BUG-073 (ShootSpirit) | |
+| QA-STATIC-02 | P1 | No SO under `Assets/SO` references a deleted asset | every guid resolves | BUG-090 (ShootSpirit pair) | |
+| QA-STATIC-03 | P1 | No serialized key left by a field rename | every YAML key is a serialized property of the type | BUG-105, BUG-108, BUG-121 | |
+| QA-STATIC-04 | P0 | No runtime stat modifier saved into a stat asset | no non-empty `modifiers:` list | BUG-115 (BUG-063 deferred) | |
+| QA-STATIC-05 | P0 | Runtime scripts use `UnityEditor` only inside `#if UNITY_EDITOR` | none | BUG-116 | |
+| QA-STATIC-06 | P0 | Every enabled build scene exists | all files present | | |
+| QA-STATIC-07 | P1 | Every enemy role `EntityData` (`Assets/SO/Enemy/Role`) has a weapon, a move speed and a consistent attack range (added 2026-11-05, `6094aa10`) | `Weapon` set; `MoveSpeed` > 0; 0 ≤ `MinRangeAttack` < `MaxRangeAttack` ≤ `rangeCheckFieldOfView` | | |
+| QA-STATIC-08 | P1 | Every enemy role weapon can hit the player (added 2026-11-05, static half of QA-ENT-08) | melee `LayerMask` / projectile `targetMask` include the `PlayerTest.prefab` hurtbox layer; projectile prefab has a `Collider2D`; every stage has `directionAttackAnimatorOV`; every `*Attack*` clip in it has `AnimationOnAction` and `AnimationFinishTrigger` or `AnimationEnd` | | |
+| QA-LOG.<group> | P0 | Errors logged outside a case | none (created only when it happens) | | |
+| QA-RUNNER.<group> | P0 | Group finished Play Mode and wrote its results | created only when a group crashed | | |
+
+The **Unit mirror** column (added 2026-11-12) names the EditMode NUnit test or tests in `Assets/Tests/EditMode/`
+that check the same behaviour without a scene. In the weekly run each one is reported as `QA-UNIT.<name>`. A
+mirror does not retire the Play Mode case: both run until the owner confirms the EditMode run is green on a
+machine with Unity (checklist: `qa-automation/manual/editmode-local-verification.md`). The mirrors of
+QA-EVT, QA-STAT-01…05 and QA-POOL use synthetic data; a test named `Committed…` reads the committed assets. Not
+mirrored: QA-VIT-01…05 (`VitalStatsBase` needs the character Core hub, and `Awake()` does not run in Edit Mode).
+The test files hold more tests than the mirrors listed here.
 
 The **Known bug** column mirrors `qa-automation/config/known-issues.json`, which is what the report uses.
 
