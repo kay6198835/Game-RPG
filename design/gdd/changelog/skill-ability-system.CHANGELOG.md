@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-13 — Marked superseded by `abilities-v2-system.md`
+- **Commit:** not committed (working tree on `sprint-22`, base `origin/sprint-22` `a8725a77`)
+- **Changed:** one banner added under the change-log link. No other line was edited or removed.
+- **From → To:** (document read as the current ability design, scoped to v1) → superseded; points to `design/gdd/abilities-v2-system.md`. Content kept as the historical record of v1.
+- **Why:** Abilities v1 (`System/Skill_Ability/`) was deleted on 2026-11-04 (`6094aa10`), and a GDD for v2 now exists.
+
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
 - **Changed:** corrected every statement found stale against HEAD `93ba6d8e`. Each item reads *was stale → now says*:

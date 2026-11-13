@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-13 — Abilities v2 GDD written (documentation only)
+- **Commit:** not committed (working tree on `sprint-22`, base `origin/sprint-22` `a8725a77`)
+- **Changed:** no code. New `design/gdd/abilities-v2-system.md`; README header gains a **Design** pointer, the "No GDD" row and the Related line are updated, and a dated note records two bug rows that read differently in the files now (BUG-072, BUG-109).
+- **From → To:** README said "No GDD for v2" and pointed at `skill-ability-system.md` (v1 only) → points at `abilities-v2-system.md`; `skill-ability-system.md` is marked superseded.
+- **Why:** QA needs a checkable source for ability test cases (demo checklist item 21).
+- **Bugs:** none opened or closed. Bug-inbox notes NOTE-20261113-6 … -11.
+
 ## 2026-11-05 — Abilities v1 deleted (doc-truth re-sync)
 - **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04, merged into `sprint-21` by `ea00b3a4`); Archer / Mage assets `6c61ccdb`
 - **Changed:** `System/Skill_Ability/` deleted (`ActivateSkill`, `AbstractSkillSO`, Dash / Slash / Block / Dual, `EffectSkill*`, `InternalSkillSO`) with its SO assets, plus `EntityWeapon`, `Spell`, `IEffectable`; `WeaponSO` moved to `System/Item/`. `AbilityHolderBase.SetAbility()` now clears `_equipped` and `currentAbility` first; new `ChangeNextState()`. `EffectReceiverBase.AdjustCurrentForDuration` / `AdjustCurrentPerTimeForDuration` renamed `AdjustMaxForDuration` / `AdjustMaxPerTimeForDuration` (the latter still throws, BUG-118).

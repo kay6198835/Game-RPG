@@ -14,4 +14,14 @@ public class PlayerMovement : MovementBase<Core>
     {
         SetVelocity(direction * MoveSpeed);
     }
+
+    public void Dash(Vector2 direction)
+    {
+        rb.velocity = direction.normalized * dashSpeed;
+    }
+
+    public void ExitDash()
+    {
+        rb.velocity = Vector2.zero;
+    }
 }

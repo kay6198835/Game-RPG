@@ -17,6 +17,48 @@ which code change caused it.
 
 ---
 
+## 2026-11-13 — Abilities v2 GDD written (working tree on `sprint-22`, not committed)
+
+**Cause.** Abilities v2 (`Assets/Script/System/Abilities/`) has been the only ability path since `6094aa10`
+(2026-11-04) and had no GDD; `design/gdd/skill-ability-system.md` still described the deleted v1. QA needs a
+written, checkable source for test cases (demo checklist item 21). Code and assets read at `origin/sprint-22`
+`a8725a77`; no `.cs`, scene, prefab or ScriptableObject was changed. Evidence tier: STATIC. The owner asked for
+local changes only: nothing was committed or pushed, and no branch or pull request was created.
+
+**Changed.** New `design/gdd/abilities-v2-system.md` (71 rules: 14 CONFIRMED, 44 AS-BUILT, 13 OPEN; per-class
+ability catalogue; 23 edge cases; 36 acceptance criteria + 6 held on open rules; 18 open questions) with
+`design/gdd/changelog/abilities-v2-system.CHANGELOG.md`. `design/gdd/skill-ability-system.md` marked superseded
+by one banner (content untouched) + its change log. Updated `design/gdd/systems-index.md` rows 10 and 25 + its
+change log, `docs/systems/README.md` (design-doc column), `docs/systems/abilities/README.md` and `CHANGELOG.md`,
+and `production/qa/bug-inbox.md` (NOTE-20261113-6 … -11).
+**Same day, owner decisions.** OQ-1, OQ-2, OQ-3, OQ-7 and OQ-16 were decided as recommended: cooldowns count in
+every state (AB-CD4), an HP cost needs `HP > cost` (AB-C3), no refund when a cast is cut by death (AB-L8),
+per-effect damage scaling stat + coefficient (AB-S7), cooldowns reset on class pick / respawn (AB-D5). The GDD now
+reads **19 CONFIRMED / 43 AS-BUILT / 9 OPEN**, 14 open questions; three of the confirmed rules are `[PLANNED]`
+(code not changed). Acceptance criteria AC-37 … AC-41 added; NOTE-20261113-12 added, NOTE-20261113-6 amended.
+**Same day, second round.** The owner answered the rest: OQ-5, 6, 7b, 8, 10, 11, 13, 14, 15, 17, 18 decided;
+OQ-4 pending (`TryCast()` stacking design), OQ-9 deferred until the demo is done, OQ-12 deferred (`Passive`).
+Final state of the GDD: **72 rules — 31 CONFIRMED (8 of them `[PLANNED]`, code not changed), 39 AS-BUILT, 2 OPEN;
+3 parked questions**; AC-42 … AC-48 added, AB-S10 added. Bug inbox: NOTE-20261113-7, -8, -11 amended,
+NOTE-20261113-13 added.
+**Not changed:** `CLAUDE.md` (demo checklist items 18 and 21, the "no GDD for v2" statements, the Avatar of Light
+cost wording "40 Mana + 50 HP" — the asset stores 40 HP + 50 Mana), `.claude/rules/weapon-skill-code.md` (stale
+line citations), `design/gdd/class-abilities-archer-mage.md`, `docs/diagrams/ability-system-diagrams.md`,
+`docs/architecture/tr-registry.yaml`, and every bug file — left for `/doc-sync` and the Saturday triage.
+
+## 2026-11-13 — Pathfinding GDD and ADR-0006 written (branch `docs/gdd-pathfinding`)
+
+**Cause.** BUG-052: `Assets/Script/System/Pathfinding/` has run since 2026-07 with no GDD and no ADR, and QA
+needs a written source for test cases. Code read at `origin/sprint-22` `a8725a77`; no `.cs`, scene, prefab,
+ScriptableObject or room JSON was changed. Evidence tier: STATIC.
+
+**Changed.** New `design/gdd/pathfinding-system.md` (41 rules: 3 CONFIRMED, 27 AS-BUILT, 11 OPEN; 34 acceptance
+criteria; 10 open questions) and `docs/architecture/adr-0006-grid-astar-pathfinding.md` (Proposed, retroactive),
+each with its `changelog/` file. Updated `design/gdd/systems-index.md` row 22, `docs/systems/pathfinding/README.md`
+and `CHANGELOG.md`, a pointer note in ADR-0002, and `production/qa/bug-inbox.md` (NOTE-20261113-2 … -5).
+**Not changed:** `CLAUDE.md` (BUG-052 row and layout — left for `/doc-sync` and the Saturday triage),
+`docs/registry/architecture.yaml`, `docs/architecture/tr-registry.yaml`.
+
 ## 2026-11-09 — Stat split: data-only BaseStatsSO + StatSheet (uncommitted working tree)
 
 **Cause.** Local stat-system refactor (owner request, not committed): `BaseStatsSO` reduced to data

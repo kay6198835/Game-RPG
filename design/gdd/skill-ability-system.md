@@ -9,6 +9,16 @@ verified-by: Kiet
 
 > 📜 Change log: [changelog/skill-ability-system.CHANGELOG.md](changelog/skill-ability-system.CHANGELOG.md)
 
+> **⛔ SUPERSEDED 2026-11-13 — read [`abilities-v2-system.md`](abilities-v2-system.md) instead.**
+>
+> This document describes **Abilities v1** (`ActivateSkill`, `Assets/Script/System/Skill_Ability/`).
+> That framework and its SO assets were **deleted on 2026-11-04** (`6094aa10`); none of the classes,
+> assets or inputs described below exist any more. Abilities v2 (`Assets/Script/System/Abilities/`) is
+> the only ability path for player and enemy, and its design record is `abilities-v2-system.md`.
+>
+> Everything below is kept unchanged as the historical record of v1. Do not write test cases, stories
+> or code from it.
+
 > **⚠️ SCOPE CHANGED 2026-09-11 — this GDD now describes only ONE of two live frameworks.**
 >
 > Everything below documents the inheritance-based **`ActivateSkill`** system

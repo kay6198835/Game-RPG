@@ -1,0 +1,332 @@
+# Toàn bộ bug và note của project — 2026-11-12
+
+Nguồn: 64 tệp trong `production/qa/bugs/`, `production/qa/bug-inbox.md`, GitHub Issues (0 issue đang mở).
+
+**Độ tin cậy của trạng thái**
+
+- Trạng thái lấy theo tệp bug, lần phân loại gần nhất là 2026-11-07.
+- Hôm nay (nhánh `sprint-22`) tôi chỉ đối chiếu lại với code cho: 12 bug S3, và nhóm chết của người chơi (BUG-122, BUG-065, BUG-086). Tất cả là đọc code, chưa chạy Play Mode.
+- Các bug còn lại chưa được đối chiếu lại hôm nay. Sau lần phân loại đã có thêm commit (tách stat `StatSheet`, `b33dedf` sửa respawn và Defense theo phần trăm), nên một số số dòng và mô tả có thể đã lệch.
+
+**Tổng số**
+
+| Trạng thái | Số lượng |
+|---|---|
+| Đang mở | 34 |
+| Sửa một phần | 7 |
+| Đã sửa, chờ kiểm tra khi chạy hoặc build | 7 |
+| Đã sửa / đã đóng | 15 |
+| Chấp nhận, hoãn | 1 |
+| Note chưa phân loại trong inbox | 5 |
+| Note đã phân loại (lưu trữ) | 72 |
+
+---
+
+## 1. Bug đang mở (34)
+
+### S1 — chặn demo
+
+**BUG-122 — người chơi chết nhưng không có Game Over**
+- `PlayerDeathState.LogicUpdate()` chỉ phát `ON_PLAYER_DEATH` khi `Status == EndRangeTrigger`.
+- Trạng thái đó chỉ đến từ animation event `AnimationFinishTrigger`, nhưng cả 8 clip Die của Paladin chỉ mang một event là `AnimationOnAction`.
+- Kết quả: người chơi vào trạng thái chết với HP 0 và đứng yên ở đó; `RealPlayerDataProvider` (chỗ đăng ký duy nhất) không bao giờ hiện Game Over.
+- Đã xác nhận khi chạy: QA tự động fail 10/10 lần từ 2026-11-01 (case QA-VIT-07).
+- Kiểm tra hôm nay: code còn nguyên. Thêm phát hiện mới: clip Die của Paladin bật Loop Time nên lặp mãi; clip Die của Archer và Mage không có event nào, nên cũng không thể tới Game Over.
+- Cách sửa: thêm event `AnimationFinishTrigger` vào cuối các clip Die, hoặc cho state phát trên `OnActivate` và chỉ phát một lần (cách này đóng luôn BUG-086).
+- Là điều kiện tiên quyết của BUG-086 và BUG-087.
+
+**BUG-096 — phòng không có marker spawn thì không bao giờ mở cửa**
+- `RoomGeneraterController.LoadRoom()` coi mọi phòng chưa dọn là phòng chiến đấu: đổi cửa thừa thành tường, phát `ON_GET_SPAWN_POSITIONS` rồi chờ quái chết hết.
+- `EnemySpawner.OnGetSpawnPositions()` thoát sớm khi danh sách spawn rỗng, nên không có sự kiện mở cửa nào được phát.
+- 5 trong 20 phòng không có marker: Start, Boss, Buff, Rest, Shop.
+- Bản sửa `40d2c793` đã bị `ac13ee4f` hoàn tác.
+- Đã xử lý một nửa trong code (`6094aa10`): Shop / Rest / Treasure (phòng Buff được gán loại Treasure) mở cửa ngay khi tải. Phòng Start chỉ mở khi xác nhận Champion; phòng Boss chưa có gì.
+- Cần quyết định của bạn: quy tắc mở cửa cho phòng Start và Boss.
+
+### S2 — vòng đời và cái chết của người chơi
+
+**BUG-065 — người chơi vẫn trượt khi đang chết**
+- `PlayerDeathState.Enter()` chỉ gọi `base.Enter()`, không dừng `PlayerMovement`.
+- Kiểm tra hôm nay: còn nguyên.
+- Cách sửa: lấy component di chuyển qua `Core.GetCoreComponent` trong `Enter()` và dừng vận tốc.
+
+**BUG-086 — `ON_PLAYER_DEATH` phát mỗi khung hình**
+- `LogicUpdate()` không tiêu thụ `Status` và không đổi state, nên một khi tới `EndRangeTrigger` thì sự kiện phát liên tục.
+- Hiện chưa lộ ra vì BUG-122 khiến state không bao giờ tới điểm đó; `RealPlayerDataProvider` cũng tự chặn trùng bằng cờ `_deathReported`.
+- Cách sửa: ghi `Status` sang giá trị khác trước khi phát sự kiện.
+
+**BUG-066 / BUG-070 — truy cập dictionary không kiểm tra khóa trong `VitalStatsBase`**
+- Hai bug giờ là một chỗ chung cho cả người chơi và quái.
+- `GetCurrentStatValue()` đã dùng `TryGetValue` nhưng trả về 0 khi thiếu khóa; trên đường kiểm tra HP, thiếu khóa sẽ được đọc là chết.
+- `Recovery()` và `Reduction()` vẫn truy cập thẳng không kiểm tra.
+- Việc nạp dữ liệu ban đầu điền đủ mọi loại vital có `StatType` tương ứng, nên chỉ hỏng với vital không phải stat (ví dụ Coin).
+- Cách sửa: một lần kiểm tra khóa chung đóng cả hai bug.
+
+### S2 — bản đồ
+
+**BUG-097 — ô bắt đầu nhận phòng Boss, ô kết thúc nhận phòng Start**
+- `RoomGeneraterController.Setting()` ép phòng đầu danh sách vào ô bắt đầu và phòng cuối danh sách vào ô kết thúc; không đọc `RoomType`.
+- `Maze_Storage.asset` xếp theo bảng chữ cái: phần tử 0 là `BossRoom_ThroneArena`, phần tử 19 là `StartRoom_Entrance`.
+- Phụ: việc chọn ngẫu nhiên lấy từ cả 20 phòng, nên phòng Boss và Start cũng có thể xuất hiện giữa mê cung.
+- Cách sửa tốt nhất: chọn start/end/boss theo `RoomType` và loại các loại đó khỏi nhóm ngẫu nhiên. Tạm thời: sắp lại thứ tự asset.
+
+### S2 — chỉ số, hiệu ứng, vật phẩm
+
+**BUG-100 — buff có thời hạn hết hạn thì gỡ luôn mọi modifier**
+- Buff vĩnh viễn từ vật phẩm và buff có thời hạn (Paladin Blessing) dùng chung một nguồn modifier, nên khi buff có thời hạn hết, mọi modifier cùng nguồn bị gỡ.
+- Theo ghi chú 2026-11-05: `6094aa10` đã dùng một `SourceEffect` riêng cho mỗi lần áp dụng, nên trông như đã sửa trong code; tệp bug vẫn ghi Open.
+
+**BUG-113 — "chỉ số tối đa" có hai nghĩa**
+- `GetStatValue()` trả về giá trị không tính trang bị và modifier, trong khi vital được nạp từ giá trị có tính trang bị.
+- Ví dụ: trang bị +20 HP (tối đa 120), đang 115 hồi 10 thì bị chặn về 100 — hồi máu làm giảm máu.
+- Cùng giá trị sai này được dùng cho giảm sát thương theo Defense của quái, thanh máu quái, HP/Mana tối đa trên HUD và regen.
+- Cách sửa: `GetStatValue()` trả về giá trị cuối cùng. Đã có story `production/epics/stat-reduction/story-002`.
+- Lưu ý: hệ stat đã được tách (`StatSheet`) sau khi bug này được ghi; cần đọc lại code trước khi sửa.
+
+**BUG-114 — buff chỉ số không tới được sát thương vũ khí, chí mạng, tốc độ chạy**
+- `VitalStatsBase` chụp toàn bộ chỉ số một lần khi reload; buff chỉ thêm modifier vào stat mà không làm mới bản chụp.
+- Các chỗ đọc bản chụp: sát thương vật lý, tỉ lệ và sát thương chí mạng, tốc độ di chuyển.
+- Cách sửa: vital chỉ giữ HP và Mana; mọi chỉ số khác đọc trực tiếp từ dịch vụ stat. Story `story-003`, làm sau BUG-113.
+
+**BUG-117 — modifier cho HP/Mana hiện tại không tạo được và bị đảo dấu**
+- `VitalModifier` không có `[System.Serializable]`, nên danh sách không hiện trong Inspector và mọi asset hiệu ứng hồi/trừ tức thời duyệt qua danh sách rỗng.
+- Giá trị âm được chuyển nguyên vào `Reduction()`, nên trừ số âm thành cộng.
+- Nhánh trừ gọi `Reduction()` hai lần.
+- Hệ quả khi sửa mục đầu mà không sửa hai mục sau: "trừ 10 HP" thành hồi 20.
+- Cách sửa: thêm `[System.Serializable]`, truyền giá trị tuyệt đối, xóa lời gọi trùng.
+
+**BUG-120 — hiệu ứng chỉ số của vật phẩm không áp dụng gì**
+- `StatModifierEffect.Apply()` chỉ tìm receiver rồi dừng.
+- Hai lớp con có menu tạo asset nhưng lại là `abstract`, nên không tạo được asset.
+- Hai asset hiệu ứng vật phẩm hiện có đang trỏ vào script abstract.
+- Cách sửa: bỏ `abstract` ở hai lớp con, cho chúng gọi receiver, rồi tạo lại hai asset.
+
+### S2 — chiêu thức và vũ khí
+
+**BUG-073 — asset còn tham chiếu script đã xóa**
+- `ShootSpirit.asset` trỏ tới `ShootObjectEffect` đã xóa; `SpiritProjcetile.prefab` trỏ tới `SpiritOrbProjectile` đã xóa.
+- Unity hiện "Missing (Mono Script)" và chiêu không làm gì.
+- Cách sửa: trỏ lại sang các lớp mới tương đương, hoặc xóa hẳn nhóm asset cũ. Làm chung với BUG-090.
+
+**BUG-083 — `HoldTime` / `HoldRatio` luôn bằng 0**
+- Ngữ cảnh chiêu được chụp trước khi bộ đếm giữ nút bắt đầu, và hai trường này là field thường nên không bao giờ được cập nhật.
+- Mọi hiệu ứng tăng theo thời gian giữ nút đều không hoạt động.
+- Hiện bị che vì cả bốn chiêu Paladin có `MaxHoldTime = 0`.
+- Cách sửa gọn nhất: biến hai trường thành property đọc trực tiếp từ `AbilityInstance`.
+
+**BUG-109 — Rain Arrows lỗi ở lần dùng đầu và hủy object của pool**
+- `DamagesInManyPos.OnEnable()` đọc `_context` trước khi `Launch()` gán nó: lần đầu ném null reference, các lần sau dùng hướng của lần trước.
+- Kết thúc bằng `Destroy(gameObject)` trên object lấy từ pool, pool giữ tham chiếu chết.
+- Sát thương mỗi mũi tên là số cố định, không tính chỉ số người dùng (câu hỏi thiết kế).
+- Cách sửa: override `Launch()` để đặt hướng ở đó, và kết thúc bằng trả về pool.
+
+**BUG-110 — bỏ vũ khí / nhặt vũ khí dưới đất không cập nhật holder**
+- Khi bỏ: trường `weapon` của holder không được đặt về null, nên vũ khí nằm dưới đất vẫn tiếp tục tấn công.
+- Khi nhặt: trường `weapon` không được gán và vũ khí không được inject, nên vũ khí tầm xa nhặt lên không bao giờ bắn được.
+- Nguyên nhân: `3d768b3d` đã gỡ phần ghi sổ của holder.
+- Cách sửa: mọi thao tác trang bị/gỡ đều đi qua holder — nhặt thì gán, inject rồi trang bị; bỏ thì gỡ rồi đặt null.
+
+### S2 — quy trình
+
+**BUG-084 — không thể viết test**
+- Không có tệp `.asmdef` nào dưới `Assets/`, nên không assembly nào tham chiếu được test framework.
+- Thư mục `tests/` nằm ngoài `Assets/`, Unity không biên dịch gì ở đó.
+- Cách sửa theo thứ tự: quyết định nơi đặt test, thêm `.asmdef` cho code gameplay (thay đổi lớn vì tách `Assembly-CSharp`), thêm `.asmdef` cho test, sửa `.claude/rules/test-standards.md`.
+
+### S3 — ưu tiên thấp (12 bug, đã đối chiếu code hôm nay)
+
+Trông như đã sửa trong code, tệp bug vẫn ghi Open:
+
+**BUG-124 — điểm neo đi lang thang của quái lấy lại từ pool**
+- Lỗi: quái tái sử dụng ghi `spawnPoint` tại vị trí chết lần trước, vì pool bật object trước khi dời vị trí.
+- Hiện tại: `Pool.Reload()` đặt vị trí trước rồi mới `SetActive(true)`.
+- Còn lại: xác nhận trong Play Mode.
+
+**BUG-072 — chiêu triệu hồi Lightning không gây sát thương**
+- Lỗi: `layerMask` trên `Lightning.prefab` bằng 0 nên không trúng gì.
+- Hiện tại: prefab lưu layer 6 = `Enemy`.
+- Còn lại: dùng Consecrate lên quái và xác nhận mất máu.
+
+**BUG-111 — `RegenComponent` hỏng ngay khi gắn vào**
+- Lỗi: dictionary chưa khởi tạo, exception khi đổi chỉ số khác HP/Mana, regen không chạy lại sau sát thương.
+- Hiện tại: dictionary đã khởi tạo, `Regenning()` đọc giá trị trực tiếp mỗi tick.
+- Còn lại: chưa kiểm tra các mục phụ và chưa kiểm tra đã có chỗ gọi `Regenning()` hay chưa.
+
+Còn nguyên trong code:
+
+**BUG-102 — bảng xác nhận**
+- `UIEvents.cs:56` gọi `.Invoke()` không kiểm tra null; lỗi khi bấm Play thẳng trong `LoadRandomMap` rồi tương tác Champion.
+- `ConfirnPanel` ghi nhãn nút vào tiêu đề và nội dung, câu hỏi không hiện.
+- `ResetStatics()` không xóa hai event của bảng xác nhận.
+
+**BUG-103 — thời gian hồi của vũ khí tầm xa**
+- `nextFireTime` được ghi nhưng `CanAttack()` không đọc, nên `RecoveryTime` vô tác dụng.
+- Gizmo vẽ sai điểm.
+- Cách sửa: thêm điều kiện thời gian vào `CanAttack()`.
+
+**BUG-119 — hồi máu vượt tối đa**
+- `Recovery()` cộng không chặn trên: 95/100 hồi 10 thành 105.
+- Cách sửa: chặn bằng `Mathf.Min`, làm chung với BUG-113.
+
+**BUG-118 — hiệu ứng theo thời gian ném exception (chưa kích hoạt)**
+- Hàm được gọi vẫn ném `NotImplementedException`; chưa asset nào dùng.
+
+**BUG-123 — hiệu ứng vật phẩm xu**
+- `CoinModifierEffect` là `abstract`, không có menu tạo asset; ví tiền không nhận được xu từ vật phẩm. Sửa chung với BUG-120.
+
+**BUG-112 — thiếu script trên `Merchant.prefab` và `NPC.prefab`**
+- Hai GUID script không có trong repo; script chưa từng được commit.
+
+**BUG-068 — truy cập null trong ability holder**
+- `CurrentActivationType` (`AbilityHolderBase.cs:29`) truy cập `currentAbility` không kiểm tra null; quái cũng chạy qua đây.
+
+**BUG-079 — `AbilityInstance.Exit()` rỗng**
+- Chiêu vẫn dùng lại được nhờ `StartHold()` ép reset; còn lại là lỗi phân tầng.
+
+**BUG-090 — tham chiếu mồ côi tới điều kiện mana**
+- `ShootSpirit.asset` và `SpiritBomd.asset` còn ghi GUID của asset đã xóa. Làm chung với BUG-073.
+
+### S4 và tài liệu
+
+**BUG-104 — log không có guard trong `PlayerState.Enter()`**
+- Mỗi lần đổi state đều nối chuỗi và ghi log, kể cả trong bản build; Console bị ngập khi playtest.
+- Cách sửa: xóa dòng log hoặc bọc trong `#if UNITY_EDITOR`.
+
+**BUG-098 — GDD và ADR-0003 ghi tên enum cũ**
+- Code đã đổi `RarityTier` thành `RarityTierEnemy`; tài liệu chưa đổi theo. Không ảnh hưởng khi chạy.
+
+**BUG-099 — tài liệu từng ghi BUG-096 đã sửa**
+- Lần đồng bộ tài liệu 2026-10-05 ghi phòng không marker tự mở cửa, trong khi bản sửa đã bị hoàn tác. `CLAUDE.md` và GDD bản đồ đã được sửa lại ngày 2026-10-09; tệp bug chờ đổi trạng thái.
+
+**BUG-101 — trùng ID bug**
+- `CLAUDE.md` từng dùng BUG-093/094/095 cho ba lỗi khác với ba tệp bug cùng số. Ba lỗi đó nay là BUG-103/104/105; tệp bug chờ đổi trạng thái.
+
+**BUG-052 — hệ thống đang chạy nhưng chưa có ADR**
+- Còn thiếu ADR cho: lớp nền nhân vật `Character/Base/`, Pathfinding, object pool, hệ Item, Abilities v2, lớp UI.
+
+---
+
+## 2. Sửa một phần (7)
+
+**BUG-087 — chết không có đường hồi phục**
+- Đã có: `RealPlayerDataProvider` đăng ký `ON_PLAYER_DEATH` và hiện Game Over một lần; `Respawn()` của nó tải lại scene.
+- Còn thiếu: `GameManager`, chỗ gọi `Reborn()` cho người chơi, chỗ phát `ON_REALOAD_GAME`.
+
+**BUG-106 — vũ khí và chiêu chỉ được gán qua `SetCharacterData()`**
+- Đã sửa nửa quái: `EnemySpawner` gọi `SetCharacterData()` mỗi lần spawn; QA tự động pass cho cả 10 vai quái.
+- Còn lại: người chơi chỉ có vũ khí sau khi chọn Champion. Người chơi chưa chọn có nên cầm vũ khí mặc định hay không là quyết định thiết kế.
+
+**BUG-115 — người chơi ghi vào asset stat dùng chung**
+- Đã sửa trong code: stat chạy trên bản sao riêng cho mỗi nhân vật.
+- Còn lại: `ArcherStats.asset` (1 modifier) và `MageStats.asset` (2 modifier) vẫn chứa modifier rò rỉ đã commit; cần dọn hai asset này.
+
+**BUG-108 — mất dữ liệu do đổi tên trường trên `CharacterData`**
+- Đã sửa: khóa stat được khôi phục, stat của Knight nạp được.
+- Còn lại: năm asset `Enemy - Knight*` vẫn lưu khóa `weaponSO` không trường nào đọc. Cần chuyển tham chiếu sang trường `Weapon` hoặc bỏ năm asset cũ.
+
+**BUG-071 — chuỗi tick hồi/trừ theo thời gian không dừng được**
+- Đã sửa: coroutine đã được khởi động.
+- Còn lại: đệ quy qua hàm bọc công khai nên không giữ handle; hiệu ứng sống qua cái chết, chuyển phòng và respawn từ pool. Đoạn code đã chuyển sang `EffectReceiverBase`.
+
+**BUG-092 — hiệu ứng theo thời gian chạy với khoảng 0 và số lần 0**
+- Đã sửa: lỗi biên dịch.
+- Phần còn lại theo tệp: `perTime` và `timeCount` chưa được serialize. Ghi chú 2026-10-19 nói cả hai đã có `[SerializeField]`, tức trông như đã sửa; tệp bug chưa cập nhật.
+
+**BUG-095 — `Arrow.prefab` không có collider**
+- Đã thêm script và `Rigidbody2D`.
+- Còn thiếu `Collider2D` theo lần kiểm tra 2026-10-09, nên va chạm không bao giờ kích hoạt.
+
+---
+
+## 3. Đã sửa, chờ bạn kiểm tra (7)
+
+| Bug | Nội dung | Cần kiểm tra |
+|---|---|---|
+| BUG-064 | Vũ khí tầm xa không được inject pool nên không bắn | Chạy thử: trang bị vũ khí tầm xa và bắn |
+| BUG-093 | Chiêu dạng đạn luôn bắn sang phải | Chạy thử: bắn theo nhiều hướng |
+| BUG-094 | Vũ khí tầm xa xoay gốc nhân vật mỗi lần tấn công | Chạy thử |
+| BUG-105 | Kiếm của người chơi mất 55 sát thương do đổi tên trường | Chạy thử: đo sát thương kiếm |
+| BUG-107 | Trang bị lại vũ khí mặc định ném null reference | Chạy thử: chọn lại Champion |
+| BUG-121 | Bonus vũ khí Paladin và hiệu ứng vật phẩm nạp rỗng do đổi tên trường | Chạy thử |
+| BUG-116 | `CharacterData` dùng API chỉ có trong Editor, build thất bại | Build một bản Player |
+
+---
+
+## 4. Chấp nhận, hoãn (1)
+
+**BUG-063 — `Stat.modifiers` bị serialize trong Editor**
+- Bạn quyết định giữ để xem modifier trong Inspector khi phát triển, gỡ khi chuẩn bị demo.
+- Rủi ro vẫn còn: modifier lúc chạy có thể lọt vào asset. Sau mỗi lần Play Mode nên xem `git status` có asset stat nào bị thay đổi không.
+
+---
+
+## 5. Đã sửa / đã đóng (15)
+
+| Bug | Nội dung | Kết quả |
+|---|---|---|
+| BUG-053 | Quái chạy logic nhận sát thương của người chơi | Sửa `f3f5f08` |
+| BUG-067 | Đảo dấu hồi/trừ trong `ResourceReceiver` | Đã sửa, xác nhận 2026-09-22 |
+| BUG-069 | Hồi chiêu không được áp dụng | Đã sửa, xác nhận 2026-09-22 |
+| BUG-074 | Hiệu ứng stat áp dụng tổng thay vì phần chênh | Sửa `b0b1337` |
+| BUG-075 | Đạn của chiêu dùng callback va chạm 3D | Sửa 2026-09-22 |
+| BUG-076 | Kiểm tra chi phí chiêu thiếu và lặp ba lần | Sửa `2a83469` |
+| BUG-077 | Điều kiện mana ghi dữ liệu vào asset | Sửa `2a83469` (xóa script) |
+| BUG-078 | Hiệu ứng triệu hồi trả về ngược / spawn hai object | Nửa sửa, nửa là thiết kế |
+| BUG-080 | `ResourceReceiver` dùng tham chiếu chưa gán | Sửa theo ADR-0005 |
+| BUG-081 | Hai lớp nhận sát thương trên người chơi | Sửa theo ADR-0005 |
+| BUG-082 | Kiểm tra null đặt sau khi truy cập | Sửa `c0067f4` |
+| BUG-085 | Điều kiện "chưa chết" luôn trả về true | Sửa `2a83469` (xóa script) |
+| BUG-088 | Lỗi biên dịch và phép chia số nguyên trong `EntityMovement` | Sửa `379c267`, `b0b1337` |
+| BUG-089 | Chiêu bị từ chối vẫn áp dụng hiệu ứng | Đóng: là thiết kế. Mở lại ở giai đoạn demo/release |
+| BUG-091 | Thiếu kiểm tra phần tử null trong `AbilityDefinition` | Sửa `379c267` |
+
+---
+
+## 6. Note trong bug inbox
+
+### Chưa phân loại (5)
+
+**NOTE-20261104-3 — cân bằng Tank và Paladin (S3, cần bạn quyết định)**
+- Defense của Tank (43.4) lớn hơn sát thương vật lý của Paladin (30); phép tính sát thương chặn ở 0, nên đòn cận chiến của Paladin không làm Tank mất máu.
+- Bạn đã hoãn ngày 2026-11-04 ("phép tính sát thương đang chờ, xử lý sau").
+- Đã thay đổi từ đó: BUG-105 đã sửa trong dữ liệu (kiếm có lại 55 sát thương), và `b33dedf` đổi sang giảm sát thương theo phần trăm Defense. Cần so lại số liệu.
+
+**NOTE-20261104-4 — sát thương tầm xa bỏ qua chỉ số (S4, cần bạn quyết định)**
+- Đòn tầm xa chỉ gây sát thương của stage, không cộng sát thương vật lý và không có chí mạng, khác với cận chiến.
+- Có thể là thiết kế; bạn đã hoãn cùng ngày.
+
+**NOTE-20261107-2 — null reference trong log Editor (S3)**
+- 3 lần tại `PlayerState.cs:42` và 2 lần tại `AttackFlowDebugger.cs:241` trong một phiên; 2 lần và 5 lần trong phiên trước đó.
+- Dòng 42 đã commit là một lệnh log không thể tự ném lỗi; dòng 39 (`player.Anim.SetBool`) là nghi vấn hợp lý hơn.
+- Các phiên đó chạy code chưa commit của bạn, nên số dòng có thể không khớp. Cần stack trace từ Console.
+
+**NOTE-20261107-3 — null reference tại `BaseStatsSO.cs:243` (S3)**
+- 1 lần null reference và 2 lần `SerializedObjectNotCreatableException`, tại lệnh cảnh báo trùng `StatType`.
+- Nghi vấn: đối tượng là bản sao runtime đang bị hủy khi cảnh báo được hiển thị. Cần stack trace và tên asset.
+- Lưu ý: hệ stat đã được tách sau đó, đoạn code này có thể không còn.
+
+**NOTE-20261107-4 — QA tự động báo 18 tham chiếu script thiếu mới (S3)**
+- Case QA-STATIC-01: 18 phát hiện mới ngoài 82 phát hiện nền, tổng 101.
+- Báo cáo chỉ hiện 5 dòng đầu, đều thuộc nhóm nền. Nghi vấn nguồn: đợt xóa 36 tệp `.cs` trong `6094aa10` hoặc các asset vai quái mới.
+- Cần danh sách đầy đủ từ phía QA.
+
+### Đã phân loại (72 note, lưu trữ)
+
+| Kết quả phân loại | Số lượng |
+|---|---|
+| Xác nhận thành bug | 23 |
+| Đã tự hết trong tuần | 15 |
+| Cần bạn quyết định | 11 |
+| Trùng với bug đã có | 11 |
+| Không phải bug | 9 |
+| Là thiết kế | 9 |
+| Không tái hiện được | 5 |
+
+Số trên đếm theo từ khóa trong bảng lưu trữ nên một note có thể rơi vào hai nhóm. Nội dung từng note nằm trong `production/qa/bug-inbox.md` từ dòng 17 trở đi.
+
+---
+
+## 7. Chưa được ghi lại ở đâu
+
+- Clip Die của Paladin bật Loop Time và lặp mãi; clip Die của Archer và Mage không có animation event. Liên quan BUG-122. Chưa có note trong inbox.
+- Ba bug S3 trông như đã sửa (BUG-124, BUG-072, BUG-111) chưa có ghi chú để buổi phân loại thứ Bảy kiểm tra lại.

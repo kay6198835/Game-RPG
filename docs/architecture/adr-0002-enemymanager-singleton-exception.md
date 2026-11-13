@@ -5,6 +5,10 @@
 ## Status
 Proposed
 
+> **Note 2026-11-13.** The pathfinding algorithm and grid that this façade exposes are now recorded
+> in **ADR-0006** (retroactive, Proposed) and `design/gdd/pathfinding-system.md`. The Decision and the
+> Amendment below are unchanged.
+
 > **Re-synced 2026-10-10 (event name only).** Read every `ON_CLEAR_ENEMY` below as `ON_OPEN_DOOR`;
 > the enum value was renamed in `221d54be` (on `sprint-18` since 2026-10-10). The Decision is unchanged.
 

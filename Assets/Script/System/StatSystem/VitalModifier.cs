@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+[System.Serializable]
 public class VitalModifier
 {
     [SerializeField] private VitalStatType targetStatType;
@@ -34,7 +34,7 @@ public class VitalModifier
         this.type = type;
     }
 }
-
+[System.Serializable]
 public enum VitalStatType
 {
     HP = StatType.HP,
