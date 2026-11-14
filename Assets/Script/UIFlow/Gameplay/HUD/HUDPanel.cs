@@ -17,9 +17,11 @@ namespace UIFlow
         [SerializeField] private TMP_Text levelText;
         [SerializeField] private SkillHotbar hotbar;
         [SerializeField] private NotificationFeed notifications;
+        [SerializeField] private InteractiveNotifi interactiveNotifi;
 
         public SkillHotbar Hotbar => hotbar;
         public NotificationFeed Notifications => notifications;
+        public InteractiveNotifi InteractiveNotifications => interactiveNotifi;
 
         private void OnEnable()
         {

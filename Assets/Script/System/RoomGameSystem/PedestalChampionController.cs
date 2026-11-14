@@ -4,19 +4,22 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
-[RequireComponent(typeof(CircleCollider2D))]
-public class PedestalChampionController : InteractiveObjects
+public class PedestalChampionController : InteractiveObjectsRoom
 {
     [SerializeField] private PlayerData dataChampition;
-    [SerializeField] private Sprite avatarChampition;
-    [SerializeField] private CircleCollider2D circleCollider;
-    [SerializeField] private SpriteRenderer spriteRenderer;
-    ICharacter character;
+    protected override void Awake()
+    {
+        base.Awake();
+        interactData = new InteractData
+        {
+            textMessage = "Press " + KeyCode.E.ToString() + " to conversation class",
+            keyCode = KeyCode.E
+        };
+    }
 
     public override bool Interact(Interact interactor)
     {
-        character = interactor.GetComponentInParent<ICharacter>();
-        if (character != null)
+        if (base.Interact(interactor))
         {
             DialogueLine dialogueLine = new DialogueLine
             {
@@ -40,13 +43,6 @@ public class PedestalChampionController : InteractiveObjects
     {
         character.SetCharacterData(dataChampition);
         EventManager.Emit(EventID.ON_OPEN_DOOR);
-    }
-
-    protected override void Awake()
-    {
-        circleCollider = GetComponent<CircleCollider2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        spriteRenderer.sprite = avatarChampition;
     }
 
     void Start()

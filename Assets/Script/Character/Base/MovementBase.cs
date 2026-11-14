@@ -30,6 +30,11 @@ public abstract class MovementBase<TCore> : CoreComponentBase<TCore>, IMovement 
     protected override void Awake()
     {
         base.Awake();
+    }
+
+    public override void Setup()
+    {
+        base.Setup();
         rb = GetComponentInParent<Rigidbody2D>();
     }
 

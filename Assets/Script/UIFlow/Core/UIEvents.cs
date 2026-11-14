@@ -19,9 +19,11 @@ namespace UIFlow
         public static event Action<ConfirnData> OpenConfirnPanel;
         private static event Action ConfirnRequest;
         public static event Action ShopRequested;
+        public static event Action StatRequested;
 
         /// <summary>Thông báo tự ẩn góc màn hình.</summary>
         public static event Action<string> NotificationRequested;
+        public static event Action<InteractData> InteractiveNotificationRequested;
 
         /// <summary>Hiện số damage world-space tại vị trí (tọa độ thế giới).</summary>
         public static event Action<Vector3, float, bool> DamageNumberRequested;
@@ -34,6 +36,7 @@ namespace UIFlow
 
         public static void RequestShop() => ShopRequested?.Invoke();
 
+        public static void RequestStats() => StatRequested?.Invoke();
         public static void Notify(string message) => NotificationRequested?.Invoke(message);
 
         public static void ShowDamage(Vector3 worldPosition, float amount, bool isCritical = false)
@@ -46,6 +49,7 @@ namespace UIFlow
         {
             DialogueRequested = null;
             ShopRequested = null;
+            StatRequested = null;
             NotificationRequested = null;
             DamageNumberRequested = null;
             SkillUsed = null;
@@ -62,5 +66,6 @@ namespace UIFlow
             ConfirnRequest?.Invoke();
             ConfirnRequest = null;
         }
+        public static void SwitchInteractiveNotification(InteractData data = null) => InteractiveNotificationRequested?.Invoke(data);
     }
 }

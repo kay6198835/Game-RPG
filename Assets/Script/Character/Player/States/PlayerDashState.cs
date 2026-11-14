@@ -15,13 +15,13 @@ public class PlayerDashState : PlayerBasicState
     }
     public override void AnimationOnAction()
     {
-        playerMovement.Dash(inputHandler.DirectionMouse);
+        playerMovement.Dash(inputHandler.DirectionMouseVector);
     }
     public override void AnimationOffAction()
     {
         playerMovement.ExitDash();
     }
-    public virtual void AnimationEnd()
+    public override void AnimationEnd()
     {
         base.AnimationEnd();
         playerMovement.Move(inputHandler.MoveVector);
