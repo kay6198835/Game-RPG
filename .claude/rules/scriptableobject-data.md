@@ -54,6 +54,8 @@ The distinction that caused the project's only committed data-corruption inciden
 | `Stat.modifiers` | **NO** | Holds *runtime* buffs. Serializing it writes live buffs into committed `.asset` files |
 | `StatModifierGroup.authoredModifiers` | **YES** | Holds *designer* data. `SnS_Stat.asset` depends on it |
 
-⚠️ **BUG-063 is open right now**: `Stat.modifiers` is re-serialized behind
-`#if UNITY_EDITOR [SerializeField]` (`Stat.cs:63-65`), undoing the fix in `f5de65a`. Do not add
-`[SerializeField]` to a field holding runtime state, under any preprocessor guard.
+Since `a0e250fb` (stat split, 2026-11-09) `Stat` is a plain runtime class that is serialized nowhere
+and `BaseStatsSO` holds authored data only, so the BUG-063 leak path (`Stat.modifiers` behind
+`#if UNITY_EDITOR [SerializeField]`, which undid the fix in `f5de65a`) no longer exists in code; the bug
+file's status is for the triage to update. The rule stands: do not add `[SerializeField]` to a field
+holding runtime state, under any preprocessor guard.

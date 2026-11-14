@@ -7,6 +7,16 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-14 — Damage formula block re-synced (doc-sync)
+- **Commit:** code `38d40925` (2026-11-08), `b33dedf9` (2026-11-08); doc change by `/doc-sync --auto` on `pm/doc-sync-2026-11-14`
+- **Sections touched:** formula block ("Melee damage", `RangeWeapon.CanAttack()`)
+- **From → To:**
+  - "stats read from the holder's IVitalComponent" → `IStatService`, resolved lazily (`WeaponHolderBase.StatService`), 0 when absent.
+  - "enemies: finalDamage - Defense, clamped at 0" → `finalDamage × 100 / (100 + Defense)`; the player applies no mitigation.
+  - `nextFireTime` term "BUG-093" → **BUG-103** (BUG-093's file is the projectile-direction defect; BUG-101 collision).
+- **Why:** `b33dedf9` — percent mitigation "per the balance doc instead of flat subtraction".
+- ⚠️ **Out of date against code (found by doc-sync, not yet fixed):** "Ranged damage (RangeWeapon.OnHit) — ⚠️ BUG-093" still cites BUG-093; whether ranged damage should include `PhysicalDamage` is the open design question NOTE-20261104-4 (Needs owner), so the label was left as written.
+
 ## 2026-10-05 — Re-synced against code (doc-sync)
 - **Commit:** not yet committed (working tree on `origin/feature/synce-doc-and-code`, base HEAD `93ba6d8e`)
 - **Changed:** corrected every statement found stale against HEAD `93ba6d8e`. Each item reads *was stale → now says*:
