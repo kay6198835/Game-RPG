@@ -178,13 +178,15 @@ CurrentStageIndex = (CurrentStageIndex + 1) % StageCount
 Weapon.CanChain()      = CanAttack() && CurrentStageIndex != 0
 RangeWeapon.CanChain() = CanAttack() && (AutoFire || CurrentStageIndex != 0)
 RangeWeapon.CanAttack() = base.CanAttack() && StatsRange != null && poolService != null
-                          [⚠️ the `Time.time >= nextFireTime` term was dropped on 2026-09-28 — BUG-093]
+                          [⚠️ the `Time.time >= nextFireTime` term was dropped on 2026-09-28 — BUG-103
+                           (re-synced 2026-11-14; was cited as "BUG-093", the BUG-101 ID collision)]
 
 # Melee damage (WeaponHolderBase.CalculateCurrentDamage)
 finalDamage = PhysicalDamage + currentStage.attackDamage
 if RollChance(CritChance): finalDamage += CritDamage
-[stats read from the holder's IVitalComponent; the receiver then applies Mitigate()
- — enemies: finalDamage - Defense, clamped at 0]
+[stats read from the holder's IStatService (lazy `StatService`, 0 when absent — `38d40925`);
+ the receiver then applies Mitigate() — enemies: finalDamage × 100 / (100 + Defense) since `b33dedf9`
+ (was: finalDamage - Defense, clamped at 0); the player: no mitigation. Re-synced 2026-11-14]
 
 # Ranged damage (RangeWeapon.OnHit) — ⚠️ BUG-093
 rangedDamage = currentStage.attackDamage      [no PhysicalDamage, no crit]

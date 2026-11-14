@@ -17,6 +17,27 @@ which code change caused it.
 
 ---
 
+## 2026-11-14 — Doc-truth pass: stat split, enemy sight / Defense, NavPath, asmdef tests (HEAD `a8725a77`)
+
+**Cause.** `/doc-sync --auto` (routine `pm-weekly-doc-truth`) over `c6f3ccf2..a8725a77` on `sprint-22`:
+`38d40925` (Paladin combo; enemy find-target / movement), `a0e250fb` (stat split — committed; the entry
+below was written against the working tree), `b33dedf9` (pooled reset, percent Defense), `9c11c672` /
+`47f66ddb` (assembly definitions, EditMode tests), `d9776bb8` (`Path` → `NavPath`), `285e6900` (Rain
+Arrows). Claim sweep: `production/qa/doc-truth-2026-11-14.md`. No 2026-11-14 wrap-up had landed, so bug
+statuses follow the 2026-11-07 triage.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | New header entry; Layout: `EntityData` (computed sight / timers), `NavPath.cs`, `StatSheet` "committed", `tests/` → `Assets/Tests/EditMode/`; damage chain percent Defense; Enemy Definitions; row notes on BUG-063, 084, 109, 115, 124; checklist items 19, 20 |
+| `docs/systems/enemy/README.md` + `CHANGELOG.md` | Sight range from stats; percent mitigation; pooled reset (BUG-124); balance-target table flagged Out of date |
+| `docs/systems/pathfinding/README.md` + `CHANGELOG.md` | `Path` → `NavPath`; assembly + `AStarTests` |
+| `docs/architecture/adr-0001-…md` + changelog | Banner + Amendment 2 (stat split, facts only; supersede is an owner call) |
+| `design/gdd/stat-system.md` + changelog | BUG-063 banner struck and re-synced |
+| `design/gdd/weapons-system.md` + changelog | Defense formula, stat source, BUG-093 → BUG-103 citation |
+| `.claude/rules/scriptableobject-data.md` | BUG-063 paragraph re-synced (rule kept) |
+| `memory/project_state.md` | Rewritten for `a8725a77` |
+| `production/qa/bug-inbox.md` | NOTE-20261114-1 (triage hint) |
+
 ## 2026-11-09 — Stat split: data-only BaseStatsSO + StatSheet (uncommitted working tree)
 
 **Cause.** Local stat-system refactor (owner request, not committed): `BaseStatsSO` reduced to data

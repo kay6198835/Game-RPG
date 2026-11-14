@@ -5,6 +5,12 @@
 ## Status
 Proposed
 
+> **⚠️ Amended 2026-11-14 — the code no longer implements this decision.** `a0e250fb` (stat split,
+> 2026-11-09) made `BaseStatsSO` data only and moved every calculation into a plain `StatSheet`, which
+> keeps **one** `Dictionary<StatType, Stat>` and no parallel list. `Stat` is no longer serialized, so the
+> BUG-063 hazard below is gone in code. Read **Amendment 2 (2026-11-14)** at the end. Whether this ADR is
+> superseded is an owner decision; this pass records facts only.
+>
 > **⚠️ Amended 2026-09-11 — the class this ADR is written about no longer exists.**
 > Read the **Amendment (2026-09-11)** section at the end before acting on anything below.
 > In short: `StatsSO` was deleted (`b0512f4`) and replaced by `BaseStatsSO` (`1c0742e`), the
@@ -197,3 +203,24 @@ into any future decision here.
 Still `Proposed` after 9+ weeks (TD-003). Two of the three ADRs in this project have never been
 ratified. Whether the dual structure is *accepted* or merely *tolerated* has never been decided,
 and the `Dictionary` half was never removed as the Decision anticipated.
+
+## Amendment 2 — 2026-11-14 (doc-sync, facts only)
+
+Commit `a0e250fb` "refactor(stats): split BaseStatsSO into data-only asset + StatSheet calculator"
+(2026-11-09, on `sprint-22`) changed what this ADR describes:
+
+- `BaseStatsSO` stores only `level`, `primaryStats` (`PrimaryStatEntry`) and `derivedStats`
+  (`DerivedStatFormula`). It no longer calculates or holds runtime state.
+- `StatSheet : IStatService` (plain class, one per character, owned by `StatHandlerBase`) holds
+  `Dictionary<StatType, Stat>` plus `Dictionary<StatType, StatsViewDTO>` and computes every value in
+  `RecalculateAll()`. There is no parallel `List<Stat>`; the dual structure of the Decision section
+  does not exist in code any more.
+- `Stat` (`Stat.cs`, 48 lines) is a runtime record with a private, non-serialized modifier list. The
+  `#if UNITY_EDITOR [SerializeField]` quoted above (`Stat.cs:63-65`) is gone, so runtime modifiers can no
+  longer reach an `.asset` — the BUG-063 hazard is closed by construction in code. The bug file still
+  says ACCEPTED (deferred); inbox NOTE-20261114-1 asks the triage to confirm.
+- Commit reason: "runtime buffs and spent points can no longer reach an .asset (BUG-063, BUG-115
+  runtime path)".
+
+Current behaviour is described in `docs/systems/stats/README.md`. Superseding this ADR (or writing a new
+one for the `StatSheet` split) is left to the owner.
