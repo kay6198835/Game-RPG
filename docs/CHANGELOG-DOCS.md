@@ -17,6 +17,24 @@ which code change caused it.
 
 ---
 
+## 2026-11-15 — Doc-truth pass: 2026-11-15 triage statuses, BUG-125…128 (HEAD `063b5f87`)
+
+**Cause.** `/doc-sync --auto` (routine `pm-weekly-doc-truth`) over `a8725a77..063b5f87` on `sprint-22`.
+No game `.cs` changed (only `Assets/QA/` suites, `2c3fe106` / `94f1acac`); the cause is the 2026-11-15
+triage (`b5e3238b`): BUG-063 / 109 / 115 / 124 → FIXED in code, BUG-084 → FIXED, BUG-125…128 filed.
+Claim sweep: `production/qa/doc-truth-2026-11-15.md`.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | Header entry; Known Bugs status for BUG-063 / 084 / 109 / 115 / 124 per files; rows BUG-125…128; `Weapon.cs` layout note (BUG-125); Demo Checklist 19 / 23 marked done, items 32 / 33 added |
+| `docs/systems/enemy/` | README respawn paragraph + Open issues (BUG-124 out, BUG-125 in); CHANGELOG entry |
+| `docs/systems/stats/` | README Last verified (no longer "working tree, not compiled"), Open issues (BUG-063 / 115 out, BUG-113 in); CHANGELOG entry |
+| `docs/systems/weapons/` | README Open issues: mislabelled BUG-095 / BUG-093 corrected to BUG-105 (FIXED) / BUG-103; BUG-125, BUG-127 added; CHANGELOG entry |
+| `.claude/rules/test-standards.md` | "assemblies not compiled — unverified" note replaced by the verified compile + 64 PASS |
+| `memory/project_state.md` | Delta 2026-11-14 → 2026-11-15 |
+
+Notable: the weapons README had carried the BUG-101 mislabelled IDs since 2026-10-05.
+
 ## 2026-11-14 — Doc-truth pass: stat split, enemy sight / Defense, NavPath, asmdef tests (HEAD `a8725a77`)
 
 **Cause.** `/doc-sync --auto` (routine `pm-weekly-doc-truth`) over `c6f3ccf2..a8725a77` on `sprint-22`:

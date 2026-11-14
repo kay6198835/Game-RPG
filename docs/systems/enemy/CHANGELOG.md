@@ -2,6 +2,15 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-15 — Bug statuses after the 2026-11-15 triage (doc-truth re-sync)
+- **Commit:** none to code — triage `b5e3238b` (`production/qa/bug-triage-2026-11-15.md`) on `sprint-22`.
+- **Changed:** README only (respawn-anchor paragraph, Open issues).
+- **From → To:**
+  - "BUG-124 (S3) is still Open in its file, awaiting triage" → "FIXED in code per its file, awaiting a runtime check".
+  - Open issues: BUG-124 row removed (fixed in code); BUG-125 added (melee stage damage added twice — affects enemy melee).
+- **Why:** the bug file is the source of truth for status; the 2026-11-15 triage changed BUG-124 and filed BUG-125.
+- **Bugs:** BUG-124 (FIXED in code), BUG-125 (Open, S2).
+
 ## 2026-11-14 — Sight from stats, percent Defense, pooled reset (doc-truth re-sync)
 - **Commit:** `38d40925` "paladin combo attackcc" (2026-11-08, `EntityFindTarget` / `EntityMovement` / idle-move states), `a0e250fb` "refactor(stats): split BaseStatsSO into data-only asset + StatSheet calculator" (2026-11-09), `b33dedf9` "fix(respawn): reset pooled enemy state on reuse; percent Defense mitigation". All on `sprint-22`.
 - **Changed:** `EntityData.cs`, `EntityFindTarget.cs`, `EntityIdleState.cs`, `EntityMoveState.cs`, `EntityNegativeReciver.cs`, `EntityWeaponHolder.cs`, `MovementBase.cs`, `AbilityHolderBase.cs`, `CharacterInputBase.cs`, `Pool.cs`.

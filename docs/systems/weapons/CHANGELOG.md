@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-15 — Open issues follow the bug files (doc-truth re-sync)
+- **Commit:** none to code; `Weapon.FinalDamage()` came with `38d40925` (2026-11-08, on `sprint-22`); triage `b5e3238b`.
+- **Changed:** README Open issues and Last verified line.
+- **From → To:**
+  - "BUG-095 — `attackDamege` rename, sword loses 55 stage damage" → that defect is **BUG-105**, FIXED in data (`fbab752a`); BUG-095 is the `Arrow.prefab` collider bug (BUG-101 ID collision).
+  - "BUG-093 — `RangeWeapon.nextFireTime` never read" → **BUG-103** (Open). BUG-093 is the fixed projectile-direction bug.
+  - Added BUG-125 (melee stage damage added twice) and BUG-127 (Mage bolt speed 1), both filed by the 2026-11-15 triage.
+- **Why:** the README still carried the 2026-10-05 mislabelled IDs (BUG-101); the bug file is the source of truth.
+- **Bugs:** BUG-103, BUG-105, BUG-125, BUG-127.
+
 ## 2026-11-05 — Default weapon equipped from ApplyCharacterData (doc-truth re-sync)
 - **Commit:** `6094aa10` (2026-11-04, on `sprint-21`); the field rename itself is `cae75317`
 - **Changed:** `WeaponHolderBase.EquipDefaultWeapon()` unequips before release, guards a missing `CharacterData.Weapon`, and is called from `CharacterBase.ApplyCharacterData()` for player and enemy; crit adds `finalDamage × CritDamage / 100` instead of a flat `CritDamage`; `Weapon.FinalDamage()` added.

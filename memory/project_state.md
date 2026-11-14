@@ -1,10 +1,22 @@
 # Project State
 
-Updated **2026-11-14** (doc-truth pass `/doc-sync --auto` at `origin/sprint-22` `a8725a77`). No
-2026-11-14 wrap-up triage had landed, so bug statuses follow the 2026-11-07 triage in
-`production/qa/bugs/BUG-*.md`, the source of truth. Claim sweep: `production/qa/doc-truth-2026-11-14.md`.
-Previous update: **2026-11-07** (`c6f3ccf2`). This pass added the "2026-11-07 → 2026-11-14" section;
+Updated **2026-11-15** (doc-truth pass `/doc-sync --auto` at `origin/sprint-22` `063b5f87`, after the
+2026-11-15 wrap-up). Bug statuses follow the 2026-11-15 triage in `production/qa/bugs/BUG-*.md`, the
+source of truth. Claim sweep: `production/qa/doc-truth-2026-11-15.md`.
+Previous update: **2026-11-14** (`a8725a77`). This pass added the "2026-11-14 → 2026-11-15" section;
 the sections below it are the earlier snapshots plus their deltas.
+
+## Delta 2026-11-14 → 2026-11-15
+
+No game code changed on `sprint-22` (only `Assets/QA/` suites, QA reports, triage). Owner branch
+`docs/gdd-pathfinding-ability` (`f6921dc9`, `3b02df7d`: `PlayerDashState`, Bonfire, `InteractiveObjectsRoom`,
+`NormalRoom_20`) is not merged — not reflected; inbox NOTE-20261115-6/7 (Needs owner).
+
+**Triage 2026-11-15:** FIXED in code (awaiting runtime / hand check) — BUG-063, 109, 115, 124. FIXED —
+BUG-084 (64 EditMode tests PASS, run `20261114-2357`). New — **BUG-125** (S2, melee stage damage added
+twice, `Weapon.FinalDamage()`), **BUG-126** (S2, `using UnityEditor` in a TextMesh Pro example — Player
+build break), BUG-127 (S3, Mage bolt speed 1), BUG-128 (S4, capture scenes miss a script).
+Sprint-23 order per triage: BUG-122 → BUG-125 → BUG-096/097 → BUG-126 → BUG-117+120+123 → BUG-065+086.
 
 ## Delta 2026-11-07 → 2026-11-14
 

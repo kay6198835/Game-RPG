@@ -27,8 +27,9 @@ paths:
 > `Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef` references it and the Test Runner assemblies.
 > First test: `StatSheetTests.cs`. `tests/EditMode/` and `tests/PlayMode/` outside `Assets/` are never
 > compiled — do not put test code there (`tests/playtest/` and `tests/smoke/` hold manual evidence only).
-> ⚠️ Written without a Unity Editor: the assemblies were not compiled when this note was written. Until
-> the owner confirms a clean compile and a green Test Runner run, treat the setup as unverified.
+> ✅ *Verified 2026-11-15 (doc-sync):* compiled by the 2026-11-13 standup (`compile-check.sh`, `d9776bb8`)
+> and 64 EditMode tests PASS in the automated run `20261114-2357`; BUG-084 is FIXED per its file.
+> *Was:* "Written without a Unity Editor … treat the setup as unverified."
 > A package newly used by gameplay code must be added to `references` in `GameRPG.asmdef`.
 - Method: `[MethodName]_[Scenario]_[ExpectedResult]()` e.g. `TakeDamage_BelowZero_TriggersDeathState()`
 
