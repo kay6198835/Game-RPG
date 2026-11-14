@@ -219,7 +219,8 @@ namespace QA.Automation.Editor
             foreach (string file in Files("Assets", "*.cs"))
             {
                 string rel = Rel(file);
-                if (rel.Contains("/Editor/") || rel.StartsWith("Assets/QA/") || rel.StartsWith("Assets/Plugins/")) continue;
+                // Assets/Tests/ is the Editor-only GameRPG.EditModeTests assembly (includePlatforms: Editor), never in a build.
+                if (rel.Contains("/Editor/") || rel.StartsWith("Assets/QA/") || rel.StartsWith("Assets/Plugins/") || rel.StartsWith("Assets/Tests/")) continue;
                 int depth = 0;
                 bool editorBlock = false;
                 Stack<bool> guards = new();
