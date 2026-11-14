@@ -8,6 +8,12 @@ public class EntityWeaponHolder : WeaponHolderBase<EntityCore>
 {
     private float nextAttackTime;
 
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
+        nextAttackTime = 0f;
+    }
+
     /// <summary>True when a weapon is equipped, can attack, and the last attack's recovery has elapsed.</summary>
     public bool CallAttack() => CanAttack() && Time.time >= nextAttackTime;
 

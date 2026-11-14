@@ -9,16 +9,17 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     // target (inbox NOTE-20261104-6). Detection range is EntityData.rangeCheckFieldOfView, per role
     // (owner decision 2026-11-04; briefly MaxRange the same day). Must stay >= MaxRangeAttack.
     //[SerializeField] private float range;
-    private float range => Core != null && Core.Entity != null && Core.Entity.Data != null ? Core.Entity.Data.RangeCheckFieldOfView : 0f;
-
-    [Header("Detection")]
-    [SerializeField, Range(0f, 360f)] private float fieldOfView = 90f;
+    private float range => Core.Entity.Data.RangeView(statService);
+    private float fieldOfView => Core.Entity.Data.AngleView(statService);
+    // Inner margin of the attack band used to stop moving; Idle only leaves when the band itself is left.
+    [SerializeField, Range(0f, 2f)] private float rangeHysteresis = 0.25f;
+    [SerializeField, Range(1f, 2f)] private float loseTargetRangeMultiplier = 1.5f;
 
     [SerializeField] private LayerMask player;
     [SerializeField] private LayerMask obstracles;
 
     [SerializeField] private Collider2D collider;
-    [SerializeField] private float distanceToPlayer;
+    [SerializeField] private float distanceToPlayer = float.MaxValue;
 
     // NEED CHECK: removed — one value on the shared EnemyPrefab (0.5 / 1) for every role. Now per-role stats.
     //[Header("Attack Range")]
@@ -34,6 +35,9 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     public float MinRange => statService != null ? statService.GetStatValue(StatType.MinRangeAttack) : 0f;
     /// <summary>StatType.MaxRangeAttack: the entity attacks when the target is at most this far.</summary>
     public float MaxRange => statService != null ? statService.GetStatValue(StatType.MaxRangeAttack) : 0f;
+
+    /// <summary>Distance the entity tries to keep from a locked target: the middle of the attack band.</summary>
+    public float PreferredDistance => (MinRange + MaxRange) * 0.5f;
 
     public Transform Target => target;
 
@@ -70,122 +74,123 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         entityInput != null &&
         entityInput.IsLockTarget == true;
 
+    /// <summary>Refreshes and returns the distance to the real player position (lock or not).</summary>
     public float DistanceToPlayer()
     {
+        if (entityInput == null || !entityInput.HasPlayer)
+            return distanceToPlayer = float.MaxValue;
+
         return distanceToPlayer = Vector2.Distance(
             Core.Entity.transform.Position2D(),
-            entityInput.TargetPosition()); ;
+            entityInput.PlayerPosition);
     }
 
     #endregion
 
     #region Attack Range
 
+    /// <summary>Locked target closer than MinRange.</summary>
     public bool IsNearPlayer()
     {
-        // NEED CHECK: minRange / maxRange -> MinRange / MaxRange (stats) in the three checks below.
-        var isNearPlayer = distanceToPlayer < MinRange;
-        return isNearPlayer;
+        return HasTarget && distanceToPlayer < MinRange;
     }
 
+    /// <summary>Locked target farther than MaxRange.</summary>
     public bool OutOfRange()
     {
-        var isOutOfRange = distanceToPlayer > MaxRange;
-        return isOutOfRange;
+        return HasTarget && distanceToPlayer > MaxRange;
     }
 
+    /// <summary>Locked target inside [MinRange, MaxRange].</summary>
     public bool IsInRangeAttack()
     {
-        var isInRangeAttack = distanceToPlayer >= MinRange
-                             && distanceToPlayer <= MaxRange;
-        return isInRangeAttack;
+        return HasTarget
+            && distanceToPlayer >= MinRange
+            && distanceToPlayer <= MaxRange;
     }
 
+    /// <summary>Locked target inside the attack band shrunk by the hysteresis margin: where moving stops.</summary>
+    public bool IsInComfortRange()
+    {
+        if (!HasTarget) return false;
+        float margin = Mathf.Min(rangeHysteresis, (MaxRange - MinRange) * 0.25f);
+        return distanceToPlayer >= MinRange + margin
+            && distanceToPlayer <= MaxRange - margin;
+    }
 
     #endregion
 
     #region FOV
 
     /// <summary>
-    /// Checks whether a position is inside the entity's FOV.
+    /// Checks whether a position is inside the entity's detection range and view cone. No side effects.
     /// </summary>
     private bool IsInFOV(Vector2 targetPosition)
     {
         Vector2 origin = transform.position;
         Vector2 direction = targetPosition - origin;
 
-        // Target is outside detection range.
         if (direction.sqrMagnitude > range * range)
             return false;
 
-        // Target is at the same position.
         if (direction.sqrMagnitude <= Mathf.Epsilon)
             return true;
 
-        direction.Normalize();
-
         Vector2 forward = entityInput.DirectionLookVector;
-
-        float minDot =
-            Mathf.Cos(fieldOfView * 0.5f * Mathf.Deg2Rad);
-        if (Vector2.Dot(forward, direction) >= minDot)
-        {
-            entityInput.SetLockTarget(true);
+        // No facing yet (spawned, or standing on its own look point): treat as all-round vision.
+        if (forward.sqrMagnitude <= Mathf.Epsilon)
             return true;
-        }
-        else
-        {
-            return false;
-        }
+
+        float minDot = Mathf.Cos(fieldOfView * 0.5f * Mathf.Deg2Rad);
+        return Vector2.Dot(forward.normalized, direction.normalized) >= minDot;
     }
 
     /// <summary>
-    /// Checks whether the current target is detectable.
-    /// Includes range, FOV and obstacle check.
+    /// Whether the player can be seen now: range, view cone and no obstacle in between.
     /// </summary>
     public bool CanDetectTarget()
     {
-        if (!HasTarget)
+        if (entityInput == null || !entityInput.HasPlayer)
             return false;
 
-        Vector2 targetPosition =
-            entityInput.TargetPosition();
+        Vector2 targetPosition = entityInput.PlayerPosition;
 
         if (!IsInFOV(targetPosition))
             return false;
 
-        return !FindWall(
-            targetPosition - (Vector2)transform.position,
-            range);
+        return !FindWall(targetPosition - (Vector2)transform.position);
     }
 
     #endregion
 
     #region Find Target
 
+    /// <summary>Locks the player when seen; releases the lock when the player is far beyond detection range.</summary>
     public void FindTargetMethod()
     {
-        if (HasTarget) return;
+        if (entityInput == null) return;
 
-        var range = Core.Entity.Data.RangeCheckFieldOfView;
-        if (distanceToPlayer >= range) return;
-        if (IsInFOV(entityInput.TargetPosition())) return;
-        if (CanDetectTarget()) 
+        if (HasTarget)
         {
-            entityInput.SetLockTarget(true);
+            if (!entityInput.HasPlayer || distanceToPlayer > range * loseTargetRangeMultiplier)
+                entityInput.SetLockTarget(false);
+            return;
         }
+
+        if (CanDetectTarget())
+            entityInput.SetLockTarget(true);
     }
 
     #endregion
 
     #region Obstacle
 
-    private bool FindWall(Vector2 direction, float speed)
+    private bool FindWall(Vector2 direction)
     {
         RaycastHit2D hit = Physics2D.Raycast(
             transform.position,
             direction.normalized,
-            speed * 0.5f,
+            direction.magnitude,
             obstracles);
 
         return hit.collider != null;
@@ -211,7 +216,9 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     {
         Vector3 origin = transform.position;
 
-        Vector2 forward = transform.right;
+        Vector2 forward = entityInput != null && entityInput.DirectionLookVector.sqrMagnitude > Mathf.Epsilon
+            ? entityInput.DirectionLookVector.normalized
+            : (Vector2)transform.right;
 
         Vector2 leftDirection =
             Quaternion.Euler(
@@ -241,8 +248,8 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
     #region Catch Enemy Death
     private void CheckRangeCapNoti()
     {
-        float rangeCapNoti = Core.Entity.Data.RangeCheckFieldOfView;
-        if (distanceToPlayer < rangeCapNoti)
+        float rangeCapNoti = range;
+        if (DistanceToPlayer() < rangeCapNoti)
         {
             entityInput.SetLockTarget(true);
         }
@@ -250,7 +257,7 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
 
     private void CaptureNotifications(object obj = null)
     {
-        if (HasTarget) return;
+        if (entityInput == null || HasTarget) return;
         CheckRangeCapNoti();
     }
     #endregion

@@ -2,6 +2,25 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-15 — Bug statuses after the 2026-11-15 triage (doc-truth re-sync)
+- **Commit:** none to code — triage `b5e3238b` (`production/qa/bug-triage-2026-11-15.md`) on `sprint-22`.
+- **Changed:** README only (respawn-anchor paragraph, Open issues).
+- **From → To:**
+  - "BUG-124 (S3) is still Open in its file, awaiting triage" → "FIXED in code per its file, awaiting a runtime check".
+  - Open issues: BUG-124 row removed (fixed in code); BUG-125 added (melee stage damage added twice — affects enemy melee).
+- **Why:** the bug file is the source of truth for status; the 2026-11-15 triage changed BUG-124 and filed BUG-125.
+- **Bugs:** BUG-124 (FIXED in code), BUG-125 (Open, S2).
+
+## 2026-11-14 — Sight from stats, percent Defense, pooled reset (doc-truth re-sync)
+- **Commit:** `38d40925` "paladin combo attackcc" (2026-11-08, `EntityFindTarget` / `EntityMovement` / idle-move states), `a0e250fb` "refactor(stats): split BaseStatsSO into data-only asset + StatSheet calculator" (2026-11-09), `b33dedf9` "fix(respawn): reset pooled enemy state on reuse; percent Defense mitigation". All on `sprint-22`.
+- **Changed:** `EntityData.cs`, `EntityFindTarget.cs`, `EntityIdleState.cs`, `EntityMoveState.cs`, `EntityNegativeReciver.cs`, `EntityWeaponHolder.cs`, `MovementBase.cs`, `AbilityHolderBase.cs`, `CharacterInputBase.cs`, `Pool.cs`.
+- **From → To:**
+  - sight range = serialized `EntityData.rangeCheckFieldOfView` (per role 4–11) → `RangeView()` = `MaxRangeAttack × 1.2`; view cone `AngleView()` = `INT × 1.5` (≤ 360); idle / move time `STR × 0.1` / `× 0.5`.
+  - enemy mitigation `damage − Defense` (clamped at 0) → `damage × 100 / (100 + Defense)`.
+  - `Pool.Reload()` activate-then-move → move-then-activate; `ReloadComponent()` now resets velocity, attack timer, hold flag and action flags.
+- **Why:** `a0e250fb` — "EntityData view/timer values are computed from the enemy's own stats" (code comment: "so buffs and debuffs reach them"); `b33dedf9` — percent mitigation "per the balance doc instead of flat subtraction" (code comment: flat Defense "made high-Defense enemies (Tank, Boss) immune to normal hits"); pool order "(BUG-124)".
+- **Bugs:** BUG-124 looks fixed in code (file still Open) — NOTE-20261114-1. README balance-target table flagged ⚠️ Out of date (needs re-computed design math).
+
 ## 2026-11-07 — Death read from the input flag; respawn anchor (doc-truth re-sync)
 - **Commit:** `4097be4c` "Read death from the input flag instead of switching state in the receiver" and `1c3a34fc` "fix flow" (2026-11-05); `d2d45973` "coding need check" (2026-11-07, `Entity.OnEnable()` / `EntityInput.ReloadComponent()`). All on `sprint-21`.
 - **Changed:** `NegativeReceiverBase.cs`, `CharacterInputBase.cs`, `ICharacterInput.cs`, `CharacterBase.cs`, `EntityNegativeReciver.cs`, `NegativeReciver.cs`, entity states (Basic / Attack / UseWeapon / TakeDamage / Ability), player states (Basic / UseWeapon / Disadvantage), `Entity.cs`, `EntityInput.cs`, `EnemySpawner.cs` (dead comment removed).

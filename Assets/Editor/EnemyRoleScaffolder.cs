@@ -134,7 +134,7 @@ public static class EnemyRoleScaffolder
 
     static void WarnMissingRangeFormulas(Role role, BaseStatsSO stats)
     {
-        SerializedProperty formulas = new SerializedObject(stats).FindProperty("statFormulas");
+        SerializedProperty formulas = new SerializedObject(stats).FindProperty("derivedStats");
         bool hasMax = false, hasMin = false;
         for (int i = 0; formulas != null && i < formulas.arraySize; i++)
         {

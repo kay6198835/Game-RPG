@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-14 — Amendment 2: stat split (doc-sync)
+- **Commit:** code `a0e250fb` (2026-11-09); doc change by `/doc-sync --auto` on `pm/doc-sync-2026-11-14`
+- **Sections touched:** "Status" (banner), new "Amendment 2 — 2026-11-14"
+- **From → To:** "the decision itself still holds unchanged … hazard … open as BUG-063" → the code no longer has the dual `List` + `Dictionary` structure (one `Dictionary<StatType, Stat>` in `StatSheet`) and `Stat` is not serialized, so the BUG-063 hazard is gone in code. Decision section left untouched.
+- **Why:** doc-truth sweep found `Stat.cs:63-65` cited in this ADR no longer exists (`Stat.cs` is 48 lines).
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+64 / −0 lines)
 - **Sections touched:** “Status”, “Related Decisions”

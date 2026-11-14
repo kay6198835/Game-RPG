@@ -8,7 +8,8 @@ namespace QA.Automation
 {
     // A real enemy prefab spawned through ObjectPoolManager (as EnemySpawner does, so Pool.Spawn injects it):
     // components, default weapon, Defense-mitigated damage, death event, pooled respawn, asset hygiene.
-    public class QAEnemySuite : QASuite
+    // The behaviour cases (states, effect receiver, item drop and pickup) are in QAEnemySuite.Behaviour.cs.
+    public partial class QAEnemySuite : QASuite
     {
         [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private ObjectPoolManager pool;
@@ -30,11 +31,23 @@ namespace QA.Automation
         private Dictionary<StatType, float> _assetSnapshot;
         private BaseStatsSO _statsAsset;
 
-        private void OnEnable() => EventManager.Resgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
-        private void OnDisable() => EventManager.UnResgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
+        private void OnEnable()
+        {
+            EventManager.Resgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
+            EventManager.Resgister(EventID.ON_COLLECT_ITEM, OnCollectItem);
+        }
+
+        private void OnDisable()
+        {
+            EventManager.UnResgister(EventID.ON_ENEMY_DEATH, OnEnemyDeath);
+            EventManager.UnResgister(EventID.ON_COLLECT_ITEM, OnCollectItem);
+            DisposeInput();
+        }
 
         public override void Cleanup()
         {
+            DisposeInput();
+            SetItemSpawner(false);
             if (_enemy != null && pool != null) pool.Release(_enemy);
         }
 
@@ -42,17 +55,32 @@ namespace QA.Automation
         {
             Entity entity = enemyPrefab != null ? enemyPrefab.GetComponentInChildren<Entity>(true) : null;
             _statsAsset = entity != null && entity.Data != null ? entity.Data.Stats : null;
-            _assetSnapshot = _statsAsset != null ? _statsAsset.FullStatsValue() : null;
+            _assetSnapshot = _statsAsset != null ? new StatSheet(_statsAsset).GetFullStat() : null;
 
             yield return Case("QA-ENT-01", "ENT", QAPriority.P0, "Pool spawns the enemy prefab with its core components and full HP", CaseSpawn());
             yield return Case("QA-ENT-02", "ENT", QAPriority.P0, "Spawned enemy has its default weapon equipped", Guard(CaseWeapon()));
-            yield return Case("QA-ENT-03", "ENT", QAPriority.P0, "Damage lowers HP by amount minus Defense", Guard(CaseDamage()));
+            yield return Case("QA-ENT-03", "ENT", QAPriority.P0, "Damage lowers HP by amount x 100 / (100 + Defense)", Guard(CaseDamage()));
             yield return Case("QA-ENT-04", "ENT", QAPriority.P0, "Lethal damage emits ON_ENEMY_DEATH once with the enemy as payload", Guard(CaseDeath()));
             yield return Case("QA-ENT-05", "ENT", QAPriority.P1, "Released then re-spawned enemy comes back with full HP", CaseRespawn());
             yield return Case("QA-ENT-06", "ENT", QAPriority.P2, "Enemy stat asset unchanged after spawn, damage and respawn", CaseAssetClean());
             yield return Case("QA-ENT-07", "ENT", QAPriority.P1, "Spawned enemy reads move speed and attack range from its stats", Guard(CaseStatDriven()));
 
+            // Behaviour: the enemy is free to move and the player is parked out of sight (QAEnemySuite.Behaviour.cs).
+            yield return Case("QA-ENT-09", "ENT", QAPriority.P0, "Idle: a spawned enemy with no target stands still, then leaves for Move", CaseIdle());
+            yield return Case("QA-ENT-10", "ENT", QAPriority.P0, "Move: with no target the enemy wanders at its MoveSpeed", CaseWander());
+            yield return Case("QA-ENT-11", "ENT", QAPriority.P0, "TakeDamage: a non-lethal hit enters the take-damage state and leaves it", CaseTakeDamageState());
+            yield return Case("QA-ENT-12", "ENT", QAPriority.P0, "Death: a lethal hit enters the death state from Idle and from TakeDamage", CaseDeathState());
+            yield return Case("QA-ENT-13", "ENT", QAPriority.P1, "Effect receiver: a max-stat buff applies, is removed by source and expires", CaseEffectMaxStats());
+            yield return Case("QA-ENT-14", "ENT", QAPriority.P1, "Effect receiver: vital modifiers heal and damage current HP", CaseEffectCurrentStats());
+
+            // Item drop and pickup: the game's ItemSpawner is switched on for these three only.
+            yield return Case("QA-ITEM-02", "ITEM", QAPriority.P0, "Enemy death drops the rolled item at the death position", CaseItemDrop());
+            yield return Case("QA-ITEM-03", "ITEM", QAPriority.P0, "Player picks up the dropped item with Q", CaseItemPickup());
+            yield return Case("QA-ITEM-04", "ITEM", QAPriority.P1, "Q with no item in reach does nothing", CaseNoItemInReach());
+            SetItemSpawner(false);
+
             // Last: these move the player next to the enemy and let the AI hit it.
+            yield return Case("QA-ENT-15", "ENT", QAPriority.P0, "Move: the enemy locks a player in view, chases into attack range and attacks", CaseChase());
             if (roles == null || roles.Length == 0)
             {
                 yield return Case("QA-ENT-08", "ENT", QAPriority.P0, "Enemy attacks the player in range", CaseNoRoles());
@@ -83,7 +111,7 @@ namespace QA.Automation
             yield return body;
         }
 
-        private IEnumerator Spawn(EntityData data = null)
+        private IEnumerator Spawn(EntityData data = null, bool pin = true)
         {
             _enemy = pool.Spawn(enemyPrefab, spawnPoint.position, Quaternion.identity);
             // Same as EnemySpawner.ApplyData() since 6094aa10: the spawner applies the EntityData after the pool
@@ -97,8 +125,8 @@ namespace QA.Automation
             _stats = _enemy.GetComponentInChildren<EntityStatsHandler>(true);
             _hurtbox = _enemy.GetComponentInChildren<EntityNegativeReciver>(true);
             _weapon = _enemy.GetComponentInChildren<EntityWeaponHolder>(true);
-            // Pin it: the suite measures damage, not chase behaviour.
-            _enemy.GetComponentInChildren<IMovement>(true)?.AddSpeedMultiplier(this, 0f);
+            // Pinned by default: most cases measure damage. The behaviour cases spawn it free (pin = false).
+            if (pin) _enemy.GetComponentInChildren<IMovement>(true)?.AddSpeedMultiplier(this, 0f);
         }
 
         private float Hp => _vital.GetCurrentStatValue(VitalStatType.HP);
@@ -133,19 +161,21 @@ namespace QA.Automation
         {
             _vital.ReloadComponent();
             yield return null;
-            float defense = _stats.GetStatValue(StatType.Defense);
-            float amount = defense + Mathf.Max(5f, MaxHp * 0.1f);
+            // Percent mitigation since b33d1870 (2026-11-08): damage x 100 / (100 + Defense). Was flat damage - Defense.
+            float defense = Mathf.Max(0f, _stats.GetStatValue(StatType.Defense));
+            float amount = Mathf.Max(5f, MaxHp * 0.1f);
             float before = Hp;
             _hurtbox.TakeDamage(amount, (Vector2)_enemy.transform.position + Vector2.left);
             yield return Frames(2);
             float lost = before - Hp;
-            float expected = Mathf.Max(0f, amount - defense);
-            Check(Near(lost, expected), $"lost {lost:0.##} = {amount:0.##} - Defense {defense:0.##}", $"lost {lost:0.##}, expected {expected:0.##} ({amount:0.##} - Defense {defense:0.##})");
+            float expected = amount * 100f / (100f + defense);
+            Check(Near(lost, expected, 0.02f), $"lost {lost:0.##} = {amount:0.##} x 100 / (100 + Defense {defense:0.##})", $"lost {lost:0.##}, expected {expected:0.##} ({amount:0.##} x 100 / (100 + Defense {defense:0.##}))");
 
             before = Hp;
-            _hurtbox.TakeDamage(defense * 0.5f, (Vector2)_enemy.transform.position + Vector2.left);
+            _hurtbox.TakeDamage(1f, (Vector2)_enemy.transform.position + Vector2.left);
             yield return Frames(2);
-            Check(Near(before, Hp), "damage below Defense deals 0", $"damage below Defense changed HP {before:0.##} -> {Hp:0.##}");
+            float small = 100f / (100f + defense);
+            Check(Near(before - Hp, small, 0.02f), $"a 1-damage hit still lands ({small:0.##})", $"a 1-damage hit changed HP {before:0.##} -> {Hp:0.##}, expected -{small:0.##}");
         }
 
         private IEnumerator CaseDeath()
@@ -197,7 +227,7 @@ namespace QA.Automation
                 Skip("enemy prefab has no EntityData.Stats asset to compare");
                 yield break;
             }
-            Dictionary<StatType, float> now = _statsAsset.FullStatsValue();
+            Dictionary<StatType, float> now = new StatSheet(_statsAsset).GetFullStat();
             List<string> changed = _assetSnapshot.Where(p => !now.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value))
                 .Select(p => $"{p.Key} {p.Value:0.##}->{(now.TryGetValue(p.Key, out float v) ? v.ToString("0.##") : "missing")}").ToList();
             Check(changed.Count == 0, $"{_statsAsset.name} unchanged", $"{_statsAsset.name} changed in memory: {string.Join(", ", changed)}");
@@ -239,29 +269,9 @@ namespace QA.Automation
                 Fail("scene not wired: enemy prefab, pool, PlayerManager or player class missing");
                 yield break;
             }
-            if (!_rig.Ready)
-            {
-                bool spawned = false;
-                yield return WaitUntil(() => playerManager.Player != null, 3f, ok => spawned = ok);
-                if (!spawned)
-                {
-                    Fail("PlayerManager spawned no player within 3s");
-                    yield break;
-                }
-                _rig.Bind(playerManager.Player);
-                if (!_rig.Ready)
-                {
-                    Fail("player components missing: " + _rig.MissingComponents());
-                    yield break;
-                }
-                _rig.Player.SetCharacterData(playerClass);
-                yield return Frames(3);
-            }
-            if (_rig.Player.StateMachine.CurrentState is PlayerDeathState)
-            {
-                Fail("player already dead (killed during an earlier role) — not judged");
-                yield break;
-            }
+            bool playerReady = false;
+            yield return EnsurePlayer(ok => playerReady = ok);
+            if (!playerReady) yield break;
             _rig.Vital.ReloadComponent();
 
             if (_enemy != null && _enemy.activeSelf) pool.Release(_enemy);
@@ -412,6 +422,12 @@ namespace QA.Automation
         // Any spawner, custom or test, must do the same.
         private void OnEnemyDeath(object payload)
         {
+            // QA-ITEM-02: this handler runs before ItemSpawner.DropItem in the same Emit, so seeding here fixes the roll.
+            if (_dropSeed.HasValue)
+            {
+                Random.InitState(_dropSeed.Value);
+                _dropSeed = null;
+            }
             if (payload is GameObject go)
             {
                 _deaths.Add(go);

@@ -82,7 +82,7 @@ public class StatModifierTesterEditor : Editor
 
     private void DrawLiveReadout(StatModifierTester tester)
     {
-        BaseStatsSO stats = tester.Stats;
+        StatSheet stats = tester.Sheet;
         if (stats == null) return;
 
         EditorGUILayout.Space();
@@ -99,10 +99,9 @@ public class StatModifierTesterEditor : Editor
                 DrawStatLine(stats, t);
     }
 
-    private void DrawStatLine(BaseStatsSO stats, StatType t)
+    private void DrawStatLine(StatSheet stats, StatType t)
     {
-        Stat stat = stats.Get(t);
-        float value = stat != null ? stat.FinalValue : 0f;
+        float value = stats.GetStatValue(t);
         EditorGUILayout.LabelField(t.ToString(), value.ToString("0.###"));
     }
 

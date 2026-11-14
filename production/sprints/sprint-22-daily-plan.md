@@ -1,0 +1,306 @@
+# Sprint 22 — Daily Plan & Progress Tracker
+
+> **Sprint**: 2026-11-09 (Mon) -> 2026-11-13 (Fri) · playtest Sat 2026-11-14
+> **Companion to**: `sprint-22.md` — day-by-day breakdown + live tracker
+> **Routines: Mon–Fri 02:00 /daily-standup · Sat 22:00 /weekly-wrapup · Sat 23:00 /doc-sync --auto · Sun 22:00 /weekly-kickoff**
+> **Opened**: 2026-11-08 (kickoff, autonomous). Branch `sprint-22` from `sprint-21` tip (`d2d2b22e`).
+> Sprint 21 closed SLIPPED (Must 0.3d / 1.45d, velocity 0.08, ≈1.7d off-plan output, playtest
+> done: no). See `sprint-22.md` › Sprint 21 Closure.
+
+---
+
+## Status Verdict
+
+**FINAL (weekly wrap-up, 2026-11-15): SLIPPED** — Must 0.05d / 1.05d done (S22-05 only); S22-F1
+merged (0.5d, feature). S22-01 playtest (25th carry), S22-02 BUG-122 (S1), S22-03 / 04 / 06 / 07 /
+09 / 10 / 12 all ⬜; S22-11 effectively closed by the stat split (BUG-115 → FIXED in code and data,
+QA-STATIC-04 PASS). Off-plan output ≈2.5d (stat split, asmdef + 64 EditMode tests → BUG-084 FIXED,
+Rain Arrows wiring → BUG-109 FIXED in code, QA cases) plus the owner's unmerged
+`docs/gdd-pathfinding-ability` (bonfire, interact prompt, dash WIP). **Playtest done: no** — the
+2026-11-14 sheet is empty. The Friday automated run `20261114-2357` (RUNTIME, automated): PASS 150 /
+FAIL 5 / KNOWN 8 / SKIP 20 / OBSERVED 2. Triage confirmed BUG-125…128 (BUG-125 S2: melee stage damage
+added twice, from S22-F1's `38d40925`). Evidence: RUNTIME (automated QA only) + LOG + STATIC.
+
+*Was:* **SLIPPED — day 5 (Fri 2026-11-13, 02:00)** — Thursday had commits again, none on a planned task:
+`chore/asmdef-test-setup` (`9c11c672` assembly definitions + first EditMode test, `e555e9da` DOTween
+Modules assembly, `d9776bb8` `Path` → `NavPath`; relates to BUG-084, merged into `sprint-22` by today's
+sync → `3a750ca8`), `285e6900` Rain Arrows wiring (relates to BUG-109, merged by the owner `28ed4382`)
+and QA-harness work (`c35cdf3c`; `e7fb161e` / `47f66ddb` on `qa/weekly-automation`). S22-01 playtest
+(25th carry), S22-02 BUG-122 (S1), S22-09, S22-04 / 03 / 07, S22-06, S22-10 and S22-12 are all still
+⬜. Must burned 0.05d / 1.05d with 1 working day left (Fri) plus Saturday's playtest; 1.0d Must
+remains — it fits only if all of Friday goes to the plan, and Should (0.8d) will carry. Off-plan
+output this week ≈2.5d. Compile COMPILED at `d9776bb8` + 29 uncommitted owner paths (148 s) — the
+first batchmode pass of the asmdef split and of the bonfire / interact-prompt working tree. Editor
+logs show only pre-fix transient errors (NOTE-20261113-1, NOTE-20261112-1), 0 exceptions.
+Evidence: COMPILED + LOG + STATIC.
+
+*Was:* SLIPPED — day 4 (Thu 2026-11-12, 02:00) — second day in a row with no commit on any branch
+(only the standup commit `e5c4e1d8`), so no sprint task moved: S22-01 playtest (25th carry), S22-02
+BUG-122 (S1), S22-09, S22-04 / S22-03 / S22-07 and Wednesday's S22-06 are all still ⬜. Must burned
+0.05d / 1.05d with 2 days left (Thu, Fri); 1.0d Must + 0.8d Should remain against 2 days — Must still
+fits only if both days go to the plan; Should is at risk. The owner's uncommitted change set grew
+from 9 to 19 paths: new `BonfireController.cs`, `InteractiveNotifi.cs`, `Assets/Prefab/Interactive/`,
+modified `HUDPanel.cs` and three Champion Monument prefabs on top of Tuesday's room-interaction
+files — off-plan (weekly to-do: room unification, bonfire), not counted. Compile SKIPPED (Editor
+open); Editor log 02:07 has 6 distinct `error CS` in the uncommitted files (NOTE-20261112-1, reads
+as mid-edit: the files on disk at 02:20 no longer show those shapes), 0 exceptions. Evidence: LOG + STATIC.
+
+*Was:* SLIPPED — day 3 (Wed 2026-11-11, 02:00) — no commit on any branch on Tuesday (only the standup
+commit `5e30cf72`), so no sprint task moved: S22-01 playtest (25th carry), S22-02 BUG-122 (S1),
+S22-09 and Tuesday's room tasks S22-04 / S22-03 / S22-07 are all still ⬜. Must burned 0.05d / 1.05d
+with 3 days left; 1.0d Must + 0.8d Should remain against 3 days + 1d buffer — still feasible, but
+the buffer is now the plan. The owner's folder holds uncommitted room-interaction work
+(`InteractiveObjectsRoom.cs` new, `PedestalChampionController`, `UIEvents`, `GameplayUIController`,
+`Entity.cs`, `LoadRandomMap.unity`) — off-plan (weekly to-do, room unification), not counted.
+Compile COMPILED at `58601f57` + 9 uncommitted owner paths (34 s); Editor log 1 distinct transient
+`error CS0534` (NOTE-20261111-1), 0 exceptions. Evidence: COMPILED + LOG + STATIC.
+
+*Was:* SLIPPED — day 2 (Tue 2026-11-10, 02:00) — none of Monday's three tasks (S22-01 playtest,
+S22-02 BUG-122, S22-09) moved; Monday went to off-plan work (stat split `a0e250fb`, item key
+migration `094ec9df`) plus S22-05 done early (`b33dedf9`). Must burned 0.05d / 1.05d with 4 days
+left; the work still fits the 1d buffer, but the S1 death fix and the 25th-carry playtest have not
+started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED + LOG + STATIC.
+
+*Was:* ON-TRACK — day 1 (Mon 2026-11-09). *Before that:* ON-TRACK — day 0. Evidence: STATIC.
+
+## Burn Summary
+
+| Bucket | Est. | Done | Remaining |
+|--------|------|------|-----------|
+| Must Have (incl. Sat playtest 0.1d) | 1.05d | 0.05d (S22-05) | 1.0d |
+| Should Have | 0.8d | 0.1d (S22-11, closed by `a0e250fb`, QA-STATIC-04 PASS) | 0.7d |
+| Off-plan (2026-11-09) | — | ≈1d (stat split, item key migration, anim-viewer tools) | — |
+| Off-plan (2026-11-12) | — | ≈1.5d (asmdef + EditMode tests / BUG-084, Rain Arrows wiring / BUG-109, QA cases) | — |
+| Feature story S22-F1 (capped, gated by S22-01) | 0.5d | 0.5d (merged by sync) | 0 (compile / runtime check rides on S22-01) |
+| Buffer | 1.0d | — | — |
+
+---
+
+## Task Estimates
+
+| ID | Task | Est. | Priority | Carries |
+|----|------|------|----------|---------|
+| S22-01 | Playtest / Play Mode smoke via menu (+ awaiting-runtime bug rows) | 0.3d | Must | **25th** |
+| S22-02 | BUG-122 player death → Game Over | 0.1d | Must | new (S1, P1) |
+| S22-03 | BUG-096 Boss room remainder | 0.05d | Must | 6th |
+| S22-04 | BUG-097 start / boss order | 0.1d | Must | 6th |
+| S22-05 | BUG-124 pooled re-spawn anchor | 0.05d | Must | new (P2) |
+| S22-06 | BUG-106 player half + BUG-110 | 0.2d | Must | 3rd |
+| S22-07 | Editor / data block (BUG-095, BUG-072, re-save, BUG-108 key) | 0.15d | Must | 6th |
+| — | Saturday playtest | 0.1d | Must | — |
+| S22-09 | BUG-065 + BUG-086 (with S22-02) | 0.2d | Should | **13th** / 8th |
+| S22-10 | BUG-117 + BUG-120 + BUG-123 | 0.35d | Should | 2nd |
+| S22-11 | BUG-115 asset cleanup | 0.1d | Should | 3rd |
+| S22-12 | BUG-104 / 103 / 102 / 068 one-liners | 0.15d | Should | 4th–7th |
+| S22-F1 | Merge `feature/polish-game` (capped) | ≤0.5d | Feature | — |
+
+---
+
+## Day-by-Day Plan
+
+### Mon 2026-11-09 — Play first, then the S1 death fix
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S22-01 Playtest / smoke through the menu | 0.3d | ⬜ → carried to Tue | playtest done: no; 25th carry; seven bugs wait on runtime confirmation |
+| S22-02 BUG-122 | 0.1d | ⬜ → carried to Tue | S1 P1; QA-VIT-07 failed 10 runs in a row |
+| S22-09 BUG-065 + BUG-086 | 0.2d | ⬜ → carried to Tue | Same file as S22-02; fixing BUG-122 makes BUG-086 fire every frame |
+
+### Tue 2026-11-10 — Room path
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S22-04 BUG-097 | 0.1d | ⬜ → carried to Wed | Run starts in the boss room; 6th carry |
+| S22-03 BUG-096 Boss room | 0.05d | ⬜ → carried to Wed | Last sealed room type |
+| S22-05 BUG-124 | 0.05d | ✅ 2026-11-09 `b33dedf9` (`Pool.Reload()` places before `SetActive(true)`; awaiting runtime) | One-line ordering fix; every pooled re-spawn |
+| S22-07 Editor / data block | 0.15d | ⬜ → carried to Wed | Inspector-only work, 6th carry |
+
+### Wed 2026-11-11 — Weapon + owner branch
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S22-F1 Merge `feature/polish-game` (cap 0.5d) | ≤0.5d | ✅ merged 2026-11-09 by the standup sync (`a5d671c2`: `38d40925`, `0f3644bd`, `bd75d17c`) — not compile-checked; verify in S22-01 | Touches `WeaponHolderBase` — now merged before S22-06 as planned |
+| S22-06 BUG-106 player half + BUG-110 | 0.2d | ⬜ → carried to Thu | Same file as the polish branch |
+
+### Thu 2026-11-12 — Effects and items
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S22-10 BUG-117 + BUG-120 + BUG-123 | 0.35d | ⬜ → carried to Fri (likely next sprint) | Heal / damage and stat / coin items are no-ops |
+| S22-11 BUG-115 asset cleanup | 0.1d | ✅ by `a0e250fb` (off-plan stat split) — QA-STATIC-04 PASS in run `20261114-2357`; BUG-115 → FIXED in code and data (2026-11-15 triage) | QA-STATIC-04 still FAILs |
+
+### Fri 2026-11-13 — Cleanup + buffer
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| S22-12 One-liners | 0.15d | ⬜ | Carried 4–7 weeks |
+| Buffer | 1d | — | — |
+
+### Sat 2026-11-14 — Weekly playtest
+| Task | Est. | Status | Why now |
+|------|------|--------|---------|
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri 23:00 QA run as input) | 0.1d | ❌ not done — `playtest-2026-11-14.md` empty | Reserved every Saturday; feeds wrap-up |
+
+---
+
+## Risks (live)
+
+- Playtest at 25th carry — owner decision: record one sheet or sign accepted risk.
+- S22-02 without S22-09 → `ON_PLAYER_DEATH` every frame.
+- `feature/polish-game` (`38d40925`) changes `WeaponHolderBase` / `Weapon` — conflicts with S22-06 if
+  done in parallel.
+- Needs-owner notes NOTE-20261107-2/-3 (NREs at `PlayerState.cs:42`, `BaseStatsSO.cs:243`) — not tasks.
+- `gh` unavailable — draft PR not opened.
+- (2026-11-10) Owner's `production/weekly-todo-2026-11-09.md` (`4e14862b`) adds feature work not in
+  this sprint (room unification + level expansion, boss, bonfire, dash, animation review). Item 1
+  (death → replay) matches S22-02 / S22-09; the rest is scope beyond the plan and the 1d buffer.
+
+---
+
+## Daily Log
+
+_(appended by `/daily-standup`)_
+
+### 2026-11-09 (Mon) — standup 02:00, evidence LOG + STATIC
+- **Sync**: merged owner branch `origin/feature/polish-game` (local ref
+  `refs/heads/origin/feature/polish-game`, 3 commits: `38d40925` Paladin combo attack,
+  `0f3644bd` Mage animation + weapon attack, `bd75d17c` save asset) into `sprint-22` → `a5d671c2`.
+  This is S22-F1; it landed before S22-01 (the plan's gate) because the standup sync is owner-mandated.
+- **Weekend**: the three commits above (off-plan for sprint 21, planned as S22-F1). Gameplay changes:
+  `WeaponHolderBase` lazy `Input` / `StatService` (null-safe damage), `Weapon.aim` read through the
+  holder + `chainWindowGrace` 0.15 s, `PlayerAttackState` chain moved from `AnimationFinishTrigger` to
+  `AnimationEnd`, enemy idle/move "comfort range" hold, `EntityInput.ReloadComponent()` clears the
+  lock. New Mage weapon data (`MageWeapon`, 3 attack stages, `MagicBolt.prefab`).
+- Owner also has a large uncommitted stat-split change set (stash `5ba9091f` "pre-stat-split",
+  2026-11-09 01:08) — invisible to this run; not a sprint task.
+- **Runtime**: compile SKIPPED (Editor open); Editor.log 0 `error CS`, 0 exceptions with an
+  `Assets/Script/` frame (11 Play Mode entries). Fix-survival 7 d: BUG-106 / BUG-107 PRESENT.
+- **Today**: S22-01 playtest (25th carry) → S22-02 BUG-122 → S22-09 BUG-065 + BUG-086. No new inbox notes.
+
+### 2026-11-10 (Tue) — standup 02:00, evidence COMPILED + LOG + STATIC
+- **Sync**: SKIPPED — owner branch `sprint-22` already contained in `origin/sprint-22` (`58601f57`).
+- **Yesterday** (after the 02:16 standup, all by the owner, merged via `58601f57`):
+  `a0e250fb` stat split (`BaseStatsSO` data only + `StatSheet` calculator; 15 stat assets migrated;
+  Paladin INT 100→10, Boss HP 4450→1080) — off-plan, closes the runtime path of BUG-063 / BUG-115;
+  `b33dedf9` BUG-124 pool ordering + pooled-state reset on `ReloadComponent()` + enemy Defense as
+  `damage * 100 / (100 + Defense)` (= S22-05); `094ec9df` ItemSO key migration + audit script
+  (off-plan, 4th serialized-rename loss caught statically); `b47f7a62` anim-viewer tools;
+  `4e14862b` owner weekly to-do.
+- **Analysis**: Monday planned 0.6d (S22-01 / 02 / 09), burned 0 of it; 0.05d Must done early (S22-05);
+  ≈1d off-plan. Verdict SLIPPED — the S1 death fix and the playtest did not start.
+- **Runtime**: compile COMPILED at `58601f57` (+4 uncommitted owner paths, 42 s); Editor.log /
+  Editor-prev.log 0 `error CS`, 0 exceptions with an `Assets/Script/` frame (12 Play Mode entries).
+  Fix-survival 7 d: BUG-106 PRESENT; BUG-107 / 115 / 116 / 121 PARTIAL (76 %) — all four cite the
+  multi-file commit `1370136c`, re-touched by `a0e250fb` / `b33dedf9`. Spot-checked: BUG-116
+  (`RuntimeAnimatorController`, `CharacterData.cs:23`) and BUG-121 (`[FormerlySerializedAs("authoredModifiers")]`,
+  `StatModifierGroup.cs:24`) intact; BUG-115's runtime-clone fix is superseded by the `StatSheet`
+  design, not reverted. No note.
+- **Inbox**: 0 new notes; NOTE-20261107-3 got evidence (site deleted by `a0e250fb`, candidate resolved).
+- **Today**: carry S22-01 → S22-02 → S22-09 first, then Tue's S22-04 BUG-097 / S22-03 / S22-07.
+
+### 2026-11-11 (Wed) — standup 02:00, evidence COMPILED + LOG + STATIC
+- **Sync**: SKIPPED — owner branch `sprint-22` (`58601f57`) already contained in `origin/sprint-22` (`5e30cf72`).
+- **Yesterday**: no commit on any branch except the standup commit `5e30cf72`. The owner's folder has
+  9 uncommitted paths: new `System/RoomGameSystem/InteractiveObjectsRoom.cs` (+ `.meta`), modified
+  `PedestalChampionController.cs`, `UIEvents.cs`, `GameplayUIController.cs`, `Entity.cs`,
+  `LoadRandomMap.unity`, two generated `tools/anim-viewer/*.html`. Reads as room-interaction work
+  from the owner's weekly to-do (off-plan); uncommitted work is not counted as progress.
+- **Analysis**: Tuesday planned 0.3d (S22-04 / 03 / 07) plus 0.6d carried from Monday; burned 0.
+  Must 0.05d / 1.05d after 2 of 5 days. Verdict SLIPPED — nothing planned has started.
+- **Runtime**: compile COMPILED at `58601f57` + 9 uncommitted owner paths (34 s). `Editor.log`
+  (2026-11-10 17:22, 2 Play Mode entries): 3 `error CS` lines, 1 distinct —
+  `InteractiveObjectsRoom.cs(3,14)` CS0534 (`InteractiveObjects.Interact(Interact)` not
+  implemented); the later batchmode compile of the same tree passed, so it was transient
+  (NOTE-20261111-1). 0 exceptions with an `Assets/Script/` frame. `Editor-prev.log` clean.
+  Fix-survival: NOT RUN — no `.cs` commit yesterday.
+- **Inbox**: 1 new note (NOTE-20261111-1, S4, candidate "Resolved in week").
+- **Today**: S22-01 playtest → S22-02 BUG-122 + S22-09 → S22-04 / S22-03 → S22-06 (Wed's own task)
+  if time remains; S22-07 slides to Thu.
+
+### 2026-11-12 (Thu) — standup 02:00, evidence LOG + STATIC
+- **Sync**: SKIPPED — owner branch `sprint-22` (`e5c4e1d8`) already contained in `origin/sprint-22` (`e5c4e1d8`).
+- **Yesterday**: no commit on any branch except the standup commit `e5c4e1d8` (second day running).
+  The owner's folder now has 19 uncommitted paths (was 9): new `BonfireController.cs`,
+  `InteractiveNotifi.cs` (+ `.meta`), `Assets/Prefab/Interactive/`; modified `HUDPanel.cs`, three
+  `Champion Monument/*.prefab`, plus Tuesday's `InteractiveObjectsRoom.cs`,
+  `PedestalChampionController.cs`, `UIEvents.cs`, `GameplayUIController.cs`, `Entity.cs`,
+  `LoadRandomMap.unity`. Reads as the interact-prompt + bonfire work from the owner's weekly to-do
+  (off-plan); uncommitted work is not counted as progress.
+- **Analysis**: Wednesday planned 0.2d (S22-06) plus 0.9d carried; burned 0. Must 0.05d / 1.05d after
+  3 of 5 days. Verdict SLIPPED — nothing planned has started; 2 days left for 1.0d Must.
+- **Runtime**: compile SKIPPED — Editor open (owner session). `Editor.log` (2026-11-12 02:07, 1 Play
+  Mode entry): 18 `error CS` lines, 6 distinct, all in uncommitted files — `InteractiveObjectsRoom.cs(28)`
+  CS0103 `UIEvents` / CS0246 `InteractData`, `UIEvents.cs(40,87)` CS0246 `InteractData`,
+  `InteractiveNotifi.cs(6,16)` CS0246 `Sprite`, `(9,17)` CS0116 / CS0501. The files on disk at 02:20
+  differ (`InteractData` is declared in `namespace UIFlow`, the two call sites are commented out),
+  so the log shows a mid-edit state; not batchmode-confirmed (NOTE-20261112-1). 0 exceptions with an
+  `Assets/Script/` frame. `Editor-prev.log` (2026-11-11 17:01) clean, 0 Play Mode.
+  Fix-survival: NOT RUN — no `.cs` commit yesterday.
+- **Inbox**: 1 new note (NOTE-20261112-1, S4, candidate "Resolved in week"); 7 open.
+- **Today**: S22-02 BUG-122 + S22-09 (0.3d, S1) → S22-01 playtest (0.3d) → S22-04 / S22-03 (0.15d);
+  S22-06, S22-07 and Thursday's own S22-10 / S22-11 move to Fri + buffer.
+
+### 2026-11-13 (Fri) — standup 02:00, evidence COMPILED + LOG + STATIC
+- **Sync**: merged owner branch `chore/asmdef-test-setup` (3 commits: `9c11c672`, `e555e9da`,
+  `d9776bb8`) into `sprint-22` → `3a750ca8`, pushed. No conflict. The branch was cut from
+  `28ed4382`, so the merged tree equals the owner's committed tree.
+- **Yesterday** (first commits since Monday, none on a planned task):
+  `285e6900` Rain Arrows wired to `RainArrows.prefab` + `DespawnOneSelf` event on 8 clips +
+  `DamagesInManyPos.SetDir` sets the Animator `Dir` (relates to BUG-109; merged by the owner,
+  `28ed4382`); `9c11c672` `GameRPG.asmdef`, three Editor assemblies, `GameRPG.EditModeTests` +
+  `StatSheetTests.cs` (relates to BUG-084, NOTE-20261112-2); `e555e9da` DOTween Modules assembly;
+  `d9776bb8` game `Path` class → `NavPath` (`AStar`, `PathRequest`, `PathRequestManager`,
+  `EntityMovement`); `c35cdf3c` QA-ENT-09..15 / QA-ITEM-02..04. On `qa/weekly-automation` only:
+  `e7fb161e`, `47f66ddb`, `b7bac279`, `4ee57687` (EditMode tests in the weekly run).
+  The owner's folder still holds 29 uncommitted paths (bonfire, interact prompt, Boss room JSON,
+  Champion Monument prefabs, `Tile_Spawn_Bonfire`) — not counted.
+- **Analysis**: Thursday planned 0.45d (S22-10 / S22-11) plus 1.0d Must carried; burned 0.
+  Must 0.05d / 1.05d after 4 of 5 days; ≈1.5d off-plan output on Thursday. Verdict SLIPPED.
+- **Runtime**: compile **COMPILED** `d9776bb8` + 29 uncommitted paths (148 s). `Editor.log`
+  (2026-11-12 17:00, 2 Play Mode entries): 120 `error CS` lines in `Assets/Plugins/Demigiant/DOTween/Modules/`
+  (CS1729 `Path`, CS0411, CS1929) — the asmdef split exposed the game's global `Path` class to
+  DOTween; fixed by `e555e9da` + `d9776bb8`, later batchmode pass → transient (NOTE-20261113-1).
+  `Editor-prev.log` (2026-11-12 04:24, 25 Play Mode entries): 30 `error CS` lines in the uncommitted
+  interact-prompt files, new shapes in `BonfireController.cs(11,97)` CS1002 / `(14,38)` CS0103 and
+  `GameplayUIController.cs(39,51)` CS0123 — same tree now compiles (evidence added to
+  NOTE-20261112-1). 0 exceptions with an `Assets/Script/` frame. Fix-survival 7 d: no fix commits
+  in window.
+- **Inbox**: 1 new note (NOTE-20261113-1, S4, candidate "Resolved in week"); evidence added to
+  NOTE-20261112-1 and NOTE-20261112-2; 9 open.
+- **Playtest sheet**: `production/qa/playtests/playtest-2026-11-14.md` generated for Saturday.
+- **Today**: S22-02 BUG-122 + S22-09 (0.3d, S1) → S22-01 playtest through the menu (0.3d) →
+  S22-04 / S22-03 (0.15d) → S22-06 (0.2d). S22-07, S22-10, S22-11 check and S22-12 are carry
+  candidates for the Saturday wrap-up.
+
+### 2026-11-15 (Sun, Saturday slot) — weekly wrap-up, evidence RUNTIME (automated) + LOG + STATIC
+- **Week's commits** (since `c6f3ccf2`): on `sprint-22` — `38d40925` / `0f3644bd` / `bd75d17c`
+  (S22-F1), `a0e250fb` stat split, `b33dedf9` (S22-05), `094ec9df` ItemSO keys, `b47f7a62` tools,
+  `285e6900` Rain Arrows, `9c11c672` / `e555e9da` / `d9776bb8` asmdef + EditMode tests, `c35cdf3c`
+  QA cases; owner branch `docs/gdd-pathfinding-ability` (`f6921dc9`, `3b02df7d` "coding need check",
+  not merged): bonfire, interact prompt, `PlayerDashState` (unwired), GDD update.
+- **Code review**: 58 `.cs` changed on `sprint-22` + 17 on the owner branch. Top finding: `Weapon.FinalDamage()`
+  adds the stage damage a second time (BUG-125, also caught by QA-CMB-01.Paladin). Owner branch:
+  interact prompt can never show (NOTE-20261115-6), stray file `States/s` + unwired dash
+  (NOTE-20261115-7), `VitalModifier` serialized without the sign fix (BUG-117 merge risk).
+- **Playtest**: NOT RUN — `playtest-2026-11-14.md` has no results. Verdict capped at CONCERNS (actual SLIPPED).
+- **Automated QA** (run `20261114-2357`, `a8725a77`): PASS 150 / FAIL 5 / KNOWN 8 / SKIP 20 / OBSERVED 2;
+  new FAIL 1 (QA-CMB-04.Mage), fixed 1 (QA-ABL-01.Archer.Ultimate); 64 EditMode tests PASS; deep run ABL, STAT, STATIC.
+- **Fix survival 30 d**: 2 PRESENT, 5 PARTIAL (all `1370136c` / `3d768b3d`, re-touched by the stat split), 0 GONE.
+- **Triage**: 18 notes → BUG-125…128 confirmed; 7 resolved in week; 1 duplicate; 2 by design; 1 not
+  reproduced; 3 needs owner. Status: BUG-063, BUG-109, BUG-115, BUG-124 → FIXED in code; BUG-084 → FIXED.
+  Report `production/qa/bug-triage-2026-11-15.md`.
+- **Handoff for `/weekly-kickoff`**: **playtest done: no** (26th carry if planned again);
+  **velocity 0.16** (0.65 estimate-days completed — S22-05 0.05 + S22-11 0.1 + S22-F1 0.5 — / 4);
+  **carry-over**: S22-01, S22-02 (BUG-122), S22-03 (BUG-096), S22-04 (BUG-097), S22-06 (BUG-106 + BUG-110),
+  S22-07, S22-09 (BUG-065 + BUG-086), S22-10 (BUG-117 + 120 + 123), S22-12; **new blockers**: BUG-125
+  (S2, P1, one line), BUG-126 (S2, before any build); chore: re-save 17 `EntityData` assets (NOTE-20261115-5).
+
+## Retrospective (2026-11-15)
+
+- **Went well**: the stat split closed two long-running data bugs (BUG-063 open since August,
+  BUG-115); the test pipeline finally exists (BUG-084 FIXED, 64 EditMode tests green in the weekly run);
+  the automated QA run caught a fresh damage regression (BUG-125) within a week of the merge.
+- **Slipped**: 0.05d of 1.05d Must. BUG-122 (S1) untouched for a second sprint; the playtest is at
+  its 25th carry and has never been recorded since the sheet flow started. Most output went to
+  infrastructure and off-plan features.
+- **Deferred multiple weeks**: S22-01 playtest (25), BUG-065 (13), BUG-086 (8), BUG-096 / BUG-097 /
+  S22-07 (6), S22-12 one-liners (4–7).
+- **One improvement**: plan sprint 23 around the owner's actual weekly to-do instead of against it —
+  put BUG-122 + BUG-125 (≈0.15d, both one-file fixes) as the first task of Monday and let the
+  feature branch be the declared main work; ask the owner once to either record one sheet or sign
+  the playtest as an accepted risk (stop carrying it silently).

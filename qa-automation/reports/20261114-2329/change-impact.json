@@ -1,0 +1,2401 @@
+{
+    "base":  "5a3256e7dc",
+    "head":  "a8725a77d2",
+    "baseRef":  "5a3256e7dc",
+    "headRef":  "origin/sprint-22",
+    "commits":  [
+                    {
+                        "sha":  "4acd62ef",
+                        "date":  "2026-11-13",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-13",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/playtests/playtest-2026-11-14.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "4ee57687",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "docs(qa): add the local verification checklist for the EditMode tests",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/manual/editmode-local-verification.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b7bac279",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "docs(qa): add the Unit mirror column to the case catalog",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "47f66ddb",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "test(editmode): mirror the logic-only QA cases as NUnit EditMode tests",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/AStarTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/AStarTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/DepotItemTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/DepotItemTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/EventManagerTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/EventManagerTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/MapModelTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/MapModelTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/ObjectPoolManagerTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/ObjectPoolManagerTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/RoomJsonTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/RoomJsonTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/RoomModelTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/RoomModelTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Tests/EditMode/StatSheetTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/TestSupport.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/TestSupport.cs.meta"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e7fb161e",
+                        "date":  "2026-11-12",
+                        "author":  "Kay",
+                        "subject":  "test(qa): run EditMode unit tests in the weekly run",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/run-weekly.ps1"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "d9776bb8",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "fix(build): rename the game\u0027s Path class to NavPath",
+                        "files":  [
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Plugins/Demigiant/DOTween/Modules/DOTween.Modules.asmdef"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Plugins/Demigiant/DOTween/Modules/DOTween.Modules.asmdef.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QASystemsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Pathfinding/Algorithm/AStar.cs"
+                                      },
+                                      {
+                                          "status":  "R",
+                                          "path":  "Assets/Script/System/Pathfinding/Data/NavPath.cs"
+                                      },
+                                      {
+                                          "status":  "R",
+                                          "path":  "Assets/Script/System/Pathfinding/Data/NavPath.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Pathfinding/Data/PathRequest.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Pathfinding/PathRequestManager.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e555e9da",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "fix(build): give DOTween Modules their own assembly",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Plugins/Demigiant/DOTween/Modules/DOTween.Modules.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Plugins/Demigiant/DOTween/Modules/DOTween.Modules.asmdef.meta"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "9c11c672",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "chore(test): add assembly definitions and the first EditMode test",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/rules/test-standards.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Dungeon/GameRPG.asmref"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Dungeon/GameRPG.asmref.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/StatsCharacter.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor/GameRPG.CombatTest.Editor.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/CombatTest/Editor/GameRPG.CombatTest.Editor.asmdef.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/QAProbe/Editor/GameRPG.QAProbe.Editor.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/QAProbe/Editor/GameRPG.QAProbe.Editor.asmdef.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/GameRPG.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/GameRPG.asmdef.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/UIFlow/Editor/GameRPG.UIFlow.Editor.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/UIFlow/Editor/GameRPG.UIFlow.Editor.asmdef.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/StatSheetTests.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Tests/EditMode/StatSheetTests.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "285e6900",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "fix(ability): wire Archer Rain Arrows to RainArrows.prefab and despawn it at clip end",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Skill/Archer/Ability/Rain Arrow/Effect/Archer Spawn Rain Arrows Effect.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Skill/Archer/Ability/Rain Arrow/Rain Arrows.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/SpawnMono/DamagesInManyPos.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "c35cdf3c",
+                        "date":  "2026-11-12",
+                        "author":  "Claude",
+                        "subject":  "test(qa): enemy state, effect receiver, item drop and pickup cases",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QASceneBuilder.cs"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/QA/Runtime/QAEmptyPathGrid.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/QAFloorPathGrid.cs"
+                                      },
+                                      {
+                                          "status":  "R",
+                                          "path":  "Assets/QA/Runtime/QAFloorPathGrid.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/impact-map.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/known-issues.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "4c7c611c",
+                        "date":  "2026-11-12",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-12",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e5c4e1d8",
+                        "date":  "2026-11-11",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-11",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "5e30cf72",
+                        "date":  "2026-11-10",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-10",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "4e14862b",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "docs(plan): weekly to-do for 2026-11-09 (death/replay, rooms, boss, bonfire, dash, animation)",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/weekly-todo-2026-11-09.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "094ec9df",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "fix(data): migrate renamed ItemSO fields (itemSprite, nameItem) and add key audit script",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/PlatiumOre 0.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/PlatiumOre 1.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/PlatiumOre 2.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/PlatiumOre 3.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/PlatiumOre 4.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/PlatiumOre 5.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/serialized-key-audit-2026-11-09.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/scripts/audit-serialized-keys.py"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/scripts/migrate-serialized-keys.py"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b47f7a62",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "chore(tools): character animation viewer build scripts",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/build-character-viewer.js"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/pack_standalone.py"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "tools/anim-viewer/viewer-template.html"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b33dedf9",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "fix(respawn): reset pooled enemy state on reuse; percent Defense mitigation",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/AbilityHolderBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterInputBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/MovementBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityWeaponHolder.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/PoolableService/Pool.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a0e250fb",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "refactor(stats): split BaseStatsSO into data-only asset + StatSheet calculator",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Editor/BaseStatsSOEditor.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Editor/BaseStatsSOEditor.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Editor/EnemyRoleScaffolder.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Editor/EntityDataEditor.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Editor/EntityDataEditor.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Editor/StatModifierTesterEditor.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QASystemsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/AssasinStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/Boss/BossStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/BruteStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/EliteStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/FastSwarmStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/RangedCasterStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/ScatterStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/SniperStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/TankStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/TrashMeleeStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/ArcherStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/BaseStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/MageStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/PaladinStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Test.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterData.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/StatHandlerBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/EntityData.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityBasicState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityIdleState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityMoveState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/StatHandler.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/PlayerData.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/QAProbe/QAPlayerFlowProbe.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/BaseStatsSO.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/DerivedStatFormula.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/StatSystem/PrimaryStatEntry.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/StatSystem/PrimaryStatEntry.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/Stat.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifierTester.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/StatSystem/StatSheet.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/StatSystem/StatSheet.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/UIFlow/Services/Real/RealPlayerDataProvider.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/stats/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/stats/README.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "70067482",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): fix-survival result 2026-11-09",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "7fdc4a48",
+                        "date":  "2026-11-09",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-09",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "bd75d17c",
+                        "date":  "2026-11-08",
+                        "author":  "Kay",
+                        "subject":  "save asset",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Tank/TankEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Enemy/Boss/BossStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Stat/Player/PaladinStats.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Weapons/PaladinWeapon/SnS_State1.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "59218ef9",
+                        "date":  "2026-11-08",
+                        "author":  "Kay",
+                        "subject":  "chore(kickoff): open sprint-22 2026-11-08",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/sprints/sprint-22.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "0f3644bd",
+                        "date":  "2026-11-08",
+                        "author":  "Kay",
+                        "subject":  "animation and add weapon attack mage",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/launch.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Mage.controller"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Mage/Mage.overrideController"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Particle Effect/Attack Projectile/MagicBolt.prefab"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Particle Effect/Attack Projectile/MagicBolt.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Weapon/MageWeapon.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Player/Mage/Mage.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 1.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 1.asset.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 2.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 2.asset.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 3.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 3.asset.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Weapon Stats.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Weapons/MageWeapon/Mage Weapon Stats.asset.meta"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "38d40925",
+                        "date":  "2026-11-08",
+                        "author":  "Kay",
+                        "subject":  "paladin combo attackcc",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Golem Phase 3/GolemP3_Attack_1_Projectile.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Rat/Rat_Attack.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Spiked Slime/SpikedSlime_Attack.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 1.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 2.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 3.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 4.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Knight/Knight.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Boss/BossEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/Tank/TankEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/MainGamePlay.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/WeaponHolderBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/EntityData.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityIdleState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityMoveState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerAttackState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/AttackFlowDebugger.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/AttackFlowEventProbe.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/FastTest/AttackFlowEventProbe.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/Weapon.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "69bb7d63",
+                        "date":  "2026-11-07",
+                        "author":  "Kay",
+                        "subject":  "docs(doc-sync): doc-truth pass 2026-11-07 - sprint-21 c6f3ccf2, death input flag, triage statuses",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/character/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/character/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/event-system/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/event-system/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/items/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/items/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "memory/project_state.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/doc-truth-2026-11-07.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "c6f3ccf2",
+                        "date":  "2026-11-07",
+                        "author":  "Kay",
+                        "subject":  "chore(wrapup): weekly wrap-up 2026-11-07",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-21-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "5e77ef55",
+                        "date":  "2026-11-07",
+                        "author":  "Kay",
+                        "subject":  "chore(wrapup): bug triage 2026-11-07 - BUG-122..124, 7 status updates",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bug-triage-2026-11-07.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-066.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-102.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-105.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-106.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-107.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-108.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-115.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-116.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-121.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-122.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-123.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-124.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "80e025fb",
+                        "date":  "2026-11-07",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261107-1437 on origin/sprint-21 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261107-1437/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "d2d45973",
+                        "date":  "2026-11-07",
+                        "author":  "Kay",
+                        "subject":  "coding need check",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Enemy/EnemyPrefab.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/Entity.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Enemy/EnemySpawner.cs"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  12,
+    "files":  343,
+    "systems":  {
+                    "ABL":  [
+                                "Assets/Script/Character/Base/AbilityHolderBase.cs",
+                                "Assets/Script/System/Abilities/Runtime/SpawnMono/DamagesInManyPos.cs",
+                                "Assets/SO/Skill/Archer/Ability/Rain Arrow/Effect/Archer Spawn Rain Arrows Effect.asset",
+                                "Assets/SO/Skill/Archer/Ability/Rain Arrow/Rain Arrows.asset"
+                            ],
+                    "CMB":  [
+                                "Assets/Script/Character/Base/WeaponHolderBase.cs",
+                                "Assets/Script/Weapons/Weapon.cs",
+                                "Assets/SO/Weapons/MageWeapon.meta",
+                                "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 1.asset",
+                                "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 1.asset.meta",
+                                "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 2.asset",
+                                "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 2.asset.meta",
+                                "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 3.asset",
+                                "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 3.asset.meta",
+                                "Assets/SO/Weapons/MageWeapon/Mage Weapon Stats.asset",
+                                "Assets/SO/Weapons/MageWeapon/Mage Weapon Stats.asset.meta",
+                                "Assets/SO/Weapons/PaladinWeapon/SnS_State1.asset",
+                                "Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset",
+                                "Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset"
+                            ],
+                    "DOCS":  [
+                                 ".claude/launch.json",
+                                 ".claude/rules/test-standards.md",
+                                 "CLAUDE.md",
+                                 "docs/CHANGELOG-DOCS.md",
+                                 "docs/systems/character/CHANGELOG.md",
+                                 "docs/systems/character/README.md",
+                                 "docs/systems/enemy/CHANGELOG.md",
+                                 "docs/systems/enemy/README.md",
+                                 "docs/systems/event-system/CHANGELOG.md",
+                                 "docs/systems/event-system/README.md",
+                                 "docs/systems/items/CHANGELOG.md",
+                                 "docs/systems/items/README.md",
+                                 "docs/systems/stats/CHANGELOG.md",
+                                 "docs/systems/stats/README.md",
+                                 "memory/project_state.md",
+                                 "production/qa/bug-inbox.md",
+                                 "production/qa/bugs/BUG-066.md",
+                                 "production/qa/bugs/BUG-102.md",
+                                 "production/qa/bugs/BUG-105.md",
+                                 "production/qa/bugs/BUG-106.md",
+                                 "production/qa/bugs/BUG-107.md",
+                                 "production/qa/bugs/BUG-108.md",
+                                 "production/qa/bugs/BUG-115.md",
+                                 "production/qa/bugs/BUG-116.md",
+                                 "production/qa/bugs/BUG-121.md",
+                                 "production/qa/bugs/BUG-122.md",
+                                 "production/qa/bugs/BUG-123.md",
+                                 "production/qa/bugs/BUG-124.md",
+                                 "production/qa/bug-triage-2026-11-07.md",
+                                 "production/qa/doc-truth-2026-11-07.md",
+                                 "production/qa/playtests/playtest-2026-11-14.md",
+                                 "production/qa/serialized-key-audit-2026-11-09.md",
+                                 "production/session-state/routine-log.md",
+                                 "production/sprints/sprint-21-daily-plan.md",
+                                 "production/sprints/sprint-22.md",
+                                 "production/sprints/sprint-22-daily-plan.md",
+                                 "production/weekly-todo-2026-11-09.md"
+                             ],
+                    "ENT":  [
+                                "Assets/Prefab/Enemy/EnemyPrefab.prefab",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityWeaponHolder.cs",
+                                "Assets/Script/Character/Entity/Entity.cs",
+                                "Assets/Script/Character/Entity/EntityData.cs",
+                                "Assets/Script/Character/Entity/States/EntityBasicState.cs",
+                                "Assets/Script/Character/Entity/States/EntityIdleState.cs",
+                                "Assets/Script/Character/Entity/States/EntityMoveState.cs",
+                                "Assets/SO/Enemy/Enemy - Knight 1.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 2.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 3.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 4.asset",
+                                "Assets/SO/Enemy/Enemy - Knight.asset",
+                                "Assets/SO/Enemy/Knight/Knight.asset",
+                                "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset",
+                                "Assets/SO/Enemy/Role/Boss/BossEntityData.asset",
+                                "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset",
+                                "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset",
+                                "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset",
+                                "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset",
+                                "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset",
+                                "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset",
+                                "Assets/SO/Enemy/Role/Tank/TankEntityData.asset",
+                                "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset",
+                                "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset"
+                            ],
+                    "ITEM":  [
+                                 "Assets/SO/Item/PlatiumOre 0.asset",
+                                 "Assets/SO/Item/PlatiumOre 1.asset",
+                                 "Assets/SO/Item/PlatiumOre 2.asset",
+                                 "Assets/SO/Item/PlatiumOre 3.asset",
+                                 "Assets/SO/Item/PlatiumOre 4.asset",
+                                 "Assets/SO/Item/PlatiumOre 5.asset"
+                             ],
+                    "MAP":  [
+                                "Assets/Script/System/Enemy/EnemySpawner.cs",
+                                "Assets/SO/Dungeon/GameRPG.asmref",
+                                "Assets/SO/Dungeon/GameRPG.asmref.meta"
+                            ],
+                    "OTHER":  [
+                                  "tools/anim-viewer/build-character-viewer.js",
+                                  "tools/anim-viewer/pack_standalone.py",
+                                  "tools/anim-viewer/viewer-template.html"
+                              ],
+                    "PATH":  [
+                                 "Assets/Script/System/Pathfinding/Algorithm/AStar.cs",
+                                 "Assets/Script/System/Pathfinding/Data/NavPath.cs",
+                                 "Assets/Script/System/Pathfinding/Data/NavPath.cs.meta",
+                                 "Assets/Script/System/Pathfinding/Data/PathRequest.cs",
+                                 "Assets/Script/System/Pathfinding/PathRequestManager.cs"
+                             ],
+                    "PLY":  [
+                                "Assets/Script/Character/Base/CharacterData.cs",
+                                "Assets/Script/Character/Base/CharacterInputBase.cs",
+                                "Assets/Script/Character/Base/MovementBase.cs",
+                                "Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs",
+                                "Assets/Script/Character/Player/PlayerData.cs",
+                                "Assets/Script/Character/Player/States/PlayerAttackState.cs",
+                                "Assets/SO/Player/Mage/Mage.asset"
+                            ],
+                    "POOL":  [
+                                 "Assets/Script/System/PoolableService/Pool.cs"
+                             ],
+                    "QA":  [
+                               "Assets/QA/Editor/QASceneBuilder.cs",
+                               "Assets/QA/Editor/QAStaticChecks.cs",
+                               "Assets/QA/Runtime/QAEmptyPathGrid.cs",
+                               "Assets/QA/Runtime/QAFloorPathGrid.cs",
+                               "Assets/QA/Runtime/QAFloorPathGrid.cs.meta",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs.meta",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs",
+                               "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs",
+                               "Assets/QA/Runtime/Suites/QASystemsSuite.cs",
+                               "Assets/Script/FastTest/AttackFlowDebugger.cs",
+                               "Assets/Script/FastTest/AttackFlowEventProbe.cs",
+                               "Assets/Script/FastTest/AttackFlowEventProbe.cs.meta",
+                               "Assets/Script/FastTest/CombatTest/Editor/GameRPG.CombatTest.Editor.asmdef",
+                               "Assets/Script/FastTest/CombatTest/Editor/GameRPG.CombatTest.Editor.asmdef.meta",
+                               "Assets/Script/FastTest/QAProbe/Editor/GameRPG.QAProbe.Editor.asmdef",
+                               "Assets/Script/FastTest/QAProbe/Editor/GameRPG.QAProbe.Editor.asmdef.meta",
+                               "Assets/Script/FastTest/QAProbe/QAPlayerFlowProbe.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/config/impact-map.json",
+                               "qa-automation/config/known-issues.json",
+                               "qa-automation/manual/editmode-local-verification.md",
+                               "qa-automation/README.md",
+                               "qa-automation/reports/20261107-1437/change-impact.json",
+                               "qa-automation/reports/20261107-1437/report.md",
+                               "qa-automation/reports/20261107-1437/results.json",
+                               "qa-automation/reports/20261107-1437/run.log",
+                               "qa-automation/reports/20261107-1437/run-info.json",
+                               "qa-automation/reports/20261107-1437/summary.json",
+                               "qa-automation/reports/20261107-1437/unity-report.md",
+                               "qa-automation/reports/20261107-1437/weekly-change-impact.md",
+                               "qa-automation/scripts/audit-serialized-keys.py",
+                               "qa-automation/scripts/migrate-serialized-keys.py",
+                               "qa-automation/scripts/run-weekly.ps1",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ],
+                    "STAT":  [
+                                 "Assets/Script/System/StatSystem/BaseStatsSO.cs",
+                                 "Assets/Script/System/StatSystem/DerivedStatFormula.cs",
+                                 "Assets/Script/System/StatSystem/PrimaryStatEntry.cs",
+                                 "Assets/Script/System/StatSystem/PrimaryStatEntry.cs.meta",
+                                 "Assets/Script/System/StatSystem/Stat.cs",
+                                 "Assets/Script/System/StatSystem/StatModifierTester.cs",
+                                 "Assets/Script/System/StatSystem/StatSheet.cs",
+                                 "Assets/Script/System/StatSystem/StatSheet.cs.meta",
+                                 "Assets/SO/Stat/Enemy/AssasinStats.asset",
+                                 "Assets/SO/Stat/Enemy/Boss/BossStats.asset",
+                                 "Assets/SO/Stat/Enemy/BruteStats.asset",
+                                 "Assets/SO/Stat/Enemy/EliteStats.asset",
+                                 "Assets/SO/Stat/Enemy/FastSwarmStats.asset",
+                                 "Assets/SO/Stat/Enemy/RangedCasterStats.asset",
+                                 "Assets/SO/Stat/Enemy/ScatterStats.asset",
+                                 "Assets/SO/Stat/Enemy/SniperStats.asset",
+                                 "Assets/SO/Stat/Enemy/TankStats.asset",
+                                 "Assets/SO/Stat/Enemy/TrashMeleeStats.asset",
+                                 "Assets/SO/Stat/Player/ArcherStats.asset",
+                                 "Assets/SO/Stat/Player/BaseStats.asset",
+                                 "Assets/SO/Stat/Player/MageStats.asset",
+                                 "Assets/SO/Stat/Player/PaladinStats.asset",
+                                 "Assets/SO/Stat/Test.asset"
+                             ],
+                    "STATIC":  [
+                                   "Assets/Editor/BaseStatsSOEditor.cs",
+                                   "Assets/Editor/BaseStatsSOEditor.cs.meta",
+                                   "Assets/Editor/EnemyRoleScaffolder.cs",
+                                   "Assets/Editor/EntityDataEditor.cs",
+                                   "Assets/Editor/EntityDataEditor.cs.meta",
+                                   "Assets/Editor/StatModifierTesterEditor.cs",
+                                   "Assets/Plugins/Demigiant/DOTween/Modules/DOTween.Modules.asmdef",
+                                   "Assets/Plugins/Demigiant/DOTween/Modules/DOTween.Modules.asmdef.meta",
+                                   "Assets/Prefab/Particle Effect/Attack Projectile/MagicBolt.prefab",
+                                   "Assets/Prefab/Particle Effect/Attack Projectile/MagicBolt.prefab.meta",
+                                   "Assets/Prefab/Weapon/MageWeapon.prefab",
+                                   "Assets/Scenes/Main/MainGamePlay.unity",
+                                   "Assets/Script/Character/StatsCharacter.cs",
+                                   "Assets/Script/GameRPG.asmdef",
+                                   "Assets/Script/GameRPG.asmdef.meta",
+                                   "Assets/Tests.meta",
+                                   "Assets/Tests/EditMode.meta",
+                                   "Assets/Tests/EditMode/AStarTests.cs",
+                                   "Assets/Tests/EditMode/AStarTests.cs.meta",
+                                   "Assets/Tests/EditMode/DepotItemTests.cs",
+                                   "Assets/Tests/EditMode/DepotItemTests.cs.meta",
+                                   "Assets/Tests/EditMode/EventManagerTests.cs",
+                                   "Assets/Tests/EditMode/EventManagerTests.cs.meta",
+                                   "Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef",
+                                   "Assets/Tests/EditMode/GameRPG.EditModeTests.asmdef.meta",
+                                   "Assets/Tests/EditMode/MapModelTests.cs",
+                                   "Assets/Tests/EditMode/MapModelTests.cs.meta",
+                                   "Assets/Tests/EditMode/ObjectPoolManagerTests.cs",
+                                   "Assets/Tests/EditMode/ObjectPoolManagerTests.cs.meta",
+                                   "Assets/Tests/EditMode/RoomJsonTests.cs",
+                                   "Assets/Tests/EditMode/RoomJsonTests.cs.meta",
+                                   "Assets/Tests/EditMode/RoomModelTests.cs",
+                                   "Assets/Tests/EditMode/RoomModelTests.cs.meta",
+                                   "Assets/Tests/EditMode/StatSheetTests.cs",
+                                   "Assets/Tests/EditMode/StatSheetTests.cs.meta",
+                                   "Assets/Tests/EditMode/TestSupport.cs",
+                                   "Assets/Tests/EditMode/TestSupport.cs.meta"
+                               ],
+                    "UI":  [
+                               "Assets/Script/UIFlow/Editor/GameRPG.UIFlow.Editor.asmdef",
+                               "Assets/Script/UIFlow/Editor/GameRPG.UIFlow.Editor.asmdef.meta",
+                               "Assets/Script/UIFlow/Services/Real/RealPlayerDataProvider.cs"
+                           ],
+                    "VISUAL":  [
+                                   "Assets/Animation/Enemy/Golem Phase 3/GolemP3_Attack_1_Projectile.anim",
+                                   "Assets/Animation/Enemy/Rat/Rat_Attack.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Attack/Assasin_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Attack/Boss_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Attack/Brute_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Attack/Elite_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Attack/FastSwarm_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Attack/RangedCaster_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Attack/Scatter_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Attack/Sniper_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Attack/Tank_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Attack/TrashMelee_Attack_dir 7.anim",
+                                   "Assets/Animation/Enemy/Spiked Slime/SpikedSlime_Attack.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 0.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 1.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 2.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 3.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 4.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 5.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 6.anim",
+                                   "Assets/Animation/Particle Effect/RainArrows/RainArrows_dir 7.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir0.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir1.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir2.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir3.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir4.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir5.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir6.anim",
+                                   "Assets/Animation/Player/Mage/Base/Idle/nightshade_idle_dir7.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir0.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir1.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir2.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir3.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir4.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir5.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir6.anim",
+                                   "Assets/Animation/Player/Mage/Base/Walk/nightshade_move_dir7.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 0.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 1.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 2.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 3.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 4.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 5.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 6.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State1/Paladin_ComboAttack_State1_dir 7.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 0.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 1.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 2.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 3.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 4.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 5.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 6.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State2/Paladin_ComboAttack_State2_dir 7.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 0.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 1.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 2.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 3.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 4.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 5.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 6.anim",
+                                   "Assets/Animation/Player/Paladin/Paladin_ComboAttack/Paladin_ComboAttack_State3/Paladin_ComboAttack_State3_dir 7.anim",
+                                   "Assets/AnimationController/Player/Mage/Mage.controller",
+                                   "Assets/AnimationController/Player/Mage/Mage.overrideController"
+                               ],
+                    "VIT":  [
+                                "Assets/Script/Character/Base/StatHandlerBase.cs",
+                                "Assets/Script/Character/Player/CoreComponent/StatHandler.cs"
+                            ]
+                },
+    "deep":  [
+                 "ABL",
+                 "CMB",
+                 "ENT",
+                 "ITEM",
+                 "MAP",
+                 "PATH",
+                 "PLY",
+                 "POOL",
+                 "STAT",
+                 "STATIC",
+                 "UI",
+                 "VIT"
+             ],
+    "risks":  [
+                  {
+                      "why":  "Shared by the player and enemies; the UIFlow hotbar binds to AbilityCooldownStarted",
+                      "alsoCheck":  [
+                                        "PLY",
+                                        "ENT",
+                                        "UI"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/AbilityHolderBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Serialized by every PlayerData / EntityData asset — a rename without [FormerlySerializedAs] empties fields (BUG-105/108/121)",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "CMB",
+                                        "ABL",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/CharacterData.cs"
+                                ]
+                  },
+                  {
+                      "why":  "One base for player and enemy vitals; abilities pay costs and apply effects through it; the HUD reads CurrentStatsChanged",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "ABL",
+                                        "UI",
+                                        "STAT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/StatHandlerBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Shared by the player and enemies; default weapon equip happens in SetCharacterData (BUG-106)",
+                      "alsoCheck":  [
+                                        "PLY",
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/WeaponHolderBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Item drop on enemy death and the player pickup (QA-ITEM-02..04) run in the ENEMY scene",
+                      "alsoCheck":  [
+                                        "ITEM"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs",
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs",
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs",
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityNegativeReciver.cs",
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityWeaponHolder.cs",
+                                    "Assets/Script/Character/Entity/Entity.cs",
+                                    "Assets/Script/Character/Entity/EntityData.cs",
+                                    "Assets/Script/Character/Entity/States/EntityBasicState.cs",
+                                    "Assets/Script/Character/Entity/States/EntityIdleState.cs",
+                                    "Assets/Script/Character/Entity/States/EntityMoveState.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Room clear depends on ON_ENEMY_DEATH from pooled enemies",
+                      "alsoCheck":  [
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/Enemy/EnemySpawner.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Enemy wander and chase (QA-ENT-10 / QA-ENT-15) path on a PathfindingGrid",
+                      "alsoCheck":  [
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/Pathfinding/Algorithm/AStar.cs",
+                                    "Assets/Script/System/Pathfinding/Data/NavPath.cs",
+                                    "Assets/Script/System/Pathfinding/Data/NavPath.cs.meta",
+                                    "Assets/Script/System/Pathfinding/Data/PathRequest.cs",
+                                    "Assets/Script/System/Pathfinding/PathRequestManager.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Enemies, projectiles and ability objects are all pooled and injected on spawn",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "CMB",
+                                        "ABL"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/PoolableService/Pool.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Damage formulas, vitals max values and asset serialization all read the stat system",
+                      "alsoCheck":  [
+                                        "VIT",
+                                        "CMB",
+                                        "ENT",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/StatSystem/BaseStatsSO.cs",
+                                    "Assets/Script/System/StatSystem/DerivedStatFormula.cs",
+                                    "Assets/Script/System/StatSystem/PrimaryStatEntry.cs",
+                                    "Assets/Script/System/StatSystem/PrimaryStatEntry.cs.meta",
+                                    "Assets/Script/System/StatSystem/Stat.cs",
+                                    "Assets/Script/System/StatSystem/StatModifierTester.cs",
+                                    "Assets/Script/System/StatSystem/StatSheet.cs",
+                                    "Assets/Script/System/StatSystem/StatSheet.cs.meta"
+                                ]
+                  },
+                  {
+                      "why":  "Enemies attack through the same Weapon classes; AttackSO field renames break assets",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Weapons/Weapon.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Asset edits: missing script / orphaned key / saved-modifier checks",
+                      "alsoCheck":  [
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset",
+                                    "Assets/SO/Enemy/Knight/Knight.asset",
+                                    "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset",
+                                    "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset",
+                                    "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset",
+                                    "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset",
+                                    "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset",
+                                    "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset",
+                                    "Assets/SO/Enemy/Role/Tank/TankEntityData.asset",
+                                    "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset",
+                                    "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset",
+                                    "Assets/SO/Item/PlatiumOre 0.asset",
+                                    "Assets/SO/Item/PlatiumOre 1.asset",
+                                    "Assets/SO/Item/PlatiumOre 2.asset",
+                                    "Assets/SO/Item/PlatiumOre 3.asset",
+                                    "Assets/SO/Item/PlatiumOre 4.asset",
+                                    "Assets/SO/Item/PlatiumOre 5.asset",
+                                    "Assets/SO/Player/Mage/Mage.asset",
+                                    "Assets/SO/Skill/Archer/Ability/Rain Arrow/Effect/Archer Spawn Rain Arrows Effect.asset",
+                                    "Assets/SO/Skill/Archer/Ability/Rain Arrow/Rain Arrows.asset",
+                                    "Assets/SO/Stat/Enemy/AssasinStats.asset",
+                                    "Assets/SO/Stat/Enemy/Boss/BossStats.asset",
+                                    "Assets/SO/Stat/Enemy/BruteStats.asset",
+                                    "Assets/SO/Stat/Enemy/EliteStats.asset",
+                                    "Assets/SO/Stat/Enemy/FastSwarmStats.asset",
+                                    "Assets/SO/Stat/Enemy/RangedCasterStats.asset",
+                                    "Assets/SO/Stat/Enemy/ScatterStats.asset",
+                                    "Assets/SO/Stat/Enemy/SniperStats.asset",
+                                    "Assets/SO/Stat/Enemy/TankStats.asset",
+                                    "Assets/SO/Stat/Enemy/TrashMeleeStats.asset",
+                                    "Assets/SO/Stat/Player/ArcherStats.asset",
+                                    "Assets/SO/Stat/Player/BaseStats.asset",
+                                    "Assets/SO/Stat/Player/MageStats.asset",
+                                    "Assets/SO/Stat/Player/PaladinStats.asset",
+                                    "Assets/SO/Stat/Test.asset",
+                                    "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 1.asset",
+                                    "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 2.asset",
+                                    "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 3.asset",
+                                    "Assets/SO/Weapons/MageWeapon/Mage Weapon Stats.asset",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State1.asset",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset"
+                                ]
+                  },
+                  {
+                      "why":  "ItemSpawner listens to ON_ENEMY_DEATH; QA-ITEM-02..04 live in the enemy suite",
+                      "alsoCheck":  [
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/SO/Item/PlatiumOre 0.asset",
+                                    "Assets/SO/Item/PlatiumOre 1.asset",
+                                    "Assets/SO/Item/PlatiumOre 2.asset",
+                                    "Assets/SO/Item/PlatiumOre 3.asset",
+                                    "Assets/SO/Item/PlatiumOre 4.asset",
+                                    "Assets/SO/Item/PlatiumOre 5.asset"
+                                ]
+                  }
+              ],
+    "newScripts":  [
+                       "Assets/Script/FastTest/AttackFlowEventProbe.cs",
+                       "Assets/Script/System/StatSystem/PrimaryStatEntry.cs",
+                       "Assets/Script/System/StatSystem/StatSheet.cs"
+                   ],
+    "newAssets":  [
+                      "Assets/Prefab/Particle Effect/Attack Projectile/MagicBolt.prefab",
+                      "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 1.asset",
+                      "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 2.asset",
+                      "Assets/SO/Weapons/MageWeapon/Mage Attack SO State 3.asset",
+                      "Assets/SO/Weapons/MageWeapon/Mage Weapon Stats.asset"
+                  ],
+    "deleted":  [
+                    "Assets/QA/Runtime/QAEmptyPathGrid.cs"
+                ],
+    "uncoveredNewScripts":  [
+                                "Assets/Script/FastTest/AttackFlowEventProbe.cs",
+                                "Assets/Script/System/StatSystem/PrimaryStatEntry.cs"
+                            ]
+}

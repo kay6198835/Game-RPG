@@ -14,7 +14,7 @@ public abstract class CharacterData : ScriptableObject
     [Header("Character")]
     [SerializeField, FormerlySerializedAs("statsSO")] protected BaseStatsSO stats;
     [SerializeField] protected List<AbilityBinding> abilityBindings = new List<AbilityBinding>();
-    // The authored asset. Never write modifiers to it; use CreateRuntimeStats() for a per-character copy.
+    // The authored, data-only stat profile. A character calculates from it through its own StatSheet.
     public BaseStatsSO Stats => stats;
     public List<AbilityBinding> AbilityBindings => abilityBindings;
     // NEED CHECK: now shared by enemies too (was EntityData.aima). FormerlySerializedAs("aima") carries old
@@ -23,13 +23,6 @@ public abstract class CharacterData : ScriptableObject
     [SerializeField, FormerlySerializedAs("aima")] public RuntimeAnimatorController animationController;
     [field: SerializeField] public Weapon Weapon { get; set; }
 
-    // The caller owns the clone and must Destroy it: this SO is shared by every character built from it,
-    // so a clone cached here would be shared too and outlive Play Mode.
-    public BaseStatsSO CreateRuntimeStats()
-    {
-        if (stats == null) return null;
-        var clone = Instantiate(stats);
-        clone.name = stats.name + " (Runtime)";
-        return clone;
-    }
+    // NEED CHECK: 2026-11-09 (stat split) — CreateRuntimeStats() (Instantiate a BaseStatsSO clone) removed;
+    // StatHandlerBase builds a StatSheet from Stats instead.
 }

@@ -58,6 +58,9 @@
     { "pattern": "^Assets/Script/UIFlow/Core/UIEvents|^Assets/Script/UIFlow/Gameplay/Windows/ConfirnPanel", "alsoCheck": ["PLY"], "why": "The Champion pick flow opens the confirm panel through UIEvents" },
     { "pattern": "^Assets/Script/System/LifetimeScope/|^Assets/Script/System/PlayerSystem/", "alsoCheck": ["VIT", "CMB", "ABL", "ENT"], "why": "Injection of the whole player chain" },
     { "pattern": "^Assets/Script/Map/Room/|^Assets/Script/System/Enemy/", "alsoCheck": ["ENT"], "why": "Room clear depends on ON_ENEMY_DEATH from pooled enemies" },
+    { "pattern": "^Assets/Script/Character/Entity/|^Assets/Script/Character/Player/CoreComponent/(ResourceReceiver|Interact)|^Assets/Script/Character/Player/States/PlayerResourceReceiverState|^Assets/Prefab/Item/", "alsoCheck": ["ITEM"], "why": "Item drop on enemy death and the player pickup (QA-ITEM-02..04) run in the ENEMY scene" },
+    { "pattern": "^Assets/Script/System/Item/|^Assets/SO/Item/", "alsoCheck": ["ENT"], "why": "ItemSpawner listens to ON_ENEMY_DEATH; QA-ITEM-02..04 live in the enemy suite" },
+    { "pattern": "^Assets/Script/System/Pathfinding/", "alsoCheck": ["ENT"], "why": "Enemy wander and chase (QA-ENT-10 / QA-ENT-15) path on a PathfindingGrid" },
     { "pattern": "\\.asset$", "alsoCheck": ["STATIC"], "why": "Asset edits: missing script / orphaned key / saved-modifier checks" }
   ],
   "systemToGroup": {

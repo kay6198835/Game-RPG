@@ -3,62 +3,112 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Shared max-value façade over a character's <see cref="BaseStatsSO"/>. Every instance works on its own
-/// runtime clone, so modifiers never reach the authored asset or another character sharing it.
+/// Shared max-value façade of a character. Owns one <see cref="StatSheet"/> built from
+/// <c>Core.Data.Stats</c>; every <see cref="IStatService"/> call goes to that sheet, so the authored
+/// asset is never written and each character has its own values.
 /// </summary>
+// NEED CHECK: 2026-11-09 (stat split) — was an Instantiate()d BaseStatsSO clone, destroyed on reload.
 public abstract class StatHandlerBase<TCore> : CoreComponentBase<TCore>, IStatService<TCore> where TCore : CoreBase
 {
-    private BaseStatsSO _runtime;
-    // Lazy-created on first real use, not Awake: Core.Data is set inside the hub's own Awake, and Unity
-    // does not order Awake across sibling GameObjects.
-    protected BaseStatsSO StatsSO => _runtime != null ? _runtime : (_runtime = CreateRuntimeProfile());
-        /// <summary>Re-raised from the current clone, so subscribers survive a clone swap.</summary>
-    public event Action<StatType> StatChanged;
+    private StatSheet _sheet;
 
-    protected virtual BaseStatsSO CreateRuntimeProfile()
+    // Lazy, not Awake: Core.Data is set inside the hub's own Awake, and Unity does not order Awake across
+    // sibling GameObjects. Not cached while there is no profile, so a later read can still build it.
+    protected StatSheet Sheet
     {
-        BaseStatsSO clone = Core.Data?.CreateRuntimeStats();
-        if (clone == null) return null;
-        clone.OnStatChanged += RelayStatChanged;
-        return clone;
+        get
+        {
+            if (_sheet != null) return _sheet;
+            BaseStatsSO profile = Core.Data != null ? Core.Data.Stats : null;
+            if (profile == null) return null;
+            _sheet = new StatSheet(profile);
+            _sheet.Changed += RelayStatChanged;
+            RefreshDebugView();
+            return _sheet;
+        }
     }
 
-    private void RelayStatChanged(StatType statType) => StatChanged?.Invoke(statType);
+    /// <summary>Re-raised from the current sheet, so subscribers survive a sheet rebuild.</summary>
+    public event Action<StatType> StatChanged;
 
-    private void ReleaseRuntime()
+#if UNITY_EDITOR
+    [Serializable]
+    private struct StatDebugRow
     {
-        if (_runtime == null) return;
-        _runtime.OnStatChanged -= RelayStatChanged;
-        Destroy(_runtime);
-        _runtime = null;
+        public string name;
+        public float baseValue;
+        public float levelUp;
+        public float adjusted;
+        public float primaryBonus;
+        public float modifierBonus;
+        public float final;
+    }
+
+    [Header("Debug (read only — refreshed on every recalculation)")]
+    [SerializeField] private List<StatDebugRow> debugView = new List<StatDebugRow>();
+#endif
+
+    private void RelayStatChanged(StatType statType)
+    {
+        RefreshDebugView();
+        StatChanged?.Invoke(statType);
+    }
+
+    private void RefreshDebugView()
+    {
+#if UNITY_EDITOR
+        debugView.Clear();
+        if (_sheet == null) return;
+        foreach (Stat stat in _sheet.All)
+        {
+            debugView.Add(new StatDebugRow
+            {
+                name = stat.Type.ToString(),
+                baseValue = stat.BaseValue,
+                levelUp = stat.LevelUpValue,
+                adjusted = stat.AdjustedValue,
+                primaryBonus = stat.PrimaryBonus,
+                modifierBonus = stat.ModifierBonus,
+                final = stat.FinalValue,
+            });
+        }
+#endif
+    }
+
+    private void ReleaseSheet()
+    {
+        if (_sheet == null) return;
+        _sheet.Changed -= RelayStatChanged;
+        _sheet = null;
+        RefreshDebugView();
     }
 
     public void ResignStatsChange(Action<StatType> action) => StatChanged += action;
     public void UnResignStatsChange(Action<StatType> action) => StatChanged -= action;
 
-    public int GetLevel() => StatsSO.Level;
-    public Dictionary<StatType, StatsViewDTO> GetFullViewStats() => StatsSO.FullStatView();
-    public StatsViewDTO GetViewStat(StatType statType) => StatsSO.GetViewStat(statType);
-    public Stat GetStat(StatType statType) => StatsSO.GetStat(statType);
-    public float GetStatValue(StatType statType) => StatsSO.GetStatValue(statType);
-    public Dictionary<StatType, float> GetFullStat() => StatsSO.FullStatsValue();
-    public void RemoveModifiersFromSource(object source) => StatsSO.RemoveModifiersFromSource(source);
+    public int GetLevel() => Sheet != null ? Sheet.GetLevel() : 1;
+    public Dictionary<StatType, StatsViewDTO> GetFullViewStats() => Sheet?.GetFullViewStats();
+    public StatsViewDTO GetViewStat(StatType statType) => Sheet?.GetViewStat(statType);
+    public Stat GetStat(StatType statType) => Sheet?.GetStat(statType);
+    public float GetStatValue(StatType statType) => Sheet != null ? Sheet.GetStatValue(statType) : 0f;
+    public Dictionary<StatType, float> GetFullStat() => Sheet?.GetFullStat();
+    public void RemoveModifiersFromSource(object source) => Sheet?.RemoveModifiersFromSource(source);
     public void AddModifiersFromSource(object source, IReadOnlyList<StatModifier> modifiers)
-        => StatsSO.AddModifiersFromSource(source, modifiers);
+        => Sheet?.AddModifiersFromSource(source, modifiers);
 
-    /// <summary>Drops buffs/debuffs left on this instance's clone, e.g. a timed debuff whose removal
+    /// <summary>Drops buffs/debuffs left on this character, e.g. a timed debuff whose removal
     /// coroutine was stopped when the pool disabled the character.</summary>
-    public void ResetRuntimeModifiers() => StatsSO?.ClearRuntimeModifiers();
+    public void ResetRuntimeModifiers() => Sheet?.ClearModifiers();
 
-    // Throws the clone away; the next read builds a fresh one from the (possibly new) CharacterData.
+    // Throws the sheet away; the next read builds a fresh one from the (possibly new) CharacterData.
     public override void ReloadComponent()
     {
         base.ReloadComponent();
-        ReleaseRuntime();
+        ReleaseSheet();
     }
 
     protected virtual void OnDestroy()
     {
-        ReleaseRuntime();
+        ReleaseSheet();
     }
 }
