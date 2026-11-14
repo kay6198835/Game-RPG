@@ -1,6 +1,6 @@
 # Enemy — AI + Spawning
 
-> **Status:** live · **Last verified:** 2026-11-14, `sprint-22` `a8725a77` (sight range, Defense mitigation, pooled respawn; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
+> **Status:** live · **Last verified:** 2026-11-15, `sprint-22` `063b5f87` (bug statuses after the 2026-11-15 triage; no enemy code changed since `a8725a77`; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -78,8 +78,8 @@ the 2026-11-04 `OnLethalHit()` hook was removed in `4097be4c`.
 
 **Respawn anchor.** `EntityInput.ReloadComponent()` re-records `spawnPoint` from the current position
 (`d2d45973`). Since `b33dedf9` `Pool.Reload()` places the object (`SetPositionAndRotation`) **before**
-`SetActive(true)`, so the anchor is the new spawn position; **BUG-124** (S3) is still Open in its file,
-awaiting triage. The same commit makes `ReloadComponent()` reset movement velocity (`MovementBase`), the
+`SetActive(true)`, so the anchor is the new spawn position; **BUG-124** (S3) is FIXED in code per its
+file (2026-11-15 triage), awaiting a runtime check. The same commit makes `ReloadComponent()` reset movement velocity (`MovementBase`), the
 attack timer (`EntityWeaponHolder`), the hold flag (`AbilityHolderBase`) and the action flags
 (`CharacterInputBase`) on reuse.
 
@@ -245,7 +245,7 @@ or `EnemyPrefab`. Do not build new content on them.
 | Bug | Summary |
 |-----|---------|
 | BUG-066 | Unguarded `currentStats[statType]` in the shared `VitalStatsBase` (same site as BUG-070) |
-| BUG-124 | Pooled re-use records the wander anchor at the previous death position |
+| BUG-125 | Melee hits add the attack-stage damage twice (`Weapon.FinalDamage()`) — enemy melee too |
 | BUG-ES-2 | Two parallel spawn drivers |
 | — | `RoomModel.overflowPercent` serialized, never read; `retry > 4` fallback breaks ADR-0003's budget |
 | TD-030 | `EnemySO` not consumed by `Entity` |

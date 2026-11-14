@@ -1,6 +1,6 @@
 # Stats
 
-> **Status:** live · **Last verified:** 2026-11-09 (stat split, working tree — not committed, not yet compiled in the Editor) · **ADR:** ADR-0001
+> **Status:** live · **Last verified:** 2026-11-15, `sprint-22` `063b5f87` (stat split committed as `a0e250fb`; compiled 2026-11-13; `StatSheetTests` PASS in run `20261114-2357`) · **ADR:** ADR-0001
 > History: [CHANGELOG.md](CHANGELOG.md) · GDD: `design/gdd/stat-system.md` · Numbers: `ToolExcel/stat_system_formula_reference.xlsx`
 
 ## Purpose
@@ -74,6 +74,5 @@ Assets: `Assets/SO/Stat/Player/{Paladin,Archer,Mage,Base}Stats.asset`, `Enemy/*S
 
 | Bug | Summary |
 |-----|---------|
-| BUG-063 | Addressed in code by the 2026-11-09 split (`Stat` is no longer serialized); status left for triage |
-| BUG-115 | Runtime path no longer writes the asset; the 2026-11-09 split also makes spent points runtime-only. Status left for triage |
+| BUG-113 | "Max stat" has two meanings (`AdjustedValue` vs `FinalValue`) — Open per its file; not re-checked against `StatSheet` by this pass |
 | TD-018 | `TalentManagger` hardcodes stats outside this system |
