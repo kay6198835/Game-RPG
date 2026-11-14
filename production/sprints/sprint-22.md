@@ -1,6 +1,6 @@
 # Sprint 22 — 2026-11-09 to 2026-11-13
 
-**Status: OPEN.** Opened 2026-11-08 (`pm-weekly-kickoff`, autonomous run — no owner present).
+**Status: CLOSED 2026-11-15 — SLIPPED** (velocity 0.16; carry-over to `sprint-23.md`). Opened 2026-11-08 (`pm-weekly-kickoff`, autonomous run — no owner present).
 Branch `sprint-22`, created on the remote from the `sprint-21` tip (`d2d2b22e`, "Merge
 pm/doc-sync-2026-11-07 into sprint-21"). `gh` CLI unavailable (`gh: program not found`) — draft PR
 **not** auto-created; run manually:
