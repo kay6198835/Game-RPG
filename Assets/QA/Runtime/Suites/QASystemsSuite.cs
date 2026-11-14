@@ -48,6 +48,7 @@ namespace QA.Automation
             yield return Case("QA-STAT-04", "STAT", QAPriority.P0, "RemoveModifiersFromSource restores the value", CaseStatRemove());
             yield return Case("QA-STAT-05", "STAT", QAPriority.P1, "Removing one source keeps another source's modifier", CaseStatSourceIsolation());
             yield return Case("QA-STAT-06", "STAT", QAPriority.P0, "Working on an Instantiate copy leaves the stat asset unchanged", CaseStatAssetUntouched());
+            yield return Case("QA-STAT-07", "STAT", QAPriority.P1, "StatSheet reads each PrimaryStatEntry as BaseValue; two sheets from one profile stay independent", CaseStatPrimaryEntries());
 
             yield return Case("QA-POOL-01", "POOL", QAPriority.P0, "Spawn returns an active instance at the requested position", CasePoolSpawn());
             yield return Case("QA-POOL-02", "POOL", QAPriority.P0, "Release deactivates; the next Spawn reuses the same instance", CasePoolReuse());
@@ -214,6 +215,33 @@ namespace QA.Automation
             List<string> changed = before.Where(p => !after.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value)).Select(p => p.Key.ToString()).ToList();
             Check(changed.Count == 0,
                 $"{statsAsset.name} unchanged", $"{statsAsset.name} changed: {string.Join(", ", changed)}");
+        }
+
+        private IEnumerator CaseStatPrimaryEntries()
+        {
+            if (!StatReady()) yield break;
+            // Stat split (a0e250fb): each authored PrimaryStatEntry is the BaseValue of its primary stat on a new sheet,
+            // and a primary point spent on one sheet does not reach a second sheet built from the same profile.
+            StatSheet a = new StatSheet(statsAsset);
+            StatSheet b = new StatSheet(statsAsset);
+            List<string> wrong = new();
+            int rows = 0;
+            foreach (PrimaryStatEntry entry in statsAsset.PrimaryStats)
+            {
+                if (entry == null) { wrong.Add("null PrimaryStatEntry row"); continue; }
+                rows++;
+                float sheetBase = a.GetStat(entry.Type).BaseValue;
+                if (!Near(sheetBase, entry.BaseValue)) wrong.Add($"{entry.Type}: sheet {sheetBase:0.##}, authored {entry.BaseValue:0.##}");
+            }
+            Check(rows > 0, $"{rows} primary rows on {statsAsset.name}", $"{statsAsset.name} has no PrimaryStatEntry rows");
+            Check(wrong.Count == 0, "every primary BaseValue matches its authored entry", string.Join("; ", wrong));
+
+            float bBefore = b.GetStatValue(StatType.STR);
+            a.AddPrimaryPoint(StatType.STR, 2f);
+            yield return null;
+            Check(Near(b.GetStatValue(StatType.STR), bBefore),
+                $"second sheet STR unchanged ({bBefore:0.##}) after a point on the first",
+                $"second sheet STR {b.GetStatValue(StatType.STR):0.##}, was {bBefore:0.##} — sheets share state");
         }
 
         #endregion

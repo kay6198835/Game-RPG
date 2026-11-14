@@ -88,6 +88,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-STAT-04 | P0 | `RemoveModifiersFromSource` restores the value | back to before, 0 modifiers | | `StatSheetTests.RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier` |
 | QA-STAT-05 | P1 | Removing one source keeps another source's modifier | other source kept (BUG-100 pattern) | | `StatSheetTests.RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier` |
 | QA-STAT-06 | P0 | Working on an Instantiate copy leaves the stat asset unchanged | asset values equal | | `StatSheetTests.CommittedStatAssets_AreUnchangedAfterASheetIsBuffed` |
+| QA-STAT-07 | P1 | `StatSheet` reads each `PrimaryStatEntry` as the primary `BaseValue`; two sheets from one profile stay independent (added 2026-11-14, stat split `a0e250fb`) | every primary BaseValue = authored entry; a primary point on sheet A leaves sheet B unchanged | | |
 | QA-POOL-01 | P0 | Spawn returns an active instance at the position | active, at position, not the template | | `ObjectPoolManagerTests.Spawn_ReturnsActiveInstanceAtRequestedPosition` |
 | QA-POOL-02 | P0 | Release deactivates; next Spawn reuses the same instance | reused | | `ObjectPoolManagerTests.Release_DeactivatesAndNextSpawnReusesTheSameInstance` |
 | QA-POOL-03 | P1 | Two spawns without release are distinct | distinct | | `ObjectPoolManagerTests.Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances` |

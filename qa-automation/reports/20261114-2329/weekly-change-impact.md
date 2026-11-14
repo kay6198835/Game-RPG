@@ -99,5 +99,20 @@
 
 ## 5. Suggested new cases
 
-Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
-the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+Filled in by the Friday QA task (part C), 2026-11-14.
+
+| Kind | ID | For | What it checks |
+|---|---|---|---|
+| AUTO | QA-STAT-07 (P1, `QASystemsSuite`) | `PrimaryStatEntry.cs`, `StatSheet.cs` (`a0e250fb`) | every authored `PrimaryStatEntry` is the primary `BaseValue` on a new `StatSheet`; a primary point on one sheet does not reach a second sheet from the same profile |
+| MANUAL | MAN-CMB-06 | Paladin combo animations (`38d40925`) | 3 stages in 8 directions, one HP drop per stage |
+| MANUAL | MAN-CMB-07 | Mage MagicBolt basic attack (`0f3644bd`) | bolt faces / travels / hits at 3 and 6 units |
+| MANUAL | MAN-ABL-05 | Archer Rain Arrows prefab (`285e6900`) | arrow pattern follows the cast direction, damages, despawns at clip end |
+| MANUAL | MAN-ENT-08 | enemy attack clip events (`38d40925`) | HP drops on the impact frame |
+| MANUAL | MAN-ENT-09 | pooled enemy reset (`b33dedf9`) | second room enemies spawn healthy and wander near their spawn |
+| MANUAL | MAN-STAT-01 | stat split (`a0e250fb`) | Stats panel matches the asset preview; Revert restores |
+
+Not given a case: `Assets/Script/FastTest/AttackFlowEventProbe.cs` is a debug harness (FastTest), not game behaviour.
+
+Test fixes made in the same pass (not new behaviour): QA-ABL-01 no longer judges a scattered-point summon
+(`DamagesInManyPos`, Rain Arrows) by one target 2.5 units ahead — it records a note and the pattern is checked
+by MAN-ABL-05; QA-STATIC-05 skips `Assets/Tests/` (Editor-only `GameRPG.EditModeTests` assembly).
