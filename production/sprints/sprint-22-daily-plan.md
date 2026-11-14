@@ -11,7 +11,17 @@
 
 ## Status Verdict
 
-**SLIPPED — day 5 (Fri 2026-11-13, 02:00)** — Thursday had commits again, none on a planned task:
+**FINAL (weekly wrap-up, 2026-11-15): SLIPPED** — Must 0.05d / 1.05d done (S22-05 only); S22-F1
+merged (0.5d, feature). S22-01 playtest (25th carry), S22-02 BUG-122 (S1), S22-03 / 04 / 06 / 07 /
+09 / 10 / 12 all ⬜; S22-11 effectively closed by the stat split (BUG-115 → FIXED in code and data,
+QA-STATIC-04 PASS). Off-plan output ≈2.5d (stat split, asmdef + 64 EditMode tests → BUG-084 FIXED,
+Rain Arrows wiring → BUG-109 FIXED in code, QA cases) plus the owner's unmerged
+`docs/gdd-pathfinding-ability` (bonfire, interact prompt, dash WIP). **Playtest done: no** — the
+2026-11-14 sheet is empty. The Friday automated run `20261114-2357` (RUNTIME, automated): PASS 150 /
+FAIL 5 / KNOWN 8 / SKIP 20 / OBSERVED 2. Triage confirmed BUG-125…128 (BUG-125 S2: melee stage damage
+added twice, from S22-F1's `38d40925`). Evidence: RUNTIME (automated QA only) + LOG + STATIC.
+
+*Was:* **SLIPPED — day 5 (Fri 2026-11-13, 02:00)** — Thursday had commits again, none on a planned task:
 `chore/asmdef-test-setup` (`9c11c672` assembly definitions + first EditMode test, `e555e9da` DOTween
 Modules assembly, `d9776bb8` `Path` → `NavPath`; relates to BUG-084, merged into `sprint-22` by today's
 sync → `3a750ca8`), `285e6900` Rain Arrows wiring (relates to BUG-109, merged by the owner `28ed4382`)
@@ -58,7 +68,7 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
 | Must Have (incl. Sat playtest 0.1d) | 1.05d | 0.05d (S22-05) | 1.0d |
-| Should Have | 0.8d | 0 (S22-11 looks done by `a0e250fb`, unverified) | 0.8d |
+| Should Have | 0.8d | 0.1d (S22-11, closed by `a0e250fb`, QA-STATIC-04 PASS) | 0.7d |
 | Off-plan (2026-11-09) | — | ≈1d (stat split, item key migration, anim-viewer tools) | — |
 | Off-plan (2026-11-12) | — | ≈1.5d (asmdef + EditMode tests / BUG-084, Rain Arrows wiring / BUG-109, QA cases) | — |
 | Feature story S22-F1 (capped, gated by S22-01) | 0.5d | 0.5d (merged by sync) | 0 (compile / runtime check rides on S22-01) |
@@ -113,7 +123,7 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S22-10 BUG-117 + BUG-120 + BUG-123 | 0.35d | ⬜ → carried to Fri (likely next sprint) | Heal / damage and stat / coin items are no-ops |
-| S22-11 BUG-115 asset cleanup | 0.1d | 🟡 `a0e250fb` rewrote the player stat assets as data only (modifier lists gone); confirm with QA-STATIC-04 | QA-STATIC-04 still FAILs |
+| S22-11 BUG-115 asset cleanup | 0.1d | ✅ by `a0e250fb` (off-plan stat split) — QA-STATIC-04 PASS in run `20261114-2357`; BUG-115 → FIXED in code and data (2026-11-15 triage) | QA-STATIC-04 still FAILs |
 
 ### Fri 2026-11-13 — Cleanup + buffer
 | Task | Est. | Status | Why now |
@@ -124,7 +134,7 @@ started. Compile COMPILED at `58601f57`; Editor log 0 errors. Evidence: COMPILED
 ### Sat 2026-11-14 — Weekly playtest
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri 23:00 QA run as input) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri 23:00 QA run as input) | 0.1d | ❌ not done — `playtest-2026-11-14.md` empty | Reserved every Saturday; feeds wrap-up |
 
 ---
 
@@ -256,3 +266,41 @@ _(appended by `/daily-standup`)_
 - **Today**: S22-02 BUG-122 + S22-09 (0.3d, S1) → S22-01 playtest through the menu (0.3d) →
   S22-04 / S22-03 (0.15d) → S22-06 (0.2d). S22-07, S22-10, S22-11 check and S22-12 are carry
   candidates for the Saturday wrap-up.
+
+### 2026-11-15 (Sun, Saturday slot) — weekly wrap-up, evidence RUNTIME (automated) + LOG + STATIC
+- **Week's commits** (since `c6f3ccf2`): on `sprint-22` — `38d40925` / `0f3644bd` / `bd75d17c`
+  (S22-F1), `a0e250fb` stat split, `b33dedf9` (S22-05), `094ec9df` ItemSO keys, `b47f7a62` tools,
+  `285e6900` Rain Arrows, `9c11c672` / `e555e9da` / `d9776bb8` asmdef + EditMode tests, `c35cdf3c`
+  QA cases; owner branch `docs/gdd-pathfinding-ability` (`f6921dc9`, `3b02df7d` "coding need check",
+  not merged): bonfire, interact prompt, `PlayerDashState` (unwired), GDD update.
+- **Code review**: 58 `.cs` changed on `sprint-22` + 17 on the owner branch. Top finding: `Weapon.FinalDamage()`
+  adds the stage damage a second time (BUG-125, also caught by QA-CMB-01.Paladin). Owner branch:
+  interact prompt can never show (NOTE-20261115-6), stray file `States/s` + unwired dash
+  (NOTE-20261115-7), `VitalModifier` serialized without the sign fix (BUG-117 merge risk).
+- **Playtest**: NOT RUN — `playtest-2026-11-14.md` has no results. Verdict capped at CONCERNS (actual SLIPPED).
+- **Automated QA** (run `20261114-2357`, `a8725a77`): PASS 150 / FAIL 5 / KNOWN 8 / SKIP 20 / OBSERVED 2;
+  new FAIL 1 (QA-CMB-04.Mage), fixed 1 (QA-ABL-01.Archer.Ultimate); 64 EditMode tests PASS; deep run ABL, STAT, STATIC.
+- **Fix survival 30 d**: 2 PRESENT, 5 PARTIAL (all `1370136c` / `3d768b3d`, re-touched by the stat split), 0 GONE.
+- **Triage**: 18 notes → BUG-125…128 confirmed; 7 resolved in week; 1 duplicate; 2 by design; 1 not
+  reproduced; 3 needs owner. Status: BUG-063, BUG-109, BUG-115, BUG-124 → FIXED in code; BUG-084 → FIXED.
+  Report `production/qa/bug-triage-2026-11-15.md`.
+- **Handoff for `/weekly-kickoff`**: **playtest done: no** (26th carry if planned again);
+  **velocity 0.16** (0.65 estimate-days completed — S22-05 0.05 + S22-11 0.1 + S22-F1 0.5 — / 4);
+  **carry-over**: S22-01, S22-02 (BUG-122), S22-03 (BUG-096), S22-04 (BUG-097), S22-06 (BUG-106 + BUG-110),
+  S22-07, S22-09 (BUG-065 + BUG-086), S22-10 (BUG-117 + 120 + 123), S22-12; **new blockers**: BUG-125
+  (S2, P1, one line), BUG-126 (S2, before any build); chore: re-save 17 `EntityData` assets (NOTE-20261115-5).
+
+## Retrospective (2026-11-15)
+
+- **Went well**: the stat split closed two long-running data bugs (BUG-063 open since August,
+  BUG-115); the test pipeline finally exists (BUG-084 FIXED, 64 EditMode tests green in the weekly run);
+  the automated QA run caught a fresh damage regression (BUG-125) within a week of the merge.
+- **Slipped**: 0.05d of 1.05d Must. BUG-122 (S1) untouched for a second sprint; the playtest is at
+  its 25th carry and has never been recorded since the sheet flow started. Most output went to
+  infrastructure and off-plan features.
+- **Deferred multiple weeks**: S22-01 playtest (25), BUG-065 (13), BUG-086 (8), BUG-096 / BUG-097 /
+  S22-07 (6), S22-12 one-liners (4–7).
+- **One improvement**: plan sprint 23 around the owner's actual weekly to-do instead of against it —
+  put BUG-122 + BUG-125 (≈0.15d, both one-file fixes) as the first task of Monday and let the
+  feature branch be the declared main work; ask the owner once to either record one sheet or sign
+  the playtest as an accepted risk (stop carrying it silently).
