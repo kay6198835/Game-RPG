@@ -11,7 +11,11 @@
 
 ## Status Verdict
 
-**ON-TRACK — day 0 (Sun 2026-11-15, kickoff).** Nothing started. Evidence: STATIC.
+**ON-TRACK — day 1 (Mon 2026-11-16, standup 02:00).** No sprint task started yet (Sunday, no
+commits expected). 5 working days left / 2.85d planned work + 1d buffer. Standup sync FAILED (doc
+conflicts with owner branch `docs/gdd-pathfinding-ability`, NOTE-20261116-1) — S23-F1 merge now
+also carries a 4-file `.md` conflict resolution. Owner's live tree carries uncommitted dash-state
+work (off-plan). Evidence: COMPILED (working tree, 36 s) + STATIC.
 
 ## Burn Summary
 
@@ -91,9 +95,28 @@
 - Owner branch serializes `VitalModifier` without the BUG-117 sign fix — do S23-08 first.
 - Needs-owner notes (NOTE-20261115-5/-6/-7 and older) — not tasks.
 - `gh` unavailable — draft PR not opened.
+- Owner branch `docs/gdd-pathfinding-ability` no longer merges cleanly into `sprint-23`: 4 `.md`
+  conflicts (`docs/CHANGELOG-DOCS.md`, `docs/systems/pathfinding/{README,CHANGELOG}.md`,
+  `production/qa/bug-inbox.md`) — NOTE-20261116-1. The standup sync stays blocked until the owner
+  merges `sprint-23` into the branch (or resolves during S23-F1).
+- Off-plan: uncommitted dash state work (Player / PlayerBasicState / PlayerDashState / input /
+  GameConstants / Player.controller / Dash clips) — not a sprint-23 task; keep it under the buffer.
 
 ---
 
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-11-16 (Mon) — standup 02:00
+- **Sync:** FAILED — merge of `docs/gdd-pathfinding-ability` (`f6921dc9`, `3b02df7d`, 2 commits not
+  on `sprint-23`) conflicted in 4 `.md` files; aborted, nothing pushed (NOTE-20261116-1).
+- **Yesterday (Sun):** only PM routine commits (wrap-up, doc-sync, kickoff). No owner commit since
+  `3b02df7d` (Sat 2026-11-14 23:29, already reviewed by the wrap-up). Burned 0 / 0d planned.
+- **Runtime:** `compile-check.sh` COMPILED owner HEAD `3b02df7d` + 10 uncommitted paths (36 s).
+  `Editor.log` (00:03, 8 Play Mode entries): 9 `error CS0117` `IS_DASH` in `PlayerDashState.cs`,
+  transient — the uncommitted `GameConstants.cs` compiles (NOTE-20261116-2). No `Assets/Script/`
+  exception.
+- **Owner live tree:** uncommitted dash state wiring (off-plan).
+- **Today:** S23-01 playtest (0.3d) → S23-02 death chain (0.3d) → S23-03 BUG-125 (0.05d).
+- **Verdict:** ON-TRACK (day 1).
