@@ -8,9 +8,12 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
     [SerializeField] protected SourceEffect sourceEffect;
-    [Inject] protected IObjectPoolService _objectPoolManager;
-    public void Construct(IObjectPoolService objectPoolManager)
+    protected IObjectResolver _resolver;
+    protected IObjectPoolService _objectPoolManager;
+    [Inject]
+    public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolManager)
     {
+        _resolver = resolver;
         _objectPoolManager = objectPoolManager;
     }
     public override void Setup()
@@ -20,16 +23,16 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         Core.TryGetCapability(out statHandler);
     }
 
-    GameObject SetEffectSource(AbilityContext context, Action callback)
+    GameObject SetEffectSource(AbilityContext context, float lifetime, Action callback)
     {
         Vector2 position = context != null ? context.Caster.Transform.position : Vector2.zero;
         GameObject instance = _objectPoolManager.Spawn(sourceEffect.gameObject, position, Quaternion.identity);
         instance.GetComponent<SourceEffect>().SetSourceEffect(new SourceEffectConfig
         {
             callback = callback,
-            lifetime = 5f
+            lifetime = lifetime
         });
-
+        _resolver?.Inject(instance);
         return instance;
     }
     public override void ReloadComponent()
@@ -53,7 +56,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
-        statHandler.AddModifiersFromSource(SetEffectSource(context, callback), statModifierGroup.GetStatsModifiers);
+        statHandler.AddModifiersFromSource(SetEffectSource(context, 0f, callback), statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.
@@ -79,7 +82,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     IEnumerator ApplyAdjustCurrentForDuration(StatModifierGroup statModifierGroup, float duration, AbilityContext context, Action callback = null)
     {
-        var sourceEffect = SetEffectSource(context, callback);
+        var sourceEffect = SetEffectSource(context, duration, callback);
         statHandler.AddModifiersFromSource(sourceEffect, statModifierGroup.GetStatsModifiers);
         yield return new WaitForSeconds(duration);
         statHandler.RemoveModifiersFromSource(sourceEffect);
