@@ -32,12 +32,12 @@ verified-by: Kiet
 > | Model | Subclass `ActivateSkill`, override `Cast()`/`Do()` | Compose an `AbilityDefinition` SO from effect + condition assets |
 > | Lifecycle | `Enter → Activate → Cast → Do → Exit` | `AbilityState`: `Start → Cast → Do → Exit` |
 > | **Used by** | **`EntityWeapon.currentAbilitySO` only** (since 2026-09-28) | **`AbilityHolder` (player) and `EntityAbilityHolder` (enemy)** |
-> | Live SO assets | `SO/Skill/{Dash,Slash,Block,Dual} Ability.asset` | `SO/Skill/Paladin/Ability/**`, `SO/Skill/ShootSpirit/*.asset`, `SO/Skill/Conditions/*.asset` |
+> | Live SO assets | `SO/Skill/{Dash,Slash,Block,Dual} Ability.asset` | `SO/Skill/Paladin/Ability/**`, `SO/Skill/{Archer,Mage}/**` |
 >
 > **v2 delta re-verified 2026-09-21** (HEAD `15242e6`): the enum is `AbilityState`, not `SkillState`,
 > and it has no `None` member. v2's live content is now the **Paladin ability set** — Consecrate,
 > Blessed Slash, Blessing, Avatar of Light — under `Assets/SO/Skill/Paladin/`. The original
-> ShootSpirit proof-of-wiring assets still exist but reference deleted scripts (BUG-073).
+> ShootSpirit proof-of-wiring assets were deleted on 2026-11-16 (BUG-073).
 >
 > **So: the player no longer runs the system this GDD describes.** v1 remains live on the weapon
 > and enemy path, so this document is not obsolete — it is now partial.

@@ -24,7 +24,7 @@ effects and conditions, run per owner by an `AbilityInstance`.
 | `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (`DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `ImpactMono/SourceEffect` |
 | ~~`System/Skill_Ability/`~~ | **Deleted 2026-11-04.** v1 (`ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual, effect SOs, `InternalSkillSO`) removed with its six SO assets, `EntityWeapon`, `Spell` + `Spell.prefab`, `IEffectable`. `WeaponSO` moved to `System/Item/` |
 | Owners | `Character/Base/AbilityHolderBase.cs` → `AbilityHolder` (player), `EntityAbilityHolder` (enemy) |
-| Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live); `Assets/SO/Skill/{Archer,Mage}/` (temporary class abilities, `6c61ccdb`, GDD Phase 1 `ae0d6e82`); `Assets/SO/Skill/ShootSpirit/` (legacy, BUG-073 / BUG-090) |
+| Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live); `Assets/SO/Skill/{Archer,Mage}/` (temporary class abilities, `6c61ccdb`, GDD Phase 1 `ae0d6e82`) |
 
 ## How it works (v2)
 
@@ -73,7 +73,7 @@ from the target and skips if none.
 | BUG-083 | `HoldTime` / `HoldRatio` always `0f` |
 | BUG-068 | `AbilityHolderBase.CurrentActivationType` (`:28`) unguarded |
 | BUG-079 | `AbilityInstance.Exit()` body commented out |
-| BUG-073 / BUG-090 | ShootSpirit assets and `Has Enough Mana Condition.asset` reference deleted scripts |
+| ~~BUG-073 / BUG-090~~ | *2026-11-16:* the ShootSpirit assets, `SpiritProjcetile.prefab` and every reference to the deleted condition asset are deleted; `SpawnEffectBase` warnings no longer name the deleted classes. Awaiting triage (NOTE-20261116-5) |
 | BUG-089 | Closed by design (tier scaffolding) — reopen at demo/release |
 | — | GDD written 2026-11-13 (`design/gdd/abilities-v2-system.md`), reviewed by the owner the same day, 3 questions parked; still no ADR for Abilities v2 *(was: "No GDD for v2; no ADR deciding v1 vs v2 endgame")* |
 

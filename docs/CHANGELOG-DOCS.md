@@ -17,6 +17,12 @@ which code change caused it.
 
 ---
 
+## 2026-11-16 — Sprint 23 fix branch: ranged damage model, ShootSpirit removal (`origin/feature/fix-bug-sprint-23`)
+- **Cause:** owner decision "basic attacks scale with PhysicalDamage, MagicDamage only for magic skills" (`3a2659ce`); owner request to remove ShootSpirit (`e6c826e5` + follow-up).
+- `docs/systems/weapons/README.md` + `CHANGELOG.md`, `design/gdd/weapons-system.md` + changelog — ranged hits deal the stored `finalDamage`; `nextFireTime` citations BUG-093 → BUG-103 (BUG-101).
+- `docs/systems/abilities/README.md` + `CHANGELOG.md`, `docs/diagrams/ability-system-diagrams.md`, `design/gdd/abilities-v2-system.md`, `design/gdd/skill-ability-system.md`, `.claude/rules/prototype-code.md` — ShootSpirit assets no longer listed as live.
+- `production/qa/bugs/BUG-073.md` — dated re-verification appended (status left to triage); inbox NOTE-20261116-5…7.
+
 ## 2026-11-15 — Doc-truth pass: 2026-11-15 triage statuses, BUG-125…128 (HEAD `063b5f87`)
 
 **Cause.** `/doc-sync --auto` (routine `pm-weekly-doc-truth`) over `a8725a77..063b5f87` on `sprint-22`.

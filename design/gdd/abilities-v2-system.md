@@ -307,7 +307,7 @@ animation plays, nothing happens in the world, and a 1 s cooldown starts.
 | `Mage/…/Fireball (GDD)` | Active | 0 | 0.6 s | none | `SpawnProjectileEffect` — `Slash-VFX-GO`, `baseDamage` 56, `SpawnOffset` 0.7, `Lifetime` 0.6 s |
 | `Mage/…/Chain Lightning (GDD)` | Active | 0 | 4 s | 22 Mana | `SpawnSummonEffect` — `RuneCircle` + `Lightning`, `baseDamage` 25 |
 | `Mage/…/Meteor (GDD)` | Active | 0 | 40 s | 80 Mana | `SpawnSummonEffect` — `RuneCircle` + `Lightning`, `baseDamage` 110 |
-| `ShootSpirit/SpiritBomd`, `ShootSpirit/MainEffect/ShootSpirit` | — | — | — | — | Legacy; reference deleted scripts (BUG-073, BUG-090). Not part of this design |
+| ~~`ShootSpirit/SpiritBomd`, `ShootSpirit/MainEffect/ShootSpirit`~~ | — | — | — | — | Deleted 2026-11-16 (BUG-073, BUG-090) |
 
 **AB-K1 (CONFIRMED).** The Archer and Mage slots are **intentionally empty in this phase**: skills and
 effects have not been attached to those classes yet (owner decision 2026-11-13, OQ-10). The class
