@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[CreateAssetMenu(menuName = "Item SO/Effect/Coin")]
 public class CoinModifierEffect : ItemEffectDefinitionSO
 {
     [SerializeField] private int coinAmount;
