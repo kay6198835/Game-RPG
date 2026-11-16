@@ -48,10 +48,13 @@ public class Pool : MonoBehaviour
     private GameObject Reload(Vector2 position, Quaternion rotation, Transform parent = null)
     {
         var reload = inactiveObjects.Dequeue();
-        reload.gameObject.SetActive(true);
-        reload.gameObject.transform.SetPositionAndRotation(position, rotation);
+        // NEED CHECK: 2026-11-08 — place the object BEFORE activating it. OnEnable() runs inside SetActive(true),
+        // and reload code there (Entity.OnEnable → ReloadCore, EntityInput.spawnPoint, Rigidbody2D) read the
+        // previous life's position when the move came after (BUG-124).
         reload.transform.SetParent(parent == null ? this.transform : parent);
+        reload.transform.SetPositionAndRotation(position, rotation);
         reload.SwitchIsInPool(false);
+        reload.gameObject.SetActive(true);
         return reload.gameObject;
     }
 

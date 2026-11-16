@@ -18,9 +18,20 @@ Each run does three things:
 | `qa-automation/` | Everything Unity does not need: scripts, config, case catalog, manual checklist, reports, state. It sits outside `Assets/`, so Unity never imports it and the Editor is not slowed down. |
 | `Assets/QA/` | Only what Unity must compile or load. `Editor/` holds the runner, the scene builder and the static checks. `Runtime/` holds the harness and the suites, all inside `#if UNITY_EDITOR` so they never ship in a build. `Scenes/` holds the QA scenes, rebuilt from code on every run and git-ignored. |
 
-There is no `.asmdef` (BUG-084). The QA code compiles into the default `Assembly-CSharp` /
-`Assembly-CSharp-Editor` assemblies, so it can see every gameplay class. No gameplay file, scene, prefab or
+Assembly definitions (BUG-084, added on `chore/asmdef-test-setup`, 2026-11-12): gameplay code is the `GameRPG`
+assembly (`Assets/Script/GameRPG.asmdef`), and EditMode unit tests live in `Assets/Tests/EditMode/`
+(`GameRPG.EditModeTests`). The QA code under `Assets/QA/` still compiles into the default `Assembly-CSharp` /
+`Assembly-CSharp-Editor` assemblies, which auto-reference `GameRPG`. No gameplay file, scene, prefab or
 ScriptableObject is changed.
+
+The weekly run tests the newest `origin/sprint-NN`. The asmdef files and `Assets/Tests/` only count once that
+branch contains them; on an older sprint the unit-test step is skipped and logged.
+
+**EditMode unit tests (step 5b of `run-weekly.ps1`).** After the compile check the script runs
+`Unity -batchmode -runTests -testPlatform EditMode` when `Assets/Tests/EditMode/` exists. Every NUnit test
+becomes one case `QA-UNIT.<Class>.<Test>` (system `UNIT`, group `UNIT`, priority P0, so it always runs). Failed
+= FAIL (counts in the exit code), Skipped/Ignored = SKIP. If Unity writes no `unit-results.xml`, one
+`QA-UNIT-RUNNER` FAIL is reported. Raw NUnit XML: `reports/<run>/unit-results.xml`.
 
 | File | Role |
 |---|---|

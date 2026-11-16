@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="64" result="Passed" total="64" passed="64" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-14 16:59:02Z" end-time="2026-11-14 16:59:03Z" duration="1.0778307">
+  <test-suite type="TestSuite" id="1078" name="Game RPG" fullname="Game RPG" runstate="Runnable" testcasecount="64" result="Passed" start-time="2026-11-14 16:59:02Z" end-time="2026-11-14 16:59:03Z" duration="1.077831" total="64" passed="64" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1151" name="GameRPG.EditModeTests.dll" fullname="D:/Fork/Game-RPG/Library/ScriptAssemblies/GameRPG.EditModeTests.dll" runstate="Runnable" testcasecount="64" result="Passed" start-time="2026-11-14 16:59:02Z" end-time="2026-11-14 16:59:03Z" duration="1.042446" total="64" passed="64" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="17560" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestFixture" id="1079" name="AStarTests" fullname="AStarTests" classname="AStarTests" runstate="Runnable" testcasecount="14" result="Passed" start-time="2026-11-14 16:59:02Z" end-time="2026-11-14 16:59:03Z" duration="0.217198" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1092" name="CommittedRoom_PathToAWallTile_FailsCleanly" fullname="AStarTests.CommittedRoom_PathToAWallTile_FailsCleanly" methodname="CommittedRoom_PathToAWallTile_FailsCleanly" classname="AStarTests" runstate="Runnable" seed="812242410" result="Passed" start-time="2026-11-14 16:59:02Z" end-time="2026-11-14 16:59:02Z" duration="0.079658" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1091" name="CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget" fullname="AStarTests.CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget" methodname="CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget" classname="AStarTests" runstate="Runnable" seed="233754059" result="Passed" start-time="2026-11-14 16:59:02Z" end-time="2026-11-14 16:59:03Z" duration="0.046632" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1093" name="CommittedRoom_SameQueryTwice_GivesTheSamePath" fullname="AStarTests.CommittedRoom_SameQueryTwice_GivesTheSamePath" methodname="CommittedRoom_SameQueryTwice_GivesTheSamePath" classname="AStarTests" runstate="Runnable" seed="2003675082" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.047271" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1082" name="FindPath_AroundAWall_TakesTheOnlyShortestDetour" fullname="AStarTests.FindPath_AroundAWall_TakesTheOnlyShortestDetour" methodname="FindPath_AroundAWall_TakesTheOnlyShortestDetour" classname="AStarTests" runstate="Runnable" seed="1438717186" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.002073" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1088" name="FindPath_DiagonalBetweenTwoWalls_IsNotAllowed" fullname="AStarTests.FindPath_DiagonalBetweenTwoWalls_IsNotAllowed" methodname="FindPath_DiagonalBetweenTwoWalls_IsNotAllowed" classname="AStarTests" runstate="Runnable" seed="1167074940" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000457" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1085" name="FindPath_FromAWallTile_Fails" fullname="AStarTests.FindPath_FromAWallTile_Fails" methodname="FindPath_FromAWallTile_Fails" classname="AStarTests" runstate="Runnable" seed="1163695530" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000359" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1090" name="FindPath_OnALargerGrid_WaypointsAreWalkableAndAdjacent" fullname="AStarTests.FindPath_OnALargerGrid_WaypointsAreWalkableAndAdjacent" methodname="FindPath_OnALargerGrid_WaypointsAreWalkableAndAdjacent" classname="AStarTests" runstate="Runnable" seed="373513193" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000835" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1081" name="FindPath_OpenDiagonal_StepsDiagonally" fullname="AStarTests.FindPath_OpenDiagonal_StepsDiagonally" methodname="FindPath_OpenDiagonal_StepsDiagonally" classname="AStarTests" runstate="Runnable" seed="1350125116" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000605" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1089" name="FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath" fullname="AStarTests.FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath" methodname="FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath" classname="AStarTests" runstate="Runnable" seed="982907708" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000864" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1083" name="FindPath_StartEqualsTarget_ReturnsASingleWaypoint" fullname="AStarTests.FindPath_StartEqualsTarget_ReturnsASingleWaypoint" methodname="FindPath_StartEqualsTarget_ReturnsASingleWaypoint" classname="AStarTests" runstate="Runnable" seed="2146239015" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000632" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1080" name="FindPath_StraightCorridor_ReturnsEveryTileInOrder" fullname="AStarTests.FindPath_StraightCorridor_ReturnsEveryTileInOrder" methodname="FindPath_StraightCorridor_ReturnsEveryTileInOrder" classname="AStarTests" runstate="Runnable" seed="2092097212" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000792" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1086" name="FindPath_TargetOutsideTheGrid_Fails" fullname="AStarTests.FindPath_TargetOutsideTheGrid_Fails" methodname="FindPath_TargetOutsideTheGrid_Fails" classname="AStarTests" runstate="Runnable" seed="10178105" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000590" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1087" name="FindPath_TargetWalledOff_Fails" fullname="AStarTests.FindPath_TargetWalledOff_Fails" methodname="FindPath_TargetWalledOff_Fails" classname="AStarTests" runstate="Runnable" seed="458253576" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000493" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1084" name="FindPath_ToAWallTile_FailsCleanly" fullname="AStarTests.FindPath_ToAWallTile_FailsCleanly" methodname="FindPath_ToAWallTile_FailsCleanly" classname="AStarTests" runstate="Runnable" seed="607668152" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001619" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1094" name="DepotItemTests" fullname="DepotItemTests" classname="DepotItemTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.048127" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1102" name="CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed" fullname="DepotItemTests.CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed" methodname="CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed" classname="DepotItemTests" runstate="Runnable" seed="1366787503" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.023614" asserts="0">
+          <properties />
+          <output><![CDATA[Fixing reference to the runtime script in scene file!
+Fixing reference to the runtime script in scene file!
+]]></output>
+        </test-case>
+        <test-case id="1098" name="TierWithoutAnyItem_IsExcludedFromTheDropRate" fullname="DepotItemTests.TierWithoutAnyItem_IsExcludedFromTheDropRate" methodname="TierWithoutAnyItem_IsExcludedFromTheDropRate" classname="DepotItemTests" runstate="Runnable" seed="1871085050" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.005101" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1095" name="TryRollItem_EmptyDepot_NeverDrops" fullname="DepotItemTests.TryRollItem_EmptyDepot_NeverDrops" methodname="TryRollItem_EmptyDepot_NeverDrops" classname="DepotItemTests" runstate="Runnable" seed="2035367234" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001678" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1099" name="TryRollItem_ReportsTheTierOfTheItemItReturns" fullname="DepotItemTests.TryRollItem_ReportsTheTierOfTheItemItReturns" methodname="TryRollItem_ReportsTheTierOfTheItemItReturns" classname="DepotItemTests" runstate="Runnable" seed="499315558" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.004446" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1101" name="TryRollItem_SameSeed_GivesTheSameItem" fullname="DepotItemTests.TryRollItem_SameSeed_GivesTheSameItem" methodname="TryRollItem_SameSeed_GivesTheSameItem" classname="DepotItemTests" runstate="Runnable" seed="397555913" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001358" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1100" name="TryRollItem_ThirtyPercentTier_DropsAboutThirtyPercentOfRolls" fullname="DepotItemTests.TryRollItem_ThirtyPercentTier_DropsAboutThirtyPercentOfRolls" methodname="TryRollItem_ThirtyPercentTier_DropsAboutThirtyPercentOfRolls" classname="DepotItemTests" runstate="Runnable" seed="828021343" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.002204" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1096" name="TryRollItem_TierAtHundredPercent_AlwaysDropsAnItemOfTheTable" fullname="DepotItemTests.TryRollItem_TierAtHundredPercent_AlwaysDropsAnItemOfTheTable" methodname="TryRollItem_TierAtHundredPercent_AlwaysDropsAnItemOfTheTable" classname="DepotItemTests" runstate="Runnable" seed="574407453" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.002535" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1097" name="TryRollItem_TierWithZeroRate_NeverDrops" fullname="DepotItemTests.TryRollItem_TierWithZeroRate_NeverDrops" methodname="TryRollItem_TierWithZeroRate_NeverDrops" classname="DepotItemTests" runstate="Runnable" seed="1197815605" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001753" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1103" name="EventManagerTests" fullname="EventManagerTests" classname="EventManagerTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.014162" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1108" name="Emit_AfterEveryListenerRemoved_DoesNotThrow" fullname="EventManagerTests.Emit_AfterEveryListenerRemoved_DoesNotThrow" methodname="Emit_AfterEveryListenerRemoved_DoesNotThrow" classname="EventManagerTests" runstate="Runnable" seed="1592744125" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.005636" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1107" name="Emit_CallsEveryListenerOfTheEventOnce" fullname="EventManagerTests.Emit_CallsEveryListenerOfTheEventOnce" methodname="Emit_CallsEveryListenerOfTheEventOnce" classname="EventManagerTests" runstate="Runnable" seed="468391407" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000774" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1104" name="Emit_DeliversPayloadOnceToRegisteredListener" fullname="EventManagerTests.Emit_DeliversPayloadOnceToRegisteredListener" methodname="Emit_DeliversPayloadOnceToRegisteredListener" classname="EventManagerTests" runstate="Runnable" seed="1400012563" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000756" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1110" name="Emit_DoesNotReachListenersOfAnotherEvent" fullname="EventManagerTests.Emit_DoesNotReachListenersOfAnotherEvent" methodname="Emit_DoesNotReachListenersOfAnotherEvent" classname="EventManagerTests" runstate="Runnable" seed="2145734223" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000791" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1105" name="Emit_WithoutPayload_DeliversNull" fullname="EventManagerTests.Emit_WithoutPayload_DeliversNull" methodname="Emit_WithoutPayload_DeliversNull" classname="EventManagerTests" runstate="Runnable" seed="1219615222" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000776" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1109" name="UnResgister_OneListener_KeepsTheOther" fullname="EventManagerTests.UnResgister_OneListener_KeepsTheOther" methodname="UnResgister_OneListener_KeepsTheOther" classname="EventManagerTests" runstate="Runnable" seed="1024208820" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000732" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1106" name="UnResgister_StopsDelivery" fullname="EventManagerTests.UnResgister_StopsDelivery" methodname="UnResgister_StopsDelivery" classname="EventManagerTests" runstate="Runnable" seed="969272619" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000527" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1111" name="MapModelTests" fullname="MapModelTests" classname="MapModelTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.517222" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1117" name="CommittedMapModel_DealsEveryRoomOncePerCycle" fullname="MapModelTests.CommittedMapModel_DealsEveryRoomOncePerCycle" methodname="CommittedMapModel_DealsEveryRoomOncePerCycle" classname="MapModelTests" runstate="Runnable" seed="1545831323" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.506779" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1112" name="GetRandomRoom_DealsEveryRoomOncePerCycle" fullname="MapModelTests.GetRandomRoom_DealsEveryRoomOncePerCycle" methodname="GetRandomRoom_DealsEveryRoomOncePerCycle" classname="MapModelTests" runstate="Runnable" seed="130173916" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.003747" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1114" name="GetRandomRoom_SkipsNullEntries" fullname="MapModelTests.GetRandomRoom_SkipsNullEntries" methodname="GetRandomRoom_SkipsNullEntries" classname="MapModelTests" runstate="Runnable" seed="1882291470" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001005" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1113" name="GetRandomRoom_StartsANewCycleWhenTheBagIsEmpty" fullname="MapModelTests.GetRandomRoom_StartsANewCycleWhenTheBagIsEmpty" methodname="GetRandomRoom_StartsANewCycleWhenTheBagIsEmpty" classname="MapModelTests" runstate="Runnable" seed="2066936922" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000872" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1115" name="GetRandomRoom_WithNoRoom_ReturnsNull" fullname="MapModelTests.GetRandomRoom_WithNoRoom_ReturnsNull" methodname="GetRandomRoom_WithNoRoom_ReturnsNull" classname="MapModelTests" runstate="Runnable" seed="1980892351" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000509" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1116" name="GetRandomRoom_WithOnlyNullEntries_ReturnsNull" fullname="MapModelTests.GetRandomRoom_WithOnlyNullEntries_ReturnsNull" methodname="GetRandomRoom_WithOnlyNullEntries_ReturnsNull" classname="MapModelTests" runstate="Runnable" seed="1472209309" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000546" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1118" name="ObjectPoolManagerTests" fullname="ObjectPoolManagerTests" classname="ObjectPoolManagerTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.016466" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1120" name="Release_DeactivatesAndNextSpawnReusesTheSameInstance" fullname="ObjectPoolManagerTests.Release_DeactivatesAndNextSpawnReusesTheSameInstance" methodname="Release_DeactivatesAndNextSpawnReusesTheSameInstance" classname="ObjectPoolManagerTests" runstate="Runnable" seed="1379418877" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.008614" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1123" name="Release_ObjectThatNeverCameFromThePool_IsIgnored" fullname="ObjectPoolManagerTests.Release_ObjectThatNeverCameFromThePool_IsIgnored" methodname="Release_ObjectThatNeverCameFromThePool_IsIgnored" classname="ObjectPoolManagerTests" runstate="Runnable" seed="1234695737" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000906" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1122" name="Release_Twice_DoesNotQueueTheInstanceTwice" fullname="ObjectPoolManagerTests.Release_Twice_DoesNotQueueTheInstanceTwice" methodname="Release_Twice_DoesNotQueueTheInstanceTwice" classname="ObjectPoolManagerTests" runstate="Runnable" seed="1835649351" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001268" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1119" name="Spawn_ReturnsActiveInstanceAtRequestedPosition" fullname="ObjectPoolManagerTests.Spawn_ReturnsActiveInstanceAtRequestedPosition" methodname="Spawn_ReturnsActiveInstanceAtRequestedPosition" classname="ObjectPoolManagerTests" runstate="Runnable" seed="1314580154" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001412" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1121" name="Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances" fullname="ObjectPoolManagerTests.Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances" methodname="Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances" classname="ObjectPoolManagerTests" runstate="Runnable" seed="1492248530" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001002" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1124" name="RoomJsonTests" fullname="RoomJsonTests" classname="RoomJsonTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.133669" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1127" name="EveryRoomJson_HasAtLeastOneFloorTile" fullname="RoomJsonTests.EveryRoomJson_HasAtLeastOneFloorTile" methodname="EveryRoomJson_HasAtLeastOneFloorTile" classname="RoomJsonTests" runstate="Runnable" seed="568557862" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.074825" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1126" name="EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers" fullname="RoomJsonTests.EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers" methodname="EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers" classname="RoomJsonTests" runstate="Runnable" seed="1500408155" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.055417" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1125" name="RoomFolder_ContainsRoomFiles" fullname="RoomJsonTests.RoomFolder_ContainsRoomFiles" methodname="RoomFolder_ContainsRoomFiles" classname="RoomJsonTests" runstate="Runnable" seed="1981783360" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001105" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1128" name="RoomModelTests" fullname="RoomModelTests" classname="RoomModelTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.030037" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1134" name="CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow" fullname="RoomModelTests.CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow" methodname="CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow" classname="RoomModelTests" runstate="Runnable" seed="1460898448" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.016354" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1131" name="GetSpawnSet_GroupsRepeatedPicksIntoOneEntryPerEnemyType" fullname="RoomModelTests.GetSpawnSet_GroupsRepeatedPicksIntoOneEntryPerEnemyType" methodname="GetSpawnSet_GroupsRepeatedPicksIntoOneEntryPerEnemyType" classname="RoomModelTests" runstate="Runnable" seed="1612274215" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.004440" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1133" name="GetSpawnSet_SameSeed_GivesTheSameSet" fullname="RoomModelTests.GetSpawnSet_SameSeed_GivesTheSameSet" methodname="GetSpawnSet_SameSeed_GivesTheSameSet" classname="RoomModelTests" runstate="Runnable" seed="168241424" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001484" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1130" name="GetSpawnSet_SingleEnemyType_SpendsBudgetDownToTenPercent" fullname="RoomModelTests.GetSpawnSet_SingleEnemyType_SpendsBudgetDownToTenPercent" methodname="GetSpawnSet_SingleEnemyType_SpendsBudgetDownToTenPercent" classname="RoomModelTests" runstate="Runnable" seed="1387618211" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000754" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1129" name="GetSpawnSet_WithNoEnemyType_ReturnsNull" fullname="RoomModelTests.GetSpawnSet_WithNoEnemyType_ReturnsNull" methodname="GetSpawnSet_WithNoEnemyType_ReturnsNull" classname="RoomModelTests" runstate="Runnable" seed="253762438" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000665" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1132" name="GetSpawnSet_WithSmallWeights_SpendsBetweenNinetyAndHundredPercentOfBudget" fullname="RoomModelTests.GetSpawnSet_WithSmallWeights_SpendsBetweenNinetyAndHundredPercentOfBudget" methodname="GetSpawnSet_WithSmallWeights_SpendsBetweenNinetyAndHundredPercentOfBudget" classname="RoomModelTests" runstate="Runnable" seed="1382307616" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.002257" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+      <test-suite type="TestFixture" id="1135" name="StatSheetTests" fullname="StatSheetTests" classname="StatSheetTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.058890" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1148" name="AddPrimaryPoint_OnDerivedStat_IsRefused" fullname="StatSheetTests.AddPrimaryPoint_OnDerivedStat_IsRefused" methodname="AddPrimaryPoint_OnDerivedStat_IsRefused" classname="StatSheetTests" runstate="Runnable" seed="22174618" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.012642" asserts="0">
+          <properties />
+          <output><![CDATA[[StatSheet] Defense is not a primary stat.
+]]></output>
+        </test-case>
+        <test-case id="1139" name="AddPrimaryPoint_RaisesChangedOnceForThatStat" fullname="StatSheetTests.AddPrimaryPoint_RaisesChangedOnceForThatStat" methodname="AddPrimaryPoint_RaisesChangedOnceForThatStat" classname="StatSheetTests" runstate="Runnable" seed="7924935" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.003464" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1150" name="CommittedStatAssets_AreUnchangedAfterASheetIsBuffed" fullname="StatSheetTests.CommittedStatAssets_AreUnchangedAfterASheetIsBuffed" methodname="CommittedStatAssets_AreUnchangedAfterASheetIsBuffed" classname="StatSheetTests" runstate="Runnable" seed="778344606" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.026562" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1141" name="FlatModifier_AddsItsValueToFinalValue" fullname="StatSheetTests.FlatModifier_AddsItsValueToFinalValue" methodname="FlatModifier_AddsItsValueToFinalValue" classname="StatSheetTests" runstate="Runnable" seed="923914207" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000848" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1147" name="ModifierOnPrimaryStat_ReachesDerivedStatAsPrimaryBonus" fullname="StatSheetTests.ModifierOnPrimaryStat_ReachesDerivedStatAsPrimaryBonus" methodname="ModifierOnPrimaryStat_ReachesDerivedStatAsPrimaryBonus" classname="StatSheetTests" runstate="Runnable" seed="1177883750" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000635" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1137" name="Modifiers_ApplyFlatThenPercentAddThenPercentMult" fullname="StatSheetTests.Modifiers_ApplyFlatThenPercentAddThenPercentMult" methodname="Modifiers_ApplyFlatThenPercentAddThenPercentMult" classname="StatSheetTests" runstate="Runnable" seed="471684473" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000639" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1140" name="NewSheet_FromProfile_ComputesPrimaryBaseAndDerivedFormula" fullname="StatSheetTests.NewSheet_FromProfile_ComputesPrimaryBaseAndDerivedFormula" methodname="NewSheet_FromProfile_ComputesPrimaryBaseAndDerivedFormula" classname="StatSheetTests" runstate="Runnable" seed="916129028" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000844" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1136" name="NewSheet_WithoutProfile_StartsAtZero" fullname="StatSheetTests.NewSheet_WithoutProfile_StartsAtZero" methodname="NewSheet_WithoutProfile_StartsAtZero" classname="StatSheetTests" runstate="Runnable" seed="499921651" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000442" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1142" name="PercentAddModifiers_SumBeforeMultiplyingOnce" fullname="StatSheetTests.PercentAddModifiers_SumBeforeMultiplyingOnce" methodname="PercentAddModifiers_SumBeforeMultiplyingOnce" classname="StatSheetTests" runstate="Runnable" seed="573795288" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000651" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1143" name="PercentMultModifier_MultipliesAfterFlat" fullname="StatSheetTests.PercentMultModifier_MultipliesAfterFlat" methodname="PercentMultModifier_MultipliesAfterFlat" classname="StatSheetTests" runstate="Runnable" seed="1879189285" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000620" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1146" name="PrimaryPoint_RaisesDerivedStatThroughItsCoefficient" fullname="StatSheetTests.PrimaryPoint_RaisesDerivedStatThroughItsCoefficient" methodname="PrimaryPoint_RaisesDerivedStatThroughItsCoefficient" classname="StatSheetTests" runstate="Runnable" seed="348073141" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000914" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1138" name="RemoveModifiersFromSource_KeepsOtherSources" fullname="StatSheetTests.RemoveModifiersFromSource_KeepsOtherSources" methodname="RemoveModifiersFromSource_KeepsOtherSources" classname="StatSheetTests" runstate="Runnable" seed="816675540" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.001108" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1145" name="RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier" fullname="StatSheetTests.RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier" methodname="RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier" classname="StatSheetTests" runstate="Runnable" seed="786826572" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000852" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1144" name="RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier" fullname="StatSheetTests.RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier" methodname="RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier" classname="StatSheetTests" runstate="Runnable" seed="275937554" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000723" asserts="0">
+          <properties />
+        </test-case>
+        <test-case id="1149" name="TwoSheetsFromOneProfile_DoNotShareModifiers" fullname="StatSheetTests.TwoSheetsFromOneProfile_DoNotShareModifiers" methodname="TwoSheetsFromOneProfile_DoNotShareModifiers" classname="StatSheetTests" runstate="Runnable" seed="13859353" result="Passed" start-time="2026-11-14 16:59:03Z" end-time="2026-11-14 16:59:03Z" duration="0.000678" asserts="0">
+          <properties />
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

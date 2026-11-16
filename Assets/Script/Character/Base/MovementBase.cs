@@ -46,6 +46,16 @@ public abstract class MovementBase<TCore> : CoreComponentBase<TCore>, IMovement 
         rb.MovePosition(rb.position + knockbackVelocity * Time.fixedDeltaTime);
     }
 
+    // NEED CHECK: 2026-11-08 — on respawn / Reborn the body keeps the previous life's velocity, and its
+    // physics position only follows the transform at the next simulation step.
+    public override void ReloadComponent()
+    {
+        base.ReloadComponent();
+        if (rb == null) return;
+        rb.velocity = Vector2.zero;
+        rb.position = rb.transform.Position2D();
+    }
+
     public virtual void SetVelocity(Vector2 velocity)
     {
         rb.velocity = CanMove ? velocity * speedMultiplier : Vector2.zero;

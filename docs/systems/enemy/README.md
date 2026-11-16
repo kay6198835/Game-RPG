@@ -1,6 +1,6 @@
 # Enemy — AI + Spawning
 
-> **Status:** live · **Last verified:** 2026-11-07, `sprint-21` `c6f3ccf2` (death flow, respawn anchor; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
+> **Status:** live · **Last verified:** 2026-11-15, `sprint-22` `063b5f87` (bug statuses after the 2026-11-15 triage; no enemy code changed since `a8725a77`; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -77,8 +77,15 @@ A character at 0 HP ignores further hits. The flag (and `IsTakeDamage`) is clear
 the 2026-11-04 `OnLethalHit()` hook was removed in `4097be4c`.
 
 **Respawn anchor.** `EntityInput.ReloadComponent()` re-records `spawnPoint` from the current position
-(`d2d45973`). Because `Pool.Reload()` activates the object before moving it, the anchor is the previous
-death position — **BUG-124** (S3).
+(`d2d45973`). Since `b33dedf9` `Pool.Reload()` places the object (`SetPositionAndRotation`) **before**
+`SetActive(true)`, so the anchor is the new spawn position; **BUG-124** (S3) is FIXED in code per its
+file (2026-11-15 triage), awaiting a runtime check. The same commit makes `ReloadComponent()` reset movement velocity (`MovementBase`), the
+attack timer (`EntityWeaponHolder`), the hold flag (`AbilityHolderBase`) and the action flags
+(`CharacterInputBase`) on reuse.
+
+**Damage mitigation.** `EntityNegativeReciver.DamageCalculate()` applies
+`damage × 100 / (100 + Defense)` (Defense clamped at 0), per `design/balance/combat-balance-2026-07-07.md`
+(`b33dedf9`). It was flat `damage − Defense`, which made Tank / Boss immune to normal hits.
 
 ## Content — role roster
 
@@ -115,6 +122,11 @@ The attack stage swaps in `<Role>_AttackStage1.overrideController`; `EntityAttac
 **Balance targets for the 2026-11-04 roles** (static math against `PaladinStats`: HP 190, Defense 20,
 PhysicalDamage 30; melee damage = `PhysicalDamage + stage`, ranged = stage only; both minus target Defense):
 
+> ⚠️ Out of date against code (doc-sync 2026-11-14, not recomputed): the table assumes flat Defense on both
+> sides. Since `b33dedf9` enemies take `damage × 100 / (100 + Defense)`, the player takes damage with no
+> mitigation, and `a0e250fb` migrated the stat assets (Paladin INT 100 → 10). The numbers need a re-run
+> of the balance math, which is a design task, not a doc fix.
+
 | Role | HP / Def | Paladin hits to kill | Damage per hit to Paladin | Hits to kill Paladin | Role in a room |
 |------|----------|---------------------|---------------------------|----------------------|----------------|
 | Brute | 187 / 14.6 | 13 | 40 | 5 | slow heavy hitter — punish standing still, long recovery opens a window |
@@ -144,12 +156,13 @@ out). `EntityData.movementVelocities` and `rangeCheckAttack` are commented out �
 | Sniper | 8.0 | 4.5 | travel 18; FOV 9 |
 | Scatter | 4.5 | 2.0 | travel 6.25; FOV 6 |
 
-Melee `MaxRangeAttack` is a role constant; ranged adds DEX × 0.02. **Sight range is
-`EntityData.rangeCheckFieldOfView`** (owner decision 2026-11-04): `EntityFindTarget.range` — serialized 0 on
-the prefab before — now reads it, so `IsInFOV()` and `FindTargetMethod()` use one value. It must stay ≥
-`MaxRangeAttack`. Per role, by temperament: TrashMelee 5, FastSwarm 6.5 (alert pack), Tank 4 and Brute 4.5
-(slow to notice), Assasin 7 and Elite 7 (hunters), Boss 10 (whole arena), RangedCaster 8, Sniper 11,
-Scatter 6.5 (2–3 units beyond their attack range, so they spot the player before firing). Player profiles carry the stats too
+Melee `MaxRangeAttack` is a role constant; ranged adds DEX × 0.02. **Sight range is computed from the
+enemy's own stats** (`a0e250fb`, 2026-11-09): `EntityFindTarget.range` reads `EntityData.RangeView(stats)` =
+`MaxRangeAttack × rangeViewMultiplier` (default 1.2) and the view cone reads `AngleView(stats)` =
+`INT × angleMultiplier` (default 1.5, capped at 360); idle / wander time are `STR × 0.1` / `STR × 0.5`.
+So sight is always ≥ attack range by construction, and buffs / debuffs reach it.
+*Was (2026-11-04 owner decision):* sight = serialized `EntityData.rangeCheckFieldOfView`, per role TrashMelee 5,
+FastSwarm 6.5, Tank 4, Brute 4.5, Assasin 7, Elite 7, Boss 10, RangedCaster 8, Sniper 11, Scatter 6.5. Player profiles carry the stats too
 (Paladin / Base / Test 1.5 / 0, Archer 8 / 2, Mage 7 / 2.5); no player code reads them yet.
 The four roles were cloned from TrashMelee (melee) / RangedCaster (ranged) with fresh GUIDs; their
 stat assets keep the source role's formula set.
@@ -232,7 +245,7 @@ or `EnemyPrefab`. Do not build new content on them.
 | Bug | Summary |
 |-----|---------|
 | BUG-066 | Unguarded `currentStats[statType]` in the shared `VitalStatsBase` (same site as BUG-070) |
-| BUG-124 | Pooled re-use records the wander anchor at the previous death position |
+| BUG-125 | Melee hits add the attack-stage damage twice (`Weapon.FinalDamage()`) — enemy melee too |
 | BUG-ES-2 | Two parallel spawn drivers |
 | — | `RoomModel.overflowPercent` serialized, never read; `retry > 4` fallback breaks ADR-0003's budget |
 | TD-030 | `EnemySO` not consumed by `Entity` |

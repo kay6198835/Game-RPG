@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SniperStats
   m_EditorClassIdentifier: 
   level: 1
-  stats:
+  primaryStats:
   - <Type>k__BackingField: 0
     baseValue: 2
   - <Type>k__BackingField: 1
@@ -24,35 +24,7 @@ MonoBehaviour:
     baseValue: 6
   - <Type>k__BackingField: 4
     baseValue: 2
-  - <Type>k__BackingField: 100
-    baseValue: 72.50
-  - <Type>k__BackingField: 101
-    baseValue: 103
-  - <Type>k__BackingField: 102
-    baseValue: 8.50
-  - <Type>k__BackingField: 103
-    baseValue: 21.50
-  - <Type>k__BackingField: 104
-    baseValue: 5.20
-  - <Type>k__BackingField: 105
-    baseValue: 0.64
-  - <Type>k__BackingField: 106
-    baseValue: 3.76
-  - <Type>k__BackingField: 107
-    baseValue: 150
-  - <Type>k__BackingField: 108
-    baseValue: 2.64
-  - <Type>k__BackingField: 109
-    baseValue: 0.65
-  - <Type>k__BackingField: 110
-    baseValue: 2
-  - <Type>k__BackingField: 111
-    baseValue: 1.90
-  - <Type>k__BackingField: 112
-    baseValue: 8.04
-  - <Type>k__BackingField: 113
-    baseValue: 4.50
-  statFormulas:
+  derivedStats:
   - targetStat: 100
     baseConstant: 20
     perLevel: 3.5

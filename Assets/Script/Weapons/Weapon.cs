@@ -7,12 +7,15 @@ public abstract class Weapon : InteractiveObjects
     //[SerializeField] protected ActivateSkill currentAbilitySO;
     [SerializeField] protected Collider2D pickupCollider;
 
+    [SerializeField, Min(0f)] private float chainWindowGrace = 0.15f;
+
     protected AttackSO currentStage;
     protected float lastAttackTime;
     protected float chainWindow;
 
-    protected IAimProvider aim;
     protected IWeaponHolder holder;
+    // Read through the holder every time: the holder may resolve its input after Equid() ran.
+    protected IAimProvider aim => holder?.Aim;
 
     public int CurrentStageIndex { get; protected set; }
     public WeaponStats Stats => stats;
@@ -49,7 +52,8 @@ public abstract class Weapon : InteractiveObjects
         Animator animator = user.Animator;
         animator.speed = 1f;
         chainWindow = Utility.DurationNextAttack(
-            Utility.GetOverrideClips(currentStage.directionAttackAnimatorOV, "Attack")) / animator.speed;
+            Utility.GetOverrideClips(currentStage.directionAttackAnimatorOV, "Attack")) / animator.speed
+            + chainWindowGrace;
         animator.runtimeAnimatorController = currentStage.directionAttackAnimatorOV;
 
         lastAttackTime = Time.time;
@@ -88,7 +92,6 @@ public abstract class Weapon : InteractiveObjects
     {
         pickupCollider.enabled = false;
         holder = weaponHolder;
-        aim = weaponHolder.Aim;
         IStatService ownerStats = OwnerStats(weaponHolder);
         if (ownerStats != null) ownerStats.AddModifiersFromSource(this, stats.StatModifiers.GetStatsModifiers);
         else Debug.LogWarning($"[{name}] equipped by a holder with no character stats.", this);
@@ -113,7 +116,6 @@ public abstract class Weapon : InteractiveObjects
         pickupCollider.enabled = true;
         IStatService ownerStats = OwnerStats(weaponHolder);
         if (ownerStats != null) ownerStats.RemoveModifiersFromSource(this);
-        aim = null;
         this.holder = null;
         CurrentStageIndex = 0;
     }

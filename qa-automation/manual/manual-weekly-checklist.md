@@ -59,17 +59,16 @@ Filled in by the Friday QA task from `weekly-change-impact.md` (section 4) when 
 One row per new visual / feel / layout / audio behaviour. Clear the table at the start of each week after
 moving any row that should stay into Part 1.
 
-Week of 2026-11-05 (run `20261105-1002`, `sprint-21` `04cfb53d`).
+Week of 2026-11-14 (run `20261114-2329`, `sprint-22` `a8725a77`). Last week's rows (MAN-ENT-04…07, MAN-CMB-05, MAN-MAP-04) were cleared; the role look / speed checks are covered by AUTO QA-STATIC-07 / QA-ENT-07 / QA-ENT-08.
 
 | ID | Feature (commit) | Preconditions | Steps | Expected | Actual | Pass/Fail |
 |---|---|---|---|---|---|---|
-| MAN-ENT-04 | 10 enemy roles, animations (`6094aa10`) | MainGamePlay, enter combat rooms until you have met Assasin, Brute, Elite, FastSwarm, Tank, TrashMelee, RangedCaster, Scatter, Sniper (Boss if reachable) | Watch each role idle, walk, attack and die, from several directions | Each role uses its own sprites; animation faces the move / attack direction in all 8 directions; no T-pose, no frozen frame, no missing clip | | |
-| MAN-ENT-05 | Role move speed and attack range from stats (`6094aa10`) | Same rooms | Walk toward and away from each role | FastSwarm / Assasin visibly faster than Tank / Brute; melee roles close in and swing at contact range; ranged roles stop at a distance and back off when you walk into them (MinRangeAttack) | | |
-| MAN-ENT-06 | Ranged role projectiles (`6094aa10`) | Rooms with RangedCaster, Scatter, Sniper | Stand in their line of fire, then sidestep | Projectile leaves the enemy toward you, points along its flight, hits and disappears; Scatter fires a spread; a dodged projectile disappears at a wall (Arrow-style no-collider defect = BUG-095) | | |
-| MAN-ENT-07 | Enemy death in a real room (`6094aa10`) | Combat room with 2+ enemies | Kill the enemies one by one; kill the last one with a single big hit if possible | Each death animation plays once, the body goes away, one item drop at most per enemy; doors open only after the **last** enemy (QA-ENT-04 saw `ON_ENEMY_DEATH` twice from a looping death clip) | | |
-| MAN-CMB-05 | Crit as a percent (`6094aa10`) | Any class, a trash enemy | Take 20 hits from the enemy | No single hit takes most of your HP; crits look like a moderate bump, not a one-shot (was NOTE-20261104-2) | | |
-| MAN-MAP-04 | Role room sets (`6094aa10`, `RoomModel_Roles`, `RoomModel_T1…T4`) | MainGamePlay, New Game | Clear 4–5 combat rooms | Enemy mix changes between rooms and gets harder deeper in; no room spawns 0 enemies and then stays locked | | |
-
+| MAN-CMB-06 | Paladin 3-stage combo animations (`38d40925`) | CombatTest, Paladin, a dummy | Click repeatedly toward each of the 8 directions | All 3 stage animations play in every direction, each faces the mouse; the dummy's HP drops once per stage, by a bigger amount on stage 3 (AUTO QA-CMB-01 found the stage damage added twice, see the inbox) | | |
+| MAN-CMB-07 | Mage basic attack, MagicBolt (`0f3644bd`) | CombatTest, Mage, a dummy 3 units and one 6 units away | LMB toward each dummy and toward 4 other directions | Cast animation faces the mouse; the bolt leaves the hand, points along its flight, reaches both dummies and disappears on hit (bolt speed is 1 with lifetime 4 — expected to FAIL on the 6-unit dummy, see the inbox) | | |
+| MAN-ABL-05 | Archer Rain Arrows on its own prefab (`285e6900`) | CombatTest, Archer, full Mana, 3 enemies spread in front | Press 4 toward 4 different directions | Arrows fall in a pattern that matches the cast direction; enemies standing where arrows land lose HP; the effect disappears at the end of the clip and the next cast works | | |
+| MAN-ENT-08 | Enemy attack clip event timing (`38d40925`, many `*_Attack_dir N.anim`) | MainGamePlay, rooms with Assasin, Boss (if reachable), Rat, Golem | Stand next to each enemy for 5 s | HP drops on the visible impact frame of each attack, not before or after | | |
+| MAN-ENT-09 | Pooled enemy reset on reuse (`b33dedf9`) | MainGamePlay, New Game | Clear two combat rooms in a row | Enemies of the second room spawn with full HP bars, idle / walk normally (no death pose, no instant death); they wander near where they spawned (BUG-124) | | |
+| MAN-STAT-01 | Stat split, data-only stat assets (`a0e250fb`) | CombatTest, each class | Pick the class, press C | Stats panel lists the same derived values as the class's stat asset Inspector preview; Paladin INT shows 10; spending a point and pressing Revert restores every value | | |
 ## Open design questions (decide the expected result of some rows)
 
 1. An unpicked player cannot attack or cast — intended or a bug?

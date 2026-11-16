@@ -52,6 +52,8 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
         CancelInvoke(nameof(ResetTakeDamage));
         isTakeDamage = false;
         isDeath = false;
+        isAttack = false;
+        isSkill = false;
     }
 
     // Protected, not private: Invoke() resolves the name on the runtime type and cannot see a

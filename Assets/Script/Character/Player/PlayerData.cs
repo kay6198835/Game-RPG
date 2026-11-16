@@ -4,8 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "newPLayerData", menuName = "Data/PLayer Data/Base Data")]
 public class PlayerData : CharacterData
 {
-    public void ResetData()
-    {
-        stats.Level = 1;
-    }
+    // NEED CHECK: 2026-11-09 (stat split) — ResetData() (wrote `stats.Level = 1` into the shared asset) removed:
+    // it had no caller, and the profile asset is read-only data now.
 }

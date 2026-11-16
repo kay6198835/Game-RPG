@@ -40,6 +40,7 @@ public class DamagesInManyPos : SpawnSummonBase
         }
         dirIndex = index;
         waves = dirsImpactWave[index].waves;
+        animator.SetFloat("Dir", index);
     }
 
     // Gọi từ Animation Event (clip RainArrows_dir N), Int = index của wave

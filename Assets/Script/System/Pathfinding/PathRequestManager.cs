@@ -11,7 +11,7 @@ public class PathRequestManager : MonoBehaviour
     public void SetGrid(PathfindingGrid grid) => _grid = grid;
 
     public void Request(PathRequest request) => _queue.Enqueue(request);
-    private Path path; 
+    private NavPath path; 
 
     private void Update()
     {

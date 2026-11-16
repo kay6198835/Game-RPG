@@ -23,6 +23,16 @@ RULES = [
      "StatModifier inside StatModifierGroup, BUG-121 / NOTE-20261103-2"),
     ("71c343067de33184e9bfce550a8e4826", ("statModifier",), "modifiers", "statsModifiers",
      "BuffDebuffStatsForDuration.statModifier (StatModifierGroup), pre-2026-08-21 name"),
+    # 2026-11-09 audit: ItemSO / WeaponSO moved from public fields to [field: SerializeField] properties
+    # (ItemSprite, ItemName) with no [FormerlySerializedAs]; the six PlatiumOre items lost their sprite.
+    ("252a17c32f8cb8e408a37bd310fa064c", ("MonoBehaviour",), "itemSprite", "<ItemSprite>k__BackingField",
+     "ItemSO.ItemSprite, serialized-rename audit 2026-11-09"),
+    ("252a17c32f8cb8e408a37bd310fa064c", ("MonoBehaviour",), "nameItem", "<ItemName>k__BackingField",
+     "ItemSO.ItemName, serialized-rename audit 2026-11-09"),
+    ("f6aa03fbeb83ead488813503e17e3d23", ("MonoBehaviour",), "itemSprite", "<ItemSprite>k__BackingField",
+     "WeaponSO : ItemSO, serialized-rename audit 2026-11-09"),
+    ("f6aa03fbeb83ead488813503e17e3d23", ("MonoBehaviour",), "nameItem", "<ItemName>k__BackingField",
+     "WeaponSO : ItemSO, serialized-rename audit 2026-11-09"),
 ]
 
 KEY_RE = re.compile(r"^( *)(- )?([^\s:#][^:]*):(?: (.*))?$")

@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-14 — BUG-063 note re-synced to the stat split (doc-sync)
+- **Commit:** code `a0e250fb` (2026-11-09); doc change by `/doc-sync --auto` on `pm/doc-sync-2026-11-14`
+- **Sections touched:** top banner ("New since this GDD was authored")
+- **From → To:** "BUG-063 is open: `Stat.modifiers` is re-serialized behind `#if UNITY_EDITOR` (`Stat.cs:63-65`)" → struck through; `Stat` is no longer serialized, `BaseStatsSO` is data only, `StatSheet` calculates.
+- **Why:** `Stat.cs:63-65` no longer exists (file is 48 lines). ⚠️ Out of date, not fixed here: the body still names `BaseStatsSO` as the class that computes values; a full GDD rewrite for the split is a design task.
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+32 / −14 lines)
 - **Sections touched:** “Stat System Design”, “Overview”, “Detailed Rules”, “Formulas”, “Edge Cases”, “Dependencies” …

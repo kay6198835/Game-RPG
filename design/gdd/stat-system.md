@@ -25,8 +25,13 @@ verified-by: Kiet
 > - `StatHandler : IPlayerStatService` and `VitalStatsComponent : IVitalComponent` — the split
 >   between **max** values (the profile) and **current** values (a runtime dictionary). This GDD
 >   describes only the profile half.
-> - ⚠️ **BUG-063 is open**: `Stat.modifiers` is re-serialized behind `#if UNITY_EDITOR`
->   (`Stat.cs:63-65`), reopening the data-corruption bug this system already suffered once.
+> - ~~⚠️ **BUG-063 is open**: `Stat.modifiers` is re-serialized behind `#if UNITY_EDITOR`
+>   (`Stat.cs:63-65`), reopening the data-corruption bug this system already suffered once.~~
+>   **Re-synced 2026-11-14:** since `a0e250fb` (stat split, 2026-11-09) `Stat` is a runtime record that
+>   is serialized nowhere, so runtime modifiers cannot reach an `.asset`. `BaseStatsSO` holds data only;
+>   a per-character `StatSheet` computes every value. The rules and formulas below are unchanged in
+>   intent; the class that runs them is now `StatSheet` — see `docs/systems/stats/README.md`. BUG-063's
+>   file still says ACCEPTED (deferred), pending triage (NOTE-20261114-1).
 
 
 **Status**: In Design

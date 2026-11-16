@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TankStats
   m_EditorClassIdentifier: 
   level: 1
-  stats:
+  primaryStats:
   - <Type>k__BackingField: 0
     baseValue: 10
   - <Type>k__BackingField: 1
@@ -24,35 +24,7 @@ MonoBehaviour:
     baseValue: 18
   - <Type>k__BackingField: 4
     baseValue: 2
-  - <Type>k__BackingField: 100
-    baseValue: 482
-  - <Type>k__BackingField: 101
-    baseValue: 37
-  - <Type>k__BackingField: 102
-    baseValue: 20
-  - <Type>k__BackingField: 103
-    baseValue: 2.9
-  - <Type>k__BackingField: 104
-    baseValue: 43.399998
-  - <Type>k__BackingField: 105
-    baseValue: 0.54
-  - <Type>k__BackingField: 106
-    baseValue: 2.3799999
-  - <Type>k__BackingField: 107
-    baseValue: 130.6
-  - <Type>k__BackingField: 108
-    baseValue: 1.8399999
-  - <Type>k__BackingField: 109
-    baseValue: 3.8500001
-  - <Type>k__BackingField: 110
-    baseValue: 0.42000002
-  - <Type>k__BackingField: 111
-    baseValue: 0.24000001
-  - <Type>k__BackingField: 112
-    baseValue: 1.40
-  - <Type>k__BackingField: 113
-    baseValue: 0.30
-  statFormulas:
+  derivedStats:
   - targetStat: 100
     baseConstant: 80
     perLevel: 12

@@ -251,8 +251,7 @@ public class PlayerInputHandler : CharacterInputBase<Core>
 
         if (context.started)
         {
-            if (StatusAnimation.StartRangeTrigger <= statusAnimation
-            && statusAnimation < StatusAnimation.EndRangeTrigger && core.Player.stateMachine.CurrentState is PlayerAttackState)
+            if (core.Player.stateMachine.CurrentState is PlayerAttackState)
             {
                 SetBufferAttack(true);
             }

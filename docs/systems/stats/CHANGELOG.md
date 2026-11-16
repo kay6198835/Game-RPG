@@ -2,6 +2,36 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-15 — Bug statuses after the 2026-11-15 triage (doc-truth re-sync)
+- **Commit:** none to code — the stat split is now committed as `a0e250fb` (on `sprint-22`); triage `b5e3238b`.
+- **Changed:** README only (Last verified line, Open issues).
+- **From → To:**
+  - Last verified "2026-11-09 (working tree — not committed, not yet compiled)" → "2026-11-15, `063b5f87`; compiled 2026-11-13; `StatSheetTests` PASS".
+  - Open issues: BUG-063 and BUG-115 rows ("status left for triage") removed — both FIXED in code per their files; BUG-113 (Open per its file, stats-system defect) listed.
+- **Why:** the bug file is the source of truth for status.
+- **Bugs:** BUG-063, BUG-115 → FIXED in code (awaiting Play Mode check). BUG-113 not re-checked against `StatSheet`.
+
+## 2026-11-09 — Stat split: data-only asset + StatSheet
+- **Commit:** none yet (local working tree, owner request: no commit / push).
+- **Changed:** `BaseStatsSO`, `Stat`, `DerivedStatFormula`, `StatHandlerBase`, `StatHandler`, `CharacterData`,
+  `PlayerData`, `EntityData` (+ `EntityFindTarget`, `EntityBasicState`, `EntityIdleState`, `EntityMoveState`),
+  `StatModifierTester` (+ editor), QA suites and static checks; new `StatSheet`, `PrimaryStatEntry`,
+  `Assets/Editor/BaseStatsSOEditor.cs`, `Assets/Editor/EntityDataEditor.cs`.
+- **From → To:** `BaseStatsSO` stored and calculated everything (six stored tiers per stat, dirty flags,
+  lookup, DTOs, events, point allocation), and each character `Instantiate`d a clone →
+  `BaseStatsSO` holds only `level`, `primaryStats` (was `stats`) and `derivedStats` (was `statFormulas`);
+  a plain `StatSheet` per character computes every value in `RecalculateAll()`. All 15 profile assets under
+  `Assets/SO/Stat/` were migrated in YAML by a one-off script (primary base values and formulas copied
+  verbatim and verified against HEAD; derived rows, level-up / final tiers, `statUnusedBonus`, `isDevMode`
+  dropped), so no `[FormerlySerializedAs]` is kept. `Test.asset` loses its STR `levelUpValue: 1` (spent
+  points are runtime-only now). `CharacterData.CreateRuntimeStats()`, `BaseStatsSO.SeedAllStats()`,
+  `PlayerData.ResetData()` and `DerivedStatFormula.Evaluate()` removed. `EntityData` view / timer values are
+  now methods taking the enemy's `IStatService` (buffs apply) instead of fields cached by `OnValidate`.
+- **Why:** god asset — runtime state leaked into committed assets, enemy assets read 0 before a recalc,
+  and the calculation was spread over many methods, hard to debug.
+- **Bugs:** addresses BUG-063 and the spent-points part of BUG-115 in code (statuses left for triage).
+  Numbers are unchanged by design (same formula); confirm in Play Mode.
+
 ## 2026-10-31 — Player stat asset paths (doc-truth re-sync)
 - **Commit:** `ada2c1a8` (rename), `e6bf8fc3` (Archer / Mage)
 - **Changed:** README asset list.

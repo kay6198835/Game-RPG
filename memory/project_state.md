@@ -1,10 +1,36 @@
 # Project State
 
-Updated **2026-11-07** (doc-truth pass `/doc-sync --auto` at `origin/sprint-21` `c6f3ccf2`, after the
-2026-11-07 wrap-up triage). Bug statuses follow `production/qa/bugs/BUG-*.md`, the source of truth.
-Claim sweep: `production/qa/doc-truth-2026-11-07.md`. Previous update: **2026-11-05** (`028fdb90`).
-This pass added the "2026-11-05 → 2026-11-07" section; the sections below it are the earlier
-snapshots plus their deltas.
+Updated **2026-11-15** (doc-truth pass `/doc-sync --auto` at `origin/sprint-22` `063b5f87`, after the
+2026-11-15 wrap-up). Bug statuses follow the 2026-11-15 triage in `production/qa/bugs/BUG-*.md`, the
+source of truth. Claim sweep: `production/qa/doc-truth-2026-11-15.md`.
+Previous update: **2026-11-14** (`a8725a77`). This pass added the "2026-11-14 → 2026-11-15" section;
+the sections below it are the earlier snapshots plus their deltas.
+
+## Delta 2026-11-14 → 2026-11-15
+
+No game code changed on `sprint-22` (only `Assets/QA/` suites, QA reports, triage). Owner branch
+`docs/gdd-pathfinding-ability` (`f6921dc9`, `3b02df7d`: `PlayerDashState`, Bonfire, `InteractiveObjectsRoom`,
+`NormalRoom_20`) is not merged — not reflected; inbox NOTE-20261115-6/7 (Needs owner).
+
+**Triage 2026-11-15:** FIXED in code (awaiting runtime / hand check) — BUG-063, 109, 115, 124. FIXED —
+BUG-084 (64 EditMode tests PASS, run `20261114-2357`). New — **BUG-125** (S2, melee stage damage added
+twice, `Weapon.FinalDamage()`), **BUG-126** (S2, `using UnityEditor` in a TextMesh Pro example — Player
+build break), BUG-127 (S3, Mage bolt speed 1), BUG-128 (S4, capture scenes miss a script).
+Sprint-23 order per triage: BUG-122 → BUG-125 → BUG-096/097 → BUG-126 → BUG-117+120+123 → BUG-065+086.
+
+## Delta 2026-11-07 → 2026-11-14
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R47 | **Stat split:** `BaseStatsSO` data only (`level`, `PrimaryStatEntry`, `DerivedStatFormula`); per-character `StatSheet : IStatService` owned by `StatHandlerBase`; `Stat` runtime-only, not serialized; 15 stat assets migrated (Paladin INT 100 → 10, Boss HP 4450 → 1080) | `a0e250fb` | BUG-063 site gone, BUG-115 leaked modifiers gone (files unchanged — NOTE-20261114-1); ADR-0001 Amendment 2 |
+| R48 | Enemy sight / view cone / idle / move time computed from stats (`EntityData.RangeView()` = MaxRangeAttack × 1.2, etc.) | `a0e250fb`, `38d40925` | Role sight values of 2026-11-04 replaced |
+| R49 | Pooled reuse: `Pool.Reload()` moves before activating; `ReloadComponent()` resets velocity / attack timer / hold / action flags; enemy Defense `damage × 100 / (100 + Defense)` | `b33dedf9` | BUG-124 looks fixed; enemy balance table out of date |
+| R50 | Assembly definitions (`GameRPG.asmdef`, 3 Editor assemblies, `GameRPG.EditModeTests`), 9 EditMode test files under `Assets/Tests/EditMode/`; `Path` → `NavPath` | `9c11c672`, `47f66ddb`, `d9776bb8` | BUG-084 unblocked in code (compiled 2026-11-13; Test Runner result missing) |
+| R51 | Paladin combo + attack-flow debug probe; `WeaponHolderBase` reads `IStatService` lazily | `38d40925` | — |
+| R52 | Rain Arrows wired to `RainArrows.prefab`; `_context` read in `Launch()`; clips despawn by event | `285e6900` | BUG-109 item 1 looks fixed |
+
+**Build:** ✅ COMPILED `d9776bb8` + owner working tree (2026-11-13 standup, 148 s). **Player build:** not run.
+**EventID:** 25 values (unchanged since `6094aa10`; the list further down predates `ON_ROOM_CLEARED`).
 
 ## Delta 2026-11-05 → 2026-11-07
 
@@ -138,7 +164,7 @@ Still missing: `ON_PLAYER_TAKE_DAMAGE`. `ON_ROOM_CLEAR` has no producer.
 - UIFlow `RealLoginService`, `RealInventoryProvider`, `RealQuestProvider` — stubs
 - `SpawnProjectileBase.pierceCount`, `RoomModel.overflowPercent` — serialized, never read
 - `PlayerUserItemState` — extends `MonoBehaviour` (TD-001); `TalentManagger` hardcoded (TD-018)
-- `tests/` — only `.gitkeep` (TD-014, blocked by BUG-084)
+- `tests/` — only `.gitkeep`; real tests now in `Assets/Tests/EditMode/` (2026-11-12, BUG-084 Test Runner result pending)
 
 ---
 

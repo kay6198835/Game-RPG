@@ -48,6 +48,7 @@ namespace QA.Automation
             yield return Case("QA-STAT-04", "STAT", QAPriority.P0, "RemoveModifiersFromSource restores the value", CaseStatRemove());
             yield return Case("QA-STAT-05", "STAT", QAPriority.P1, "Removing one source keeps another source's modifier", CaseStatSourceIsolation());
             yield return Case("QA-STAT-06", "STAT", QAPriority.P0, "Working on an Instantiate copy leaves the stat asset unchanged", CaseStatAssetUntouched());
+            yield return Case("QA-STAT-07", "STAT", QAPriority.P1, "StatSheet reads each PrimaryStatEntry as BaseValue; two sheets from one profile stay independent", CaseStatPrimaryEntries());
 
             yield return Case("QA-POOL-01", "POOL", QAPriority.P0, "Spawn returns an active instance at the requested position", CasePoolSpawn());
             yield return Case("QA-POOL-02", "POOL", QAPriority.P0, "Release deactivates; the next Spawn reuses the same instance", CasePoolReuse());
@@ -125,15 +126,15 @@ namespace QA.Automation
             return false;
         }
 
-        // FinalValue = (Base + LevelUp, then modifiers in Order) + EquipmentByPrimary (Stat.CalculateFinalValue).
+        // FinalValue = (Base + LevelUp, then modifiers in Order) + PrimaryBonus (StatSheet.ApplyModifiers).
         private static float Expected(Stat stat, float flat, float percentAdd, float percentMult)
-            => ((stat.BaseValue + stat.LevelUpValue + flat) * (1f + percentAdd)) * (1f + percentMult) + stat.EquipmentByPrimaryValue;
+            => ((stat.BaseValue + stat.LevelUpValue + flat) * (1f + percentAdd)) * (1f + percentMult) + stat.PrimaryBonus;
 
         private IEnumerator CaseStatFlat()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             float before = stat.FinalValue;
             object source = new();
             stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 5f, ModifierType.Flat) });
@@ -145,9 +146,8 @@ namespace QA.Automation
         private IEnumerator CaseStatPercentAdd()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
-            stat.BaseValue = Mathf.Max(stat.BaseValue, 10f);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             stats.AddModifiersFromSource(new object(), new[]
             {
                 new StatModifier(Probe, 0.1f, ModifierType.PercentAdd),
@@ -161,9 +161,8 @@ namespace QA.Automation
         private IEnumerator CaseStatPercentMult()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
-            stat.BaseValue = Mathf.Max(stat.BaseValue, 10f);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             stats.AddModifiersFromSource(new object(), new[]
             {
                 new StatModifier(Probe, 4f, ModifierType.Flat),
@@ -177,8 +176,8 @@ namespace QA.Automation
         private IEnumerator CaseStatRemove()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             float before = stat.FinalValue;
             object source = new();
             stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 7f, ModifierType.Flat), new StatModifier(Probe, 0.25f, ModifierType.PercentAdd) });
@@ -191,8 +190,8 @@ namespace QA.Automation
         private IEnumerator CaseStatSourceIsolation()
         {
             if (!StatReady()) yield break;
-            BaseStatsSO stats = Copy(statsAsset);
-            Stat stat = stats.Get(Probe);
+            StatSheet stats = new StatSheet(statsAsset);
+            Stat stat = stats.GetStat(Probe);
             object item = new(), buff = new();
             stats.AddModifiersFromSource(item, new[] { new StatModifier(Probe, 3f, ModifierType.Flat) });
             stats.AddModifiersFromSource(buff, new[] { new StatModifier(Probe, 8f, ModifierType.Flat) });
@@ -206,16 +205,43 @@ namespace QA.Automation
         private IEnumerator CaseStatAssetUntouched()
         {
             if (!StatReady()) yield break;
-            Dictionary<StatType, float> before = statsAsset.FullStatsValue();
-            int modifiersBefore = statsAsset.Get(Probe)?.Modifiers.Count ?? 0;
-            BaseStatsSO stats = Copy(statsAsset);
+            // A fresh sheet from the asset must read the same numbers after another sheet was buffed.
+            Dictionary<StatType, float> before = new StatSheet(statsAsset).GetFullStat();
+            StatSheet stats = new StatSheet(statsAsset);
             stats.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat) });
             stats.AddPrimaryPoint(StatType.STR, 3f);
             yield return null;
-            Dictionary<StatType, float> after = statsAsset.FullStatsValue();
+            Dictionary<StatType, float> after = new StatSheet(statsAsset).GetFullStat();
             List<string> changed = before.Where(p => !after.TryGetValue(p.Key, out float v) || !Mathf.Approximately(v, p.Value)).Select(p => p.Key.ToString()).ToList();
-            Check(changed.Count == 0 && (statsAsset.Get(Probe)?.Modifiers.Count ?? 0) == modifiersBefore,
+            Check(changed.Count == 0,
                 $"{statsAsset.name} unchanged", $"{statsAsset.name} changed: {string.Join(", ", changed)}");
+        }
+
+        private IEnumerator CaseStatPrimaryEntries()
+        {
+            if (!StatReady()) yield break;
+            // Stat split (a0e250fb): each authored PrimaryStatEntry is the BaseValue of its primary stat on a new sheet,
+            // and a primary point spent on one sheet does not reach a second sheet built from the same profile.
+            StatSheet a = new StatSheet(statsAsset);
+            StatSheet b = new StatSheet(statsAsset);
+            List<string> wrong = new();
+            int rows = 0;
+            foreach (PrimaryStatEntry entry in statsAsset.PrimaryStats)
+            {
+                if (entry == null) { wrong.Add("null PrimaryStatEntry row"); continue; }
+                rows++;
+                float sheetBase = a.GetStat(entry.Type).BaseValue;
+                if (!Near(sheetBase, entry.BaseValue)) wrong.Add($"{entry.Type}: sheet {sheetBase:0.##}, authored {entry.BaseValue:0.##}");
+            }
+            Check(rows > 0, $"{rows} primary rows on {statsAsset.name}", $"{statsAsset.name} has no PrimaryStatEntry rows");
+            Check(wrong.Count == 0, "every primary BaseValue matches its authored entry", string.Join("; ", wrong));
+
+            float bBefore = b.GetStatValue(StatType.STR);
+            a.AddPrimaryPoint(StatType.STR, 2f);
+            yield return null;
+            Check(Near(b.GetStatValue(StatType.STR), bBefore),
+                $"second sheet STR unchanged ({bBefore:0.##}) after a point on the first",
+                $"second sheet STR {b.GetStatValue(StatType.STR):0.##}, was {bBefore:0.##} — sheets share state");
         }
 
         #endregion
@@ -456,7 +482,7 @@ namespace QA.Automation
             if (_walkable.Count < 2) { Fail("fewer than 2 walkable tiles"); yield break; }
             Node start = _walkable[0];
             Node goal = Farthest(start);
-            Path path = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
+            NavPath path = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             Check(path.Success, $"path found, {path.Waypoints.Count} waypoints", $"no path from {start.WorldPosition} to reachable {goal.WorldPosition}");
             if (!path.Success) yield break;
             int bad = 0;
@@ -482,7 +508,7 @@ namespace QA.Automation
                 if (n != null && !n.Walkable) wall = n;
             }
             if (wall == null) { Skip("room has no unwalkable tile"); yield break; }
-            Path path = null;
+            NavPath path = null;
             bool threw = false;
             try { path = AStar.FindPath(_grid, _walkable[0].WorldPosition, wall.WorldPosition); }
             catch (System.Exception e) { threw = true; Fail($"FindPath threw {e.GetType().Name}: {e.Message}"); }
@@ -496,8 +522,8 @@ namespace QA.Automation
             if (_walkable.Count < 2) { Fail("fewer than 2 walkable tiles"); yield break; }
             Node start = _walkable[0];
             Node goal = Farthest(start);
-            Path a = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
-            Path b = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
+            NavPath a = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
+            NavPath b = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             Check(a.Success == b.Success && a.Waypoints.SequenceEqual(b.Waypoints), "identical results", $"first {a.Waypoints.Count} waypoints, second {b.Waypoints.Count}");
             yield return null;
         }

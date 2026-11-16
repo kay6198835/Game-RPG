@@ -72,6 +72,8 @@ public class EntityInput : CharacterInputBase<EntityCore>
         base.ReloadComponent();
         
         spawnPoint = this.transform.position;
+        // A pooled enemy must not come back already locked on the player.
+        isLockTarget = false;
     }
     public void DirectionMethod()
     {
@@ -124,9 +126,16 @@ public class EntityInput : CharacterInputBase<EntityCore>
         this.isLockTarget = isLockTarget;
     }
 
+    /// <summary>True when the player transform is known, locked or not.</summary>
+    public bool HasPlayer => targetTransform != null;
+
+    /// <summary>The player's real position, independent of the lock. Detection reads this.</summary>
+    public Vector2 PlayerPosition => targetTransform != null ? (Vector2)targetTransform.position : (Vector2)transform.position;
+
+    /// <summary>The locked target's position; Vector2.zero when nothing is locked.</summary>
     public Vector3 TargetPosition()
     {
-        if (!isLockTarget) return Vector2.zero;
+        if (!isLockTarget || targetTransform == null) return Vector2.zero;
         return targetTransform.position;
     }
 }

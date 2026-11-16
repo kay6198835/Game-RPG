@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 [CreateAssetMenu(fileName = "newEntityData", menuName = "Data/Entity Data/Base Data")]
 public class EntityData : CharacterData
 {
@@ -9,28 +8,29 @@ public class EntityData : CharacterData
     [SerializeField] private LayerMask layerMask;
     // NEED CHECK: removed — the enemy controller now lives on CharacterData.animationController (player style).
     //[SerializeField] private AnimatorOverrideController aima;
-    [Header("Idle State")]
-    [SerializeField] private float rangeCheckFieldOfView;
-    [SerializeField] private float idleDurationTime;
-    [Header("Move State")]
-    [SerializeField] private float moveDurationTime;
-    // NEED CHECK: removed — had no reader. Move speed is StatType.MoveSpeed (MovementBase.MoveSpeed),
-    // attack range is StatType.MaxRangeAttack / MinRangeAttack (EntityFindTarget).
-    //[SerializeField] private float movementVelocities = 10f;
-    //[SerializeField] private float rangeCheckAttack;
 
-    //public float MaxHealth { get => maxHealth; }
-    public LayerMask LayerMask { get => layerMask; }
-    // NEED CHECK: removed with `aima`; callers read animationController instead.
-    //public AnimatorOverrideController Aima { get => aima;}
-    public float RangeCheckFieldOfView { get => rangeCheckFieldOfView;}
-    public float IdleDurationTime { get => idleDurationTime;}
-    // NEED CHECK: removed with the fields above.
-    //public float MovementVelocities { get => movementVelocities;}
-    //public float RangeCheckAttack { get => rangeCheckAttack; }
-    public float MoveDurationTime { get => moveDurationTime;}
-    private void OnValidate()
-    {
-        
-    }
+    // NEED CHECK: 2026-11-09 (stat split) — rangeView / angleView / idleDurationTime / moveDurationTime were
+    // cached here by OnValidate from the authored asset (and read 0 when the asset was not recalculated yet).
+    // They are now computed from the enemy's own stats, so buffs and debuffs reach them.
+    [Header("Multipliers (value = stat × multiplier)")]
+    [SerializeField] private float rangeViewMultiplier = 1.2f;   // × MaxRangeAttack
+    [SerializeField] private float angleMultiplier = 1.5f;       // × INT, capped at 360
+    [SerializeField] private float idleMultiplier = 0.1f;        // × STR
+    [SerializeField] private float moveMultiplier = 0.5f;        // × STR
+
+    public LayerMask LayerMask => layerMask;
+
+    /// <summary>Detection range: MaxRangeAttack × multiplier, from the given character's stats.</summary>
+    public float RangeView(IStatService stats) => Read(stats, StatType.MaxRangeAttack) * rangeViewMultiplier;
+
+    /// <summary>View cone in degrees: INT × multiplier, capped at 360.</summary>
+    public float AngleView(IStatService stats) => Mathf.Min(360f, Read(stats, StatType.INT) * angleMultiplier);
+
+    /// <summary>Idle time in seconds: STR × multiplier.</summary>
+    public float IdleDurationTime(IStatService stats) => Read(stats, StatType.STR) * idleMultiplier;
+
+    /// <summary>Wander time in seconds: STR × multiplier.</summary>
+    public float MoveDurationTime(IStatService stats) => Read(stats, StatType.STR) * moveMultiplier;
+
+    private static float Read(IStatService stats, StatType type) => stats != null ? stats.GetStatValue(type) : 0f;
 }

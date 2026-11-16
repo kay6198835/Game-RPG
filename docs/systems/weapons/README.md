@@ -1,6 +1,6 @@
 # Weapons + Projectiles
 
-> **Status:** live (melee + ranged, player and enemy) · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (Equip paragraph only; rest 2026-10-05, HEAD `93ba6d8e`)
+> **Status:** live (melee + ranged, player and enemy) · **Last verified:** 2026-11-15, `sprint-22` `063b5f87` (Open issues only); 2026-11-05, `sprint-21` `028fdb90` (Equip paragraph); rest 2026-10-05, HEAD `93ba6d8e`
 > History: [CHANGELOG.md](CHANGELOG.md) · GDD: `design/gdd/weapons-system.md`
 
 ## Purpose
@@ -69,8 +69,11 @@ release returns to the pool, or `Destroy` if it was not spawned by the pool.
 
 | Bug | Summary |
 |-----|---------|
-| BUG-095 | `AttackSO.attackDamege` → `attackDamage` rename (2026-09-01) had no `[FormerlySerializedAs]`; `SnS_State1-3.asset` still store `attackDamege: 55` → the player sword loses its 55 stage damage — `WeaponHolderBase.CalculateCurrentDamage()` (`:92-98`) computes `PhysicalDamage + attackDamage (+ CritDamage on crit)`, so a hit deals only the character's `PhysicalDamage`. Confirm in Play Mode |
-| BUG-093 | `RangeWeapon.nextFireTime` written (`:67`) but never read → `RecoveryTime` has no effect; gizmo draws `firePoint + firePoint * range`; `OnHit()` ignores `finalDamage` (no `PhysicalDamage`/crit) and reads `currentStage` at hit time |
+| BUG-125 | Melee hits add the attack-stage damage twice: `WeaponHolderBase.CalculateCurrentDamage()` (`:90-98`) adds `CurrentStage.attackDamage`, then `Weapon.FinalDamage()` (`Weapon.cs:67-70`, `38d40925`) adds it again; `MeleeWeapon.OnActivate()` calls `TakeDamage(FinalDamage(…))`. Player and enemy (S2, Open) |
+| BUG-127 | Mage basic-attack bolt `speed: 1` / `lifetime: 4` (`Mage Attack SO State 1.asset`) — barely reaches (S3, Open) |
+| BUG-103 | `RangeWeapon.nextFireTime` written but never read → `RecoveryTime` has no effect; gizmo draws `firePoint + firePoint * range` (S3, Open). *Was listed as "BUG-093" — ID collision, see BUG-101* |
+| — | `OnHit()` ignores `finalDamage` (no `PhysicalDamage`/crit) and reads `currentStage` at hit time — not re-checked this pass; damage-model question is inbox NOTE-20261104-4 (Needs owner) |
+| ~~BUG-095~~ → BUG-105 | *Was:* "`attackDamege` → `attackDamage` rename … the player sword loses its 55 stage damage". That defect is **BUG-105**, FIXED in data by `fbab752a` (2026-11-05). BUG-095 is the `Arrow.prefab` collider bug |
 | — | `firePoint` is a serialized `Vector2` overwritten on every shot — it is runtime state, not authored data |
 | — | `bullet.cs` was the "known debt" example in `gameplay-code.md`; it is deleted, `Projectile.cs` / `Spell.cs` still look down with `GetComponentInChildren` |
 

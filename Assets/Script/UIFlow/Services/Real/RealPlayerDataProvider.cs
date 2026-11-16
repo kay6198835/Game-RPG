@@ -85,8 +85,7 @@ namespace UIFlow
             _statRows.Clear();
             if (_statService == null) return _statRows;
 
-            // Đọc thẳng Stat, không qua StatsViewDTO: BaseStatsSO.RecalculateDerived() không cập nhật DTO của
-            // chỉ số phụ, nên DTO của HP/Damage… có thể cũ sau khi cộng VIT/STR.
+            // Đọc thẳng Stat: StatSheet.RecalculateAll() ghi kết quả vào Stat, StatsViewDTO chỉ là bản copy hiển thị.
             foreach (StatType type in StatTypes)
             {
                 Stat stat = _statService.GetStat(type);

@@ -1,0 +1,2844 @@
+{
+    "finished":  "2026-11-15 00:05:19",
+    "unity":  "2022.3.62f3",
+    "maxPriority":  "P1",
+    "deep":  "ABL,STAT,STATIC",
+    "seed":  20261031,
+    "groups":  [
+                   "ENEMY",
+                   "PLAYER",
+                   "STATIC",
+                   "SYSTEMS",
+                   "VITALS",
+                   "UNIT"
+               ],
+    "cases":  [
+                  {
+                      "id":  "QA-ENT-01",
+                      "title":  "Pool spawns the enemy prefab with its core components and full HP",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.3398876190185547,
+                      "notes":  [
+                                    "ok: enemy spawned and active",
+                                    "ok: Entity found",
+                                    "ok: vital, stat and hurtbox components found",
+                                    "ok: HP 152/152 full"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-02",
+                      "title":  "Spawned enemy has its default weapon equipped",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.00162506103515625,
+                      "notes":  [
+                                    "ok: weapon = TrashMeleeWeapon(Clone)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-03",
+                      "title":  "Damage lowers HP by amount x 100 / (100 + Defense)",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.08270788192749024,
+                      "notes":  [
+                                    "ok: lost 13.72 = 15.2 x 100 / (100 + Defense 10.8)",
+                                    "ok: a 1-damage hit still lands (0.9)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-04",
+                      "title":  "Lethal damage emits ON_ENEMY_DEATH once with the enemy as payload",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  1.952700138092041,
+                      "notes":  [
+                                    "ok: ON_ENEMY_DEATH emitted",
+                                    "ok: payload is the enemy GameObject",
+                                    "ok: released to the pool on the first emit (spawn-system contract)",
+                                    "ok: emitted once"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-05",
+                      "title":  "Released then re-spawned enemy comes back with full HP",
+                      "system":  "ENT",
+                      "priority":  "P1",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.08478450775146485,
+                      "notes":  [
+                                    "ok: released enemy inactive",
+                                    "ok: pool reused the same instance",
+                                    "ok: HP 152/152 full after respawn"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-07",
+                      "title":  "Spawned enemy reads move speed and attack range from its stats",
+                      "system":  "ENT",
+                      "priority":  "P1",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.031785011291503909,
+                      "notes":  [
+                                    "ok: MoveSpeed 2.79 = stat",
+                                    "ok: MaxRange 1.5 = stat",
+                                    "ok: MinRange 0.4 below MaxRange",
+                                    "ok: detection range 5 \u003e= MaxRange"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-09",
+                      "title":  "Idle: a spawned enemy with no target stands still, then leaves for Move",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  1.2298316955566407,
+                      "notes":  [
+                                    "ok: starts in EntityIdleState",
+                                    "ok: no target locked with the player out of sight",
+                                    "ok: animator Idle = true",
+                                    "ok: stayed in Idle for 0.5s",
+                                    "ok: stands still while idle",
+                                    "ok: left Idle for EntityMoveState after IdleDurationTime 1s"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-10",
+                      "title":  "Move: with no target the enemy wanders at its MoveSpeed",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  1.5583667755126954,
+                      "notes":  [
+                                    "ok: MoveSpeed 2.79",
+                                    "ok: wandered 1.33 from where it stood",
+                                    "ok: animator Move = true while moving",
+                                    "ok: average speed 2.68 \u003c= MoveSpeed 2.79",
+                                    "ok: no target locked while wandering",
+                                    "farthest point from its spawn point: 1.33"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-11",
+                      "title":  "TakeDamage: a non-lethal hit enters the take-damage state and leaves it",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.7912054061889648,
+                      "notes":  [
+                                    "ok: entered EntityTakeDamageState",
+                                    "ok: lost 15.2 HP",
+                                    "ok: still alive",
+                                    "ok: animator TakeDamage = true",
+                                    "ok: left the take-damage state after 0.7s",
+                                    "ok: does not move while taking damage",
+                                    "ok: returns to EntityMoveState"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-12",
+                      "title":  "Death: a lethal hit enters the death state from Idle and from TakeDamage",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  1.2552070617675782,
+                      "notes":  [
+                                    "ok: lethal hit: entered EntityDeathState",
+                                    "ok: HP 0",
+                                    "ok: animator Death = true",
+                                    "ok: a hit on a dead enemy is ignored",
+                                    "ok: does not move while dying",
+                                    "ok: ON_ENEMY_DEATH followed after 0.9s",
+                                    "ok: lethal hit during the take-damage state: entered EntityDeathState"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-13",
+                      "title":  "Effect receiver: a max-stat buff applies, is removed by source and expires",
+                      "system":  "ENT",
+                      "priority":  "P1",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  1.0246038436889649,
+                      "notes":  [
+                                    "ok: AdjustMaxStats: Defense 10.8 -\u003e 15.8 (+5 flat)",
+                                    "ok: removing the source restores the stat",
+                                    "ok: AdjustMaxForDuration: Defense buffed to 15.8",
+                                    "ok: the timed buff expired after 0.5s"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-14",
+                      "title":  "Effect receiver: vital modifiers heal and damage current HP",
+                      "system":  "ENT",
+                      "priority":  "P1",
+                      "group":  "ENEMY",
+                      "verdict":  "FAIL",
+                      "seconds":  0.07202816009521485,
+                      "notes":  [
+                                    "ok: a +30.4 HP vital modifier healed 30.4",
+                                    "FAIL: a -30.4 HP vital modifier changed HP 121.6 -\u003e 152, expected 91.2 (a negative vital modifier does not damage)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ITEM-02",
+                      "title":  "Enemy death drops the rolled item at the death position",
+                      "system":  "ITEM",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  1.0395679473876954,
+                      "notes":  [
+                                    "Depot Item 1: drop rate 100%",
+                                    "ok: one item dropped (BaseOrds)",
+                                    "ok: dropped at the death position",
+                                    "ok: carries the rolled item\u0027s name \u0027Item Test\u0027 and sprite",
+                                    "ok: the player can reach it: collider on layer Item, inside the pickup mask",
+                                    "the drop table always drops: a roll that drops nothing cannot be tested"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ITEM-03",
+                      "title":  "Player picks up the dropped item with Q",
+                      "system":  "ITEM",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "FAIL",
+                      "seconds":  3.755887031555176,
+                      "notes":  [
+                                    "item BaseOrds: 1 effect(s), 1 did not load (effect asset bound to an abstract script)",
+                                    "ok: Q next to the item enters PlayerResourceReceiverState",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: no ON_COLLECT_ITEM within 3s of Q: player in PlayerResourceReceiverState, clip Knight_Equid_UnEquid_dir 5 [events: AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (PlayerResourceReceiverState picks up on AnimationOnAction)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "FAIL: Exception: NullReferenceException: Object reference not set to an instance of an object @ ItemController.Interact (Interact interactor) (at Assets/Script/System/Item/ItemController.cs:39)",
+                                    "ok: player returns to Idle / Move",
+                                    "effect of the pickup: coins 0, HP 0, Mana 0, max stats unchanged"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ITEM-04",
+                      "title":  "Q with no item in reach does nothing",
+                      "system":  "ITEM",
+                      "priority":  "P1",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  0.5250606536865234,
+                      "notes":  [
+                                    "ok: no pickup state with nothing in reach",
+                                    "ok: nothing collected"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-15",
+                      "title":  "Move: the enemy locks a player in view, chases into attack range and attacks",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.272428512573242,
+                      "notes":  [
+                                    "ok: locked a player standing 4.3 in front of it (detection range 5, view cone 90°)",
+                                    "ok: entered EntityMoveState to chase",
+                                    "ok: closed from 5.99 to attack range 1.5 in 1.78s",
+                                    "ok: kept the target lock while chasing",
+                                    "ok: attacked after the chase, standing 1.43 from the player (attack band 0.4-1.5)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Assasin",
+                      "title":  "Assasin: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.5794830322265627,
+                      "notes":  [
+                                    "AssasinEntityData: weapon AssasinWeapon(Clone) (MeleeWP), range 0-1.3, player held at 0.65, min attackRate 1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Assasin_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 54.9 HP in 1 hit(s)",
+                                    "ok: attacks 2s apart (\u003e= attackRate 1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Boss",
+                      "title":  "Boss: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.468433380126953,
+                      "notes":  [
+                                    "BossEntityData: weapon BossWeapon(Clone) (MeleeWP), range 0.5-1.6, player held at 1.05, min attackRate 1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Boss_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 222 HP in 1 hit(s)",
+                                    "ok: attacks 1.97s apart (\u003e= attackRate 1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Brute",
+                      "title":  "Brute: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  3.5657806396484377,
+                      "notes":  [
+                                    "BruteEntityData: weapon BruteWeapon(Clone) (MeleeWP), range 0.6-2, player held at 1.3, min attackRate 2.2s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Brute_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 80.4 HP in 1 hit(s)",
+                                    "ok: attacks 3.18s apart (\u003e= attackRate 2.2s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Elite",
+                      "title":  "Elite: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.3168067932128908,
+                      "notes":  [
+                                    "EliteEntityData: weapon EliteWeapon(Clone) (MeleeWP), range 0.5-2.3, player held at 1.4, min attackRate 1.1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Elite_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 75.2 HP in 1 hit(s)",
+                                    "ok: attacks 2.07s apart (\u003e= attackRate 1.1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.FastSwarm",
+                      "title":  "FastSwarm: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.124439239501953,
+                      "notes":  [
+                                    "FastSwarmEntityData: weapon FastSwarmWeapon(Clone) (MeleeWP), range 0.2-1.2, player held at 0.7, min attackRate 1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip FastSwarm_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 37.8 HP in 1 hit(s)",
+                                    "ok: attacks 2s apart (\u003e= attackRate 1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.RangedCaster",
+                      "title":  "RangedCaster: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.8017120361328127,
+                      "notes":  [
+                                    "RangedCasterEntityData: weapon RangedCasterWeapon(Clone) (RangeWP), range 3-6.1, player held at 4.55, min attackRate 1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip RangedCaster_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "1 projectile(s) seen; closest 0.93 from the player at (0.38, 0.00) (player at (-0.55, 0.00), enemy at (4.00, 0.00))",
+                                    "ok: player lost 35 HP in 1 hit(s)",
+                                    "ok: attacks 2s apart (\u003e= attackRate 1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Scatter",
+                      "title":  "Scatter: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  3.4283790588378908,
+                      "notes":  [
+                                    "ScatterEntityData: weapon ScatterWeapon(Clone) (RangeWP), range 2-4.52, player held at 3.26, min attackRate 1.8s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Scatter_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "3 projectile(s) seen; closest 0.96 from the player at (1.70, 0.00) (player at (0.74, 0.00), enemy at (4.00, 0.00))",
+                                    "ok: player lost 27 HP in 1 hit(s)",
+                                    "ok: attacks 2.8s apart (\u003e= attackRate 1.8s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Sniper",
+                      "title":  "Sniper: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  5.343639373779297,
+                      "notes":  [
+                                    "SniperEntityData: weapon SniperWeapon(Clone) (RangeWP), range 4.5-8.04, player held at 6.27, min attackRate 2.5s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Sniper_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "3 projectile(s) seen; closest 0.97 from the player at (-1.30, 0.00) (player at (-2.27, 0.00), enemy at (4.00, 0.00))",
+                                    "ok: player lost 48 HP in 1 hit(s)",
+                                    "ok: attacks 3.5s apart (\u003e= attackRate 2.5s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.Tank",
+                      "title":  "Tank: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.140411376953125,
+                      "notes":  [
+                                    "TankEntityData: weapon TankWeapon(Clone) (MeleeWP), range 0.3-1.4, player held at 0.85, min attackRate 1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip Tank_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 40 HP in 1 hit(s)",
+                                    "ok: attacks 2s apart (\u003e= attackRate 1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ENT-08.TrashMelee",
+                      "title":  "TrashMelee: enemy attacks the player in range, player loses HP, attacks respect attackRate",
+                      "system":  "ENT",
+                      "priority":  "P0",
+                      "group":  "ENEMY",
+                      "verdict":  "PASS",
+                      "seconds":  2.1997528076171877,
+                      "notes":  [
+                                    "TrashMeleeEntityData: weapon TrashMeleeWeapon(Clone) (MeleeWP), range 0.4-1.5, player held at 0.95, min attackRate 1s",
+                                    "ok: entered EntityAttackState 2x in 8s",
+                                    "attack clip TrashMelee_Attack_dir 1 [events: AnimationStart, AnimationTrigger, AnimationOnAction, AnimationFinishTrigger, AnimationEnd] (EntityAttackState deals damage on AnimationOnAction)",
+                                    "ok: player lost 102 HP in 1 hit(s)",
+                                    "ok: attacks 1.97s apart (\u003e= attackRate 1s)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-01",
+                      "title":  "Player spawns once at the spawn point",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.008169174194335938,
+                      "notes":  [
+                                    "ok: PlayerManager spawned a player",
+                                    "ok: exactly 1 Player in the scene",
+                                    "ok: at the spawn point",
+                                    "ok: camera follows the player",
+                                    "ok: input, weapon, ability, stat and vital components found",
+                                    "data before pick: BaseData"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-03.Paladin",
+                      "title":  "Paladin: G at the monument opens the confirm panel",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.0024776458740235,
+                      "notes":  [
+                                    "ok: confirm panel opened",
+                                    "panel data: confirm=\u0027Xác nhận\u0027, cancel=\u0027Hủy\u0027",
+                                    "ok: opened once"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-04.Paladin",
+                      "title":  "Paladin: nothing changes before Confirm",
+                      "system":  "PLY",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.023110389709472657,
+                      "notes":  [
+                                    "ok: class not applied before Confirm",
+                                    "ok: door did not open before Confirm",
+                                    "the Cancel button itself is a manual case (MAN-PLY-03)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-05.Paladin",
+                      "title":  "Paladin: Confirm applies the class",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.7306461334228516,
+                      "notes":  [
+                                    "ok: Player.Data = Paladin",
+                                    "ok: GameObject renamed to the class",
+                                    "ok: animator controller = class controller",
+                                    "ok: weapon = PaladinWeapon",
+                                    "ok: 1 weapon under the player",
+                                    "ok: HP 274/274, Mana 170/170 full",
+                                    "ok: ON_OPEN_DOOR once",
+                                    "ok: game unpaused after Confirm",
+                                    "ok: confirm panel hidden"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UI-01.Paladin",
+                      "title":  "Paladin: hotbar shows every bound ability",
+                      "system":  "UI",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.017198562622070314,
+                      "notes":  [
+                                    "ok: hotbar shows 4 abilities",
+                                    "hotbar: [1] Paladin Blessed Slash Ability (1s, icon no), [2] Consecrate (1s, icon no), [3] Blessing (1s, icon no), [4] Avatar of Light (1s, icon no)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-01.Paladin",
+                      "title":  "Paladin: melee hit damage = PhysicalDamage + stage damage",
+                      "system":  "CMB",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "FAIL",
+                      "seconds":  1.1417417526245118,
+                      "notes":  [
+                                    "ok: the hit reached the target",
+                                    "FAIL: damage 72.4, expected 64.4 (or 222.4 on crit)",
+                                    "ok: stage 0 damage 8"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-02.Paladin",
+                      "title":  "Paladin: melee combo reaches every stage",
+                      "system":  "CMB",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  3.153169631958008,
+                      "notes":  [
+                                    "ok: reached stage 3/3",
+                                    "hits: 2"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-03.Paladin",
+                      "title":  "Paladin: melee out of range deals no damage",
+                      "system":  "CMB",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.7176494598388672,
+                      "notes":  [
+                                    "ok: 0 hits at 4.5 units"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Paladin.Primary",
+                      "title":  "Paladin Paladin Blessed Slash Ability: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  6.967794418334961,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 5",
+                                    "effects: Paladin Spawn Slash Effect (SpawnProjectileEffect)",
+                                    "ok: target hit 1x, first 30"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Paladin.Primary",
+                      "title":  "Paladin Paladin Blessed Slash Ability: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  4.378292083740234,
+                      "notes":  [
+                                    "ok: press with 0.57s left: no cast, no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Paladin.Primary",
+                      "title":  "Paladin Paladin Blessed Slash Ability: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  4.522205352783203,
+                      "notes":  [
+                                    "ok: refused at HP 274 / Mana 4",
+                                    "ok: player alive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Paladin.Secondary",
+                      "title":  "Paladin Consecrate: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  9.931182861328125,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 15",
+                                    "effects: Paladin Spawn Consecrat Effect (SpawnSummonEffect)",
+                                    "ok: target hit 1x, first 70"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Paladin.Secondary",
+                      "title":  "Paladin Consecrate: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  3.4215469360351564,
+                      "notes":  [
+                                    "ok: press with 0.18s left: no cast, no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Paladin.Secondary",
+                      "title":  "Paladin Consecrate: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.7369499206542969,
+                      "notes":  [
+                                    "ok: refused at HP 274 / Mana 14",
+                                    "ok: player alive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Paladin.Utility",
+                      "title":  "Paladin Blessing: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  5.112251281738281,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 10",
+                                    "effects: Paladin Buff - Debuff Stat Effect (BuffDebuffStatsForDuration), Paladin Recovery Reduction Stats Effect (RecoveryReductionStatsEffect)",
+                                    "ok: stat effect visible: STR 12-\u003e32, HP 274-\u003e314, PhysicalDamage 56.4-\u003e204.4, Defense 27-\u003e37"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Paladin.Utility",
+                      "title":  "Paladin Blessing: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  2.5306854248046877,
+                      "notes":  [
+                                    "ok: press with 0.45s left: no cast, no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Paladin.Utility",
+                      "title":  "Paladin Blessing: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.6070823669433594,
+                      "notes":  [
+                                    "ok: refused at HP 314 / Mana 9",
+                                    "ok: player alive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Paladin.Ultimate",
+                      "title":  "Paladin Avatar of Light: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  10.055015563964844,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 40 / Mana 50",
+                                    "effects: Recovery Stat Effect (RecoveryReductionStatsEffect), Gain For Time Effect (BuffDebuffStatsForDuration)",
+                                    "ok: stat effect visible: STR 32-\u003e12, HP 314-\u003e274, PhysicalDamage 204.4-\u003e56.4, MagicDamage 40-\u003e100040, Defense 37-\u003e27"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Paladin.Ultimate",
+                      "title":  "Paladin Avatar of Light: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  4.047615051269531,
+                      "notes":  [
+                                    "ok: press with 0.45s left: no cast, no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Paladin.Ultimate",
+                      "title":  "Paladin Avatar of Light: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "OBSERVED",
+                      "seconds":  1.919342041015625,
+                      "notes":  [
+                                    "OBSERVED: HP set to 39 below its 40 cost (design open: should an HP cost be refused?)",
+                                    "ok: refused at HP 39 / Mana 49",
+                                    "ok: player alive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-03.Archer",
+                      "title":  "Archer: G at the monument opens the confirm panel",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.9021377563476563,
+                      "notes":  [
+                                    "ok: confirm panel opened",
+                                    "panel data: confirm=\u0027Xác nhận\u0027, cancel=\u0027Hủy\u0027",
+                                    "ok: opened once"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-04.Archer",
+                      "title":  "Archer: nothing changes before Confirm",
+                      "system":  "PLY",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.04375457763671875,
+                      "notes":  [
+                                    "ok: class not applied before Confirm",
+                                    "ok: door did not open before Confirm",
+                                    "the Cancel button itself is a manual case (MAN-PLY-03)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-05.Archer",
+                      "title":  "Archer: Confirm applies the class",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.0236740112304688,
+                      "notes":  [
+                                    "ok: Player.Data = Archer",
+                                    "ok: GameObject renamed to the class",
+                                    "ok: animator controller = class controller",
+                                    "ok: weapon = ArcherWeapon",
+                                    "ok: 1 weapon under the player",
+                                    "ok: HP 270/270, Mana 170/170 full",
+                                    "ok: ON_OPEN_DOOR once",
+                                    "ok: game unpaused after Confirm",
+                                    "ok: confirm panel hidden"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UI-01.Archer",
+                      "title":  "Archer: hotbar shows every bound ability",
+                      "system":  "UI",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.0512237548828125,
+                      "notes":  [
+                                    "ok: hotbar shows 4 abilities",
+                                    "hotbar: [1] Hawk Eye (1s, icon no), [2] Kick-back Trap (1s, icon no), [3] Volley (1s, icon no), [4] Rain Arrows (1s, icon no)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-04.Archer",
+                      "title":  "Archer: arrow hits and despawns",
+                      "system":  "CMB",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "FAIL",
+                      "seconds":  6.0747528076171879,
+                      "notes":  [
+                                    "FAIL: no arrow reached the target within 2.5s",
+                                    "FAIL: 1 projectiles still active 2s later"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-05.Archer",
+                      "title":  "Archer: shots are at least RecoveryTime apart",
+                      "system":  "CMB",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "FAIL",
+                      "seconds":  2.4412460327148439,
+                      "notes":  [
+                                    "FAIL: only 0 shot(s) landed in ~2s of clicking"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Archer.Primary",
+                      "title":  "Archer Hawk Eye: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  19.39508819580078,
+                      "notes":  [
+                                    "(carried over) player stuck in PlayerAttackState for 4s after the action",
+                                    "entered PlayerSkillWeaponState: True",
+                                    "not judged: no cooldown event — the ability never reached Do",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Archer.Primary",
+                      "title":  "Archer Hawk Eye: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  4.630584716796875,
+                      "notes":  [
+                                    "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Archer.Primary",
+                      "title":  "Archer Hawk Eye: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.0001220703125,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Archer.Secondary",
+                      "title":  "Archer Kick-back Trap: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  13.271171569824219,
+                      "notes":  [
+                                    "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Archer.Secondary",
+                      "title":  "Archer Kick-back Trap: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  2.9486160278320314,
+                      "notes":  [
+                                    "ok: press with 0.17s left: no cast, no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Archer.Secondary",
+                      "title":  "Archer Kick-back Trap: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.00005340576171875,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Archer.Utility",
+                      "title":  "Archer Volley: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  11.835441589355469,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "not judged: no cooldown event — the ability never reached Do",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Archer.Utility",
+                      "title":  "Archer Volley: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  4.1398468017578129,
+                      "notes":  [
+                                    "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Archer.Utility",
+                      "title":  "Archer Volley: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.0000457763671875,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Archer.Ultimate",
+                      "title":  "Archer Rain Arrows: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  13.761962890625,
+                      "notes":  [
+                                    "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 15",
+                                    "effects: Archer Spawn Rain Arrows Effect (SpawnSummonEffect)",
+                                    "not judged: scattered-point summon (DamagesInManyPos) missed the single target 2.5 units ahead; damage pattern is checked by hand (manual checklist)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Archer.Ultimate",
+                      "title":  "Archer Rain Arrows: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  2.660919189453125,
+                      "notes":  [
+                                    "ok: press with 0.18s left: no cast, no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Archer.Ultimate",
+                      "title":  "Archer Rain Arrows: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  1.4470062255859376,
+                      "notes":  [
+                                    "ok: refused at HP 270 / Mana 14",
+                                    "ok: player alive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-03.Mage",
+                      "title":  "Mage: G at the monument opens the confirm panel",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.8552703857421875,
+                      "notes":  [
+                                    "ok: confirm panel opened",
+                                    "panel data: confirm=\u0027Xác nhận\u0027, cancel=\u0027Hủy\u0027",
+                                    "ok: opened once"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-04.Mage",
+                      "title":  "Mage: nothing changes before Confirm",
+                      "system":  "PLY",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.0322265625,
+                      "notes":  [
+                                    "ok: class not applied before Confirm",
+                                    "ok: door did not open before Confirm",
+                                    "the Cancel button itself is a manual case (MAN-PLY-03)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PLY-05.Mage",
+                      "title":  "Mage: Confirm applies the class",
+                      "system":  "PLY",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.7520904541015625,
+                      "notes":  [
+                                    "ok: Player.Data = Mage",
+                                    "ok: GameObject renamed to the class",
+                                    "ok: animator controller = class controller",
+                                    "ok: weapon = MageWeapon",
+                                    "ok: 1 weapon under the player",
+                                    "ok: HP 270/270, Mana 170/170 full",
+                                    "ok: ON_OPEN_DOOR once",
+                                    "ok: game unpaused after Confirm",
+                                    "ok: confirm panel hidden"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UI-01.Mage",
+                      "title":  "Mage: hotbar shows every bound ability",
+                      "system":  "UI",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.0211639404296875,
+                      "notes":  [
+                                    "ok: hotbar shows 4 abilities",
+                                    "hotbar: [1] Fireball (1s, icon no), [2] Chain Lightning (1s, icon no), [3] Frost Nova (1s, icon no), [4] Meteor (1s, icon no)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-04.Mage",
+                      "title":  "Mage: arrow hits and despawns",
+                      "system":  "CMB",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "FAIL",
+                      "seconds":  4.73046875,
+                      "notes":  [
+                                    "FAIL: no arrow reached the target within 2.5s",
+                                    "FAIL: 1 projectiles still active 2s later"
+                                ]
+                  },
+                  {
+                      "id":  "QA-CMB-05.Mage",
+                      "title":  "Mage: shots are at least RecoveryTime apart",
+                      "system":  "CMB",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "FAIL",
+                      "seconds":  2.458984375,
+                      "notes":  [
+                                    "FAIL: only 0 shot(s) landed in ~2s of clicking"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Mage.Primary",
+                      "title":  "Mage Fireball: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  8.208358764648438,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Mage.Primary",
+                      "title":  "Mage Fireball: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  3.450531005859375,
+                      "notes":  [
+                                    "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Mage.Primary",
+                      "title":  "Mage Fireball: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.000030517578125,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Mage.Secondary",
+                      "title":  "Mage Chain Lightning: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  10.358306884765625,
+                      "notes":  [
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Mage.Secondary",
+                      "title":  "Mage Chain Lightning: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  3.4493255615234377,
+                      "notes":  [
+                                    "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Mage.Secondary",
+                      "title":  "Mage Chain Lightning: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.000091552734375,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Mage.Utility",
+                      "title":  "Mage Frost Nova: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  13.683929443359375,
+                      "notes":  [
+                                    "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Mage.Utility",
+                      "title":  "Mage Frost Nova: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  3.4595489501953127,
+                      "notes":  [
+                                    "SKIP: first cast never started a cooldown (see QA-ABL-01)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Mage.Utility",
+                      "title":  "Mage Frost Nova: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.00006103515625,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-01.Mage.Ultimate",
+                      "title":  "Mage Meteor: cast pays cost, starts cooldown, applies effect",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  11.161590576171875,
+                      "notes":  [
+                                    "(carried over) player stuck in PlayerSkillWeaponState for 4s after the action",
+                                    "entered PlayerSkillWeaponState: True",
+                                    "ok: cooldown started (1s)",
+                                    "ok: cooldown = definition 1s",
+                                    "ok: cost paid HP 0 / Mana 0",
+                                    "SKIP: Effects list is empty — ability not implemented yet; the notes above are information only"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-02.Mage.Ultimate",
+                      "title":  "Mage Meteor: no recast while on cooldown",
+                      "system":  "ABL",
+                      "priority":  "P1",
+                      "group":  "PLAYER",
+                      "verdict":  "OBSERVED",
+                      "seconds":  4.6068267822265629,
+                      "notes":  [
+                                    "OBSERVED: cooldown 1s ended before the player was idle again — the cast animation outlasts the cooldown, so the gate cannot be reached by input"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ABL-03.Mage.Ultimate",
+                      "title":  "Mage Meteor: refused when the cost cannot be paid",
+                      "system":  "ABL",
+                      "priority":  "P2",
+                      "group":  "PLAYER",
+                      "verdict":  "SKIP",
+                      "seconds":  0.0000457763671875,
+                      "notes":  [
+                                    "SKIP: ability has no cost"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-10",
+                      "title":  "Class stat assets unchanged after a full player run (BUG-115)",
+                      "system":  "STAT",
+                      "priority":  "P0",
+                      "group":  "PLAYER",
+                      "verdict":  "PASS",
+                      "seconds":  0.0206756591796875,
+                      "notes":  [
+                                    "ok: PaladinStats unchanged",
+                                    "ok: ArcherStats unchanged",
+                                    "ok: MageStats unchanged"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-01",
+                      "title":  "No asset or prefab references a missing script",
+                      "system":  "STATIC",
+                      "priority":  "P0",
+                      "group":  "STATIC",
+                      "verdict":  "FAIL",
+                      "seconds":  1.251835823059082,
+                      "notes":  [
+                                    "FAIL: 101 finding(s)",
+                                    "Assets/Prefab/Bullet/BulletEnnemy.prefab: script guid 92b59311105d6b640bbae19ea60be7c2",
+                                    "Assets/Prefab/Bullet/BulletPlayer.prefab: script guid 92b59311105d6b640bbae19ea60be7c2",
+                                    "Assets/Prefab/Bullet/SpiritProjcetile.prefab: script guid 405e5c1b5d35de1428150d32c25b0bf1",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid 1a76f0427ff553c419f560d0fc0d03fe",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid 94c1121f7993220458a7cce8d02e297c",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid 8b08d677a0b3def4c9909b91e37cfa63",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid 4f2b0a3dc96f4f84987338a4debd4fe2",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid 25675b5d276b6d643a169924c067c990",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid 02276f3fe351e384cb3afbf2ab125024",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid f809f57d8424b0d4585cb043b9bbe92c",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid db7d354d7f8b2ab4699f7a89f3cb7d01",
+                                    "Assets/Prefab/Core/CoreGame.prefab: script guid fd3a9ce3e2ae11c44840482242f558f7",
+                                    "Assets/Prefab/Interactable Object/Chest.prefab: script guid ab354f7577716af47a269f3ec676715e",
+                                    "Assets/Prefab/Interactable Object/Portal.prefab: script guid 47d8421b87742b74283637dd81bb600d",
+                                    "Assets/Prefab/Interactable Object/Reset.prefab: script guid 174f03f351544e64dbba10da5b16c6a5",
+                                    "Assets/Prefab/NPC/Merchant.prefab: script guid fc1ed29122892f547a5676c047746b53",
+                                    "Assets/Prefab/NPC/Merchant.prefab: script guid 7a5a50304ffbae14788a47bb36ced296",
+                                    "Assets/Prefab/NPC/NPC.prefab: script guid 7a5a50304ffbae14788a47bb36ced296",
+                                    "Assets/Prefab/Pooling/PoolingManager.prefab: script guid e17e5972be4a5d04a9d62e6381836116",
+                                    "Assets/Prefab/SkillModel.prefab: script guid ef3c31014e5d2e84396ed2d2a54b9652",
+                                    "Assets/Prefab/Weapon/MeleeWp/SnS.prefab: script guid c0f0b0b3777869c4ca8e115a42c2a0f9",
+                                    "Assets/Prefab/Weapon/Pistol.prefab: script guid c0827525a8bc48b449eda7d7dad79ed9",
+                                    "Assets/Prefab/Weapon/Pistol.prefab: script guid 8d76525e9e94de7449b386e642419832",
+                                    "Assets/Prefab/Weapon/Rifle.prefab: script guid 8d76525e9e94de7449b386e642419832",
+                                    "Assets/Prefab/Weapon/Rifle.prefab: script guid c0827525a8bc48b449eda7d7dad79ed9",
+                                    "Assets/SO/Database/Enemy/Assasin.asset: script guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/Boss.asset: script guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/FastSwarm.asset: script guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/RangeCaster.asset: script guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/Tank.asset: script guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/TrashMelee.asset: script guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Dungeon/DungeonGenerationData.asset: script guid 9685d7c5d07638141b8f66061e03308b",
+                                    "Assets/SO/Item/Effect/New Recovery Effect Definition.asset: script guid 51ca99a6ec51ee34784f1c822fc5f496",
+                                    "Assets/SO/Room/RoomData.asset: script guid 0c92c27b3b9f5b74a9a23897c1b2aa8b",
+                                    "Assets/SO/Skill/Enemy - Knight.asset: script guid 7dda44e0c8271114fb11d268809dbd99",
+                                    "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset: script guid ac9ac7c011812d042ac992007bc0cf48",
+                                    "Assets/SO/Spawners/SpawnBat.asset: script guid 64065a1d0a960aa43b9fedcde8017b2b",
+                                    "Assets/SO/Spawners/SpawnCrab.asset: script guid 64065a1d0a960aa43b9fedcde8017b2b",
+                                    "Assets/SO/Weapons/EnemyNormalBulletSO.asset: script guid 1f0056f1dc1ef7946922640b24bf9105",
+                                    "Assets/SO/Weapons/PlayerNormalBulletSO.asset: script guid 1f0056f1dc1ef7946922640b24bf9105",
+                                    "Assets/Scenes/Main/SetLevel.unity: script guid f1ffd88008a9d6e4d853721957de2e4d",
+                                    "Assets/Scenes/Main/Test/Prefab/Maze.prefab: script guid 082591dac17a5a042a490c037d8c6099",
+                                    "Assets/Scenes/Main/Test/Prefab/Maze.prefab: script guid b1fb61ead9d37574bb6ee93a0e22fcc1",
+                                    "Assets/Scenes/SampleScene.unity: script guid cd8ec3491e4b15b4bbfe3bd34591136c",
+                                    "Assets/Scenes/SampleScene.unity: script guid 1a76f0427ff553c419f560d0fc0d03fe",
+                                    "Assets/Scenes/SampleScene.unity: script guid a913ba7c4c87cbb41910c938871d8d5c",
+                                    "Assets/Scenes/SampleScene.unity: script guid ecc763aa3f27c1c4297f9dfb1c4f8f6e",
+                                    "Assets/Scenes/SampleScene.unity: script guid 47d8421b87742b74283637dd81bb600d",
+                                    "Assets/Scenes/Test/Test AI.unity: script guid 7fef3fc3fe004354280b52f34544012f",
+                                    "Assets/Scenes/Test/Test AI.unity: script guid dc16714ad4d76b245b1fe85f3fb5496f",
+                                    "Assets/Sprite/Erika/Scenes/erika_8dir_pixel.unity: script guid 68db15a1b04593f4dbbb4f8df6bb2c54",
+                                    "Assets/Sprite/Erika/Scenes/erika_attack_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_attack_up45_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_crouch_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_death_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_idle_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_move_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_run_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Erika/Scenes/erika_takedamage_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Maw/Scenes/maw_8dir_pixel.unity: script guid 68db15a1b04593f4dbbb4f8df6bb2c54",
+                                    "Assets/Sprite/Maw/Scenes/maw_attack_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Maw/Scenes/maw_death_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Maw/Scenes/maw_idle_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Maw/Scenes/maw_move_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Maw/Scenes/maw_takedamage_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_8dir_pixel.unity: script guid 68db15a1b04593f4dbbb4f8df6bb2c54",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_attack_2h_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_attack_2h_sustain_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_attack_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_cast_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_crouch_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_death_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_hit_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_idle_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_move_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_run_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Nightshade/Scenes/nightshade_spell_throw_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_8dir_pixel.unity: script guid 68db15a1b04593f4dbbb4f8df6bb2c54",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_attack_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_cast_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_crouch_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_death_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_hit_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_idle_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_move_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_power_up_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_run_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_slash_up_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Paladin/Scenes/paladin_spin_slash_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Vampire/Scenes/vampire_8dir_pixel.unity: script guid 68db15a1b04593f4dbbb4f8df6bb2c54",
+                                    "Assets/Sprite/Vampire/Scenes/vampire_attack_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Vampire/Scenes/vampire_death_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Vampire/Scenes/vampire_idle_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Vampire/Scenes/vampire_move_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Vampire/Scenes/vampire_takedamage_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Warrok/Scenes/warrok_8dir_pixel.unity: script guid 68db15a1b04593f4dbbb4f8df6bb2c54",
+                                    "Assets/Sprite/Warrok/Scenes/warrok_attack_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Warrok/Scenes/warrok_death_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Warrok/Scenes/warrok_idle_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Warrok/Scenes/warrok_move_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e",
+                                    "Assets/Sprite/Warrok/Scenes/warrok_takedamage_8dir_capture.unity: script guid a65d026c9f37c9941944139299af5a3e"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-02",
+                      "title":  "No ScriptableObject under Assets/SO references a deleted asset",
+                      "system":  "STATIC",
+                      "priority":  "P1",
+                      "group":  "STATIC",
+                      "verdict":  "FAIL",
+                      "seconds":  0.1034688949584961,
+                      "notes":  [
+                                    "FAIL: 19 finding(s)",
+                                    "Assets/SO/Database/Enemy/Assasin.asset: guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/Boss.asset: guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/FastSwarm.asset: guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/RangeCaster.asset: guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/Tank.asset: guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Database/Enemy/TrashMelee.asset: guid babc5d466b4a4854ca630ec23b670512",
+                                    "Assets/SO/Dungeon/DungeonGenerationData.asset: guid 9685d7c5d07638141b8f66061e03308b",
+                                    "Assets/SO/Item/Effect/New Recovery Effect Definition.asset: guid 51ca99a6ec51ee34784f1c822fc5f496",
+                                    "Assets/SO/Room/RoomData.asset: guid 0c92c27b3b9f5b74a9a23897c1b2aa8b",
+                                    "Assets/SO/Skill/Enemy - Knight.asset: guid 7dda44e0c8271114fb11d268809dbd99",
+                                    "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset: guid ac9ac7c011812d042ac992007bc0cf48",
+                                    "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset: guid 02cbacd1d0342774abb852a2ed63f9b4",
+                                    "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset: guid 02cbacd1d0342774abb852a2ed63f9b4",
+                                    "Assets/SO/Spawners/SpawnBat.asset: guid 64065a1d0a960aa43b9fedcde8017b2b",
+                                    "Assets/SO/Spawners/SpawnBat.asset: guid 57e7b0449e026ab43987fcb8b2496cf3",
+                                    "Assets/SO/Spawners/SpawnCrab.asset: guid 64065a1d0a960aa43b9fedcde8017b2b",
+                                    "Assets/SO/Spawners/SpawnCrab.asset: guid c47349318891b8b46a4b6fd6e49dd024",
+                                    "Assets/SO/Weapons/EnemyNormalBulletSO.asset: guid 1f0056f1dc1ef7946922640b24bf9105",
+                                    "Assets/SO/Weapons/PlayerNormalBulletSO.asset: guid 1f0056f1dc1ef7946922640b24bf9105"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-03",
+                      "title":  "No serialized key left behind by a field rename (missing [FormerlySerializedAs])",
+                      "system":  "STATIC",
+                      "priority":  "P1",
+                      "group":  "STATIC",
+                      "verdict":  "FAIL",
+                      "seconds":  2.08457088470459,
+                      "notes":  [
+                                    "FAIL: 128 finding(s)",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): maxHealth",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset (EntityData): weaponSO",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): maxHealth",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset (EntityData): weaponSO",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): maxHealth",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset (EntityData): weaponSO",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): maxHealth",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset (EntityData): weaponSO",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset (EntityData): weaponSO",
+                                    "Assets/SO/Enemy/Knight/Knight.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Knight/Knight.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Knight/Knight.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Knight/Knight.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Knight/Knight.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): movementVelocities",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): rangeCheckAttack",
+                                    "Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): angleView",
+                                    "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): idleDurationTime",
+                                    "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): moveDurationTime",
+                                    "Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): rangeView",
+                                    "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset (MeleeWeaponStats): \u003cAbilityWeapon\u003ek__BackingField",
+                                    "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset (MeleeWeaponStats): \u003cSkillWeapon\u003ek__BackingField",
+                                    "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset (WeaponSO): dropChance",
+                                    "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset (WeaponSO): style",
+                                    "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset (WeaponSO): value",
+                                    "Assets/SO/Enemy/Weapon/Knight_Attack1.asset (AttackSO): ability",
+                                    "Assets/SO/Item/PlatiumOre 0.asset (ItemSO): dropChance",
+                                    "Assets/SO/Item/PlatiumOre 0.asset (ItemSO): value",
+                                    "Assets/SO/Item/PlatiumOre 1.asset (ItemSO): dropChance",
+                                    "Assets/SO/Item/PlatiumOre 1.asset (ItemSO): value",
+                                    "Assets/SO/Item/PlatiumOre 2.asset (ItemSO): dropChance",
+                                    "Assets/SO/Item/PlatiumOre 2.asset (ItemSO): value",
+                                    "Assets/SO/Item/PlatiumOre 3.asset (ItemSO): dropChance",
+                                    "Assets/SO/Item/PlatiumOre 3.asset (ItemSO): value",
+                                    "Assets/SO/Item/PlatiumOre 4.asset (ItemSO): dropChance",
+                                    "Assets/SO/Item/PlatiumOre 4.asset (ItemSO): value",
+                                    "Assets/SO/Item/PlatiumOre 5.asset (ItemSO): dropChance",
+                                    "Assets/SO/Item/PlatiumOre 5.asset (ItemSO): value",
+                                    "Assets/SO/Skill/Paladin/Ability/Avatar of Light/Effect/Recovery Stat Effect.asset (RecoveryReductionStatsEffect): impactType",
+                                    "Assets/SO/Skill/Paladin/Ability/Blessed Slash/Effect/Paladin Recovery Reduction Stats Effect.asset (RecoveryReductionStatsEffect): impactType",
+                                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset (MeleeWeaponStats): \u003cAbilityWeapon\u003ek__BackingField",
+                                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset (MeleeWeaponStats): \u003cSkillWeapon\u003ek__BackingField",
+                                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset (AttackSO): ability",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_Stat.asset (MeleeWeaponStats): \u003cAbilityWeapon\u003ek__BackingField",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_Stat.asset (MeleeWeaponStats): \u003cSkillWeapon\u003ek__BackingField",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State1.asset (AttackSO): ability",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State1.asset (AttackSO): enemyLayers",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset (AttackSO): ability",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State2.asset (AttackSO): enemyLayers",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset (AttackSO): ability",
+                                    "Assets/SO/Weapons/PaladinWeapon/SnS_State3.asset (AttackSO): enemyLayers",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): StartTimeBtwShots",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): Type",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): firerate",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): timeBtwShots",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): value",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): weaponName",
+                                    "Assets/SO/Weapons/Pistol.asset (RangeWeaponStats): weaponPrefab",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): StartTimeBtwShots",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): Type",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): firerate",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): timeBtwShots",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): value",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): weaponName",
+                                    "Assets/SO/Weapons/Rifle.asset (RangeWeaponStats): weaponPrefab"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-04",
+                      "title":  "No runtime stat modifier saved into a stat asset",
+                      "system":  "STATIC",
+                      "priority":  "P0",
+                      "group":  "STATIC",
+                      "verdict":  "PASS",
+                      "seconds":  0.10541439056396485,
+                      "notes":  [
+                                    "ok: no stat asset carries saved modifiers"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-05",
+                      "title":  "Runtime scripts do not use UnityEditor outside #if UNITY_EDITOR",
+                      "system":  "STATIC",
+                      "priority":  "P0",
+                      "group":  "STATIC",
+                      "verdict":  "FAIL",
+                      "seconds":  0.46848201751708987,
+                      "notes":  [
+                                    "FAIL: 1 finding(s)",
+                                    "Assets/TextMesh Pro/Examples \u0026 Extras/Scripts/TMP_TextInfoDebugTool.cs:4: using UnityEditor;"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-06",
+                      "title":  "Every enabled build scene exists",
+                      "system":  "STATIC",
+                      "priority":  "P0",
+                      "group":  "STATIC",
+                      "verdict":  "PASS",
+                      "seconds":  0.0027742385864257814,
+                      "notes":  [
+                                    "build scenes: Assets/Scenes/Main/MainGamePlay.unity, Assets/Scenes/Main/Loading.unity, Assets/Scenes/Main/LoadRandomMap.unity, Assets/Scenes/Main/GameplayUI.unity, Assets/Scenes/Main/SetLevel.unity",
+                                    "ok: 5 enabled scenes exist"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-07",
+                      "title":  "Every enemy role has a weapon, a move speed and a consistent attack range",
+                      "system":  "STATIC",
+                      "priority":  "P1",
+                      "group":  "STATIC",
+                      "verdict":  "PASS",
+                      "seconds":  0.5249795913696289,
+                      "notes":  [
+                                    "ok: 10 role EntityData assets consistent",
+                                    "AssasinEntityData: MoveSpeed 4.16, range 0-1.3, FOV 7.02",
+                                    "BossEntityData: MoveSpeed 2.21, range 0.5-1.6, FOV 10",
+                                    "BruteEntityData: MoveSpeed 2.03, range 0.6-2, FOV 4.5",
+                                    "EliteEntityData: MoveSpeed 2.82, range 0.5-2.3, FOV 6.99",
+                                    "FastSwarmEntityData: MoveSpeed 5.3, range 0.2-1.2, FOV 6.48",
+                                    "RangedCasterEntityData: MoveSpeed 2.56, range 3-6.1, FOV 7.93",
+                                    "ScatterEntityData: MoveSpeed 2.57, range 2-4.52, FOV 6.51",
+                                    "SniperEntityData: MoveSpeed 2.64, range 4.5-8.04, FOV 11.01",
+                                    "TankEntityData: MoveSpeed 1.84, range 0.3-1.4, FOV 4",
+                                    "TrashMeleeEntityData: MoveSpeed 2.79, range 0.4-1.5, FOV 5"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STATIC-08",
+                      "title":  "Every enemy role weapon can hit the player: attack clips carry the damage event, masks include the player hurtbox",
+                      "system":  "STATIC",
+                      "priority":  "P1",
+                      "group":  "STATIC",
+                      "verdict":  "PASS",
+                      "seconds":  0.08094167709350586,
+                      "notes":  [
+                                    "ok: 10 role weapons can hit the player",
+                                    "player hurtbox layer Player (7)",
+                                    "AssasinEntityData: AssasinWeaponStats stage 0 (AssasinAttackStage1): 32 attack clip(s) checked in Assasin_AttackStage1",
+                                    "BossEntityData: BossWeaponStats stage 0 (BossAttackStage1): 32 attack clip(s) checked in Boss_AttackStage1",
+                                    "BruteEntityData: BruteWeaponStats stage 0 (BruteAttackStage1): 32 attack clip(s) checked in Brute_AttackStage1",
+                                    "EliteEntityData: EliteWeaponStats stage 0 (EliteAttackStage1): 32 attack clip(s) checked in Elite_AttackStage1",
+                                    "FastSwarmEntityData: FastSwarmWeaponStats stage 0 (FastSwarmAttackStage1): 32 attack clip(s) checked in FastSwarm_AttackStage1",
+                                    "RangedCasterEntityData: RangedCasterWeaponStats stage 0 (RangedCasterAttackStage1): 32 attack clip(s) checked in RangedCaster_AttackStage1",
+                                    "ScatterEntityData: ScatterWeaponStats stage 0 (ScatterAttackStage1): 32 attack clip(s) checked in Scatter_AttackStage1",
+                                    "SniperEntityData: SniperWeaponStats stage 0 (SniperAttackStage1): 32 attack clip(s) checked in Sniper_AttackStage1",
+                                    "TankEntityData: TankWeaponStats stage 0 (TankAttackStage1): 32 attack clip(s) checked in Tank_AttackStage1",
+                                    "TrashMeleeEntityData: TrashMeleeWeaponStats stage 0 (TrashMeleeAttackStage1): 32 attack clip(s) checked in TrashMelee_AttackStage1"
+                                ]
+                  },
+                  {
+                      "id":  "QA-EVT-01",
+                      "title":  "Emit delivers the payload to a registered listener",
+                      "system":  "EVT",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.2296280860900879,
+                      "notes":  [
+                                    "ok: listener called once with the payload"
+                                ]
+                  },
+                  {
+                      "id":  "QA-EVT-02",
+                      "title":  "UnResgister stops delivery",
+                      "system":  "EVT",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.0570979118347168,
+                      "notes":  [
+                                    "ok: no call after UnResgister"
+                                ]
+                  },
+                  {
+                      "id":  "QA-EVT-03",
+                      "title":  "Two listeners on one event both receive it; Emit with no listener is safe",
+                      "system":  "EVT",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.012588024139404297,
+                      "notes":  [
+                                    "ok: both listeners called once",
+                                    "ok: Emit with every listener removed does not throw"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-01",
+                      "title":  "Flat modifier adds its value to FinalValue",
+                      "system":  "STAT",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.02065753936767578,
+                      "notes":  [
+                                    "ok: Defense 26 -\u003e 31"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-02",
+                      "title":  "PercentAdd modifiers sum before multiplying",
+                      "system":  "STAT",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.10007667541503906,
+                      "notes":  [
+                                    "ok: +10% +20% -\u003e 33.8 (x1.3)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-03",
+                      "title":  "PercentMult modifier multiplies",
+                      "system":  "STAT",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.004792690277099609,
+                      "notes":  [
+                                    "ok: (base+4) x1.5 -\u003e 45"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-04",
+                      "title":  "RemoveModifiersFromSource restores the value",
+                      "system":  "STAT",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.017836570739746095,
+                      "notes":  [
+                                    "ok: back to 26, 0 modifiers"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-05",
+                      "title":  "Removing one source keeps another source\u0027s modifier",
+                      "system":  "STAT",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.019724369049072267,
+                      "notes":  [
+                                    "ok: item modifier kept: 29"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-06",
+                      "title":  "Working on an Instantiate copy leaves the stat asset unchanged",
+                      "system":  "STAT",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.01937389373779297,
+                      "notes":  [
+                                    "ok: PaladinStats unchanged"
+                                ]
+                  },
+                  {
+                      "id":  "QA-STAT-07",
+                      "title":  "StatSheet reads each PrimaryStatEntry as BaseValue; two sheets from one profile stay independent",
+                      "system":  "STAT",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.013178825378417969,
+                      "notes":  [
+                                    "ok: 5 primary rows on PaladinStats",
+                                    "ok: every primary BaseValue matches its authored entry",
+                                    "ok: second sheet STR unchanged (10) after a point on the first"
+                                ]
+                  },
+                  {
+                      "id":  "QA-POOL-01",
+                      "title":  "Spawn returns an active instance at the requested position",
+                      "system":  "POOL",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.018755435943603517,
+                      "notes":  [
+                                    "ok: active instance returned",
+                                    "ok: at (3.00, -2.00)",
+                                    "ok: instance is not the template"
+                                ]
+                  },
+                  {
+                      "id":  "QA-POOL-02",
+                      "title":  "Release deactivates; the next Spawn reuses the same instance",
+                      "system":  "POOL",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.027661800384521486,
+                      "notes":  [
+                                    "ok: released instance inactive",
+                                    "ok: same instance reused and re-activated"
+                                ]
+                  },
+                  {
+                      "id":  "QA-POOL-03",
+                      "title":  "Two spawns without release give two distinct instances",
+                      "system":  "POOL",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.017116546630859376,
+                      "notes":  [
+                                    "ok: two distinct instances"
+                                ]
+                  },
+                  {
+                      "id":  "QA-MAP-01",
+                      "title":  "Room clear: ON_OPEN_DOOR fires once, when the last spawned enemy dies",
+                      "system":  "MAP",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.014813899993896485,
+                      "notes":  [
+                                    "ok: no door event after 2 of 3 deaths",
+                                    "ok: ON_OPEN_DOOR once at the third death"
+                                ]
+                  },
+                  {
+                      "id":  "QA-MAP-02",
+                      "title":  "Room clear counts an extra spawned enemy",
+                      "system":  "MAP",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.013729572296142578,
+                      "notes":  [
+                                    "ok: door stays shut while the extra enemy lives",
+                                    "ok: door opens after the extra enemy"
+                                ]
+                  },
+                  {
+                      "id":  "QA-MAP-03",
+                      "title":  "MapModel.GetRandomRoom deals every room once per cycle",
+                      "system":  "MAP",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.017167091369628907,
+                      "notes":  [
+                                    "ok: 8 draws gave 8 distinct rooms",
+                                    "ok: a new cycle starts after the bag empties"
+                                ]
+                  },
+                  {
+                      "id":  "QA-MAP-04",
+                      "title":  "RoomModel.GetSpawnSet stays within weight budget + overflow (20 seeds per room)",
+                      "system":  "MAP",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.13262176513671876,
+                      "notes":  [
+                                    "ok: RoomModel_Roles: every seed spawned something",
+                                    "ok: RoomModel_Roles: worst total weight 49 \u003c= 55 (budget 50 +10 %)",
+                                    "ok: RoomModel_T1_SwarmNest: every seed spawned something",
+                                    "ok: RoomModel_T1_SwarmNest: worst total weight 32 \u003c= 33 (budget 30 +10 %)",
+                                    "ok: RoomModel_T1_Outpost: every seed spawned something",
+                                    "ok: RoomModel_T1_Outpost: worst total weight 32 \u003c= 33 (budget 30 +10 %)",
+                                    "ok: RoomModel_T2_Ambush: every seed spawned something",
+                                    "ok: RoomModel_T2_Ambush: worst total weight 50 \u003c= 55 (budget 50 +10 %)",
+                                    "ok: RoomModel_T2_FiringLine: every seed spawned something",
+                                    "ok: RoomModel_T2_FiringLine: worst total weight 50 \u003c= 55 (budget 50 +10 %)",
+                                    "ok: RoomModel_T3_HeavySiege: every seed spawned something",
+                                    "ok: RoomModel_T3_HeavySiege: worst total weight 70 \u003c= 77 (budget 70 +10 %)",
+                                    "ok: RoomModel_T3_Warband: every seed spawned something",
+                                    "ok: RoomModel_T3_Warband: worst total weight 68 \u003c= 77 (budget 70 +10 %)",
+                                    "ok: RoomModel_T4_ChampionGuard: every seed spawned something",
+                                    "ok: RoomModel_T4_ChampionGuard: worst total weight 86 \u003c= 99 (budget 90 +10 %)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-MAP-05",
+                      "title":  "Every room JSON parses with matching tiles / poses / layers counts",
+                      "system":  "MAP",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.0771336555480957,
+                      "notes":  [
+                                    "ok: 20 room files",
+                                    "rooms: BossRoom_ThroneArena, BuffRoom_PowerShrine, CombatRoom_CentralIsland, CombatRoom_Checkerboard, CombatRoom_Cross, CombatRoom_DiagonalWalls, CombatRoom_EliteGuard, CombatRoom_FourPillars, CombatRoom_GrandArena, CombatRoom_HiddenCorner, CombatRoom_NarrowBridges, CombatRoom_PracticeYard, CombatRoom_RoundArena, CombatRoom_SmallMaze, CombatRoom_Spiral, CombatRoom_TwinCorridors, CombatRoom_TwoHalls, RestRoom_Campfire, ShopRoom_Merchant, StartRoom_Entrance"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PATH-01",
+                      "title":  "A* finds a path of walkable, adjacent waypoints to the farthest reachable tile",
+                      "system":  "PATH",
+                      "priority":  "P0",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.07215690612792969,
+                      "notes":  [
+                                    "CombatRoom_GrandArena.json: 668 walkable tiles of 900",
+                                    "ok: path found, 2 waypoints",
+                                    "ok: every waypoint walkable and adjacent to the previous",
+                                    "ok: ends at the target"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PATH-02",
+                      "title":  "A* to a wall tile fails cleanly",
+                      "system":  "PATH",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.02743053436279297,
+                      "notes":  [
+                                    "ok: no path to a wall tile"
+                                ]
+                  },
+                  {
+                      "id":  "QA-PATH-03",
+                      "title":  "Same query twice gives the same path (search state cleared)",
+                      "system":  "PATH",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.018129825592041017,
+                      "notes":  [
+                                    "ok: identical results"
+                                ]
+                  },
+                  {
+                      "id":  "QA-ITEM-01",
+                      "title":  "DepotItem rolls only items from its table; same seed gives same roll",
+                      "system":  "ITEM",
+                      "priority":  "P1",
+                      "group":  "SYSTEMS",
+                      "verdict":  "PASS",
+                      "seconds":  0.017004966735839845,
+                      "notes":  [
+                                    "ok: 200/200 rolls gave an item, all from the table",
+                                    "ok: seed 42 -\u003e Test twice"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-01",
+                      "title":  "ReloadComponent fills HP and Mana to max",
+                      "system":  "VIT",
+                      "priority":  "P0",
+                      "group":  "VITALS",
+                      "verdict":  "PASS",
+                      "seconds":  0.017398834228515626,
+                      "notes":  [
+                                    "ok: HP 274 = max 274",
+                                    "ok: Mana 170 = max 170",
+                                    "ok: max HP is positive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-02",
+                      "title":  "Reduction lowers the value by exactly the amount and raises CurrentStatsChanged",
+                      "system":  "VIT",
+                      "priority":  "P0",
+                      "group":  "VITALS",
+                      "verdict":  "PASS",
+                      "seconds":  0.014721393585205078,
+                      "notes":  [
+                                    "ok: HP 274 -\u003e 264",
+                                    "ok: CurrentStatsChanged raised once"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-03",
+                      "title":  "Reduction larger than the current value clamps at 0",
+                      "system":  "VIT",
+                      "priority":  "P1",
+                      "group":  "VITALS",
+                      "verdict":  "PASS",
+                      "seconds":  0.014864921569824219,
+                      "notes":  [
+                                    "ok: Mana clamped at 0"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-04",
+                      "title":  "Recovery below max restores exactly the amount",
+                      "system":  "VIT",
+                      "priority":  "P1",
+                      "group":  "VITALS",
+                      "verdict":  "PASS",
+                      "seconds":  0.018640995025634767,
+                      "notes":  [
+                                    "ok: HP 244 -\u003e 254"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-05",
+                      "title":  "Recovery never pushes the value above max",
+                      "system":  "VIT",
+                      "priority":  "P1",
+                      "group":  "VITALS",
+                      "verdict":  "FAIL",
+                      "seconds":  0.015231132507324219,
+                      "notes":  [
+                                    "FAIL: HP 279 above max 274 after max-5 +10"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-06",
+                      "title":  "Damage through the player hurtbox lowers HP, player survives",
+                      "system":  "VIT",
+                      "priority":  "P0",
+                      "group":  "VITALS",
+                      "verdict":  "PASS",
+                      "seconds":  1.6004877090454102,
+                      "notes":  [
+                                    "ok: HP lost 27.4 of 27.4 sent",
+                                    "ok: player alive"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-07",
+                      "title":  "Lethal damage puts the player in PlayerDeathState and emits ON_PLAYER_DEATH",
+                      "system":  "VIT",
+                      "priority":  "P0",
+                      "group":  "VITALS",
+                      "verdict":  "FAIL",
+                      "seconds":  4.107314109802246,
+                      "notes":  [
+                                    "ok: HP = 0",
+                                    "ok: entered PlayerDeathState",
+                                    "FAIL: ON_PLAYER_DEATH not emitted within 4s of death",
+                                    "death clip Knight_Die_dir 0, events: AnimationOnAction (PlayerDeathState emits on StatusAnimation.EndRangeTrigger)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-VIT-08",
+                      "title":  "ON_PLAYER_DEATH is emitted once per death, not every frame",
+                      "system":  "VIT",
+                      "priority":  "P1",
+                      "group":  "VITALS",
+                      "verdict":  "SKIP",
+                      "seconds":  0.001068115234375,
+                      "notes":  [
+                                    "SKIP: the player never emitted ON_PLAYER_DEATH (see QA-VIT-07)"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.CommittedRoom_PathToAWallTile_FailsCleanly",
+                      "title":  "EditMode: AStarTests.CommittedRoom_PathToAWallTile_FailsCleanly",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.079658,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget",
+                      "title":  "EditMode: AStarTests.CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.046632,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.CommittedRoom_SameQueryTwice_GivesTheSamePath",
+                      "title":  "EditMode: AStarTests.CommittedRoom_SameQueryTwice_GivesTheSamePath",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.047271,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_AroundAWall_TakesTheOnlyShortestDetour",
+                      "title":  "EditMode: AStarTests.FindPath_AroundAWall_TakesTheOnlyShortestDetour",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.002073,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_DiagonalBetweenTwoWalls_IsNotAllowed",
+                      "title":  "EditMode: AStarTests.FindPath_DiagonalBetweenTwoWalls_IsNotAllowed",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000457,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_FromAWallTile_Fails",
+                      "title":  "EditMode: AStarTests.FindPath_FromAWallTile_Fails",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000359,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_OnALargerGrid_WaypointsAreWalkableAndAdjacent",
+                      "title":  "EditMode: AStarTests.FindPath_OnALargerGrid_WaypointsAreWalkableAndAdjacent",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000835,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_OpenDiagonal_StepsDiagonally",
+                      "title":  "EditMode: AStarTests.FindPath_OpenDiagonal_StepsDiagonally",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000605,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath",
+                      "title":  "EditMode: AStarTests.FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000864,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_StartEqualsTarget_ReturnsASingleWaypoint",
+                      "title":  "EditMode: AStarTests.FindPath_StartEqualsTarget_ReturnsASingleWaypoint",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000632,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_StraightCorridor_ReturnsEveryTileInOrder",
+                      "title":  "EditMode: AStarTests.FindPath_StraightCorridor_ReturnsEveryTileInOrder",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000792,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_TargetOutsideTheGrid_Fails",
+                      "title":  "EditMode: AStarTests.FindPath_TargetOutsideTheGrid_Fails",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.00059,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_TargetWalledOff_Fails",
+                      "title":  "EditMode: AStarTests.FindPath_TargetWalledOff_Fails",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000493,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.AStarTests.FindPath_ToAWallTile_FailsCleanly",
+                      "title":  "EditMode: AStarTests.FindPath_ToAWallTile_FailsCleanly",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001619,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed",
+                      "title":  "EditMode: DepotItemTests.CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.023614,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TierWithoutAnyItem_IsExcludedFromTheDropRate",
+                      "title":  "EditMode: DepotItemTests.TierWithoutAnyItem_IsExcludedFromTheDropRate",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.005101,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TryRollItem_EmptyDepot_NeverDrops",
+                      "title":  "EditMode: DepotItemTests.TryRollItem_EmptyDepot_NeverDrops",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001678,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TryRollItem_ReportsTheTierOfTheItemItReturns",
+                      "title":  "EditMode: DepotItemTests.TryRollItem_ReportsTheTierOfTheItemItReturns",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.004446,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TryRollItem_SameSeed_GivesTheSameItem",
+                      "title":  "EditMode: DepotItemTests.TryRollItem_SameSeed_GivesTheSameItem",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001358,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TryRollItem_ThirtyPercentTier_DropsAboutThirtyPercentOfRolls",
+                      "title":  "EditMode: DepotItemTests.TryRollItem_ThirtyPercentTier_DropsAboutThirtyPercentOfRolls",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.002204,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TryRollItem_TierAtHundredPercent_AlwaysDropsAnItemOfTheTable",
+                      "title":  "EditMode: DepotItemTests.TryRollItem_TierAtHundredPercent_AlwaysDropsAnItemOfTheTable",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.002535,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.DepotItemTests.TryRollItem_TierWithZeroRate_NeverDrops",
+                      "title":  "EditMode: DepotItemTests.TryRollItem_TierWithZeroRate_NeverDrops",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001753,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.Emit_AfterEveryListenerRemoved_DoesNotThrow",
+                      "title":  "EditMode: EventManagerTests.Emit_AfterEveryListenerRemoved_DoesNotThrow",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.005636,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.Emit_CallsEveryListenerOfTheEventOnce",
+                      "title":  "EditMode: EventManagerTests.Emit_CallsEveryListenerOfTheEventOnce",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000774,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.Emit_DeliversPayloadOnceToRegisteredListener",
+                      "title":  "EditMode: EventManagerTests.Emit_DeliversPayloadOnceToRegisteredListener",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000756,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.Emit_DoesNotReachListenersOfAnotherEvent",
+                      "title":  "EditMode: EventManagerTests.Emit_DoesNotReachListenersOfAnotherEvent",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000791,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.Emit_WithoutPayload_DeliversNull",
+                      "title":  "EditMode: EventManagerTests.Emit_WithoutPayload_DeliversNull",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000776,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.UnResgister_OneListener_KeepsTheOther",
+                      "title":  "EditMode: EventManagerTests.UnResgister_OneListener_KeepsTheOther",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000732,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.EventManagerTests.UnResgister_StopsDelivery",
+                      "title":  "EditMode: EventManagerTests.UnResgister_StopsDelivery",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000527,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.MapModelTests.CommittedMapModel_DealsEveryRoomOncePerCycle",
+                      "title":  "EditMode: MapModelTests.CommittedMapModel_DealsEveryRoomOncePerCycle",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.506779,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.MapModelTests.GetRandomRoom_DealsEveryRoomOncePerCycle",
+                      "title":  "EditMode: MapModelTests.GetRandomRoom_DealsEveryRoomOncePerCycle",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.003747,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.MapModelTests.GetRandomRoom_SkipsNullEntries",
+                      "title":  "EditMode: MapModelTests.GetRandomRoom_SkipsNullEntries",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001005,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.MapModelTests.GetRandomRoom_StartsANewCycleWhenTheBagIsEmpty",
+                      "title":  "EditMode: MapModelTests.GetRandomRoom_StartsANewCycleWhenTheBagIsEmpty",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000872,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.MapModelTests.GetRandomRoom_WithNoRoom_ReturnsNull",
+                      "title":  "EditMode: MapModelTests.GetRandomRoom_WithNoRoom_ReturnsNull",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000509,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.MapModelTests.GetRandomRoom_WithOnlyNullEntries_ReturnsNull",
+                      "title":  "EditMode: MapModelTests.GetRandomRoom_WithOnlyNullEntries_ReturnsNull",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000546,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.ObjectPoolManagerTests.Release_DeactivatesAndNextSpawnReusesTheSameInstance",
+                      "title":  "EditMode: ObjectPoolManagerTests.Release_DeactivatesAndNextSpawnReusesTheSameInstance",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.008614,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.ObjectPoolManagerTests.Release_ObjectThatNeverCameFromThePool_IsIgnored",
+                      "title":  "EditMode: ObjectPoolManagerTests.Release_ObjectThatNeverCameFromThePool_IsIgnored",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000906,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.ObjectPoolManagerTests.Release_Twice_DoesNotQueueTheInstanceTwice",
+                      "title":  "EditMode: ObjectPoolManagerTests.Release_Twice_DoesNotQueueTheInstanceTwice",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001268,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.ObjectPoolManagerTests.Spawn_ReturnsActiveInstanceAtRequestedPosition",
+                      "title":  "EditMode: ObjectPoolManagerTests.Spawn_ReturnsActiveInstanceAtRequestedPosition",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001412,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.ObjectPoolManagerTests.Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances",
+                      "title":  "EditMode: ObjectPoolManagerTests.Spawn_TwiceWithoutRelease_GivesTwoDistinctInstances",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001002,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomJsonTests.EveryRoomJson_HasAtLeastOneFloorTile",
+                      "title":  "EditMode: RoomJsonTests.EveryRoomJson_HasAtLeastOneFloorTile",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.074825,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomJsonTests.EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers",
+                      "title":  "EditMode: RoomJsonTests.EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.055417,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomJsonTests.RoomFolder_ContainsRoomFiles",
+                      "title":  "EditMode: RoomJsonTests.RoomFolder_ContainsRoomFiles",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001105,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomModelTests.CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow",
+                      "title":  "EditMode: RoomModelTests.CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.016354,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomModelTests.GetSpawnSet_GroupsRepeatedPicksIntoOneEntryPerEnemyType",
+                      "title":  "EditMode: RoomModelTests.GetSpawnSet_GroupsRepeatedPicksIntoOneEntryPerEnemyType",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.00444,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomModelTests.GetSpawnSet_SameSeed_GivesTheSameSet",
+                      "title":  "EditMode: RoomModelTests.GetSpawnSet_SameSeed_GivesTheSameSet",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001484,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomModelTests.GetSpawnSet_SingleEnemyType_SpendsBudgetDownToTenPercent",
+                      "title":  "EditMode: RoomModelTests.GetSpawnSet_SingleEnemyType_SpendsBudgetDownToTenPercent",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000754,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomModelTests.GetSpawnSet_WithNoEnemyType_ReturnsNull",
+                      "title":  "EditMode: RoomModelTests.GetSpawnSet_WithNoEnemyType_ReturnsNull",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000665,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.RoomModelTests.GetSpawnSet_WithSmallWeights_SpendsBetweenNinetyAndHundredPercentOfBudget",
+                      "title":  "EditMode: RoomModelTests.GetSpawnSet_WithSmallWeights_SpendsBetweenNinetyAndHundredPercentOfBudget",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.002257,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.AddPrimaryPoint_OnDerivedStat_IsRefused",
+                      "title":  "EditMode: StatSheetTests.AddPrimaryPoint_OnDerivedStat_IsRefused",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.012642,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.AddPrimaryPoint_RaisesChangedOnceForThatStat",
+                      "title":  "EditMode: StatSheetTests.AddPrimaryPoint_RaisesChangedOnceForThatStat",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.003464,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.CommittedStatAssets_AreUnchangedAfterASheetIsBuffed",
+                      "title":  "EditMode: StatSheetTests.CommittedStatAssets_AreUnchangedAfterASheetIsBuffed",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.026562,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.FlatModifier_AddsItsValueToFinalValue",
+                      "title":  "EditMode: StatSheetTests.FlatModifier_AddsItsValueToFinalValue",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000848,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.ModifierOnPrimaryStat_ReachesDerivedStatAsPrimaryBonus",
+                      "title":  "EditMode: StatSheetTests.ModifierOnPrimaryStat_ReachesDerivedStatAsPrimaryBonus",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000635,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.Modifiers_ApplyFlatThenPercentAddThenPercentMult",
+                      "title":  "EditMode: StatSheetTests.Modifiers_ApplyFlatThenPercentAddThenPercentMult",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000639,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.NewSheet_FromProfile_ComputesPrimaryBaseAndDerivedFormula",
+                      "title":  "EditMode: StatSheetTests.NewSheet_FromProfile_ComputesPrimaryBaseAndDerivedFormula",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000844,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.NewSheet_WithoutProfile_StartsAtZero",
+                      "title":  "EditMode: StatSheetTests.NewSheet_WithoutProfile_StartsAtZero",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000442,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.PercentAddModifiers_SumBeforeMultiplyingOnce",
+                      "title":  "EditMode: StatSheetTests.PercentAddModifiers_SumBeforeMultiplyingOnce",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000651,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.PercentMultModifier_MultipliesAfterFlat",
+                      "title":  "EditMode: StatSheetTests.PercentMultModifier_MultipliesAfterFlat",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.00062,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.PrimaryPoint_RaisesDerivedStatThroughItsCoefficient",
+                      "title":  "EditMode: StatSheetTests.PrimaryPoint_RaisesDerivedStatThroughItsCoefficient",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000914,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.RemoveModifiersFromSource_KeepsOtherSources",
+                      "title":  "EditMode: StatSheetTests.RemoveModifiersFromSource_KeepsOtherSources",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.001108,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier",
+                      "title":  "EditMode: StatSheetTests.RemoveModifiersFromSource_OnProfileSheet_KeepsOtherSourceModifier",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000852,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier",
+                      "title":  "EditMode: StatSheetTests.RemoveModifiersFromSource_RestoresValueAndLeavesNoModifier",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000723,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  },
+                  {
+                      "id":  "QA-UNIT.StatSheetTests.TwoSheetsFromOneProfile_DoNotShareModifiers",
+                      "title":  "EditMode: StatSheetTests.TwoSheetsFromOneProfile_DoNotShareModifiers",
+                      "system":  "UNIT",
+                      "priority":  "P0",
+                      "group":  "UNIT",
+                      "verdict":  "PASS",
+                      "seconds":  0.000678,
+                      "notes":  [
+                                    "ok: passed"
+                                ]
+                  }
+              ]
+}

@@ -21,6 +21,7 @@ namespace QA.Automation.Editor
         private const string StatsAssetPath = "Assets/SO/Stat/Player/PaladinStats.asset";
         private const string MapModelPath = "Assets/SO/Database/Map/MapModel.asset";
         private const string DepotItemPath = "Assets/SO/Item/Depot Item 1.asset";
+        private const string DroppedItemPrefabPath = "Assets/Prefab/Item/ItemPrefab.prefab";
         private const string EnemyRoleFolder = "Assets/SO/Enemy/Role";
         private static readonly string[] Classes = { "Paladin", "Archer", "Mage" };
 
@@ -96,9 +97,17 @@ namespace QA.Automation.Editor
             WireArray(suite, "roles", AssetDatabase.FindAssets("t:EntityData", new[] { EnemyRoleFolder })
                 .Select(AssetDatabase.GUIDToAssetPath).OrderBy(p => p, System.StringComparer.Ordinal)
                 .Select(p => (Object)AssetDatabase.LoadAssetAtPath<EntityData>(p)).Where(d => d != null).ToArray());
-            // EntityMovement.Start reads EnemyManager.Instance.Grid; an empty grid answers every query with a
-            // failure, which the movement code handles (same as CombatTestEnemySpawner).
-            harness.AddComponent<QAEmptyPathGrid>();
+            // EntityMovement.Start reads EnemyManager.Instance.Grid; an open floor lets the enemy wander and chase.
+            harness.AddComponent<QAFloorPathGrid>();
+            // QA-ITEM-02..04: the game's ItemSpawner, same prefab and drop table as LoadRandomMap. Built inactive
+            // so the other enemy cases drop nothing; the suite injects the pool and switches it on.
+            GameObject itemSpawnerObject = new("ItemSpawner");
+            itemSpawnerObject.SetActive(false);
+            ItemSpawner itemSpawner = itemSpawnerObject.AddComponent<ItemSpawner>();
+            Wire(itemSpawner, "droppedItemPrefab", Require<ItemController>(DroppedItemPrefabPath));
+            Wire(itemSpawner, "depotItem", Require<DepotItem>(DepotItemPath));
+            Wire(suite, "itemSpawner", itemSpawner);
+            Wire(suite, "depotItem", Require<DepotItem>(DepotItemPath));
         }
 
         private static void BuildPlayer(GameObject harness)

@@ -3,14 +3,14 @@ using UnityEngine;
 
 public static class AStar
 {
-    public static Path FindPath(PathfindingGrid grid, Vector2 startWorld, Vector2 targetWorld)
+    public static NavPath FindPath(PathfindingGrid grid, Vector2 startWorld, Vector2 targetWorld)
     {
         SearchNode startNode  = grid.GetNodeFromWorld(startWorld);
         SearchNode targetNode = grid.GetNodeFromWorld(targetWorld);
 
         if (startNode == null || targetNode == null
             || !startNode.Node.Walkable || !targetNode.Node.Walkable)
-            return Path.Failure;
+            return NavPath.Failure;
 
         grid.ClearSearchState();   // reset G/H/Parent/HeapIndex toàn lưới
 
@@ -52,10 +52,10 @@ public static class AStar
             }
         }
 
-        return Path.Failure;   // không tới được target
+        return NavPath.Failure;   // không tới được target
     }
 
-    private static Path Retrace(SearchNode start, SearchNode target)
+    private static NavPath Retrace(SearchNode start, SearchNode target)
     {
         List<Vector2> waypoints = new List<Vector2>();
         SearchNode current = target;
@@ -67,6 +67,6 @@ public static class AStar
         }
         waypoints.Add(start.Node.WorldPosition);
         waypoints.Reverse();   // đang là target→start, đảo lại thành start→target
-        return new Path(waypoints, true);
+        return new NavPath(waypoints, true);
     }
 }

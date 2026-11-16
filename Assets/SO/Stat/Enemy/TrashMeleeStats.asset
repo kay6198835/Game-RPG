@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TrashMeleeStats
   m_EditorClassIdentifier: 
   level: 1
-  stats:
+  primaryStats:
   - <Type>k__BackingField: 0
     baseValue: 8
   - <Type>k__BackingField: 1
@@ -24,35 +24,7 @@ MonoBehaviour:
     baseValue: 8
   - <Type>k__BackingField: 4
     baseValue: 2
-  - <Type>k__BackingField: 100
-    baseValue: 152
-  - <Type>k__BackingField: 101
-    baseValue: 21
-  - <Type>k__BackingField: 102
-    baseValue: 26.8
-  - <Type>k__BackingField: 103
-    baseValue: 1.8000001
-  - <Type>k__BackingField: 104
-    baseValue: 10.8
-  - <Type>k__BackingField: 105
-    baseValue: 0.89
-  - <Type>k__BackingField: 106
-    baseValue: 3.5800002
-  - <Type>k__BackingField: 107
-    baseValue: 150
-  - <Type>k__BackingField: 108
-    baseValue: 2.79
-  - <Type>k__BackingField: 109
-    baseValue: 0.75
-  - <Type>k__BackingField: 110
-    baseValue: 0.29
-  - <Type>k__BackingField: 111
-    baseValue: 1
-  - <Type>k__BackingField: 112
-    baseValue: 1.50
-  - <Type>k__BackingField: 113
-    baseValue: 0.40
-  statFormulas:
+  derivedStats:
   - targetStat: 100
     baseConstant: 30
     perLevel: 6

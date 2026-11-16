@@ -258,6 +258,44 @@ try {
     }
     if ($code -ne 0) { Log "compile pass exit $code with no error CS line (see unity-compile.log) - continuing" }
 
+    # 5b. EditMode unit tests (Assets/Tests/EditMode). Each NUnit test becomes one case, system UNIT, so the
+    # diff, KNOWN mapping and flaky detection treat it like any other case. A branch with no EditMode tests
+    # (older sprint) is skipped, not failed.
+    $unityCases = @()
+    $unitDir = Join-Path $Project 'Assets\Tests\EditMode'
+    if (Test-Path $unitDir) {
+        $unitXml = Join-Path $out 'unit-results.xml'
+        $unitLog = Join-Path $out 'unity-unit.log'
+        $code = Run-Unity $unity "-batchmode -nographics -projectPath `"$Project`" -runTests -testPlatform EditMode -testResults `"$unitXml`" -logFile `"$unitLog`"" $CompileTimeoutMin
+        Log "unity EditMode tests exit $code"
+        if (Test-Path $unitXml) {
+            [xml]$nunit = Get-Content -Raw -Encoding UTF8 $unitXml
+            foreach ($t in @($nunit.SelectNodes('//test-case'))) {
+                $res = $t.GetAttribute('result'); $cls = $t.GetAttribute('classname') -replace '^.*\.', ''; $nm = $t.GetAttribute('name')
+                $verdict = switch ($res) { 'Passed' { 'PASS' } 'Failed' { 'FAIL' } default { 'SKIP' } }
+                $notes = @()
+                if ($t.failure -and $t.failure.message) { $notes += "FAIL: $($t.failure.message.InnerText.Trim())" }
+                elseif ($verdict -eq 'PASS') { $notes += 'ok: passed' }
+                elseif ($t.reason -and $t.reason.message) { $notes += "SKIP: $($t.reason.message.InnerText.Trim())" }
+                else { $notes += "SKIP: result $res" }
+                $unityCases += [pscustomobject][ordered]@{
+                    id = "QA-UNIT.$cls.$nm"; title = "EditMode: $($t.GetAttribute('fullname'))"
+                    system = 'UNIT'; priority = 'P0'; group = 'UNIT'; verdict = $verdict
+                    seconds = [double]$t.GetAttribute('duration'); notes = @($notes)
+                }
+            }
+            Log "EditMode tests: $($unityCases.Count) case(s)"
+        }
+        else {
+            $unityCases += [pscustomobject][ordered]@{
+                id = 'QA-UNIT-RUNNER'; title = 'EditMode test run wrote its results'; system = 'UNIT'; priority = 'P0'; group = 'UNIT'
+                verdict = 'FAIL'; seconds = 0.0; notes = @("FAIL: no unit-results.xml (Unity exit $code); read unity-unit.log in %LOCALAPPDATA%\GameRPG-QA\logs")
+            }
+            Log 'EditMode tests produced no results xml'
+        }
+    }
+    else { Log 'no Assets/Tests/EditMode on this branch - unit tests skipped' }
+
     # 6. Test run
     $runLog = Join-Path $out 'unity-run.log'
     $qaArgs = "-projectPath `"$Project`" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut `"$out`" -qaMax $MaxPriority -logFile `"$runLog`""
@@ -274,6 +312,15 @@ try {
         $code = Run-Unity $unity $qaArgs $UnityTimeoutMin
         Log "unity test run (retry) exit $code"
         if (-not (Test-Path (Join-Path $out 'results.json'))) { throw "Unity produced no results.json after a retry (exit $code) - read $runLog" }
+    }
+
+    # 6b. Merge the EditMode cases into results.json so diff-results.ps1 sees one list.
+    if ($unityCases.Count -gt 0) {
+        $resultsFile = Join-Path $out 'results.json'
+        $res = Get-Content -Raw -Encoding UTF8 $resultsFile | ConvertFrom-Json
+        $res.cases = @($res.cases) + @($unityCases)
+        if (@($res.groups) -notcontains 'UNIT') { $res.groups = @($res.groups) + 'UNIT' }
+        [IO.File]::WriteAllText($resultsFile, ($res | ConvertTo-Json -Depth 8), $utf8)
     }
 
     # 7. Hygiene: nothing outside the QA folders may stay modified
