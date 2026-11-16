@@ -34,7 +34,9 @@ namespace UIFlow
         {
             UIEvents.DialogueRequested += OnDialogueRequested;
             UIEvents.ShopRequested += OnShopRequested;
+            UIEvents.StatRequested += OnStatsRequested;
             UIEvents.NotificationRequested += OnNotification;
+            UIEvents.InteractiveNotificationRequested += OnInteractiveNotification;
             UIEvents.SkillUsed += OnSkillUsed;
             UIServices.Player.PlayerDied += OnPlayerDied;
             UIEvents.OpenConfirnPanel += OnConfirnPanel;
@@ -44,7 +46,9 @@ namespace UIFlow
         {
             UIEvents.DialogueRequested -= OnDialogueRequested;
             UIEvents.ShopRequested -= OnShopRequested;
+            UIEvents.StatRequested -= OnStatsRequested;
             UIEvents.NotificationRequested -= OnNotification;
+            UIEvents.InteractiveNotificationRequested -= OnInteractiveNotification;
             UIEvents.SkillUsed -= OnSkillUsed;
             UIServices.Player.PlayerDied -= OnPlayerDied;
             UIEvents.OpenConfirnPanel -= OnConfirnPanel;
@@ -70,7 +74,7 @@ namespace UIFlow
             if (!free) return;
 
             if (UIInput.WasPressed(KeyBindings.Inventory)) ToggleTab(InventoryTab);
-            else if (UIInput.WasPressed(KeyBindings.Character)) ToggleStats();
+            // else if (UIInput.WasPressed(KeyBindings.Character)) ToggleStats();
             else if (UIInput.WasPressed(KeyBindings.SkillTree)) ToggleTab(SkillTab);
             else if (UIInput.WasPressed(KeyBindings.QuestLog)) ToggleTab(QuestTab);
         }
@@ -110,7 +114,8 @@ namespace UIFlow
         }
 
         private void OnShopRequested() => uiManager.Open(shopPanel);
-
+        private void OnStatsRequested() => uiManager.Open(statsPanel);
+        private void OnInteractiveNotification(InteractData data) => hud.InteractiveNotifications.Switch(data);
         private void OnNotification(string message) => hud.Notifications.Show(message);
 
         private void OnSkillUsed(int index) => hud.Hotbar.TriggerCooldown(index);

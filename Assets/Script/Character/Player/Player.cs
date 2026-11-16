@@ -9,6 +9,7 @@ public class Player : CharacterBase<Core>
 
     [SerializeField] private PlayerIdleState idleState;
     [SerializeField] private PlayerMoveState moveState;
+    [SerializeField] private PlayerDashState dashState;
     [SerializeField] private PlayerAttackState attackState;
     [SerializeField] private PlayerSkillWeaponState abilityState;
     [SerializeField] private PlayerEquidUnequid equidUnequidState;
@@ -32,6 +33,7 @@ public class Player : CharacterBase<Core>
     public PlayerStateMachine StateMachine { get => stateMachine; }
     public PlayerIdleState IdleState { get => idleState; }
     public PlayerMoveState MoveState { get => moveState; }
+    public PlayerDashState DashState { get => dashState; }
     public PlayerAttackState AttackState { get => attackState; }
     public PlayerEquidUnequid EquidUnequidState { get => equidUnequidState; }
     public PlayerIntertorState IntertorState { get => intertorState; }
@@ -50,6 +52,7 @@ public class Player : CharacterBase<Core>
         core = GetComponentInChildren<Core>();
         idleState = new PlayerIdleState(this, "Idle");
         moveState = new PlayerMoveState(this, "Move");
+        dashState = new PlayerDashState(this, "Move");
         attackState = new PlayerAttackState(this, "Attack");
         equidUnequidState = new PlayerEquidUnequid(this, "EquidUnequid");
         intertorState = new PlayerIntertorState(this, "Interactor");

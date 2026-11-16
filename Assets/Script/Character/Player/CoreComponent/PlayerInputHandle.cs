@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInputHandler : CharacterInputBase<Core>
 {
+    [SerializeField] protected bool isDash;
     public override Vector2 AimDirection => directionMouseVector;
     public override Vector2 AimPoint => mouseVector;
 
@@ -64,6 +65,7 @@ public class PlayerInputHandler : CharacterInputBase<Core>
     private Camera mainCamera;
 
     #region Get value 
+    public bool IsDash { get => isDash; }
     public Vector2 MoveVector { get => moveVector; }
     public Vector2 MouseVector { get => mouseVector; }
     public Vector2 DirectionMouseVector { get => directionMouseVector; }
@@ -119,9 +121,8 @@ public class PlayerInputHandler : CharacterInputBase<Core>
         playerInput.Control.Attack.started += OnAttack;
         playerInput.Control.Attack.canceled += OnAttack;
 
-        // playerInput.Control.SkillWeapon.started += OnSkillWeapon;
-        // playerInput.Control.SkillWeapon.performed += OnSkillWeapon;
-        // playerInput.Control.SkillWeapon.canceled += OnSkillWeapon;
+        playerInput.Control.Dash.started += OnDash;
+        playerInput.Control.Dash.canceled += OnDash;
 
         playerInput.Control.PrimaryAbility.started += OnPrimaryAbility;
         playerInput.Control.PrimaryAbility.performed += OnPrimaryAbility;
@@ -298,6 +299,19 @@ public class PlayerInputHandler : CharacterInputBase<Core>
             if (!isSkill) return;
             abilityHolder.CancelHold();
             isSkill = false;
+        }
+    }
+    protected void ResetDash()
+    {
+        isDash = false;
+    }
+    private void OnDash(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            CancelInvoke(nameof(ResetDash));
+            Invoke(nameof(ResetDash), GameConstants.SettingStats.DASH_DURATION);
+            isDash = true;
         }
     }
     private void OnPrimaryAbility(InputAction.CallbackContext context)

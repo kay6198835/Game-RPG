@@ -2,6 +2,12 @@
 
 > **Status:** v2 live for player and enemy; v1 deleted 2026-11-04 (`6094aa10`, on `sprint-21`) · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (status, code table, assets row only)
 > History: [CHANGELOG.md](CHANGELOG.md) · Diagrams: `docs/diagrams/ability-system-diagrams.md`
+> **Design:** `design/gdd/abilities-v2-system.md` (2026-11-13, reverse-documented at `sprint-22` `a8725a77`, awaiting owner review) —
+> rules tagged CONFIRMED / AS-BUILT / OPEN, the per-class ability catalogue and acceptance criteria. Reviewed by the owner
+> 2026-11-13: 3 questions parked (OQ-4, OQ-9, OQ-12). **Eight decisions are not in code yet** — GDD AB-G7 (activate only in
+> Idle / Move), AB-G8 (aim at release), AB-L7 (a hit interrupts a cast), AB-H5 (hold value at release, BUG-083), AB-C3
+> (`HP > cost`), AB-CD4 (cooldown counts in every state), AB-S7 (scaling stat + coefficient), AB-N7 (enemy ability hits the player).
+> This README stays the short code map; where the two disagree on behaviour, re-read the code and fix both.
 
 ## Purpose
 
@@ -69,9 +75,14 @@ from the target and skips if none.
 | BUG-079 | `AbilityInstance.Exit()` body commented out |
 | BUG-073 / BUG-090 | ShootSpirit assets and `Has Enough Mana Condition.asset` reference deleted scripts |
 | BUG-089 | Closed by design (tier scaffolding) — reopen at demo/release |
-| — | No GDD for v2; no ADR deciding v1 vs v2 endgame |
+| — | GDD written 2026-11-13 (`design/gdd/abilities-v2-system.md`), reviewed by the owner the same day, 3 questions parked; still no ADR for Abilities v2 *(was: "No GDD for v2; no ADR deciding v1 vs v2 endgame")* |
+
+> **2026-11-13 (GDD pass, `sprint-22` `a8725a77`, STATIC) — rows above not re-verified one by one, but two read differently in the files now:**
+> `Lightning.prefab` `layerMask` is `m_Bits: 64` (layer `Enemy`), so the BUG-072 row looks done in data; `DamagesInManyPos` sets its
+> direction in a `Launch()` override, so BUG-109 item 1 looks fixed in code. Both are bug-inbox NOTE-20261113-9 for the Saturday triage;
+> statuses stay as the bug files say.
 
 ## Related
 
-`.claude/rules/weapon-skill-code.md`, `design/gdd/skill-ability-system.md` (v1 only),
+`design/gdd/abilities-v2-system.md` (current design), `.claude/rules/weapon-skill-code.md`, `design/gdd/skill-ability-system.md` (v1, superseded),
 `docs/skill-reference.md`, [weapons](../weapons/README.md) (shared `ProjectileBody`).

@@ -11,7 +11,6 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     [SerializeField] protected bool isDeath;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
-    [SerializeField] protected float takeDamageFlagDuration = 0.1f;
 
     [Header("Hit Direction")]
     [SerializeField] protected Vector2 hitDirectionVector;
@@ -28,10 +27,14 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
 
     public abstract int AimDirectionIndex { get; }
 
+    protected void ResetTakeDamage()
+    {
+        isTakeDamage = false;
+    }
     public virtual void OnTakeDamage(Vector2 attackPosition)
     {
         CancelInvoke(nameof(ResetTakeDamage));
-        Invoke(nameof(ResetTakeDamage), takeDamageFlagDuration);
+        Invoke(nameof(ResetTakeDamage), GameConstants.SettingStats.TAKE_DAMAGE_FLAG_DURATION);
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isTakeDamage = true;
@@ -54,13 +57,6 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
         isDeath = false;
         isAttack = false;
         isSkill = false;
-    }
-
-    // Protected, not private: Invoke() resolves the name on the runtime type and cannot see a
-    // private method declared on a base class.
-    protected void ResetTakeDamage()
-    {
-        isTakeDamage = false;
     }
 
     protected static void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)

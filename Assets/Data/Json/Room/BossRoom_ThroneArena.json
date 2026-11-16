@@ -910,7 +910,8 @@
         "Tile_Floor",
         "Tile_Spawn_Champion_Monument_Archer",
         "Tile_Spawn_Champion_Monument_Mage",
-        "Tile_Spawn_Champion_Monument_Paladin"
+        "Tile_Spawn_Champion_Monument_Paladin",
+        "Tile_Spawn_Bonfire"
     ],
     "poses": [
         {
@@ -5467,6 +5468,11 @@
             "x": 6,
             "y": 6,
             "z": 0
+        },
+        {
+            "x": 0,
+            "y": 2,
+            "z": 0
         }
     ],
     "layerIndices": [
@@ -6380,6 +6386,7 @@
         1,
         3,
         3,
-        3
+        3,
+        4
     ]
 }

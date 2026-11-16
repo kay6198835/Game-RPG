@@ -76,29 +76,29 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     public void Recovery(VitalStatType vitalStatType, float amount)
     {
-        StatType statType = (StatType)vitalStatType;
-        if (!Enum.IsDefined(typeof(StatType), statType)) return;
-        if (currentStats[vitalStatType] < statHandler.GetStatValue(statType))
+        if (currentStats.TryGetValue(vitalStatType, out float current))
         {
-            currentStats[vitalStatType] += amount;
+            current += amount;
+            StatType statType = (StatType)vitalStatType;
+            if (!Enum.IsDefined(typeof(StatType), statType))
+            {
+                currentStats[vitalStatType] = current;
+            }
+            else
+            {
+                currentStats[vitalStatType] = Mathf.Min(current, statHandler.GetStatValue(statType));
+            }
+            UpdateStatField();
         }
-        else
-        {
-            currentStats[vitalStatType] = statHandler.GetStatValue(statType);
-        }
-        UpdateStatField();
     }
 
     public void Reduction(VitalStatType vitalStatType, float amount)
     {
-        if (currentStats[vitalStatType] - amount <= 0)
+        if (currentStats.TryGetValue(vitalStatType, out float current))
         {
-            currentStats[vitalStatType] = 0;
+            current -= amount;
+            currentStats[vitalStatType] = Mathf.Max(current, 0);
+            UpdateStatField();
         }
-        else
-        {
-            currentStats[vitalStatType] -= amount;
-        }
-        UpdateStatField();
     }
 }
