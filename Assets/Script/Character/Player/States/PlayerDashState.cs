@@ -12,6 +12,7 @@ public class PlayerDashState : PlayerBasicState
         base.Enter();
         //stateStyle = StateStyle.Motion;
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
+        player.Anim.SetBool(GameConstants.AnimationName.Parameter.IS_DASH, inputHandler.IsDash);
     }
     public override void AnimationOnAction()
     {
@@ -20,6 +21,7 @@ public class PlayerDashState : PlayerBasicState
     public override void AnimationOffAction()
     {
         playerMovement.ExitDash();
+        player.Anim.SetBool(GameConstants.AnimationName.Parameter.IS_DASH, inputHandler.IsDash);
     }
     public override void AnimationEnd()
     {

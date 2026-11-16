@@ -21,7 +21,7 @@ public class InteractiveObjectsRoom : InteractiveObjects
         layerMask = LayerMask.GetMask("Player");
     }
 
-    protected virtual void TriggerEnter2D(Collider2D collision)
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.layer == layerMask.value)
         {
@@ -29,7 +29,7 @@ public class InteractiveObjectsRoom : InteractiveObjects
         }
     }
 
-    protected virtual void TriggerExit2D(Collider2D collision)
+    protected virtual void OnTriggerExit2D(Collider2D collision)
     {
 
         if (collision.gameObject.layer == layerMask.value)
