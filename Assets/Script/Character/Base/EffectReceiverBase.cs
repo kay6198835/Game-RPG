@@ -22,7 +22,8 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     GameObject SetEffectSource(AbilityContext context, Action callback)
     {
-        GameObject instance = _objectPoolManager.Spawn(sourceEffect.gameObject, context.Caster.Transform.position, Quaternion.identity);
+        Vector2 position = context != null ? context.Caster.Transform.position : Vector2.zero;
+        GameObject instance = _objectPoolManager.Spawn(sourceEffect.gameObject, position, Quaternion.identity);
         instance.GetComponent<SourceEffect>().SetSourceEffect(new SourceEffectConfig
         {
             callback = callback,
@@ -41,18 +42,19 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         {
             if (modifier.ImpactType == StatImpactType.Reduction)
             {
-                vital.Reduction(modifier.TargetStatType, modifier.Value);
+                vital.Reduction(modifier.TargetStatType, Math.Abs(modifier.Value));
             }
             else if (modifier.ImpactType == StatImpactType.Recovery)
             {
-                vital.Recovery(modifier.TargetStatType, modifier.Value);
+                vital.Recovery(modifier.TargetStatType, Math.Abs(modifier.Value));
             }
         }
     }
 
-    public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context, object source, Action action = null)
+    public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
-        statHandler.AddModifiersFromSource(source, statModifierGroup.GetStatsModifiers);
+        SetEffectSource(context, callback);
+        statHandler.AddModifiersFromSource(sourceEffect, statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.

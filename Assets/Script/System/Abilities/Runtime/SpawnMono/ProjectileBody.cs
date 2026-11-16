@@ -24,7 +24,8 @@ public class ProjectileBody : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _rb.gravityScale = 0f;
-        if (TryGetComponent(out Collider2D _collider)) _collider.isTrigger = true;
+        _collider = GetComponent<Collider2D>();
+        _collider.isTrigger = true;
     }
 
     /// <summary>
