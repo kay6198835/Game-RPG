@@ -4,13 +4,15 @@ using UnityEngine;
 using VContainer;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class ProjectileBody : MonoBehaviour
 {
-    private Rigidbody2D _rb;
-    private IObjectPoolService _pool;
-    private ProjectileConfig _config;
-    private IProjectilePayload _payload;
-    private float _lifetime;
+    protected Rigidbody2D _rb;
+    protected Collider2D _collider;
+    protected IObjectPoolService _pool;
+    protected ProjectileConfig _config;
+    protected IProjectilePayload _payload;
+    protected float _lifetime;
 
     [Inject]
     public void Construct(IObjectPoolService pool)
@@ -22,7 +24,7 @@ public class ProjectileBody : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _rb.gravityScale = 0f;
-        if (TryGetComponent(out Collider2D col)) col.isTrigger = true;
+        if (TryGetComponent(out Collider2D _collider)) _collider.isTrigger = true;
     }
 
     /// <summary>

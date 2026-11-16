@@ -36,7 +36,7 @@ public sealed class StatModifier
     public StatType TargetStatType => targetStatType;
     public ModifierType Type => type;
     public StatImpactType ImpactType { get => value >= 0 ? StatImpactType.Recovery : StatImpactType.Reduction; }
-    public float Value => value;
+    public float Value => Math.Abs(value);
 
     /// <summary>
     /// Khóa sắp xếp trong danh sách modifier của Stat. Luôn suy ra từ Type, không author được:
