@@ -8,12 +8,10 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
     [SerializeField] protected SourceEffect sourceEffect;
-    protected IObjectResolver _resolver;
     protected IObjectPoolService _objectPoolManager;
     [Inject]
-    public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolManager)
+    public void Construct(IObjectPoolService objectPoolManager)
     {
-        _resolver = resolver;
         _objectPoolManager = objectPoolManager;
     }
     public override void Setup()
@@ -32,7 +30,6 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
             callback = callback,
             lifetime = lifetime
         });
-        _resolver?.Inject(instance);
         return instance;
     }
     public override void ReloadComponent()
