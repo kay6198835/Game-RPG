@@ -67,8 +67,13 @@ Bug status is still changed only by the Saturday triage; this file does not clos
   is added **once** (it was added twice).
 - The catalog expectation for QA-CMB-01 already states the correct formula; any case or tolerance that was tuned
   to the doubled value must be re-tuned. Enemy melee follows the same path.
-- Ranged (`RangeWeapon.cs:75`) still deals only `currentStage.attackDamage` with no stats and no crit — unchanged,
-  pending a design decision (inbox NOTE-20261104-4). Do not assert stat-scaled ranged damage yet.
+- **Ranged basic attacks now use the same formula** (owner decision 2026-11-16, inbox NOTE-20261104-4):
+  `PhysicalDamage + CurrentStage.attackDamage` (+ crit, rolled once per volley and shared by every projectile
+  of that volley). `RangeWeapon` no longer implements `IProjectilePayload`; each volley launches with a private
+  `Shot` payload that holds the damage snapshotted at fire time. Re-tune QA-CMB-04 / QA-CMB-05 (Archer, Mage,
+  enemy ranged) expectations from stage-only damage to the stat-scaled value.
+- **Damage model rule:** basic attacks (melee and ranged) scale with `PhysicalDamage`; `MagicDamage` is used only
+  by skills that use the magic stat (today `SpawnSummonEffect`). Do not expect `MagicDamage` on a weapon hit.
 
 ### 1.5 QA-CMB-04.Archer — Arrow has a collider (BUG-095)
 
