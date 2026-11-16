@@ -1,7 +1,7 @@
 using UnityEngine;
 using VContainer;
 
-public class RangeWeapon : Weapon, IProjectilePayload
+public class RangeWeapon : Weapon
 {
     [Header("Range")]
     [SerializeField] private Vector2 firePoint;
@@ -53,6 +53,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
             ? stage.SpreadAngle / (stage.ProjectileCount - 1)
             : 0f;
         float startAngle = baseAngle - stage.SpreadAngle * 0.5f;
+        var shot = new Shot(finalDamage);
 
         for (int i = 0; i < stage.ProjectileCount; i++)
         {
@@ -61,18 +62,26 @@ public class RangeWeapon : Weapon, IProjectilePayload
             GameObject go = _objectPoolService.Spawn(stage.ProjectilePrefab, firePoint, rotation);
 
             if (go != null && go.TryGetComponent(out ProjectileBody body))
-                body.Launch(rotation * Vector3.right, config, this);
+                body.Launch(rotation * Vector3.right, config, shot);
         }
 
         nextFireTime = Time.time + stage.RecoveryTime;
     }
 
-    // Reads only power and target — never weapon state — so a shot in flight keeps the damage
-    // it was fired with even after a stage change or an unequip.
-    public void OnHit(Collider2D target, Vector2 hitPos)
+    // One payload per volley carrying the damage snapshotted at launch (WeaponHolderBase.CalculateCurrentDamage:
+    // PhysicalDamage + stage damage, crit rolled once per volley), so a shot in flight keeps it after a stage
+    // change, an unequip or the next volley. Basic attacks scale with PhysicalDamage; MagicDamage is for skills.
+    private sealed class Shot : IProjectilePayload
     {
-        if (target.TryGetComponent(out INegativeReceiver receiver))
-            receiver.TakeDamage(currentStage.attackDamage, hitPos);
+        private readonly float damage;
+
+        public Shot(float damage) => this.damage = damage;
+
+        public void OnHit(Collider2D target, Vector2 hitPos)
+        {
+            if (target.TryGetComponent(out INegativeReceiver receiver))
+                receiver.TakeDamage(damage, hitPos);
+        }
     }
 
     private void OnDrawGizmosSelected()
