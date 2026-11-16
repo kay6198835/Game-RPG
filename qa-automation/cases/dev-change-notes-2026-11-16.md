@@ -27,9 +27,10 @@ Bug status is still changed only by the Saturday triage; this file does not clos
 - **Update to:** read the source another way, or assert on the stat only and clear with
   `StatSheet.ClearModifiers()` / a fresh enemy between steps. If dev later makes `AdjustMaxStats` return its
   source (proposed, not done), use the returned value.
-- **Also check:** with `context == null` the `SourceEffect` spawns at world (0, 0), and `SourceEffect` is never
-  released to the pool (its `SetSourceEffect()` body is empty). Do not assert a pool count of zero after the
-  case; a case that counts live pooled objects will see one per `AdjustMaxStats` call.
+- **Also check:** with `context == null` the `SourceEffect` spawns at world (0, 0). Since `cfb6a230` a
+  `SourceEffect` with `lifetime > 0` (timed buffs) is released to the pool when its lifetime ends; one spawned by
+  `AdjustMaxStats` (`lifetime = 0`, permanent item buffs) is never released. A case that counts live pooled
+  objects will see one per `AdjustMaxStats` call.
 
 ### 1.2 QA-ENT-14 — vital modifier sign is fixed (BUG-117)
 
@@ -68,9 +69,9 @@ Bug status is still changed only by the Saturday triage; this file does not clos
 - The catalog expectation for QA-CMB-01 already states the correct formula; any case or tolerance that was tuned
   to the doubled value must be re-tuned. Enemy melee follows the same path.
 - **Ranged basic attacks now use the same formula** (owner decision 2026-11-16, inbox NOTE-20261104-4):
-  `PhysicalDamage + CurrentStage.attackDamage` (+ crit, rolled once per volley and shared by every projectile
-  of that volley). `RangeWeapon` no longer implements `IProjectilePayload`; each volley launches with a private
-  `Shot` payload that holds the damage snapshotted at fire time. Re-tune QA-CMB-04 / QA-CMB-05 (Archer, Mage,
+  `PhysicalDamage + CurrentStage.attackDamage` (+ crit, rolled once per volley). `RangeWeapon.OnActivate()`
+  stores that value in a field and `OnHit()` deals it (owner `3a2659ce`). A projectile still in flight when the
+  next volley fires deals the newer volley's value — do not assert per-projectile crit independence. Re-tune QA-CMB-04 / QA-CMB-05 (Archer, Mage,
   enemy ranged) expectations from stage-only damage to the stat-scaled value.
 - **Damage model rule:** basic attacks (melee and ranged) scale with `PhysicalDamage`; `MagicDamage` is used only
   by skills that use the magic stat (today `SpawnSummonEffect`). Do not expect `MagicDamage` on a weapon hit.
@@ -110,10 +111,10 @@ Bug status is still changed only by the Saturday triage; this file does not clos
   Champion's `CharacterData`. A player case that attacks must pick a Champion first; "player has a weapon at
   spawn" is not an expectation. The enemy half of BUG-106 (QA-ENT-02) is unchanged and fixed.
 - **Weapon pickup / drop / swap is deferred** (BUG-110). Do not write or expect cases for it this phase.
-- **`SourceEffect` lifetime is unfinished.** Pooled instances are never released today. If dev implements release,
-  a reused instance could still be the modifier source of an older buff (a timed buff expiring would then also
-  remove a newer buff's modifiers). A regression case worth adding once release lands: apply a timed buff and a
-  permanent item buff, let the timed one expire, assert the item buff is still there.
+- **`SourceEffect` release (`cfb6a230`).** Timed buffs release their source after `lifetime = duration`; permanent
+  item buffs (`lifetime = 0`) are never released, so a pooled source is never reused while it still owns
+  modifiers. Regression case to add: apply a timed buff and a permanent item buff, let the timed one expire,
+  assert the item buff is still there.
 
 ## 4. Checklist for the QA update
 
