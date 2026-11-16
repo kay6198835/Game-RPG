@@ -96,6 +96,15 @@ Bug status is still changed only by the Saturday triage; this file does not clos
 - **Update:** remove the `QA-STATIC-03` `weaponSO` → `BUG-108` mapping. Any static check, fixture or scene builder
   that names a Knight asset path must drop it. (Paladin player art is also named `Knight_*` and was not touched.)
 
+### 1.7 QA-STATIC-01 / QA-STATIC-02 — ShootSpirit assets deleted (BUG-073, BUG-090)
+
+- Deleted: `Assets/SO/Skill/ShootSpirit/` (`ShootSpirit.asset`, `SpiritBomd.asset`). `PlayerTest.prefab`
+  `AbilityHolder.abilityBindings` is now `[]` (it was overwritten at runtime from `PlayerData` anyway).
+- No asset references the missing script guid `ac9ac7c011812d042ac992007bc0cf48` or the deleted condition asset
+  guid `02cbacd1d0342774abb852a2ed63f9b4` any more.
+- **Update:** remove the `QA-STATIC-01` → `BUG-073` and `QA-STATIC-02` → `BUG-090` mappings; both checks should now
+  PASS on the ShootSpirit findings. Any fixture naming `ShootSpirit` / `SpiritBomd` must drop it.
+
 ## 2. New behaviour to cover (new cases suggested)
 
 | Area | What changed | Suggested case |
@@ -120,7 +129,8 @@ Bug status is still changed only by the Saturday triage; this file does not clos
 
 - [ ] `QAEnemySuite.Behaviour.cs` QA-ENT-13: stop removing by a caller-made source (1.1).
 - [ ] `config/known-issues.json`: drop mappings for QA-ENT-14 (BUG-117), QA-ITEM-03 (BUG-120),
-      QA-CMB-04.Archer (BUG-095), QA-STATIC-03 `weaponSO` (BUG-108); QA-VIT-05 (BUG-119) after a green run.
+      QA-CMB-04.Archer (BUG-095), QA-STATIC-03 `weaponSO` (BUG-108), QA-STATIC-01 (BUG-073) and QA-STATIC-02
+      (BUG-090) ShootSpirit findings; QA-VIT-05 (BUG-119) after a green run.
 - [ ] `cases/case-catalog.md`: update QA-ENT-13 / QA-ITEM-03 expectations; add the new cases from section 2.
 - [ ] Re-tune any melee damage tolerance built on the doubled stage damage (1.4).
 - [ ] Remove Knight asset paths from static checks and fixtures (1.6).

@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-16 — BUG-093 citations corrected to BUG-103 (BUG-101)
+- **Commit:** none to code; doc fix in the session that removed the ShootSpirit assets
+- **Sections touched:** header note, ranged paragraph, edge-case table (cooldown row), acceptance criteria
+- **From → To:** "BUG-093" (ranged `RecoveryTime` gate dropped) → **BUG-103**; header line "ranged hits ignore the computed damage" → "use the computed damage since `3a2659ce`"
+- **Why:** BUG-093 is the fixed projectile-direction bug; the `nextFireTime` defect was filed as BUG-103 on 2026-10-10 (BUG-101 ID collision). Bug files win over docs
+
 ## 2026-11-16 — Ranged damage uses finalDamage (owner decision)
 - **Commit:** code `3a2659ce` (owner, `origin/feature/fix-bug-sprint-23`)
 - **Sections touched:** ranged paragraph, formula block ("Ranged damage"), edge-case table (projectile hit row)

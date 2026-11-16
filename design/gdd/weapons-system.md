@@ -23,8 +23,8 @@ verified-by: Kiet (re-synced against HEAD 93ba6d8e by doc-sync)
 > - **Any character can hold a weapon** (`IWeaponHolder`, ADR-0005). Enemies attack only through a
 >   weapon; `EntityAttack` / `EntityWeaponMelee` are deleted.
 > - ✅ BUG-064 sub-item 7 closed — weapons are injected on equip.
-> - ⚠️ **BUG-093:** the ranged `RecoveryTime` gate was dropped from `CanAttack()`, and ranged hits
->   ignore the computed damage.
+> - ⚠️ **BUG-103** (cited as "BUG-093" until 2026-11-16 — BUG-101 ID collision): the ranged `RecoveryTime`
+>   gate was dropped from `CanAttack()`. Ranged hits use the computed damage since `3a2659ce` (2026-11-16).
 
 
 > **Note**: Reverse-engineered from existing implementation. Captures current behaviour
@@ -129,7 +129,7 @@ AoE is intentional for the player. `finalDamage` is computed by
 projectiles from `IObjecPoolService` (pooled — no `Instantiate` per shot), fanned across
 `SpreadAngle` centred on the aim direction, and calls `ProjectileBody.Launch(direction, config,
 payload: this)` on each. It then writes `nextFireTime = Time.time + RecoveryTime` —
-⚠️ **which nothing reads (BUG-093)**, so the cooldown is not enforced today.
+⚠️ **which nothing reads (BUG-103)**, so the cooldown is not enforced today.
 
 `ProjectileBody` (shared with projectile abilities) moves by `Rigidbody2D` velocity and handles
 `OnTriggerEnter2D`: a `blockMask` layer releases it with no damage; a `targetMask` layer calls
@@ -221,7 +221,7 @@ lifetime = ProjectileConfig.lifetime seconds, then released back to the pool
 | Pooled projectile reused | `OnDisable` clears payload and velocity — no carry-over from the last shot ✓ |
 | Stage index passes end of list | Resets to 0 ✓ |
 | Attack input while no weapon equipped | `WeaponHolder.CanAttack()` returns false — `PlayerBasicState` never enters `PlayerAttackState` ✓ |
-| Attack input while ranged weapon is on cooldown | ⚠️ **Not enforced** — `CanAttack()` no longer tests `nextFireTime` (BUG-093). Fire rate is bounded only by the attack animation |
+| Attack input while ranged weapon is on cooldown | ⚠️ **Not enforced** — `CanAttack()` no longer tests `nextFireTime` (BUG-103). Fire rate is bounded only by the attack animation |
 | Attack finishes with no buffered input | `Status = None` → `PlayerUseWeaponState` exits to Idle/Move ✓ (previously the status stayed at `EndRangeTrigger` and the player was stuck in the attack state) |
 | Attack input during TakeDamage state | `PlayerBasicState` transitions to TakeDamage before the attack check ✓ (TakeDamage > Attack) |
 | Multiple enemies in melee hitbox | All are hit, bounded by `maxTargetsPerSwing` — intentional AoE for the player ✓ |
@@ -317,7 +317,7 @@ All values in ScriptableObject assets — never hardcode in MonoBehaviours.
 - [ ] Projectile travels at `ProjectileConfig.speed` and returns to the pool after `lifetime` seconds
 - [ ] Projectile hitting a `targetMask` collider applies damage via `INegativeReceiver.TakeDamage()`
 - [ ] Projectile hitting a `blockMask` collider returns to the pool with no damage
-- [ ] `RangeAttackSO.RecoveryTime` prevents rapid-fire spam — **fails today (BUG-093)**
+- [ ] `RangeAttackSO.RecoveryTime` prevents rapid-fire spam — **fails today (BUG-103)**
 - [ ] Projectiles are pooled — no `Instantiate` per shot after the pool warms up
 - [ ] `ProjectileCount > 1` fans projectiles evenly across `SpreadAngle`
 
