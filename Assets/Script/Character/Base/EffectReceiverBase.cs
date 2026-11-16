@@ -53,8 +53,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
-        SetEffectSource(context, callback);
-        statHandler.AddModifiersFromSource(sourceEffect, statModifierGroup.GetStatsModifiers);
+        statHandler.AddModifiersFromSource(SetEffectSource(context, callback), statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.
@@ -88,7 +87,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
     {
-        StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context));
+        StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context, callback));
     }
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
