@@ -7,6 +7,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
+    protected ICharacterInput input;
     [SerializeField] protected SourceEffect sourceEffect;
     protected IObjectPoolService _objectPoolManager;
     [Inject]
@@ -19,6 +20,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         base.Setup();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out statHandler);
+        Core.TryGetCapability(out input);
     }
 
     GameObject SetEffectSource(AbilityContext context, float lifetime, Action callback)
@@ -66,7 +68,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     {
         AdjustCurrentStats(statModifierGroup, context);
         timeCount--;
-        if (timeCount > 0)
+        if (timeCount > 0 && !input.IsDeath)
         {
             yield return new WaitForSeconds(perTime);
             ReductionPerTimeForDuration(statModifierGroup, perTime, timeCount, context);

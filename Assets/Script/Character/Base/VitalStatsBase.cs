@@ -11,6 +11,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 {
     protected Dictionary<VitalStatType, float> currentStats = new();
     protected IStatService<TCore> statHandler;
+    protected ICharacterInput input;
     public event Action<VitalStatType> CurrentStatsChanged;
 
     protected override void Start()
@@ -24,6 +25,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         Core.TryGetCapability(out statHandler);
         statHandler?.ResignStatsChange(OnMaxStatChanged);
         LoadVitalStats();
+        CurrentStatsChanged += CheckDeath;
     }
 
     protected virtual void OnDestroy()
@@ -99,6 +101,14 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
             current -= amount;
             currentStats[vitalStatType] = Mathf.Max(current, 0);
             UpdateStatField(vitalStatType);
+        }
+    }
+
+    protected void CheckDeath(VitalStatType vitalStatType)
+    {
+        if (vitalStatType == VitalStatType.HP && GetCurrentStatValue(VitalStatType.HP) <= 0)
+        {
+            input?.OnDeath(Vector2.left);
         }
     }
 }
