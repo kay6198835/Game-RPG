@@ -11,12 +11,13 @@
 
 ## Status Verdict
 
-**ON-TRACK, Must lagging — day 2 (Tue 2026-11-17, standup 02:00).** Monday delivered a lot of
-code, but mostly Should / Feature: S23-03 (BUG-125), S23-07, S23-08 and S23-F1 (pathfinding branch
-merged, dash state committed) are done in code; S23-06 dropped by owner decision (NOTE-20261116-3).
-The two S1-weight Must items S23-01 (playtest, 26th carry) and S23-02 (death → Game Over) did not
-start. 4 working days left / 1.1d work remaining + 1d buffer. Standup sync merged
-`origin/feature/fix-bug-sprint-23` (`9a66ca0c`). Evidence: COMPILED (`cf50be42`, 22 s) + STATIC.
+**AT RISK on Must — day 3 (Wed 2026-11-18, standup 02:00).** Tuesday's owner work was off-plan:
+BUG-071 tick chain / vitals event rework (`16f61da7`, `b5fb3581`, `0626dd59`, `58b3da35`) plus the
+weekly QA automation run (FAIL 4 after test fixes; dash soft lock NOTE-20261117-3, S2). No planned
+Must item moved: S23-01 (playtest, 26th carry), S23-02 (death → Game Over), S23-04, S23-05 still ⬜.
+3 working days left (Wed–Fri) / 1.1d planned work remaining + 1d buffer — still fits, but only if
+Must starts today. Sync SKIPPED (owner `sprint-23` = `origin/sprint-23`). Evidence: LOG + STATIC
+(compile-check SKIPPED — Editor open); QA run 2026-11-17 is RUNTIME for the tests it covers.
 
 ## Burn Summary
 
@@ -25,7 +26,8 @@ start. 4 working days left / 1.1d work remaining + 1d buffer. Standup sync merge
 | Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.05d | 0.9d |
 | Should Have | 0.9d (0.7d after S23-06 cut) | 0.5d | 0.2d |
 | Feature story S23-F1 (capped) | 1.0d | 1.0d (merged) | 0 |
-| Buffer | 1.0d | — | — |
+| Off-plan (Tue: BUG-071 rework, QA automation fixes) | — | ≈0.5d (est.) | — |
+| Buffer | 1.0d | ≈0.5d consumed by off-plan | ≈0.5d |
 
 ---
 
@@ -60,15 +62,17 @@ start. 4 working days left / 1.1d work remaining + 1d buffer. Standup sync merge
 ### Tue 2026-11-17 — Room path + build guard
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S23-01 + S23-02 (carried from Mon) | 0.6d | ⬜ | Must, S1; carried |
-| S23-04 BUG-096 Boss + BUG-097 | 0.15d | ⬜ | Run starts in boss room; 7th carry |
-| S23-05 BUG-126 | 0.05d | ⬜ | One line; blocks any Player build (`TMP_TextInfoDebugTool.cs:4` still unguarded) |
+| S23-01 + S23-02 (carried from Mon) | 0.6d | ⬜ → Wed | Must, S1; carried |
+| S23-04 BUG-096 Boss + BUG-097 | 0.15d | ⬜ → Wed | Run starts in boss room; 7th carry |
+| S23-05 BUG-126 | 0.05d | ⬜ → Wed | One line; blocks any Player build (`TMP_TextInfoDebugTool.cs:4` still unguarded) |
+| (off-plan) BUG-071 tick chain + vitals event | — | 🟡 code (`16f61da7`, `b5fb3581`, `0626dd59`, `58b3da35`) | Not in sprint plan; awaiting triage |
 | S23-08 BUG-117 + 120 + 123 | 0.35d | ✅ code (Mon: `f528c087`, `25d869fb`, `8236f9d1`, `25d2d5e4`, `aa045f79`) | Awaiting runtime; see NOTE-20261117-1 |
 
 ### Wed 2026-11-18 — Owner feature branch
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S23-F1 Finish + merge `docs/gdd-pathfinding-ability` | ≤1.0d | ✅ merged Mon (`8459e384`) + dash state (`91c42d79`) | Wed freed for carry-over / buffer |
+| Carry-over: S23-02 → S23-05 → S23-01 → S23-04 | 0.8d | ⬜ | All Must; Wed is the last day with room for all of them |
 
 ### Thu 2026-11-19 — Weapon + data
 | Task | Est. | Status | Why now |
@@ -104,6 +108,9 @@ start. 4 working days left / 1.1d work remaining + 1d buffer. Standup sync merge
   adds `Value` without reading `ImpactType` — a negative max-stat modifier (debuff) would apply as a
   buff. Latent: no committed asset has a negative value (NOTE-20261117-1).
 - Pattern: Should / Feature work done first while the two S1 Must items wait — 2nd sprint in a row.
+  Tue 2026-11-17 repeated it (BUG-071 rework, off-plan).
+- NEW 2026-11-18: dash soft lock from the QA run (NOTE-20261117-3, S2 guess) — player controllers have
+  no Dash state / `IsDash` parameter; pressing Space may lock the player. Affects S23-01 playtest.
 
 ---
 
@@ -142,3 +149,18 @@ _(appended by `/daily-standup`)_
 - **Today:** S23-01 playtest (0.3d) → S23-02 death chain (0.3d) → S23-05 BUG-126 (0.05d) →
   S23-04 (0.15d).
 - **Verdict:** yesterday SLIPPED on Must (S1 items untouched), sprint ON-TRACK (1.1d / 4d).
+
+### 2026-11-18 (Wed) — standup 02:00
+- **Sync:** SKIPPED — owner branch `sprint-23` is already contained in `origin/sprint-23` (`125a4a41`).
+- **Yesterday (Tue):** owner off-plan BUG-071 work (`16f61da7` "fix bug 071", `b5fb3581`, `0626dd59`,
+  `58b3da35`): `IVitalComponent.CurrentStatsChanged` now `Action<VitalStatType>`, death check driven
+  from `VitalStatsBase`, `EffectReceiverBase` tick chain changes. Weekly QA automation ran 3 times
+  (final: PASS 151 / FAIL 4 / KNOWN 9 / SKIP 13 / OBS 1; 64 EditMode PASS), inbox NOTE-20261117-3..6.
+  Burned: Must 0 / 0.75d planned; ≈0.5d off-plan. S23-01 / 02 / 04 / 05 not started.
+- **Runtime:** `compile-check.sh` SKIPPED (Editor open). `Editor.log` (02:37) 0 `error CS`;
+  `Editor-prev.log` (11-17 16:19) 18 CS0123 delegate mismatches — transient mid-edit (NOTE-20261118-1).
+  No `Assets/Script/` exception. `fix-survival.sh 7`: 3 rows PRESENT. Playtest: none recorded.
+- **Inbox:** NOTE-20261118-2 — `NOTE-20261117-1` / `-2` IDs used twice.
+- **Owner live tree:** `AbilityInstance.cs` staged, uncommitted (invisible to the routine).
+- **Today:** S23-02 death chain (0.3d) → S23-05 BUG-126 (0.05d) → S23-01 playtest (0.3d) → S23-04 (0.15d).
+- **Verdict:** yesterday SLIPPED (Must untouched 2nd day), sprint AT RISK on Must (1.1d / 3d + 0.5d buffer).
