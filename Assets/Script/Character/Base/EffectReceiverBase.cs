@@ -68,7 +68,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     {
         AdjustCurrentStats(statModifierGroup, context);
         timeCount--;
-        if (timeCount > 0 && !input.IsDeath)
+        if (timeCount > 0 && input != null && !input.IsDeath)
         {
             yield return new WaitForSeconds(perTime);
             ReductionPerTimeForDuration(statModifierGroup, perTime, timeCount, context);

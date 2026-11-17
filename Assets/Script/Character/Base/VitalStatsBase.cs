@@ -23,6 +23,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         base.Setup();
         Core.TryGetCapability(out statHandler);
+        Core.TryGetCapability(out input);
         statHandler?.ResignStatsChange(OnMaxStatChanged);
         LoadVitalStats();
         CurrentStatsChanged += CheckDeath;
@@ -108,7 +109,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         if (vitalStatType == VitalStatType.HP && GetCurrentStatValue(VitalStatType.HP) <= 0)
         {
-            input?.OnDeath(Vector2.left);
+            input?.OnDeath(input.AimPoint);
         }
     }
 }

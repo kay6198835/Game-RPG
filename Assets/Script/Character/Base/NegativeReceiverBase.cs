@@ -30,7 +30,7 @@ public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, IN
         if (finalDamage <= 0) return;
         bool lethal = finalDamage >= currentHP;
         vital.Reduction(VitalStatType.HP, finalDamage);
-        if (!lethal) return;
+        if (lethal) return;
         input?.OnTakeDamage(attackPosition);
         OnDamaged(finalDamage, attackPosition);
 
