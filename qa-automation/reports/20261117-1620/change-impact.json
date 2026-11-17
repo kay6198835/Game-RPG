@@ -1,0 +1,1943 @@
+{
+    "base":  "a8725a77d2",
+    "head":  "077ebd31e3",
+    "baseRef":  "a8725a77d2",
+    "headRef":  "origin/sprint-23",
+    "commits":  [
+                    {
+                        "sha":  "58b3da35",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "update",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "dc0b0fbf",
+                        "date":  "2026-11-17",
+                        "author":  "Claude",
+                        "subject":  "docs(qa): NOTE-20261117-2 - BUG-118 deferred until after demo (owner)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a1cea244",
+                        "date":  "2026-11-17",
+                        "author":  "Claude",
+                        "subject":  "docs(qa): NOTE-20261117-1 - BUG-071 triage hint after owner fix",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "0626dd59",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "update",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b5fb3581",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "miss fix bug 071",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/NegativeReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "16f61da7",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "fix bug 071",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAVitalsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityUIController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/FastTest/QAProbe/QAPlayerFlowProbe.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IVitalComponent.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/UIFlow/Services/Real/RealPlayerDataProvider.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f9ed9366",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-17",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-23-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "1d05475a",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "chore(abilities): finish ShootSpirit removal (BUG-073)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/rules/prototype-code.md"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Prefab/Bullet/SpiritProjcetile.prefab"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Prefab/Bullet/SpiritProjcetile.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Effects/SpawnEffectBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/abilities-v2-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/skill-ability-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/diagrams/ability-system-diagrams.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/abilities/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/abilities/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-073.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e6c826e5",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "chore(data): remove ShootSpirit / SpiritBomd ability assets (BUG-073, BUG-090)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Player/PlayerTest.prefab"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/ShootSpirit.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/ShootSpirit/MainEffect.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/changelog/weapons-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/weapons-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/dev-change-notes-2026-11-16.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b9263280",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "revert(weapon): drop the Shot payload from 073f2421, keep owner\u0027s finalDamage logic",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "20cf6ca5",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "docs(weapons): ranged damage follows owner logic (finalDamage field, 3a2659ce)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/changelog/weapons-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/weapons-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/weapons/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/weapons/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/dev-change-notes-2026-11-16.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "3a2659ce",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "logic damage for rangeweapon",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/PlayerState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "073f2421",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "fix(weapon): ranged basic attack scales with PhysicalDamage + crit (NOTE-20261104-4)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/dev-change-notes-2026-11-16.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "cfb6a230",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "despawn source effect",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a7d48992",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "docs(qa): handoff note - update auto tests for sprint 23 dev changes (NOTE-20261116-4)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/cases/dev-change-notes-2026-11-16.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "aa045f79",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "feat(item): coin item effect asset + Create menu (BUG-123)",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Item/Effect/Coin Effect.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Item/Effect/Coin Effect.asset.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "8236f9d1",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "update 123 and 120",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "25d2d5e4",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "fix(data): rebind item effect assets to concrete scripts (BUG-120)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/Effect/New Recovery Effect Definition.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/Effect/New Stat Modifier Effect Definition - Copy.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Item/Effect/New Stat Modifier Effect Definition.asset"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "25d869fb",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "update bug 95, 120, 123 and issue commit",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Particle Effect/Attack Projectile/Arrow.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/EffectReceiverBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Interface/IEffectReceiver.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/SpawnMono/ProjectileBody.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifier.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/VitalModifier.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f528c087",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "bug 117, 120, 123, 108, 072, 095",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Runtime/SpawnMono/ProjectileBody.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/StatModifier.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/VitalModifier.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "041bf198",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "chore(data): delete retired Knight enemy assets (S23-07, BUG-108)",
+                        "files":  [
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/AnimationController/2 Direction/Enemy/Knight_Controller.overrideController"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/AnimationController/2 Direction/Enemy/Knight_Controller.overrideController.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Prefab/Weapon/KnightWeapon.prefab"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Prefab/Weapon/KnightWeapon.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Prefab/Weapon/WeaponEntity.prefab"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/Prefab/Weapon/WeaponEntity.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Database/EnemyPrefab.prefab"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Database/EnemyPrefab.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 1.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 1.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 2.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 2.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 3.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 3.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 4.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight 4.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Enemy - Knight.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Knight.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Knight/Knight.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Knight/Knight.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon/Knight_Attack1.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Enemy/Weapon/Knight_Attack1.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/Enemy - Knight.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Skill/Enemy - Knight.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Weapons/KnightWeapon.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset.meta"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterData.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "042e6cc1",
+                        "date":  "2026-11-16",
+                        "author":  "Claude",
+                        "subject":  "docs(inbox): NOTE-20261116-3 owner decision - BUG-106 player half by design, BUG-110 deferred",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b92b6f2a",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "bug-125",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Weapons/Weapon.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "91c42d79",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "add dash state",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir0.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir0.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir1.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir1.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir2.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir2.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir3.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir3.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir4.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir4.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir5.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir5.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir6.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir6.anim.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir7.anim"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir7.anim.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Player.controller"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/CharacterInputBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/Player.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerBasicState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerDashState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Utility/GameConstants.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f39dd0b8",
+                        "date":  "2026-11-16",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-16",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-23-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a0d52d73",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(kickoff): duplicate firing skipped 2026-11-15",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "88140733",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(kickoff): open sprint-23 2026-11-15",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/sprints/sprint-23-daily-plan.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/sprints/sprint-23.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "37b56d76",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(doc-sync): routine log 2026-11-15",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "c7853589",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "docs(doc-sync): doc-truth pass 2026-11-15 - triage statuses BUG-063/084/109/115/124, rows BUG-125..128",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/rules/test-standards.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/stats/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/stats/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/weapons/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/weapons/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "memory/project_state.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/doc-truth-2026-11-15.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "063b5f87",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(wrapup): weekly wrap-up 2026-11-15",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-22-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "b5e3238b",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(wrapup): bug triage 2026-11-15 - BUG-125..128, 5 status updates",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bug-triage-2026-11-15.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-063.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-073.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-084.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-109.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-115.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-117.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-120.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bugs/BUG-124.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-125.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-126.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-127.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/bugs/BUG-128.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "ff7f3ecb",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(doc-sync): routine log 2026-11-14",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "8a114568",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "docs(doc-sync): doc-truth pass 2026-11-14 - sprint-22 a8725a77, stat split, enemy sight/Defense, NavPath, asmdef tests",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/rules/scriptableobject-data.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/changelog/stat-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/changelog/weapons-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/stat-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/weapons-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/architecture/adr-0001-statsystem-dual-data-structure.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/architecture/changelog/adr-0001-statsystem-dual-data-structure.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/pathfinding/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/pathfinding/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "memory/project_state.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/doc-truth-2026-11-14.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "cb5b51a9",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "chore(qa-auto): weekly QA run 20261114-2357 - 5 inbox notes 2026-11-15",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "174feb3a",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "test(qa): inbox proposals use the date of writing (NOTE-20261115-N), re-confirmed by run 20261114-2357",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/reports/20261114-2329/inbox-proposals.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "ca89c300",
+                        "date":  "2026-11-15",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261114-2357 on origin/sprint-22 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/unit-results.xml"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2357/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "2c3fe106",
+                        "date":  "2026-11-14",
+                        "author":  "Kay",
+                        "subject":  "test(qa): fix Rain Arrows and STATIC-05 test defects, add QA-STAT-07, map VIT-07/ITEM-03, run 20261114-2329 triage",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Editor/QAStaticChecks.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QASystemsSuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/known-issues.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/manual/manual-weekly-checklist.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/inbox-proposals.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/reports/20261114-2329/weekly-change-impact.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "94f1acac",
+                        "date":  "2026-11-14",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261114-2329 on origin/sprint-22 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/unit-results.xml"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261114-2329/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "3b02df7d",
+                        "date":  "2026-11-14",
+                        "author":  "Kay",
+                        "subject":  "coding need check",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Data/Json/Room/BossRoom_ThroneArena.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Data/Json/Room/NormalRoom_20.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Data/Json/Room/NormalRoom_20.json.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Champion Monument/Champion_Monument_Archer.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Champion Monument/Champion_Monument_Mage.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Prefab/Champion Monument/Champion_Monument_Paladin.prefab"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Interactive.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Interactive/Bonfire.prefab"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Prefab/Interactive/Bonfire.prefab.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Dungeon/Tile/Tile_Spawn_Bonfire.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/SO/Dungeon/Tile/Tile_Spawn_Bonfire.asset.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/GameplayUI.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/Test/Prefab/Level Manager.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Base/MovementBase.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/Entity.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerMovement.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerDashState.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerDashState.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Player/States/s.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/RoomGameSystem/BonfireController.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/RoomGameSystem/BonfireController.cs.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/RoomGameSystem/PedestalChampionController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/UIFlow/Core/UIEvents.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/UIFlow/Gameplay/GameplayUIController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/UIFlow/Gameplay/HUD/HUDPanel.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/UIFlow/Gameplay/HUD/InteractiveNotifi.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/UIFlow/Gameplay/HUD/InteractiveNotifi.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Sprite/Map/Map.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Sprite/Map/Tile Map Rule/Tile_Chess.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Sprite/Map/Tile Map Rule/Tile_Spawn_Bonfire.asset"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Sprite/Map/Tile Map Rule/Tile_Spawn_Bonfire.asset.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Sprite/VFX/Bonfire.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Sprite/VFX/Bonfire/campfire-Sheet.png"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Sprite/VFX/Bonfire/campfire-Sheet.png.meta"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/character-animations-standalone.html"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "tools/anim-viewer/character-animations.html"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f6921dc9",
+                        "date":  "2026-11-13",
+                        "author":  "VIETUNION\\kiet.ho",
+                        "subject":  "update doc GGD and add state dash for player",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/CoreComponent/PlayerMovement.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerDashState.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Player/States/s"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/StatSystem/VitalModifier.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "design/gdd/abilities-v2-system.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "design/gdd/changelog/abilities-v2-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "design/gdd/changelog/pathfinding-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/changelog/skill-ability-system.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/changelog/systems-index.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "design/gdd/pathfinding-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/skill-ability-system.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "design/gdd/systems-index.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/architecture/adr-0002-enemymanager-singleton-exception.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/architecture/adr-0006-grid-astar-pathfinding.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/architecture/changelog/adr-0002-enemymanager-singleton-exception.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/architecture/changelog/adr-0006-grid-astar-pathfinding.CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/abilities/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/abilities/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/pathfinding/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/pathfinding/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  12,
+    "files":  223,
+    "systems":  {
+                    "ABL":  [
+                                "Assets/Script/System/Abilities/Effects/SpawnEffectBase.cs",
+                                "Assets/Script/System/Abilities/Runtime/ImpactMono/SourceEffect.cs",
+                                "Assets/Script/System/Abilities/Runtime/SpawnMono/ProjectileBody.cs",
+                                "Assets/SO/Skill/Enemy - Knight.asset",
+                                "Assets/SO/Skill/Enemy - Knight.asset.meta",
+                                "Assets/SO/Skill/ShootSpirit.meta",
+                                "Assets/SO/Skill/ShootSpirit/MainEffect.meta",
+                                "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset",
+                                "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset.meta",
+                                "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset",
+                                "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset.meta"
+                            ],
+                    "CMB":  [
+                                "Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs",
+                                "Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs",
+                                "Assets/Script/Weapons/Weapon.cs",
+                                "Assets/SO/Weapons/KnightWeapon.meta",
+                                "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset",
+                                "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset.meta",
+                                "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset",
+                                "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset.meta"
+                            ],
+                    "DOCS":  [
+                                 ".claude/rules/prototype-code.md",
+                                 ".claude/rules/scriptableobject-data.md",
+                                 ".claude/rules/test-standards.md",
+                                 "CLAUDE.md",
+                                 "design/gdd/abilities-v2-system.md",
+                                 "design/gdd/changelog/abilities-v2-system.CHANGELOG.md",
+                                 "design/gdd/changelog/pathfinding-system.CHANGELOG.md",
+                                 "design/gdd/changelog/skill-ability-system.CHANGELOG.md",
+                                 "design/gdd/changelog/stat-system.CHANGELOG.md",
+                                 "design/gdd/changelog/systems-index.CHANGELOG.md",
+                                 "design/gdd/changelog/weapons-system.CHANGELOG.md",
+                                 "design/gdd/pathfinding-system.md",
+                                 "design/gdd/skill-ability-system.md",
+                                 "design/gdd/stat-system.md",
+                                 "design/gdd/systems-index.md",
+                                 "design/gdd/weapons-system.md",
+                                 "docs/architecture/adr-0001-statsystem-dual-data-structure.md",
+                                 "docs/architecture/adr-0002-enemymanager-singleton-exception.md",
+                                 "docs/architecture/adr-0006-grid-astar-pathfinding.md",
+                                 "docs/architecture/changelog/adr-0001-statsystem-dual-data-structure.CHANGELOG.md",
+                                 "docs/architecture/changelog/adr-0002-enemymanager-singleton-exception.CHANGELOG.md",
+                                 "docs/architecture/changelog/adr-0006-grid-astar-pathfinding.CHANGELOG.md",
+                                 "docs/CHANGELOG-DOCS.md",
+                                 "docs/diagrams/ability-system-diagrams.md",
+                                 "docs/systems/abilities/CHANGELOG.md",
+                                 "docs/systems/abilities/README.md",
+                                 "docs/systems/enemy/CHANGELOG.md",
+                                 "docs/systems/enemy/README.md",
+                                 "docs/systems/pathfinding/CHANGELOG.md",
+                                 "docs/systems/pathfinding/README.md",
+                                 "docs/systems/README.md",
+                                 "docs/systems/stats/CHANGELOG.md",
+                                 "docs/systems/stats/README.md",
+                                 "docs/systems/weapons/CHANGELOG.md",
+                                 "docs/systems/weapons/README.md",
+                                 "memory/project_state.md",
+                                 "production/qa/bug-inbox.md",
+                                 "production/qa/bugs/BUG-063.md",
+                                 "production/qa/bugs/BUG-073.md",
+                                 "production/qa/bugs/BUG-084.md",
+                                 "production/qa/bugs/BUG-109.md",
+                                 "production/qa/bugs/BUG-115.md",
+                                 "production/qa/bugs/BUG-117.md",
+                                 "production/qa/bugs/BUG-120.md",
+                                 "production/qa/bugs/BUG-124.md",
+                                 "production/qa/bugs/BUG-125.md",
+                                 "production/qa/bugs/BUG-126.md",
+                                 "production/qa/bugs/BUG-127.md",
+                                 "production/qa/bugs/BUG-128.md",
+                                 "production/qa/bug-triage-2026-11-15.md",
+                                 "production/qa/doc-truth-2026-11-14.md",
+                                 "production/qa/doc-truth-2026-11-15.md",
+                                 "production/session-state/routine-log.md",
+                                 "production/sprints/sprint-22.md",
+                                 "production/sprints/sprint-22-daily-plan.md",
+                                 "production/sprints/sprint-23.md",
+                                 "production/sprints/sprint-23-daily-plan.md"
+                             ],
+                    "ENT":  [
+                                "Assets/Script/Character/Entity/CoreComponent/EntityUIController.cs",
+                                "Assets/Script/Character/Entity/Entity.cs",
+                                "Assets/SO/Enemy/Enemy - Knight 1.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 1.asset.meta",
+                                "Assets/SO/Enemy/Enemy - Knight 2.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 2.asset.meta",
+                                "Assets/SO/Enemy/Enemy - Knight 3.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 3.asset.meta",
+                                "Assets/SO/Enemy/Enemy - Knight 4.asset",
+                                "Assets/SO/Enemy/Enemy - Knight 4.asset.meta",
+                                "Assets/SO/Enemy/Enemy - Knight.asset",
+                                "Assets/SO/Enemy/Enemy - Knight.asset.meta",
+                                "Assets/SO/Enemy/Knight.meta",
+                                "Assets/SO/Enemy/Knight/Knight.asset",
+                                "Assets/SO/Enemy/Knight/Knight.asset.meta",
+                                "Assets/SO/Enemy/Weapon.meta",
+                                "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset",
+                                "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset.meta",
+                                "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset",
+                                "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset.meta",
+                                "Assets/SO/Enemy/Weapon/Knight_Attack1.asset",
+                                "Assets/SO/Enemy/Weapon/Knight_Attack1.asset.meta"
+                            ],
+                    "ITEM":  [
+                                 "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs",
+                                 "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs",
+                                 "Assets/SO/Item/Effect/Coin Effect.asset",
+                                 "Assets/SO/Item/Effect/Coin Effect.asset.meta",
+                                 "Assets/SO/Item/Effect/New Recovery Effect Definition.asset",
+                                 "Assets/SO/Item/Effect/New Stat Modifier Effect Definition - Copy.asset",
+                                 "Assets/SO/Item/Effect/New Stat Modifier Effect Definition.asset"
+                             ],
+                    "MAP":  [
+                                "Assets/Data/Json/Room/BossRoom_ThroneArena.json",
+                                "Assets/Data/Json/Room/NormalRoom_20.json",
+                                "Assets/Data/Json/Room/NormalRoom_20.json.meta",
+                                "Assets/SO/Database/EnemyPrefab.prefab",
+                                "Assets/SO/Database/EnemyPrefab.prefab.meta",
+                                "Assets/SO/Dungeon/Tile/Tile_Spawn_Bonfire.asset",
+                                "Assets/SO/Dungeon/Tile/Tile_Spawn_Bonfire.asset.meta"
+                            ],
+                    "OTHER":  [
+                                  "tools/anim-viewer/character-animations.html",
+                                  "tools/anim-viewer/character-animations-standalone.html"
+                              ],
+                    "PLY":  [
+                                "Assets/Prefab/Player/PlayerTest.prefab",
+                                "Assets/Script/Character/Base/CharacterData.cs",
+                                "Assets/Script/Character/Base/CharacterInputBase.cs",
+                                "Assets/Script/Character/Base/MovementBase.cs",
+                                "Assets/Script/Character/Player/CoreComponent/PlayerInputHandle.cs",
+                                "Assets/Script/Character/Player/CoreComponent/PlayerMovement.cs",
+                                "Assets/Script/Character/Player/Player.cs",
+                                "Assets/Script/Character/Player/PlayerState.cs",
+                                "Assets/Script/Character/Player/States/PlayerBasicState.cs",
+                                "Assets/Script/Character/Player/States/PlayerDashState.cs",
+                                "Assets/Script/Character/Player/States/PlayerDashState.cs.meta",
+                                "Assets/Script/Character/Player/States/s",
+                                "Assets/Script/Character/Player/States/s.meta",
+                                "Assets/Script/Interface/IEffectReceiver.cs",
+                                "Assets/Script/Interface/IVitalComponent.cs"
+                            ],
+                    "QA":  [
+                               "Assets/QA/Editor/QAStaticChecks.cs",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs",
+                               "Assets/QA/Runtime/Suites/QAPlayerFlowSuite.cs",
+                               "Assets/QA/Runtime/Suites/QASystemsSuite.cs",
+                               "Assets/QA/Runtime/Suites/QAVitalsSuite.cs",
+                               "Assets/Script/FastTest/QAProbe/QAPlayerFlowProbe.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/cases/dev-change-notes-2026-11-16.md",
+                               "qa-automation/config/known-issues.json",
+                               "qa-automation/manual/manual-weekly-checklist.md",
+                               "qa-automation/reports/20261114-2329/change-impact.json",
+                               "qa-automation/reports/20261114-2329/inbox-proposals.md",
+                               "qa-automation/reports/20261114-2329/report.md",
+                               "qa-automation/reports/20261114-2329/results.json",
+                               "qa-automation/reports/20261114-2329/run.log",
+                               "qa-automation/reports/20261114-2329/run-info.json",
+                               "qa-automation/reports/20261114-2329/summary.json",
+                               "qa-automation/reports/20261114-2329/unit-results.xml",
+                               "qa-automation/reports/20261114-2329/unity-report.md",
+                               "qa-automation/reports/20261114-2329/weekly-change-impact.md",
+                               "qa-automation/reports/20261114-2357/change-impact.json",
+                               "qa-automation/reports/20261114-2357/report.md",
+                               "qa-automation/reports/20261114-2357/results.json",
+                               "qa-automation/reports/20261114-2357/run.log",
+                               "qa-automation/reports/20261114-2357/run-info.json",
+                               "qa-automation/reports/20261114-2357/summary.json",
+                               "qa-automation/reports/20261114-2357/unit-results.xml",
+                               "qa-automation/reports/20261114-2357/unity-report.md",
+                               "qa-automation/reports/20261114-2357/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ],
+                    "STAT":  [
+                                 "Assets/Script/System/StatSystem/StatModifier.cs",
+                                 "Assets/Script/System/StatSystem/VitalModifier.cs"
+                             ],
+                    "STATIC":  [
+                                   "Assets/Prefab/Bullet/SpiritProjcetile.prefab",
+                                   "Assets/Prefab/Bullet/SpiritProjcetile.prefab.meta",
+                                   "Assets/Prefab/Champion Monument/Champion_Monument_Archer.prefab",
+                                   "Assets/Prefab/Champion Monument/Champion_Monument_Mage.prefab",
+                                   "Assets/Prefab/Champion Monument/Champion_Monument_Paladin.prefab",
+                                   "Assets/Prefab/Interactive.meta",
+                                   "Assets/Prefab/Interactive/Bonfire.prefab",
+                                   "Assets/Prefab/Interactive/Bonfire.prefab.meta",
+                                   "Assets/Prefab/Particle Effect/Attack Projectile/Arrow.prefab",
+                                   "Assets/Prefab/Weapon/KnightWeapon.prefab",
+                                   "Assets/Prefab/Weapon/KnightWeapon.prefab.meta",
+                                   "Assets/Prefab/Weapon/WeaponEntity.prefab",
+                                   "Assets/Prefab/Weapon/WeaponEntity.prefab.meta",
+                                   "Assets/Scenes/Main/GameplayUI.unity",
+                                   "Assets/Scenes/Main/LoadRandomMap.unity",
+                                   "Assets/Scenes/Main/Test/Prefab/Level Manager.prefab",
+                                   "Assets/Script/System/RoomGameSystem/BonfireController.cs",
+                                   "Assets/Script/System/RoomGameSystem/BonfireController.cs.meta",
+                                   "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs",
+                                   "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs.meta",
+                                   "Assets/Script/System/RoomGameSystem/PedestalChampionController.cs",
+                                   "Assets/Script/Utility/GameConstants.cs"
+                               ],
+                    "UI":  [
+                               "Assets/Script/UIFlow/Core/UIEvents.cs",
+                               "Assets/Script/UIFlow/Gameplay/GameplayUIController.cs",
+                               "Assets/Script/UIFlow/Gameplay/HUD/HUDPanel.cs",
+                               "Assets/Script/UIFlow/Gameplay/HUD/InteractiveNotifi.cs",
+                               "Assets/Script/UIFlow/Gameplay/HUD/InteractiveNotifi.cs.meta",
+                               "Assets/Script/UIFlow/Services/Real/RealPlayerDataProvider.cs"
+                           ],
+                    "VISUAL":  [
+                                   "Assets/Animation/Player/Paladin/Basic/Dash.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir0.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir0.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir1.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir1.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir2.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir2.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir3.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir3.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir4.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir4.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir5.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir5.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir6.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir6.anim.meta",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir7.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Dash/Paladin_Dash_dir7.anim.meta",
+                                   "Assets/AnimationController/2 Direction/Enemy/Knight_Controller.overrideController",
+                                   "Assets/AnimationController/2 Direction/Enemy/Knight_Controller.overrideController.meta",
+                                   "Assets/AnimationController/Player/Player.controller",
+                                   "Assets/Sprite/Map/Map.prefab",
+                                   "Assets/Sprite/Map/Tile Map Rule/Tile_Chess.asset",
+                                   "Assets/Sprite/Map/Tile Map Rule/Tile_Spawn_Bonfire.asset",
+                                   "Assets/Sprite/Map/Tile Map Rule/Tile_Spawn_Bonfire.asset.meta",
+                                   "Assets/Sprite/VFX/Bonfire.meta",
+                                   "Assets/Sprite/VFX/Bonfire/campfire-Sheet.png",
+                                   "Assets/Sprite/VFX/Bonfire/campfire-Sheet.png.meta"
+                               ],
+                    "VIT":  [
+                                "Assets/Script/Character/Base/EffectReceiverBase.cs",
+                                "Assets/Script/Character/Base/NegativeReceiverBase.cs",
+                                "Assets/Script/Character/Base/VitalStatsBase.cs"
+                            ]
+                },
+    "deep":  [
+                 "ABL",
+                 "CMB",
+                 "ENT",
+                 "ITEM",
+                 "MAP",
+                 "PLY",
+                 "STAT",
+                 "STATIC",
+                 "UI",
+                 "VIT"
+             ],
+    "risks":  [
+                  {
+                      "why":  "Serialized by every PlayerData / EntityData asset — a rename without [FormerlySerializedAs] empties fields (BUG-105/108/121)",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "CMB",
+                                        "ABL",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/CharacterData.cs"
+                                ]
+                  },
+                  {
+                      "why":  "One base for player and enemy vitals; abilities pay costs and apply effects through it; the HUD reads CurrentStatsChanged",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "ABL",
+                                        "UI",
+                                        "STAT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Base/EffectReceiverBase.cs",
+                                    "Assets/Script/Character/Base/NegativeReceiverBase.cs",
+                                    "Assets/Script/Character/Base/VitalStatsBase.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Item drop on enemy death and the player pickup (QA-ITEM-02..04) run in the ENEMY scene",
+                      "alsoCheck":  [
+                                        "ITEM"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityUIController.cs",
+                                    "Assets/Script/Character/Entity/Entity.cs"
+                                ]
+                  },
+                  {
+                      "why":  "ItemSpawner listens to ON_ENEMY_DEATH; QA-ITEM-02..04 live in the enemy suite",
+                      "alsoCheck":  [
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/Item/ItemEffectDefinition/CoinModifierEffect.cs",
+                                    "Assets/Script/System/Item/ItemEffectDefinition/ModifierCurrentStatsEffect.cs",
+                                    "Assets/Script/System/Item/ItemEffectDefinition/ModifierMaxStatsEffect.cs",
+                                    "Assets/Script/System/Item/ItemEffectDefinition/StatModifierEffect.cs",
+                                    "Assets/SO/Item/Effect/Coin Effect.asset",
+                                    "Assets/SO/Item/Effect/Coin Effect.asset.meta",
+                                    "Assets/SO/Item/Effect/New Recovery Effect Definition.asset",
+                                    "Assets/SO/Item/Effect/New Stat Modifier Effect Definition - Copy.asset",
+                                    "Assets/SO/Item/Effect/New Stat Modifier Effect Definition.asset"
+                                ]
+                  },
+                  {
+                      "why":  "Damage formulas, vitals max values and asset serialization all read the stat system",
+                      "alsoCheck":  [
+                                        "VIT",
+                                        "CMB",
+                                        "ENT",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/StatSystem/StatModifier.cs",
+                                    "Assets/Script/System/StatSystem/VitalModifier.cs"
+                                ]
+                  },
+                  {
+                      "why":  "The Champion pick flow opens the confirm panel through UIEvents",
+                      "alsoCheck":  [
+                                        "PLY"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/UIFlow/Core/UIEvents.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Enemies attack through the same Weapon classes; AttackSO field renames break assets",
+                      "alsoCheck":  [
+                                        "ENT",
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Weapons/MeleeWeapon/MeleeWeapon.cs",
+                                    "Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs",
+                                    "Assets/Script/Weapons/Weapon.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Asset edits: missing script / orphaned key / saved-modifier checks",
+                      "alsoCheck":  [
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/SO/Dungeon/Tile/Tile_Spawn_Bonfire.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 1.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 2.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 3.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight 4.asset",
+                                    "Assets/SO/Enemy/Enemy - Knight.asset",
+                                    "Assets/SO/Enemy/Knight/Knight.asset",
+                                    "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset",
+                                    "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset",
+                                    "Assets/SO/Enemy/Weapon/Knight_Attack1.asset",
+                                    "Assets/SO/Item/Effect/Coin Effect.asset",
+                                    "Assets/SO/Item/Effect/New Recovery Effect Definition.asset",
+                                    "Assets/SO/Item/Effect/New Stat Modifier Effect Definition - Copy.asset",
+                                    "Assets/SO/Item/Effect/New Stat Modifier Effect Definition.asset",
+                                    "Assets/SO/Skill/Enemy - Knight.asset",
+                                    "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset",
+                                    "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset",
+                                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset",
+                                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset",
+                                    "Assets/Sprite/Map/Tile Map Rule/Tile_Chess.asset",
+                                    "Assets/Sprite/Map/Tile Map Rule/Tile_Spawn_Bonfire.asset"
+                                ]
+                  }
+              ],
+    "newScripts":  [
+                       "Assets/Script/Character/Player/States/PlayerDashState.cs",
+                       "Assets/Script/System/RoomGameSystem/BonfireController.cs",
+                       "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs",
+                       "Assets/Script/UIFlow/Gameplay/HUD/InteractiveNotifi.cs"
+                   ],
+    "newAssets":  [
+                      "Assets/Prefab/Interactive/Bonfire.prefab",
+                      "Assets/SO/Dungeon/Tile/Tile_Spawn_Bonfire.asset",
+                      "Assets/SO/Item/Effect/Coin Effect.asset"
+                  ],
+    "deleted":  [
+                    "Assets/AnimationController/2 Direction/Enemy/Knight_Controller.overrideController",
+                    "Assets/Prefab/Bullet/SpiritProjcetile.prefab",
+                    "Assets/Prefab/Weapon/KnightWeapon.prefab",
+                    "Assets/Prefab/Weapon/WeaponEntity.prefab",
+                    "Assets/SO/Database/EnemyPrefab.prefab",
+                    "Assets/SO/Enemy/Enemy - Knight 1.asset",
+                    "Assets/SO/Enemy/Enemy - Knight 2.asset",
+                    "Assets/SO/Enemy/Enemy - Knight 3.asset",
+                    "Assets/SO/Enemy/Enemy - Knight 4.asset",
+                    "Assets/SO/Enemy/Enemy - Knight.asset",
+                    "Assets/SO/Enemy/Knight/Knight.asset",
+                    "Assets/SO/Enemy/Weapon/EnemySnS_Stat.asset",
+                    "Assets/SO/Enemy/Weapon/EnemySword\u0026Shiled.asset",
+                    "Assets/SO/Enemy/Weapon/Knight_Attack1.asset",
+                    "Assets/SO/Skill/Enemy - Knight.asset",
+                    "Assets/SO/Skill/ShootSpirit/MainEffect/ShootSpirit.asset",
+                    "Assets/SO/Skill/ShootSpirit/SpiritBomd.asset",
+                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset",
+                    "Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset"
+                ],
+    "uncoveredNewScripts":  [
+                                "Assets/Script/Character/Player/States/PlayerDashState.cs",
+                                "Assets/Script/System/RoomGameSystem/BonfireController.cs",
+                                "Assets/Script/System/RoomGameSystem/InteractiveObjectsRoom.cs",
+                                "Assets/Script/UIFlow/Gameplay/HUD/InteractiveNotifi.cs"
+                            ]
+}
