@@ -66,9 +66,13 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     IEnumerator ReductionPerTime(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
     {
+        if (input == null || input.IsDeath)
+        {
+            yield break;
+        }
         AdjustCurrentStats(statModifierGroup, context);
         timeCount--;
-        if (timeCount > 0 && input != null && !input.IsDeath)
+        if (timeCount > 0)
         {
             yield return new WaitForSeconds(perTime);
             ReductionPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
@@ -94,7 +98,22 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
-        throw new System.NotImplementedException();
+        //StartCoroutine(ApplyAdjustMaxPerTimeForDuration(modifierGroup, perTime, duration, context));
     }
+
+    // IEnumerator ApplyAdjustMaxPerTimeForDuration(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
+    // {
+    //     if (input == null || input.IsDeath)
+    //     {
+    //         yield break;
+    //     }
+    //     AdjustCurrentStats(statModifierGroup, context);
+    //     timeCount--;
+    //     if (timeCount > 0)
+    //     {
+    //         yield return new WaitForSeconds(perTime);
+    //         AdjustMaxPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
+    //     }
+    // }
     #endregion
 }
