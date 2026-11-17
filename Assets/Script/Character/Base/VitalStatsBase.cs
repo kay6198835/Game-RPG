@@ -11,7 +11,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 {
     protected Dictionary<VitalStatType, float> currentStats = new();
     protected IStatService<TCore> statHandler;
-    public event Action CurrentStatsChanged;
+    public event Action<VitalStatType> CurrentStatsChanged;
 
     protected override void Start()
     {
@@ -35,12 +35,11 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         base.ReloadComponent();
         LoadVitalStats();
-        UpdateStatField();
     }
 
-    protected virtual void UpdateStatField()
+    protected virtual void UpdateStatField(VitalStatType vitalStatType)
     {
-        CurrentStatsChanged?.Invoke();
+        CurrentStatsChanged?.Invoke(vitalStatType);
     }
 
     // Seeds only the vital stats backed by a StatType (HP, Mana); Coin has no StatType.
@@ -52,6 +51,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
             StatType statType = (StatType)(int)vitalStatType;
             if (!Enum.IsDefined(typeof(StatType), statType)) continue;
             currentStats[vitalStatType] = statHandler.GetStatValue(statType);
+            UpdateStatField(vitalStatType);
         }
     }
 
@@ -62,7 +62,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         if (!currentStats.TryGetValue(vitalStatType, out float current)) return;
         float max = statHandler.GetStatValue(statType);
         if (current > max) currentStats[vitalStatType] = max;
-        UpdateStatField();
+        UpdateStatField(vitalStatType);
     }
 
     public float GetCurrentStatValue(VitalStatType vitalStatType)
@@ -88,7 +88,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
             {
                 currentStats[vitalStatType] = Mathf.Min(current, statHandler.GetStatValue(statType));
             }
-            UpdateStatField();
+            UpdateStatField(vitalStatType);
         }
     }
 
@@ -98,7 +98,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         {
             current -= amount;
             currentStats[vitalStatType] = Mathf.Max(current, 0);
-            UpdateStatField();
+            UpdateStatField(vitalStatType);
         }
     }
 }

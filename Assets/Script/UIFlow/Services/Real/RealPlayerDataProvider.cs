@@ -178,7 +178,7 @@ namespace UIFlow
             if (_statService is IPlayerStatService playerStatService) _statSession = new StatPointSession(playerStatService);
 
             _deathReported = false;
-            _vital.CurrentStatsChanged += OnVitalsChanged;
+            _vital.CurrentStatsChanged += OnVitalChanged;
             if (_abilityHolder != null) _abilityHolder.AbilityCooldownStarted += OnCooldownStarted;
 
             BuildHotbar(root.GetComponentInChildren<CoreBase>());
@@ -188,12 +188,18 @@ namespace UIFlow
 
         private void Unbind()
         {
-            if (_vital != null) _vital.CurrentStatsChanged -= OnVitalsChanged;
+            if (_vital != null) _vital.CurrentStatsChanged -= OnVitalChanged;
             if (_abilityHolder != null) _abilityHolder.AbilityCooldownStarted -= OnCooldownStarted;
             _vital = null;
             _statService = null;
             _abilityHolder = null;
             _statSession = null;
+        }
+
+        // HUD chỉ hiện HP / Mana; các vital khác (Coin) không cần vẽ lại.
+        private void OnVitalChanged(VitalStatType vitalStatType)
+        {
+            if (vitalStatType == VitalStatType.HP || vitalStatType == VitalStatType.Mana) OnVitalsChanged();
         }
 
         private void OnVitalsChanged()

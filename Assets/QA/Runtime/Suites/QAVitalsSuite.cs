@@ -28,7 +28,7 @@ namespace QA.Automation
             {
                 _rig.Bind(playerManager.Player);
                 _rig.Player.SetCharacterData(playerClass);
-                _rig.Vital.CurrentStatsChanged += () => _changedEvents++;
+                _rig.Vital.CurrentStatsChanged += _ => _changedEvents++;
                 yield return Frames(3);
             }
 
