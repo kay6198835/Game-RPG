@@ -66,12 +66,13 @@ namespace QA.Automation
             yield return Case("QA-ENT-07", "ENT", QAPriority.P1, "Spawned enemy reads move speed and attack range from its stats", Guard(CaseStatDriven()));
 
             // Behaviour: the enemy is free to move and the player is parked out of sight (QAEnemySuite.Behaviour.cs).
-            yield return Case("QA-ENT-09", "ENT", QAPriority.P0, "Idle: a spawned enemy with no target stands still, then leaves for Move", CaseIdle());
+            yield return Case("QA-ENT-09", "ENT", QAPriority.P0, "Idle: an enemy with no target reaches Idle, stands still, then leaves for Move", CaseIdle());
             yield return Case("QA-ENT-10", "ENT", QAPriority.P0, "Move: with no target the enemy wanders at its MoveSpeed", CaseWander());
             yield return Case("QA-ENT-11", "ENT", QAPriority.P0, "TakeDamage: a non-lethal hit enters the take-damage state and leaves it", CaseTakeDamageState());
             yield return Case("QA-ENT-12", "ENT", QAPriority.P0, "Death: a lethal hit enters the death state from Idle and from TakeDamage", CaseDeathState());
             yield return Case("QA-ENT-13", "ENT", QAPriority.P1, "Effect receiver: a max-stat buff applies, is removed by source and expires", CaseEffectMaxStats());
             yield return Case("QA-ENT-14", "ENT", QAPriority.P1, "Effect receiver: vital modifiers heal and damage current HP", CaseEffectCurrentStats());
+            yield return Case("QA-ENT-16", "ENT", QAPriority.P1, "Effect receiver: a permanent buff survives the expiry of a timed buff; two permanent buffs stack", CaseEffectSourcesIndependent());
 
             // Item drop and pickup: the game's ItemSpawner is switched on for these three only.
             yield return Case("QA-ITEM-02", "ITEM", QAPriority.P0, "Enemy death drops the rolled item at the death position", CaseItemDrop());
@@ -318,8 +319,18 @@ namespace QA.Automation
             float closestProjectile = float.MaxValue;
             Vector2 closestAt = Vector2.zero;
             float end = Time.time + AttackWindow;
+            // Since 3b02df7d an enemy spawns into EntityMoveState and wanders, so it no longer faces the default
+            // direction. Until it locks the player, hold the player in front of where it looks (view cone
+            // AngleView = INT x 1.5 is a few degrees for low-INT roles), then keep the player still.
+            EntityInput look = _enemy.GetComponentInChildren<EntityInput>(true);
+            Note($"view cone {finder.FieldOfView:0.#}°, detection range {finder.Range:0.##}");
             while (Time.time < end && !(attacks.Count >= 2 && hits.Count >= 1))
             {
+                if (!finder.HasTarget && look != null)
+                {
+                    Vector2 dir = look.DirectionLookVector;
+                    holdAt = (Vector2)_enemy.transform.position + (dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.left) * distance;
+                }
                 if (body != null)
                 {
                     body.position = holdAt;

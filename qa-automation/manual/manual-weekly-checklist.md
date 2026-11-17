@@ -52,6 +52,8 @@ The numbers behind these cases are already checked by the Friday automated run. 
 | MAN-MAP-03 | Non-combat rooms | Enter a Start / Rest / Shop / Buff room | Look at the doors | Doors open without enemies (BUG-096 — expected to FAIL until fixed) | | |
 | MAN-AUD-01 | Audio | Any | Attack, cast, take a hit, open a menu | A sound for each, no clipping, volume consistent | | |
 | MAN-HYG-01 | Asset hygiene | After the session | `git status` | No `Assets/SO/**/*.asset` modified by playing (BUG-115) | | |
+| MAN-ENT-09 | Pooled enemy reset on reuse (`b33dedf9`) | MainGamePlay, New Game | Clear two combat rooms in a row | Enemies of the second room spawn with full HP bars, idle / walk normally (no death pose, no instant death); they wander near where they spawned (BUG-124) | | |
+| MAN-ABL-05 | Archer Rain Arrows on its own prefab (`285e6900`) | CombatTest, Archer, full Mana, 3 enemies spread in front | Press 4 toward 4 different directions | Arrows fall in a pattern that matches the cast direction; enemies standing where arrows land lose HP; the effect disappears at the end of the clip and the next cast works | | |
 
 ## Part 2 — New this week
 
@@ -59,16 +61,16 @@ Filled in by the Friday QA task from `weekly-change-impact.md` (section 4) when 
 One row per new visual / feel / layout / audio behaviour. Clear the table at the start of each week after
 moving any row that should stay into Part 1.
 
-Week of 2026-11-14 (run `20261114-2329`, `sprint-22` `a8725a77`). Last week's rows (MAN-ENT-04…07, MAN-CMB-05, MAN-MAP-04) were cleared; the role look / speed checks are covered by AUTO QA-STATIC-07 / QA-ENT-07 / QA-ENT-08.
+Week of 2026-11-17 (run `20261117-1620`, `sprint-23` `077ebd31`). Last week's rows were cleared: MAN-ENT-09 (BUG-124) and MAN-ABL-05 (BUG-109 hand check) moved to Part 1; MAN-CMB-06 is covered by AUTO QA-CMB-01 (PASS, BUG-125 fixed), MAN-CMB-07 by AUTO QA-CMB-04.Mage (KNOWN BUG-127), MAN-ENT-08 by QA-ENT-08, MAN-STAT-01 dropped.
 
 | ID | Feature (commit) | Preconditions | Steps | Expected | Actual | Pass/Fail |
 |---|---|---|---|---|---|---|
-| MAN-CMB-06 | Paladin 3-stage combo animations (`38d40925`) | CombatTest, Paladin, a dummy | Click repeatedly toward each of the 8 directions | All 3 stage animations play in every direction, each faces the mouse; the dummy's HP drops once per stage, by a bigger amount on stage 3 (AUTO QA-CMB-01 found the stage damage added twice, see the inbox) | | |
-| MAN-CMB-07 | Mage basic attack, MagicBolt (`0f3644bd`) | CombatTest, Mage, a dummy 3 units and one 6 units away | LMB toward each dummy and toward 4 other directions | Cast animation faces the mouse; the bolt leaves the hand, points along its flight, reaches both dummies and disappears on hit (bolt speed is 1 with lifetime 4 — expected to FAIL on the 6-unit dummy, see the inbox) | | |
-| MAN-ABL-05 | Archer Rain Arrows on its own prefab (`285e6900`) | CombatTest, Archer, full Mana, 3 enemies spread in front | Press 4 toward 4 different directions | Arrows fall in a pattern that matches the cast direction; enemies standing where arrows land lose HP; the effect disappears at the end of the clip and the next cast works | | |
-| MAN-ENT-08 | Enemy attack clip event timing (`38d40925`, many `*_Attack_dir N.anim`) | MainGamePlay, rooms with Assasin, Boss (if reachable), Rat, Golem | Stand next to each enemy for 5 s | HP drops on the visible impact frame of each attack, not before or after | | |
-| MAN-ENT-09 | Pooled enemy reset on reuse (`b33dedf9`) | MainGamePlay, New Game | Clear two combat rooms in a row | Enemies of the second room spawn with full HP bars, idle / walk normally (no death pose, no instant death); they wander near where they spawned (BUG-124) | | |
-| MAN-STAT-01 | Stat split, data-only stat assets (`a0e250fb`) | CombatTest, each class | Pick the class, press C | Stats panel lists the same derived values as the class's stat asset Inspector preview; Paladin INT shows 10; spending a point and pressing Revert restores every value | | |
+| MAN-PLY-06 | Dash (`91c42d79`, `PlayerDashState`) | CombatTest, each class in turn | Aim the mouse in 8 directions, press Space each time; also Space while walking | Dash animation plays and faces the dash; the player travels toward the mouse, does not pass through walls, returns to Idle / walk cleanly. Only Paladin has dash clips — Archer / Mage: note what happens (AUTO QA-PLY-06 records whether they get stuck) | | |
+| MAN-PLY-07 | Dash then hit (`PlayerBasicState` checks `IsDash` before `IsDeath`) | CombatTest, Paladin, an enemy, low HP (take hits until about 10 % HP) | Dash into the enemy and take the killing hit during or right after the dash | Player still dies: death animation plays and Game Over follows (or BUG-122 behaviour, no Game Over); the player is never left alive at 0 HP | | |
+| MAN-MAP-05 | Bonfire room (`BonfireController`, `Bonfire.prefab`, `NormalRoom_20`, `Tile_Spawn_Bonfire`) | MainGamePlay, New Game, reach a room with a bonfire | Walk up to the bonfire; press the key the prompt shows; walk away | A prompt "Press <key> to open stats" appears near / on the HUD when close and hides when you leave; the key opens the Stats panel. Inbox NOTE-20261115-6 predicts the prompt never shows (trigger callbacks not wired) — record what you see | | |
+| MAN-UI-05 | HUD interact prompt (`InteractiveNotifi`) | CombatTest and MainGamePlay | Stand next to a class monument, then next to a bonfire | Prompt text and key label readable at 1920×1080 and 1280×720, not overlapping the hotbar or bars; disappears when out of reach | | |
+| MAN-ITEM-01 | Item stat buffs stack (`25d869fb`, `cfb6a230`) | MainGamePlay, kill enemies until two stat items drop (BaseOrds / Test) | Pick up both with Q, open C | Both bonuses show in the Stats panel and add up; casting Paladin Blessing (3) and letting it expire leaves the item bonuses in place (AUTO QA-ENT-16 checks the numbers on an enemy) | | |
+| MAN-ENT-10 | Enemies spawn walking (`3b02df7d`: spawn state is Move, not Idle) | MainGamePlay, enter a combat room | Watch enemies for the first 3 s | Enemies start wandering at once; no pop, slide or wrong facing on the first frames; owner to confirm this is the intended spawn behaviour | | |
 ## Open design questions (decide the expected result of some rows)
 
 1. An unpicked player cannot attack or cast — intended or a bug?
