@@ -479,7 +479,7 @@ namespace QA.Automation
             float before = _stats.GetStatValue(stat);
             bool clean = _stats.GetStat(stat).Modifiers.Count == 0;
             object source = new();
-            receiver.AdjustMaxStats(group, null, source);
+            receiver.AdjustMaxStats(group);
             float buffed = _stats.GetStatValue(stat);
             Check(clean ? Near(buffed, before + bonus) : buffed > before,
                 $"AdjustMaxStats: {stat} {before:0.##} -> {buffed:0.##} (+{bonus:0.##} flat)", $"AdjustMaxStats: {stat} {before:0.##} -> {buffed:0.##}, expected +{bonus:0.##}");

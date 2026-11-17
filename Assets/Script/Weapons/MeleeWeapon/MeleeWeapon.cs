@@ -30,7 +30,7 @@ public class MeleeWeapon : Weapon
         {
             if (hits[i].TryGetComponent(out INegativeReceiver receiver))
             {
-                receiver.TakeDamage(FinalDamage(finalDamage), transform.position);
+                receiver.TakeDamage(finalDamage, transform.position);
             }
         }
     }

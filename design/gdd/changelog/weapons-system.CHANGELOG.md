@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-16 — Ranged damage uses finalDamage (owner decision)
+- **Commit:** code `3a2659ce` (owner, `origin/feature/fix-bug-sprint-23`)
+- **Sections touched:** ranged paragraph, formula block ("Ranged damage"), edge-case table (projectile hit row)
+- **From → To:** `rangedDamage = currentStage.attackDamage` → `rangedDamage = finalDamage` (PhysicalDamage + stage damage + crit, stored by `OnActivate()`); added the rule "basic attacks scale with PhysicalDamage, MagicDamage is only for skills that use the magic stat"
+- **Why:** owner decision 2026-11-16, closing the damage-model question of inbox NOTE-20261104-4
+
 ## 2026-11-14 — Damage formula block re-synced (doc-sync)
 - **Commit:** code `38d40925` (2026-11-08), `b33dedf9` (2026-11-08); doc change by `/doc-sync --auto` on `pm/doc-sync-2026-11-14`
 - **Sections touched:** formula block ("Melee damage", `RangeWeapon.CanAttack()`)

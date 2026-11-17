@@ -135,8 +135,8 @@ payload: this)` on each. It then writes `nextFireTime = Time.time + RecoveryTime
 `OnTriggerEnter2D`: a `blockMask` layer releases it with no damage; a `targetMask` layer calls
 `payload.OnHit(target, position)` and releases it; lifetime expiry releases it. A body that was not
 spawned by the pool destroys itself instead. `RangeWeapon.OnHit()` resolves `INegativeReceiver` on
-the hit collider and deals `currentStage.attackDamage` — ⚠️ the raw stage value, not the
-`finalDamage` melee uses (BUG-093).
+the hit collider and deals the `finalDamage` that `OnActivate(finalDamage)` stored — the same
+value melee uses (re-synced 2026-11-16, owner `3a2659ce`; *was:* the raw `currentStage.attackDamage`).
 
 **Fire rate lives per stage** (`RangeAttackSO.RecoveryTime`), not on the weapon — a charged
 shot and a quick shot on the same weapon need different recovery. The former weapon-level
@@ -188,8 +188,10 @@ if RollChance(CritChance): finalDamage += CritDamage
  the receiver then applies Mitigate() — enemies: finalDamage × 100 / (100 + Defense) since `b33dedf9`
  (was: finalDamage - Defense, clamped at 0); the player: no mitigation. Re-synced 2026-11-14]
 
-# Ranged damage (RangeWeapon.OnHit) — ⚠️ BUG-093
-rangedDamage = currentStage.attackDamage      [no PhysicalDamage, no crit]
+# Ranged damage (RangeWeapon.OnHit) — owner decision 2026-11-16
+rangedDamage = finalDamage of the latest volley   [PhysicalDamage + stage damage (+ crit), same as melee]
+# Rule: basic attacks (melee and ranged) scale with PhysicalDamage; MagicDamage is only for skills
+# that use the magic stat. Was: currentStage.attackDamage only (no PhysicalDamage, no crit)
 
 # Ranged spread (ProjectileCount > 1)
 step       = SpreadAngle ÷ (ProjectileCount - 1)
@@ -211,7 +213,7 @@ lifetime = ProjectileConfig.lifetime seconds, then released back to the pool
 | Scenario | Behaviour |
 |----------|-----------|
 | Melee hit frame | `OverlapCircleNonAlloc` + `TakeDamage(finalDamage, transform.position)` on every hit collider ✓ |
-| Projectile hits a `targetMask` layer | `ProjectileBody.OnTriggerEnter2D` → `RangeWeapon.OnHit()` → `TakeDamage(currentStage.attackDamage, pos)`, then released ✓ |
+| Projectile hits a `targetMask` layer | `ProjectileBody.OnTriggerEnter2D` → `RangeWeapon.OnHit()` → `TakeDamage(finalDamage, pos)`, then released ✓ |
 | Projectile hits a `blockMask` layer | Released to the pool, no damage ✓ |
 | Projectile hits a layer in neither mask | Ignored — keeps flying ✓ |
 | Projectile outlives `lifetime` | Released by the despawn coroutine ✓ |
