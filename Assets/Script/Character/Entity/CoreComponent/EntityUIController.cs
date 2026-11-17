@@ -14,20 +14,25 @@ public class EntityUIController : EntityCoreComponent<EntityCore>
         base.Start();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out stats);
-        if (vital != null) vital.CurrentStatsChanged += RefreshHealth;
+        if (vital != null) vital.CurrentStatsChanged += OnCurrStatChanged;
         stats?.ResignStatsChange(OnMaxStatChanged);
         RefreshHealth();
     }
 
     void OnDestroy()
     {
-        if (vital != null) vital.CurrentStatsChanged -= RefreshHealth;
+        if (vital != null) vital.CurrentStatsChanged -= OnCurrStatChanged;
         stats?.UnResignStatsChange(OnMaxStatChanged);
     }
 
     void OnMaxStatChanged(StatType statType)
     {
         if (statType == StatType.HP) RefreshHealth();
+    }
+
+    void OnCurrStatChanged(VitalStatType vitalStatType)
+    {
+        if (vitalStatType == VitalStatType.HP) RefreshHealth();
     }
 
     /// <summary>Sets the bar to current HP / max HP; leaves it unchanged when either side is missing.</summary>

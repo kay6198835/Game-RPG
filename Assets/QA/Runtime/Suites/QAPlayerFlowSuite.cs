@@ -398,7 +398,7 @@ namespace QA.Automation
             Dictionary<StatType, float> statsBefore = _rig.Stats.GetFullStat();
             float hp0 = _rig.Hp, mana0 = _rig.Mana;
             List<(int frame, float hp, float mana)> vitalLog = new();
-            void OnVital() => vitalLog.Add((Time.frameCount, _rig.Hp, _rig.Mana));
+            void OnVital(VitalStatType _) => vitalLog.Add((Time.frameCount, _rig.Hp, _rig.Mana));
             float cooldown = -1f;
             void OnCooldown(AbilitySlot slot, float duration) { if (slot == binding.Slot) cooldown = duration; }
             _rig.Vital.CurrentStatsChanged += OnVital;

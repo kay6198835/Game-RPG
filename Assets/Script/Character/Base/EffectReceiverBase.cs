@@ -7,6 +7,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
+    protected ICharacterInput input;
     [SerializeField] protected SourceEffect sourceEffect;
     protected IObjectPoolService _objectPoolManager;
     [Inject]
@@ -19,6 +20,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         base.Setup();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out statHandler);
+        Core.TryGetCapability(out input);
     }
 
     GameObject SetEffectSource(AbilityContext context, float lifetime, Action callback)
@@ -64,6 +66,10 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     IEnumerator ReductionPerTime(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
     {
+        if (input == null || input.IsDeath)
+        {
+            yield break;
+        }
         AdjustCurrentStats(statModifierGroup, context);
         timeCount--;
         if (timeCount > 0)
@@ -92,7 +98,22 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
-        throw new System.NotImplementedException();
+        //StartCoroutine(ApplyAdjustMaxPerTimeForDuration(modifierGroup, perTime, duration, context));
     }
+
+    // IEnumerator ApplyAdjustMaxPerTimeForDuration(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
+    // {
+    //     if (input == null || input.IsDeath)
+    //     {
+    //         yield break;
+    //     }
+    //     AdjustCurrentStats(statModifierGroup, context);
+    //     timeCount--;
+    //     if (timeCount > 0)
+    //     {
+    //         yield return new WaitForSeconds(perTime);
+    //         AdjustMaxPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
+    //     }
+    // }
     #endregion
 }
