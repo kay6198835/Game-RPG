@@ -167,9 +167,29 @@ namespace QA.Automation
             if (!ready) yield break;
 
             float idleDuration = _entity.Data.IdleDurationTime(_stats);
-            Check(_entity.StateMachine.CurrentState is EntityIdleState, "starts in EntityIdleState", $"state after spawn is {EnemyState}");
+            float moveDuration = _entity.Data.MoveDurationTime(_stats);
+            // Since 3b02df7d (Entity.Start / OnEnable / SetCharacterData) a spawned enemy starts in EntityMoveState;
+            // Idle is reached when the no-target wander times out (MoveDurationTime). Inbox note asks the owner to
+            // confirm the change; the start state is recorded, not judged.
+            Note($"state after spawn: {EnemyState}; MoveDurationTime {moveDuration:0.##}s, IdleDurationTime {idleDuration:0.##}s");
             Check(!_finder.HasTarget, "no target locked with the player out of sight",
                 $"locked the player {Vector2.Distance(EnemyPosition, ParkPosition):0.##} away (detection range {_finder.Range:0.##})");
+            if (_entity.StateMachine.CurrentState is not EntityIdleState)
+            {
+                if (moveDuration > 20f)
+                {
+                    Skip($"MoveDurationTime {moveDuration:0.##}s: the wander does not time out into Idle within the case time");
+                    yield break;
+                }
+                bool idle = false;
+                yield return WaitUntil(() => _entity.StateMachine.CurrentState is EntityIdleState, moveDuration + 1.5f, ok => idle = ok);
+                if (!idle)
+                {
+                    Fail($"never entered EntityIdleState: still {EnemyState} {moveDuration + 1.5f:0.##}s after spawn (MoveDurationTime {moveDuration:0.##}s)");
+                    yield break;
+                }
+                yield return Frames(2);
+            }
             if (idleDuration < 0.3f)
             {
                 Note($"IdleDurationTime {idleDuration:0.##}s is too short to watch the enemy stand still; only the start state is judged");
@@ -303,12 +323,15 @@ namespace QA.Automation
             yield return SpawnFree(ok => ready = ok);
             if (!ready) yield break;
 
-            // From Idle.
+            // From the spawn state (EntityMoveState since 3b02df7d — the enemy may be walking when hit).
             Vector2 at = EnemyPosition;
             _deaths.Clear();
             _hurtbox.TakeDamage(RawFor(MaxHp * 2f), at + Vector2.left);
             bool entered = false;
             yield return WaitUntil(() => _entity.StateMachine.CurrentState is EntityDeathState, 0.25f, ok => entered = ok);
+            // Drift is judged from the frame the death state is entered: the frame between the hit and the state
+            // change still belongs to the walk.
+            at = EnemyPosition;
             Check(entered, "lethal hit: entered EntityDeathState", $"state {EnemyState} 0.25s after a lethal hit (IsDeath {_entityInput.IsDeath}, HP {Hp:0.##})");
             Check(Near(Hp, 0f), "HP 0", $"HP {Hp:0.##} after a lethal hit");
             if (_enemy.activeSelf) Check(AnimatorBool("Death"), "animator Death = true", "animator bool Death is false in EntityDeathState");
@@ -478,11 +501,17 @@ namespace QA.Automation
             }
             float before = _stats.GetStatValue(stat);
             bool clean = _stats.GetStat(stat).Modifiers.Count == 0;
-            object source = new();
+            int countBefore = _stats.GetStat(stat).Modifiers.Count;
             receiver.AdjustMaxStats(group);
             float buffed = _stats.GetStatValue(stat);
             Check(clean ? Near(buffed, before + bonus) : buffed > before,
                 $"AdjustMaxStats: {stat} {before:0.##} -> {buffed:0.##} (+{bonus:0.##} flat)", $"AdjustMaxStats: {stat} {before:0.##} -> {buffed:0.##}, expected +{bonus:0.##}");
+            // Since 25d869fb the receiver stamps its own pooled SourceEffect as the source and does not return
+            // it; read it back from the modifier it added (dev-change-notes-2026-11-16 §1.1).
+            IReadOnlyList<StatModifier> added = _stats.GetStat(stat).Modifiers;
+            object source = added.Count > countBefore ? added[added.Count - 1].Source : null;
+            Check(source != null, "AdjustMaxStats stamped a modifier source", "AdjustMaxStats added no modifier with a source");
+            if (source == null) yield break;
             _stats.RemoveModifiersFromSource(source);
             Check(Near(_stats.GetStatValue(stat), before), "removing the source restores the stat", $"{stat} is {_stats.GetStatValue(stat):0.##} after removing the source, was {before:0.##}");
 
@@ -495,6 +524,49 @@ namespace QA.Automation
             yield return Wait(duration + 0.3f);
             Check(Near(_stats.GetStatValue(stat), before), $"the timed buff expired after {duration:0.##}s",
                 $"{stat} is {_stats.GetStatValue(stat):0.##} {duration + 0.3f:0.##}s after a {duration:0.##}s buff, was {before:0.##}");
+        }
+
+        // cfb6a230: a timed buff's pooled SourceEffect is released when its lifetime ends; a permanent one
+        // (AdjustMaxStats, lifetime 0) never is. Each AdjustMaxStats call has its own source, so item buffs stack
+        // (dev-change-notes-2026-11-16 §2-§3).
+        private IEnumerator CaseEffectSourcesIndependent()
+        {
+            EntityEffectReceiver receiver = null;
+            yield return FindEffectReceiver(r => receiver = r);
+            if (receiver == null) yield break;
+
+            const StatType stat = StatType.Defense;
+            const float bonus = 5f;
+            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat), null);
+            if (group == null)
+            {
+                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                yield break;
+            }
+            float before = _stats.GetStatValue(stat);
+            receiver.AdjustMaxStats(group);
+            receiver.AdjustMaxStats(group);
+            float twice = _stats.GetStatValue(stat);
+            Check(Near(twice, before + 2f * bonus, 0.05f), $"two permanent buffs stack: {stat} {before:0.##} -> {twice:0.##}",
+                $"two permanent +{bonus:0.##} buffs gave {stat} {before:0.##} -> {twice:0.##}, expected {before + 2f * bonus:0.##}");
+
+            const float duration = 0.5f;
+            receiver.AdjustMaxForDuration(group, duration, new AbilityContext { Caster = new QAEffectCaster(_enemy.transform) });
+            yield return Frames(2);
+            float timed = _stats.GetStatValue(stat);
+            Check(Near(timed, twice + bonus, 0.05f), $"timed buff applies on top: {stat} {timed:0.##}",
+                $"timed +{bonus:0.##} buff: {stat} is {timed:0.##}, expected {twice + bonus:0.##}");
+            yield return Wait(duration + 0.5f);
+            float after = _stats.GetStatValue(stat);
+            Check(Near(after, twice, 0.05f), $"after the timed buff expired the permanent buffs remain: {stat} {after:0.##}",
+                $"{stat} is {after:0.##} {duration + 0.5f:0.##}s after a {duration:0.##}s buff, expected {twice:0.##} (permanent buffs kept)");
+
+            // Pool reuse: a new timed buff after the release must not take the permanent buffs with it.
+            receiver.AdjustMaxForDuration(group, duration, new AbilityContext { Caster = new QAEffectCaster(_enemy.transform) });
+            yield return Wait(duration + 0.5f);
+            Check(Near(_stats.GetStatValue(stat), twice, 0.05f), "a second timed buff on a reused source leaves the permanent buffs",
+                $"{stat} is {_stats.GetStatValue(stat):0.##} after a second timed buff expired, expected {twice:0.##}");
+            if (_enemy.activeSelf) pool.Release(_enemy);
         }
 
         private IEnumerator CaseEffectCurrentStats()
