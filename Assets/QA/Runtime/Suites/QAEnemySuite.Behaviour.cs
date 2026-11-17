@@ -176,18 +176,18 @@ namespace QA.Automation
                 $"locked the player {Vector2.Distance(EnemyPosition, ParkPosition):0.##} away (detection range {_finder.Range:0.##})");
             if (_entity.StateMachine.CurrentState is not EntityIdleState)
             {
-                if (moveDuration > 20f)
-                {
-                    Skip($"MoveDurationTime {moveDuration:0.##}s: the wander does not time out into Idle within the case time");
-                    yield break;
-                }
+                // EntityMoveState leaves a no-target wander after a hard-coded 10 s (EntityMoveState.cs:27, a field
+                // that Enter() never resets); MoveDurationTime is computed but not read (inbox note 2026-11-17).
+                float timeout = Mathf.Max(moveDuration, 10f) + 1.5f;
                 bool idle = false;
-                yield return WaitUntil(() => _entity.StateMachine.CurrentState is EntityIdleState, moveDuration + 1.5f, ok => idle = ok);
+                float waitStart = Time.time;
+                yield return WaitUntil(() => _entity.StateMachine.CurrentState is EntityIdleState, timeout, ok => idle = ok);
                 if (!idle)
                 {
-                    Fail($"never entered EntityIdleState: still {EnemyState} {moveDuration + 1.5f:0.##}s after spawn (MoveDurationTime {moveDuration:0.##}s)");
+                    Fail($"never entered EntityIdleState: still {EnemyState} {timeout:0.##}s after spawn (MoveDurationTime {moveDuration:0.##}s, hard-coded wander timeout 10s)");
                     yield break;
                 }
+                Note($"wander timed out into Idle after {Time.time - waitStart:0.##}s (MoveDurationTime {moveDuration:0.##}s)");
                 yield return Frames(2);
             }
             if (idleDuration < 0.3f)

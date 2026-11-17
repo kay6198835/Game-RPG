@@ -121,5 +121,20 @@
 
 ## 5. Suggested new cases
 
-Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
-the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+Filled in by the Friday Claude task (part C), 2026-11-17. Verified by the deep re-run `20261117-1646`.
+
+| Behaviour (commit) | Kind | Case | Result in 20261117-1646 |
+|---|---|---|---|
+| Dash, Space -> `PlayerDashState` (`91c42d79`) | AUTO | QA-PLY-06.<Class> (P1) | FAIL x3: the class animator controllers have no Dash state; the player is stuck in `PlayerDashState` (inbox note) |
+| Dash look per class; lethal hit during a dash | MANUAL | MAN-PLY-06, MAN-PLY-07 | - |
+| Item / ability buffs own a pooled `SourceEffect` source (`25d869fb`, `cfb6a230`) | AUTO | QA-ENT-16 (P1) | PASS |
+| Item stat buffs stack in play | MANUAL | MAN-ITEM-01 | - |
+| Bonfire room (`BonfireController`, `InteractiveObjectsRoom`, `Bonfire.prefab`, `NormalRoom_20`) | MANUAL | MAN-MAP-05 | - |
+| HUD interact prompt (`InteractiveNotifi`) | MANUAL | MAN-UI-05 | - |
+| Enemies spawn into `EntityMoveState` (`3b02df7d`) | MANUAL + AUTO adapted | MAN-ENT-10; QA-ENT-08 / 09 / 12 adapted | ENT-08 / 12 PASS; ENT-09 adapted again after this run (hard-coded 10 s wander timeout) |
+| Coin item effect asset (`aa045f79`) | none yet | attached to no item; add an AUTO pickup case once an item carries it | - |
+
+Test-defect fixes: QA-ENT-13 (source read back from the stamped modifier), QA-ENT-09 / 12 / 08 (spawn state is
+Move). Known-issue mappings dropped: BUG-117, BUG-119, BUG-120, BUG-073, BUG-090, BUG-108 (cases PASS or assets
+deleted); added BUG-126 (QA-STATIC-05), BUG-127 (QA-CMB-04.Mage), BUG-128 (QA-STATIC-01). The 40 role `EntityData`
+orphan keys were added to `config/static-baseline.txt` (values are computed from stats since `a0e250fb`).
