@@ -11,19 +11,20 @@
 
 ## Status Verdict
 
-**ON-TRACK — day 1 (Mon 2026-11-16, standup 02:00).** No sprint task started yet (Sunday, no
-commits expected). 5 working days left / 2.85d planned work + 1d buffer. Standup sync FAILED (doc
-conflicts with owner branch `docs/gdd-pathfinding-ability`, NOTE-20261116-1) — S23-F1 merge now
-also carries a 4-file `.md` conflict resolution. Owner's live tree carries uncommitted dash-state
-work (off-plan). Evidence: COMPILED (working tree, 36 s) + STATIC.
+**ON-TRACK, Must lagging — day 2 (Tue 2026-11-17, standup 02:00).** Monday delivered a lot of
+code, but mostly Should / Feature: S23-03 (BUG-125), S23-07, S23-08 and S23-F1 (pathfinding branch
+merged, dash state committed) are done in code; S23-06 dropped by owner decision (NOTE-20261116-3).
+The two S1-weight Must items S23-01 (playtest, 26th carry) and S23-02 (death → Game Over) did not
+start. 4 working days left / 1.1d work remaining + 1d buffer. Standup sync merged
+`origin/feature/fix-bug-sprint-23` (`9a66ca0c`). Evidence: COMPILED (`cf50be42`, 22 s) + STATIC.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0 | 0.95d |
-| Should Have | 0.9d | 0 | 0.9d |
-| Feature story S23-F1 (capped) | 1.0d | 0 | 1.0d |
+| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.05d | 0.9d |
+| Should Have | 0.9d (0.7d after S23-06 cut) | 0.5d | 0.2d |
+| Feature story S23-F1 (capped) | 1.0d | 1.0d (merged) | 0 |
 | Buffer | 1.0d | — | — |
 
 ---
@@ -52,33 +53,34 @@ work (off-plan). Evidence: COMPILED (working tree, 36 s) + STATIC.
 ### Mon 2026-11-16 — Play first, then death + damage
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S23-01 Playtest / smoke through the menu (or sign accepted risk) | 0.3d | ⬜ | playtest done: no; 26th carry; eight bugs wait on runtime |
-| S23-02 BUG-122 + BUG-065 + BUG-086 | 0.3d | ⬜ | S1; same file; untouched two sprints |
-| S23-03 BUG-125 | 0.05d | ⬜ | One line; every melee number wrong until fixed |
+| S23-01 Playtest / smoke through the menu (or sign accepted risk) | 0.3d | ⬜ → Tue | playtest done: no; 26th carry; eight bugs wait on runtime |
+| S23-02 BUG-122 + BUG-065 + BUG-086 | 0.3d | ⬜ → Tue | S1; same file; untouched two sprints |
+| S23-03 BUG-125 | 0.05d | ✅ code (`b92b6f2a`) | One line; every melee number wrong until fixed |
 
 ### Tue 2026-11-17 — Room path + build guard
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S23-01 + S23-02 (carried from Mon) | 0.6d | ⬜ | Must, S1; carried |
 | S23-04 BUG-096 Boss + BUG-097 | 0.15d | ⬜ | Run starts in boss room; 7th carry |
-| S23-05 BUG-126 | 0.05d | ⬜ | One line; blocks any Player build |
-| S23-08 BUG-117 + 120 + 123 (start) | 0.35d | ⬜ | Must land before the owner branch merges `VitalModifier` |
+| S23-05 BUG-126 | 0.05d | ⬜ | One line; blocks any Player build (`TMP_TextInfoDebugTool.cs:4` still unguarded) |
+| S23-08 BUG-117 + 120 + 123 | 0.35d | ✅ code (Mon: `f528c087`, `25d869fb`, `8236f9d1`, `25d2d5e4`, `aa045f79`) | Awaiting runtime; see NOTE-20261117-1 |
 
 ### Wed 2026-11-18 — Owner feature branch
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S23-F1 Finish + merge `docs/gdd-pathfinding-ability` | ≤1.0d | ⬜ | Declared main work (sprint-22 retro); after Mon/Tue fixes |
+| S23-F1 Finish + merge `docs/gdd-pathfinding-ability` | ≤1.0d | ✅ merged Mon (`8459e384`) + dash state (`91c42d79`) | Wed freed for carry-over / buffer |
 
 ### Thu 2026-11-19 — Weapon + data
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S23-06 BUG-106 player half + BUG-110 | 0.2d | ⬜ | Weapon bookkeeping; 4th carry |
-| S23-07 Editor / data block | 0.15d | ⬜ | Inspector-only, 7th carry |
-| S23-09 BUG-127 | 0.05d | ⬜ | Mage basic attack barely reaches |
+| S23-06 BUG-106 player half + BUG-110 | 0.2d | ✂️ owner decision (NOTE-20261116-3) | — |
+| S23-07 Editor / data block | 0.15d | ✅ Mon (Knight assets deleted `041bf198`, Arrow collider `25d869fb`; Lightning `layerMask` = 64) | — |
+| S23-09 BUG-127 | 0.05d | ⬜ | Mage basic attack barely reaches (`speed: 1` still) |
 
 ### Fri 2026-11-20 — Cleanup + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S23-10 One-liners | 0.15d | ⬜ | Carried 5–8 weeks |
+| S23-10 One-liners | 0.15d | 🟡 BUG-104 half (`Enter()` log removed in `3a2659ce`, `Exit()` log remains) | Carried 5–8 weeks |
 | Buffer | 1d | — | — |
 
 ### Sat 2026-11-21 — Weekly playtest
@@ -95,12 +97,13 @@ work (off-plan). Evidence: COMPILED (working tree, 36 s) + STATIC.
 - Owner branch serializes `VitalModifier` without the BUG-117 sign fix — do S23-08 first.
 - Needs-owner notes (NOTE-20261115-5/-6/-7 and older) — not tasks.
 - `gh` unavailable — draft PR not opened.
-- Owner branch `docs/gdd-pathfinding-ability` no longer merges cleanly into `sprint-23`: 4 `.md`
-  conflicts (`docs/CHANGELOG-DOCS.md`, `docs/systems/pathfinding/{README,CHANGELOG}.md`,
-  `production/qa/bug-inbox.md`) — NOTE-20261116-1. The standup sync stays blocked until the owner
-  merges `sprint-23` into the branch (or resolves during S23-F1).
-- Off-plan: uncommitted dash state work (Player / PlayerBasicState / PlayerDashState / input /
-  GameConstants / Player.controller / Dash clips) — not a sprint-23 task; keep it under the buffer.
+- ~~Owner branch `docs/gdd-pathfinding-ability` conflicts with `sprint-23`~~ — resolved Mon:
+  merged into `sprint-23` (`8459e384`); NOTE-20261116-1 candidate "Resolved in week".
+- Off-plan dash state work is now committed (`91c42d79`) — no longer a risk to the plan.
+- NEW 2026-11-17: `StatModifier.Value` now returns `Math.Abs(value)` (`f528c087`), but `StatSheet`
+  adds `Value` without reading `ImpactType` — a negative max-stat modifier (debuff) would apply as a
+  buff. Latent: no committed asset has a negative value (NOTE-20261117-1).
+- Pattern: Should / Feature work done first while the two S1 Must items wait — 2nd sprint in a row.
 
 ---
 
@@ -120,3 +123,22 @@ _(appended by `/daily-standup`)_
 - **Owner live tree:** uncommitted dash state wiring (off-plan).
 - **Today:** S23-01 playtest (0.3d) → S23-02 death chain (0.3d) → S23-03 BUG-125 (0.05d).
 - **Verdict:** ON-TRACK (day 1).
+
+### 2026-11-17 (Tue) — standup 02:00
+- **Sync:** merged `origin/feature/fix-bug-sprint-23` (16 owner/session commits) into `sprint-23`
+  as `9a66ca0c`; the owner then merged `sprint-23` back (`cf50be42`, now the `sprint-23` tip).
+- **Yesterday (Mon):** BUG-125 fixed (`b92b6f2a`, stage damage no longer re-added; `SnS_State1-3`
+  retuned 8 / 10 / 15); BUG-117 / 120 / 123 fixed in code + data; BUG-095 Arrow collider; Knight
+  enemy assets deleted (BUG-108); ShootSpirit / SpiritBomd removed (BUG-073 / 090); `SourceEffect`
+  despawn; ranged basic attack uses `finalDamage` (NOTE-20261104-4 owner decision); BUG-104 half;
+  pathfinding branch merged (S23-F1) and dash state committed. BUG-106 player half by design,
+  BUG-110 deferred → S23-06 cut. Burned: Must 0.05 / 0.65d planned; Should 0.5d + Feature 1.0d
+  unplanned for Monday. S23-01 / S23-02 not started.
+- **Runtime:** `compile-check.sh` COMPILED `1d05475a` (59 s) and the merged tip `cf50be42` (22 s).
+  `Editor.log` (2026-11-16 17:26, 0 Play Mode): 48 `error CS` (SourceEffect / MeleeWeapon /
+  RangeWeapon / QAEnemySuite) — mid-edit, the committed tip compiles (NOTE-20261117-2). No
+  `Assets/Script/` exception. Playtest: none recorded.
+- **Review:** NOTE-20261117-1 (`StatModifier.Value` absolute value vs `StatSheet`).
+- **Today:** S23-01 playtest (0.3d) → S23-02 death chain (0.3d) → S23-05 BUG-126 (0.05d) →
+  S23-04 (0.15d).
+- **Verdict:** yesterday SLIPPED on Must (S1 items untouched), sprint ON-TRACK (1.1d / 4d).
