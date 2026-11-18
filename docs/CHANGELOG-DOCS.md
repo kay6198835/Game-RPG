@@ -17,6 +17,10 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — Room generation architecture doc refreshed (`sprint-23`)
+- **Cause:** owner request; source read at `sprint-23` `3015e9cf`.
+- `docs/systems/map/room-generation-architecture.md` — rewritten to the current code and room data; `docs/systems/map/CHANGELOG.md`.
+
 ## 2026-11-18 — Champion / Bonfire moved to the start room (`sprint-23`)
 - **Cause:** owner request — room data follow-up to the type-based start / end placement.
 - `docs/systems/map/CHANGELOG.md`.

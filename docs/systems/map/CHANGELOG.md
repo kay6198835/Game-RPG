@@ -2,6 +2,10 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Architecture doc refreshed
+- **Commit:** this change on `sprint-23` (owner request); docs only.
+- **Changed:** `room-generation-architecture.md` rewritten against `3015e9cf`: component diagram (library / `LevelManager` / `EnemyManager` wiring), `RoomGeneraterController` field table, `BuildMazeRooms()` selection rules, room data by layer, scene hierarchy, weaknesses (BUG-097 fixed in code + data, BUG-096 looks addressed — statuses left to triage; stale line numbers replaced by method names).
+
 ## 2026-11-18 — Champion / Bonfire moved from the boss room to the start room
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** `Assets/Data/Json/Room/BossRoom_ThroneArena.json`, `StartRoom_Entrance.json`.
