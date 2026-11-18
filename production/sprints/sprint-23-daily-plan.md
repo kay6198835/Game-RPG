@@ -11,23 +11,23 @@
 
 ## Status Verdict
 
-**AT RISK on Must — day 3 (Wed 2026-11-18, standup 02:00).** Tuesday's owner work was off-plan:
-BUG-071 tick chain / vitals event rework (`16f61da7`, `b5fb3581`, `0626dd59`, `58b3da35`) plus the
-weekly QA automation run (FAIL 4 after test fixes; dash soft lock NOTE-20261117-3, S2). No planned
-Must item moved: S23-01 (playtest, 26th carry), S23-02 (death → Game Over), S23-04, S23-05 still ⬜.
-3 working days left (Wed–Fri) / 1.1d planned work remaining + 1d buffer — still fits, but only if
-Must starts today. Sync SKIPPED (owner `sprint-23` = `origin/sprint-23`). Evidence: LOG + STATIC
-(compile-check SKIPPED — Editor open); QA run 2026-11-17 is RUNTIME for the tests it covers.
+**AT RISK on Must — day 4 (Thu 2026-11-19, standup 02:00).** Wednesday's work was an off-plan
+map / spawn restructure (12 session commits `89a22d25`…`d0d814b6`) that also closes **S23-04** in
+code + data (start / end by `roomType`, boss spawn marker, Champion in the start room — awaiting a
+Play Mode check). S23-01 (playtest, 26th carry), S23-02 (death → Game Over, S1) and S23-05
+(BUG-126, one line, `using UnityEditor;` still at `TMP_TextInfoDebugTool.cs:4`) are untouched for
+the 3rd day. 2 working days left (Thu–Fri) / 0.65d Must remaining + ≈0.3d buffer — still fits only
+if S23-02 and S23-05 land today. Evidence: COMPILED (`d0d814b6` + 3 uncommitted paths) + LOG + STATIC.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.05d | 0.9d |
+| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.2d (S23-03, S23-04 code) | 0.75d (0.65d before Sat) |
 | Should Have | 0.9d (0.7d after S23-06 cut) | 0.5d | 0.2d |
 | Feature story S23-F1 (capped) | 1.0d | 1.0d (merged) | 0 |
-| Off-plan (Tue: BUG-071 rework, QA automation fixes) | — | ≈0.5d (est.) | — |
-| Buffer | 1.0d | ≈0.5d consumed by off-plan | ≈0.5d |
+| Off-plan (Tue: BUG-071 rework, QA automation fixes; Wed: map / spawn restructure beyond S23-04) | — | ≈1.2d (est.) | — |
+| Buffer | 1.0d | ≈0.7d consumed by off-plan | ≈0.3d |
 
 ---
 
@@ -63,7 +63,7 @@ Must starts today. Sync SKIPPED (owner `sprint-23` = `origin/sprint-23`). Eviden
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S23-01 + S23-02 (carried from Mon) | 0.6d | ⬜ → Wed | Must, S1; carried |
-| S23-04 BUG-096 Boss + BUG-097 | 0.15d | ⬜ → Wed | Run starts in boss room; 7th carry |
+| S23-04 BUG-096 Boss + BUG-097 | 0.15d | ✅ code + data Wed (`e2b7efee`, `a92a0c7b`, `3015e9cf`) — awaiting Play Mode | Run starts in boss room; 7th carry |
 | S23-05 BUG-126 | 0.05d | ⬜ → Wed | One line; blocks any Player build (`TMP_TextInfoDebugTool.cs:4` still unguarded) |
 | (off-plan) BUG-071 tick chain + vitals event | — | 🟡 code (`16f61da7`, `b5fb3581`, `0626dd59`, `58b3da35`) | Not in sprint plan; awaiting triage |
 | S23-08 BUG-117 + 120 + 123 | 0.35d | ✅ code (Mon: `f528c087`, `25d869fb`, `8236f9d1`, `25d2d5e4`, `aa045f79`) | Awaiting runtime; see NOTE-20261117-1 |
@@ -72,14 +72,16 @@ Must starts today. Sync SKIPPED (owner `sprint-23` = `origin/sprint-23`). Eviden
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S23-F1 Finish + merge `docs/gdd-pathfinding-ability` | ≤1.0d | ✅ merged Mon (`8459e384`) + dash state (`91c42d79`) | Wed freed for carry-over / buffer |
-| Carry-over: S23-02 → S23-05 → S23-01 → S23-04 | 0.8d | ⬜ | All Must; Wed is the last day with room for all of them |
+| Carry-over: S23-02 → S23-05 → S23-01 → S23-04 | 0.8d | 🟡 S23-04 done (code); S23-02 / 05 / 01 ⬜ → Thu | All Must |
+| (off-plan) Map / spawn restructure: `EnemyManager` + `Grid` under `Room`, `LevelEditorTool` split, boss via `MapModel`, death clips no loop | — | ✅ code (`5e4ddb06`…`d0d814b6`) | Owner-approved session; NOTE-20261118-3, NOTE-20261119-1 |
 
 ### Thu 2026-11-19 — Weapon + data
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
 | S23-06 BUG-106 player half + BUG-110 | 0.2d | ✂️ owner decision (NOTE-20261116-3) | — |
 | S23-07 Editor / data block | 0.15d | ✅ Mon (Knight assets deleted `041bf198`, Arrow collider `25d869fb`; Lightning `layerMask` = 64) | — |
-| S23-09 BUG-127 | 0.05d | ⬜ | Mage basic attack barely reaches (`speed: 1` still) |
+| Carry-over: S23-02 → S23-05 → S23-01 | 0.65d | ⬜ | Must; last full day before Friday buffer |
+| S23-09 BUG-127 | 0.05d | ⬜ | Mage basic attack barely reaches (`speed: 1` still); Archer same data (NOTE-20261117-6) |
 
 ### Fri 2026-11-20 — Cleanup + buffer
 | Task | Est. | Status | Why now |
@@ -164,3 +166,18 @@ _(appended by `/daily-standup`)_
 - **Owner live tree:** `AbilityInstance.cs` staged, uncommitted (invisible to the routine).
 - **Today:** S23-02 death chain (0.3d) → S23-05 BUG-126 (0.05d) → S23-01 playtest (0.3d) → S23-04 (0.15d).
 - **Verdict:** yesterday SLIPPED (Must untouched 2nd day), sprint AT RISK on Must (1.1d / 3d + 0.5d buffer).
+
+### 2026-11-19 (Thu) — standup 02:00
+- **Sync:** SKIPPED — owner branch `sprint-23` is already contained in `origin/sprint-23` (`d0d814b6`).
+- **Yesterday (Wed):** owner-approved session restructured map / spawn (12 commits `89a22d25`…`d0d814b6`):
+  `EnemyManager` and `Grid` under `Room`, direct `SpawnRoom()` / `SpawnBoss()` calls, `LevelEditorTool`
+  split from `LevelManager`, start / end rooms by `roomType`, Champion + Bonfire moved to the start room,
+  boss spawn marker, 88 death clips no longer loop, map docs refreshed. Closes **S23-04** in code + data.
+  Burned: Must 0.15 / 0.8d planned; ≈0.7d off-plan. S23-01 / 02 / 05 not started (3rd day).
+- **Runtime:** `compile-check.sh` COMPILED `d0d814b6` + 3 uncommitted paths (35 s). `Editor.log`
+  (11-18 17:32, 0 Play Mode) 0 `error CS`, no `Assets/Script/` exception. `fix-survival.sh 7`: 3 rows PRESENT.
+  Playtest: none recorded.
+- **Review:** NOTE-20261119-1 — spawn early returns emit no door event (latent soft lock).
+- **Owner live tree:** `LoadRandomMap.unity`, `Level Manager.prefab` modified; `AbilityInstance.cs` staged.
+- **Today:** S23-02 death chain (0.3d) → S23-05 BUG-126 (0.05d) → S23-01 playtest incl. new room flow (0.3d).
+- **Verdict:** yesterday SLIPPED on S1 Must (S23-04 done off-order), sprint AT RISK on Must (0.65d / 2d + 0.3d buffer).
