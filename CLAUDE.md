@@ -2,7 +2,24 @@
 
   This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-  > **Last updated:** 2026-11-15 (HEAD `063b5f87`, branch `origin/sprint-22`) — **doc-truth pass
+  > **Last updated:** 2026-11-18 (HEAD `e7a76186`, branch `origin/sprint-23`) — **owner session: map / spawn
+  > restructure** (owner-approved, commits `5e4ddb0`…`e7a76186`). Not compiled, not run (no Unity in the session).
+  > - **Room hierarchy:** `Maze/MainMap/Room` now owns `EnemyManager` (was `GameLifetimeScope/SpawnEnemy`) and `Grid`
+  >   (→ `Level Manager` + tilemaps + EditorOnly `Level Editor Tool`). `RoomGeneraterController` holds
+  >   `_enemyManager` / `_levelManager` by reference and calls `SpawnRoom()` / `SpawnBoss()` directly;
+  >   `ON_GET_SPAWN_POSITIONS` is unused; `LevelManager` is no longer in `GameLifetimeScope`.
+  > - **Room selection:** start / end rooms by `roomType` (`BuildMazeRooms()`), ≥ 1 room per `_requiredRoomGroups`
+  >   entry (Shop; Treasure / Rest / Puzzle / Secret); per-run list is the runtime `_mazeRooms`
+  >   (`Maze_Load_Room.asset` deleted). Champion / Bonfire moved to `StartRoom_Entrance.json`; boss room got a
+  >   `Tile_Spawn_Enemy` at (0, 2). BUG-097 / Bug #16 / BUG-096 look fixed in code + data — statuses left to the
+  >   Saturday triage (inbox NOTE-20261118-3).
+  > - **Boss:** `MapModel.enemyModalBoss` (`EnemyPrefab` + `BossEntityData`); `RequestSpawnEnemy` gained `EntityData data`.
+  > - **Level editor:** `LevelManager` is runtime-only; room CRUD (Save / Load / Edit / Delete / Import) moved to
+  >   `LevelEditorTool` (`LevelManagerEditor` → `LevelEditorToolEditor`).
+  > - **Animation:** 88 death clips (80 enemy role, 8 Paladin) no longer loop. BUG-122 unchanged.
+  > - Architecture: `docs/systems/map/room-generation-architecture.md`; map `README.md` refreshed.
+  >
+  > **Previous entry — 2026-11-15 (HEAD `063b5f87`, branch `origin/sprint-22`):** doc-truth pass
   > (`/doc-sync --auto`, routine `pm-weekly-doc-truth`, after the 2026-11-15 wrap-up).** Claim sweep in
   > `production/qa/doc-truth-2026-11-15.md`. No `.cs` file was changed; no game code changed on
   > `sprint-22` since `a8725a77` (only `Assets/QA/` test suites). Evidence tier: STATIC.
@@ -572,7 +589,8 @@
             EntityMoveState.cs                  # ✅ null-guards TargetTransform first; wall avoidance; timeout → IdleState
             EntityAttackState.cs                # Triggers weapon Attack() on anim event
             EntityTakeDamageState.cs
-            EntityDeathState.cs                 # ✅ `: EntityBasicState` — emits ON_ENEMY_DEATH on EndRangeTrigger
+            EntityDeathState.cs                 # ✅ `: EntityBasicState` — emits ON_ENEMY_DEATH once on `OnActivate` (clip event `AnimationOnAction`);
+                                                # death clips play once since 2026-11-18 (`m_LoopTime: 0`)
             EntityUseWeaponState.cs, EntityDisadvantageState.cs
         StatsCharacter.cs                       # ⚠️ Legacy SO base (blockDMG, maxMana, maxHealth). Superseded by BaseStatsSO — Player/Entity no longer use it
 
@@ -804,13 +822,15 @@
           RoomGeneraterController.cs            # Tilemap loader; parses Tile_Spawn_Enemy markers; builds the PathfindingGrid.
                                                 # ⚠️ still loads JSON via File.ReadAllText(Application.dataPath…) (Bug #15). Resolved through VContainer;
                                                 # ⚠️ **2026-11-18:** `[Inject] Construct(IPlayerService)` only; `LevelManager` is `[SerializeField] _levelManager`
-                                                # (descendant `Room/Grid/Level Manager`) and gets the room library from `_fullDungeonRoomSO` (Maze_Storage).
+                                                # (descendant `Room/Grid/Level Manager`); room library = `[SerializeField] _fullDungeonRoomSO` (Maze_Storage).
+                                                # `BuildMazeRooms()`: start / end by `roomType`, `_requiredRoomGroups`; runtime `_mazeRooms`.
+                                                # Redundant fields / dead `OnDoneLoadRoomGrid()` removed (`a48ed6c7`).
                                                 # *Was (2026-10-05):* `[Inject] Construct(IPlayerService, LevelManager)`
           Door/ DoorController.cs
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
 
       LevelEdit/
-        LevelManager.cs                         # ⚠️ **2026-11-18:** runtime only — tile list + tilemaps (`SetDungeonRoomSO()` removed later that day);
+        LevelManager.cs                         # ⚠️ **2026-11-18:** runtime only — tile list + tilemaps, door helpers;
                                                 # not in DI; lives at `Room/Grid/Level Manager`. Also declares `LevelData`.
                                                 # *Was:* registered in GameLifetimeScope + editor save/import. Bug #12 / TD-023 FIXED (2026-10-05)
         LevelEditorTool.cs                      # ✅ NEW 2026-11-18 — room CRUD (Save / Load / Edit / Delete + Import JSON) split out of LevelManager;
@@ -867,7 +887,9 @@
 
     Data/Json/Room/                             # ⚠️ **REPLACED 2026-10-05** (`213fa5a6`…`d3400ee7`): 20 named rooms —
                                                 # StartRoom_Entrance, CombatRoom_* ×15, BuffRoom_PowerShrine, RestRoom_Campfire,
-                                                # ShopRoom_Merchant, BossRoom_ThroneArena. Start/Boss/Rest/Shop/Buff carry NO spawn marker.
+                                                # ShopRoom_Merchant, BossRoom_ThroneArena. Rest/Shop/Buff carry NO spawn marker (open on load).
+                                                # ✅ **2026-11-18:** Start holds the 3 Champion monuments + Bonfire (layers 3 / 4, moved from the
+                                                # boss room); the boss room has one `Tile_Spawn_Enemy` at (0, 2).
                                                 # ⚠️ **Corrected 2026-10-09 (BUG-099):** those rooms do NOT open their doors on load —
                                                 # `40d2c793` added that branch and `ac13ee4f` removed it; `LoadRoom()` has no zero-spawn
                                                 # branch at `sprint-17` `cdf68555`, so they stay sealed (**BUG-096**, S1).
@@ -1235,7 +1257,7 @@
 
   RoomGridController [ON_LOAD_MAZE_DONE] → OnDoneLoadRoomGrid()
     → LoadRoom(_startIndex, _current)
-    → ⚠️ the fastMovement teleport line is COMMENTED OUT (Bug #13, RoomGridController.cs:82)
+    → PlayerManager.SetPlayerPosition(start room)   (Bug #13 FIXED 2026-09-30)
 
   RoomGeneraterController.LoadRoom(index, roomCell):
     → read JSON via File.ReadAllText(Application.dataPath + filePath)   ⚠️ Editor-only (Bug #15)
@@ -1388,7 +1410,7 @@
   | 13 | LOGIC | ✅ **FIXED 2026-09-30 (`9154763f`, found 2026-10-05)** — `RoomGridController.OnDoneLoadRoomGrid()` loads the start room then calls `_playerManager.SetPlayerPosition(_current.transform.position)`. `PlayerManager` is injected (`[Inject] Construct(PlayerManager)`). Also fixed alongside: the minimap start cell now uses (Column, Row) instead of (Row, Column) *(was: ⚠️ OPEN — teleport line commented out, no caller)* | [RoomGridController.cs:90](Assets/Script/Map/Room/RoomGridController.cs#L90) |
   | 14 | LOGIC | ⚠️ OPEN | `MazeController.Awake()` missing `return` after `Destroy(gameObject)` — a duplicate still overwrites `Instance` and re-runs the generator. `EnemyManager.Awake()` has the correct shape to copy | [MazeController.cs:17](Assets/Script/Map/Maze/MazeController.cs#L17) |
   | 15 | BUILD | ⚠️ OPEN | Room JSON via `File.ReadAllText(Application.dataPath + filePath)` — Editor-only; `Assets/Data/Json/` is not packaged into a Player build | [RoomGeneraterController.cs:69](Assets/Script/Map/Room/RoomGeneraterController.cs#L69) |
-  | 16 | LOGIC | ⚠️ OPEN | *Doc-truth 2026-11-05:* `RoomType` is now read once, by `LoadRoom()` for `AutoOpenRoomTypes` (`6094aa10`); start/end selection below is unchanged. *Original:* `RoomType` never read at runtime — start/end rooms forced by list position `room[0]`/`room[last]`; reordering `Maze_Storage.asset` breaks selection silently | [RoomGeneraterController.cs:47](Assets/Script/Map/Room/RoomGeneraterController.cs#L47) |
+  | 16 | LOGIC | ⚠️ OPEN | *Session 2026-11-18:* fixed in code — `BuildMazeRooms()` picks start / end by `roomType`; status for the Saturday triage (NOTE-20261118-3). · *Doc-truth 2026-11-05:* `RoomType` is now read once, by `LoadRoom()` for `AutoOpenRoomTypes` (`6094aa10`); start/end selection below is unchanged. *Original:* `RoomType` never read at runtime — start/end rooms forced by list position `room[0]`/`room[last]`; reordering `Maze_Storage.asset` breaks selection silently | [RoomGeneraterController.cs:47](Assets/Script/Map/Room/RoomGeneraterController.cs#L47) |
   | 17 | ARCH | ⚠️ OPEN | Dead code that reads as live gating: `DoorController.OpenDoor()` / `CheckCanBeOpened()` and `RoomCell.UpdateStatusDoor()` are no-ops. The real mechanism is `OpenDoors()` / `CloseDoor()` | [DoorController.cs:29](Assets/Script/Map/Room/Door/DoorController.cs#L29) |
   | BUG-042 | LOGIC | ✅ FIXED | `EntityCore.TakeDamage()` threw `NotImplementedException` — method removed; entities route health through the stat/vitals split | [EntityCore.cs](Assets/Script/Character/Entity/Core/EntityCore.cs) |
   | BUG-043 | ARCH | ✅ **FIXED 2026-09-25** — `EntityAttack.cs` deleted outright in `f7d98b1` ("no weapon, no attack"). The hardcoded `TakeDamage(10, …)` is gone; an enemy attacks only through `EntityWeaponHolder` + a `Weapon` prefab named by `EntityData.WeaponSO`. Closes TD-042 *(was: ⚠️ PARTIAL)* | `EntityWeaponMelee.cs` deleted, so the worst duplicate is gone. But `EntityAttack.Attack()` still exists alongside `EntityWeapon` and still hardcodes `TakeDamage(10, …)` | [EntityAttack.cs:33](Assets/Script/Character/Entity/CoreComponent/EntityAttack.cs#L33) |
@@ -1430,8 +1452,8 @@
   | BUG-093 | LOGIC | ✅ **FIXED in code (`b7a0af5`, 2026-09-28) — per the bug file; confirm in Play Mode** | `SpawnEffectBase` stopped reading `context.Forward`, so projectile abilities always fired to the right. Re-checked 2026-10-09 at `sprint-17` `cdf68555`: `SpawnProjectileEffect.Angle()` reads `_context.Forward` (`SpawnProjectileEffect.cs:16`). *Doc-truth 2026-10-09 (BUG-101):* until today this row described a **different** defect (`RangeWeapon.nextFireTime` never read) that has no bug file; that defect is now inbox note `NOTE-20261009-10` | [SpawnProjectileEffect.cs:16](Assets/Script/System/Abilities/Effects/SpawnProjectileEffect.cs#L16) |
   | BUG-094 | LOGIC | ✅ **FIXED in code (`b7a0af5`, 2026-09-28) — per the bug file; confirm in Play Mode** | `RangeWeapon` rotated the character root on every attack (`firePoint` overwritten with the owner transform). Re-checked 2026-10-09: `firePoint` is now a `Vector2` computed from the owner position + aim (`RangeWeapon.cs:40`); no root rotation is written. *Doc-truth 2026-10-09 (BUG-101):* this row previously described the unguarded `PlayerState.Enter()` log, which has no bug file — now inbox note `NOTE-20261009-11` | [RangeWeapon.cs:40](Assets/Script/Weapons/RangeWeapon/RangeWeapon.cs#L40) |
   | BUG-095 | DATA | ⚠️ **PARTIAL (`7c637c0`, 2026-09-28) — per the bug file** | `Arrow.prefab` had no projectile script or collider, so ranged attacks spawned inert sprites. Re-checked 2026-10-09: the prefab now has a `Rigidbody2D` (`!u!50`) and a `MonoBehaviour` (`!u!114`) but **still no `Collider2D`**, so `ProjectileBody.OnTriggerEnter2D` can never fire. *Doc-truth 2026-10-09 (BUG-101):* this row previously described the `attackDamege` → `attackDamage` rename with no `[FormerlySerializedAs]` (`SnS_State1-3.asset` still store `attackDamege: 55`, re-confirmed today); that defect has no bug file and is now inbox note `NOTE-20261009-12` | [Arrow.prefab](Assets/Prefab/Particle%20Effect/Attack%20Projectile/Arrow.prefab) |
-  | BUG-096 | LOGIC | *Doc-truth 2026-11-05:* still OPEN per the file. `6094aa10` makes `LoadRoom()` emit `ON_OPEN_DOOR` instead of `ON_GET_SPAWN_POSITIONS` for `AutoOpenRoomTypes` = Shop / Rest / Treasure (`RoomGeneraterController.cs:138-141,216`). `Maze_Storage.asset` gives `BuffRoom_PowerShrine` `roomType: 4` (= `TreasureRoom`), so Buff, Rest and Shop open on load; Start (Champion path) and Boss are unchanged. Half addressed in code — NOTE-20261105-2. · *Doc-truth 2026-10-31:* the Champion is now `System/RoomGameSystem/PedestalChampionController.cs:42` (was `ChampitionController.cs:42`). · ⚠️ **OPEN (S1) — static analysis; needs one Play Mode confirmation** | Rooms with no `Tile_Spawn_Enemy` marker never open their doors: `LoadRoom()` treats every un-cleared room as a combat room, `EnemySpawner.OnGetSpawnPositions()` returns early on an empty list, so `ON_OPEN_DOOR` (was `ON_CLEAR_ENEMY`) never fires. Fix `40d2c793` was reverted by `ac13ee4f`. Affects Start / Boss / Buff / Rest / Shop rooms. The start-room half: since `221d54be` reached `sprint-18` (2026-10-10), confirming the Champion (`ChampitionController.cs:42`) emits `ON_OPEN_DOOR` — only if a Champion is placed in the start room; Boss / Buff / Rest / Shop unchanged | [RoomGeneraterController.cs:134](Assets/Script/Map/Room/RoomGeneraterController.cs#L134) |
-  | BUG-097 | LOGIC | ⚠️ **OPEN (S2) — static analysis** | Bug #16 is live: `Setting()` forces `room[_startIndex] = full.room[0]` and `room[_endIndex] = full.room[Count-1]`, and `Maze_Storage.asset` is alphabetical — the start cell gets `BossRoom_ThroneArena`, the end cell gets `StartRoom_Entrance` | [RoomGeneraterController.cs:55](Assets/Script/Map/Room/RoomGeneraterController.cs#L55) |
+  | BUG-096 | LOGIC | *Session 2026-11-18:* still OPEN per the file; the start room now holds the Champion and the boss room has a spawn marker, so every room type has a way to open — needs a Play Mode check (NOTE-20261118-3). · *Doc-truth 2026-11-05:* still OPEN per the file. `6094aa10` makes `LoadRoom()` emit `ON_OPEN_DOOR` instead of `ON_GET_SPAWN_POSITIONS` for `AutoOpenRoomTypes` = Shop / Rest / Treasure (`RoomGeneraterController.cs:138-141,216`). `Maze_Storage.asset` gives `BuffRoom_PowerShrine` `roomType: 4` (= `TreasureRoom`), so Buff, Rest and Shop open on load; Start (Champion path) and Boss are unchanged. Half addressed in code — NOTE-20261105-2. · *Doc-truth 2026-10-31:* the Champion is now `System/RoomGameSystem/PedestalChampionController.cs:42` (was `ChampitionController.cs:42`). · ⚠️ **OPEN (S1) — static analysis; needs one Play Mode confirmation** | Rooms with no `Tile_Spawn_Enemy` marker never open their doors: `LoadRoom()` treats every un-cleared room as a combat room, `EnemySpawner.OnGetSpawnPositions()` returns early on an empty list, so `ON_OPEN_DOOR` (was `ON_CLEAR_ENEMY`) never fires. Fix `40d2c793` was reverted by `ac13ee4f`. Affects Start / Boss / Buff / Rest / Shop rooms. The start-room half: since `221d54be` reached `sprint-18` (2026-10-10), confirming the Champion (`ChampitionController.cs:42`) emits `ON_OPEN_DOOR` — only if a Champion is placed in the start room; Boss / Buff / Rest / Shop unchanged | [RoomGeneraterController.cs:134](Assets/Script/Map/Room/RoomGeneraterController.cs#L134) |
+  | BUG-097 | LOGIC | ⚠️ **OPEN (S2) — static analysis** · *Session 2026-11-18:* fixed in code (`e2b7efee`, start / end by `roomType`) and data (`a92a0c7b`, `3015e9cf`); status for the Saturday triage (NOTE-20261118-3) | Bug #16 is live: `Setting()` forces `room[_startIndex] = full.room[0]` and `room[_endIndex] = full.room[Count-1]`, and `Maze_Storage.asset` is alphabetical — the start cell gets `BossRoom_ThroneArena`, the end cell gets `StartRoom_Entrance` | [RoomGeneraterController.cs:55](Assets/Script/Map/Room/RoomGeneraterController.cs#L55) |
   | BUG-098 | DOC | ⚠️ **OPEN (S4) — static analysis** | `design/gdd/enemy-spawn-system.md` and ADR-0003 name a `RarityTier` enum; code renamed it `RarityTierEnemy` in `853fe39` (`RoomModel.cs:110`). *Doc-truth 2026-10-09:* not fixed by this pass — the GDD is Approved and ADR-0003 needs an Amendment; see `production/qa/doc-truth-2026-10-09.md` | [RoomModel.cs:110](Assets/Script/Database-SO/Modal/RoomModel.cs#L110) |
   | BUG-099 | DOC | ⚠️ **OPEN (S3) — per the bug file** | Doc sync `7d1b5c79` recorded BUG-096 as fixed. *Doc-truth 2026-10-09:* the live `CLAUDE.md` claim (Repository Layout › `Data/Json/Room/`) and `design/gdd/map-system.md` were corrected by this pass; the 2026-10-05 header entry is history and was left as written, with a correction in the 2026-10-09 header. Status change is for the next triage | — |
   | BUG-100 | LOGIC | *Doc-truth 2026-11-05:* still OPEN per the file. `6094aa10`: the timed-buff source is now a per-application `SourceEffect` (`EffectReceiverBase.cs:79-84`, `SetEffectSource()` `:23`), not `context.Caster`, so one expiry no longer strips another source's modifiers — looks fixed in code; NOTE-20261105-2. · *Doc-truth 2026-10-31:* the timed-buff path moved to `EffectReceiverBase.cs:86-91` (source = `context.Caster`); `VitalStatsBase.cs:120` no longer exists. Evidence appended to the file by the 2026-10-31 triage (NOTE-20261031-4). · ⚠️ **OPEN (S2) — static analysis; confirm in Play Mode** | `VitalStatsBase` uses `this` as the modifier source for both permanent item buffs (`ApplyBuffDebuff()`) and timed buffs (`ApplyDebuffForDuration()`); when a timed buff expires, `RemoveModifiersFromSource(this)` strips **every** modifier from either path (Paladin Blessing expiry removes item buffs) | [VitalStatsBase.cs:120](Assets/Script/Character/Base/VitalStatsBase.cs#L120) |
@@ -1484,7 +1506,7 @@
 
   - **No comments** unless the WHY is non-obvious (hidden constraint, workaround, surprising invariant).
   - **ScriptableObject-first**: game data (abilities, enemies, weapons, items) lives in SO assets, not hardcoded values.
-  - **No new singletons** — `MazeController` and `EnemyManager` (ratified exception, ADR-0002) are the only permitted singletons; `LevelManager` is a standing unratified violation (TD-023). Cross-system services now go through **VContainer** (ADR-0004); sibling components still use `Core.GetCoreComponent<T>()`.
+  - **No new singletons** — `MazeController` and `EnemyManager` (ratified exception, ADR-0002) are the only permitted singletons; `LevelManager` is no longer a singleton (TD-023 fixed 2026-10-05) and, since 2026-11-18, not in DI either — `RoomGeneraterController` holds it by reference. Cross-system services now go through **VContainer** (ADR-0004); sibling components still use `Core.GetCoreComponent<T>()`.
   - **State machine for all characters**: new behaviour = new `PlayerState` / `EntityState` subclass, never inline `if/else` in `Update`.
   - **Skills**: new *player* abilities are authored as `AbilityDefinition` SO assets composed from effects + conditions (Abilities v2). v1 (`ActivateSkill`) was deleted on 2026-11-04 (`6094aa10`); v2 is the only ability path for player and enemy. *(Was: "Do not add new `ActivateSkill` subclasses — v1 is in maintenance for the weapon/enemy path only.")*
   - **Damage**: `INegativeReceiver.TakeDamage(float amountDamage, Vector2 attackPosition)` — note `float`, not `int`.

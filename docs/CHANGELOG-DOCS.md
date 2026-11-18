@@ -17,6 +17,10 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — CLAUDE.md session entry for the map / spawn restructure (`sprint-23`)
+- **Cause:** owner request; read at `sprint-23` `e7a76186`.
+- `CLAUDE.md` — new "Last updated" entry (2026-11-18 session); Repository Layout (`RoomGeneraterController`, `LevelManager`, `EntityDeathState` emits on `OnActivate`, `Data/Json/Room/` start / boss content); Map flow (Bug #13 teleport line was stale); Known Bugs rows #16 / BUG-096 / BUG-097 got dated session notes (statuses unchanged, per the bug files); Coding Conventions (`LevelManager` no longer a singleton or in DI).
+
 ## 2026-11-18 — Map README refreshed (`sprint-23`)
 - **Cause:** owner request; read at `sprint-23` `7e6e2156`.
 - `docs/systems/map/README.md` — brought in line with the 2026-11-18 code and room data; `docs/systems/map/CHANGELOG.md`.
