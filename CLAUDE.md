@@ -1227,8 +1227,9 @@
         RoomGridController.Setting() → RoomGeneraterController.Setting():
           → GetCellStart/End → _startIndex / _endIndex
           → _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles + tilemaps ← _levelManager   (2026-11-18; was injected)
-          → Utility.PickUniqueIndex(total, mazeSize) → randomMazeRoomsIndex
-          → assign random rooms; force [_startIndex]=room[0], [_endIndex]=room[last] (⚠️ Bug #16)
+          → BuildMazeRooms(): start cell = a StartRoom, end cell = a BossRoom (by roomType, 2026-11-18; was
+            room[0] / room[last], Bug #16 / BUG-097 — status left to triage); other cells = distinct random rooms
+            with ≥ 1 per `_requiredRoomGroups` entry (default Shop; Treasure/Rest/Puzzle/Secret)
           → new PathfindingGrid() → _enemyManager.SetPathfindingGrid()   (was EnemyManager.Instance, until 2026-11-18)
     → EventManager.Emit(ON_LOAD_MAZE_DONE)
 

@@ -2,6 +2,17 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Start / end rooms by RoomType; required room groups
+- **Commit:** this change on `sprint-23` (owner request; bug status left to the Saturday triage).
+- **Changed:** `RoomGeneraterController.cs` (`BuildMazeRooms()`, `PickRequiredRooms()`, `Shuffle()`, `RequiredRoomGroup`, `[SerializeField] _requiredRoomGroups`; `randomMazeRoomsIndex` removed).
+- **From → To:**
+  - Start / end: `room[_startIndex] = library[0]`, `room[_endIndex] = library[last]` (list position) → a `StartRoom` / a `BossRoom` by `roomType` (random one if several). Re-ordering, adding or deleting rooms no longer moves them.
+  - Middle cells: `Utility.PickUniqueIndex` over positions `1..total-2`, then two picks overwritten → distinct rooms of every type except Start / Boss, at least one per `_requiredRoomGroups` entry (default: `Shop`; `Treasure` / `Rest` / `Puzzle` / `Secret`), shuffled again so required rooms land on random cells.
+  - Library missing a StartRoom / BossRoom or with fewer than `cells − 2` other rooms → `LogError`, `Setting()` stops (was an index error past 18 cells). A required group with no room, or more groups than free cells → warning, group skipped.
+- **Data follow-up (owner):** `StartRoom_Entrance.json` is empty while the Champion / Bonfire sit in `BossRoom_ThroneArena.json`, and the boss room has no `Tile_Spawn_Enemy` — until the JSON is fixed the start room has no Champion and the boss room spawns nothing.
+- **Why:** owner decision — BUG-097 / Bug #16; every run must offer a shop and a support room.
+- **Bugs:** BUG-097, Bug #16 (status for triage).
+
 ## 2026-11-18 — Per-run room list is runtime only; Maze_Load_Room deleted
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** `RoomGeneraterController.cs`, `LoadRandomMap.unity`; deleted `Assets/SO/Dungeon/Maze_Load_Room.asset` (+ `.meta`).

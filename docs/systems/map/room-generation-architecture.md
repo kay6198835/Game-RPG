@@ -85,8 +85,11 @@ MazeController.Start() → SetCellData()
   ├─ MapGrid.Setting()  → _current = start cell
   ├─ RoomGrid.Setting() → _startIndex / _endIndex → RoomGeneraterController.Setting():
   │     _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles, tilemaps ← LevelManager
-  │     Utility.PickUniqueIndex(total, cellCount) → _mazeRooms.Clear(), append the picked rooms (runtime List<RoomFile>)
-  │     room[_startIndex] = full[0]; room[_endIndex] = full[last]      (by list position)
+  │     BuildMazeRooms(cellCount)  (by RoomType, never by list position — 2026-11-18):
+  │       start cell = a StartRoom, end cell = a BossRoom (random one if several)
+  │       other cells = distinct shuffled rooms of any other type, with at least one room from each
+  │       _requiredRoomGroups entry (default: Shop; Treasure/Rest/Puzzle/Secret), then shuffled again
+  │       missing StartRoom / BossRoom or too few rooms → LogError, Setting() stops
   │     new PathfindingGrid() → _enemyManager.SetPathfindingGrid()
   └─ Emit(ON_LOAD_MAZE_DONE)
 
@@ -197,10 +200,10 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 |---|---|---|
 | `MazeController.Awake()` has no `return` after `Destroy(gameObject)` | `MazeController.cs:17-21` | Bug #14 |
 | JSON read via `File.ReadAllText(Application.dataPath…)` — Editor only | `RoomGeneraterController.cs:69` | Bug #15 |
-| Start / end rooms forced by list position (`full[0]`, `full[last]`) | `RoomGeneraterController.cs:55-56` | Bug #16, BUG-097 |
+| Start / end rooms forced by list position — **changed in code 2026-11-18** (chosen by `RoomType`; status left to the Saturday triage) | `RoomGeneraterController.BuildMazeRooms()` | Bug #16, BUG-097 |
 | Start and Boss rooms have no spawn marker and are not auto-open types | `RoomGeneraterController.cs:138-141` | BUG-096 |
 | `RoomGeneraterController.OnDoneLoadRoomGrid()` is dead code; `DoorController.CheckCanBeOpened()` is a no-op | — | Bug #17 |
 | `BaseGrid.GetNext()` has no bounds check | `BaseGrid.cs:31-38` | TD-027 |
 | Two singletons (`MazeController`, `EnemyManager`) mixed with VContainer DI. The map side no longer uses `EnemyManager.Instance`; entities still do | — | ADR-0002, ADR-0004 |
-| Boss detection is by `roomType == BossRoom`, but start/end placement is by list position: `BossRoom_ThroneArena` lands on the **start** cell today | `RoomGeneraterController.cs:61-62` | BUG-097 |
+| Room data does not match the new type-based placement yet: `StartRoom_Entrance.json` is empty (the Champion / Bonfire sit in `BossRoom_ThroneArena.json`) and the boss room has no `Tile_Spawn_Enemy` — owner fixes the JSON | `Assets/Data/Json/Room/` | BUG-097 |
 | One shared tilemap set: every transition clears and redraws all tiles | `RoomGeneraterController.cs:83` | — |

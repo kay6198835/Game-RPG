@@ -23,11 +23,16 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
     [SerializeField] private int _startIndex;
     [SerializeField] private int _endIndex;
-    [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     [SerializeField] PathfindingGrid pathfindingGrid;
     // Child object of Room: pathfinding grid + enemy spawning for the room being loaded.
     [SerializeField] private EnemyManager _enemyManager;
+    // Every run has at least one room from each group (e.g. a shop, a support / special room).
+    [SerializeField] private List<RequiredRoomGroup> _requiredRoomGroups = new List<RequiredRoomGroup>
+    {
+        new RequiredRoomGroup { label = "Shop", roomTypes = new List<RoomType> { RoomType.ShopRoom } },
+        new RequiredRoomGroup { label = "Support / special", roomTypes = new List<RoomType> { RoomType.TreasureRoom, RoomType.RestRoom, RoomType.PuzzleRoom, RoomType.SecretRoom } },
+    };
     IPlayerService _playerService;
     [Inject]
     public void Construct(IPlayerService playerService)
@@ -55,19 +60,82 @@ public class RoomGeneraterController : MonoBehaviour
         _listTiles = _levelManager.GetTileSOs();
         _genmap = _levelManager.GetTilemaps();
 
-        // get start, get radoom, get end
-        var totalCount = _fullDungeonRoomSO.room.Count;
-        var pickCount = listCount;
-        randomMazeRoomsIndex = Utility.PickUniqueIndex(totalCount, pickCount);
-        _mazeRooms.Clear();
-        for (int i = 0; i < randomMazeRoomsIndex.Count; i++)
-        {
-            _mazeRooms.Add(_fullDungeonRoomSO.room[randomMazeRoomsIndex[i]]);
-        }
-        _mazeRooms[_startIndex] = _fullDungeonRoomSO.room[0];
-        _mazeRooms[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
+        if (!BuildMazeRooms(listCount)) return;
         pathfindingGrid = new PathfindingGrid();
         if (_enemyManager != null) _enemyManager.SetPathfindingGrid(pathfindingGrid);
+    }
+
+    // Start / end rooms are chosen by RoomType (StartRoom / BossRoom), never by their position in the
+    // library, so adding, deleting or re-sorting rooms cannot move them. Every other cell gets a distinct
+    // random room of any other type, with at least one room from each _requiredRoomGroups entry.
+    private bool BuildMazeRooms(int cellCount)
+    {
+        List<RoomFile> library = _fullDungeonRoomSO.room;
+        List<RoomFile> startRooms = library.FindAll(r => r.roomType == RoomType.StartRoom);
+        List<RoomFile> bossRooms = library.FindAll(r => r.roomType == RoomType.BossRoom);
+        List<RoomFile> middleRooms = library.FindAll(r => r.roomType != RoomType.StartRoom && r.roomType != RoomType.BossRoom);
+        int middleCount = cellCount - 2;
+
+        if (startRooms.Count == 0 || bossRooms.Count == 0 || middleRooms.Count < middleCount)
+        {
+            Debug.LogError($"[{nameof(RoomGeneraterController)}] {_fullDungeonRoomSO.name} needs at least one StartRoom, one BossRoom " +
+                           $"and {middleCount} other rooms for a {cellCount}-cell maze (has {startRooms.Count} / {bossRooms.Count} / {middleRooms.Count}).");
+            return false;
+        }
+
+        Shuffle(middleRooms);
+        List<RoomFile> picked = PickRequiredRooms(middleRooms, middleCount);
+        foreach (RoomFile room in middleRooms)
+        {
+            if (picked.Count >= middleCount) break;
+            if (!picked.Contains(room)) picked.Add(room);
+        }
+        Shuffle(picked);
+
+        _mazeRooms.Clear();
+        int next = 0;
+        for (int cell = 0; cell < cellCount; cell++)
+        {
+            if (cell == _startIndex) _mazeRooms.Add(startRooms[Random.Range(0, startRooms.Count)]);
+            else if (cell == _endIndex) _mazeRooms.Add(bossRooms[Random.Range(0, bossRooms.Count)]);
+            else _mazeRooms.Add(picked[next++]);
+        }
+        return true;
+    }
+
+    // One random room per required group, taken from the (already shuffled) middle pool. A group with no
+    // matching room in the library is reported and skipped; groups beyond the free cells are dropped.
+    private List<RoomFile> PickRequiredRooms(List<RoomFile> middleRooms, int middleCount)
+    {
+        List<RoomFile> picked = new List<RoomFile>();
+        foreach (RequiredRoomGroup group in _requiredRoomGroups)
+        {
+            if (group == null || group.roomTypes == null || group.roomTypes.Count == 0) continue;
+            if (picked.Exists(r => group.roomTypes.Contains(r.roomType))) continue;
+
+            RoomFile room = middleRooms.Find(r => group.roomTypes.Contains(r.roomType) && !picked.Contains(r));
+            if (room == null)
+            {
+                Debug.LogWarning($"[{nameof(RoomGeneraterController)}] Required group '{group.label}' has no room in {_fullDungeonRoomSO.name}; skipped.");
+                continue;
+            }
+            if (picked.Count >= middleCount)
+            {
+                Debug.LogWarning($"[{nameof(RoomGeneraterController)}] Maze has only {middleCount} free cells; required group '{group.label}' dropped.");
+                continue;
+            }
+            picked.Add(room);
+        }
+        return picked;
+    }
+
+    private static void Shuffle(List<RoomFile> rooms)
+    {
+        for (int i = rooms.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (rooms[i], rooms[j]) = (rooms[j], rooms[i]);
+        }
     }
 
     public void OnDoneLoadRoomGrid(RoomCell _current)
@@ -229,6 +297,12 @@ public class RoomGeneraterController : MonoBehaviour
             directions.Clear();
             indexToLayer.Clear();
         }
+    }
+    [System.Serializable]
+    private class RequiredRoomGroup
+    {
+        public string label;
+        public List<RoomType> roomTypes = new List<RoomType>();
     }
     private static readonly HashSet<RoomType> AutoOpenRoomTypes = new HashSet<RoomType>
     {

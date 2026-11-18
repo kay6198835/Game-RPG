@@ -30,15 +30,15 @@ TwinCorridors, TwoHalls}`, `BuffRoom_PowerShrine`, `RestRoom_Campfire`, `ShopRoo
 `BossRoom_ThroneArena`. Start/Boss/Rest/Shop/Buff rooms carry no `Tile_Spawn_Enemy` marker. Since
 `6094aa10` (2026-11-04) Shop (`roomType` 5), Rest (6) and Buff (authored as `TreasureRoom`, 4) open
 their doors on load; Start opens through the Champion; **Boss still never opens** (BUG-096, file Open).
-`Maze_Storage.asset` is alphabetical, so `room[0]` is the Boss room (BUG-097).
+Start / end rooms are chosen by `roomType` since 2026-11-18 (was `room[0]` / `room[last]`, BUG-097), and every run has at least one Shop and one support / special room (`_requiredRoomGroups`).
 
 ## Flow
 
 ```
 MazeController.Awake → MazeGenerator.Generator(rows, cols) → cells
   → MapGrid / RoomGrid .Setting()
-     RoomGeneraterController.Setting(): room pool from injected LevelManager;
-       start = room[0], end = room[last] (by list position, Bug #16); new PathfindingGrid → EnemyManager
+     RoomGeneraterController.Setting(): room pool = _fullDungeonRoomSO; BuildMazeRooms():
+       start = a StartRoom, end = a BossRoom (by roomType), required groups, rest random; new PathfindingGrid → EnemyManager
   → Emit(ON_LOAD_MAZE_DONE)
 
 RoomGridController [ON_LOAD_MAZE_DONE] → OnDoneLoadRoomGrid()

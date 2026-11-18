@@ -17,6 +17,11 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — Start / end rooms by RoomType, required room groups (`sprint-23`)
+- **Cause:** owner request — fix the BUG-097 placement in code and guarantee a Shop and a support / special room per run.
+- `CLAUDE.md` — Map / Dungeon Generation flow (Known Bugs rows unchanged: status is the triage's call).
+- `docs/systems/map/room-generation-architecture.md` (§2 flow, §6 weaknesses), `docs/systems/map/README.md`, `docs/systems/map/CHANGELOG.md`; inbox note for the triage.
+
 ## 2026-11-18 — Per-run room list runtime only, Maze_Load_Room deleted (`sprint-23`)
 - **Cause:** owner request — `RoomGeneraterController._dungeonRoomSO` became a runtime `List<RoomFile>` (`_mazeRooms`).
 - `CLAUDE.md` — Repository Layout (`SO/Dungeon/`), Inspector setup (also corrects "`RoomGridController` needs `_dungeonRoomSO`": the field was on `RoomGeneraterController`).
