@@ -20,7 +20,7 @@ the next room. A minimap mirrors progress.
 | `Map/Legacy/` | `Door`, `Room` — superseded |
 | `LevelEdit/LevelManager.cs` | Editor save/import + runtime room/tile/tilemap queries |
 | `Assets/Data/Json/Room/` | 20 room layouts |
-| `Assets/SO/Dungeon/` | `Maze_Storage.asset` (full room pool), `Maze_Load_Room.asset` |
+| `Assets/SO/Dungeon/` | `Maze_Storage.asset` (full room pool). `Maze_Load_Room.asset` deleted 2026-11-18 — the per-run list is `RoomGeneraterController._mazeRooms` |
 
 ## Room set (since 2026-10-04)
 

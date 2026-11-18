@@ -849,7 +849,7 @@
         FollowPlayer.cs (⚠️ GameObject.Find, TD-029), SpawnCharacter.cs
 
     SO/
-      Dungeon/        DungeonRoomSO.cs, TileSO.cs, Maze_Storage.asset, Maze_Load_Room.asset
+      Dungeon/        DungeonRoomSO.cs, TileSO.cs, Maze_Storage.asset (Maze_Load_Room.asset deleted 2026-11-18 — per-run list is runtime-only)
       Stat/           Player/{Paladin,Archer,Mage}Stats.asset (Paladin was `PlayerStats.asset` until `ada2c1a8`; Archer/Mage `e6bf8fc3`), Test.asset, Enemy/{Assasin,TrashMelee,FastSwarm,RangedCaster,Tank}Stats.asset, Enemy/Boss/BossStats.asset
       Skill/          Block/Dash/Slash/Dual Ability.asset (v1) · Enemy - Knight.asset ·
                       **Paladin/Ability/{Consecrate,Blessed Slash,Blessing,Avatar of Light}/ + their Effect/ subfolders
@@ -1290,9 +1290,9 @@
   | 3 | `OPEN` | Passable — the player can walk through | **On** |
   | 4 | `CLOSE` | Runtime solid wall | Off |
 
-  **Inspector setup that matters:** `RoomGridController` needs `_dungeonRoomSO`
-  (= `Maze_Load_Room.asset`); `RoomGeneraterController` needs `_fastMovement` and `_genmap`. The
-  full room pool is `RoomGeneraterController._fullDungeonRoomSO` (= `Maze_Storage.asset`); the tile list and
+  **Inspector setup that matters:** the rooms of the current run are a runtime `List<RoomFile>`
+  (`RoomGeneraterController._mazeRooms`, one per maze cell, rebuilt in `Setting()`; was the
+  `_dungeonRoomSO` = `Maze_Load_Room.asset` until 2026-11-18). The full room pool is `RoomGeneraterController._fullDungeonRoomSO` (= `Maze_Storage.asset`); the tile list and
   tilemap list come from `_levelManager` at `Room/Grid/Level Manager` (since 2026-11-18 `Grid` is a child of
   `Room` and must stay at the origin; room authoring is the EditorOnly `Level Editor Tool`). A **`Room/EnemyManager`
   child object** (`EnemyManager` + `PathRequestManager` + `EnemySpawner` with `mapModel` assigned; was

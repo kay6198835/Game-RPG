@@ -9,9 +9,10 @@ using VContainer;
 
 public class RoomGeneraterController : MonoBehaviour
 {
-    [SerializeField] private DungeonRoomSO _dungeonRoomSO;
-    // Full room library (Maze_Storage); handed to LevelManager in Setting().
+    // Full room library (Maze_Storage): every authored room. Read-only at runtime.
     [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
+    // Rooms of the current run, one per maze cell (index = y * Columns + x). Runtime only, rebuilt in Setting().
+    private List<RoomFile> _mazeRooms = new List<RoomFile>();
     // Child of Room (Room/Grid/Level Manager): tile catalogue + tilemaps. Not injected.
     [SerializeField] private LevelManager _levelManager;
     [SerializeField] private List<TileSO> _listTiles;
@@ -32,10 +33,6 @@ public class RoomGeneraterController : MonoBehaviour
     public void Construct(IPlayerService playerService)
     {
         _playerService = playerService;
-    }
-    public void OnDisable()
-    {
-        _dungeonRoomSO.room.Clear();
     }
     public void Setting(int startIndex, int endIndex, int listCount)
     {
@@ -62,12 +59,13 @@ public class RoomGeneraterController : MonoBehaviour
         var totalCount = _fullDungeonRoomSO.room.Count;
         var pickCount = listCount;
         randomMazeRoomsIndex = Utility.PickUniqueIndex(totalCount, pickCount);
+        _mazeRooms.Clear();
         for (int i = 0; i < randomMazeRoomsIndex.Count; i++)
         {
-            _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[randomMazeRoomsIndex[i]]);
+            _mazeRooms.Add(_fullDungeonRoomSO.room[randomMazeRoomsIndex[i]]);
         }
-        _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
-        _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
+        _mazeRooms[_startIndex] = _fullDungeonRoomSO.room[0];
+        _mazeRooms[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
         pathfindingGrid = new PathfindingGrid();
         if (_enemyManager != null) _enemyManager.SetPathfindingGrid(pathfindingGrid);
     }
@@ -81,7 +79,7 @@ public class RoomGeneraterController : MonoBehaviour
     public void LoadRoom(int index, RoomCell nextRoomCell)
     {
         string filePath = "";
-        filePath = _dungeonRoomSO.room[index].filePath;
+        filePath = _mazeRooms[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         if (!nextRoomCell.IsCleared)
         {
@@ -149,11 +147,11 @@ public class RoomGeneraterController : MonoBehaviour
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             pathfindingGrid.BuildGrid(Data, nextRoomCell.transform.position);
-            RoomType roomType = _dungeonRoomSO.room[index].roomType;
+            RoomType roomType = _mazeRooms[index].roomType;
             if (AutoOpenRoomTypes.Contains(roomType))
                 EventManager.Emit(EventID.ON_OPEN_DOOR);
             else if (_enemyManager == null)
-                Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager; room {_dungeonRoomSO.room[index].roomName} spawns nothing.");
+                Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager; room {_mazeRooms[index].roomName} spawns nothing.");
             else if (roomType == RoomType.BossRoom)
                 _enemyManager.SpawnBoss(spawnPositions);
             else

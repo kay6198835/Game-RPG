@@ -32,7 +32,7 @@ After the initial load, everything is driven by `EventManager` events.
                                                                 └──┬───────────┬───────────┬──────┘
                                                                    │           │           │ [SerializeField] _enemyManager
                        Room/Grid/LevelManager (ref) ─┘  DungeonRoomSO   ┌────▼─────────────────────────────┐
-                                                full room pool,       (Maze_Load_Room)│ Room/EnemyManager (child object) │
+                                                full room pool,       (_mazeRooms)    │ Room/EnemyManager (child object) │
                                                 TileSOs, Tilemaps                     │  EnemyManager · PathRequestManager│
                                                                                       │  · EnemySpawner (MapModel)        │
                                                                                       └──────────────────────────────────┘
@@ -85,7 +85,7 @@ MazeController.Start() → SetCellData()
   ├─ MapGrid.Setting()  → _current = start cell
   ├─ RoomGrid.Setting() → _startIndex / _endIndex → RoomGeneraterController.Setting():
   │     _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles, tilemaps ← LevelManager
-  │     Utility.PickUniqueIndex(total, cellCount) → append to _dungeonRoomSO.room
+  │     Utility.PickUniqueIndex(total, cellCount) → _mazeRooms.Clear(), append the picked rooms (runtime List<RoomFile>)
   │     room[_startIndex] = full[0]; room[_endIndex] = full[last]      (by list position)
   │     new PathfindingGrid() → _enemyManager.SetPathfindingGrid()
   └─ Emit(ON_LOAD_MAZE_DONE)
@@ -180,7 +180,7 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 ## 5. Scene setup requirements
 
 - `MazeController` with `RoomGridController` (+ `RoomGeneraterController`) and `MapGridController` as children.
-- `RoomGridController.prefabObject` = `RoomCell` prefab (with `doorPrefab`); `RoomGeneraterController._dungeonRoomSO` = `Maze_Load_Room.asset`.
+- `RoomGridController.prefabObject` = `RoomCell` prefab (with `doorPrefab`). The per-run room list is runtime only (`_mazeRooms`); no asset.
 - `RoomGeneraterController._fullDungeonRoomSO = Maze_Storage.asset` and `_levelManager` = the `LevelManager` under
   `Room/Grid/Level Manager` (tile list + tilemaps). `Grid` must stay at the origin: tiles are placed in world cells.
 - `Level Editor Tool` (EditorOnly child of `Level Manager`) holds the authoring `LevelEditorTool`; stripped from builds.
@@ -195,7 +195,6 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 
 | Issue | Location | Ref |
 |---|---|---|
-| `Setting()` appends to `_dungeonRoomSO.room` — a committed asset mutated at runtime; cleared only in `OnDisable()` | `RoomGeneraterController.cs:50-56` | — |
 | `MazeController.Awake()` has no `return` after `Destroy(gameObject)` | `MazeController.cs:17-21` | Bug #14 |
 | JSON read via `File.ReadAllText(Application.dataPath…)` — Editor only | `RoomGeneraterController.cs:69` | Bug #15 |
 | Start / end rooms forced by list position (`full[0]`, `full[last]`) | `RoomGeneraterController.cs:55-56` | Bug #16, BUG-097 |

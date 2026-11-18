@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Per-run room list is runtime only; Maze_Load_Room deleted
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `RoomGeneraterController.cs`, `LoadRandomMap.unity`; deleted `Assets/SO/Dungeon/Maze_Load_Room.asset` (+ `.meta`).
+- **From → To:** `[SerializeField] DungeonRoomSO _dungeonRoomSO` (= `Maze_Load_Room.asset`, filled in `Setting()`, cleared in `OnDisable()`) → `private List<RoomFile> _mazeRooms` (not serialized; `Clear()` at the start of `Setting()`; `OnDisable()` removed). `LoadRoom()` reads `_mazeRooms[index]`.
+- **Why:** owner decision — the per-run list needs no asset. The asset was written by Play Mode and was committed with run data once (`fb8371bc`); leftover entries would shift cell indices.
+- **Bugs:** none; BUG-097 (start/end by list position) unchanged.
+
 ## 2026-11-18 — LevelEditorTool reduced to room CRUD
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** `LevelEditorTool.cs`, `Editor/LevelEditorToolEditor.cs`, `Level Manager.prefab`.
