@@ -17,6 +17,10 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — Room generation architecture doc (`sprint-23`)
+- **Cause:** owner request for the room generation / control architecture; verified source read of `Assets/Script/Map/` and `LevelEdit/LevelManager.cs` at `sprint-23` `4a2237e`.
+- `docs/systems/map/room-generation-architecture.md` — NEW: layers, components, init flow, `LoadRoom()`, event loop, scene setup, known weaknesses. No code changed.
+
 ## 2026-11-16 — Sprint 23 fix branch: ranged damage model, ShootSpirit removal (`origin/feature/fix-bug-sprint-23`)
 - **Cause:** owner decision "basic attacks scale with PhysicalDamage, MagicDamage only for magic skills" (`3a2659ce`); owner request to remove ShootSpirit (`e6c826e5` + follow-up).
 - `docs/systems/weapons/README.md` + `CHANGELOG.md`, `design/gdd/weapons-system.md` + changelog — ranged hits deal the stored `finalDamage`; `nextFireTime` citations BUG-093 → BUG-103 (BUG-101).
