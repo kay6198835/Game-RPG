@@ -17,6 +17,10 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — Champion / Bonfire moved to the start room (`sprint-23`)
+- **Cause:** owner request — room data follow-up to the type-based start / end placement.
+- `docs/systems/map/CHANGELOG.md`.
+
 ## 2026-11-18 — RoomGeneraterController cleanup (`sprint-23`)
 - **Cause:** owner-approved removal of redundant fields / dead code in `RoomGeneraterController` and `LevelManager`.
 - `CLAUDE.md` — Repository Layout (`LevelManager`), Map / Dungeon Generation flow.

@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Champion / Bonfire moved from the boss room to the start room
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `Assets/Data/Json/Room/BossRoom_ThroneArena.json`, `StartRoom_Entrance.json`.
+- **From → To:** the 4 entries on layers 3 / 4 (`Tile_Spawn_Champion_Monument_{Archer,Mage,Paladin}` at (-7,6) / (0,6) / (6,6), `Tile_Spawn_Bonfire` at (0,2)) moved, same positions and layers, from the boss room to the start room; all four positions are floor in the start room. Layers 0 / 1 (walls, doors, floor) untouched in both files.
+- **Why:** with start / end chosen by `roomType`, the start room needs the Champion (doors open through it).
+- **Still open:** the boss room has no `Tile_Spawn_Enemy`, so `SpawnBoss` spawns nothing there yet.
+
 ## 2026-11-18 — RoomGeneraterController cleanup
 - **Commit:** this change on `sprint-23` (owner-approved list; no behaviour change).
 - **Changed:** `RoomGeneraterController.cs`, `LevelManager.cs`, `LoadRandomMap.unity`.
