@@ -695,8 +695,12 @@
         Enemy/
           EnemySO.cs                            # Data-only SO: name, level, speedMove, FOV, rateAttack, attackRange, damage, projectile, depotItem
           EnemyManager.cs                       # PATHFINDING service: [RequireComponent(PathRequestManager)], SetPathfindingGrid(), RequestPath(), GetNodeByPositionWorld() (ADR-0002)
-          EnemySpawner.cs                       # Event-driven: ON_GET_SPAWN_POSITIONS / ON_SPAWN_EXTRA_ENEMY. Spawns via ObjectPoolManager,
-                                                # emits ON_DONE_SPAWN_ENEMY. ✅ BUG-033 FIXED. Now resolved through VContainer
+                                                # ✅ **2026-11-18:** child object of `Maze/MainMap/Room`; room-side entry point — RoomGeneraterController
+                                                # holds it by `[SerializeField] _enemyManager` and calls SetPathfindingGrid() / SpawnRoom() / SpawnBoss()
+          EnemySpawner.cs                       # ⚠️ **2026-11-18:** SpawnRoom(positions) / SpawnBoss(positions) called by EnemyManager (no longer
+                                                # subscribes to ON_GET_SPAWN_POSITIONS); SpawnBoss uses `MapModel.EnemyModalBoss`. Still listens to
+                                                # ON_SPAWN_EXTRA_ENEMY (`RequestSpawnEnemy` gained `EntityData data`) and ON_ENEMY_DEATH.
+                                                # Spawns via ObjectPoolManager, emits ON_DONE_SPAWN_ENEMY. ✅ BUG-033 FIXED. Resolved through VContainer
         Item/                                   # ✅ NEW system (2026-09-04 `853fe39`, 2026-09-07 `9f1258c`) — NO GDD, NO ADR
           ItemSO.cs                             # SO "Item SO/Item": ItemSprite, ItemName, List<ItemEffectDefinitionSO>, Description, Id. (Renamed from ItemOS.cs;
                                                 # `StyleItem` removed 2026-10-20). GDD: design/gdd/item-system.md (no inventory, coin/Wallet planned)
@@ -1221,7 +1225,7 @@
           → LevelManager.Instance.GetDungeonRoomSO() → full pool (⚠️ singleton reach-through, TD-023)
           → Utility.PickUniqueIndex(total, mazeSize) → randomMazeRoomsIndex
           → assign random rooms; force [_startIndex]=room[0], [_endIndex]=room[last] (⚠️ Bug #16)
-          → new PathfindingGrid() → EnemyManager.Instance.SetPathfindingGrid()
+          → new PathfindingGrid() → _enemyManager.SetPathfindingGrid()   (was EnemyManager.Instance, until 2026-11-18)
     → EventManager.Emit(ON_LOAD_MAZE_DONE)
 
   RoomGridController [ON_LOAD_MAZE_DONE] → OnDoneLoadRoomGrid()
@@ -1238,11 +1242,15 @@
     → SetTile on _genmap[layerIdx]
     → roomCell.SetDoorPoints(DoorPoints)
     → if !IsCleared: SwapTileMap() + pathfindingGrid.BuildGrid(...)
-                     + roomType in AutoOpenRoomTypes {Shop, Rest, Treasure} ? Emit(ON_OPEN_DOOR)   (6094aa10)
-                                                                           : Emit(ON_GET_SPAWN_POSITIONS, spawnPositions)
+                     + roomType in AutoOpenRoomTypes {Shop, Rest, Treasure} → Emit(ON_OPEN_DOOR)   (6094aa10)
+                       roomType == BossRoom → _enemyManager.SpawnBoss(spawnPositions)            (2026-11-18)
+                       otherwise           → _enemyManager.SpawnRoom(spawnPositions)            (2026-11-18; was Emit(ON_GET_SPAWN_POSITIONS))
       else:          roomCell.OpenDoors()
 
-  EnemySpawner [ON_GET_SPAWN_POSITIONS] → OnGetSpawnPositions()
+  EnemyManager.SpawnBoss → EnemySpawner.SpawnBoss(positions)
+    → mapModel.EnemyModalBoss at one random marker, ApplyData(boss.Data) → Emit(ON_DONE_SPAWN_ENEMY, 1)
+
+  EnemyManager.SpawnRoom → EnemySpawner.SpawnRoom(positions)
     → mapModel.GetRandomRoom() → roomModel
     → roomModel.GetSpawnSet() → List<EnemySpawnEntry>
     → ObjectPoolManager.Spawn() per entry at a random marker position
@@ -1281,8 +1289,10 @@
   **Inspector setup that matters:** `RoomGridController` needs `_dungeonRoomSO`
   (= `Maze_Load_Room.asset`); `RoomGeneraterController` needs `_fastMovement` and `_genmap`. The
   full room pool, tile list and tilemap list are **pulled from `LevelManager.Instance` at runtime**,
-  so a `LevelManager` with `dungeonRoomSO = Maze_Storage.asset` must be present. An `EnemyManager`,
-  an `EnemySpawner` (with `mapModel` assigned) and a **`GameLifetimeScope`** must also be in the scene.
+  so a `LevelManager` with `dungeonRoomSO = Maze_Storage.asset` must be present. A **`Room/EnemyManager`
+  child object** (`EnemyManager` + `PathRequestManager` + `EnemySpawner` with `mapModel` assigned; was
+  `GameLifetimeScope/SpawnEnemy` until 2026-11-18) and a **`GameLifetimeScope`** must also be in the scene.
+  `MapModel.enemyModalBoss` is the boss every `BossRoom` spawns.
 
   ### Event System
 
@@ -1310,7 +1320,7 @@
   | Group | Values |
   |---|---|
   | Room / map | `ON_PLAYER_ON_DOOR`, `ON_LOAD_MAZE_DONE`, `ON_LOAD_MAP`, **`ON_OPEN_DOOR`** (was `ON_CLEAR_ENEMY`), **`ON_ROOM_CLEARED`**, `ON_ROOM_CLEAR` |
-  | Spawn | `ON_GET_SPAWN_POSITIONS`, `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` |
+  | Spawn | `ON_GET_SPAWN_POSITIONS` (⚠️ unused since 2026-11-18 — rooms call `EnemyManager` directly), `ON_DONE_SPAWN_ENEMY`, `ON_SPAWN_EXTRA_ENEMY` |
   | Life cycle | `ON_PLAYER_DEATH`, `ON_ENEMY_DEATH`, `ON_REALOAD_GAME`, **`ON_PLAYER_READY`** |
   | Stats UI | `ON_OPEN_STATS_PLAYER_UI`, `ON_CLOSE_STATS_PLAYER_UI`, `ON_INCREASE_STATS_BY_UI`, `ON_DECREASE_STATS_BY_UI`, `ON_CHANGE_STATS_BY_UI_RUN_TIME`, `ON_UPDATE_STATS_BY_UI`, `ON_REVERT_STATS_BY_UI`, `ON_RESTORE_STATS_BY_UI`, **`ON_RESET_STATS_UI_SESSION`** |
   | Item | **`ON_DROP_ITEM`**, **`ON_COLLECT_ITEM`** |

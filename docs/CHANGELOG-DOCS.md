@@ -17,6 +17,11 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — EnemyManager under Room + MapModel boss (`sprint-23`)
+- **Cause:** owner request — `EnemyManager` becomes a child of `Room`, `RoomGeneraterController` calls it directly, `MapModel.EnemyModalBoss` spawns in `BossRoom`.
+- `CLAUDE.md` — Repository Layout (`EnemyManager`, `EnemySpawner`), Map / Dungeon Generation flow, Inspector setup, Event System (`ON_GET_SPAWN_POSITIONS` unused).
+- `docs/systems/map/room-generation-architecture.md`, `docs/systems/map/CHANGELOG.md`, `docs/systems/enemy/CHANGELOG.md`.
+
 ## 2026-11-18 — Room generation architecture doc (`sprint-23`)
 - **Cause:** owner request for the room generation / control architecture; verified source read of `Assets/Script/Map/` and `LevelEdit/LevelManager.cs` at `sprint-23` `4a2237e`.
 - `docs/systems/map/room-generation-architecture.md` — NEW: layers, components, init flow, `LoadRoom()`, event loop, scene setup, known weaknesses. No code changed.

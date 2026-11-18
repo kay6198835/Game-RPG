@@ -22,6 +22,8 @@ public class RoomGeneraterController : MonoBehaviour
     [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     [SerializeField] PathfindingGrid pathfindingGrid;
+    // Child object of Room: pathfinding grid + enemy spawning for the room being loaded.
+    [SerializeField] private EnemyManager _enemyManager;
     IPlayerService _playerService;
     LevelManager _levelManager;
     [Inject]
@@ -38,6 +40,10 @@ public class RoomGeneraterController : MonoBehaviour
     {
         _startIndex = startIndex;
         _endIndex = endIndex;
+        if (_enemyManager == null)
+            _enemyManager = GetComponentInChildren<EnemyManager>(true);
+        if (_enemyManager == null)
+            Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager child under {name}; rooms cannot spawn enemies.");
 
         // need refactor to get _fullDungeonRoomSO, _listTiles, _genmap from other class, not from LevelManager
         DungeonRoomSO _fullDungeonRoomSO = _levelManager.GetDungeonRoomSO();
@@ -55,7 +61,7 @@ public class RoomGeneraterController : MonoBehaviour
         _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
         _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
         pathfindingGrid = new PathfindingGrid();
-        EnemyManager.Instance.SetPathfindingGrid(pathfindingGrid);
+        if (_enemyManager != null) _enemyManager.SetPathfindingGrid(pathfindingGrid);
     }
 
     public void OnDoneLoadRoomGrid(RoomCell _current)
@@ -135,10 +141,15 @@ public class RoomGeneraterController : MonoBehaviour
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             pathfindingGrid.BuildGrid(Data, nextRoomCell.transform.position);
-            if (AutoOpenRoomTypes.Contains(_dungeonRoomSO.room[index].roomType))
+            RoomType roomType = _dungeonRoomSO.room[index].roomType;
+            if (AutoOpenRoomTypes.Contains(roomType))
                 EventManager.Emit(EventID.ON_OPEN_DOOR);
+            else if (_enemyManager == null)
+                Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager; room {_dungeonRoomSO.room[index].roomName} spawns nothing.");
+            else if (roomType == RoomType.BossRoom)
+                _enemyManager.SpawnBoss(spawnPositions);
             else
-                EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
+                _enemyManager.SpawnRoom(spawnPositions);
         }
         else
         {

@@ -1,6 +1,9 @@
 # Room Generation and Control — Architecture
 
 > Read from source on `sprint-23` (2026-11-18). Static analysis; not verified in Play Mode.
+> **Updated 2026-11-18:** `EnemyManager` is now a child of `Room` and is called directly by
+> `RoomGeneraterController` (no `ON_GET_SPAWN_POSITIONS`, no `EnemyManager.Instance` on the map side);
+> boss rooms spawn `MapModel.EnemyModalBoss`.
 > Companion to `docs/systems/map/README.md`.
 
 The room system has three layers: a **maze generator** that builds a logical grid, two **view grids**
@@ -27,10 +30,12 @@ After the initial load, everything is driven by `EventManager` events.
                                                                 │  picks rooms, reads JSON,       │
                                                                 │  draws tiles, builds A* grid    │
                                                                 └──┬───────────┬───────────┬──────┘
-                                                                   │           │           │
-                                                LevelManager (DI) ─┘  DungeonRoomSO   PathfindingGrid → EnemyManager
-                                                full room pool,       (Maze_Load_Room)
-                                                TileSOs, Tilemaps
+                                                                   │           │           │ [SerializeField] _enemyManager
+                                                LevelManager (DI) ─┘  DungeonRoomSO   ┌────▼─────────────────────────────┐
+                                                full room pool,       (Maze_Load_Room)│ Room/EnemyManager (child object) │
+                                                TileSOs, Tilemaps                     │  EnemyManager · PathRequestManager│
+                                                                                      │  · EnemySpawner (MapModel)        │
+                                                                                      └──────────────────────────────────┘
   Per room: RoomCell (BaseCell) ── owns N × DoorController (BoxCollider2D trigger)
 ```
 
@@ -46,6 +51,8 @@ After the initial load, everything is driven by `EventManager` events.
 | `RoomGeneraterController` | Loads/draws room tiles, places doors, collects spawn points, builds the pathfinding grid | `Assets/Script/Map/Room/RoomGeneraterController.cs` |
 | `RoomCell` | Per-room state: `IsCleared`, `EnemyCount`, door list, cached `LevelData` for re-drawing a cleared room | `Assets/Script/Map/Room/RoomCell.cs` |
 | `DoorController` | Door trigger. Collider enabled only when `Status == OPEN`; player contact emits `ON_PLAYER_ON_DOOR(dir)` | `Assets/Script/Map/Room/Door/DoorController.cs` |
+| `EnemyManager` | Child of `Room`. Room-side entry point: `SetPathfindingGrid()`, `SpawnRoom()`, `SpawnBoss()` (forwarded to `EnemySpawner`); still the A* singleton for entities (ADR-0002) | `Assets/Script/System/Enemy/EnemyManager.cs` |
+| `EnemySpawner` | Same object as `EnemyManager`. `SpawnRoom()` = random `RoomModel` set from `MapModel`; `SpawnBoss()` = `MapModel.EnemyModalBoss`. Does not know the room type | `Assets/Script/System/Enemy/EnemySpawner.cs` |
 | `LevelManager` | Room data source, injected via VContainer: full room pool (`Maze_Storage.asset`), `TileSO` list, tilemaps | `Assets/Script/LevelEdit/LevelManager.cs:338-340` |
 | `DungeonRoomSO` / `RoomFile` | Room list SO; each entry = `roomName`, `filePath` (JSON), `roomType` | `Assets/SO/Dungeon/DungeonRoomSO.cs` |
 | `LevelData` | Serialized room: parallel lists `tiles` (name), `poses` (cell), `layerIndices` | `Assets/Script/LevelEdit/LevelManager.cs:344` |
@@ -57,8 +64,9 @@ After the initial load, everything is driven by `EventManager` events.
 | `RoomGridController`, `MapGridController` | `MazeController` | `MazeController.Instance` (singleton) |
 | `RoomGridController` | `PlayerManager` | `[Inject] Construct(PlayerManager)` |
 | `RoomGeneraterController` | `IPlayerService`, `LevelManager` | `[Inject] Construct(IPlayerService, LevelManager)` |
-| `RoomGeneraterController` | `EnemyManager` | `EnemyManager.Instance.SetPathfindingGrid()` (singleton, ADR-0002) |
-| `RoomGeneraterController` → `EnemySpawner` | — | `ON_GET_SPAWN_POSITIONS` event |
+| `RoomGeneraterController` | `EnemyManager` | `[SerializeField] _enemyManager` (child object; falls back to `GetComponentInChildren`) — direct calls |
+| `EnemyManager` | `EnemySpawner` | `[SerializeField] _spawner` (same GameObject; falls back to `GetComponent`) |
+| `EntityMovement` | `EnemyManager` | `EnemyManager.Instance` (singleton, ADR-0002) — unchanged |
 
 ---
 
@@ -77,7 +85,7 @@ MazeController.Start() → SetCellData()
   │     full pool, tiles, tilemaps ← LevelManager
   │     Utility.PickUniqueIndex(total, cellCount) → append to _dungeonRoomSO.room
   │     room[_startIndex] = full[0]; room[_endIndex] = full[last]      (by list position)
-  │     new PathfindingGrid() → EnemyManager.Instance.SetPathfindingGrid()
+  │     new PathfindingGrid() → _enemyManager.SetPathfindingGrid()
   └─ Emit(ON_LOAD_MAZE_DONE)
 
 ON_LOAD_MAZE_DONE
@@ -104,7 +112,8 @@ ON_LOAD_MAZE_DONE
 | Room state | Action |
 |---|---|
 | Not cleared, `roomType` ∈ {Shop, Rest, Treasure} | `SwapTileMap` + `pathfindingGrid.BuildGrid` → `Emit(ON_OPEN_DOOR)` (doors open immediately) |
-| Not cleared, other type | `SwapTileMap` + `pathfindingGrid.BuildGrid` → `Emit(ON_GET_SPAWN_POSITIONS, spawnPositions)` |
+| Not cleared, `roomType == BossRoom` | `SwapTileMap` + `pathfindingGrid.BuildGrid` → `_enemyManager.SpawnBoss(spawnPositions)` |
+| Not cleared, other type | `SwapTileMap` + `pathfindingGrid.BuildGrid` → `_enemyManager.SpawnRoom(spawnPositions)` |
 | Cleared | `roomCell.OpenDoors()` |
 
 ---
@@ -112,6 +121,12 @@ ON_LOAD_MAZE_DONE
 ## 4. Runtime loop (event-driven)
 
 ```
+EnemyManager.SpawnRoom(pos) → EnemySpawner.SpawnRoom(pos)
+                  → mapModel.GetRandomRoom() → RoomModel.GetSpawnSet() → pool.Spawn + ApplyData per enemy
+                  → Emit(ON_DONE_SPAWN_ENEMY, n)
+EnemyManager.SpawnBoss(pos) → EnemySpawner.SpawnBoss(pos)
+                  → mapModel.EnemyModalBoss → SpawnRequest(RequestSpawnEnemy{prefab, random marker, data})
+                  → Emit(ON_DONE_SPAWN_ENEMY, 1)          // no shuffle-bag draw
 EnemySpawner      → ON_DONE_SPAWN_ENEMY(n)  → RoomCell.EnemyCount = n
                   → ON_SPAWN_EXTRA_ENEMY    → EnemyCount++
 EntityDeathState  → ON_ENEMY_DEATH          → EnemyCount--
@@ -139,8 +154,9 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 | Event | Emitter | Subscribers |
 |---|---|---|
 | `ON_LOAD_MAZE_DONE` | `MazeController` | `RoomGridController`, `MapGridController` |
-| `ON_GET_SPAWN_POSITIONS` | `RoomGeneraterController` | `EnemySpawner` |
-| `ON_DONE_SPAWN_ENEMY` / `ON_SPAWN_EXTRA_ENEMY` | `EnemySpawner` | `RoomGridController` → `RoomCell` |
+| `ON_GET_SPAWN_POSITIONS` | none since 2026-11-18 (replaced by direct `EnemyManager` calls) | none |
+| `ON_DONE_SPAWN_ENEMY` | `EnemySpawner` | `RoomGridController` → `RoomCell` |
+| `ON_SPAWN_EXTRA_ENEMY` (`RequestSpawnEnemy{prefab, positionSpawn, data}`) | none yet | `EnemySpawner`, `RoomGridController` → `RoomCell` |
 | `ON_ENEMY_DEATH` | `EntityDeathState` | `RoomGridController` → `RoomCell` |
 | `ON_ROOM_CLEARED` | `RoomCell` | none |
 | `ON_OPEN_DOOR` | `RoomCell`, `RoomGeneraterController`, `PedestalChampionController` | `RoomGridController` |
@@ -164,7 +180,9 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 - `MazeController` with `RoomGridController` (+ `RoomGeneraterController`) and `MapGridController` as children.
 - `RoomGridController.prefabObject` = `RoomCell` prefab (with `doorPrefab`); `RoomGeneraterController._dungeonRoomSO` = `Maze_Load_Room.asset`.
 - `LevelManager` with `dungeonRoomSO = Maze_Storage.asset`, tile list and tilemaps.
-- `EnemyManager`, `EnemySpawner` (with `mapModel`), `PlayerManager`, and a `GameLifetimeScope` registering
+- `Room/EnemyManager` child object with `EnemyManager`, `PathRequestManager`, `EnemySpawner` (with `mapModel`;
+  `MapModel.enemyModalBoss` set for boss rooms). A boss room JSON needs at least one `Tile_Spawn_Enemy`.
+- `PlayerManager`, and a `GameLifetimeScope` registering
   `RoomGeneraterController`, `RoomGridController`, `LevelManager`.
 
 ---
@@ -180,5 +198,6 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 | Start and Boss rooms have no spawn marker and are not auto-open types | `RoomGeneraterController.cs:138-141` | BUG-096 |
 | `RoomGeneraterController.OnDoneLoadRoomGrid()` is dead code; `DoorController.CheckCanBeOpened()` is a no-op | — | Bug #17 |
 | `BaseGrid.GetNext()` has no bounds check | `BaseGrid.cs:31-38` | TD-027 |
-| Two singletons (`MazeController`, `EnemyManager`) mixed with VContainer DI | — | ADR-0002, ADR-0004 |
+| Two singletons (`MazeController`, `EnemyManager`) mixed with VContainer DI. The map side no longer uses `EnemyManager.Instance`; entities still do | — | ADR-0002, ADR-0004 |
+| Boss detection is by `roomType == BossRoom`, but start/end placement is by list position: `BossRoom_ThroneArena` lands on the **start** cell today | `RoomGeneraterController.cs:61-62` | BUG-097 |
 | One shared tilemap set: every transition clears and redraws all tiles | `RoomGeneraterController.cs:83` | — |

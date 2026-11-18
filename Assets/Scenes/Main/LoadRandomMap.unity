@@ -318,7 +318,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1945699143}
-  - {fileID: 1279881537}
   - {fileID: 1120173192}
   - {fileID: 1949547418}
   m_Father: {fileID: 0}
@@ -610,7 +609,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1279881537}
   m_Father: {fileID: 807714240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &874930595
@@ -653,6 +653,7 @@ MonoBehaviour:
   _endIndex: 0
   randomMazeRoomsIndex: 
   spawnPositions: []
+  _enemyManager: {fileID: 1279881539}
 --- !u!1 &1120173191
 GameObject:
   m_ObjectHideFlags: 0
@@ -712,7 +713,7 @@ GameObject:
   - component: {fileID: 1279881540}
   - component: {fileID: 1279881541}
   m_Layer: 0
-  m_Name: SpawnEnemy
+  m_Name: EnemyManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -731,7 +732,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 505078200}
+  m_Father: {fileID: 874930594}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1279881539
 MonoBehaviour:
@@ -746,6 +747,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pathRequests: {fileID: 0}
+  _spawner: {fileID: 1279881541}
 --- !u!114 &1279881540
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Room calls EnemyManager directly; boss rooms
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `RoomGeneraterController.cs`, `LoadRandomMap.unity`, `room-generation-architecture.md`.
+- **From → To:**
+  - `EnemyManager.Instance.SetPathfindingGrid()` → `[SerializeField] _enemyManager.SetPathfindingGrid()` (child object of `Room`, `GetComponentInChildren` fallback).
+  - `LoadRoom()` uncleared, non-auto-open room: `Emit(ON_GET_SPAWN_POSITIONS)` → `_enemyManager.SpawnBoss()` for `RoomType.BossRoom`, `_enemyManager.SpawnRoom()` otherwise.
+  - `ON_GET_SPAWN_POSITIONS` now has no emitter and no subscriber (kept in the enum).
+- **Why:** owner decision to make the room the owner of its enemy manager.
+- **Bugs:** relates to BUG-097 (start/end still chosen by list position).
+
 ## 2026-11-05 — Auto-open rooms and ON_ROOM_CLEARED committed (doc-truth re-sync)
 - **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04), merged into `sprint-21` by `ea00b3a4`. This is the commit the 2026-11-04 entry below calls "none yet".
 - **Changed:** `RoomGeneraterController.cs:138-141,216` — `AutoOpenRoomTypes` {ShopRoom, RestRoom, TreasureRoom} emit `ON_OPEN_DOOR` on load instead of `ON_GET_SPAWN_POSITIONS`; `RoomCell.cs:60-67` emits `ON_ROOM_CLEARED` before `ON_OPEN_DOOR`; `EnemySpawner` applies `EnemySpawnEntry.Data` through `Entity.SetCharacterData()` on every spawn.

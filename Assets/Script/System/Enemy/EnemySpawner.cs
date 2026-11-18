@@ -21,13 +21,11 @@ public class EnemySpawner : MonoBehaviour
     }
     public void OnEnable()
     {
-        EventManager.Resgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.Resgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
         EventManager.Resgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
     public void OnDisable()
     {
-        EventManager.UnResgister(EventID.ON_GET_SPAWN_POSITIONS, OnGetSpawnPositions);
         EventManager.UnResgister(EventID.ON_SPAWN_EXTRA_ENEMY, SpawnExtraEnemy);
         EventManager.UnResgister(EventID.ON_ENEMY_DEATH, ReleaseEnemy);
     }
@@ -36,21 +34,47 @@ public class EnemySpawner : MonoBehaviour
 
     }
 
-    public void OnGetSpawnPositions(object obj = null)
+    // Called by EnemyManager when RoomGeneraterController loads an uncleared combat room.
+    public void SpawnRoom(List<Vector2Int> positions)
     {
-        spawnPosition = (List<Vector2Int>)obj;
+        spawnPosition = positions;
         if (spawnPosition == null || spawnPosition.Count == 0)
         {
-            Debug.LogWarning("OnGetSpawnPositions: spawnPosition is empty");
+            Debug.LogWarning("SpawnRoom: spawnPosition is empty");
             return;
         }
         roomModel = mapModel.GetRandomRoom();
         if (roomModel == null)
         {
-            Debug.LogWarning("OnGetSpawnPositions: roomModel is empty");
+            Debug.LogWarning("SpawnRoom: roomModel is empty");
             return;
         }
         SpawnRoomEnemies(in spawnPosition);
+    }
+
+    // Called by EnemyManager for a BossRoom: one MapModel.EnemyModalBoss at a random spawn marker.
+    // Does not draw from the MapModel shuffle-bag.
+    public void SpawnBoss(List<Vector2Int> positions)
+    {
+        EnemyModal boss = mapModel != null ? mapModel.EnemyModalBoss : null;
+        if (boss == null || boss.Prefab == null)
+        {
+            Debug.LogWarning($"[{nameof(EnemySpawner)}] SpawnBoss: MapModel has no EnemyModalBoss prefab");
+            return;
+        }
+        if (positions == null || positions.Count == 0)
+        {
+            Debug.LogWarning($"[{nameof(EnemySpawner)}] SpawnBoss: boss room has no Tile_Spawn_Enemy marker");
+            return;
+        }
+        SpawnRequest(new RequestSpawnEnemy
+        {
+            prefab = boss.Prefab,
+            positionSpawn = positions[Random.Range(0, positions.Count)],
+            data = boss.Data
+        });
+        Debug.Log($"[{nameof(EnemySpawner)}] Spawned boss {boss.Prefab.name}.");
+        EventManager.Emit(EventID.ON_DONE_SPAWN_ENEMY, 1);
     }
     private List<EnemySpawnEntry> GetRoomSpawnSet()
     {
@@ -100,9 +124,19 @@ public class EnemySpawner : MonoBehaviour
     // it for behavior spawn extra enemy like ability enemy, trap, skill boss. Use RequestSpawnEnemy
     public void SpawnExtraEnemy(object obj = null)
     {
-        RequestSpawnEnemy spawnEnemy = (RequestSpawnEnemy)obj;
-        GameObject enemy = objectPoolManager.Spawn(spawnEnemy.prefab, spawnEnemy.positionSpawn, Quaternion.identity);
-        ApplyData(enemy, null);
+        if (obj is not RequestSpawnEnemy spawnEnemy || spawnEnemy.prefab == null)
+        {
+            Debug.LogWarning($"[{nameof(EnemySpawner)}] SpawnExtraEnemy: payload is not a RequestSpawnEnemy with a prefab");
+            return;
+        }
+        SpawnRequest(spawnEnemy);
+    }
+
+    private GameObject SpawnRequest(RequestSpawnEnemy request)
+    {
+        GameObject enemy = objectPoolManager.Spawn(request.prefab, request.positionSpawn, Quaternion.identity);
+        ApplyData(enemy, request.data);
+        return enemy;
     }
 
     // Runs after the pool re-enabled the enemy (EntityVitalStats.OnEnable() reset its modifiers), so the
@@ -120,4 +154,6 @@ public class RequestSpawnEnemy
 {
     public Vector2 positionSpawn;
     public GameObject prefab;
+    // Null keeps the prefab's own EntityData.
+    public EntityData data;
 }

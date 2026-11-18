@@ -2,6 +2,19 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — EnemyManager under Room, direct spawn calls, MapModel boss
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `EnemyManager.cs`, `EnemySpawner.cs`, `MapModel.cs`, `MapModel.asset`, `LoadRandomMap.unity`.
+- **From → To:**
+  - `GameLifetimeScope/SpawnEnemy` → `Maze/MainMap/Room/EnemyManager` (same three components: EnemyManager, PathRequestManager, EnemySpawner).
+  - `EnemySpawner.OnGetSpawnPositions` (event `ON_GET_SPAWN_POSITIONS`) → `EnemySpawner.SpawnRoom(positions)`, called through `EnemyManager.SpawnRoom()`.
+  - New `EnemySpawner.SpawnBoss(positions)` (through `EnemyManager.SpawnBoss()`): one `MapModel.EnemyModalBoss` at a random `Tile_Spawn_Enemy` marker with its `EntityData`, then `ON_DONE_SPAWN_ENEMY(1)`; no shuffle-bag draw.
+  - `RequestSpawnEnemy` gained `EntityData data` (null = prefab's own data); `SpawnExtraEnemy()` applies it and guards a bad payload.
+  - `MapModel.asset` `enemyModalBoss` = `EnemyPrefab` + `BossEntityData` (copied from `RoomModel_Boss.asset`).
+- **Why:** spawn and room control were disjointed (event bus + singleton); every map needs a guaranteed boss.
+- **Unchanged:** `EnemyManager.Instance` (entities, CombatTest, QA); death / release / room-clear events.
+- **Bugs:** relates to BUG-097 — the `BossRoom` entry lands on the start cell until placement is by `RoomType`.
+
 ## 2026-11-15 — Bug statuses after the 2026-11-15 triage (doc-truth re-sync)
 - **Commit:** none to code — triage `b5e3238b` (`production/qa/bug-triage-2026-11-15.md`) on `sprint-22`.
 - **Changed:** README only (respawn-anchor paragraph, Open issues).
