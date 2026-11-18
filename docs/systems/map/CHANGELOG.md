@@ -2,6 +2,10 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — README refreshed
+- **Commit:** this change on `sprint-23` (owner request); docs only.
+- **Changed:** `README.md` — code table (`LevelManager` runtime only, `LevelEditorTool`), room table with content and door-open rule per room, `BuildMazeRooms()` selection, scene hierarchy, flow (`SpawnBoss` / `SpawnRoom` instead of `ON_GET_SPAWN_POSITIONS`, no `LevelManager` injection), open issues (BUG-097 / BUG-096 fixed or addressed in code and data, statuses left to triage).
+
 ## 2026-11-18 — Architecture doc refreshed
 - **Commit:** this change on `sprint-23` (owner request); docs only.
 - **Changed:** `room-generation-architecture.md` rewritten against `3015e9cf`: component diagram (library / `LevelManager` / `EnemyManager` wiring), `RoomGeneraterController` field table, `BuildMazeRooms()` selection rules, room data by layer, scene hierarchy, weaknesses (BUG-097 fixed in code + data, BUG-096 looks addressed — statuses left to triage; stale line numbers replaced by method names).

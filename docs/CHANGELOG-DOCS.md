@@ -17,6 +17,10 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — Map README refreshed (`sprint-23`)
+- **Cause:** owner request; read at `sprint-23` `7e6e2156`.
+- `docs/systems/map/README.md` — brought in line with the 2026-11-18 code and room data; `docs/systems/map/CHANGELOG.md`.
+
 ## 2026-11-18 — Room generation architecture doc refreshed (`sprint-23`)
 - **Cause:** owner request; source read at `sprint-23` `3015e9cf`.
 - `docs/systems/map/room-generation-architecture.md` — rewritten to the current code and room data; `docs/systems/map/CHANGELOG.md`.
