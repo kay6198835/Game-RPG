@@ -53,7 +53,7 @@ After the initial load, everything is driven by `EventManager` events.
 | `DoorController` | Door trigger. Collider enabled only when `Status == OPEN`; player contact emits `ON_PLAYER_ON_DOOR(dir)` | `Assets/Script/Map/Room/Door/DoorController.cs` |
 | `EnemyManager` | Child of `Room`. Room-side entry point: `SetPathfindingGrid()`, `SpawnRoom()`, `SpawnBoss()` (forwarded to `EnemySpawner`); still the A* singleton for entities (ADR-0002) | `Assets/Script/System/Enemy/EnemyManager.cs` |
 | `EnemySpawner` | Same object as `EnemyManager`. `SpawnRoom()` = random `RoomModel` set from `MapModel`; `SpawnBoss()` = `MapModel.EnemyModalBoss`. Does not know the room type | `Assets/Script/System/Enemy/EnemySpawner.cs` |
-| `LevelManager` | Runtime room data under `Room/Grid/Level Manager`: `TileSO` list + tilemaps; receives the room library from `RoomGeneraterController._fullDungeonRoomSO` (`SetDungeonRoomSO`). Not in DI | `Assets/Script/LevelEdit/LevelManager.cs` |
+| `LevelManager` | Runtime room data under `Room/Grid/Level Manager`: `TileSO` list + tilemaps. Not in DI; `RoomGeneraterController` reads it by reference | `Assets/Script/LevelEdit/LevelManager.cs` |
 | `LevelEditorTool` | Room CRUD in the Editor — Save (create), Load (read), Edit (update), Delete (SO entry + JSON, confirm dialog), Import JSON — on the EditorOnly child `Level Editor Tool`. Fields: `_levelManager` (tiles + tilemaps) and its own `dungeonRoomSO`. Not referenced by the runtime flow | `Assets/Script/LevelEdit/LevelEditorTool.cs` |
 | `DungeonRoomSO` / `RoomFile` | Room list SO; each entry = `roomName`, `filePath` (JSON), `roomType` | `Assets/SO/Dungeon/DungeonRoomSO.cs` |
 | `LevelData` | Serialized room: parallel lists `tiles` (name), `poses` (cell), `layerIndices` | `Assets/Script/LevelEdit/LevelManager.cs` |
@@ -84,7 +84,7 @@ MazeController.Start() → SetCellData()
   │                         instantiate a DoorController per non-DISABLE door
   ├─ MapGrid.Setting()  → _current = start cell
   ├─ RoomGrid.Setting() → _startIndex / _endIndex → RoomGeneraterController.Setting():
-  │     _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles, tilemaps ← LevelManager
+  │     tiles, tilemaps ← _levelManager; room pool = _fullDungeonRoomSO
   │     BuildMazeRooms(cellCount)  (by RoomType, never by list position — 2026-11-18):
   │       start cell = a StartRoom, end cell = a BossRoom (random one if several)
   │       other cells = distinct shuffled rooms of any other type, with at least one room from each
@@ -202,7 +202,7 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 | JSON read via `File.ReadAllText(Application.dataPath…)` — Editor only | `RoomGeneraterController.cs:69` | Bug #15 |
 | Start / end rooms forced by list position — **changed in code 2026-11-18** (chosen by `RoomType`; status left to the Saturday triage) | `RoomGeneraterController.BuildMazeRooms()` | Bug #16, BUG-097 |
 | Start and Boss rooms have no spawn marker and are not auto-open types | `RoomGeneraterController.cs:138-141` | BUG-096 |
-| `RoomGeneraterController.OnDoneLoadRoomGrid()` is dead code; `DoorController.CheckCanBeOpened()` is a no-op | — | Bug #17 |
+| `DoorController.CheckCanBeOpened()` is a no-op (`RoomGeneraterController.OnDoneLoadRoomGrid()`, dead code, removed 2026-11-18) | — | Bug #17 |
 | `BaseGrid.GetNext()` has no bounds check | `BaseGrid.cs:31-38` | TD-027 |
 | Two singletons (`MazeController`, `EnemyManager`) mixed with VContainer DI. The map side no longer uses `EnemyManager.Instance`; entities still do | — | ADR-0002, ADR-0004 |
 | Room data does not match the new type-based placement yet: `StartRoom_Entrance.json` is empty (the Champion / Bonfire sit in `BossRoom_ThroneArena.json`) and the boss room has no `Tile_Spawn_Enemy` — owner fixes the JSON | `Assets/Data/Json/Room/` | BUG-097 |

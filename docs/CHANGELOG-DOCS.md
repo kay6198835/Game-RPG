@@ -17,6 +17,11 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — RoomGeneraterController cleanup (`sprint-23`)
+- **Cause:** owner-approved removal of redundant fields / dead code in `RoomGeneraterController` and `LevelManager`.
+- `CLAUDE.md` — Repository Layout (`LevelManager`), Map / Dungeon Generation flow.
+- `docs/systems/map/room-generation-architecture.md` (components table, §2 flow, §6), `docs/systems/map/CHANGELOG.md`.
+
 ## 2026-11-18 — Start / end rooms by RoomType, required room groups (`sprint-23`)
 - **Cause:** owner request — fix the BUG-097 placement in code and guarantee a Shop and a support / special room per run.
 - `CLAUDE.md` — Map / Dungeon Generation flow (Known Bugs rows unchanged: status is the triage's call).

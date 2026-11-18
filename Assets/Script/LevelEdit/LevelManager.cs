@@ -3,15 +3,12 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 // Runtime room data for the in-game map flow: the tile catalogue and the tilemaps rooms are drawn on.
-// Lives under Room/Grid; RoomGeneraterController owns it by reference (no DI) and hands it the room
-// library. Room authoring (Save / Load / Edit / Import) is LevelEditorTool, kept out of this flow.
+// Lives under Room/Grid; RoomGeneraterController owns it by reference (no DI).
+// Room authoring (Save / Load / Edit / Delete / Import) is LevelEditorTool, kept out of this flow.
 public class LevelManager : MonoBehaviour
 {
     [SerializeField] private List<Tilemap> genmap = new List<Tilemap>();
     [SerializeField] private List<TileSO> _listTiles;
-    private DungeonRoomSO dungeonRoomSO;
-
-    public void SetDungeonRoomSO(DungeonRoomSO roomLibrary) => dungeonRoomSO = roomLibrary;
 
     /// <summary>
     /// Wrapper: seal tất cả Tile_Door có hướng không nằm trong <paramref name="directions"/>.
@@ -41,7 +38,6 @@ public class LevelManager : MonoBehaviour
 
     public List<TileSO> GetTileSOs() => _listTiles;
     public List<Tilemap> GetTilemaps() => genmap;
-    public DungeonRoomSO GetDungeonRoomSO() => dungeonRoomSO;
 }
 
 [System.Serializable]

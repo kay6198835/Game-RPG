@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — RoomGeneraterController cleanup
+- **Commit:** this change on `sprint-23` (owner-approved list; no behaviour change).
+- **Changed:** `RoomGeneraterController.cs`, `LevelManager.cs`, `LoadRandomMap.unity`.
+- **From → To:**
+  - Removed: dead `OnDoneLoadRoomGrid()` (no caller; `RoomGridController` has its own), fields `_startIndex` / `_endIndex` (now parameters of `BuildMazeRooms()`), the `_levelManager.SetDungeonRoomSO()` hand-over and `LevelManager.SetDungeonRoomSO()` / `GetDungeonRoomSO()` / `dungeonRoomSO` (written, never read), `using Unity.VisualScripting`.
+  - `_listTiles`, `_genmap`, `_swapLevelData`: `[SerializeField]` → private (overwritten from `LevelManager` / a non-serializable `Dictionary`). `IndexLevelDataDoor`, `Data`, `DoorPoints`: public auto-properties with an ineffective `[SerializeField]` → private fields (no outside reader). `spawnPositions` keeps `[SerializeField]` for debugging (owner).
+  - `LoadRoom()`: `filePath` assigned once; `worldPose = IsCleared ? A : A` → `A` (both branches were identical; both data sources hold room-local positions).
+  - Scene: stale keys `_listTiles`, `_genmap`, `_swapLevelData`, `_startIndex`, `_endIndex`, `randomMazeRoomsIndex` removed.
+- **Why:** owner request — remove redundant fields.
+
 ## 2026-11-18 — Start / end rooms by RoomType; required room groups
 - **Commit:** this change on `sprint-23` (owner request; bug status left to the Saturday triage).
 - **Changed:** `RoomGeneraterController.cs` (`BuildMazeRooms()`, `PickRequiredRooms()`, `Shuffle()`, `RequiredRoomGroup`, `[SerializeField] _requiredRoomGroups`; `randomMazeRoomsIndex` removed).

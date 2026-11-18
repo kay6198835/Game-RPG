@@ -810,7 +810,7 @@
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
 
       LevelEdit/
-        LevelManager.cs                         # ⚠️ **2026-11-18:** runtime only — tile list + tilemaps, `SetDungeonRoomSO()` from RoomGeneraterController;
+        LevelManager.cs                         # ⚠️ **2026-11-18:** runtime only — tile list + tilemaps (`SetDungeonRoomSO()` removed later that day);
                                                 # not in DI; lives at `Room/Grid/Level Manager`. Also declares `LevelData`.
                                                 # *Was:* registered in GameLifetimeScope + editor save/import. Bug #12 / TD-023 FIXED (2026-10-05)
         LevelEditorTool.cs                      # ✅ NEW 2026-11-18 — room CRUD (Save / Load / Edit / Delete + Import JSON) split out of LevelManager;
@@ -1226,7 +1226,7 @@
     → MapGrid.Setting() / RoomGrid.Setting()
         RoomGridController.Setting() → RoomGeneraterController.Setting():
           → GetCellStart/End → _startIndex / _endIndex
-          → _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles + tilemaps ← _levelManager   (2026-11-18; was injected)
+          → tiles + tilemaps ← _levelManager; room pool = _fullDungeonRoomSO   (2026-11-18; was injected)
           → BuildMazeRooms(): start cell = a StartRoom, end cell = a BossRoom (by roomType, 2026-11-18; was
             room[0] / room[last], Bug #16 / BUG-097 — status left to triage); other cells = distinct random rooms
             with ≥ 1 per `_requiredRoomGroups` entry (default Shop; Treasure/Rest/Puzzle/Secret)

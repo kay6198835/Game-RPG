@@ -1,5 +1,4 @@
 
-using Unity.VisualScripting;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -15,14 +14,14 @@ public class RoomGeneraterController : MonoBehaviour
     private List<RoomFile> _mazeRooms = new List<RoomFile>();
     // Child of Room (Room/Grid/Level Manager): tile catalogue + tilemaps. Not injected.
     [SerializeField] private LevelManager _levelManager;
-    [SerializeField] private List<TileSO> _listTiles;
-    [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
-    [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
-    [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
-    [SerializeField] public LevelData Data { get; private set; } = new LevelData();
-    [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
-    [SerializeField] private int _startIndex;
-    [SerializeField] private int _endIndex;
+    // Cached from _levelManager in Setting().
+    private List<TileSO> _listTiles;
+    private List<Tilemap> _genmap = new List<Tilemap>();
+    // State of the room being shown.
+    private SwapLevelData _swapLevelData = new SwapLevelData();
+    private List<int> IndexLevelDataDoor = new List<int>();
+    private LevelData Data = new LevelData();
+    private List<DoorPoint> DoorPoints = new List<DoorPoint>();
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     [SerializeField] PathfindingGrid pathfindingGrid;
     // Child object of Room: pathfinding grid + enemy spawning for the room being loaded.
@@ -41,8 +40,6 @@ public class RoomGeneraterController : MonoBehaviour
     }
     public void Setting(int startIndex, int endIndex, int listCount)
     {
-        _startIndex = startIndex;
-        _endIndex = endIndex;
         if (_enemyManager == null)
             _enemyManager = GetComponentInChildren<EnemyManager>(true);
         if (_enemyManager == null)
@@ -56,11 +53,10 @@ public class RoomGeneraterController : MonoBehaviour
             return;
         }
 
-        _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO);
         _listTiles = _levelManager.GetTileSOs();
         _genmap = _levelManager.GetTilemaps();
 
-        if (!BuildMazeRooms(listCount)) return;
+        if (!BuildMazeRooms(listCount, startIndex, endIndex)) return;
         pathfindingGrid = new PathfindingGrid();
         if (_enemyManager != null) _enemyManager.SetPathfindingGrid(pathfindingGrid);
     }
@@ -68,7 +64,7 @@ public class RoomGeneraterController : MonoBehaviour
     // Start / end rooms are chosen by RoomType (StartRoom / BossRoom), never by their position in the
     // library, so adding, deleting or re-sorting rooms cannot move them. Every other cell gets a distinct
     // random room of any other type, with at least one room from each _requiredRoomGroups entry.
-    private bool BuildMazeRooms(int cellCount)
+    private bool BuildMazeRooms(int cellCount, int startIndex, int endIndex)
     {
         List<RoomFile> library = _fullDungeonRoomSO.room;
         List<RoomFile> startRooms = library.FindAll(r => r.roomType == RoomType.StartRoom);
@@ -96,8 +92,8 @@ public class RoomGeneraterController : MonoBehaviour
         int next = 0;
         for (int cell = 0; cell < cellCount; cell++)
         {
-            if (cell == _startIndex) _mazeRooms.Add(startRooms[Random.Range(0, startRooms.Count)]);
-            else if (cell == _endIndex) _mazeRooms.Add(bossRooms[Random.Range(0, bossRooms.Count)]);
+            if (cell == startIndex) _mazeRooms.Add(startRooms[Random.Range(0, startRooms.Count)]);
+            else if (cell == endIndex) _mazeRooms.Add(bossRooms[Random.Range(0, bossRooms.Count)]);
             else _mazeRooms.Add(picked[next++]);
         }
         return true;
@@ -138,16 +134,9 @@ public class RoomGeneraterController : MonoBehaviour
         }
     }
 
-    public void OnDoneLoadRoomGrid(RoomCell _current)
-    {
-        this.LoadRoom(_startIndex, _current);
-        _playerService.SetPlayerPosition(_current.StartDoorPosition + (Vector2)_current.transform.position);
-    }
-
     public void LoadRoom(int index, RoomCell nextRoomCell)
     {
-        string filePath = "";
-        filePath = _mazeRooms[index].filePath;
+        string filePath = _mazeRooms[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         if (!nextRoomCell.IsCleared)
         {
@@ -169,8 +158,7 @@ public class RoomGeneraterController : MonoBehaviour
         for (int i = 0; i < Data.poses.Count; i++)
         {
             origanalTileMapPosition = Data.poses[i];
-            worldPose = nextRoomCell.IsCleared ? Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position)
-            : Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
+            worldPose = Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
