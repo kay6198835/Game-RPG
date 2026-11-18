@@ -2,27 +2,27 @@
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(LevelManager))]
-public class LevelManagerEditor : Editor
+[CustomEditor(typeof(LevelEditorTool))]
+public class LevelEditorToolEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        LevelManager levelManager = (LevelManager)target;
+        LevelEditorTool tool = (LevelEditorTool)target;
 
         if (GUILayout.Button("Save Level"))
         {
-            levelManager.SaveLevel();
+            tool.SaveLevel();
         }
 
         if (GUILayout.Button("Load Level"))
         {
-            levelManager.LoadLevel();
+            tool.LoadLevel();
         }
         if (GUILayout.Button("Edit Level"))
         {
-            levelManager.UpdateRoom();
+            tool.UpdateRoom();
         }
         if (GUILayout.Button("Clear Enemy"))
         {
@@ -30,11 +30,11 @@ public class LevelManagerEditor : Editor
         }
         if (GUILayout.Button("Import Room Json Files"))
         {
-            levelManager.ImportRoomJsonFiles();
+            tool.ImportRoomJsonFiles();
         }
         if (GUILayout.Button("Spawn Enemy"))
         {
-            levelManager.SpawnRoomEnemies();
+            tool.SpawnRoomEnemies();
         }
     }
 }

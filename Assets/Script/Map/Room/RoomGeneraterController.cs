@@ -10,7 +10,10 @@ using VContainer;
 public class RoomGeneraterController : MonoBehaviour
 {
     [SerializeField] private DungeonRoomSO _dungeonRoomSO;
-    // [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
+    // Full room library (Maze_Storage); handed to LevelManager in Setting().
+    [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
+    // Child of Room (Room/Grid/Level Manager): tile catalogue + tilemaps. Not injected.
+    [SerializeField] private LevelManager _levelManager;
     [SerializeField] private List<TileSO> _listTiles;
     [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
     [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
@@ -25,12 +28,10 @@ public class RoomGeneraterController : MonoBehaviour
     // Child object of Room: pathfinding grid + enemy spawning for the room being loaded.
     [SerializeField] private EnemyManager _enemyManager;
     IPlayerService _playerService;
-    LevelManager _levelManager;
     [Inject]
-    public void Construct(IPlayerService playerService, LevelManager levelManager)
+    public void Construct(IPlayerService playerService)
     {
         _playerService = playerService;
-        _levelManager = levelManager;
     }
     public void OnDisable()
     {
@@ -45,8 +46,15 @@ public class RoomGeneraterController : MonoBehaviour
         if (_enemyManager == null)
             Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager child under {name}; rooms cannot spawn enemies.");
 
-        // need refactor to get _fullDungeonRoomSO, _listTiles, _genmap from other class, not from LevelManager
-        DungeonRoomSO _fullDungeonRoomSO = _levelManager.GetDungeonRoomSO();
+        if (_levelManager == null)
+            _levelManager = GetComponentInChildren<LevelManager>(true);
+        if (_levelManager == null || _fullDungeonRoomSO == null)
+        {
+            Debug.LogError($"[{nameof(RoomGeneraterController)}] Needs a LevelManager child and _fullDungeonRoomSO on {name}; no room can be built.");
+            return;
+        }
+
+        _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO);
         _listTiles = _levelManager.GetTileSOs();
         _genmap = _levelManager.GetTilemaps();
 

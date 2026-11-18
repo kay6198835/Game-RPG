@@ -1690,6 +1690,7 @@ Transform:
   - {fileID: 1223994176689986908}
   - {fileID: 6173458257446183492}
   - {fileID: 293530607236516562}
+  - {fileID: 7413905128830551002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8694060803999738852
@@ -1704,7 +1705,77 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8100de5d931ac5c40bbff6ddbceb98c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomModel: {fileID: 11400000, guid: 76808bc7e131d734ab38fd59a524cb35, type: 2}
+  genmap:
+  - {fileID: 3599266322025643715}
+  - {fileID: 6873636586141251921}
+  - {fileID: 3706952450557929329}
+  - {fileID: 4778915340737824855}
+  - {fileID: 930638174398739181}
+  _listTiles:
+  - {fileID: 11400000, guid: 626e1a32138734c469975d826cc0cef0, type: 2}
+  - {fileID: 11400000, guid: 2f221fa9fca29774893e5a035af7f768, type: 2}
+  - {fileID: 11400000, guid: 1111a9f56e3b77d40a2b21cb6a137402, type: 2}
+  - {fileID: 11400000, guid: 2fd047b8785a94043801c2483aade714, type: 2}
+  - {fileID: 11400000, guid: cccf5959b26f01943a779e8db09d8be0, type: 2}
+  - {fileID: 11400000, guid: 1d77b4b689c91324d80fad001ab4f763, type: 2}
+  - {fileID: 11400000, guid: e064483aeb3959b4eb66721fbf7b473e, type: 2}
+  - {fileID: 11400000, guid: c56de88a1c4d2094ba7d73529d231bc5, type: 2}
+  - {fileID: 11400000, guid: 6ce5a0aa0ec1b7749b754620a176d1a3, type: 2}
+--- !u!1 &7413905128830551001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7413905128830551002}
+  - component: {fileID: 7413905128830551003}
+  m_Layer: 0
+  m_Name: Level Editor Tool
+  m_TagString: EditorOnly
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7413905128830551002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7413905128830551001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4949159717193136509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7413905128830551003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7413905128830551001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7133ca44f86b4f9a889b432dcd754b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dungeonRoomSO: {fileID: 11400000, guid: 5dbee7e189aa1dd4890c78e7d10267a6, type: 2}
+  _listTiles:
+  - {fileID: 11400000, guid: 626e1a32138734c469975d826cc0cef0, type: 2}
+  - {fileID: 11400000, guid: 2f221fa9fca29774893e5a035af7f768, type: 2}
+  - {fileID: 11400000, guid: 1111a9f56e3b77d40a2b21cb6a137402, type: 2}
+  - {fileID: 11400000, guid: 2fd047b8785a94043801c2483aade714, type: 2}
+  - {fileID: 11400000, guid: cccf5959b26f01943a779e8db09d8be0, type: 2}
+  - {fileID: 11400000, guid: 1d77b4b689c91324d80fad001ab4f763, type: 2}
+  - {fileID: 11400000, guid: e064483aeb3959b4eb66721fbf7b473e, type: 2}
+  - {fileID: 11400000, guid: c56de88a1c4d2094ba7d73529d231bc5, type: 2}
+  - {fileID: 11400000, guid: 6ce5a0aa0ec1b7749b754620a176d1a3, type: 2}
   tilemap:
   - {fileID: 3599266322025643715}
   - {fileID: 6873636586141251921}
@@ -1719,20 +1790,8 @@ MonoBehaviour:
   - {fileID: 3706952450557929329}
   - {fileID: 4778915340737824855}
   - {fileID: 930638174398739181}
-  dungeonRoomSO: {fileID: 11400000, guid: 5dbee7e189aa1dd4890c78e7d10267a6, type: 2}
   index: 0
-  amount: 0
-  listRooms: []
-  _listTiles:
-  - {fileID: 11400000, guid: 626e1a32138734c469975d826cc0cef0, type: 2}
-  - {fileID: 11400000, guid: 2f221fa9fca29774893e5a035af7f768, type: 2}
-  - {fileID: 11400000, guid: 1111a9f56e3b77d40a2b21cb6a137402, type: 2}
-  - {fileID: 11400000, guid: 2fd047b8785a94043801c2483aade714, type: 2}
-  - {fileID: 11400000, guid: cccf5959b26f01943a779e8db09d8be0, type: 2}
-  - {fileID: 11400000, guid: 1d77b4b689c91324d80fad001ab4f763, type: 2}
-  - {fileID: 11400000, guid: e064483aeb3959b4eb66721fbf7b473e, type: 2}
-  - {fileID: 11400000, guid: c56de88a1c4d2094ba7d73529d231bc5, type: 2}
-  - {fileID: 11400000, guid: 6ce5a0aa0ec1b7749b754620a176d1a3, type: 2}
+  roomModel: {fileID: 11400000, guid: 76808bc7e131d734ab38fd59a524cb35, type: 2}
   spawnRadius: 10
 --- !u!1 &7598911056838812758
 GameObject:

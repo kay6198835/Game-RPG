@@ -285,7 +285,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1754831935}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 874930594}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505078198
 GameObject:
@@ -611,6 +611,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1279881537}
+  - {fileID: 450202579}
   m_Father: {fileID: 807714240}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &874930595
@@ -645,6 +646,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dungeonRoomSO: {fileID: 11400000, guid: 86d75e64f73d25b47b14960a59cfe935, type: 2}
+  _fullDungeonRoomSO: {fileID: 11400000, guid: 5dbee7e189aa1dd4890c78e7d10267a6, type: 2}
+  _levelManager: {fileID: 1754831936}
   _listTiles: []
   _genmap: []
   _swapLevelData:
@@ -32372,6 +32375,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4949159717193136509, guid: b064901d62dd548459e6392b56e3c884, type: 3}
   m_PrefabInstance: {fileID: 1754831934}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1754831936 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8694060803999738852, guid: b064901d62dd548459e6392b56e3c884, type: 3}
+  m_PrefabInstance: {fileID: 1754831934}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8100de5d931ac5c40bbff6ddbceb98c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1945699142
 GameObject:
   m_ObjectHideFlags: 0
@@ -32517,7 +32531,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 505078200}
   - {fileID: 322956314}
-  - {fileID: 450202579}
   - {fileID: 763999027}
   - {fileID: 374663523}
   - {fileID: 1608606899}

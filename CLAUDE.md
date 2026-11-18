@@ -580,7 +580,7 @@
         LifetimeScope/                          # ✅ NEW — VContainer composition root (ADR-0004)
           GameLifetimeScope.cs                  # `: LifetimeScope`. ⚠️ **CHANGED 2026-10-05:** registers ObjectPoolManager, PlayerManager
                                                 # (AsSelf + IPlayerService), IPlayerStatService (factory → PlayerManager.StatService), EnemySpawner,
-                                                # ItemSpawner, RoomGeneraterController, RoomGridController, LevelManager.
+                                                # ItemSpawner, RoomGeneraterController, RoomGridController. (`LevelManager` removed 2026-11-18 — wired by reference)
                                                 # ⚠️ **2026-10-21:** `StatsUIController` no longer registered — the stats panel moved to the
                                                 # GameplayUI `UIFlow.StatsPanel` (prefab `Assets/Prefab/UIFlow/StatsPanel.prefab`, key C → `StatPointSession`)
                                                 # Player / StatHandler / AbilityHolder are NO LONGER registered — the player is spawned at runtime
@@ -803,13 +803,18 @@
                                                 # `[Inject] Construct(PlayerManager)`; OnDoneLoadRoomGrid() teleports the player — Bug #13 FIXED
           RoomGeneraterController.cs            # Tilemap loader; parses Tile_Spawn_Enemy markers; builds the PathfindingGrid.
                                                 # ⚠️ still loads JSON via File.ReadAllText(Application.dataPath…) (Bug #15). Resolved through VContainer;
-                                                # ✅ takes `LevelManager` by `[Inject] Construct(IPlayerService, LevelManager)` since 2026-10-05
+                                                # ⚠️ **2026-11-18:** `[Inject] Construct(IPlayerService)` only; `LevelManager` is `[SerializeField] _levelManager`
+                                                # (descendant `Room/Grid/Level Manager`) and gets the room library from `_fullDungeonRoomSO` (Maze_Storage).
+                                                # *Was (2026-10-05):* `[Inject] Construct(IPlayerService, LevelManager)`
           Door/ DoorController.cs
         Legacy/ Door.cs, Room.cs                # Superseded — do not use
 
       LevelEdit/
-        LevelManager.cs                         # ✅ **No longer a singleton (2026-10-05)** — registered in GameLifetimeScope, injected into
-                                                # RoomGeneraterController. Editor save/import + runtime room queries; SpawnRoomEnemies() Editor button. Bug #12 / TD-023 FIXED
+        LevelManager.cs                         # ⚠️ **2026-11-18:** runtime only — tile list + tilemaps, `SetDungeonRoomSO()` from RoomGeneraterController;
+                                                # not in DI; lives at `Room/Grid/Level Manager`. Also declares `LevelData`.
+                                                # *Was:* registered in GameLifetimeScope + editor save/import. Bug #12 / TD-023 FIXED (2026-10-05)
+        LevelEditorTool.cs                      # ✅ NEW 2026-11-18 — room authoring (Save / Load / Edit / Import JSON, test spawn) split out of
+                                                # LevelManager; on the EditorOnly child `Level Editor Tool`; not read by the runtime map flow
 
       Database-SO/Modal/                        # note `Modal` typo = "Model"
         EntityModel.cs                          # Base SO: id, nameEnity
@@ -857,7 +862,7 @@
       Player/         Paladin.asset, Archer.asset, Mage.asset (`PlayerData`; Archer/Mage added `e6bf8fc3` with animations + controllers)
 
     Editor/
-      LevelManagerEditor.cs, StatModifierTesterEditor.cs
+      LevelEditorToolEditor.cs (was LevelManagerEditor.cs until 2026-11-18), StatModifierTesterEditor.cs
       DepotItemEditor.cs                        # ✅ NEW — custom Inspector for the drop table
 
     Data/Json/Room/                             # ⚠️ **REPLACED 2026-10-05** (`213fa5a6`…`d3400ee7`): 20 named rooms —
@@ -901,8 +906,7 @@
   builder.RegisterComponentInHierarchy<EnemySpawner>();
   builder.RegisterComponentInHierarchy<ItemSpawner>();       // StatsUIController removed 2026-10-21
   builder.RegisterComponentInHierarchy<RoomGeneraterController>();
-  builder.RegisterComponentInHierarchy<RoomGridController>();
-  builder.RegisterComponentInHierarchy<LevelManager>();
+  builder.RegisterComponentInHierarchy<RoomGridController>();   // LevelManager removed 2026-11-18
   ```
 
   > **Player spawn (2026-10-05):** `PlayerManager` holds `playerPrefab` + `spawnPoint` and spawns the
@@ -1222,7 +1226,7 @@
     → MapGrid.Setting() / RoomGrid.Setting()
         RoomGridController.Setting() → RoomGeneraterController.Setting():
           → GetCellStart/End → _startIndex / _endIndex
-          → LevelManager.Instance.GetDungeonRoomSO() → full pool (⚠️ singleton reach-through, TD-023)
+          → _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles + tilemaps ← _levelManager   (2026-11-18; was injected)
           → Utility.PickUniqueIndex(total, mazeSize) → randomMazeRoomsIndex
           → assign random rooms; force [_startIndex]=room[0], [_endIndex]=room[last] (⚠️ Bug #16)
           → new PathfindingGrid() → _enemyManager.SetPathfindingGrid()   (was EnemyManager.Instance, until 2026-11-18)
@@ -1288,8 +1292,9 @@
 
   **Inspector setup that matters:** `RoomGridController` needs `_dungeonRoomSO`
   (= `Maze_Load_Room.asset`); `RoomGeneraterController` needs `_fastMovement` and `_genmap`. The
-  full room pool, tile list and tilemap list are **pulled from `LevelManager.Instance` at runtime**,
-  so a `LevelManager` with `dungeonRoomSO = Maze_Storage.asset` must be present. A **`Room/EnemyManager`
+  full room pool is `RoomGeneraterController._fullDungeonRoomSO` (= `Maze_Storage.asset`); the tile list and
+  tilemap list come from `_levelManager` at `Room/Grid/Level Manager` (since 2026-11-18 `Grid` is a child of
+  `Room` and must stay at the origin; room authoring is the EditorOnly `Level Editor Tool`). A **`Room/EnemyManager`
   child object** (`EnemyManager` + `PathRequestManager` + `EnemySpawner` with `mapModel` assigned; was
   `GameLifetimeScope/SpawnEnemy` until 2026-11-18) and a **`GameLifetimeScope`** must also be in the scene.
   `MapModel.enemyModalBoss` is the boss every `BossRoom` spawns.

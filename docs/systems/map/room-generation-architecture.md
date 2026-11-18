@@ -31,7 +31,7 @@ After the initial load, everything is driven by `EventManager` events.
                                                                 │  draws tiles, builds A* grid    │
                                                                 └──┬───────────┬───────────┬──────┘
                                                                    │           │           │ [SerializeField] _enemyManager
-                                                LevelManager (DI) ─┘  DungeonRoomSO   ┌────▼─────────────────────────────┐
+                       Room/Grid/LevelManager (ref) ─┘  DungeonRoomSO   ┌────▼─────────────────────────────┐
                                                 full room pool,       (Maze_Load_Room)│ Room/EnemyManager (child object) │
                                                 TileSOs, Tilemaps                     │  EnemyManager · PathRequestManager│
                                                                                       │  · EnemySpawner (MapModel)        │
@@ -53,9 +53,10 @@ After the initial load, everything is driven by `EventManager` events.
 | `DoorController` | Door trigger. Collider enabled only when `Status == OPEN`; player contact emits `ON_PLAYER_ON_DOOR(dir)` | `Assets/Script/Map/Room/Door/DoorController.cs` |
 | `EnemyManager` | Child of `Room`. Room-side entry point: `SetPathfindingGrid()`, `SpawnRoom()`, `SpawnBoss()` (forwarded to `EnemySpawner`); still the A* singleton for entities (ADR-0002) | `Assets/Script/System/Enemy/EnemyManager.cs` |
 | `EnemySpawner` | Same object as `EnemyManager`. `SpawnRoom()` = random `RoomModel` set from `MapModel`; `SpawnBoss()` = `MapModel.EnemyModalBoss`. Does not know the room type | `Assets/Script/System/Enemy/EnemySpawner.cs` |
-| `LevelManager` | Room data source, injected via VContainer: full room pool (`Maze_Storage.asset`), `TileSO` list, tilemaps | `Assets/Script/LevelEdit/LevelManager.cs:338-340` |
+| `LevelManager` | Runtime room data under `Room/Grid/Level Manager`: `TileSO` list + tilemaps; receives the room library from `RoomGeneraterController._fullDungeonRoomSO` (`SetDungeonRoomSO`). Not in DI | `Assets/Script/LevelEdit/LevelManager.cs` |
+| `LevelEditorTool` | Room authoring only (Save / Load / Edit / Import JSON, test spawn) on the EditorOnly child `Level Editor Tool`; owns its own `dungeonRoomSO`. Not referenced by the runtime flow | `Assets/Script/LevelEdit/LevelEditorTool.cs` |
 | `DungeonRoomSO` / `RoomFile` | Room list SO; each entry = `roomName`, `filePath` (JSON), `roomType` | `Assets/SO/Dungeon/DungeonRoomSO.cs` |
-| `LevelData` | Serialized room: parallel lists `tiles` (name), `poses` (cell), `layerIndices` | `Assets/Script/LevelEdit/LevelManager.cs:344` |
+| `LevelData` | Serialized room: parallel lists `tiles` (name), `poses` (cell), `layerIndices` | `Assets/Script/LevelEdit/LevelManager.cs` |
 
 ### Dependencies
 
@@ -63,7 +64,8 @@ After the initial load, everything is driven by `EventManager` events.
 |---|---|---|
 | `RoomGridController`, `MapGridController` | `MazeController` | `MazeController.Instance` (singleton) |
 | `RoomGridController` | `PlayerManager` | `[Inject] Construct(PlayerManager)` |
-| `RoomGeneraterController` | `IPlayerService`, `LevelManager` | `[Inject] Construct(IPlayerService, LevelManager)` |
+| `RoomGeneraterController` | `IPlayerService` | `[Inject] Construct(IPlayerService)` |
+| `RoomGeneraterController` | `LevelManager` | `[SerializeField] _levelManager` (descendant `Room/Grid/Level Manager`; falls back to `GetComponentInChildren`) |
 | `RoomGeneraterController` | `EnemyManager` | `[SerializeField] _enemyManager` (child object; falls back to `GetComponentInChildren`) — direct calls |
 | `EnemyManager` | `EnemySpawner` | `[SerializeField] _spawner` (same GameObject; falls back to `GetComponent`) |
 | `EntityMovement` | `EnemyManager` | `EnemyManager.Instance` (singleton, ADR-0002) — unchanged |
@@ -82,7 +84,7 @@ MazeController.Start() → SetCellData()
   │                         instantiate a DoorController per non-DISABLE door
   ├─ MapGrid.Setting()  → _current = start cell
   ├─ RoomGrid.Setting() → _startIndex / _endIndex → RoomGeneraterController.Setting():
-  │     full pool, tiles, tilemaps ← LevelManager
+  │     _levelManager.SetDungeonRoomSO(_fullDungeonRoomSO); tiles, tilemaps ← LevelManager
   │     Utility.PickUniqueIndex(total, cellCount) → append to _dungeonRoomSO.room
   │     room[_startIndex] = full[0]; room[_endIndex] = full[last]      (by list position)
   │     new PathfindingGrid() → _enemyManager.SetPathfindingGrid()
@@ -179,11 +181,13 @@ DoorController.OnTriggerEnter2D(Player) → Emit(ON_PLAYER_ON_DOOR, direction)
 
 - `MazeController` with `RoomGridController` (+ `RoomGeneraterController`) and `MapGridController` as children.
 - `RoomGridController.prefabObject` = `RoomCell` prefab (with `doorPrefab`); `RoomGeneraterController._dungeonRoomSO` = `Maze_Load_Room.asset`.
-- `LevelManager` with `dungeonRoomSO = Maze_Storage.asset`, tile list and tilemaps.
+- `RoomGeneraterController._fullDungeonRoomSO = Maze_Storage.asset` and `_levelManager` = the `LevelManager` under
+  `Room/Grid/Level Manager` (tile list + tilemaps). `Grid` must stay at the origin: tiles are placed in world cells.
+- `Level Editor Tool` (EditorOnly child of `Level Manager`) holds the authoring `LevelEditorTool`; stripped from builds.
 - `Room/EnemyManager` child object with `EnemyManager`, `PathRequestManager`, `EnemySpawner` (with `mapModel`;
   `MapModel.enemyModalBoss` set for boss rooms). A boss room JSON needs at least one `Tile_Spawn_Enemy`.
 - `PlayerManager`, and a `GameLifetimeScope` registering
-  `RoomGeneraterController`, `RoomGridController`, `LevelManager`.
+  `RoomGeneraterController`, `RoomGridController` (`LevelManager` is no longer registered since 2026-11-18).
 
 ---
 

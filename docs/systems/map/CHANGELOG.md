@@ -2,6 +2,17 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Grid under Room; LevelManager split from the editor tool, out of DI
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `LevelManager.cs`, new `LevelEditorTool.cs`, `Editor/LevelManagerEditor.cs` → `Editor/LevelEditorToolEditor.cs`, `RoomGeneraterController.cs`, `GameLifetimeScope.cs`, `Level Manager.prefab`, `LoadRandomMap.unity`.
+- **From → To:**
+  - Scene: root `Grid` (with the `Level Manager` prefab and its tilemaps) → `Maze/MainMap/Room/Grid`.
+  - `LevelManager` injected by VContainer (`Construct(IPlayerService, LevelManager)`) → `[SerializeField] RoomGeneraterController._levelManager` (child; `GetComponentInChildren` fallback); `RegisterComponentInHierarchy<LevelManager>()` removed.
+  - Room library: `LevelManager.dungeonRoomSO` (serialized) → `RoomGeneraterController._fullDungeonRoomSO` (Maze_Storage), handed over with `LevelManager.SetDungeonRoomSO()` in `Setting()`.
+  - Save / Load / Edit / Import / test spawn moved from `LevelManager` to `LevelEditorTool` on the new EditorOnly child `Level Editor Tool` of the prefab (own `dungeonRoomSO`, tilemaps, tile list). `LevelManager` keeps only runtime data; its `Awake()` (`GetRandomRooms`), `listRooms`, `amount` and the legacy `LoadRoom()` were deleted (no caller).
+- **Why:** owner decision — authoring must not affect the in-game map flow, and the room owns its level data.
+- **Bugs:** none closed; Bug #15 (Editor-only JSON loading) unchanged.
+
 ## 2026-11-18 — Room calls EnemyManager directly; boss rooms
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** `RoomGeneraterController.cs`, `LoadRandomMap.unity`, `room-generation-architecture.md`.

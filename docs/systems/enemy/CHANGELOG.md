@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — Death clips no longer loop
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** 80 enemy clips `Assets/Animation/Enemy/Role/*/Death/*_Die_dir N.anim` and the 8 Paladin clips `Assets/Animation/Player/Paladin/Basic/Die/` — `m_LoopTime: 1 → 0`.
+- **From → To:** death animation looped → plays once and holds the last frame. The single `AnimationOnAction` event sits before the clip end, so `EntityDeathState` still emits `ON_ENEMY_DEATH` once.
+- **Why:** owner request.
+- **Bugs:** BUG-122 unchanged — `PlayerDeathState` waits for `EndRangeTrigger`, which no player Die clip sends.
+
 ## 2026-11-18 — EnemyManager under Room, direct spawn calls, MapModel boss
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** `EnemyManager.cs`, `EnemySpawner.cs`, `MapModel.cs`, `MapModel.asset`, `LoadRandomMap.unity`.
