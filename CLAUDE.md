@@ -813,8 +813,8 @@
         LevelManager.cs                         # ⚠️ **2026-11-18:** runtime only — tile list + tilemaps, `SetDungeonRoomSO()` from RoomGeneraterController;
                                                 # not in DI; lives at `Room/Grid/Level Manager`. Also declares `LevelData`.
                                                 # *Was:* registered in GameLifetimeScope + editor save/import. Bug #12 / TD-023 FIXED (2026-10-05)
-        LevelEditorTool.cs                      # ✅ NEW 2026-11-18 — room authoring (Save / Load / Edit / Import JSON, test spawn) split out of
-                                                # LevelManager; on the EditorOnly child `Level Editor Tool`; not read by the runtime map flow
+        LevelEditorTool.cs                      # ✅ NEW 2026-11-18 — room CRUD (Save / Load / Edit / Delete + Import JSON) split out of LevelManager;
+                                                # fields `_levelManager` + own `dungeonRoomSO`; EditorOnly child `Level Editor Tool`; not read at runtime
 
       Database-SO/Modal/                        # note `Modal` typo = "Model"
         EntityModel.cs                          # Base SO: id, nameEnity
@@ -1497,7 +1497,7 @@
 
   1. ~~**Fix map compile errors**~~ ✅ Done — bugs 1-3 SUPERSEDED.
   2. ~~**Dungeon navigation + random room load**~~ ✅ Done.
-  3. ~~**Level editor tool**~~ ✅ Done — `LevelManager` + `LevelManagerEditor`.
+  3. ~~**Level editor tool**~~ ✅ Done — `LevelEditorTool` + `LevelEditorToolEditor` (room CRUD; was `LevelManager` + `LevelManagerEditor` until 2026-11-18).
   4. ~~**Fix EventManager build break**~~ ✅ Done (Bug #10).
   5. ~~**Fix player melee damage**~~ ✅ Done (Bug #4).
   6. **Player death** ⚠️ (Bug #6 / S10-08) — ✅ `PlayerDeathState` constructed and emitting `ON_PLAYER_DEATH`; ✅ health routes through `VitalStatsComponent`. **Re-verified 2026-09-22: the remaining half is worse than recorded.** `ON_PLAYER_DEATH` has **zero subscribers**, `grep GameManager Assets --include=*.cs` returns **0 hits**, `VitalStatsComponent` has no reset path at all (`currentStats` is filled once in `Start()`), and `ON_REALOAD_GAME` has 0 emitters and 0 subscribers — so **death is a permanent hard lock with no recovery** (**BUG-087**). Also needs **BUG-086** (the event currently fires every frame) and **BUG-065** (stop `PlayerMovement` on death). The enemy side already has the pattern to copy: `EntityVitalStats.Reborn()`, called from both `Start()` and `OnEnable()`.

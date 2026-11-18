@@ -17,6 +17,11 @@ which code change caused it.
 
 ---
 
+## 2026-11-18 — LevelEditorTool reduced to room CRUD (`sprint-23`)
+- **Cause:** owner request — the tool takes `LevelManager` + its own `DungeonRoomSO` and only does map CRUD.
+- `CLAUDE.md` — Repository Layout (`LevelEditorTool`), Demo checklist item 3.
+- `docs/systems/map/room-generation-architecture.md`, `docs/systems/map/CHANGELOG.md`.
+
 ## 2026-11-18 — Grid under Room, LevelManager / LevelEditorTool split, non-looping death clips (`sprint-23`)
 - **Cause:** owner request — death clips play once; `Grid` becomes a child of `Room`; `LevelManager` is wired by reference from `RoomGeneraterController` (no DI) and its authoring part becomes a separate tool.
 - `CLAUDE.md` — Repository Layout (`LevelManager`, `LevelEditorTool`, `LevelEditorToolEditor`, `RoomGeneraterController`, `GameLifetimeScope`), DI registration list, Map flow, Inspector setup.

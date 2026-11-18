@@ -2,6 +2,17 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — LevelEditorTool reduced to room CRUD
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `LevelEditorTool.cs`, `Editor/LevelEditorToolEditor.cs`, `Level Manager.prefab`.
+- **From → To:**
+  - Fields: own tile list + `tilemap` + `genmap` + `roomModel` / `spawnRadius` → `_levelManager` (tiles and tilemaps via `GetTileSOs()` / `GetTilemaps()`, `GetComponentInParent` fallback) + its own `dungeonRoomSO`, `roomType`, `customRoomName`, `index`.
+  - Buttons: Save / Load / Edit / Import / Clear Enemy / Spawn Enemy → Save (Create) / Load (Read) / Edit (Update) / **Delete** (new) / Import. Clear Enemy and Spawn Enemy removed.
+  - Save on an existing name or file: silent overwrite → confirm dialog (an existing SO entry is updated, not duplicated).
+  - Delete removes `room[index]` from the SO and deletes the JSON (`AssetDatabase.DeleteAsset`) after a confirm dialog; warns when the room is first/last (start/end by list position, BUG-097).
+  - Guards for a missing LevelManager / SO, out-of-range `index`, and tiles missing from the tile list (were NullReference).
+- **Why:** owner decision — the tool only supports map CRUD.
+
 ## 2026-11-18 — Grid under Room; LevelManager split from the editor tool, out of DI
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** `LevelManager.cs`, new `LevelEditorTool.cs`, `Editor/LevelManagerEditor.cs` → `Editor/LevelEditorToolEditor.cs`, `RoomGeneraterController.cs`, `GameLifetimeScope.cs`, `Level Manager.prefab`, `LoadRandomMap.unity`.

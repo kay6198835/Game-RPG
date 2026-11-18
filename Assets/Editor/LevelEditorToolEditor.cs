@@ -11,31 +11,11 @@ public class LevelEditorToolEditor : Editor
 
         LevelEditorTool tool = (LevelEditorTool)target;
 
-        if (GUILayout.Button("Save Level"))
-        {
-            tool.SaveLevel();
-        }
-
-        if (GUILayout.Button("Load Level"))
-        {
-            tool.LoadLevel();
-        }
-        if (GUILayout.Button("Edit Level"))
-        {
-            tool.UpdateRoom();
-        }
-        if (GUILayout.Button("Clear Enemy"))
-        {
-            EventManager.Emit(EventID.ON_OPEN_DOOR);
-        }
-        if (GUILayout.Button("Import Room Json Files"))
-        {
-            tool.ImportRoomJsonFiles();
-        }
-        if (GUILayout.Button("Spawn Enemy"))
-        {
-            tool.SpawnRoomEnemies();
-        }
+        if (GUILayout.Button("Save Level (Create)")) tool.SaveLevel();
+        if (GUILayout.Button("Load Level (Read)")) tool.LoadLevel();
+        if (GUILayout.Button("Edit Level (Update)")) tool.UpdateRoom();
+        if (GUILayout.Button("Delete Level")) tool.DeleteRoom();
+        if (GUILayout.Button("Import Room Json Files")) tool.ImportRoomJsonFiles();
     }
 }
 #endif

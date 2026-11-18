@@ -54,7 +54,7 @@ After the initial load, everything is driven by `EventManager` events.
 | `EnemyManager` | Child of `Room`. Room-side entry point: `SetPathfindingGrid()`, `SpawnRoom()`, `SpawnBoss()` (forwarded to `EnemySpawner`); still the A* singleton for entities (ADR-0002) | `Assets/Script/System/Enemy/EnemyManager.cs` |
 | `EnemySpawner` | Same object as `EnemyManager`. `SpawnRoom()` = random `RoomModel` set from `MapModel`; `SpawnBoss()` = `MapModel.EnemyModalBoss`. Does not know the room type | `Assets/Script/System/Enemy/EnemySpawner.cs` |
 | `LevelManager` | Runtime room data under `Room/Grid/Level Manager`: `TileSO` list + tilemaps; receives the room library from `RoomGeneraterController._fullDungeonRoomSO` (`SetDungeonRoomSO`). Not in DI | `Assets/Script/LevelEdit/LevelManager.cs` |
-| `LevelEditorTool` | Room authoring only (Save / Load / Edit / Import JSON, test spawn) on the EditorOnly child `Level Editor Tool`; owns its own `dungeonRoomSO`. Not referenced by the runtime flow | `Assets/Script/LevelEdit/LevelEditorTool.cs` |
+| `LevelEditorTool` | Room CRUD in the Editor — Save (create), Load (read), Edit (update), Delete (SO entry + JSON, confirm dialog), Import JSON — on the EditorOnly child `Level Editor Tool`. Fields: `_levelManager` (tiles + tilemaps) and its own `dungeonRoomSO`. Not referenced by the runtime flow | `Assets/Script/LevelEdit/LevelEditorTool.cs` |
 | `DungeonRoomSO` / `RoomFile` | Room list SO; each entry = `roomName`, `filePath` (JSON), `roomType` | `Assets/SO/Dungeon/DungeonRoomSO.cs` |
 | `LevelData` | Serialized room: parallel lists `tiles` (name), `poses` (cell), `layerIndices` | `Assets/Script/LevelEdit/LevelManager.cs` |
 
