@@ -11,11 +11,10 @@ public class PlayerDeathState : PlayerDisadvantageState
     {
         base.Enter();
     }
-    public override void LogicUpdate()
+
+    public override void AnimationOnAction()
     {
-        if (Status == StatusAnimation.EndRangeTrigger)
-        {
-            EventManager.Emit(EventID.ON_PLAYER_DEATH);
-        }
+        base.AnimationOnAction();
+        EventManager.Emit(EventID.ON_PLAYER_DEATH);
     }
 }

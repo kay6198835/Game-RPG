@@ -44,6 +44,7 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     // the receiver no longer changes state itself. Sticky until ReloadComponent() (respawn / Reborn).
     public virtual void OnDeath(Vector2 attackPosition)
     {
+        if(isDeath) return;
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isDeath = true;
