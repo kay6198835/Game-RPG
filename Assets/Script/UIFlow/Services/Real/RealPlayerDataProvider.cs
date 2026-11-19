@@ -18,7 +18,8 @@ namespace UIFlow
     /// trước khi LoadRandomMap chạy Start(). Từ ICharacter gốc, lấy từng thành phần bằng GetComponentInChildren
     /// (đúng quy ước ADR-0005).
     ///
-    /// Lưu ý: PlayerDeathState bắn ON_PLAYER_DEATH MỖI FRAME (BUG-086) → cờ _deathReported chỉ phản ứng một lần.
+    /// Lưu ý: từ 49c58e35 PlayerDeathState bắn ON_PLAYER_DEATH một lần (frame AnimationOnAction); cờ _deathReported
+    /// vẫn giữ để PlayerDied chắc chắn chỉ chạy một lần mỗi lần chết.
     /// </summary>
     public class RealPlayerDataProvider : IPlayerDataProvider, IDisposable
     {

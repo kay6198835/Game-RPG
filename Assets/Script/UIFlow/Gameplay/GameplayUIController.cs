@@ -40,6 +40,7 @@ namespace UIFlow
             UIEvents.SkillUsed += OnSkillUsed;
             UIServices.Player.PlayerDied += OnPlayerDied;
             UIEvents.OpenConfirnPanel += OnConfirnPanel;
+            UIEvents.ReturnToMainMenuRequested += OnReturnToMainMenu;
         }
 
         private void OnDisable()
@@ -52,6 +53,7 @@ namespace UIFlow
             UIEvents.SkillUsed -= OnSkillUsed;
             UIServices.Player.PlayerDied -= OnPlayerDied;
             UIEvents.OpenConfirnPanel -= OnConfirnPanel;
+            UIEvents.ReturnToMainMenuRequested -= OnReturnToMainMenu;
         }
 
         private void Start()
@@ -124,6 +126,13 @@ namespace UIFlow
         {
             uiManager.CloseAll();
             uiManager.Open(gameOverPanel);
+        }
+
+        // Boss chết → player tương tác → gameplay gọi UIEvents.RequestReturnToMainMenu().
+        private void OnReturnToMainMenu()
+        {
+            uiManager.CloseAll();
+            SceneFlow.ReturnToMainMenu();
         }
 
         private void OnConfirnPanel(ConfirnData data)
