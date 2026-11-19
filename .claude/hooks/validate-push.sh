@@ -121,18 +121,30 @@ git_segment() {
           s = out s
           gsub(/&&|\|\|/, "\n", s); gsub(/[;&|()`"'"'"']/, "\n", s); print s
         }' \
-      | grep -E "^[[:space:]]*((if|then|else|elif|do|while|until|time|exec|command|nohup|!|[{])[[:space:]]+|(env|sudo|doas|xargs|nice|timeout|stdbuf|winpty|command)([[:space:]]+-[A-Za-z0-9-]+(=[^[:space:]]*)?([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+([0-9][0-9.]*[smhd]?[[:space:]]+)?|[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:]]*[/\\])?[Gg][Ii][Tt](\.exe)?([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--(git-dir|work-tree|namespace|super-prefix|config-env|attr-source)[[:space:]]+[^[:space:]]+|-[A-Za-z]|--[A-Za-z-]+(=[^[:space:]]+)?))*[[:space:]]+$1([[:space:]]|\$)"
+      | grep -E "^[[:space:]]*((if|then|else|elif|do|while|until|time|exec|command|nohup|!|[{])[[:space:]]+|(env|sudo|doas|xargs|nice|timeout|stdbuf|winpty|command)([[:space:]]+-[A-Za-z0-9-]+(=[^[:space:]]*)?([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+([0-9][0-9.]*[smhd]?[[:space:]]+)?|rtk([[:space:]]+proxy)?[[:space:]]+|[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:]]*[/\\])?[Gg][Ii][Tt](\.exe)?([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--(git-dir|work-tree|namespace|super-prefix|config-env|attr-source)[[:space:]]+[^[:space:]]+|-[A-Za-z]|--[A-Za-z-]+(=[^[:space:]]+)?))*[[:space:]]+$1([[:space:]]|\$)"
 }
 
 # Only process git push commands
 PUSH_SEG=$(git_segment push "$COMMAND") || exit 0
 
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+# `git -C <dir> push` with no refspec pushes <dir>'s branch, not ours.
+PUSH_DIR=$(printf '%s' "$PUSH_SEG" | head -1 | sed -nE 's/.*[[:space:]]-C[[:space:]]+([^[:space:]]+).*/\1/p' | tr '\001' ' ')
+if [ -n "$PUSH_DIR" ] && git -C "$PUSH_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    CURRENT_BRANCH=$(git -C "$PUSH_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
+else
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+fi
 MATCHED_BRANCH=""
+
+# --all / --mirror push every branch, main included.
+if echo "$PUSH_SEG" | grep -qE "[[:space:]]--(all|mirror)([[:space:]=]|$)"; then
+    MATCHED_BRANCH="main"
+fi
 
 # Check if pushing to a protected branch: main, master, or any release/*
 # branch (the trunk model's only other protected line -- no GitFlow develop).
 for branch in main master; do
+    [ -n "$MATCHED_BRANCH" ] && break
     if [ "$CURRENT_BRANCH" = "$branch" ]; then
         MATCHED_BRANCH="$branch"
         break
@@ -157,8 +169,18 @@ if [ -z "$MATCHED_BRANCH" ] && echo "$PUSH_SEG" | grep -qE "([[:space:]+:]|refs/
     MATCHED_BRANCH=$(echo "$PUSH_SEG" | grep -oE "release/[^[:space:]:]+" | head -1)
 fi
 
+# main / master: BLOCK (owner decision 2026-11-19). Claude never pushes the trunk;
+# the owner merges sprint branches into main by hand. Exit 2 is the only result
+# that stops the call -- an allow rule anywhere (`git -C <repo> *`, `rtk git *`,
+# a future "Always allow") cannot reopen it, and onFailure: block covers a crash.
+case "$MATCHED_BRANCH" in
+    main|master)
+        echo "BLOCKED: push to protected branch '$MATCHED_BRANCH'. Claude does not push main/master in this repo; push a sprint-*/pm/* branch and let the owner merge." >&2
+        exit 2 ;;
+esac
+
 if [ -n "$MATCHED_BRANCH" ]; then
-    # Allow the push, but warn where it is seen. stderr on exit 0 goes to the
+    # release/*: allow the push, but warn where it is seen. stderr on exit 0 goes to the
     # debug log only, so this warning reached neither the user nor Claude.
     # systemMessage is shown to the user; additionalContext reaches Claude next
     # to the tool result. No permissionDecision: "allow" would skip the user's

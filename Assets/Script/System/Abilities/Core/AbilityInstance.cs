@@ -45,6 +45,7 @@ public class AbilityInstance
     {
         PayCost(Definition.Costs);
         ChangeState(AbilityState.Cast);
+        AbilityContext.HoldTime = Time.time;
     }
     public void CastInstant()
     {

@@ -1665,6 +1665,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4949159717193136509}
   - component: {fileID: 8694060803999738852}
+  - component: {fileID: 3199886090914708422}
   m_Layer: 0
   m_Name: Level Manager
   m_TagString: Untagged
@@ -1721,6 +1722,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e064483aeb3959b4eb66721fbf7b473e, type: 2}
   - {fileID: 11400000, guid: c56de88a1c4d2094ba7d73529d231bc5, type: 2}
   - {fileID: 11400000, guid: 6ce5a0aa0ec1b7749b754620a176d1a3, type: 2}
+--- !u!114 &3199886090914708422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6105328937451582030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7133ca44f86b4f9a889b432dcd754b26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _levelManager: {fileID: 8694060803999738852}
+  dungeonRoomSO: {fileID: 11400000, guid: 5dbee7e189aa1dd4890c78e7d10267a6, type: 2}
+  roomType: 0
+  customRoomName: 
+  index: 19
 --- !u!1 &7413905128830551001
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,6 @@
 ---
 name: doc-sync
-description: "Đối chiếu lời khẳng định trong tài liệu với code (Phase 0 claim sweep), phân tích trạng thái hiện tại của dự án từ git log và source code, sau đó cập nhật CLAUDE.md (Repository Layout, Known Bugs, Demo Checklist, Event System), memory/project_state.md, docs/systems/<system>/ (README + CHANGELOG), các tài liệu sống (GDD, ADR, diagrams, ui-ux-flow, skill-reference, tech-debt-register, VERSION.md) cùng changelog/<doc>.CHANGELOG.md bên cạnh, và docs/CHANGELOG-DOCS.md để đồng bộ với code thực tế. Chạy khi user nói 'cập nhật docs', 'sync document', 'update project docs', 'cập nhật tài liệu dự án'."
+description: "Đối chiếu lời khẳng định trong tài liệu với code (Phase 0 claim sweep), phân tích trạng thái hiện tại của dự án từ git log và source code, sau đó cập nhật file chủ của từng loại dữ liệu (production/qa/open-bugs.md sinh tự động, production/demo-checklist.md, docs/systems/event-system/README.md), chỉ sửa dòng mốc + dòng tóm tắt trong CLAUDE.md, memory/project_state.md, docs/systems/<system>/ (README + CHANGELOG), các tài liệu sống (GDD, ADR, diagrams, ui-ux-flow, skill-reference, tech-debt-register, VERSION.md) cùng changelog/<doc>.CHANGELOG.md bên cạnh, và docs/CHANGELOG-DOCS.md để đồng bộ với code thực tế. Chạy khi user nói 'cập nhật docs', 'sync document', 'update project docs', 'cập nhật tài liệu dự án'."
 argument-hint: "[--dry-run | --auto]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Write, Edit
@@ -24,7 +24,7 @@ tài liệu `.md` để khớp với code. Không suy đoán — chỉ ghi nhữ
 
 > **Bug ID**: skill này **không bao giờ cấp số bug** và không tạo file `production/qa/bugs/BUG-*.md`.
 > Lỗi code nghi ngờ phát hiện khi đọc source → ghi chú vào `production/qa/bug-inbox.md`
-> (`.claude/rules/bug-inbox.md`). Trong `CLAUDE.md` chỉ được nhắc tới ID đã có file.
+> (`.claude/rules/bug-inbox.md`). Mọi tài liệu chỉ được nhắc tới ID đã có file.
 
 ---
 
@@ -35,9 +35,9 @@ từng ghi BUG-096 là "đã sửa" trong khi fix đã bị xoá cùng ngày).
 
 1. `bash .claude/scripts/doc-claims.sh` — đường dẫn `Assets/…`, trích dẫn `File.cs:NN`, tên
    `ON_*` trong tài liệu sống, so với HEAD. Mỗi dòng `STALE` là một việc phải xử lý ở Phase 5.
-2. `bash .claude/scripts/bug-id.sh audit` — ID không có file, file thiếu `**Status**`, trạng thái
-   trong bảng Known Bugs của `CLAUDE.md` lệch với file bug. **File bug luôn đúng** — sửa `CLAUDE.md`.
-3. Đọc lại source cho mọi dòng Known Bugs ghi FIXED/PARTIAL mà file được trích dẫn đã đổi kể từ
+2. `bash .claude/scripts/bug-id.sh audit` — ID không có file, file thiếu `**Status**`, hàng bug bị chép
+   vào `CLAUDE.md` (phải là 0), `production/qa/open-bugs.md` còn khớp không. **File bug luôn đúng.**
+3. Đọc lại source cho mọi bug ghi FIXED/PARTIAL (file bug) mà file code được trích dẫn đã đổi kể từ
    mốc cập nhật cuối (tối đa 15 dòng): fix còn trong code không? Hết dòng nào thì ghi `UNVERIFIABLE`.
 4. Ghi kết quả vào `production/qa/doc-truth-<YYYY-MM-DD>.md`: bảng `Claim | Doc:line | Verdict
    (TRUE/STALE/FALSE/UNVERIFIABLE) | Evidence`. Các phase sau **phải** dùng danh sách này: mọi dòng
@@ -51,7 +51,7 @@ từng ghi BUG-096 là "đã sửa" trong khi fix đã bị xoá cùng ngày).
 
 Đọc git log từ context (đã tự động chạy). Xác định những commit mới nhất chưa được
 phản ánh trong tài liệu bằng cách đọc mốc cập nhật cuối:
-- `CLAUDE.md` dòng `> **Last updated:** YYYY-MM-DD (HEAD `<hash>` …)` — **mốc chính**, dùng
+- `CLAUDE.md` dòng `> **Last updated:** YYYY-MM-DD (HEAD `<hash>` …)` (chỉ có một dòng này) — **mốc chính**, dùng
   `git log <hash>..HEAD`.
 - `memory/project_state.md` dòng `Updated **YYYY-MM-DD**`.
 - `docs/systems/*/README.md` dòng `**Last verified:** YYYY-MM-DD, HEAD `<hash>``.
@@ -76,23 +76,23 @@ Với mỗi file source bị ảnh hưởng bởi commit chưa được document
 Tập trung vào:
 
 ### 2a. Cấu trúc thư mục mới
-- Glob `Assets/Script/**/*.cs` và so sánh với Repository Layout trong `CLAUDE.md`.
+- Glob `Assets/Script/**/` (mức folder) và so sánh với bảng "Code map" trong `CLAUDE.md`; chi tiết file/class so với `docs/systems/<system>/README.md`.
 - Glob `Assets/SO/**/*.cs` và `Assets/Editor/**/*.cs` cho các folder mới.
-- Liệt kê mọi file/folder tồn tại trong code nhưng chưa có trong CLAUDE.md.
+- Liệt kê folder mới chưa có trong Code map, và file/class mới chưa có trong README hệ thống tương ứng.
 
 ### 2b. Trạng thái bug hiện tại
-Đọc từng file được liệt kê trong bảng Known Bugs của `CLAUDE.md`.
-Với mỗi bug ⚠️ OPEN:
+Đọc mọi file `production/qa/bugs/BUG-*.md` có `**Status**` chưa FIXED/CLOSED (danh sách: `production/qa/open-bugs.md`).
+Với mỗi bug còn mở:
 - Đọc file và dòng được chỉ định.
 - Xác định: bug còn tồn tại không? Code đã thay đổi chưa?
 - Kết quả: `STILL OPEN` / `FIXED` / `CHANGED` (cần mô tả lại).
 
 ### 2c. EventID enum
 Đọc `Assets/Script/Manager/EventManager.cs`.
-Liệt kê tất cả giá trị trong enum `EventID` — so sánh với danh sách trong CLAUDE.md.
+Liệt kê tất cả giá trị trong enum `EventID` — so sánh với bảng trong `docs/systems/event-system/README.md`.
 
 ### 2d. Tính năng mới
-Dựa trên code đọc được, xác định hệ thống mới chưa có trong CLAUDE.md:
+Dựa trên code đọc được, xác định hệ thống mới chưa có trong `docs/systems/` (và Code map của CLAUDE.md):
 - Class mới không có trong Repository Layout
 - Pattern kiến trúc mới (SO mới, Manager mới, tool Editor mới)
 - Vấn đề mới (singleton vi phạm, import sai, stub chưa implement)
@@ -135,21 +135,19 @@ Tạo diff report:
 ```
 === THAY ĐỔI CẦN CẬP NHẬT ===
 
-CLAUDE.md — Repository Layout:
-  + Thêm: [file/folder mới và mô tả]
-  ~ Sửa: [entry cần cập nhật ghi chú ⚠️/✅]
+CLAUDE.md (chỉ mục, ≤ 200 dòng):
+  ~ Dòng mốc Last updated
+  ~ Code map: [folder mới/xóa] · Current state: [dòng tóm tắt đổi]
 
-CLAUDE.md — Known Bugs:
-  ✅ Đánh dấu FIXED: Bug #[N] — [mô tả]
-  + Thêm bug mới: #[N] [severity] [mô tả] [file:line]
+production/qa/open-bugs.md:
+  ~ Sinh lại bằng `bug-id.sh open` (không sửa tay)
 
-CLAUDE.md — Demo Checklist:
-  ✅ Đánh dấu done: [task]
-  + Thêm task mới: [task]
+production/demo-checklist.md:
+  - Xóa mục đã xong: [task] (ghi vào CHANGELOG-DOCS)
+  + Thêm mục mới: [task]
 
-CLAUDE.md — Event System:
-  + EventID mới: [tên]
-  + EventID còn thiếu: [tên]
+docs/systems/event-system/README.md:
+  + EventID mới / ~ producer-consumer đổi: [tên]
 
 memory/project_state.md:
   ~ Cập nhật: [mô tả thay đổi]
@@ -187,7 +185,8 @@ Nếu không có `--dry-run` và không có `--auto`, trình bày diff report tr
 ("May I write these updates?"):
 
 > Tôi sẽ cập nhật các file sau:
-> - `CLAUDE.md` — [N] thay đổi
+> - `CLAUDE.md` — dòng mốc + [N] dòng tóm tắt
+> - `production/qa/open-bugs.md` (sinh lại), `production/demo-checklist.md`
 > - `memory/project_state.md` — cập nhật toàn bộ
 > - `docs/systems/` — [N] hệ thống
 > - Tài liệu sống — [N] file (+ changelog tương ứng)
@@ -195,7 +194,7 @@ Nếu không có `--dry-run` và không có `--auto`, trình bày diff report tr
 >
 > Tiếp tục?
 > [A] Có, ghi tất cả
-> [B] Chỉ ghi CLAUDE.md + memory
+> [B] Chỉ ghi CLAUDE.md + open-bugs + demo-checklist + memory
 > [C] Chỉ ghi docs/systems + tài liệu sống
 > [D] Không — tôi sẽ tự xử lý
 
@@ -205,28 +204,31 @@ Nếu user chọn [D]: dừng, không ghi file.
 
 ## Phase 5: Ghi cập nhật
 
-### 5a. Cập nhật CLAUDE.md
+### 5a. Dữ liệu dự án → file chủ; CLAUDE.md chỉ là chỉ mục
 
-Dùng **Edit** (không phải Write) — chỉ thay đổi đúng phần cần cập nhật:
+> **CLAUDE.md không chứa dữ liệu** (từ 2026-11-19). File này nạp vào context ở **mọi** session, nên chỉ
+> giữ quy ước, cảnh báo, và **một dòng tóm tắt + path** cho mỗi loại dữ liệu. Dữ liệu ghi vào file chủ:
 
-**Repository Layout:**
-- Thêm entry cho file/folder mới với mô tả ngắn và ký hiệu ✅/⚠️.
-- Không xóa entry cũ — chỉ thêm hoặc cập nhật ghi chú.
+| Dữ liệu | File chủ — ghi vào đây | Cách ghi |
+|---|---|---|
+| Bug đang mở | `production/qa/open-bugs.md` | `bash .claude/scripts/bug-id.sh open > production/qa/open-bugs.md` — **sinh tự động**, không sửa tay. Trạng thái chỉ đổi trong file bug (bởi `/weekly-wrapup`) |
+| Demo checklist | `production/demo-checklist.md` | Edit: xóa mục xong (ghi vào CHANGELOG-DOCS), thêm mục mới |
+| EventID | `docs/systems/event-system/README.md` | Edit bảng cho khớp enum |
+| Cấu trúc file / class | `docs/systems/<system>/README.md` (5c) | Edit |
+| Quy tắc code mới | `.claude/rules/<area>.md` (có `paths:`) | Edit; quy tắc dùng mọi nơi mới lên CLAUDE.md "Coding conventions", 1 dòng |
+| Lịch sử thay đổi | `docs/CHANGELOG-DOCS.md` (5e), `docs/systems/<system>/CHANGELOG.md` (5c) | Append |
 
-**Known Bugs:**
-- Trạng thái mỗi dòng **chép từ `**Status**` của file bug**, không suy ra từ commit message.
-  Đổi `⚠️ OPEN` → `✅ FIXED` chỉ khi file bug đã ghi FIXED và Phase 0 xác nhận fix còn trong code.
-- Chỉ thêm hàng cho bug **đã có file** `production/qa/bugs/BUG-NNN.md`. Lỗi mới nghi ngờ → ghi
-  chú vào `production/qa/bug-inbox.md`, không thêm hàng, không đặt số.
-  Format hàng: `| BUG-NNN | [COMPILE/LOGIC/BUILD/ARCH] | ⚠️ OPEN | [mô tả] | [File.cs:line] |`
-- Giữ nguyên các bug đã FIXED ở bảng để có lịch sử.
+**CLAUDE.md** — dùng **Edit**, chỉ được sửa:
+- Dòng `> **Last updated:** YYYY-MM-DD (HEAD `<hash>`, branch …)` (một dòng, không thêm câu lịch sử).
+- Bảng "Code map" khi có folder mới / bị xóa (mức folder, kèm path doc).
+- Mục "Current state — one line each": mỗi mục **một dòng** tóm tắt + path (vd: số bug S1 mở).
+- Bảng "Where things live" khi có file chủ mới.
 
-**Demo Checklist:**
-- Đánh dấu ~~strikethrough~~ ✅ Done cho task hoàn thành.
-- Thêm task mới ở cuối danh sách cho tính năng mới cần làm.
+**Cấm** trong CLAUDE.md: bảng bug, bảng EventID, checklist, danh sách file/class, khối "Previous entry",
+câu `*Was:*` / `(was: …)`, `@import` (import cũng tính vào context).
 
-**Event System:**
-- Cập nhật danh sách EventID đã có và còn thiếu.
+**Kiểm ngân sách (bắt buộc, báo trong Phase 6):** `wc -l CLAUDE.md` ≤ **200** (chuẩn trong docs chính thức
+Claude Code). Hook commit chặn khi vượt; vượt thì chuyển nội dung sang file chủ, không được báo `SYNCED`.
 
 ### 5b. Cập nhật memory/project_state.md
 
@@ -291,10 +293,13 @@ Sau khi ghi file, báo cáo:
 === DOC SYNC HOÀN THÀNH ===
 
 CLAUDE.md:
-  ✅ Repository Layout: [N] entries thêm/sửa
-  ✅ Known Bugs: [N] fixed, [N] mới
-  ✅ Demo Checklist: [N] task done, [N] task mới
-  ✅ Event System: [N] EventID cập nhật
+  ✅ Dòng mốc + [N] dòng tóm tắt · kích thước [N] dòng (≤ 200)
+
+production/qa/open-bugs.md:
+  ✅ Sinh lại — [N] bug mở ([N] S1) · `bug-id.sh audit` mục 3 = none, mục 4 = current
+
+production/demo-checklist.md:
+  ✅ [N] mục xóa, [N] mục mới
 
 memory/project_state.md:
   ✅ Cập nhật — [N] hệ thống mới, [N] bug open
@@ -323,8 +328,8 @@ nghi ngờ đã nằm trong `production/qa/bug-inbox.md` chờ triage Thứ Bả
 
 ## Quy tắc ghi
 
-- **Không xóa lịch sử**: bug đã FIXED vẫn giữ trong bảng, task done vẫn giữ
-  với strikethrough.
+- **CLAUDE.md không chứa dữ liệu hay lịch sử**: dữ liệu ở file chủ (bảng 5a), lịch sử ở bug file,
+  `docs/CHANGELOG-DOCS.md`, `docs/systems/*/CHANGELOG.md` (những nơi này không xóa lịch sử).
 - **Giữ nguyên typo có chủ đích**: `Resgister`, `UnResgister`, `IObjecPoolService` —
   đây là tên thật trong source, không sửa. (`attackDamege` đã đổi thành `attackDamage` trong code
   từ 2026-09-01 — xem BUG-105; asset cũ vẫn lưu key cũ.)
@@ -333,5 +338,5 @@ nghi ngờ đã nằm trong `production/qa/bug-inbox.md` chờ triage Thứ Bả
 - **Snapshot theo ngày không bao giờ viết lại** (sprint, daily plan, retro, triage, playtest,
   module-health, open-issues, review có ngày).
 - **Không suy đoán**: nếu không đọc được file thực tế, không ghi.
-- **File paths trong CLAUDE.md**: dùng relative path từ `Assets/` (không có leading slash).
+- **File paths**: relative path từ repo root (không có leading slash).
 - **Ký hiệu**: ✅ = hoàn thành/clean, ⚠️ = cần chú ý/open bug.
