@@ -1,0 +1,1327 @@
+{
+    "base":  "dff8564816",
+    "head":  "c613e6417c",
+    "baseRef":  "dff8564816",
+    "headRef":  "origin/sprint-23",
+    "commits":  [
+                    {
+                        "sha":  "c613e641",
+                        "date":  "2026-11-19",
+                        "author":  "Claude",
+                        "subject":  "feat(enemy): react to a hit from out of view - turn, look, investigate",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/Entity.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/EntityData.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityIdleState.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityInvestigateState.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityInvestigateState.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Entity/States/EntityTakeDamageState.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Enemy/EnemyManager.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "0e0dc874",
+                        "date":  "2026-11-19",
+                        "author":  "Claude",
+                        "subject":  "fix(pathfinding): nodes on tile centres, no corner cutting, line walk check",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Pathfinding/Grid/GridBuilder.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Pathfinding/Grid/PathfindingGrid.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Tests/EditMode/AStarTests.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "93371f6c",
+                        "date":  "2026-11-19",
+                        "author":  "Kay",
+                        "subject":  "update clade setting",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/hooks/validate-commit.sh"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/hooks/validate-push.sh"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/scripts/bug-id.sh"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/settings.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/settings.local.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/skills/doc-sync/SKILL.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/skills/module-quality-audit/SKILL.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/skills/setup-engine/SKILL.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".claude/skills/weekly-wrapup/SKILL.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  ".gitignore"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/Test/Prefab/Level Manager.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Abilities/Core/AbilityInstance.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/archive/CLAUDE-history-2026-11-19.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/event-system/README.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/demo-checklist.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "production/qa/open-bugs.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "40493b70",
+                        "date":  "2026-11-19",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-19",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-23-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "d0d814b6",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "docs: CLAUDE.md entry for the 2026-11-18 map / spawn restructure",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e7a76186",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "docs(map): refresh map README to the current code and room data",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/README.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "7e6e2156",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "docs(map): refresh room-generation-architecture.md to the current code and room data",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "3015e9cf",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "data(map): add the boss spawn marker to BossRoom_ThroneArena",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Data/Json/Room/BossRoom_ThroneArena.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a92a0c7b",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "data(map): move Champion monuments and Bonfire from the boss room to the start room",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Data/Json/Room/BossRoom_ThroneArena.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Data/Json/Room/StartRoom_Entrance.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "a48ed6c7",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "refactor(map): remove redundant fields and dead code in RoomGeneraterController",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/LevelEdit/LevelManager.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Map/Room/RoomGeneraterController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e2b7efee",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "fix(map): pick start/end rooms by RoomType; guarantee required room groups",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Map/Room/RoomGeneraterController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "e16111d3",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "refactor(map): per-run room list is a runtime List\u003cRoomFile\u003e; delete Maze_Load_Room",
+                        "files":  [
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Dungeon/Maze_Load_Room.asset"
+                                      },
+                                      {
+                                          "status":  "D",
+                                          "path":  "Assets/SO/Dungeon/Maze_Load_Room.asset.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Map/Room/RoomGeneraterController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/README.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "0b959b97",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "refactor(level-edit): LevelEditorTool is room CRUD on LevelManager + own DungeonRoomSO",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Editor/LevelEditorToolEditor.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/Test/Prefab/Level Manager.prefab"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/LevelEdit/LevelEditorTool.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "d840f0d0",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "feat(map): Grid under Room, LevelManager by reference, LevelEditorTool split; death clips play once",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 0.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 1.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 2.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 3.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 4.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 5.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 6.anim"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 7.anim"
+                                      },
+                                      {
+                                          "status":  "R",
+                                          "path":  "Assets/Editor/LevelEditorToolEditor.cs"
+                                      },
+                                      {
+                                          "status":  "R",
+                                          "path":  "Assets/Editor/LevelEditorToolEditor.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/Test/Prefab/Level Manager.prefab"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/LevelEdit/LevelEditorTool.cs"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "Assets/Script/LevelEdit/LevelEditorTool.cs.meta"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/LevelEdit/LevelManager.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Map/Room/RoomGeneraterController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/LifetimeScope/GameLifetimeScope.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "5e4ddb06",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "feat(enemy): EnemyManager under Room, direct spawn calls, MapModel boss",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/SO/Database/Map/MapModel.asset"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Scenes/Main/LoadRandomMap.unity"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Database-SO/Modal/MapModel.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Map/Room/RoomGeneraterController.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Enemy/EnemyManager.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/System/Enemy/EnemySpawner.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "CLAUDE.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/enemy/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/CHANGELOG.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "89a22d25",
+                        "date":  "2026-11-18",
+                        "author":  "Claude",
+                        "subject":  "docs(map): add room generation architecture doc",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "docs/CHANGELOG-DOCS.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "docs/systems/map/room-generation-architecture.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "4a2237e3",
+                        "date":  "2026-11-18",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): daily standup 2026-11-18",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/sprints/sprint-23-daily-plan.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "372a26ea",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "test(qa): inbox proposals - QA-ENT-15 evidence from run 20261117-1705 (written as NOTE-20261117-3..6, f3928194)",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/reports/20261117-1646/inbox-proposals.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f3928194",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "chore(qa-auto): weekly QA run 20261117-1620 - 4 inbox notes 2026-11-17",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/qa/bug-inbox.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "7dc2a4d5",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261117-1705 on origin/sprint-23 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/unit-results.xml"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1705/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "67169b6c",
+                        "date":  "2026-11-17",
+                        "author":  "Kay",
+                        "subject":  "test(qa): QA-ENT-09 waits for the hard-coded 10 s wander timeout; part C summary and inbox proposals for runs 20261117-1620/1646",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/reports/20261117-1620/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261117-1646/inbox-proposals.md"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  3,
+    "files":  157,
+    "systems":  {
+                    "ABL":  [
+                                "Assets/Script/System/Abilities/Core/AbilityInstance.cs"
+                            ],
+                    "DOCS":  [
+                                 ".claude/hooks/validate-commit.sh",
+                                 ".claude/hooks/validate-push.sh",
+                                 ".claude/scripts/bug-id.sh",
+                                 ".claude/settings.json",
+                                 ".claude/settings.local.json",
+                                 ".claude/skills/doc-sync/SKILL.md",
+                                 ".claude/skills/module-quality-audit/SKILL.md",
+                                 ".claude/skills/setup-engine/SKILL.md",
+                                 ".claude/skills/weekly-wrapup/SKILL.md",
+                                 "CLAUDE.md",
+                                 "docs/archive/CLAUDE-history-2026-11-19.md",
+                                 "docs/CHANGELOG-DOCS.md",
+                                 "docs/systems/enemy/CHANGELOG.md",
+                                 "docs/systems/event-system/README.md",
+                                 "docs/systems/map/CHANGELOG.md",
+                                 "docs/systems/map/README.md",
+                                 "docs/systems/map/room-generation-architecture.md",
+                                 "production/demo-checklist.md",
+                                 "production/qa/bug-inbox.md",
+                                 "production/qa/open-bugs.md",
+                                 "production/session-state/routine-log.md",
+                                 "production/sprints/sprint-23-daily-plan.md"
+                             ],
+                    "ENT":  [
+                                "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs",
+                                "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs",
+                                "Assets/Script/Character/Entity/Entity.cs",
+                                "Assets/Script/Character/Entity/EntityData.cs",
+                                "Assets/Script/Character/Entity/States/EntityIdleState.cs",
+                                "Assets/Script/Character/Entity/States/EntityInvestigateState.cs",
+                                "Assets/Script/Character/Entity/States/EntityInvestigateState.cs.meta",
+                                "Assets/Script/Character/Entity/States/EntityTakeDamageState.cs"
+                            ],
+                    "MAP":  [
+                                "Assets/Data/Json/Room/BossRoom_ThroneArena.json",
+                                "Assets/Data/Json/Room/StartRoom_Entrance.json",
+                                "Assets/Script/Database-SO/Modal/MapModel.cs",
+                                "Assets/Script/LevelEdit/LevelEditorTool.cs",
+                                "Assets/Script/LevelEdit/LevelEditorTool.cs.meta",
+                                "Assets/Script/LevelEdit/LevelManager.cs",
+                                "Assets/Script/Map/Room/RoomGeneraterController.cs",
+                                "Assets/Script/System/Enemy/EnemyManager.cs",
+                                "Assets/Script/System/Enemy/EnemySpawner.cs",
+                                "Assets/SO/Database/Map/MapModel.asset",
+                                "Assets/SO/Dungeon/Maze_Load_Room.asset",
+                                "Assets/SO/Dungeon/Maze_Load_Room.asset.meta"
+                            ],
+                    "OTHER":  [
+                                  ".gitignore"
+                              ],
+                    "PATH":  [
+                                 "Assets/Script/System/Pathfinding/Grid/GridBuilder.cs",
+                                 "Assets/Script/System/Pathfinding/Grid/PathfindingGrid.cs"
+                             ],
+                    "PLY":  [
+                                "Assets/Script/System/LifetimeScope/GameLifetimeScope.cs"
+                            ],
+                    "QA":  [
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/reports/20261117-1620/weekly-change-impact.md",
+                               "qa-automation/reports/20261117-1646/inbox-proposals.md",
+                               "qa-automation/reports/20261117-1705/change-impact.json",
+                               "qa-automation/reports/20261117-1705/report.md",
+                               "qa-automation/reports/20261117-1705/results.json",
+                               "qa-automation/reports/20261117-1705/run.log",
+                               "qa-automation/reports/20261117-1705/run-info.json",
+                               "qa-automation/reports/20261117-1705/summary.json",
+                               "qa-automation/reports/20261117-1705/unit-results.xml",
+                               "qa-automation/reports/20261117-1705/unity-report.md",
+                               "qa-automation/reports/20261117-1705/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ],
+                    "STATIC":  [
+                                   "Assets/Editor/LevelEditorToolEditor.cs",
+                                   "Assets/Editor/LevelEditorToolEditor.cs.meta",
+                                   "Assets/Scenes/Main/LoadRandomMap.unity",
+                                   "Assets/Scenes/Main/Test/Prefab/Level Manager.prefab",
+                                   "Assets/Tests/EditMode/AStarTests.cs"
+                               ],
+                    "VISUAL":  [
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Assasin/Death/Assasin_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Boss/Death/Boss_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Brute/Death/Brute_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Elite/Death/Elite_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/FastSwarm/Death/FastSwarm_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/RangedCaster/Death/RangedCaster_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Scatter/Death/Scatter_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Sniper/Death/Sniper_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/Tank/Death/Tank_Die_dir 7.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 0.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 1.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 2.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 3.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 4.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 5.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 6.anim",
+                                   "Assets/Animation/Enemy/Role/TrashMelee/Death/TrashMelee_Die_dir 7.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 0.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 1.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 2.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 3.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 4.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 5.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 6.anim",
+                                   "Assets/Animation/Player/Paladin/Basic/Die/Knight_Die_dir 7.anim"
+                               ]
+                },
+    "deep":  [
+                 "ABL",
+                 "CMB",
+                 "ENT",
+                 "ITEM",
+                 "MAP",
+                 "PATH",
+                 "PLY",
+                 "STATIC",
+                 "UI",
+                 "VIT"
+             ],
+    "risks":  [
+                  {
+                      "why":  "Item drop on enemy death and the player pickup (QA-ITEM-02..04) run in the ENEMY scene",
+                      "alsoCheck":  [
+                                        "ITEM"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityFindTarget.cs",
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityInput.cs",
+                                    "Assets/Script/Character/Entity/CoreComponent/EntityMovement.cs",
+                                    "Assets/Script/Character/Entity/Entity.cs",
+                                    "Assets/Script/Character/Entity/EntityData.cs",
+                                    "Assets/Script/Character/Entity/States/EntityIdleState.cs",
+                                    "Assets/Script/Character/Entity/States/EntityInvestigateState.cs",
+                                    "Assets/Script/Character/Entity/States/EntityInvestigateState.cs.meta",
+                                    "Assets/Script/Character/Entity/States/EntityTakeDamageState.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Room clear depends on ON_ENEMY_DEATH from pooled enemies",
+                      "alsoCheck":  [
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/Map/Room/RoomGeneraterController.cs",
+                                    "Assets/Script/System/Enemy/EnemyManager.cs",
+                                    "Assets/Script/System/Enemy/EnemySpawner.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Cast gating and cooldowns drive the player skill state, enemy abilities and the hotbar",
+                      "alsoCheck":  [
+                                        "PLY",
+                                        "ENT",
+                                        "UI"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/Abilities/Core/AbilityInstance.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Injection of the whole player chain",
+                      "alsoCheck":  [
+                                        "VIT",
+                                        "CMB",
+                                        "ABL",
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/LifetimeScope/GameLifetimeScope.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Enemy wander and chase (QA-ENT-10 / QA-ENT-15) path on a PathfindingGrid",
+                      "alsoCheck":  [
+                                        "ENT"
+                                    ],
+                      "files":  [
+                                    "Assets/Script/System/Pathfinding/Grid/GridBuilder.cs",
+                                    "Assets/Script/System/Pathfinding/Grid/PathfindingGrid.cs"
+                                ]
+                  },
+                  {
+                      "why":  "Asset edits: missing script / orphaned key / saved-modifier checks",
+                      "alsoCheck":  [
+                                        "STATIC"
+                                    ],
+                      "files":  [
+                                    "Assets/SO/Database/Map/MapModel.asset",
+                                    "Assets/SO/Dungeon/Maze_Load_Room.asset"
+                                ]
+                  }
+              ],
+    "newScripts":  [
+                       "Assets/Script/Character/Entity/States/EntityInvestigateState.cs",
+                       "Assets/Script/LevelEdit/LevelEditorTool.cs"
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+                    "Assets/SO/Dungeon/Maze_Load_Room.asset"
+                ],
+    "uncoveredNewScripts":  [
+                                "Assets/Script/LevelEdit/LevelEditorTool.cs"
+                            ]
+}
