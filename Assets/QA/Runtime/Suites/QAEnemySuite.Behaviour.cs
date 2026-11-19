@@ -314,7 +314,11 @@ namespace QA.Automation
             Check(left, $"left the take-damage state after {Time.time - started:0.##}s",
                 $"still in EntityTakeDamageState after 3s: {clip} (the state leaves on AnimationFinishTrigger)");
             Check(drift < 0.05f, "does not move while taking damage", $"moved {drift:0.##} in the take-damage state");
-            if (left) Check(_entity.StateMachine.CurrentState is EntityMoveState, "returns to EntityMoveState", $"went to {EnemyState} instead of EntityMoveState");
+            // Since the hit reaction (2026-11-19): seen → lock + EntityMoveState, blocked or no straight walkable
+            // point → EntityIdleState, out of view → EntityInvestigateState along the hit direction.
+            if (left) Check(_entity.StateMachine.CurrentState is EntityMoveState or EntityIdleState or EntityInvestigateState,
+                $"reacts to the hit: {EnemyState} (locked {_entityInput.IsLockTarget})",
+                $"went to {EnemyState}, expected EntityMoveState / EntityIdleState / EntityInvestigateState");
         }
 
         private IEnumerator CaseDeathState()

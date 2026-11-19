@@ -42,6 +42,12 @@ public class EnemyManager : MonoBehaviour
         return Grid.GetNode(worldPosition);
     }
 
+    /// <summary>True when a straight walk between the two points stays on walkable cells (A* corner rule).</summary>
+    public bool IsLineWalkable(Vector2 from, Vector2 to)
+    {
+        return Grid != null && Grid.IsLineWalkable(from, to);
+    }
+
     public void SpawnRoom(List<Vector2Int> spawnPositions)
     {
         if (!HasSpawner()) return;

@@ -18,7 +18,20 @@ public class EntityData : CharacterData
     [SerializeField] private float idleMultiplier = 0.1f;        // × STR
     [SerializeField] private float moveMultiplier = 0.5f;        // × STR
 
+    // Hit while not locked and the attacker is out of view: walk this far along the hit direction.
+    [Header("Investigate on hit (distance = RangeView × random[min, max])")]
+    [SerializeField, Range(0f, 2f)] private float investigateMinMultiplier = 0.5f;
+    [SerializeField, Range(0f, 2f)] private float investigateMaxMultiplier = 1f;
+
     public LayerMask LayerMask => layerMask;
+
+    /// <summary>Investigate distance: RangeView × a random multiplier in [min, max].</summary>
+    public float InvestigateDistance(IStatService stats)
+    {
+        float min = Mathf.Min(investigateMinMultiplier, investigateMaxMultiplier);
+        float max = Mathf.Max(investigateMinMultiplier, investigateMaxMultiplier);
+        return RangeView(stats) * Random.Range(min, max);
+    }
 
     /// <summary>Detection range: MaxRangeAttack × multiplier, from the given character's stats.</summary>
     public float RangeView(IStatService stats) => Read(stats, StatType.MaxRangeAttack) * rangeViewMultiplier;

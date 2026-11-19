@@ -145,21 +145,31 @@ public class EntityFindTarget : EntityCoreComponent<EntityCore>
         return Vector2.Dot(forward.normalized, direction.normalized) >= minDot;
     }
 
-    /// <summary>
-    /// Whether the player can be seen now: range, view cone and no obstacle in between.
-    /// </summary>
-    public bool CanDetectTarget()
+    public enum ViewResult
+    {
+        Seen,       // in range and view cone, nothing in between
+        Blocked,    // in range and view cone, but an obstacle is in between
+        OutOfView,  // out of range or outside the view cone
+    }
+
+    /// <summary>What the entity sees of the player now: range, view cone, then the obstacle raycast.</summary>
+    public ViewResult CheckView()
     {
         if (entityInput == null || !entityInput.HasPlayer)
-            return false;
+            return ViewResult.OutOfView;
 
         Vector2 targetPosition = entityInput.PlayerPosition;
 
         if (!IsInFOV(targetPosition))
-            return false;
+            return ViewResult.OutOfView;
 
-        return !FindWall(targetPosition - (Vector2)transform.position);
+        return FindWall(targetPosition - (Vector2)transform.position) ? ViewResult.Blocked : ViewResult.Seen;
     }
+
+    /// <summary>
+    /// Whether the player can be seen now: range, view cone and no obstacle in between.
+    /// </summary>
+    public bool CanDetectTarget() => CheckView() == ViewResult.Seen;
 
     #endregion
 
