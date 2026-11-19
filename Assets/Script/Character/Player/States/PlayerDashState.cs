@@ -21,7 +21,6 @@ public class PlayerDashState : PlayerBasicState
     public override void AnimationOffAction()
     {
         playerMovement.ExitDash();
-        player.Anim.SetBool(GameConstants.AnimationName.Parameter.IS_DASH, inputHandler.IsDash);
     }
     public override void AnimationEnd()
     {
@@ -33,5 +32,12 @@ public class PlayerDashState : PlayerBasicState
             return;
         }
         base.LogicUpdate();
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        player.Anim.SetBool(GameConstants.AnimationName.Parameter.IS_DASH, inputHandler.IsDash);
+        playerMovement.ExitDash();
     }
 }

@@ -46,7 +46,7 @@ public class ObjectPoolManagerTests
     {
         GameObject first = _pool.Spawn(_template, Vector2.zero, Quaternion.identity);
 
-        _pool.Release(first);
+        _pool.Despawn(first);
         Assert.IsFalse(first.activeSelf, "released instance is still active");
 
         Vector2 at = new Vector2(1f, 1f);
@@ -73,8 +73,8 @@ public class ObjectPoolManagerTests
     public void Release_Twice_DoesNotQueueTheInstanceTwice()
     {
         GameObject first = _pool.Spawn(_template, Vector2.zero, Quaternion.identity);
-        _pool.Release(first);
-        _pool.Release(first);
+        _pool.Despawn(first);
+        _pool.Despawn(first);
 
         GameObject a = _pool.Spawn(_template, Vector2.zero, Quaternion.identity);
         GameObject b = _pool.Spawn(_template, Vector2.zero, Quaternion.identity);
@@ -86,7 +86,7 @@ public class ObjectPoolManagerTests
     [Test]
     public void Release_ObjectThatNeverCameFromThePool_IsIgnored()
     {
-        Assert.DoesNotThrow(() => _pool.Release(_template));
+        Assert.DoesNotThrow(() => _pool.Despawn(_template));
         Assert.IsTrue(_template.activeSelf, "an object the pool does not own was deactivated");
     }
 }

@@ -269,20 +269,20 @@ namespace QA.Automation
             if (spawned == null) yield break;
             Check(Vector2.Distance(spawned.transform.position, at) < 0.001f, $"at {at}", $"at {(Vector2)spawned.transform.position}, asked {at}");
             Check(spawned != _poolTemplate, "instance is not the template", "pool returned the template itself");
-            pool.Release(spawned);
+            pool.Despawn(spawned);
         }
 
         private IEnumerator CasePoolReuse()
         {
             if (pool == null) { Fail("scene not wired: no ObjectPoolManager"); yield break; }
             GameObject first = pool.Spawn(Template(), Vector2.zero, Quaternion.identity);
-            pool.Release(first);
+            pool.Despawn(first);
             yield return null;
             Check(!first.activeSelf, "released instance inactive", "released instance still active");
             GameObject second = pool.Spawn(Template(), Vector2.one, Quaternion.identity);
             yield return null;
             Check(second == first && second.activeSelf, "same instance reused and re-activated", "a new instance was created instead of reusing the released one");
-            pool.Release(second);
+            pool.Despawn(second);
         }
 
         private IEnumerator CasePoolDistinct()
@@ -292,8 +292,8 @@ namespace QA.Automation
             GameObject b = pool.Spawn(Template(), Vector2.zero, Quaternion.identity);
             yield return null;
             Check(a != null && b != null && a != b, "two distinct instances", "the same instance was handed out twice");
-            if (a != null) pool.Release(a);
-            if (b != null && b != a) pool.Release(b);
+            if (a != null) pool.Despawn(a);
+            if (b != null && b != a) pool.Despawn(b);
         }
 
         #endregion
