@@ -76,3 +76,22 @@
 
 Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
 the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+
+Part C, 2026-11-19 (added after run `20261119-1616`):
+
+| Behaviour (commit) | Kind | Case | Where |
+|---|---|---|---|
+| Path nodes on tile centres, floor mapping (`0e0dc874`) | AUTO | QA-PATH-04 (P1) | `QASystemsSuite` |
+| Diagonal step needs both side cells walkable (`0e0dc874`) | AUTO | QA-PATH-05 (P1) | `QASystemsSuite` |
+| `PathfindingGrid.IsLineWalkable` (`0e0dc874`) | AUTO | QA-PATH-06 (P2) | `QASystemsSuite` |
+| Start / boss room by `RoomType`, required room groups (`e2b7efee`) - library data precondition | AUTO | QA-MAP-07 (P1) | `QASystemsSuite` |
+| Hit from out of view: turn, look, investigate (`c613e641`) | AUTO (state, existing) + MANUAL | QA-ENT-11 (updated by the commit); MAN-ENT-11 | suite / manual Part 2 |
+| Enemy paths on tile centres, no wall hugging (`0e0dc874`) | MANUAL | MAN-ENT-12 | manual Part 2 |
+| Death clips play once (`d840f0d0`) | MANUAL | MAN-ENT-13 | manual Part 2 |
+| Start room Champion / Bonfire, boss marker, required rooms in a run (`a92a0c7b`, `3015e9cf`, `e2b7efee`) | MANUAL | MAN-MAP-06 | manual Part 2 |
+| `Assets/Script/LevelEdit/LevelEditorTool.cs` - room CRUD editor tool (`0b959b97`) | MANUAL | MAN-MAP-07 | manual Part 2 |
+
+Not added: `BuildMazeRooms` itself is private on a scene MonoBehaviour that needs the tilemaps and `LevelManager`;
+QA-MAP-07 checks the data it depends on and MAN-MAP-06 checks the result in play. Spawn early-return without
+`ON_OPEN_DOOR` (`EnemySpawner`, NOTE-20261119-1) is latent with the committed data; no case until the owner
+decides the fix direction.
