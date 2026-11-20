@@ -48,6 +48,7 @@ namespace QA.Automation
         {
             DisposeInput();
             SetItemSpawner(false);
+            DestroyCreatedItems();
             if (_enemy != null && pool != null) pool.Release(_enemy);
         }
 
@@ -78,6 +79,15 @@ namespace QA.Automation
             yield return Case("QA-ITEM-02", "ITEM", QAPriority.P0, "Enemy death drops the rolled item at the death position", CaseItemDrop());
             yield return Case("QA-ITEM-03", "ITEM", QAPriority.P0, "Player picks up the dropped item with Q", CaseItemPickup());
             yield return Case("QA-ITEM-04", "ITEM", QAPriority.P1, "Q with no item in reach does nothing", CaseNoItemInReach());
+            // What a pickup gives (QAEnemySuite.Items.cs, added 2026-11-20).
+            yield return Case("QA-ITEM-05", "ITEM", QAPriority.P0, "Every item in the drop table gives exactly its authored effects", CaseItemEffectsExact());
+            yield return Case("QA-ITEM-06", "ITEM", QAPriority.P1, "A coin item adds exactly its coinAmount on every pickup and nothing else", CaseItemCoin());
+            yield return Case("QA-ITEM-07", "ITEM", QAPriority.P1, "An HP / Mana recovery item heals exactly its value, never above max", CaseItemRecovery());
+            yield return Case("QA-ITEM-08", "ITEM", QAPriority.P1, "Two pickups of the same stat item stack; each can be removed on its own", CaseItemStack());
+            yield return Case("QA-ITEM-09", "ITEM", QAPriority.P1, "Player: a permanent item buff survives the expiry of a timed buff on the same stat", CaseItemBuffSurvivesTimedBuff());
+            yield return Case("QA-ITEM-10", "ITEM", QAPriority.P2, "An item with an empty effect slot or no effect is still collected, no exception", CaseItemBrokenData());
+            yield return Case("QA-ITEM-11", "ITEM", QAPriority.P1, "A reused pooled drop shows and gives only the new item", CaseItemPoolReuse());
+            yield return Case("QA-ITEM-12", "ITEM", QAPriority.P1, "Two items in reach: each Q collects one new item, never the released one again", CaseItemTwoInReach());
             SetItemSpawner(false);
 
             // Last: these move the player next to the enemy and let the AI hit it.

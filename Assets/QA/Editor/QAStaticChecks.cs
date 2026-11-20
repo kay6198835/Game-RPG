@@ -37,6 +37,11 @@ namespace QA.Automation.Editor
             Add(file, config, "QA-STATIC-06", QAPriority.P0, "Every enabled build scene exists", BuildScenes);
             Add(file, config, "QA-STATIC-07", QAPriority.P1, "Every enemy role has a weapon, a move speed and a consistent attack range", EnemyRoleData);
             Add(file, config, "QA-STATIC-08", QAPriority.P1, "Every enemy role weapon can hit the player: attack clips carry the damage event, masks include the player hurtbox", EnemyAttackWiring);
+            Add(file, config, "QA-STATIC-09", QAPriority.P1, "Every droppable item has a name, a sprite and at least one loadable effect; every item effect changes something", ItemData);
+            Add(file, config, "QA-STATIC-10", QAPriority.P1, "Every drop table is consistent: no empty slot, every item's tier has a rate, rates sum to at most 100", DropTables);
+            Add(file, config, "QA-STATIC-11", QAPriority.P1, "Every playable class has stats, an animator, a weapon and one ability per slot", ClassData);
+            Add(file, config, "QA-STATIC-12", QAPriority.P1, "Every ability bound to a class has an id, a name, a cooldown, valid costs and at least one effect", BoundAbilities);
+            Add(file, config, "QA-STATIC-13", QAPriority.P1, "Every class death clip sends EndRangeTrigger (PlayerDeathState emits ON_PLAYER_DEATH on it)", DeathClipEvents);
             file.finished = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             return file;
         }
@@ -385,6 +390,252 @@ namespace QA.Automation.Editor
             }
             Report(r, findings, $"{guids.Length} role weapons can hit the player");
             if (findings.Count == 0) r.notes.AddRange(info);
+        }
+
+        private static List<T> LoadAll<T>(string folder) where T : UnityEngine.Object =>
+            AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { folder })
+                .Select(AssetDatabase.GUIDToAssetPath).Distinct().OrderBy(p => p, StringComparer.Ordinal)
+                .Select(AssetDatabase.LoadAssetAtPath<T>).Where(a => a != null).ToList();
+
+        private static string PathOf(UnityEngine.Object asset) => AssetDatabase.GetAssetPath(asset);
+
+        // ItemController.Interact() applies every effect of the item with no null guard, then emits
+        // ON_COLLECT_ITEM; ItemSpawner shows ItemSprite and renames the drop to ItemName. Only items a drop table
+        // can roll are judged; the others are listed as info.
+        private static void ItemData(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            HashSet<ItemSO> droppable = new(LoadAll<DepotItem>("Assets/SO")
+                .SelectMany(d => d.listItems).Where(s => s != null && s.DepotItem != null).Select(s => s.DepotItem));
+            List<ItemSO> items = LoadAll<ItemSO>("Assets/SO").Where(i => i is not WeaponSO).ToList();
+            foreach (ItemSO item in items)
+            {
+                string where = $"{PathOf(item)}";
+                if (!droppable.Contains(item))
+                {
+                    info.Add($"{where}: in no drop table (not judged)");
+                    continue;
+                }
+                if (string.IsNullOrWhiteSpace(item.ItemName)) findings.Add($"{where}: ItemName is empty (the drop shows no name)");
+                if (item.ItemSprite == null) findings.Add($"{where}: ItemSprite is not set (the drop is invisible)");
+                if (item.Effects == null || item.Effects.Count == 0) findings.Add($"{where}: no effect (picking it up does nothing)");
+                else
+                {
+                    int missing = item.Effects.Count(e => e == null);
+                    if (missing > 0) findings.Add($"{where}: {missing} effect slot(s) empty or bound to a missing / abstract script (ItemController.Interact throws NullReferenceException)");
+                }
+            }
+
+            foreach (ItemEffectDefinitionSO effect in LoadAll<ItemEffectDefinitionSO>("Assets/SO"))
+            {
+                string where = PathOf(effect);
+                SerializedObject so = new(effect);
+                if (effect is CoinModifierEffect)
+                {
+                    SerializedProperty amount = so.FindProperty("coinAmount");
+                    if (amount == null) findings.Add($"{where}: CoinModifierEffect has no serialized coinAmount (field renamed?)");
+                    else if (amount.intValue <= 0) findings.Add($"{where}: coinAmount {amount.intValue} (gives no coin)");
+                    else info.Add($"{where}: +{amount.intValue} coin");
+                    continue;
+                }
+                if (effect is not StatModifierEffect) continue;
+                SerializedProperty stats = so.FindProperty("statModifierGroup.statsModifiers");
+                SerializedProperty vitals = so.FindProperty("statModifierGroup.vitalModifiers");
+                if (stats == null || vitals == null)
+                {
+                    findings.Add($"{where}: statModifierGroup.statsModifiers / vitalModifiers not found (field renamed?)");
+                    continue;
+                }
+                // ModifierMaxStatsEffect reads only statsModifiers, ModifierCurrentStatsEffect only vitalModifiers.
+                bool max = effect is ModifierMaxStatsEffect;
+                SerializedProperty used = max ? stats : vitals;
+                SerializedProperty ignored = max ? vitals : stats;
+                if (used.arraySize == 0)
+                    findings.Add($"{where} ({effect.GetType().Name}): no {(max ? "stat" : "vital")} modifier (the effect changes nothing)");
+                if (ignored.arraySize > 0)
+                    findings.Add($"{where} ({effect.GetType().Name}): {ignored.arraySize} {(max ? "vital" : "stat")} modifier(s) that this effect type never reads");
+                for (int i = 0; i < used.arraySize; i++)
+                {
+                    SerializedProperty m = used.GetArrayElementAtIndex(i);
+                    float value = m.FindPropertyRelative("value")?.floatValue ?? 0f;
+                    int target = m.FindPropertyRelative("targetStatType")?.intValue ?? -1;
+                    if (Mathf.Approximately(value, 0f)) findings.Add($"{where}: modifier {i} has value 0");
+                    if (!max && target == (int)VitalStatType.Coin)
+                        findings.Add($"{where}: vital modifier {i} targets Coin; VitalStatsBase never seeds Coin, so it does nothing (use CoinModifierEffect)");
+                    if (!max && Enum.IsDefined(typeof(VitalStatType), target) == false)
+                        findings.Add($"{where}: vital modifier {i} targets {target}, not a VitalStatType");
+                    info.Add($"{where}: {(max ? ((StatType)target).ToString() : ((VitalStatType)target).ToString())} {value:+0.##;-0.##}");
+                }
+            }
+            Report(r, findings, $"{droppable.Count} droppable item(s) and every item effect are usable");
+            r.notes.AddRange(info);
+        }
+
+        private static void DropTables(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            List<DepotItem> depots = LoadAll<DepotItem>("Assets/SO");
+            if (depots.Count == 0)
+            {
+                r.verdict = nameof(QAVerdict.SKIP);
+                r.notes.Add("SKIP: no DepotItem under Assets/SO");
+                return;
+            }
+            foreach (DepotItem depot in depots)
+            {
+                string where = PathOf(depot);
+                int emptySlots = depot.listItems.Count(s => s == null || s.DepotItem == null);
+                if (emptySlots > 0) findings.Add($"{where}: {emptySlots} slot(s) with no item");
+                float declared = 0f;
+                foreach (DropRateItemSlot tier in depot.DeclaredTiers)
+                {
+                    if (tier == null) { findings.Add($"{where}: empty tier row"); continue; }
+                    if (tier.TierRate < 0f) findings.Add($"{where}: tier {tier.RarityTier} has a negative rate {tier.TierRate:0.##}");
+                    declared += Mathf.Max(0f, tier.TierRate);
+                    if (tier.TierRate > 0f && !depot.HasItemOfTier(tier.RarityTier))
+                        findings.Add($"{where}: tier {tier.RarityTier} has rate {tier.TierRate:0.##}% but no item (that share of rolls drops nothing)");
+                }
+                if (declared > 100.001f) findings.Add($"{where}: declared tier rates sum to {declared:0.##}% (> 100; the last tiers can never be rolled)");
+                foreach (RarityTierItem tier in depot.listItems.Where(s => s != null && s.DepotItem != null).Select(s => s.RarityTier).Distinct())
+                {
+                    if (!depot.DeclaredTiers.Any(t => t != null && t.RarityTier == tier && t.TierRate > 0f))
+                        findings.Add($"{where}: items of tier {tier} have no tier rate (they can never drop)");
+                }
+                var dupes = depot.listItems.Where(s => s != null && s.DepotItem != null).GroupBy(s => s.DepotItem).Where(g => g.Count() > 1);
+                foreach (var dupe in dupes) info.Add($"{where}: {dupe.Key.name} listed {dupe.Count()} times (doubles its chance in its tier)");
+                info.Add($"{where}: {depot.listItems.Count} slot(s), drop rate {depot.TotalDropRate:0.##}%");
+            }
+            Report(r, findings, $"{depots.Count} drop table(s) consistent");
+            r.notes.AddRange(info);
+        }
+
+        private const string PlayerClassFolder = "Assets/SO/Player";
+
+        // The classes the Champion monuments apply: PlayerData assets in a per-class sub folder. BaseData (the
+        // pre-pick template at the folder root) is listed as info only.
+        private static List<PlayerData> PlayableClasses(List<string> info)
+        {
+            List<PlayerData> classes = new();
+            foreach (PlayerData data in LoadAll<PlayerData>(PlayerClassFolder))
+            {
+                string path = PathOf(data);
+                if (System.IO.Path.GetDirectoryName(path)?.Replace('\\', '/') == PlayerClassFolder)
+                {
+                    info?.Add($"{path}: template, not judged");
+                    continue;
+                }
+                classes.Add(data);
+            }
+            return classes;
+        }
+
+        private static void ClassData(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            List<PlayerData> classes = PlayableClasses(info);
+            if (classes.Count == 0)
+            {
+                r.verdict = nameof(QAVerdict.SKIP);
+                r.notes.Add($"SKIP: no PlayerData in a sub folder of {PlayerClassFolder}");
+                return;
+            }
+            foreach (PlayerData data in classes)
+            {
+                string name = data.name;
+                if (data.Stats == null) findings.Add($"{name}: no stat asset");
+                else
+                {
+                    StatSheet sheet = new(data.Stats);
+                    float hp = sheet.GetStatValue(StatType.HP), move = sheet.GetStatValue(StatType.MoveSpeed);
+                    if (hp <= 0f) findings.Add($"{name}: HP {hp:0.##} (dies on spawn)");
+                    if (move <= 0f) findings.Add($"{name}: MoveSpeed {move:0.##} (cannot move)");
+                    info.Add($"{name}: HP {hp:0.#}, Mana {sheet.GetStatValue(StatType.Mana):0.#}, PhysicalDamage {sheet.GetStatValue(StatType.PhysicalDamage):0.#}, MoveSpeed {move:0.##}");
+                }
+                if (data.animationController == null) findings.Add($"{name}: no animationController");
+                if (data.Weapon == null) findings.Add($"{name}: no default Weapon (the class cannot attack)");
+                else if (data.Weapon.Stats == null || data.Weapon.Stats.StageCount == 0) findings.Add($"{name}: weapon {data.Weapon.name} has no WeaponStats or no attack stage");
+                List<AbilityBinding> bindings = data.AbilityBindings ?? new List<AbilityBinding>();
+                foreach (AbilitySlot slot in Enum.GetValues(typeof(AbilitySlot)))
+                {
+                    int count = bindings.Count(b => b != null && b.Slot == slot);
+                    if (count == 0) findings.Add($"{name}: no ability bound to {slot} (key does nothing)");
+                    else if (count > 1) findings.Add($"{name}: {count} abilities bound to {slot} (only one can be used)");
+                }
+                int nulls = bindings.Count(b => b == null || b.Ability == null);
+                if (nulls > 0) findings.Add($"{name}: {nulls} binding(s) with no AbilityDefinition");
+            }
+            Report(r, findings, $"{classes.Count} classes complete");
+            r.notes.AddRange(info);
+        }
+
+        private static void BoundAbilities(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            Dictionary<string, string> ids = new(StringComparer.Ordinal);
+            List<PlayerData> classes = PlayableClasses(null);
+            foreach (PlayerData data in classes)
+            {
+                foreach (AbilityBinding binding in data.AbilityBindings ?? new List<AbilityBinding>())
+                {
+                    if (binding == null || binding.Ability == null) continue;
+                    AbilityDefinition a = binding.Ability;
+                    string where = $"{data.name}.{binding.Slot} ({PathOf(a)})";
+                    if (string.IsNullOrWhiteSpace(a.Id)) findings.Add($"{where}: no Id");
+                    else if (ids.TryGetValue(a.Id, out string other) && other != PathOf(a)) findings.Add($"{where}: Id {a.Id} also used by {other}");
+                    else ids[a.Id] = PathOf(a);
+                    if (string.IsNullOrWhiteSpace(a.DisplayName)) findings.Add($"{where}: no DisplayName (blank hotbar slot)");
+                    if (a.Cooldown <= 0f) findings.Add($"{where}: Cooldown {a.Cooldown:0.##} (can be cast every frame)");
+                    if (a.Effects == null || a.Effects.Count == 0) findings.Add($"{where}: no effect (the cast does nothing)");
+                    else if (a.Effects.Any(e => e == null)) findings.Add($"{where}: {a.Effects.Count(e => e == null)} empty effect slot(s)");
+                    if (a.Conditions != null && a.Conditions.Any(c => c == null)) findings.Add($"{where}: empty condition slot");
+                    if (a.ActivationType == AbilityActivationType.Hold && a.MaxHoldTime <= 0f) info.Add($"{where}: Hold ability with MaxHoldTime 0");
+                    foreach (StatCost cost in a.Costs ?? new List<StatCost>())
+                    {
+                        if (cost == null) { findings.Add($"{where}: empty cost row"); continue; }
+                        if (cost.value < 0f) findings.Add($"{where}: negative {cost.statType} cost {cost.value:0.##} (a cast pays the caster)");
+                        if (cost.statType == VitalStatType.Coin) findings.Add($"{where}: Coin cost (VitalStatsBase never seeds Coin, so the cast is always refused)");
+                    }
+                    // GetCostValues() returns only the first cost of a stat; a second one is ignored when paying.
+                    foreach (var dupe in (a.Costs ?? new List<StatCost>()).Where(c => c != null).GroupBy(c => c.statType).Where(g => g.Count() > 1))
+                        findings.Add($"{where}: {dupe.Count()} {dupe.Key} costs (only the first is read by GetCostValues)");
+                    if (a.Icon == null) info.Add($"{where}: no Icon (hotbar shows no picture)");
+                    info.Add($"{where}: {a.DisplayName}, {a.ActivationType}, cooldown {a.Cooldown:0.##}s, costs " +
+                             $"{string.Join(" + ", (a.Costs ?? new List<StatCost>()).Where(c => c != null).Select(c => $"{c.value:0.##} {c.statType}"))}, {a.Effects?.Count ?? 0} effect(s)");
+                }
+            }
+            Report(r, findings, $"every ability bound to {classes.Count} classes is complete");
+            r.notes.AddRange(info);
+        }
+
+        // BUG-122 static half: PlayerDeathState emits ON_PLAYER_DEATH only on StatusAnimation.EndRangeTrigger, which
+        // is set by the AnimationFinishTrigger clip event (PlayerState.AnimationFinishTrigger).
+        private static void DeathClipEvents(QACaseResult r)
+        {
+            List<string> findings = new();
+            List<string> info = new();
+            foreach (PlayerData data in PlayableClasses(null))
+            {
+                if (data.animationController == null) continue;
+                List<AnimationClip> clips = data.animationController.animationClips
+                    .Where(c => c != null && (c.name.IndexOf("die", StringComparison.OrdinalIgnoreCase) >= 0 || c.name.IndexOf("death", StringComparison.OrdinalIgnoreCase) >= 0))
+                    .Distinct().OrderBy(c => c.name, StringComparer.Ordinal).ToList();
+                if (clips.Count == 0)
+                {
+                    findings.Add($"{data.name}: no clip named *Die* / *Death* in {data.animationController.name}");
+                    continue;
+                }
+                List<string> missing = clips.Where(c => !AnimationUtility.GetAnimationEvents(c).Any(e => e.functionName == "AnimationFinishTrigger"))
+                    .Select(c => c.name).ToList();
+                if (missing.Count > 0)
+                    findings.Add($"{data.name}: {missing.Count} of {clips.Count} death clip(s) have no AnimationFinishTrigger event: {string.Join(", ", missing)}");
+                else info.Add($"{data.name}: {clips.Count} death clip(s) send AnimationFinishTrigger");
+            }
+            Report(r, findings, "every class death clip sends AnimationFinishTrigger");
+            r.notes.AddRange(info);
         }
     }
 }

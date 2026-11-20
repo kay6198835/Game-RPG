@@ -16,6 +16,7 @@
     { "pattern": "^QA-STATIC-01$", "findings": "Assets/Sprite/(Maw|Vampire|Warrok)/Scenes/", "bug": "BUG-128", "note": "Sprite capture scenes reference the uncommitted capture-tool script" },
     { "pattern": "^QA-STATIC-03$", "findings": "attackDamege", "bug": "BUG-105", "note": "AttackSO assets still store attackDamege" },
     { "pattern": "^QA-STATIC-03$", "findings": "authoredModifiers", "bug": "BUG-121", "note": "StatModifierGroup.authoredModifiers renamed without FormerlySerializedAs" },
+    { "pattern": "^QA-STATIC-13$", "findings": "^Paladin:", "bug": "BUG-122", "note": "Paladin Die clips carry only AnimationOnAction, no AnimationFinishTrigger (Archer / Mage: inbox NOTE-20261120-2)" },
     { "pattern": "^QA-VIT-07$", "bug": "BUG-122", "note": "PlayerDeathState waits for EndRangeTrigger, which no Paladin Die clip sends" },
     { "pattern": "^QA-MAP-06$", "findings": "BossRoom|BUG-096", "bug": "BUG-096", "note": "Boss room has no spawn marker and no other door-open path; non-combat rooms reported for BUG-096 context" }
   ]
