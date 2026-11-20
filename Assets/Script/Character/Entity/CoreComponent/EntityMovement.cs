@@ -28,6 +28,12 @@ public class EntityMovement : MovementBase<EntityCore>
     protected bool hasPlayerNode;
     protected bool isFleeing;
 
+    /// <summary>The last path request to the current end position failed (target unreachable).</summary>
+    public bool PathFailed { get; private set; }
+
+    /// <summary>A destination is set and the entity stands on it.</summary>
+    public bool HasReachedEnd => endPosition != Vector2.zero && CheckNearPostion(endPosition);
+
     protected override void Start()
     {
         base.Start();
@@ -63,8 +69,52 @@ public class EntityMovement : MovementBase<EntityCore>
         if (endPosition == Vector2.zero) return;
         if (Time.time < nextRepathTime) return;
         nextRepathTime = Time.time + repathInterval;
-        PathRequest request = new PathRequest(transform.position, endPosition, GetPath);
+        Vector2 requestedEnd = endPosition;
+        PathRequest request = new PathRequest(transform.position, endPosition, path =>
+        {
+            // Only the answer for the current destination counts; a stale failure must not end a new move.
+            if (requestedEnd == endPosition) PathFailed = !path.Success;
+            GetPath(path);
+        });
         EnemyManager.Instance.RequestPath(request);
+    }
+
+    /// <summary>Paths to a fixed point (investigate). Read PathFailed / HasReachedEnd for the outcome.</summary>
+    public void MoveTo(Vector2 point)
+    {
+        isFleeing = false;
+        hasPlayerNode = false;
+        Waypoints.Clear();
+        indexWaypoints = 0;
+        targetPosition = Vector2.zero;
+        endPosition = point;
+        PathFailed = false;
+        nextRepathTime = 0f;
+        SendResquestPath();
+    }
+
+    /// <summary>
+    /// Picks where to investigate along the hit direction. Starts at <paramref name="distance"/>; while the
+    /// point is a wall or outside the grid, halves the distance. Fails (go Idle) when the distance drops below
+    /// <paramref name="minDistance"/>, or when a wall stands between the entity and the walkable point found.
+    /// </summary>
+    public bool TryPickInvestigatePoint(Vector2 direction, float distance, float minDistance, out Vector2 point)
+    {
+        point = default;
+        if (direction.sqrMagnitude <= Mathf.Epsilon || EnemyManager.Instance == null) return false;
+
+        Vector2 origin = transform.position;
+        Vector2 dir = direction.normalized;
+        for (float d = distance; d >= minDistance; d *= 0.5f)
+        {
+            Node node = EnemyManager.Instance.GetNodeByPositionWorld(origin + dir * d);
+            if (node == null || !node.Walkable) continue;
+
+            if (!EnemyManager.Instance.IsLineWalkable(origin, node.WorldPosition)) return false;
+            point = node.WorldPosition;
+            return true;
+        }
+        return false;
     }
 
     public void FleeTarget()
@@ -239,6 +289,7 @@ public class EntityMovement : MovementBase<EntityCore>
         hasPlayerNode = false;
         isFleeing = false;
         nextRepathTime = 0f;
+        PathFailed = false;
     }
 
     private void OnDrawGizmosSelected()

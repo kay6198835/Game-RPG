@@ -41,7 +41,7 @@ namespace QA.Automation.Editor
             Add(file, config, "QA-STATIC-10", QAPriority.P1, "Every drop table is consistent: no empty slot, every item's tier has a rate, rates sum to at most 100", DropTables);
             Add(file, config, "QA-STATIC-11", QAPriority.P1, "Every playable class has stats, an animator, a weapon and one ability per slot", ClassData);
             Add(file, config, "QA-STATIC-12", QAPriority.P1, "Every ability bound to a class has an id, a name, a cooldown, valid costs and at least one effect", BoundAbilities);
-            Add(file, config, "QA-STATIC-13", QAPriority.P1, "Every class death clip sends EndRangeTrigger (PlayerDeathState emits ON_PLAYER_DEATH on it)", DeathClipEvents);
+            Add(file, config, "QA-STATIC-13", QAPriority.P1, "Every class death clip sends AnimationOnAction (PlayerDeathState emits ON_PLAYER_DEATH on it)", DeathClipEvents);
             file.finished = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             return file;
         }
@@ -611,8 +611,8 @@ namespace QA.Automation.Editor
             r.notes.AddRange(info);
         }
 
-        // BUG-122 static half: PlayerDeathState emits ON_PLAYER_DEATH only on StatusAnimation.EndRangeTrigger, which
-        // is set by the AnimationFinishTrigger clip event (PlayerState.AnimationFinishTrigger).
+        // BUG-122 static half: since 49c58e35 PlayerDeathState emits ON_PLAYER_DEATH from its AnimationOnAction()
+        // override, i.e. only when the death clip sends the AnimationOnAction event (was: EndRangeTrigger).
         private static void DeathClipEvents(QACaseResult r)
         {
             List<string> findings = new();
@@ -628,13 +628,13 @@ namespace QA.Automation.Editor
                     findings.Add($"{data.name}: no clip named *Die* / *Death* in {data.animationController.name}");
                     continue;
                 }
-                List<string> missing = clips.Where(c => !AnimationUtility.GetAnimationEvents(c).Any(e => e.functionName == "AnimationFinishTrigger"))
+                List<string> missing = clips.Where(c => !AnimationUtility.GetAnimationEvents(c).Any(e => e.functionName == "AnimationOnAction"))
                     .Select(c => c.name).ToList();
                 if (missing.Count > 0)
-                    findings.Add($"{data.name}: {missing.Count} of {clips.Count} death clip(s) have no AnimationFinishTrigger event: {string.Join(", ", missing)}");
-                else info.Add($"{data.name}: {clips.Count} death clip(s) send AnimationFinishTrigger");
+                    findings.Add($"{data.name}: {missing.Count} of {clips.Count} death clip(s) have no AnimationOnAction event (no ON_PLAYER_DEATH, no Game Over): {string.Join(", ", missing)}");
+                else info.Add($"{data.name}: {clips.Count} death clip(s) send AnimationOnAction");
             }
-            Report(r, findings, "every class death clip sends AnimationFinishTrigger");
+            Report(r, findings, "every class death clip sends AnimationOnAction");
             r.notes.AddRange(info);
         }
     }

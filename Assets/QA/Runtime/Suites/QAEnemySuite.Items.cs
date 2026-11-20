@@ -165,7 +165,7 @@ namespace QA.Automation
                 ready(false);
                 yield break;
             }
-            if (_enemy != null && _enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy != null && _enemy.activeSelf) pool.Despawn(_enemy);
             SetItemSpawner(true);
             PlacePlayer(ParkPosition);
             _rig.Vital.ReloadComponent();
@@ -253,7 +253,7 @@ namespace QA.Automation
                 {
                     Fail($"{data.name}: ItemController.Interact threw {error}");
                     RemoveNewSources(sources);
-                    if (drop.gameObject.activeSelf) pool.Release(drop.gameObject);
+                    if (drop.gameObject.activeSelf) pool.Despawn(drop.gameObject);
                     continue;
                 }
                 Check(collected && _collected.Count == 1 && _collected[0] == drop.gameObject,
@@ -485,7 +485,7 @@ namespace QA.Automation
                 Check(error == null, $"{data.name}: no exception", $"{data.name}: ItemController.Interact threw {error}");
                 Check(collected && _collected.Count == 1, $"{data.name}: still collected (ON_COLLECT_ITEM once)",
                     $"{data.name}: Interact returned {collected}, ON_COLLECT_ITEM {_collected.Count}x — the item stays on the floor and Q retries it forever");
-                if (drop != null && drop.gameObject.activeSelf) pool.Release(drop.gameObject);
+                if (drop != null && drop.gameObject.activeSelf) pool.Despawn(drop.gameObject);
             }
             RemoveNewSources(sources);
         }
@@ -591,8 +591,8 @@ namespace QA.Automation
             Check(gained == 11, "both items collected once each (+11 coins)", $"coins +{gained}, expected +11 (1 + 10)");
             Check(a == null || !a.gameObject.activeSelf, "first item released", "first item still on the floor");
             Check(b == null || !b.gameObject.activeSelf, "second item released", "second item still on the floor");
-            if (a != null && a.gameObject.activeSelf) pool.Release(a.gameObject);
-            if (b != null && b.gameObject.activeSelf) pool.Release(b.gameObject);
+            if (a != null && a.gameObject.activeSelf) pool.Despawn(a.gameObject);
+            if (b != null && b.gameObject.activeSelf) pool.Despawn(b.gameObject);
         }
 
         #endregion

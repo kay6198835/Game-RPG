@@ -1,5 +1,4 @@
 
-using Unity.VisualScripting;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -9,65 +8,135 @@ using VContainer;
 
 public class RoomGeneraterController : MonoBehaviour
 {
-    [SerializeField] private DungeonRoomSO _dungeonRoomSO;
-    // [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
-    [SerializeField] private List<TileSO> _listTiles;
-    [SerializeField] private List<Tilemap> _genmap = new List<Tilemap>();
-    [SerializeField] private SwapLevelData _swapLevelData = new SwapLevelData();
-    [SerializeField] public List<int> IndexLevelDataDoor { get; private set; } = new List<int>();
-    [SerializeField] public LevelData Data { get; private set; } = new LevelData();
-    [SerializeField] public List<DoorPoint> DoorPoints { get; private set; } = new List<DoorPoint>();
-    [SerializeField] private int _startIndex;
-    [SerializeField] private int _endIndex;
-    [SerializeField] List<int> randomMazeRoomsIndex = new List<int>();
+    // Full room library (Maze_Storage): every authored room. Read-only at runtime.
+    [SerializeField] private DungeonRoomSO _fullDungeonRoomSO;
+    // Rooms of the current run, one per maze cell (index = y * Columns + x). Runtime only, rebuilt in Setting().
+    private List<RoomFile> _mazeRooms = new List<RoomFile>();
+    // Child of Room (Room/Grid/Level Manager): tile catalogue + tilemaps. Not injected.
+    [SerializeField] private LevelManager _levelManager;
+    // Cached from _levelManager in Setting().
+    private List<TileSO> _listTiles;
+    private List<Tilemap> _genmap = new List<Tilemap>();
+    // State of the room being shown.
+    private SwapLevelData _swapLevelData = new SwapLevelData();
+    private List<int> IndexLevelDataDoor = new List<int>();
+    private LevelData Data = new LevelData();
+    private List<DoorPoint> DoorPoints = new List<DoorPoint>();
     [SerializeField] List<Vector2Int> spawnPositions = new List<Vector2Int>();
     [SerializeField] PathfindingGrid pathfindingGrid;
+    // Child object of Room: pathfinding grid + enemy spawning for the room being loaded.
+    [SerializeField] private EnemyManager _enemyManager;
+    // Every run has at least one room from each group (e.g. a shop, a support / special room).
+    [SerializeField] private List<RequiredRoomGroup> _requiredRoomGroups = new List<RequiredRoomGroup>
+    {
+        new RequiredRoomGroup { label = "Shop", roomTypes = new List<RoomType> { RoomType.ShopRoom } },
+        new RequiredRoomGroup { label = "Support / special", roomTypes = new List<RoomType> { RoomType.TreasureRoom, RoomType.RestRoom, RoomType.PuzzleRoom, RoomType.SecretRoom } },
+    };
     IPlayerService _playerService;
-    LevelManager _levelManager;
     [Inject]
-    public void Construct(IPlayerService playerService, LevelManager levelManager)
+    public void Construct(IPlayerService playerService)
     {
         _playerService = playerService;
-        _levelManager = levelManager;
-    }
-    public void OnDisable()
-    {
-        _dungeonRoomSO.room.Clear();
     }
     public void Setting(int startIndex, int endIndex, int listCount)
     {
-        _startIndex = startIndex;
-        _endIndex = endIndex;
+        if (_enemyManager == null)
+            _enemyManager = GetComponentInChildren<EnemyManager>(true);
+        if (_enemyManager == null)
+            Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager child under {name}; rooms cannot spawn enemies.");
 
-        // need refactor to get _fullDungeonRoomSO, _listTiles, _genmap from other class, not from LevelManager
-        DungeonRoomSO _fullDungeonRoomSO = _levelManager.GetDungeonRoomSO();
+        if (_levelManager == null)
+            _levelManager = GetComponentInChildren<LevelManager>(true);
+        if (_levelManager == null || _fullDungeonRoomSO == null)
+        {
+            Debug.LogError($"[{nameof(RoomGeneraterController)}] Needs a LevelManager child and _fullDungeonRoomSO on {name}; no room can be built.");
+            return;
+        }
+
         _listTiles = _levelManager.GetTileSOs();
         _genmap = _levelManager.GetTilemaps();
 
-        // get start, get radoom, get end
-        var totalCount = _fullDungeonRoomSO.room.Count;
-        var pickCount = listCount;
-        randomMazeRoomsIndex = Utility.PickUniqueIndex(totalCount, pickCount);
-        for (int i = 0; i < randomMazeRoomsIndex.Count; i++)
-        {
-            _dungeonRoomSO.room.Add(_fullDungeonRoomSO.room[randomMazeRoomsIndex[i]]);
-        }
-        _dungeonRoomSO.room[_startIndex] = _fullDungeonRoomSO.room[0];
-        _dungeonRoomSO.room[_endIndex] = _fullDungeonRoomSO.room[_fullDungeonRoomSO.room.Count - 1];
+        if (!BuildMazeRooms(listCount, startIndex, endIndex)) return;
         pathfindingGrid = new PathfindingGrid();
-        EnemyManager.Instance.SetPathfindingGrid(pathfindingGrid);
+        if (_enemyManager != null) _enemyManager.SetPathfindingGrid(pathfindingGrid);
     }
 
-    public void OnDoneLoadRoomGrid(RoomCell _current)
+    // Start / end rooms are chosen by RoomType (StartRoom / BossRoom), never by their position in the
+    // library, so adding, deleting or re-sorting rooms cannot move them. Every other cell gets a distinct
+    // random room of any other type, with at least one room from each _requiredRoomGroups entry.
+    private bool BuildMazeRooms(int cellCount, int startIndex, int endIndex)
     {
-        this.LoadRoom(_startIndex, _current);
-        _playerService.SetPlayerPosition(_current.StartDoorPosition + (Vector2)_current.transform.position);
+        List<RoomFile> library = _fullDungeonRoomSO.room;
+        List<RoomFile> startRooms = library.FindAll(r => r.roomType == RoomType.StartRoom);
+        List<RoomFile> bossRooms = library.FindAll(r => r.roomType == RoomType.BossRoom);
+        List<RoomFile> middleRooms = library.FindAll(r => r.roomType != RoomType.StartRoom && r.roomType != RoomType.BossRoom);
+        int middleCount = cellCount - 2;
+
+        if (startRooms.Count == 0 || bossRooms.Count == 0 || middleRooms.Count < middleCount)
+        {
+            Debug.LogError($"[{nameof(RoomGeneraterController)}] {_fullDungeonRoomSO.name} needs at least one StartRoom, one BossRoom " +
+                           $"and {middleCount} other rooms for a {cellCount}-cell maze (has {startRooms.Count} / {bossRooms.Count} / {middleRooms.Count}).");
+            return false;
+        }
+
+        Shuffle(middleRooms);
+        List<RoomFile> picked = PickRequiredRooms(middleRooms, middleCount);
+        foreach (RoomFile room in middleRooms)
+        {
+            if (picked.Count >= middleCount) break;
+            if (!picked.Contains(room)) picked.Add(room);
+        }
+        Shuffle(picked);
+
+        _mazeRooms.Clear();
+        int next = 0;
+        for (int cell = 0; cell < cellCount; cell++)
+        {
+            if (cell == startIndex) _mazeRooms.Add(startRooms[Random.Range(0, startRooms.Count)]);
+            else if (cell == endIndex) _mazeRooms.Add(bossRooms[Random.Range(0, bossRooms.Count)]);
+            else _mazeRooms.Add(picked[next++]);
+        }
+        return true;
+    }
+
+    // One random room per required group, taken from the (already shuffled) middle pool. A group with no
+    // matching room in the library is reported and skipped; groups beyond the free cells are dropped.
+    private List<RoomFile> PickRequiredRooms(List<RoomFile> middleRooms, int middleCount)
+    {
+        List<RoomFile> picked = new List<RoomFile>();
+        foreach (RequiredRoomGroup group in _requiredRoomGroups)
+        {
+            if (group == null || group.roomTypes == null || group.roomTypes.Count == 0) continue;
+            if (picked.Exists(r => group.roomTypes.Contains(r.roomType))) continue;
+
+            RoomFile room = middleRooms.Find(r => group.roomTypes.Contains(r.roomType) && !picked.Contains(r));
+            if (room == null)
+            {
+                Debug.LogWarning($"[{nameof(RoomGeneraterController)}] Required group '{group.label}' has no room in {_fullDungeonRoomSO.name}; skipped.");
+                continue;
+            }
+            if (picked.Count >= middleCount)
+            {
+                Debug.LogWarning($"[{nameof(RoomGeneraterController)}] Maze has only {middleCount} free cells; required group '{group.label}' dropped.");
+                continue;
+            }
+            picked.Add(room);
+        }
+        return picked;
+    }
+
+    private static void Shuffle(List<RoomFile> rooms)
+    {
+        for (int i = rooms.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (rooms[i], rooms[j]) = (rooms[j], rooms[i]);
+        }
     }
 
     public void LoadRoom(int index, RoomCell nextRoomCell)
     {
-        string filePath = "";
-        filePath = _dungeonRoomSO.room[index].filePath;
+        string filePath = _mazeRooms[index].filePath;
         string json = File.ReadAllText(Application.dataPath + filePath);
         if (!nextRoomCell.IsCleared)
         {
@@ -89,8 +158,7 @@ public class RoomGeneraterController : MonoBehaviour
         for (int i = 0; i < Data.poses.Count; i++)
         {
             origanalTileMapPosition = Data.poses[i];
-            worldPose = nextRoomCell.IsCleared ? Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position)
-            : Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
+            worldPose = Data.poses[i] + Vector3Int.RoundToInt(nextRoomCell.transform.position);
             int layerIdx = hasLayerData ? Data.layerIndices[i] : 0;
             if (layerIdx < 0 || layerIdx >= _genmap.Count) layerIdx = 0;
 
@@ -135,10 +203,15 @@ public class RoomGeneraterController : MonoBehaviour
         {
             SwapTileMap(GameConstants.TileName.ROOM, nextRoomCell);
             pathfindingGrid.BuildGrid(Data, nextRoomCell.transform.position);
-            if (AutoOpenRoomTypes.Contains(_dungeonRoomSO.room[index].roomType))
+            RoomType roomType = _mazeRooms[index].roomType;
+            if (AutoOpenRoomTypes.Contains(roomType))
                 EventManager.Emit(EventID.ON_OPEN_DOOR);
+            else if (_enemyManager == null)
+                Debug.LogError($"[{nameof(RoomGeneraterController)}] No EnemyManager; room {_mazeRooms[index].roomName} spawns nothing.");
+            else if (roomType == RoomType.BossRoom)
+                _enemyManager.SpawnBoss(spawnPositions);
             else
-                EventManager.Emit(EventID.ON_GET_SPAWN_POSITIONS, spawnPositions);
+                _enemyManager.SpawnRoom(spawnPositions);
         }
         else
         {
@@ -212,6 +285,12 @@ public class RoomGeneraterController : MonoBehaviour
             directions.Clear();
             indexToLayer.Clear();
         }
+    }
+    [System.Serializable]
+    private class RequiredRoomGroup
+    {
+        public string label;
+        public List<RoomType> roomTypes = new List<RoomType>();
     }
     private static readonly HashSet<RoomType> AutoOpenRoomTypes = new HashSet<RoomType>
     {

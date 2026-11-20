@@ -117,7 +117,7 @@ namespace QA.Automation
             _rig.Vital.ReloadComponent();
             PlacePlayer(ParkPosition);
 
-            if (_enemy != null && _enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy != null && _enemy.activeSelf) pool.Despawn(_enemy);
             yield return Frames(1);
             yield return Spawn(null, false);
             _entity = _enemy != null ? _enemy.GetComponent<Entity>() : null;
@@ -314,7 +314,11 @@ namespace QA.Automation
             Check(left, $"left the take-damage state after {Time.time - started:0.##}s",
                 $"still in EntityTakeDamageState after 3s: {clip} (the state leaves on AnimationFinishTrigger)");
             Check(drift < 0.05f, "does not move while taking damage", $"moved {drift:0.##} in the take-damage state");
-            if (left) Check(_entity.StateMachine.CurrentState is EntityMoveState, "returns to EntityMoveState", $"went to {EnemyState} instead of EntityMoveState");
+            // Since the hit reaction (2026-11-19): seen → lock + EntityMoveState, blocked or no straight walkable
+            // point → EntityIdleState, out of view → EntityInvestigateState along the hit direction.
+            if (left) Check(_entity.StateMachine.CurrentState is EntityMoveState or EntityIdleState or EntityInvestigateState,
+                $"reacts to the hit: {EnemyState} (locked {_entityInput.IsLockTarget})",
+                $"went to {EnemyState}, expected EntityMoveState / EntityIdleState / EntityInvestigateState");
         }
 
         private IEnumerator CaseDeathState()
@@ -440,7 +444,7 @@ namespace QA.Automation
                 $"did not enter EntityAttackState within 4s of reaching attack range: state {EnemyState}, distance {stopAt:0.##} " +
                 $"(attack band {min:0.##}-{max:0.##}), in range {_finder.IsInRangeAttack()}, CallAttack {(_weapon != null && _weapon.CallAttack())}");
 
-            if (_enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy.activeSelf) pool.Despawn(_enemy);
             if (_rig.Player.StateMachine.CurrentState is PlayerDeathState) Note("the player died during the chase; later cases are not judged");
             else _rig.Vital.ReloadComponent();
         }
@@ -566,7 +570,7 @@ namespace QA.Automation
             yield return Wait(duration + 0.5f);
             Check(Near(_stats.GetStatValue(stat), twice, 0.05f), "a second timed buff on a reused source leaves the permanent buffs",
                 $"{stat} is {_stats.GetStatValue(stat):0.##} after a second timed buff expired, expected {twice:0.##}");
-            if (_enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy.activeSelf) pool.Despawn(_enemy);
         }
 
         private IEnumerator CaseEffectCurrentStats()
@@ -713,7 +717,7 @@ namespace QA.Automation
                 yield break;
             }
             SetItemSpawner(true);
-            if (_enemy != null && _enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy != null && _enemy.activeSelf) pool.Despawn(_enemy);
             _rig.Vital.ReloadComponent();
 
             int unloadable = _droppedData.Effects.Count(e => e == null);

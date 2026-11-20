@@ -44,11 +44,11 @@ public class PlayerAttackState : PlayerUseWeaponState
             return;
         }
         base.AnimationEnd();
-        base.LogicUpdate();
     }
     public override void LogicUpdate()
     {
         inputHandler.SetStatusAnimation(Status);
+        base.LogicUpdate();
     }
     public override void Exit()
     {

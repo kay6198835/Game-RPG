@@ -14,6 +14,9 @@ public class EntityIdleState : EntityBasicState
     public override void Enter()
     {
         base.Enter();
+        // Idle can be left by a hit without reaching the timer reset below; start each visit from zero
+        // so the look-around after a hit lasts the full IdleDurationTime.
+        idleTime = 0f;
         idleDurationTime = entityData.IdleDurationTime(entityStats);
     }
     public override void LogicUpdate()

@@ -22,6 +22,9 @@ public class EntityInput : CharacterInputBase<EntityCore>
     [SerializeField] protected Vector2 directionLookVector;
     [SerializeField] protected int directionLook;
     [SerializeField] protected float directionLookAngle;
+    [Header("Investigate")]
+    [SerializeField] protected bool hasInvestigatePoint;
+    [SerializeField] protected Vector2 investigatePoint;
     [Header("Skill")]
     [SerializeField] private SkillState state;
     [SerializeField] private SkillType skill;
@@ -46,6 +49,8 @@ public class EntityInput : CharacterInputBase<EntityCore>
     public int DirectionIsAttaked => hitDirection;
     public float DirectionIsAttakedAngle => hitDirectionAngle;
     public Vector2 SpawnPoint { get => spawnPoint; }
+    public bool HasInvestigatePoint => hasInvestigatePoint;
+    public Vector2 InvestigatePoint => investigatePoint;
     public SkillState State { get => state; }
     public SkillType Skill { get => skill; }
 
@@ -74,6 +79,26 @@ public class EntityInput : CharacterInputBase<EntityCore>
         spawnPoint = this.transform.position;
         // A pooled enemy must not come back already locked on the player.
         isLockTarget = false;
+        hasInvestigatePoint = false;
+    }
+
+    /// <summary>Turns the view (not only the sprite) toward the last hit; the view cone reads DirectionLookVector.</summary>
+    public void FaceHitDirection()
+    {
+        if (hitDirectionVector.sqrMagnitude <= Mathf.Epsilon) return;
+        targetFowardPosition = (Vector2)transform.position + hitDirectionVector;
+        DirectionMethod();
+    }
+
+    public void SetInvestigatePoint(Vector2 point)
+    {
+        investigatePoint = point;
+        hasInvestigatePoint = true;
+    }
+
+    public void ClearInvestigatePoint()
+    {
+        hasInvestigatePoint = false;
     }
     public void DirectionMethod()
     {

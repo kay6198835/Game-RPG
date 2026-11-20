@@ -49,7 +49,7 @@ namespace QA.Automation
             DisposeInput();
             SetItemSpawner(false);
             DestroyCreatedItems();
-            if (_enemy != null && pool != null) pool.Release(_enemy);
+            if (_enemy != null && pool != null) pool.Despawn(_enemy);
         }
 
         public override IEnumerator Run()
@@ -221,7 +221,7 @@ namespace QA.Automation
                 yield break;
             }
             GameObject first = _enemy;
-            pool.Release(_enemy);
+            pool.Despawn(_enemy);
             yield return Frames(2);
             Check(!first.activeSelf, "released enemy inactive", "released enemy still active");
             yield return Spawn();
@@ -285,7 +285,7 @@ namespace QA.Automation
             if (!playerReady) yield break;
             _rig.Vital.ReloadComponent();
 
-            if (_enemy != null && _enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy != null && _enemy.activeSelf) pool.Despawn(_enemy);
             yield return Frames(1);
             yield return Spawn(role);
             Entity entity = _enemy != null ? _enemy.GetComponent<Entity>() : null;
@@ -452,7 +452,7 @@ namespace QA.Automation
             if (payload is GameObject go)
             {
                 _deaths.Add(go);
-                if (pool != null) pool.Release(go);
+                if (pool != null) pool.Despawn(go);
             }
             else _deaths.Add(null);
         }

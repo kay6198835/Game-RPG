@@ -45,7 +45,7 @@ public class CombatTestEnemySpawner : MonoBehaviour
     private void OnEnemyDeath(object payload)
     {
         if (payload is not GameObject dead || dead != current) return;
-        pool.Release(dead);
+        pool.Despawn(dead);
         current = null;
         Invoke(nameof(Spawn), respawnDelay);
     }

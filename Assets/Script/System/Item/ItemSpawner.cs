@@ -43,6 +43,6 @@ public class ItemSpawner : MonoBehaviour
 
     void CollectItem(object obj = null)
     {
-        objectPoolService.Release((GameObject)obj);
+        objectPoolService.Despawn((GameObject)obj);
     }
 }
