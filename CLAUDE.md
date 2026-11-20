@@ -97,7 +97,7 @@ Data: `Assets/SO/` (stats, abilities, weapons, items, dungeon), `Assets/Data/Jso
 
 ## Current state — one line each
 
-- **Bugs:** 5 open S1 (player death never reaches Game Over is the top one) — see `production/qa/open-bugs.md`.
+- **Bugs:** 6 open S1 (Champion confirm does nothing since `19540dff` and player death still not reaching Game Over are the top two) — see `production/qa/open-bugs.md`.
 - **Demo:** death/restart loop and Abilities v2 smoke are the main gaps — see `production/demo-checklist.md`.
 - **Builds:** no Player build verified yet (BUG-126 blocks it).
 
