@@ -13,6 +13,9 @@
 > `Services/Mock/` (incl. `MockCatalog`), `Gameplay/Mock/`, the smoke test and the four mock
 > flags. The UI components themselves (every panel, `WorldHealthBar`, `DamageNumber`) are kept unchanged. `UIServices` always builds the `Real*` providers and New Game / Continue always load `LoadRandomMap`
 > with `GameplayUI` attached.
+> **Updated 2026-11-19 (`feature/fix-bug-sprint-23`):** two end-of-run flows documented — player death → Game Over
+> (section 6.4) and boss death → interact → main menu through the new `UIEvents.RequestReturnToMainMenu()`
+> (section 6.5). `ON_PLAYER_DEATH` now fires once (`49c58e35`), not every frame.
 > **Companion:** `Assets/Script/UIFlow/README.md` (beginner guide, Vietnamese, written with the code). This
 > document is the end-to-end flow reference: every screen, every transition, what is wired to gameplay and what is still empty,
 > and the gaps found while reading. Nothing here was verified in Play Mode — it is static analysis.
@@ -60,7 +63,7 @@ flowchart LR
     MGP -- "Continue / New Game / Load" --> L1[Loading]
     L1 --> Real[LoadRandomMap<br/>real dungeon]
     Real -. "Additive" .-> GUI[GameplayUI<br/>HUD + windows]
-    GUI -- "Pause > Main Menu<br/>Game Over > Main Menu" --> L2[Loading] --> MGP
+    GUI -- "Pause > Main Menu<br/>Game Over > Main Menu<br/>Boss defeated > interact" --> L2[Loading] --> MGP
     GUI -- "Game Over > Respawn" --> L1
 ```
 
@@ -123,7 +126,7 @@ menu is still selected in game. `UIBootstrap` (execution order −1000, one per 
 | `UIInput` | Keyboard/mouse reads through the new Input System, always null-checks `Keyboard.current` |
 | `KeyBindings` | PlayerPrefs-backed key table (`ui.key.<id>`). UI keys are live; gameplay keys are only stored (section 9) |
 | `SettingsStore` | PlayerPrefs for master/music/SFX volume, quality, fullscreen, VSync, resolution. Only master volume has an audible effect (no AudioMixer yet) |
-| `UIEvents` | UIFlow's own static event channel: `RequestDialogue`, `RequestShop`, `Notify`, `ShowDamage`, `UseSkill`. Gameplay is meant to call these; today only `UseSkill` is raised (by `RealPlayerDataProvider`) |
+| `UIEvents` | UIFlow's own static event channel: `RequestDialogue`, `RequestShop`, `RequestStats`, `Notify`, `ShowDamage`, `UseSkill`, `OnOpenConfirmPanel`, `SwitchInteractiveNotification`, `RequestReturnToMainMenu`. Gameplay calls these instead of holding panel references |
 | `UIServices` | Creates the `Real*` providers once and keeps them across scenes |
 
 Panel flags as built by `UIFlowBuilder`:
@@ -229,6 +232,7 @@ stateDiagram-v2
     HUD --> GameOver: PlayerDied
     GameOver --> Reload: Respawn
     GameOver --> MainMenuScene: Main Menu
+    HUD --> MainMenuScene: UIEvents.RequestReturnToMainMenu
 ```
 
 - **Hotkeys** (`GameplayUIController.Update`) only work when at the HUD or when the tab window is on top,
@@ -263,7 +267,45 @@ stateDiagram-v2
 - **Pause** — Resume, Save (disabled when no slot is selected), Settings, Main Menu. Save →
   `ISaveProvider.SaveCurrent()` → notification "Saved" / "Save failed".
 - **Game Over** — Respawn or Main Menu; Esc cannot dismiss it. Opened by `IPlayerDataProvider.PlayerDied`,
-  which first `CloseAll()`s the stack.
+  which first `CloseAll()`s the stack. Full flow in section 6.4.
+
+### 6.4 Flow 1 — player death → Game Over
+
+| # | Step | Code |
+|---|---|---|
+| 1 | Any HP loss to ≤ 0 → `VitalStatsBase.CheckDeath` → `ICharacterInput.OnDeath` (sticky `IsDeath`) → state machine enters `PlayerDeathState` | gameplay |
+| 2 | Death clip reaches its `AnimationOnAction` event → `PlayerDeathState.AnimationOnAction()` emits `EventID.ON_PLAYER_DEATH` **once** | `PlayerDeathState.cs` |
+| 3 | `RealPlayerDataProvider.OnPlayerDeath` (subscribed in its constructor; `_deathReported` guard) → `PlayerDied` | `RealPlayerDataProvider.cs` |
+| 4 | `GameplayUIController.OnPlayerDied()` → `uiManager.CloseAll()` → `uiManager.Open(gameOverPanel)` | `GameplayUIController.cs` |
+| 5 | `UIManager.Refresh()` sets `Time.timeScale = 0` (GameOver has `pausesGame`); Esc is ignored (`closeOnEscape` off); hotkeys are blocked because the HUD is not on top | `UIManager.cs` |
+| 6a | **Respawn** → `CloseSelf()` → `IPlayerDataProvider.Respawn()` (clears `_deathReported`) → `SceneFlow.EnterGameplay()` → Loading → `LoadRandomMap` + `GameplayUI`; the new player raises `ON_PLAYER_READY` and the provider re-binds | `GameOverPanel.cs`, `SceneFlow.cs` |
+| 6b | **Main Menu** → `SceneFlow.ReturnToMainMenu()` | `GameOverPanel.cs` |
+
+Constraints for anyone adding death UI:
+
+- Only clips with an `AnimationOnAction` event reach step 2. Paladin (`Knight_Die_dir*`, event at 0.867 s) does;
+  the Archer and Mage death clips have no events, so they never reach Game Over.
+- Everything after step 5 runs at `timeScale = 0`: UI animation must use unscaled time
+  (`WaitForSecondsRealtime`, `Time.unscaledDeltaTime`, DOTween `SetUpdate(true)`, Animator *Unscaled Time*).
+  To show the body for a moment before pausing, open a first panel with `pausesGame` off and open Game Over
+  from it.
+- `Update()` still ticks while paused, so gameplay input and the player state machine keep running until
+  the player is disabled (planned, not implemented).
+- New panels must be children of the `UIManager` object (its `Awake` binds them) and are opened by
+  `GameplayUIController`, not by gameplay code.
+
+### 6.5 Flow 2 — boss death → interact → main menu
+
+| # | Step | Owner |
+|---|---|---|
+| 1 | Boss dies (`EntityDeathState` → `ON_ENEMY_DEATH`) | gameplay (existing) |
+| 2 | An interactable appears; the player interacts with it | gameplay (owner implements) |
+| 3 | The interaction calls `UIFlow.UIEvents.RequestReturnToMainMenu()` | gameplay → UI |
+| 4 | `GameplayUIController.OnReturnToMainMenu()` → `uiManager.CloseAll()` → `SceneFlow.ReturnToMainMenu()` (forces `timeScale = 1`, Loading → `MainGamePlay`) | `GameplayUIController.cs` |
+
+If no `GameplayUI` is loaded (Play pressed directly in `LoadRandomMap`), `RequestReturnToMainMenu()` has no
+subscriber and calls `SceneFlow.ReturnToMainMenu()` itself. Nothing is saved before leaving: `ISaveProvider`
+stores slot metadata only.
 
 ### 6.3 World-space UI
 
@@ -288,7 +330,7 @@ Exercise the UI by playing the real game from `MainGamePlay`.
 |---|---|
 | `ISaveProvider` | **Works** — slot metadata to `ui_saves.json`. Does not save any gameplay state (room, stats, items) and the selected slot is not passed into the dungeon |
 | `ILoginService` | One "Offline" server, always succeeds |
-| `IPlayerDataProvider` | **Wired (2026-10-05):** HP/Mana current (`IVitalComponent`) and max + level + all stats (`IStatService`), `StatsChanged` on every vitals change, 4-slot hotbar from `CharacterData.AbilityBindings`, real cooldowns, `PlayerDied` (de-duplicated because BUG-086 emits `ON_PLAYER_DEATH` every frame). Name/class come from the selected save. Not wired: EXP (gameplay has none), skill tree. `Respawn()` reloads the gameplay scene through Loading (BUG-087: no in-place rebirth) |
+| `IPlayerDataProvider` | **Wired (2026-10-05):** HP/Mana current (`IVitalComponent`) and max + level + all stats (`IStatService`), `StatsChanged` on every vitals change, 4-slot hotbar from `CharacterData.AbilityBindings`, real cooldowns, `PlayerDied` (fires once; `ON_PLAYER_DEATH` is emitted once since `49c58e35`, and `_deathReported` still guards it). Name/class come from the selected save. Not wired: EXP (gameplay has none), skill tree. `Respawn()` reloads the gameplay scene through Loading (BUG-087: no in-place rebirth) |
 | `IInventoryProvider` | Empty 24-slot bag, 0 gold, shop refuses ("not connected") |
 | `IQuestProvider` | Empty list |
 
@@ -300,7 +342,7 @@ VitalStatsComponent.Reborn()  --EventManager ON_PLAYER_READY (ICharacter root)--
                                                          IVitalComponent, IStatService, AbilityHolder, CoreBase.Data
 VitalStatsBase.UpdateStatField() --IVitalComponent.CurrentStatsChanged--> StatsChanged -> HUDPanel, CharacterPanel
 AbilityInstance.StartCooldown()  --AbilityHolderBase.AbilityCooldownStarted(slot, s)--> UIEvents.UseSkill -> SkillHotbar
-PlayerDeathState                 --EventManager ON_PLAYER_DEATH (every frame)--> PlayerDied (once) -> GameOverPanel
+PlayerDeathState.AnimationOnAction --EventManager ON_PLAYER_DEATH (once)--> PlayerDied (once) -> GameOverPanel
 ```
 
 - No `FindObjectOfType`: the player announces itself. The provider exists before the map loads because
@@ -355,7 +397,7 @@ Ordered by how much they affect someone actually playing the flow.
 
 What is solid: the panel stack + Esc model, CanvasGroup show/hide, unscaled-time fades, the
 loading-screen guard for scenes missing from Build Settings, `timeScale` reset on every scene change and in
-`UIManager.OnDestroy`, and de-duplication of the per-frame death event. There is no automated test since the smoke test was
+`UIManager.OnDestroy`, and the `_deathReported` guard on the death event. There is no automated test since the smoke test was
 removed with the mock scene; verify by playing.
 
 ---

@@ -24,7 +24,7 @@ public class SourceEffect : MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         // Implementation for when the effect is complete
-        _objectPoolService.Release(gameObject);
+        _objectPoolService.Despawn(gameObject);
     }
 }
 

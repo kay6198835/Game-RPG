@@ -76,6 +76,9 @@ existing bug) · **Not a bug / by design** (reason) · **Needs owner** (carry, l
   `production/qa/bugs/BUG-NNN.md` (header: Title, Severity, Priority, System, Found by, Status,
   Fixed in) — one at a time, re-running `next` each time.
 - Move each triaged row to **Triaged notes** with its outcome.
+- After every new bug file and status change: `bash .claude/scripts/bug-id.sh open > production/qa/open-bugs.md`
+  (generated index; never edit it by hand, never copy bug rows into `CLAUDE.md`). If the S1 count changed,
+  update the one "Bugs:" line under "Current state" in `CLAUDE.md`.
 - New bug files and status changes are **special changes** → `pm/wrapup-<date>` branch per the
   protocol. Write `production/qa/bug-triage-<date>.md` (priority vs severity, blockers for next
   sprint, inbox outcomes).

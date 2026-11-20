@@ -64,6 +64,10 @@ namespace QA.Automation
             yield return Case("QA-PATH-01", "PATH", QAPriority.P0, "A* finds a path of walkable, adjacent waypoints to the farthest reachable tile", CasePathFound());
             yield return Case("QA-PATH-02", "PATH", QAPriority.P1, "A* to a wall tile fails cleanly", CasePathBlocked());
             yield return Case("QA-PATH-03", "PATH", QAPriority.P1, "Same query twice gives the same path (search state cleared)", CasePathRepeat());
+            yield return Case("QA-PATH-04", "PATH", QAPriority.P1, "Every node sits on its tile centre and maps back to itself", CasePathTileCentre());
+            yield return Case("QA-PATH-05", "PATH", QAPriority.P1, "No diagonal neighbour cuts a wall corner; A* paths keep the rule", CasePathNoCornerCut());
+            yield return Case("QA-PATH-06", "PATH", QAPriority.P2, "IsLineWalkable: true between adjacent floor tiles, false into a wall or off the grid", CasePathLineWalk());
+            yield return Case("QA-MAP-07", "MAP", QAPriority.P1, "Room library has a StartRoom, a BossRoom and a room for every required group; every file exists", CaseRoomLibrary());
 
             yield return Case("QA-ITEM-01", "ITEM", QAPriority.P1, "DepotItem rolls only items from its table; same seed gives same roll", CaseDepotRoll());
         }
@@ -269,20 +273,20 @@ namespace QA.Automation
             if (spawned == null) yield break;
             Check(Vector2.Distance(spawned.transform.position, at) < 0.001f, $"at {at}", $"at {(Vector2)spawned.transform.position}, asked {at}");
             Check(spawned != _poolTemplate, "instance is not the template", "pool returned the template itself");
-            pool.Release(spawned);
+            pool.Despawn(spawned);
         }
 
         private IEnumerator CasePoolReuse()
         {
             if (pool == null) { Fail("scene not wired: no ObjectPoolManager"); yield break; }
             GameObject first = pool.Spawn(Template(), Vector2.zero, Quaternion.identity);
-            pool.Release(first);
+            pool.Despawn(first);
             yield return null;
             Check(!first.activeSelf, "released instance inactive", "released instance still active");
             GameObject second = pool.Spawn(Template(), Vector2.one, Quaternion.identity);
             yield return null;
             Check(second == first && second.activeSelf, "same instance reused and re-activated", "a new instance was created instead of reusing the released one");
-            pool.Release(second);
+            pool.Despawn(second);
         }
 
         private IEnumerator CasePoolDistinct()
@@ -292,8 +296,8 @@ namespace QA.Automation
             GameObject b = pool.Spawn(Template(), Vector2.zero, Quaternion.identity);
             yield return null;
             Check(a != null && b != null && a != b, "two distinct instances", "the same instance was handed out twice");
-            if (a != null) pool.Release(a);
-            if (b != null && b != a) pool.Release(b);
+            if (a != null) pool.Despawn(a);
+            if (b != null && b != a) pool.Despawn(b);
         }
 
         #endregion
@@ -429,6 +433,30 @@ namespace QA.Automation
             yield return null;
         }
 
+        private const string RoomLibraryAsset = "Assets/SO/Dungeon/Maze_Storage.asset";
+
+        // RoomGeneraterController.BuildMazeRooms (e2b7efee) picks the start / end room by RoomType and at least
+        // one room per required group (Shop; Treasure / Rest / Puzzle / Secret). It gives up the run when the
+        // library lacks one, so the committed library must carry them all.
+        private IEnumerator CaseRoomLibrary()
+        {
+            DungeonRoomSO library = AssetDatabase.LoadAssetAtPath<DungeonRoomSO>(RoomLibraryAsset);
+            if (library == null) { Fail($"room library missing: {RoomLibraryAsset}"); yield break; }
+            List<RoomFile> rooms = Copy(library).room;
+            Note("types: " + string.Join(", ", rooms.GroupBy(r => r.roomType).OrderBy(g => g.Key).Select(g => $"{g.Key} {g.Count()}")));
+            Check(rooms.Count(r => r.roomType == RoomType.StartRoom) >= 1, "has a StartRoom", "no StartRoom in the library");
+            Check(rooms.Count(r => r.roomType == RoomType.BossRoom) >= 1, "has a BossRoom", "no BossRoom in the library");
+            Check(rooms.Any(r => r.roomType == RoomType.ShopRoom), "has a Shop room", "no ShopRoom (required group 'Shop')");
+            RoomType[] support = { RoomType.TreasureRoom, RoomType.RestRoom, RoomType.PuzzleRoom, RoomType.SecretRoom };
+            Check(rooms.Any(r => support.Contains(r.roomType)), "has a support / special room", "no Treasure / Rest / Puzzle / Secret room (required group 'Support / special')");
+            foreach (RoomFile r in rooms)
+            {
+                string path = System.IO.Path.Combine(QARunConfig.ProjectRoot, "Assets" + r.filePath);
+                if (!File.Exists(path)) Fail($"{r.roomName}: file missing Assets{r.filePath}");
+            }
+            yield return null;
+        }
+
         #endregion
 
         #region PATH
@@ -525,6 +553,106 @@ namespace QA.Automation
             NavPath a = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             NavPath b = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             Check(a.Success == b.Success && a.Waypoints.SequenceEqual(b.Waypoints), "identical results", $"first {a.Waypoints.Count} waypoints, second {b.Waypoints.Count}");
+            yield return null;
+        }
+
+        private Dictionary<Vector2Int, Node> AllNodes()
+        {
+            Dictionary<Vector2Int, Node> all = new();
+            for (int x = -150; x <= 150; x++)
+            for (int y = -150; y <= 150; y++)
+            {
+                Node n = _grid.GetNode(new Vector2(x, y));
+                if (n != null) all[n.TileMapPosition] = n;
+            }
+            return all;
+        }
+
+        private static bool IsFloor(Dictionary<Vector2Int, Node> all, Vector2Int cell) => all.TryGetValue(cell, out Node n) && n.Walkable;
+
+        private IEnumerator CasePathTileCentre()
+        {
+            if (!BuildGrid()) yield break;
+            Dictionary<Vector2Int, Node> all = AllNodes();
+            int bad = 0;
+            string first = null;
+            Vector2[] offsets = { Vector2.zero, new(0.45f, 0.45f), new(-0.45f, -0.45f), new(0.45f, -0.45f), new(-0.45f, 0.45f) };
+            foreach (Node n in all.Values)
+            foreach (Vector2 o in offsets)
+            {
+                if (_grid.GetNode(n.WorldPosition + o) == n) continue;
+                bad++;
+                first ??= $"node {n.TileMapPosition} at {n.WorldPosition}: point {n.WorldPosition + o} maps to {_grid.GetNode(n.WorldPosition + o)?.TileMapPosition.ToString() ?? "null"}";
+            }
+            Check(all.Count > 0 && bad == 0, $"{all.Count} nodes, each centre and its 4 inner corners (±0.45) map back to the node",
+                $"{bad} point(s) map to another cell; first: {first}");
+            yield return null;
+        }
+
+        private IEnumerator CasePathNoCornerCut()
+        {
+            if (!BuildGrid()) yield break;
+            Dictionary<Vector2Int, Node> all = AllNodes();
+            int diagonals = 0, cuts = 0;
+            string first = null;
+            foreach (Node n in all.Values)
+            {
+                if (!n.Walkable) continue;
+                foreach (Node next in n.Neighbors)
+                {
+                    Vector2Int d = next.TileMapPosition - n.TileMapPosition;
+                    if (d.x == 0 || d.y == 0) continue;
+                    diagonals++;
+                    if (IsFloor(all, n.TileMapPosition + new Vector2Int(d.x, 0)) && IsFloor(all, n.TileMapPosition + new Vector2Int(0, d.y))) continue;
+                    cuts++;
+                    first ??= $"{n.TileMapPosition} -> {next.TileMapPosition}";
+                }
+            }
+            Check(cuts == 0, $"{diagonals} diagonal links, none past a wall corner", $"{cuts} diagonal link(s) cut a wall corner; first {first}");
+
+            Node start = _walkable[0];
+            NavPath path = AStar.FindPath(_grid, start.WorldPosition, Farthest(start).WorldPosition);
+            if (!path.Success) { Fail("no A* path to check"); yield break; }
+            int pathCuts = 0;
+            for (int i = 1; i < path.Waypoints.Count; i++)
+            {
+                Node a = _grid.GetNode(path.Waypoints[i - 1]), b = _grid.GetNode(path.Waypoints[i]);
+                if (a == null || b == null) { pathCuts++; continue; }
+                Vector2Int d = b.TileMapPosition - a.TileMapPosition;
+                if (d.x != 0 && d.y != 0 && !(IsFloor(all, a.TileMapPosition + new Vector2Int(d.x, 0)) && IsFloor(all, a.TileMapPosition + new Vector2Int(0, d.y))))
+                    pathCuts++;
+            }
+            Check(pathCuts == 0, $"A* path of {path.Waypoints.Count} waypoints keeps the corner rule", $"{pathCuts} path step(s) cut a wall corner");
+            yield return null;
+        }
+
+        private IEnumerator CasePathLineWalk()
+        {
+            if (!BuildGrid()) yield break;
+            Dictionary<Vector2Int, Node> all = AllNodes();
+            Node floor = null, floorNext = null, wall = null;
+            foreach (Node n in all.Values)
+            {
+                if (!n.Walkable) continue;
+                foreach (Vector2Int d in new[] { Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down })
+                {
+                    if (!all.TryGetValue(n.TileMapPosition + d, out Node m)) continue;
+                    if (m.Walkable && floorNext == null) { floor = n; floorNext = m; }
+                    if (!m.Walkable && wall == null) wall = m;
+                }
+                if (floorNext != null && wall != null) break;
+            }
+            if (floorNext == null) { Skip("no two adjacent floor tiles"); yield break; }
+            Check(_grid.IsLineWalkable(floor.WorldPosition, floorNext.WorldPosition), $"{floor.TileMapPosition} -> {floorNext.TileMapPosition}: walkable",
+                $"{floor.TileMapPosition} -> {floorNext.TileMapPosition}: two adjacent floor tiles reported not walkable");
+            if (wall != null)
+            {
+                Node from = all.Values.Where(n => n.Walkable).OrderBy(n => (n.TileMapPosition - wall.TileMapPosition).sqrMagnitude).First();
+                Check(!_grid.IsLineWalkable(from.WorldPosition, wall.WorldPosition), $"{from.TileMapPosition} -> wall {wall.TileMapPosition}: not walkable",
+                    $"{from.TileMapPosition} -> wall {wall.TileMapPosition}: reported walkable");
+            }
+            else Note("room has no wall tile next to a floor tile; wall check not run");
+            Check(!_grid.IsLineWalkable(floor.WorldPosition, new Vector2(10000f, 10000f)), "line off the grid: not walkable", "line off the grid reported walkable");
             yield return null;
         }
 

@@ -180,6 +180,11 @@ version-ahead pin from an accident.
 
 ## 4. Update CLAUDE.md Technology Stack
 
+> **Game-RPG override (2026-11-19):** root `CLAUDE.md` holds no engine data and no `@import` (budget
+> ≤ 200 lines, enforced at commit). Write the stack and version to `docs/engine-reference/<engine>/VERSION.md`
+> and `.claude/docs/technical-preferences.md`; in `CLAUDE.md` change at most the one Environment summary
+> line and the path in "Where things live". Skip the ENGINE-REFERENCE-IMPORT line.
+
 ### Language Selection (Godot only)
 
 If Godot was chosen, ask the user which language to use **before** showing the proposed Technology Stack:
