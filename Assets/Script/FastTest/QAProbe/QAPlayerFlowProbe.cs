@@ -212,7 +212,7 @@ public class QAPlayerFlowProbe : MonoBehaviour
         else if (_confirmPanelOpened > 0)
         {
             Fail("panel event fired but no active ConfirnPanel in the scene; confirmed through UIEvents.AccessAction()");
-            UIEvents.AccessAction();
+            // UIEvents.AccessAction();
         }
         else
         {

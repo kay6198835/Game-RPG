@@ -20,14 +20,8 @@ public class PlayerIntertorState : PlayerUseWeaponState
     {
         base.AnimationEnd();
         interactor.Intertion();
-        Status = StatusAnimation.OffActivate;
+        base.LogicUpdate();
     }
-
-    // public override void OffAnimationTrigger()
-    // {
-    //     base.OffAnimationTrigger();
-    //     Status = StatusAnimation.OffActivate;
-    // }
 
     public override void Exit()
     {
