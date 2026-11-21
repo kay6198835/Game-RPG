@@ -1,0 +1,20 @@
+[20:50:17] QA weekly run 20261121-2050, project D:\Fork\Game-RPG
+[20:50:19] sprint branch origin/sprint-23 at bcedaebb88
+[20:50:21]   (ignored) git merge --abort (exit 128): fatal: There is no merge to abort (MERGE_HEAD missing).
+[20:50:21] RUNNER ERROR: merge of origin/sprint-23 into qa/weekly-automation failed (conflict?): git merge --no-edit origin/sprint-23 (exit 2): error: Your local changes to the following files would be overwritten by merge: |   qa-automation/state/latest.json | Merge with strategy ort failed.
+[20:50:21] at <ScriptBlock>, C:\Users\haoki\AppData\Local\Temp\qa-run-weekly.ps1: line 223
+[20:50:23] status committed to qa/weekly-automation (d4f762cade511510bffbdc4d3b7ec6853de867f9)
+[20:50:27] pushed qa/weekly-automation to origin
+[20:50:27] sprint merge skipped: tests did not run (status RUNNER_ERROR)
+[20:50:27] exit 2
+[20:50:58] QA weekly run 20261121-2050, project D:\Fork\Game-RPG
+[20:51:01] sprint branch origin/sprint-23 at bcedaebb88
+[20:51:02] merged origin/sprint-23 into qa/weekly-automation
+[20:51:03] change scan 76a60d2fda..origin/sprint-23 -> deep P2 for: PLY
+[20:51:03] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261121-2050\unity-compile.log"
+[20:51:40] unity -batchmode -nographics -projectPath "D:\Fork\Game-RPG" -runTests -testPlatform EditMode -testResults "D:\Fork\Game-RPG\qa-automation\reports\20261121-2050\unit-results.xml" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261121-2050\unity-unit.log"
+[20:52:23] unity EditMode tests exit 2
+[20:52:23] EditMode tests: 101 case(s)
+[20:52:23] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261121-2050" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261121-2050\unity-run.log" -qaDeep PLY
+[20:59:33] unity test run exit 1
+[20:59:36] PASS 194 / FAIL 22 / KNOWN 8 / SKIP 13 / OBSERVED 2; new FAIL: 3
