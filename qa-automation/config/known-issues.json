@@ -13,10 +13,15 @@
     { "pattern": "^QA-STATIC-04$", "bug": "BUG-115", "note": "Runtime modifiers saved into stat assets (BUG-063 accepted/deferred)" },
     { "pattern": "^QA-STATIC-05$", "findings": "CharacterData", "bug": "BUG-116", "note": "CharacterData uses UnityEditor.Animations in runtime code" },
     { "pattern": "^QA-STATIC-05$", "findings": "TMP_TextInfoDebugTool", "bug": "BUG-126", "note": "TextMesh Pro example script has an unguarded using UnityEditor" },
-    { "pattern": "^QA-STATIC-01$", "findings": "Assets/Sprite/(Maw|Vampire|Warrok)/Scenes/", "bug": "BUG-128", "note": "Sprite capture scenes reference the uncommitted capture-tool script" },
+    { "pattern": "^QA-STATIC-01$", "findings": "Assets/Sprite/(Maw|Vampire|Warrok|Erika|Nightshade|Paladin)/Scenes/", "bug": "BUG-128", "note": "Sprite capture scenes reference the uncommitted capture-tool script (Erika / Nightshade added 2026-11-21: new capture scenes, same script guid)" },
     { "pattern": "^QA-STATIC-03$", "findings": "attackDamege", "bug": "BUG-105", "note": "AttackSO assets still store attackDamege" },
     { "pattern": "^QA-STATIC-03$", "findings": "authoredModifiers", "bug": "BUG-121", "note": "StatModifierGroup.authoredModifiers renamed without FormerlySerializedAs" },
     { "pattern": "^QA-VIT-07$", "bug": "BUG-122", "note": "PlayerDeathState waits for EndRangeTrigger, which no Paladin Die clip sends" },
-    { "pattern": "^QA-MAP-06$", "findings": "BossRoom|BUG-096", "bug": "BUG-096", "note": "Boss room has no spawn marker and no other door-open path; non-combat rooms reported for BUG-096 context" }
+    { "pattern": "^QA-MAP-06$", "findings": "BossRoom|BUG-096", "bug": "BUG-096", "note": "Boss room has no spawn marker and no other door-open path; non-combat rooms reported for BUG-096 context" },
+    { "pattern": "^QA-PLY-06\\.", "bug": "BUG-130", "note": "Dash soft-locks every class: dash clip sends no AnimationOnAction, player stuck in PlayerDashState (run 20261121-2050)" },
+    { "pattern": "^QA-ENT-11$", "bug": "BUG-133", "note": "Hit knockback moves the victim during the take-damage state (run 20261121-2050: moved 0.1)" },
+    { "pattern": "^QA-UNIT\\.ItemEffectDataTests\\.CommittedDropTables_", "bug": "BUG-132", "note": "Test.asset has an empty ItemName and no ItemSprite" },
+    { "pattern": "^QA-STATIC-09$", "findings": "Comsuable/Test\\.asset", "bug": "BUG-132", "note": "Test.asset has an empty ItemName and no ItemSprite" },
+    { "pattern": "^QA-STATIC-13$", "findings": "^(Archer|Mage): \\d+ of \\d+ death clip", "bug": "BUG-122", "note": "Archer / Mage death clips carry no AnimationOnAction (NOTE-20261120-3, duplicate of BUG-122)" }
   ]
 }

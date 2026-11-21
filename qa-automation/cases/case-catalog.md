@@ -71,6 +71,8 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-VIT-12 | P1 | Recovery / Reduction on Coin (a vital that is never seeded) are safe (added 2026-11-20) | no exception; HP and Mana unchanged | | |
 | QA-VIT-13 | P1 | Damage of current HP − 0.5 through the hurtbox leaves the player alive at 0.5 HP (added 2026-11-20) | alive, HP 0.5 (player receiver applies no mitigation) | | |
 | QA-VIT-14 | P1 | A non-lethal hit enters `PlayerTakeDamageState` and returns to Idle / Move (added 2026-11-20) | state within 0.5 s; back within 3 s | | |
+| QA-VIT-15 | P0 | Player (`NegativeReciver`) and enemy (`EntityNegativeReciver`) hurtboxes implement `INegativeReceiver`, the interface `MeleeWeapon`, `RangeWeapon`, `Projectile` and ability effects look up (added 2026-11-21) | both types assignable to `INegativeReceiver`; spawned player has one | | |
+| QA-VIT-16 | P1 | `InvicisibleHurtbox(true)` disables the player hurtbox `BoxCollider2D`, `false` enables it again (dash invincibility, `be973605`, added 2026-11-21) | collider off, then on; state restored | | |
 | QA-ENT-01 | P0 | Pool spawns the enemy prefab with core components and full HP | active, Entity + vital + stat + hurtbox, HP = max | | |
 | QA-ENT-02 | P0 | Spawned enemy has its default weapon (spawn applies `EntityData` like `EnemySpawner.ApplyData()` since 2026-11-05) | `EntityWeaponHolder.Weapon != null` within 1 s | BUG-106 | |
 | QA-ENT-03 | P0 | Damage lowers HP by amount × 100 / (100 + Defense); a 1-damage hit still lands (percent mitigation since `b33d1870`, 2026-11-08; was amount − Defense) | exact | | |

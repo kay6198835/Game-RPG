@@ -1,0 +1,75 @@
+{
+    "base":  "76a60d2fda",
+    "head":  "bcedaebb88",
+    "baseRef":  "76a60d2fda",
+    "headRef":  "origin/sprint-23",
+    "commits":  [
+                    {
+                        "sha":  "bcedaebb",
+                        "date":  "2026-11-21",
+                        "author":  "Kay",
+                        "subject":  "chore(qa-auto): weekly QA run 20261121-2029 - 0 inbox notes 2026-11-21",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "67c188b3",
+                        "date":  "2026-11-21",
+                        "author":  "Kay",
+                        "subject":  "update",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/Script/Character/Player/States/PlayerDashState.cs"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "9e5921c0",
+                        "date":  "2026-11-21",
+                        "author":  "Kay",
+                        "subject":  "coding need check",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/AnimationController/Player/Paladin/Paladin.controller"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  0,
+    "files":  3,
+    "systems":  {
+                    "DOCS":  [
+                                 "production/session-state/routine-log.md"
+                             ],
+                    "PLY":  [
+                                "Assets/Script/Character/Player/States/PlayerDashState.cs"
+                            ],
+                    "VISUAL":  [
+                                   "Assets/AnimationController/Player/Paladin/Paladin.controller"
+                               ]
+                },
+    "deep":  [
+                 "PLY"
+             ],
+    "risks":  [
+
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}
