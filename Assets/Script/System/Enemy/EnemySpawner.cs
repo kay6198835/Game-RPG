@@ -88,7 +88,7 @@ public class EnemySpawner : MonoBehaviour
 
     public void ReleaseEnemy(object obj = null)
     {
-        objectPoolManager.Release((GameObject)obj);
+        objectPoolManager.Despawn((GameObject)obj);
     }
 
     public void SpawnRoomEnemies(in List<Vector2Int> spawnPosition)

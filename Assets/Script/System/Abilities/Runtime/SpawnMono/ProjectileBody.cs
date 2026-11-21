@@ -47,7 +47,7 @@ public class ProjectileBody : MonoBehaviour
     protected virtual IEnumerator DespawnOneselfAffterDuration()
     {
         yield return new WaitForSeconds(_lifetime);
-        _pool.Release(gameObject);
+        _pool.Despawn(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -55,7 +55,7 @@ public class ProjectileBody : MonoBehaviour
         int layer = other.gameObject.layer;
         if (IsInMask(_config.blockMask, layer))
         {
-            Release();
+            Despawn();
             return;
         }
         if (!IsInMask(_config.targetMask, layer)) return;
@@ -63,7 +63,7 @@ public class ProjectileBody : MonoBehaviour
 
         _payload?.OnHit(other, transform.Position2D());
 
-        Release();
+        Despawn();
     }
 
     // A pooled instance must never carry the previous shot's payload into its next life.
@@ -73,7 +73,7 @@ public class ProjectileBody : MonoBehaviour
         if (_rb != null) _rb.velocity = Vector2.zero;
     }
 
-    private void Release()
+    private void Despawn()
     {
         _rb.velocity = Vector2.zero;
         _payload = null;
@@ -84,7 +84,7 @@ public class ProjectileBody : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        _pool.Release(gameObject);
+        _pool.Despawn(gameObject);
     }
 
     private static bool IsInMask(LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;

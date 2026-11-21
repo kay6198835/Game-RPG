@@ -21,12 +21,12 @@ public class SpawnMono : MonoBehaviour, ISpawn
     }
     public virtual void DespawnOneSelf()
     {
-        _context.Services.Pool.Release(gameObject);
+        _context.Services.Pool.Despawn(gameObject);
     }
 
     protected virtual IEnumerator DespawnOneselfAffterDuration()
     {
         yield return new WaitForSeconds(_duration);
-        _context.Services.Pool.Release(gameObject);
+        _context.Services.Pool.Despawn(gameObject);
     }
 }

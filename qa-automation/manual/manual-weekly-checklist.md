@@ -54,6 +54,11 @@ The numbers behind these cases are already checked by the Friday automated run. 
 | MAN-HYG-01 | Asset hygiene | After the session | `git status` | No `Assets/SO/**/*.asset` modified by playing (BUG-115) | | |
 | MAN-ENT-09 | Pooled enemy reset on reuse (`b33dedf9`) | MainGamePlay, New Game | Clear two combat rooms in a row | Enemies of the second room spawn with full HP bars, idle / walk normally (no death pose, no instant death); they wander near where they spawned (BUG-124) | | |
 | MAN-ABL-05 | Archer Rain Arrows on its own prefab (`285e6900`) | CombatTest, Archer, full Mana, 3 enemies spread in front | Press 4 toward 4 different directions | Arrows fall in a pattern that matches the cast direction; enemies standing where arrows land lose HP; the effect disappears at the end of the clip and the next cast works | | |
+| MAN-ITEM-02 | Item drop look (added 2026-11-20) | MainGamePlay, a combat room | Kill enemies until 3 items drop | Each drop pops in (scale tween), shows its sprite and is readable on every floor tile; no invisible drop (inbox NOTE-20261120-4: item `Test` has no sprite) | | |
+| MAN-ITEM-03 | Pickup feel (added 2026-11-20) | An item on the floor | Walk up, press Q once; then press Q again with nothing in reach | The pickup animation faces the item; the item vanishes on the pickup frame, not before; one press takes one item; Q with nothing near does nothing and the player is not locked (AUTO QA-ITEM-03 / 04 / 12 check the numbers) | | |
+| MAN-ITEM-04 | Item bonus shown to the player (added 2026-11-20) | Pick up `BaseOrds` | Open the Stats panel (C) | STR +3 and INT +1 show, and the derived stats (HP, damage) move with them; nothing reverts on room change (AUTO QA-ITEM-05 checks the values) | | |
+| MAN-VIT-01 | HP bar on a max-HP change (added 2026-11-20) | Take some damage, then pick up a STR / VIT item | Watch the HP bar | The bar re-scales to the new max without jumping to full and without a wrong number (AUTO QA-VIT-10 checks the clamp) | | |
+| MAN-UI-06 | Game Over per class (added 2026-11-20) | Each class in turn | Let enemies kill the player | Death animation plays to the end, then the Game Over screen. Expected to FAIL on every class until BUG-122 / NOTE-20261120-3 are fixed — record what you see | | |
 
 ## Part 2 — New this week
 
@@ -83,3 +88,6 @@ Run `20261119-1616` (`sprint-23` `c613e641`) added MAN-ENT-11..13 and MAN-MAP-06
 2. Mage has no default weapon — does a Mage have a basic attack, and what is it?
 3. Abilities with an empty Effects list (Archer 1–3, all four Mage) — SKIP or FAIL?
 4. Avatar of Light at HP ≤ its HP cost — refuse the cast, or allow it?
+5. Should `EventManager.Emit` isolate listeners, so one listener that throws does not stop the others (AUTO QA-EVT-05)?
+6. A room whose spawn set came back empty (0 enemies): should its door open (AUTO QA-MAP-10)?
+7. Do item stat bonuses last the whole run, including death and New Game, or reset? (No AUTO case until decided.)

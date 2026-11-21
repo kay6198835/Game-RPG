@@ -7,6 +7,12 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-19 — Player death and boss death end-of-run flows
+- **Commits:** `49c58e35` "fix death flow" (death event once); uncommitted `UIEvents.RequestReturnToMainMenu()` on `feature/fix-bug-sprint-23`
+- **Changed:** banner, scene flow diagram, section 4 `UIEvents` row, 6.2 diagram, new 6.4 and 6.5, section 8 table and binding line, closing note of section 9
+- **From → To:** `ON_PLAYER_DEATH` "every frame" → once from `PlayerDeathState.AnimationOnAction`; no boss-end flow → boss death → interact → `UIEvents.RequestReturnToMainMenu()` → main menu; `UIEvents` row listed five calls → all current calls
+- **Why:** owner request to document the player-death UI flow before adding death UI, and to add a single call for the boss-room exit interaction (owner implements the interactable)
+
 ## 2026-10-10 — Scene path; ConfirnPanel noted (doc-sync --auto)
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** banner, build-index table

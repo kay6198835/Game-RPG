@@ -17,6 +17,19 @@ which code change caused it.
 
 ---
 
+## 2026-11-19 — UI end-of-run flows: player death, boss death (`feature/fix-bug-sprint-23`)
+
+**Cause.** `49c58e35` made `ON_PLAYER_DEATH` fire once; owner asked for the death UI flow to be documented and for
+a call that returns to the main menu after the boss dies. Code: `UIEvents.RequestReturnToMainMenu()` +
+`GameplayUIController.OnReturnToMainMenu()`.
+
+| Document | Change |
+|---|---|
+| `docs/ui/ui-ux-flow.md` | New 6.4 (player death → Game Over) and 6.5 (boss death → interact → main menu); per-frame death wording removed; `UIEvents` row updated |
+| `docs/ui/changelog/ui-ux-flow.CHANGELOG.md` | Entry for the above |
+
+---
+
 ## 2026-11-19 — CLAUDE.md holds no data; owner files + commit gate (`sprint-23`)
 
 **Cause.** Owner review of the first cut: CLAUDE.md still copied bugs (23 rows), the EventID table and the

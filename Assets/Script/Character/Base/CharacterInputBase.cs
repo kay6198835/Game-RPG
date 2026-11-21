@@ -24,8 +24,14 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
 
     public abstract Vector2 AimDirection { get; }
     public abstract Vector2 AimPoint { get; }
-
     public abstract int AimDirectionIndex { get; }
+    protected IMovement movement;
+
+    public override void Setup()
+    {
+        base.Setup();
+        Core.TryGetCapability(out movement);
+    }
 
     protected void ResetTakeDamage()
     {
@@ -36,6 +42,7 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
         CancelInvoke(nameof(ResetTakeDamage));
         Invoke(nameof(ResetTakeDamage), GameConstants.SettingStats.TAKE_DAMAGE_FLAG_DURATION);
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
+        movement?.ApplyKnockback(hitDirectionVector, GameConstants.SettingStats.TAKE_DAMAGE_FLAG_DURATION);
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isTakeDamage = true;
     }
@@ -44,6 +51,7 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     // the receiver no longer changes state itself. Sticky until ReloadComponent() (respawn / Reborn).
     public virtual void OnDeath(Vector2 attackPosition)
     {
+        if (isDeath) return;
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isDeath = true;

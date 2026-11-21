@@ -10,40 +10,36 @@
 | [BUG-092](bugs/BUG-092.md) | S1 | PARTIAL | `RecoveryReductionPerTimeForDuration` does not compile — `perTime` was deleted but is still used |
 | [BUG-096](bugs/BUG-096.md) | S1 | OPEN | Rooms with no `Tile_Spawn_Enemy` marker never open their doors — the player is locked in (fix `40d2c79` reverted by `ac13ee4`) |
 | [BUG-108](bugs/BUG-108.md) | S1 | PARTIAL | `CharacterData` dropped its `[FormerlySerializedAs]` attributes — the five `Enemy - Knight*` `EntityData` assets still store `statsSO` / ` |
-| [BUG-122](bugs/BUG-122.md) | S1 | OPEN | `PlayerDeathState` emits `ON_PLAYER_DEATH` only on `StatusAnimation.EndRangeTrigger`, but every Paladin Die clip carries only `AnimationOnAc |
+| [BUG-122](bugs/BUG-122.md) | S1 | PARTIAL | `PlayerDeathState` emits `ON_PLAYER_DEATH` only on `StatusAnimation.EndRangeTrigger`, but every Paladin Die clip carries only `AnimationOnAc |
+| [BUG-129](bugs/BUG-129.md) | S1 | OPEN | Champion confirm does nothing — `19540dff` moved the confirm callback into `ConfirnData.callback`, but `UIEvents.OnOpenConfirmPanel()` ign |
 | [BUG-065](bugs/BUG-065.md) | S2 | OPEN | `PlayerDeathState` no longer stops `PlayerMovement` — CLAUDE.md's BUG-044 "FIXED" claim is stale against current source |
-| [BUG-066](bugs/BUG-066.md) | S2 | OPEN | `EntityVitalStats` indexes `currentStats[statType]` with no key-existence guard — `KeyNotFoundException` risk on the enemy damage/heal cha |
-| [BUG-070](bugs/BUG-070.md) | S2 | OPEN | `VitalStatsComponent` indexes `currentStats[statType]` with no key-existence guard — same unguarded-dictionary pattern as `BUG-066`, now o |
-| [BUG-071](bugs/BUG-071.md) | S2 | PARTIAL | `VitalStatsComponent.RecoveryPerTimeForDuration` / `ReductionPerTimeForDuration` never run — coroutine created but never started |
 | [BUG-072](bugs/BUG-072.md) | S2 | OPEN | Summon-type ability damage (`SpawnSummonEffect.SummonExecute`) has no target resolution — uses `Services.NegativeReceiver`, which is null  |
-| [BUG-073](bugs/BUG-073.md) | S2 | OPEN | Deleted ability runtime scripts are still referenced by live assets — `ShootSpirit.asset` and `SpiritProjcetile.prefab` now have missing-s |
 | [BUG-083](bugs/BUG-083.md) | S2 | OPEN | `AbilityContext.HoldTime` / `.HoldRatio` are always `0f` — every charge-scaling effect is dead on arrival |
 | [BUG-086](bugs/BUG-086.md) | S2 | OPEN | `PlayerDeathState.LogicUpdate()` re-emits `ON_PLAYER_DEATH` every frame — the event fires unbounded, not once |
 | [BUG-095](bugs/BUG-095.md) | S2 | PARTIAL | `Arrow.prefab` has no projectile script or collider — ranged attacks spawn inert sprites that never move, hit or despawn |
-| [BUG-097](bugs/BUG-097.md) | S2 | OPEN | Bug #16 is now live — `Maze_Storage.asset` is alphabetical, so the start cell gets the Boss room and the end cell gets the Start room |
 | [BUG-100](bugs/BUG-100.md) | S2 | OPEN | Timed buff expiry strips every stat modifier on the character — permanent item buffs and overlapping timed buffs share one modifier source |
-| [BUG-106](bugs/BUG-106.md) | S2 | PARTIAL | Weapon and ability bindings are applied only from `Player.SetCharacterData()` — enemies never get their weapon or abilities, and the playe |
 | [BUG-110](bugs/BUG-110.md) | S2 | OPEN | Player weapon drop / floor pickup never updates `WeaponHolderBase.weapon` and never injects the picked-up weapon — a dropped weapon keeps  |
 | [BUG-113](bugs/BUG-113.md) | S2 | OPEN | "Max stat" has two meanings — `BaseStatsSO.GetStatValue()` returns `AdjustedValue` (no equipment, no modifiers) while vitals are seeded fr |
 | [BUG-114](bugs/BUG-114.md) | S2 | OPEN | `VitalStatsBase` snapshots all 17 stats once in `Reborn()` — stat buffs / debuffs never reach weapon damage, crit or move speed until the  |
 | [BUG-117](bugs/BUG-117.md) | S2 | OPEN | Vital (current HP / Mana) modifiers cannot be authored and invert when they could — `VitalModifier` is not serializable, a negative value  |
-| [BUG-120](bugs/BUG-120.md) | S2 | OPEN | Item stat-modifier effects apply nothing — `StatModifierEffect.Apply()` only resolves the receiver, both concrete menus point at `abstract |
-| [BUG-125](bugs/BUG-125.md) | S2 | OPEN | Melee hits add the attack-stage damage twice — `WeaponHolderBase.CalculateCurrentDamage()` already adds `CurrentStage.attackDamage`, then  |
+| [BUG-120](bugs/BUG-120.md) | S2 | PARTIAL | Item stat-modifier effects apply nothing — `StatModifierEffect.Apply()` only resolves the receiver, both concrete menus point at `abstract |
 | [BUG-126](bugs/BUG-126.md) | S2 | OPEN | `TMP_TextInfoDebugTool.cs` has `using UnityEditor;` outside `#if UNITY_EDITOR` — expected to break every Player build |
+| [BUG-130](bugs/BUG-130.md) | S2 | OPEN | Dash soft-locks every class — the class animator controllers applied by `SetCharacterData()` have no Dash state, so `PlayerDashState` neve |
 | [BUG-052](bugs/BUG-052.md) | S3 | OPEN | Three live subsystems (`Character/Base/`, `Pathfinding/`, `Poolable/`) are undocumented — missing from CLAUDE.md Repository Layout and bac |
 | [BUG-068](bugs/BUG-068.md) | S3 | OPEN | `AbilityHolder.GetAbility()` dereferences `currentAbility.Definition` with no null check — NRE on any unbound `AbilitySlot` |
 | [BUG-079](bugs/BUG-079.md) | S3 | OPEN | `AbilityInstance` never leaves `AbilityState.Exit` — `Exit()` is an empty method with its only statement commented out |
-| [BUG-090](bugs/BUG-090.md) | S3 | OPEN | `Has Enough Mana Condition.asset` is orphaned — its script was deleted in `2a83469` but the asset and two references to it remain |
 | [BUG-099](bugs/BUG-099.md) | S3 | OPEN | Doc sync `7d1b5c79` records BUG-096 as fixed — CLAUDE.md and `map-system.md` say marker-less rooms open their doors, but the fix was rever |
-| [BUG-101](bugs/BUG-101.md) | S3 | OPEN | Bug-ID collision — `CLAUDE.md` uses BUG-093/094/095 for three defects that differ from `production/qa/bugs/BUG-093..095.md` |
 | [BUG-102](bugs/BUG-102.md) | S3 | OPEN | Confirm panel static events are raised with `.Invoke()` — `NullReferenceException` when `GameplayUI` is not loaded; `SetConfirm()` writes  |
 | [BUG-103](bugs/BUG-103.md) | S3 | OPEN | `RangeWeapon.nextFireTime` is written but never read — `RangeAttackSO.RecoveryTime` has no effect; `OnDrawGizmosSelected` draws from a wro |
 | [BUG-111](bugs/BUG-111.md) | S3 | OPEN | `RegenComponent` fails as soon as it is wired — `_cacheDatas` never initialised, `KeyNotFoundException` on any non-HP/Mana stat change, re |
 | [BUG-112](bugs/BUG-112.md) | S3 | OPEN | `Merchant.prefab` and `NPC.prefab` reference two MonoBehaviour scripts that were never committed — Missing Script in every clone |
 | [BUG-118](bugs/BUG-118.md) | S3 | OPEN | `RecoveryReductionPerTimeForDuration` calls `AdjustCurrentPerTimeForDuration()`, which throws `NotImplementedException` — every HoT / DoT  |
-| [BUG-119](bugs/BUG-119.md) | S3 | OPEN | `VitalStatsBase.Recovery()` adds without clamping — a heal pushes current HP / Mana above max |
 | [BUG-123](bugs/BUG-123.md) | S3 | OPEN | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item effect can be authored, so `WalletComponent.AddCoins()` has  |
 | [BUG-127](bugs/BUG-127.md) | S3 | OPEN | Mage basic attack projectile speed is `1` — a MagicBolt travels at most 4 units and needs 2.5 s to reach a target 2.5 units away |
+| [BUG-131](bugs/BUG-131.md) | S3 | OPEN | `Interact.FindNearestObject()` walks the whole 3-slot `colliders` buffer instead of the first `numFound` entries — a stale collider from a |
 | [BUG-098](bugs/BUG-098.md) | S4 | OPEN | Enemy-spawn GDD and ADR-0003 name a `RarityTier` enum that no longer exists — code renamed it `RarityTierEnemy` |
 | [BUG-104](bugs/BUG-104.md) | S4 | OPEN | `PlayerState.Enter()` logs `"Enter State: " + animBoolName` on every player state change, unguarded — string concat + log shipped in build |
 | [BUG-128](bugs/BUG-128.md) | S4 | OPEN | 18 sprite capture scenes reference a script that is not in the repository (the character capture tool) |
+| [BUG-132](bugs/BUG-132.md) | S4 | OPEN | Droppable item `Test.asset` has an empty `ItemName` and no `ItemSprite` — it drops as an invisible, nameless object that still gives STR + |
+| [BUG-133](bugs/BUG-133.md) | S4 | OPEN | New hit knockback pushes the victim toward the attacker — `CharacterInputBase.OnTakeDamage()` passes `hitDirectionVector` (attacker minus  |
+| [BUG-134](bugs/BUG-134.md) | S4 | OPEN | `EntityMoveState` wander timer is a field that `Enter()` never resets and a hard-coded `10` — authored `MoveDurationTime` is computed but  |

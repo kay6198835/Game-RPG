@@ -11,23 +11,31 @@
 
 ## Status Verdict
 
-**AT RISK on Must — day 4 (Thu 2026-11-19, standup 02:00).** Wednesday's work was an off-plan
-map / spawn restructure (12 session commits `89a22d25`…`d0d814b6`) that also closes **S23-04** in
-code + data (start / end by `roomType`, boss spawn marker, Champion in the start room — awaiting a
-Play Mode check). S23-01 (playtest, 26th carry), S23-02 (death → Game Over, S1) and S23-05
-(BUG-126, one line, `using UnityEditor;` still at `TMP_TextInfoDebugTool.cs:4`) are untouched for
-the 3rd day. 2 working days left (Thu–Fri) / 0.65d Must remaining + ≈0.3d buffer — still fits only
-if S23-02 and S23-05 land today. Evidence: COMPILED (`d0d814b6` + 3 uncommitted paths) + LOG + STATIC.
+**FINAL (weekly wrap-up, fired Fri 2026-11-20): SLIPPED — evidence STATIC + LOG (+ RUNTIME from the
+Thu automated QA run `20261119-1638`; no playtest sheet, no Friday QA run yet).** Verified Must work:
+S23-03 (BUG-125 FIXED, QA-CMB-01 PASS) and S23-04 (BUG-097 FIXED in code + data). S23-02 landed in code
+but BUG-122 is PARTIAL (death state re-enters itself, Archer / Mage clips carry no event); S23-05 and
+S23-01 untouched; Friday's `19540dff` added a new S1 (BUG-129, Champion confirm does nothing). Playtest
+done: **no** (27th carry). Handoff: see "Week close" at the end.
+
+*Day-5 standup verdict (kept for history):* **AT RISK on Must — day 5 (Fri 2026-11-20, standup 02:00).** Thursday landed **S23-02** in code
+(`49c58e35` "fix death flow": `ON_PLAYER_DEATH` emitted from the death clip's action event, `OnDeath`
+re-entry guard; `abdbb332` boss-exit → main menu, death flows documented) — but a static review found
+a likely regression: `PlayerDeathState` now inherits the `IsDeath → ChangeState(DeathState)` check and
+re-enters itself every frame (NOTE-20261120-1, S1 guess). Off-plan: enemy hit-investigate state and
+pathfinding tile-centre fix (`c613e641`, `0e0dc874`). S23-05 (BUG-126, one line) and S23-01
+(playtest, 26th carry) still untouched. 1 working day left / 0.4d Must before Sat (S23-05 0.05d,
+S23-01 0.3d, NOTE-20261120-1 ≈0.05d) + ≈0.1d buffer. Evidence: COMPILED (`a34c8404`) + LOG + STATIC.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.2d (S23-03, S23-04 code) | 0.75d (0.65d before Sat) |
+| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.5d (S23-03, S23-04 code, S23-02 code) | 0.45d (0.35d before Sat) + NOTE-20261120-1 |
 | Should Have | 0.9d (0.7d after S23-06 cut) | 0.5d | 0.2d |
 | Feature story S23-F1 (capped) | 1.0d | 1.0d (merged) | 0 |
-| Off-plan (Tue: BUG-071 rework, QA automation fixes; Wed: map / spawn restructure beyond S23-04) | — | ≈1.2d (est.) | — |
-| Buffer | 1.0d | ≈0.7d consumed by off-plan | ≈0.3d |
+| Off-plan (Tue: BUG-071 rework, QA automation fixes; Wed: map / spawn restructure beyond S23-04; Thu: enemy investigate state, pathfinding tile centres, QA runs) | — | ≈1.6d (est.) | — |
+| Buffer | 1.0d | ≈0.9d consumed by off-plan | ≈0.1d |
 
 ---
 
@@ -80,14 +88,18 @@ if S23-02 and S23-05 land today. Evidence: COMPILED (`d0d814b6` + 3 uncommitted 
 |------|------|--------|---------|
 | S23-06 BUG-106 player half + BUG-110 | 0.2d | ✂️ owner decision (NOTE-20261116-3) | — |
 | S23-07 Editor / data block | 0.15d | ✅ Mon (Knight assets deleted `041bf198`, Arrow collider `25d869fb`; Lightning `layerMask` = 64) | — |
-| Carry-over: S23-02 → S23-05 → S23-01 | 0.65d | ⬜ | Must; last full day before Friday buffer |
+| Carry-over: S23-02 → S23-05 → S23-01 | 0.65d | 🟡 S23-02 ✅ code (`49c58e35`, `abdbb332`) — suspected regression NOTE-20261120-1; S23-05 / S23-01 ⬜ → Fri | Must; last full day before Friday buffer |
+| (off-plan) Enemy hit → investigate state; pathfinding nodes on tile centres | — | ✅ code (`c613e641`, `0e0dc874`, `06adc2a0`) | Owner-approved session; not covered by Thu QA runs |
 | S23-09 BUG-127 | 0.05d | ⬜ | Mage basic attack barely reaches (`speed: 1` still); Archer same data (NOTE-20261117-6) |
 
 ### Fri 2026-11-20 — Cleanup + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S23-10 One-liners | 0.15d | 🟡 BUG-104 half (`Enter()` log removed in `3a2659ce`, `Exit()` log remains) | Carried 5–8 weeks |
-| Buffer | 1d | — | — |
+| NOTE-20261120-1 death state re-enters itself (verify / one-line override) | ≈0.05d | ⬜ | S23-02 may not reach Game Over without it |
+| S23-05 BUG-126 (carried) | 0.05d | ⬜ | One line; blocks any Player build |
+| S23-01 Playtest / smoke incl. death → Game Over (carried) | 0.3d | ⬜ | 26th carry; Saturday sheet ready |
+| S23-10 One-liners | 0.15d | 🟡 BUG-104 half (`Enter()` log removed in `3a2659ce`, `Exit()` log remains) | Carried 5–8 weeks; only if time is left |
+| Buffer | 1d | ≈0.9d consumed | — |
 
 ### Sat 2026-11-21 — Weekly playtest
 | Task | Est. | Status | Why now |
@@ -181,3 +193,76 @@ _(appended by `/daily-standup`)_
 - **Owner live tree:** `LoadRandomMap.unity`, `Level Manager.prefab` modified; `AbilityInstance.cs` staged.
 - **Today:** S23-02 death chain (0.3d) → S23-05 BUG-126 (0.05d) → S23-01 playtest incl. new room flow (0.3d).
 - **Verdict:** yesterday SLIPPED on S1 Must (S23-04 done off-order), sprint AT RISK on Must (0.65d / 2d + 0.3d buffer).
+
+### 2026-11-20 (Fri) — standup 02:00
+- **Sync:** SKIPPED — owner branch `sprint-23` is already contained in `origin/sprint-23` (`a34c8404`).
+- **Yesterday (Thu):** S23-02 landed in code — `49c58e35` "fix death flow" (`ON_PLAYER_DEATH` from
+  `PlayerDeathState.AnimationOnAction()`, `OnDeath` re-entry guard, dash checked after abilities,
+  attack `LogicUpdate` order) and `abdbb332` (`UIEvents.RequestReturnToMainMenu()` for the boss exit,
+  ui-ux-flow 6.4 / 6.5). Off-plan: `c613e641` enemy hit → investigate state, `0e0dc874` pathfinding
+  nodes on tile centres + corner rule, `06adc2a0` syntax / `PlayerManager` / dash tweaks. QA automation
+  ran twice (PASS 162 / FAIL 3 / KNOWN 9; FAIL = dash soft lock NOTE-20261117-3), both before the
+  death fix. Burned: Must 0.3 / 0.65d planned; ≈0.4d off-plan. S23-05 / S23-01 not started (4th day).
+- **Runtime:** `compile-check.sh` COMPILED `a34c8404` (76 s, clean tree). `Editor.log` (11-19 16:15)
+  and `Editor-prev.log` (11-18 17:32): 0 `error CS`, 0 Play Mode, no `Assets/Script/` exception.
+  `fix-survival.sh 7`: no fix commits in window. Playtest: none recorded.
+- **Review:** NOTE-20261120-1 (S1 guess) — `PlayerDeathState` lost its `LogicUpdate()` override and
+  now re-enters itself every frame through the inherited `IsDeath` check.
+- **Playtest sheet:** `production/qa/playtests/playtest-2026-11-21.md` generated (step A9 = S23-02 check).
+- **Today:** NOTE-20261120-1 (≈0.05d) → S23-05 BUG-126 (0.05d) → S23-01 smoke incl. death → Game Over (0.3d).
+- **Verdict:** yesterday ON-TRACK for S23-02 code (suspected regression), sprint AT RISK on Must (0.4d / 1d, buffer ≈0.1d).
+
+### 2026-11-20 (Fri) — weekly wrap-up (scheduler fired Friday, one day before the Saturday slot)
+- **Friday's commits:** `19540dff` "knockback, update UI confirm" (off-plan) — review found BUG-129 (S1,
+  Champion confirm callback dropped) and BUG-133 (S4, knockback toward the attacker); `633b7647` QA
+  coverage review (new EditMode / Play Mode cases, inbox NOTE-20261120-2..6). Editor.log 16:29: 6
+  transient CS0117 `AccessAction` (NOTE-20261120-9; committed call sites are commented out).
+  NOTE-20261120-1, S23-05, S23-01 not done.
+- **Triage:** 31 notes → 6 confirmed (BUG-129…134), 11 resolved, 5 duplicate, 8 by design / hints,
+  2 needs owner; 13 status changes (`production/qa/bug-triage-2026-11-20.md`). S1 count 5 → 6.
+- **Fix survival (30 d):** 0 GONE, 0 NOT ANCESTOR, PARTIAL only on the multi-file `1370136c` (explained).
+- **Verdict:** SLIPPED (final weekly verdict above).
+
+---
+
+## Week close (wrap-up 2026-11-20)
+
+| ID | Est. | Final status |
+|----|------|--------------|
+| S23-01 Playtest / smoke | 0.3d | ⬜ not done — **27th carry** |
+| S23-02 Death → Game Over | 0.3d | 🟡 code landed (`49c58e35`), BUG-122 PARTIAL — carry |
+| S23-03 BUG-125 | 0.05d | ✅ FIXED, QA-CMB-01 PASS (automated) |
+| S23-04 BUG-096 boss + BUG-097 | 0.15d | ✅ code + data (BUG-097 FIXED awaiting Play Mode; BUG-096 latent shape remains, Open) |
+| S23-05 BUG-126 | 0.05d | ⬜ not done — carry |
+| Saturday playtest | 0.1d | ⬜ not run at wrap-up time |
+| S23-06 BUG-106 + BUG-110 | 0.2d | ✂️ owner decision (BUG-106 CLOSED, BUG-110 deferred) |
+| S23-07 Editor / data block | 0.15d | ✅ |
+| S23-08 BUG-117 + 120 + 123 | 0.35d | ✅ code (BUG-120 PARTIAL — pickup PASS, guard missing; 117 / 123 status not re-read) |
+| S23-09 BUG-127 | 0.05d | ⬜ not done — carry (scope now Archer + Mage) |
+| S23-10 One-liners | 0.15d | 🟡 BUG-104 half — carry the rest |
+| S23-F1 Pathfinding branch | 1.0d | ✅ merged |
+
+**Burn:** Must verified 0.2d / 0.95d; Should 0.5d; Feature 1.0d; off-plan ≈2.0d (BUG-071 rework, map /
+spawn restructure, enemy investigate state, pathfinding tile centres, knockback / confirm UI, QA runs).
+
+### Handoff for Sunday `/weekly-kickoff`
+
+- **Velocity:** 1.7 estimate-days completed (S23-03 0.05 + S23-04 0.15 + S23-07 0.15 + S23-08 0.35 +
+  S23-F1 1.0) / 4 = **0.43**. Must-only: 0.2 / 0.95.
+- **Carry-over:** S23-01 playtest (27th) · S23-02 remainder = BUG-122 (empty `LogicUpdate()` override in
+  `PlayerDeathState` + events on Archer / Mage death clips) with BUG-086 / BUG-065 · S23-05 BUG-126 ·
+  S23-09 BUG-127 (Archer + Mage) · S23-10 remainder (BUG-104 / 103 / 102 / 068).
+- **New blocker bugs:** **BUG-129** (S1, one line — first task Monday), **BUG-130** (S2, dash soft lock).
+- **Playtest done: no.** The scheduler ran this wrap-up on Friday; if the owner fills
+  `production/qa/playtests/playtest-2026-11-21.md` on Saturday, the kickoff should read it first.
+- **Needs owner:** NOTE-20261115-7 item 3 (stats key C), NOTE-20261117-4 (Move-state spawn intent).
+
+### Retrospective
+
+- **Went well:** BUG-125 fixed and confirmed by the automated run the same week; S23-04 closed in code +
+  data; QA automation grew to 188 cases and found the dash soft lock (BUG-130) before any hand test.
+- **Slipped:** the S1 Must items again came last — S23-02 landed Thursday with a regression, S23-05 (one
+  line) untouched all week, the playtest carried a 27th time; Friday's unplanned UI change added a new S1.
+- **Improve (one):** after any commit that touches the death flow or the Champion confirm path, run the
+  automated QA suite (or the two smoke steps A3 / A9 by hand) the same day, before starting the next task.
+- **Deferred for weeks:** S23-01 playtest (27 weeks), BUG-065 (15th carry), BUG-096 remainder (8th).

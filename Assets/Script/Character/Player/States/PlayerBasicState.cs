@@ -75,6 +75,11 @@ public class PlayerBasicState : PlayerState
             stateMachine.ChangeState(player.AbilityState);
             return;
         }
+        else if (inputHandler.IsDash)
+        {
+            stateMachine.ChangeState(player.DashState);
+            return;
+        }
         if (inputHandler.IsTakeDamage)
         {
             stateMachine.ChangeState(player.TakeDamageState);
