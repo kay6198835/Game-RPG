@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace UIFlow
         [SerializeField] private TMP_Text messText;
         [SerializeField] private Button confirmButton;
         [SerializeField] private Button cancelButton;
+        private Action callback;
 
         private readonly StringBuilder _builder = new();
 
@@ -18,12 +20,13 @@ namespace UIFlow
         {
             tileText.text = data.confirmText;
             messText.text = data.cancelText;
+            callback = data.callback;
         }
 
         public void AccessConfirm()
         {
+            callback?.Invoke();
             CloseSelf();
-            UIEvents.AccessAction();
         }
 
         protected override void Awake()
@@ -40,4 +43,5 @@ public struct ConfirnData
 {
     public string confirmText;
     public string cancelText;
+    public Action callback;
 }

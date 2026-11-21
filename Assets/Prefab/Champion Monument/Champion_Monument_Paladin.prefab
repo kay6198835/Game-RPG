@@ -75,15 +75,15 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 10
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 4944294233448168294, guid: 01e0a27e4d4a6bb4d846d81b3b143b17, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.56, y: 2.56}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!58 &4869998476764400387
@@ -133,7 +133,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ce6f73873f014d49a156d9e4b40c1b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataChampition: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}
-  avatarChampition: {fileID: 4944294233448168294, guid: 01e0a27e4d4a6bb4d846d81b3b143b17, type: 3}
   circleCollider: {fileID: 0}
-  spriteRenderer: {fileID: 0}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  interactData:
+    textMessage: 
+    keyCode: 0
+  dataChampition: {fileID: 11400000, guid: 4b9d05015cf30b749819557c909c6a2c, type: 2}

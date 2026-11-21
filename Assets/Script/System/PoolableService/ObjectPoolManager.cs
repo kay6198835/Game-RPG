@@ -35,7 +35,7 @@ public class ObjectPoolManager : MonoBehaviour, IObjectPoolService
         if (pool == null) return null;
         return pool.Spawn(position, rotation, parent);
     }
-    public void Release(GameObject poolObject, Transform parent = null)
+    public void Despawn(GameObject poolObject, Transform parent = null)
     {
         if (!poolObject.TryGetComponent(out PoolMember member))
             return;

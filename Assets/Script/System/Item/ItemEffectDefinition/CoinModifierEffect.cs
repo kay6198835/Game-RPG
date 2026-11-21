@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
-
-public abstract class CoinModifierEffect : ItemEffectDefinitionSO
+[CreateAssetMenu(menuName = "Item SO/Effect/Coin/ Adjust Coins")]
+public class CoinModifierEffect : ItemEffectDefinitionSO
 {
     [SerializeField] private int coinAmount;
     IWallet wallet;

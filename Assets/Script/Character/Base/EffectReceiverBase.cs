@@ -7,8 +7,10 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
+    protected ICharacterInput input;
     [SerializeField] protected SourceEffect sourceEffect;
-    [Inject] protected IObjectPoolService _objectPoolManager;
+    protected IObjectPoolService _objectPoolManager;
+    [Inject]
     public void Construct(IObjectPoolService objectPoolManager)
     {
         _objectPoolManager = objectPoolManager;
@@ -18,17 +20,18 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         base.Setup();
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out statHandler);
+        Core.TryGetCapability(out input);
     }
 
-    GameObject SetEffectSource(AbilityContext context, Action callback)
+    GameObject SetEffectSource(AbilityContext context, float lifetime, Action callback)
     {
-        GameObject instance = _objectPoolManager.Spawn(sourceEffect.gameObject, context.Caster.Transform.position, Quaternion.identity);
+        Vector2 position = context != null ? context.Caster.Transform.position : Vector2.zero;
+        GameObject instance = _objectPoolManager.Spawn(sourceEffect.gameObject, position, Quaternion.identity);
         instance.GetComponent<SourceEffect>().SetSourceEffect(new SourceEffectConfig
         {
             callback = callback,
-            lifetime = 5f
+            lifetime = lifetime
         });
-
         return instance;
     }
     public override void ReloadComponent()
@@ -41,18 +44,18 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         {
             if (modifier.ImpactType == StatImpactType.Reduction)
             {
-                vital.Reduction(modifier.TargetStatType, modifier.Value);
+                vital.Reduction(modifier.TargetStatType, Math.Abs(modifier.Value));
             }
             else if (modifier.ImpactType == StatImpactType.Recovery)
             {
-                vital.Recovery(modifier.TargetStatType, modifier.Value);
+                vital.Recovery(modifier.TargetStatType, Math.Abs(modifier.Value));
             }
         }
     }
 
-    public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context, object source, Action action = null)
+    public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
-        statHandler.AddModifiersFromSource(source, statModifierGroup.GetStatsModifiers);
+        statHandler.AddModifiersFromSource(SetEffectSource(context, 0f, callback), statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.
@@ -63,6 +66,10 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     IEnumerator ReductionPerTime(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
     {
+        if (input == null || input.IsDeath)
+        {
+            yield break;
+        }
         AdjustCurrentStats(statModifierGroup, context);
         timeCount--;
         if (timeCount > 0)
@@ -78,7 +85,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     IEnumerator ApplyAdjustCurrentForDuration(StatModifierGroup statModifierGroup, float duration, AbilityContext context, Action callback = null)
     {
-        var sourceEffect = SetEffectSource(context, callback);
+        var sourceEffect = SetEffectSource(context, duration, callback);
         statHandler.AddModifiersFromSource(sourceEffect, statModifierGroup.GetStatsModifiers);
         yield return new WaitForSeconds(duration);
         statHandler.RemoveModifiersFromSource(sourceEffect);
@@ -86,12 +93,27 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
     {
-        StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context));
+        StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context, callback));
     }
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
-        throw new System.NotImplementedException();
+        //StartCoroutine(ApplyAdjustMaxPerTimeForDuration(modifierGroup, perTime, duration, context));
     }
+
+    // IEnumerator ApplyAdjustMaxPerTimeForDuration(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
+    // {
+    //     if (input == null || input.IsDeath)
+    //     {
+    //         yield break;
+    //     }
+    //     AdjustCurrentStats(statModifierGroup, context);
+    //     timeCount--;
+    //     if (timeCount > 0)
+    //     {
+    //         yield return new WaitForSeconds(perTime);
+    //         AdjustMaxPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
+    //     }
+    // }
     #endregion
 }

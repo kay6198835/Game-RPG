@@ -14,6 +14,7 @@ public class Entity : CharacterBase<EntityCore>
     [SerializeField] private EntityTakeDamageState takeDamageState;
     [SerializeField] private EntityDeathState deathState;
     [SerializeField] private EntityAbilityState abilityState;
+    [SerializeField] private EntityInvestigateState investigateState;
     [SerializeField] private EntityData data;
     public Animator Anim { get => anim; }
     public Rigidbody2D Rb { get => rb; }
@@ -25,6 +26,7 @@ public class Entity : CharacterBase<EntityCore>
     public EntityTakeDamageState TakeDamageState { get => takeDamageState; }
     public EntityDeathState DeathState { get => deathState; }
     public EntityAbilityState AbilityState { get => abilityState; }
+    public EntityInvestigateState InvestigateState { get => investigateState; }
     public EntityData Data { get => data; }
 
     public override void Awake()
@@ -34,15 +36,15 @@ public class Entity : CharacterBase<EntityCore>
     }
     public virtual void OnEnable()
     {
-        if (stateMachine.CurrentState is not EntityIdleState)
-            stateMachine.Initialize(idleState);
+        if (stateMachine.CurrentState is not EntityMoveState)
+            stateMachine.Initialize(moveState);
 
         core.ReloadCore();
     }
     public override void Start()
     {
         base.Start();
-        stateMachine.Initialize(idleState);
+        stateMachine.Initialize(moveState);
     }
     protected override IState CurrentState => stateMachine.CurrentState;
     private void LoadEntity()
@@ -63,6 +65,8 @@ public class Entity : CharacterBase<EntityCore>
         takeDamageState = new EntityTakeDamageState(this, stateMachine, data, "TakeDamage");
         deathState = new EntityDeathState(this, stateMachine, data, "Death");
         abilityState = new EntityAbilityState(this, stateMachine, data, "Ability");
+        // Investigating plays the walk animation; the Animator needs no new parameter.
+        investigateState = new EntityInvestigateState(this, stateMachine, data, "Move");
     }
 
     public void SetDataEntity(EntityData data)
@@ -88,6 +92,6 @@ public class Entity : CharacterBase<EntityCore>
         anim.runtimeAnimatorController = this.data.animationController;
         LoadState();
         ApplyCharacterData();
-        stateMachine.Initialize(idleState);
+        stateMachine.Initialize(moveState);
     }
 }

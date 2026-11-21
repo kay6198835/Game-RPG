@@ -1263,6 +1263,5 @@ flowchart TD
 | Stat effects (Blessing, Avatar of Light) | complete | **BUG-092** residual for HoT/DoT assets |
 
 **Still open:** BUG-068 (`CurrentActivationType` unguarded), BUG-071 (HoT/DoT chain cannot be
-stopped), BUG-073 / BUG-090 (missing-script assets; `SpawnEffectBase` still logs the deleted
-`[ShootSpiritOrbEffect]` name), BUG-079, BUG-083. `SpawnProjectileBase.pierceCount` is serialized but
+stopped), BUG-079, BUG-083. `SpawnProjectileBase.pierceCount` is serialized but
 unused.

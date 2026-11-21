@@ -18,7 +18,8 @@ namespace UIFlow
     /// trước khi LoadRandomMap chạy Start(). Từ ICharacter gốc, lấy từng thành phần bằng GetComponentInChildren
     /// (đúng quy ước ADR-0005).
     ///
-    /// Lưu ý: PlayerDeathState bắn ON_PLAYER_DEATH MỖI FRAME (BUG-086) → cờ _deathReported chỉ phản ứng một lần.
+    /// Lưu ý: từ 49c58e35 PlayerDeathState bắn ON_PLAYER_DEATH một lần (frame AnimationOnAction); cờ _deathReported
+    /// vẫn giữ để PlayerDied chắc chắn chỉ chạy một lần mỗi lần chết.
     /// </summary>
     public class RealPlayerDataProvider : IPlayerDataProvider, IDisposable
     {
@@ -178,7 +179,7 @@ namespace UIFlow
             if (_statService is IPlayerStatService playerStatService) _statSession = new StatPointSession(playerStatService);
 
             _deathReported = false;
-            _vital.CurrentStatsChanged += OnVitalsChanged;
+            _vital.CurrentStatsChanged += OnVitalChanged;
             if (_abilityHolder != null) _abilityHolder.AbilityCooldownStarted += OnCooldownStarted;
 
             BuildHotbar(root.GetComponentInChildren<CoreBase>());
@@ -188,12 +189,18 @@ namespace UIFlow
 
         private void Unbind()
         {
-            if (_vital != null) _vital.CurrentStatsChanged -= OnVitalsChanged;
+            if (_vital != null) _vital.CurrentStatsChanged -= OnVitalChanged;
             if (_abilityHolder != null) _abilityHolder.AbilityCooldownStarted -= OnCooldownStarted;
             _vital = null;
             _statService = null;
             _abilityHolder = null;
             _statSession = null;
+        }
+
+        // HUD chỉ hiện HP / Mana; các vital khác (Coin) không cần vẽ lại.
+        private void OnVitalChanged(VitalStatType vitalStatType)
+        {
+            if (vitalStatType == VitalStatType.HP || vitalStatType == VitalStatType.Mana) OnVitalsChanged();
         }
 
         private void OnVitalsChanged()

@@ -11,7 +11,6 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     [SerializeField] protected bool isDeath;
     [SerializeField] protected bool isAttack;
     [SerializeField] protected bool isSkill;
-    [SerializeField] protected float takeDamageFlagDuration = 0.1f;
 
     [Header("Hit Direction")]
     [SerializeField] protected Vector2 hitDirectionVector;
@@ -25,14 +24,25 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
 
     public abstract Vector2 AimDirection { get; }
     public abstract Vector2 AimPoint { get; }
-
     public abstract int AimDirectionIndex { get; }
+    protected IMovement movement;
 
+    public override void Setup()
+    {
+        base.Setup();
+        Core.TryGetCapability(out movement);
+    }
+
+    protected void ResetTakeDamage()
+    {
+        isTakeDamage = false;
+    }
     public virtual void OnTakeDamage(Vector2 attackPosition)
     {
         CancelInvoke(nameof(ResetTakeDamage));
-        Invoke(nameof(ResetTakeDamage), takeDamageFlagDuration);
+        Invoke(nameof(ResetTakeDamage), GameConstants.SettingStats.TAKE_DAMAGE_FLAG_DURATION);
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
+        movement?.ApplyKnockback(hitDirectionVector, GameConstants.SettingStats.TAKE_DAMAGE_FLAG_DURATION);
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isTakeDamage = true;
     }
@@ -41,6 +51,7 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
     // the receiver no longer changes state itself. Sticky until ReloadComponent() (respawn / Reborn).
     public virtual void OnDeath(Vector2 attackPosition)
     {
+        if (isDeath) return;
         hitDirectionVector = (attackPosition - (Vector2)transform.position).normalized;
         AngleCalculate(hitDirectionVector, ref hitDirectionAngle, ref hitDirection);
         isDeath = true;
@@ -54,13 +65,6 @@ public abstract class CharacterInputBase<TCore> : CoreComponentBase<TCore>, ICha
         isDeath = false;
         isAttack = false;
         isSkill = false;
-    }
-
-    // Protected, not private: Invoke() resolves the name on the runtime type and cannot see a
-    // private method declared on a base class.
-    protected void ResetTakeDamage()
-    {
-        isTakeDamage = false;
     }
 
     protected static void AngleCalculate(Vector2 directionVector, ref float angle, ref int direction)

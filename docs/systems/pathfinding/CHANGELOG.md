@@ -9,6 +9,13 @@ Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history a
 - **Why:** commit message — with `GameRPG.asmdef` referenced by `Assembly-CSharp-firstpass`, the global `Path` shadowed `DG.Tweening.Plugins.Core.PathCore.Path` in the DOTween module scripts (CS1729, CS1929, CS0411).
 - **Bugs:** none; the transient DOTween errors are NOTE-20261113-1.
 
+## 2026-11-13 — GDD and ADR written (docs only)
+- **Commit:** this change (branch `docs/gdd-pathfinding`, base `origin/sprint-22` `a8725a77`)
+- **Changed:** `design/gdd/pathfinding-system.md` (new), `docs/architecture/adr-0006-grid-astar-pathfinding.md` (new); this README's header, `Data/` row (`Path` → `NavPath`), `GridUtility` row and Open issues
+- **From → To:** "No GDD, no ADR" → reverse-documented GDD (41 rules: 3 CONFIRMED, 27 AS-BUILT, 11 OPEN) + retroactive ADR-0006 (Proposed)
+- **Why:** BUG-052; QA needs a written source for test cases. No `.cs` change.
+- **Bugs:** none opened or closed; inbox notes NOTE-20261113-2 … -5.
+
 ## 2026-10-05 — Documentation folder created
 - **Commit:** none (docs only)
 - **Changed:** this folder

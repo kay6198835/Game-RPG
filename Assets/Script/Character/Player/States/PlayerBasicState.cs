@@ -28,6 +28,11 @@ public class PlayerBasicState : PlayerState
     public override void LogicUpdate()
     {
         base.LogicUpdate();
+        if (inputHandler.IsDash)
+        {
+            stateMachine.ChangeState(player.DashState);
+            return;
+        }
         // NEED CHECK: 2026-11-05 — death is read from the input flag, first, no longer from VitalStatsComponent HP.
         if (inputHandler.IsDeath)
         {
@@ -68,6 +73,11 @@ public class PlayerBasicState : PlayerState
         else if (inputHandler.IsSkill)
         {
             stateMachine.ChangeState(player.AbilityState);
+            return;
+        }
+        else if (inputHandler.IsDash)
+        {
+            stateMachine.ChangeState(player.DashState);
             return;
         }
         if (inputHandler.IsTakeDamage)

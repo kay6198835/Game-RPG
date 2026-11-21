@@ -7,6 +7,13 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-13 — Pointer to ADR-0006 added
+- **Commit:** this change (branch `docs/gdd-pathfinding`)
+- **Changed:** note under Status
+- **From → To:** no reference to a pathfinding decision → note points at ADR-0006 and `design/gdd/pathfinding-system.md`. Decision and Amendment untouched.
+- **Why:** ADR-0006 depends on this ADR's Amendment (pathfinding façade) and must not be read as replacing it.
+- **Bugs:** none.
+
 ## 2026-10-10 — Event-name note added (doc-sync --auto)
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** note under Status

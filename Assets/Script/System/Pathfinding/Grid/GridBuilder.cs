@@ -7,6 +7,7 @@ public class GridBuilder
     private Node[,] nodesGrid;
     private int cols, rows;
     private Vector2 originPosition;
+    private static readonly Vector2 CellCenterOffset = new Vector2(0.5f, 0.5f);
     // Build base on tile map of room
     public Node[,] BuildGrid(LevelData data, ref int cols, ref int rows,ref Vector2 originPosition)
     {
@@ -42,7 +43,9 @@ public class GridBuilder
                 Vector2Int rawPos = new Vector2Int(min.x + x, min.y + y);
                 bool walkable = walkableAt.TryGetValue(rawPos, out bool isFloor) && isFloor;
                 Vector2Int gridPosition = new Vector2Int(x, y);
-                nodesGrid[x, y] = new Node(gridPosition, walkable, originPosition + (Vector2)rawPos);
+                // Tiles are placed at cell rawPos with a 0.5 anchor, so the tile centre is rawPos + 0.5.
+                // The node sits on that centre; at rawPos it sat on the tile corner and paths hugged walls.
+                nodesGrid[x, y] = new Node(gridPosition, walkable, originPosition + (Vector2)rawPos + CellCenterOffset);
             }
         }
         this.cols = cols;
@@ -74,13 +77,14 @@ public class GridBuilder
                     if (!IsInside(nx, ny))
                         continue;
                     Node neighbor = nodesGrid[nx, ny];
-                    // Corner Cutting
+                    // Corner cutting: a diagonal step needs BOTH side cells walkable. Enemy colliders are
+                    // triggers, so a diagonal past one wall corner would draw the body over the wall.
                     if (dirX != 0 && dirY != 0)
                     {
                         Node horizontal = nodesGrid[col + dirX, row];
                         Node vertical = nodesGrid[col, row + dirY];
 
-                        if (!horizontal.Walkable && !vertical.Walkable)
+                        if (!horizontal.Walkable || !vertical.Walkable)
                             continue;
                     }
 

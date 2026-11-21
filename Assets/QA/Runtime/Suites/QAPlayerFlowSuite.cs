@@ -78,6 +78,7 @@ namespace QA.Automation
                 // Always runs: every later case of this class needs the class applied.
                 yield return Case($"QA-PLY-05.{c}", "PLY", QAPriority.P0, $"{c}: Confirm applies the class", Guard(CaseConfirm(data)));
                 yield return Case($"QA-UI-01.{c}", "UI", QAPriority.P1, $"{c}: hotbar shows every bound ability", Guard(CaseHotbar(data)));
+                yield return Case($"QA-PLY-06.{c}", "PLY", QAPriority.P1, $"{c}: Space dashes toward the aim and returns to Idle / Move", Guard(CaseDash()));
 
                 Weapon weapon = _rig.WeaponHolder != null ? _rig.WeaponHolder.Weapon : null;
                 if (weapon == null)
@@ -203,7 +204,7 @@ namespace QA.Automation
             else if (_confirmPanelOpened > 0)
             {
                 Fail("panel event fired but no active ConfirnPanel in the scene; confirmed through UIEvents.AccessAction()");
-                UIEvents.AccessAction();
+                // UIEvents.AccessAction();
             }
             else
             {
@@ -261,6 +262,40 @@ namespace QA.Automation
         #endregion
 
         #region Cases — basic attack
+
+        // Dash (91c42d79, merge 8459e384): Space sets IsDash; PlayerBasicState enters PlayerDashState, which moves the
+        // player on AnimationOnAction toward the mouse direction and goes back to Idle / Move on AnimationEnd.
+        private IEnumerator CaseDash()
+        {
+            yield return WaitIdle();
+            Vector2 start = P.transform.position;
+            Vector2 aim = start + Vector2.right * 3f;
+            _input.AimAt(aim);
+            yield return Frames(2);
+            bool entered = false;
+            _input.KeyDown(Key.Space);
+            yield return WatchFor(0.3f, () => P.StateMachine.CurrentState is PlayerDashState, v => entered |= v);
+            _input.KeyUp();
+            yield return WatchFor(0.3f, () => P.StateMachine.CurrentState is PlayerDashState, v => entered |= v);
+            Check(entered, "Space entered PlayerDashState", $"Space did not enter PlayerDashState: state {P.StateMachine.CurrentState?.GetType().Name}");
+            if (!entered) yield break;
+
+            float farthest = 0f;
+            float towardAim = 0f;
+            float end = Time.time + 1.5f;
+            while (Time.time < end && P.StateMachine.CurrentState is PlayerDashState)
+            {
+                yield return null;
+                Vector2 now = P.transform.position;
+                farthest = Mathf.Max(farthest, Vector2.Distance(start, now));
+                towardAim = Mathf.Max(towardAim, Vector2.Dot(now - start, Vector2.right));
+            }
+            Check(farthest >= 0.3f, $"dash moved the player {farthest:0.##}", $"dash moved the player only {farthest:0.##} (no AnimationOnAction on the dash clip?)");
+            Check(towardAim >= farthest * 0.7f, $"moved {towardAim:0.##} toward the aim point", $"moved {farthest:0.##} but only {towardAim:0.##} toward the aim point");
+            Note($"speed stat MoveSpeed {_rig.Stats.GetStatValue(StatType.MoveSpeed):0.##}");
+            _input.ClearAim();
+            yield return WaitIdle(true);
+        }
 
         private IEnumerator CaseMeleeDamage()
         {
@@ -398,7 +433,7 @@ namespace QA.Automation
             Dictionary<StatType, float> statsBefore = _rig.Stats.GetFullStat();
             float hp0 = _rig.Hp, mana0 = _rig.Mana;
             List<(int frame, float hp, float mana)> vitalLog = new();
-            void OnVital() => vitalLog.Add((Time.frameCount, _rig.Hp, _rig.Mana));
+            void OnVital(VitalStatType _) => vitalLog.Add((Time.frameCount, _rig.Hp, _rig.Mana));
             float cooldown = -1f;
             void OnCooldown(AbilitySlot slot, float duration) { if (slot == binding.Slot) cooldown = duration; }
             _rig.Vital.CurrentStatsChanged += OnVital;

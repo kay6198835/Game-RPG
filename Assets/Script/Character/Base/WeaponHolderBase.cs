@@ -52,7 +52,7 @@ public abstract class WeaponHolderBase<TCore> : CoreComponentBase<TCore>, IWeapo
         if (weapon != null)
         {
             weapon.UnEquid(this);
-            objectPoolManager.Release(weapon.gameObject);
+            objectPoolManager.Despawn(weapon.gameObject);
             weapon = null;
         }
         Weapon prefab = Core.Data != null ? Core.Data.Weapon : null;

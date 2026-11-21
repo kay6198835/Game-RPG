@@ -12,7 +12,7 @@ A retired case keeps its row with status **Retired**; its ID is never reused.
   change scan touches that system, or with `-Deep ALL`).
 - **Group**: the QA scene that runs it (STATIC runs in Edit Mode with no scene).
 - **Source**: where the case code lives. Each suite file lists its cases in `Run()` in this order. Exception:
-  `QAEnemySuite` runs QA-ENT-09…14, then QA-ITEM-02…04, then QA-ENT-15 and QA-ENT-08 last (those let the
+  `QAEnemySuite` runs QA-ENT-09…14, then QA-ITEM-02…12, then QA-ENT-15 and QA-ENT-08 last (those let the
   enemy hit the player).
 
 ## Systems
@@ -30,7 +30,7 @@ A retired case keeps its row with status **Retired**; its ID is never reused.
 | POOL | Object pool | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/PoolableService/` |
 | MAP | Room clear counter, map / room models, room JSON | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `Map/`, `Database-SO/Modal/`, `Assets/Data/Json/Room/` |
 | PATH | A* pathfinding | SYSTEMS / `QA_Systems` | `QASystemsSuite` | `System/Pathfinding/` |
-| ITEM | Item drop table; drop on enemy death; player pickup | SYSTEMS / `QA_Systems` (+ ITEM-02…04 in ENEMY) | `QASystemsSuite`, `QAEnemySuite` | `System/Item/`, `ResourceReceiver`, `PlayerResourceReceiverState` |
+| ITEM | Item drop table; drop on enemy death; player pickup; what a pickup gives | SYSTEMS / `QA_Systems` (+ ITEM-02…12 in ENEMY) | `QASystemsSuite`, `QAEnemySuite` (+ `QAEnemySuite.Items.cs`) | `System/Item/`, `ResourceReceiver`, `PlayerResourceReceiverState`, `EffectReceiverBase`, `WalletComponent` |
 | STATIC | Asset and source hygiene | STATIC (Edit Mode) | `QAStaticChecks` | `Assets/**` |
 | UNIT | EditMode unit tests (NUnit, no scene). One case per test, ID `QA-UNIT.<Class>.<Test>`, always P0; added 2026-11-12 | UNIT (Unity Test Runner, EditMode) | `Assets/Tests/EditMode/*.cs` | `GameRPG` assembly |
 
@@ -45,6 +45,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-PLY-03.<Class> | P0 | G at the monument opens the confirm panel | `UIEvents.OpenConfirnPanel` raised exactly once | | |
 | QA-PLY-04.<Class> | P1 | Nothing changes before Confirm | `Player.Data` unchanged, no `ON_OPEN_DOOR` | | |
 | QA-PLY-05.<Class> | P0 | Confirm applies the class | Data, name, animator controller, weapon (exactly one), HP/Mana full, `ON_OPEN_DOOR` once, unpaused, panel hidden | | |
+| QA-PLY-06.<Class> | P1 | Dash (added 2026-11-17, `91c42d79`): class picked, aim 3 units to the right, tap Space | enters `PlayerDashState` within 0.6 s; moves the player ≥ 0.3, mostly toward the aim; back to Idle / Move within 4 s. Only Paladin has dash clips | | |
 | QA-UI-01.<Class> | P1 | Hotbar shows every bound ability | named hotbar slots = bound abilities | | |
 | QA-CMB-01.<Class> | P0 | Melee hit damage = PhysicalDamage + stage damage (+ CritDamage on crit) | exact value; stage damage > 0 | BUG-105 | |
 | QA-CMB-02.<Class> | P1 | Melee combo reaches every stage | highest stage = StageCount | | |
@@ -64,6 +65,12 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-VIT-06 | P0 | Damage through the player hurtbox lowers HP, player survives | 0 < lost ≤ sent | | |
 | QA-VIT-07 | P0 | Lethal damage → `PlayerDeathState` + `ON_PLAYER_DEATH` | HP 0, state entered, event emitted | | |
 | QA-VIT-08 | P1 | `ON_PLAYER_DEATH` emitted once per death | exactly 1 | BUG-086 | |
+| QA-VIT-09 | P1 | Recovery raises `CurrentStatsChanged` once; a zero amount changes nothing (added 2026-11-20) | 1 event; HP +5 exact; zero Reduction / Recovery leave HP | | |
+| QA-VIT-10 | P1 | Lowering max HP below current clamps current; raising it again leaves current (added 2026-11-20) | max −25 % exact; current ≤ new max; after removal max restored, current unchanged | | |
+| QA-VIT-11 | P1 | Mana at 0 does not kill the player (added 2026-11-20) | no `PlayerDeathState` in 0.5 s, HP > 0 | | |
+| QA-VIT-12 | P1 | Recovery / Reduction on Coin (a vital that is never seeded) are safe (added 2026-11-20) | no exception; HP and Mana unchanged | | |
+| QA-VIT-13 | P1 | Damage of current HP − 0.5 through the hurtbox leaves the player alive at 0.5 HP (added 2026-11-20) | alive, HP 0.5 (player receiver applies no mitigation) | | |
+| QA-VIT-14 | P1 | A non-lethal hit enters `PlayerTakeDamageState` and returns to Idle / Move (added 2026-11-20) | state within 0.5 s; back within 3 s | | |
 | QA-ENT-01 | P0 | Pool spawns the enemy prefab with core components and full HP | active, Entity + vital + stat + hurtbox, HP = max | | |
 | QA-ENT-02 | P0 | Spawned enemy has its default weapon (spawn applies `EntityData` like `EnemySpawner.ApplyData()` since 2026-11-05) | `EntityWeaponHolder.Weapon != null` within 1 s | BUG-106 | |
 | QA-ENT-03 | P0 | Damage lowers HP by amount × 100 / (100 + Defense); a 1-damage hit still lands (percent mitigation since `b33d1870`, 2026-11-08; was amount − Defense) | exact | | |
@@ -71,17 +78,20 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-ENT-05 | P1 | Released then re-spawned enemy: same instance, full HP | reused, HP = max | | |
 | QA-ENT-06 | P2 | Enemy stat asset unchanged after spawn / damage / respawn | equal | | |
 | QA-ENT-07 | P1 | Spawned enemy reads move speed and attack range from its stats (added 2026-11-05, `6094aa10`) | `MoveSpeed` = stat > 0; `MaxRange` = `MaxRangeAttack` > 0; `MinRange` < `MaxRange`; detection range ≥ `MaxRange` | | |
-| QA-ENT-08.<Role> | P0 | Enemy attacks the player in range (added 2026-11-05; was only MAN-ENT-02). One run per `EntityData` in `Assets/SO/Enemy/Role`: enemy pinned, player held mid attack range for 8 s | enters `EntityAttackState`; player HP drops; two attack entries ≥ min `attackRate` apart. Notes on failure: target lock / distance / `CallAttack`, attack clip events, mask vs player hurtbox layer | | |
-| QA-ENT-09 | P0 | Idle (added 2026-11-12): free enemy, player parked out of sight | starts in `EntityIdleState`, animator `Idle` true, no target, does not move; leaves for `EntityMoveState` after `IdleDurationTime` | | |
+| QA-ENT-08.<Role> | P0 | Enemy attacks the player in range (added 2026-11-05; was only MAN-ENT-02). One run per `EntityData` in `Assets/SO/Enemy/Role`: enemy pinned, player held mid attack range for 8 s (2026-11-17: until the enemy locks, the player is held in front of where it looks — it spawns wandering since `3b02df7d`) | enters `EntityAttackState`; player HP drops; two attack entries ≥ min `attackRate` apart. Notes on failure: target lock / distance / `CallAttack`, attack clip events, mask vs player hurtbox layer | | |
+| QA-ENT-09 | P0 | Idle (added 2026-11-12; 2026-11-17: an enemy spawns into `EntityMoveState` since `3b02df7d`, so the case waits for the wander to time out into Idle and records the spawn state as a note): free enemy, player parked out of sight | reaches `EntityIdleState` within max(`MoveDurationTime`, 10 s) + 1.5 s (the no-target wander timeout is a hard-coded 10 s, `EntityMoveState.cs:27`), animator `Idle` true, no target, does not move; leaves for `EntityMoveState` after `IdleDurationTime` | | |
 | QA-ENT-10 | P0 | Move, wander (added 2026-11-12): no target, open floor grid (`QAFloorPathGrid`) | enters `EntityMoveState`, animator `Move` true, moves ≥ 0.5; average speed ≤ `MoveSpeed`; never locks the parked player | | |
-| QA-ENT-11 | P0 | TakeDamage (added 2026-11-12): one hit of 10 % HP | enters `EntityTakeDamageState` within 0.25 s, animator `TakeDamage` true, HP −10 %, alive, does not move; leaves within 3 s (clip `AnimationFinishTrigger`) back to `EntityMoveState` | | |
-| QA-ENT-12 | P0 | Death state (added 2026-11-12): lethal hit from Idle, then lethal hit during the take-damage state | enters `EntityDeathState` within 0.25 s both times, HP 0, animator `Death` true, a hit on a dead enemy is ignored, does not move, `ON_ENEMY_DEATH` follows | | |
-| QA-ENT-13 | P1 | Effect receiver, max stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustMaxStats` Defense +5 flat applies; removing the source restores; `AdjustMaxForDuration` 0.5 s applies then expires | | |
-| QA-ENT-14 | P1 | Effect receiver, current stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustCurrentStats`: a +20 % HP vital modifier heals exactly, a −20 % one damages exactly | BUG-117 | |
+| QA-ENT-11 | P0 | TakeDamage (added 2026-11-12): one hit of 10 % HP | enters `EntityTakeDamageState` within 0.25 s, animator `TakeDamage` true, HP −10 %, alive, does not move; leaves within 3 s (clip `AnimationFinishTrigger`) into the hit reaction (2026-11-19): `EntityMoveState` if it sees and locks the attacker, `EntityIdleState` if the view is blocked or no straight walkable point exists, else `EntityInvestigateState` | | |
+| QA-ENT-12 | P0 | Death state (added 2026-11-12; 2026-11-17: drift is measured from the frame the death state is entered, the enemy may be walking when hit): lethal hit from the spawn state, then lethal hit during the take-damage state | enters `EntityDeathState` within 0.25 s both times, HP 0, animator `Death` true, a hit on a dead enemy is ignored, does not move, `ON_ENEMY_DEATH` follows | | |
+| QA-ENT-13 | P1 | Effect receiver, max stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustMaxStats` Defense +5 flat applies; removing the source (read back from the stamped modifier: the receiver owns its pooled `SourceEffect` source since `25d869fb`) restores; `AdjustMaxForDuration` 0.5 s applies then expires | | |
+| QA-ENT-14 | P1 | Effect receiver, current stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustCurrentStats`: a +20 % HP vital modifier heals exactly, a −20 % one damages exactly (BUG-117 fixed in code `f528c087`, PASS 2026-11-17) | | |
+| QA-ENT-16 | P1 | Effect receiver, independent sources (added 2026-11-17, `25d869fb`, `cfb6a230`). SKIP when the prefab has no `EntityEffectReceiver` | two `AdjustMaxStats` Defense +5 stack to +10; a 0.5 s `AdjustMaxForDuration` +5 applies on top and expires leaving +10; a second timed buff on a reused pooled source also leaves +10 | | |
 | QA-ENT-15 | P0 | Move, chase (added 2026-11-12): player held in the view cone, then moved out of attack range | locks the player within 3 s; enters `EntityMoveState`; closes to `MaxRangeAttack`; keeps the lock; enters `EntityAttackState` within 4 s | | |
 | QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | | `EventManagerTests.Emit_DeliversPayloadOnceToRegisteredListener` |
 | QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | | `EventManagerTests.UnResgister_StopsDelivery` |
 | QA-EVT-03 | P1 | Two listeners both receive; Emit with no listener is safe | 1 + 1, no throw | | `EventManagerTests.Emit_CallsEveryListenerOfTheEventOnce`<br>`EventManagerTests.Emit_AfterEveryListenerRemoved_DoesNotThrow` |
+| QA-EVT-04 | P1 | A listener that unregisters itself during Emit (added 2026-11-20) | the others still receive that Emit; it gets no later Emit | | |
+| QA-EVT-05 | P2 | A listener that throws (added 2026-11-20) | OBSERVED — design open: listeners after the throwing one are skipped today | | |
 | QA-STAT-01 | P0 | Flat modifier adds its value | `(base + level + flat) + equipmentByPrimary` | | `StatSheetTests.FlatModifier_AddsItsValueToFinalValue` |
 | QA-STAT-02 | P1 | PercentAdd modifiers sum before multiplying | ×(1 + Σ) once | | `StatSheetTests.PercentAddModifiers_SumBeforeMultiplyingOnce` |
 | QA-STAT-03 | P1 | PercentMult multiplies | ×(1 + v) after flat | | `StatSheetTests.PercentMultModifier_MultipliesAfterFlat` |
@@ -98,13 +108,28 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-MAP-04 | P1 | `RoomModel.GetSpawnSet` within weight budget + overflow (20 seeds × room) | never empty, total weight ≤ budget × (1 + overflow) (ADR-0003) | | `RoomModelTests.CommittedRooms_SpawnSetStaysWithinBudgetPlusOverflow` |
 | QA-MAP-05 | P1 | Every room JSON parses with matching tiles / poses / layers counts | equal and > 0 | | `RoomJsonTests.EveryRoomJson_ParsesWithMatchingTilesPosesAndLayers` |
 | QA-MAP-06 | P2 | Combat and boss rooms carry a spawn marker | ≥ 1 `Tile_Spawn_Enemy`; others reported (BUG-096 context) | BUG-096 (Boss room) | |
+| QA-MAP-07 | P1 | Room library (`Assets/SO/Dungeon/Maze_Storage.asset`) feeds `BuildMazeRooms` (added 2026-11-19, `e2b7efee`) | ≥ 1 `StartRoom`, ≥ 1 `BossRoom`, ≥ 1 `ShopRoom`, ≥ 1 of Treasure / Rest / Puzzle / Secret; every `filePath` exists | | |
+| QA-MAP-08 | P1 | Room clear emits `ON_ROOM_CLEARED` once, before `ON_OPEN_DOOR` (added 2026-11-20) | order `ON_ROOM_CLEARED`, `ON_OPEN_DOOR`; nothing at 1 of 2 deaths | | |
+| QA-MAP-09 | P1 | A death after the room is cleared emits nothing more; a new wave in the cell still clears (added 2026-11-20) | `ON_OPEN_DOOR` once for 1 spawn + 3 deaths; a second wave of 1 opens again | | |
+| QA-MAP-10 | P2 | A room that spawned 0 enemies (added 2026-11-20) | OBSERVED — design open: does its door open? (BUG-096 context) | | |
 | QA-PATH-01 | P0 | A* finds a path to the farthest reachable tile | success, waypoints walkable and adjacent, ends at target | | `AStarTests.CommittedRoom_PathToFarthestReachableTile_IsWalkableAdjacentAndEndsAtTarget` |
 | QA-PATH-02 | P1 | A* to a wall tile fails cleanly | `Success == false`, no exception | | `AStarTests.CommittedRoom_PathToAWallTile_FailsCleanly`<br>`AStarTests.FindPath_ToAWallTile_FailsCleanly` |
 | QA-PATH-03 | P1 | Same query twice gives the same path | identical waypoints | | `AStarTests.CommittedRoom_SameQueryTwice_GivesTheSamePath`<br>`AStarTests.FindPath_SameQueryAfterAnotherSearch_GivesTheSamePath` |
+| QA-PATH-04 | P1 | Nodes on tile centres (added 2026-11-19, `0e0dc874`, committed room) | every node's `WorldPosition` and the 4 points ±0.45 around it map back to that node (`GetNode`, floor mapping) | | `AStarTests` (point-to-tile mapping, synthetic grid) |
+| QA-PATH-05 | P1 | No corner cutting (added 2026-11-19, `0e0dc874`, committed room) | every diagonal neighbour link has both side cells walkable; the A* path to the farthest tile keeps the rule | | `AStarTests` (corner rule, synthetic grid) |
+| QA-PATH-06 | P2 | `PathfindingGrid.IsLineWalkable` (added 2026-11-19, `0e0dc874`, committed room) | true between two adjacent floor tiles; false into the nearest wall tile; false off the grid | | `AStarTests` (`IsLineWalkable`, synthetic grid) |
 | QA-ITEM-01 | P1 | DepotItem rolls only table items; same seed same item | 0 foreign items; deterministic | | `DepotItemTests.CommittedDepot_RollsOnlyItemsOfItsTableAndIsDeterministicPerSeed` |
 | QA-ITEM-02 | P0 | Enemy death drops an item (added 2026-11-12, ENEMY scene, the game's `ItemSpawner` + `Depot Item 1`, roll fixed by seed) | exactly one item, at the death position, with the rolled item's name and sprite, on a layer inside the player's pickup mask; a no-drop roll drops nothing (only when the table can miss) | | |
-| QA-ITEM-03 | P0 | Player picks up the dropped item with Q (added 2026-11-12) | enters `PlayerResourceReceiverState`; `ON_COLLECT_ITEM` once, payload = the item; item released to the pool; player back to Idle / Move. What the item gave is recorded as a note, not judged (BUG-120) | | |
+| QA-ITEM-03 | P0 | Player picks up the dropped item with Q (added 2026-11-12) | enters `PlayerResourceReceiverState`; `ON_COLLECT_ITEM` once, payload = the item; item released to the pool; player back to Idle / Move. What the item gave is recorded as a note here; QA-ITEM-05 judges it (BUG-120 fixed in code `25d869fb`, PASS 2026-11-17) | | |
 | QA-ITEM-04 | P1 | Q with no item in reach (added 2026-11-12) | no pickup state, no `ON_COLLECT_ITEM` | | |
+| QA-ITEM-05 | P0 | Every item in the drop table gives exactly its authored effects (added 2026-11-20, collected through `ItemController.Interact(ResourceReceiver)`) | per item: collected, `ON_COLLECT_ITEM` once, released; each flat max-stat modifier raises its stat by exactly its value; one new modifier source per item; HP / Mana / coin effects exact; percent modifiers OBSERVED | | |
+| QA-ITEM-06 | P1 | A coin item adds exactly its `coinAmount` on every pickup and nothing else (added 2026-11-20, synthetic item) | +7, then +14 total; stats, HP and Mana unchanged | | |
+| QA-ITEM-07 | P1 | An HP / Mana recovery item heals exactly its value, never above max (added 2026-11-20, synthetic items) | HP +10 % and Mana +10 % of max exact below max; at full HP stays at max | | |
+| QA-ITEM-08 | P1 | Two pickups of the same stat item stack; each can be removed on its own (added 2026-11-20) | Defense +8 for two +4 pickups; 2 sources; removing one leaves +4; removing both restores | | `ItemEffectDataTests.AddModifiersFromSource_SameItemListFromTwoPickups_StacksAndRemovesIndependently` |
+| QA-ITEM-09 | P1 | Player: a permanent item buff survives the expiry of a timed buff on the same stat (added 2026-11-20; QA-ENT-16 is the enemy twin) | STR item +5; timed +5 applies on top; after 0.5 s + 0.5 s STR back to item value | | |
+| QA-ITEM-10 | P2 | An item with an empty effect slot, or with no effect, is still collected (added 2026-11-20) | no exception; `ON_COLLECT_ITEM` once. Expected to FAIL on the empty slot today (inbox NOTE-20261120-5) | | |
+| QA-ITEM-11 | P1 | A reused pooled drop shows and gives only the new item (added 2026-11-20) | new name; first item's buff not re-applied; second item's coins given | | |
+| QA-ITEM-12 | P1 | Two items in reach: each Q collects one new item, never the released one again (added 2026-11-20, real Q input) | 2 presses → 2 different items, +11 coins, both released (inbox NOTE-20261120-6) | | |
 | QA-STATIC-01 | P0 | No asset / prefab / scene references a missing script | every `m_Script` guid resolves | BUG-073 (ShootSpirit) | |
 | QA-STATIC-02 | P1 | No SO under `Assets/SO` references a deleted asset | every guid resolves | BUG-090 (ShootSpirit pair) | |
 | QA-STATIC-03 | P1 | No serialized key left by a field rename | every YAML key is a serialized property of the type | BUG-105, BUG-108, BUG-121 | |
@@ -113,6 +138,11 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-STATIC-06 | P0 | Every enabled build scene exists | all files present | | |
 | QA-STATIC-07 | P1 | Every enemy role `EntityData` (`Assets/SO/Enemy/Role`) has a weapon, a move speed and a consistent attack range (added 2026-11-05, `6094aa10`) | `Weapon` set; `MoveSpeed` > 0; 0 ≤ `MinRangeAttack` < `MaxRangeAttack` ≤ `rangeCheckFieldOfView` | | |
 | QA-STATIC-08 | P1 | Every enemy role weapon can hit the player (added 2026-11-05, static half of QA-ENT-08) | melee `LayerMask` / projectile `targetMask` include the `PlayerTest.prefab` hurtbox layer; projectile prefab has a `Collider2D`; every stage has `directionAttackAnimatorOV`; every `*Attack*` clip in it has `AnimationOnAction` and `AnimationFinishTrigger` or `AnimationEnd` | | |
+| QA-STATIC-09 | P1 | Every droppable item has a name, a sprite and at least one loadable effect; every item effect changes something (added 2026-11-20) | only items in a `DepotItem` judged; max-stat effects carry stat modifiers, current-stat effects vital modifiers, no Coin vital modifier, no value 0; coin effects `coinAmount` > 0 | | `ItemEffectDataTests.CommittedDropTables_EveryItemHasANameASpriteAndLoadableEffects` |
+| QA-STATIC-10 | P1 | Every drop table is consistent (added 2026-11-20) | no empty slot; no tier rate < 0; declared rates ≤ 100; every listed item's tier has a rate > 0; no rate on a tier with no item | | |
+| QA-STATIC-11 | P1 | Every playable class (`Assets/SO/Player/<Class>/`) is complete (added 2026-11-20) | stats (HP > 0, MoveSpeed > 0), animator, weapon with ≥ 1 stage, exactly one ability per slot | | |
+| QA-STATIC-12 | P1 | Every ability bound to a class is complete (added 2026-11-20) | Id set and unique, DisplayName, Cooldown > 0, ≥ 1 effect, no empty slot, costs ≥ 0, no Coin cost, one cost per stat; missing Icon is info | | `AbilityDefinitionTests.*` (gate logic) |
+| QA-STATIC-13 | P1 | Every class death clip sends `AnimationOnAction` (added 2026-11-20, static half of QA-VIT-07; `PlayerDeathState` emits `ON_PLAYER_DEATH` from `AnimationOnAction()` since `49c58e35`) | every `*Die*` / `*Death*` clip of each class controller has the event | | |
 | QA-LOG.<group> | P0 | Errors logged outside a case | none (created only when it happens) | | |
 | QA-RUNNER.<group> | P0 | Group finished Play Mode and wrote its results | created only when a group crashed | | |
 

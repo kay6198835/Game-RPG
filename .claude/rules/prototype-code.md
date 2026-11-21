@@ -48,8 +48,8 @@ Prototype scripts must not be referenced by production scripts in `Assets/Script
 - **What moved**: all 17 `.cs` files. `prototypes/skill-enhance-abilities/Scripts/` now holds only
   two orphan `.meta` files; the directory's `README.md` is kept as the record of the experiment
 - **Now in production use**: `AbilityHolder` was rewritten as `: CoreComponent<Core>, IAbilityOwner`
-  and drives this framework for the player. Live SO assets exist at `Assets/SO/Skill/ShootSpirit/`
-  and `Assets/SO/Skill/Conditions/`
+  and drives this framework for the player. Live SO assets are under `Assets/SO/Skill/{Paladin,Archer,Mage}/`
+  (the ShootSpirit proof-of-wiring assets were deleted 2026-11-16, BUG-073)
 - ⚠️ **The Promotion Rules above were not applied at the time.** The promoted code still carries
   prototype-grade traits — an unresolved TODO comment in `AbilityHolder.HandleInput()`, an unguarded
   `currentAbility.Definition` dereference in `GetAbility()`, and no ADR deciding its relationship to

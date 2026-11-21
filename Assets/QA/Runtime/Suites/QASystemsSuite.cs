@@ -41,6 +41,8 @@ namespace QA.Automation
             yield return Case("QA-EVT-01", "EVT", QAPriority.P0, "Emit delivers the payload to a registered listener", CaseEventDeliver());
             yield return Case("QA-EVT-02", "EVT", QAPriority.P0, "UnResgister stops delivery", CaseEventUnregister());
             yield return Case("QA-EVT-03", "EVT", QAPriority.P1, "Two listeners on one event both receive it; Emit with no listener is safe", CaseEventMulti());
+            yield return Case("QA-EVT-04", "EVT", QAPriority.P1, "A listener that unregisters itself during Emit: the others still receive it, it gets no later Emit", CaseEventSelfUnregister());
+            yield return Case("QA-EVT-05", "EVT", QAPriority.P2, "A listener that throws: do the listeners after it still receive the event?", CaseEventThrowingListener());
 
             yield return Case("QA-STAT-01", "STAT", QAPriority.P0, "Flat modifier adds its value to FinalValue", CaseStatFlat());
             yield return Case("QA-STAT-02", "STAT", QAPriority.P1, "PercentAdd modifiers sum before multiplying", CaseStatPercentAdd());
@@ -60,10 +62,17 @@ namespace QA.Automation
             yield return Case("QA-MAP-04", "MAP", QAPriority.P1, "RoomModel.GetSpawnSet stays within weight budget + overflow (20 seeds per room)", CaseSpawnBudget());
             yield return Case("QA-MAP-05", "MAP", QAPriority.P1, "Every room JSON parses with matching tiles / poses / layers counts", CaseRoomJson());
             yield return Case("QA-MAP-06", "MAP", QAPriority.P2, "Combat rooms carry a spawn marker; other room types report theirs", CaseRoomSpawnMarkers());
+            yield return Case("QA-MAP-08", "MAP", QAPriority.P1, "Room clear emits ON_ROOM_CLEARED once, before ON_OPEN_DOOR", CaseRoomClearedOrder());
+            yield return Case("QA-MAP-09", "MAP", QAPriority.P1, "A death after the room is cleared emits nothing more", CaseRoomDeathAfterClear());
+            yield return Case("QA-MAP-10", "MAP", QAPriority.P2, "A room that spawned 0 enemies: does its door open? (BUG-096 context)", CaseRoomZeroSpawn());
 
             yield return Case("QA-PATH-01", "PATH", QAPriority.P0, "A* finds a path of walkable, adjacent waypoints to the farthest reachable tile", CasePathFound());
             yield return Case("QA-PATH-02", "PATH", QAPriority.P1, "A* to a wall tile fails cleanly", CasePathBlocked());
             yield return Case("QA-PATH-03", "PATH", QAPriority.P1, "Same query twice gives the same path (search state cleared)", CasePathRepeat());
+            yield return Case("QA-PATH-04", "PATH", QAPriority.P1, "Every node sits on its tile centre and maps back to itself", CasePathTileCentre());
+            yield return Case("QA-PATH-05", "PATH", QAPriority.P1, "No diagonal neighbour cuts a wall corner; A* paths keep the rule", CasePathNoCornerCut());
+            yield return Case("QA-PATH-06", "PATH", QAPriority.P2, "IsLineWalkable: true between adjacent floor tiles, false into a wall or off the grid", CasePathLineWalk());
+            yield return Case("QA-MAP-07", "MAP", QAPriority.P1, "Room library has a StartRoom, a BossRoom and a room for every required group; every file exists", CaseRoomLibrary());
 
             yield return Case("QA-ITEM-01", "ITEM", QAPriority.P1, "DepotItem rolls only items from its table; same seed gives same roll", CaseDepotRoll());
         }
@@ -110,6 +119,50 @@ namespace QA.Automation
             try { EventManager.Emit(EventID.ON_TEST); }
             catch (System.Exception e) { threw = true; Note(e.Message); }
             Check(!threw, "Emit with every listener removed does not throw", "Emit threw with no listener");
+        }
+
+        private IEnumerator CaseEventSelfUnregister()
+        {
+            int a = 0, b = 0;
+            void A(object _) { a++; EventManager.UnResgister(EventID.ON_TEST, A); }
+            void B(object _) => b++;
+            EventManager.Resgister(EventID.ON_TEST, A);
+            EventManager.Resgister(EventID.ON_TEST, B);
+            try
+            {
+                EventManager.Emit(EventID.ON_TEST);
+                Check(a == 1 && b == 1, "both listeners ran on the Emit during which A unregistered", $"A={a}, B={b} on the first Emit");
+                EventManager.Emit(EventID.ON_TEST);
+                Check(a == 1 && b == 2, "A got no later Emit, B still does", $"A={a}, B={b} after the second Emit");
+            }
+            finally
+            {
+                EventManager.UnResgister(EventID.ON_TEST, A);
+                EventManager.UnResgister(EventID.ON_TEST, B);
+            }
+            yield return null;
+        }
+
+        // EventManager invokes one multicast delegate: an exception in one listener skips every listener after it.
+        // ON_ENEMY_DEATH has several (RoomCell counter, ItemSpawner, spawner release), so this is a design question.
+        private IEnumerator CaseEventThrowingListener()
+        {
+            int after = 0;
+            void Throws(object _) => throw new System.InvalidOperationException("QA listener failure");
+            void After(object _) => after++;
+            EventManager.Resgister(EventID.ON_TEST, Throws);
+            EventManager.Resgister(EventID.ON_TEST, After);
+            bool threw = false;
+            try { EventManager.Emit(EventID.ON_TEST); }
+            catch (System.InvalidOperationException) { threw = true; }
+            finally
+            {
+                EventManager.UnResgister(EventID.ON_TEST, Throws);
+                EventManager.UnResgister(EventID.ON_TEST, After);
+            }
+            yield return null;
+            Note($"Emit rethrew to the emitter: {threw}; listener after the throwing one called: {after}x");
+            if (after == 0) Observe("a throwing listener stops every later listener of the same event (no isolation in EventManager.Emit)");
         }
 
         #endregion
@@ -269,20 +322,20 @@ namespace QA.Automation
             if (spawned == null) yield break;
             Check(Vector2.Distance(spawned.transform.position, at) < 0.001f, $"at {at}", $"at {(Vector2)spawned.transform.position}, asked {at}");
             Check(spawned != _poolTemplate, "instance is not the template", "pool returned the template itself");
-            pool.Release(spawned);
+            pool.Despawn(spawned);
         }
 
         private IEnumerator CasePoolReuse()
         {
             if (pool == null) { Fail("scene not wired: no ObjectPoolManager"); yield break; }
             GameObject first = pool.Spawn(Template(), Vector2.zero, Quaternion.identity);
-            pool.Release(first);
+            pool.Despawn(first);
             yield return null;
             Check(!first.activeSelf, "released instance inactive", "released instance still active");
             GameObject second = pool.Spawn(Template(), Vector2.one, Quaternion.identity);
             yield return null;
             Check(second == first && second.activeSelf, "same instance reused and re-activated", "a new instance was created instead of reusing the released one");
-            pool.Release(second);
+            pool.Despawn(second);
         }
 
         private IEnumerator CasePoolDistinct()
@@ -292,8 +345,8 @@ namespace QA.Automation
             GameObject b = pool.Spawn(Template(), Vector2.zero, Quaternion.identity);
             yield return null;
             Check(a != null && b != null && a != b, "two distinct instances", "the same instance was handed out twice");
-            if (a != null) pool.Release(a);
-            if (b != null && b != a) pool.Release(b);
+            if (a != null) pool.Despawn(a);
+            if (b != null && b != a) pool.Despawn(b);
         }
 
         #endregion
@@ -350,6 +403,73 @@ namespace QA.Automation
                 EventManager.UnResgister(EventID.ON_OPEN_DOOR, OnOpenDoor);
             }
             yield return null;
+        }
+
+        private IEnumerator CaseRoomClearedOrder()
+        {
+            RoomCell room = NewRoomCell();
+            List<string> order = new();
+            void Cleared(object _) => order.Add("ON_ROOM_CLEARED");
+            void Door(object _) => order.Add("ON_OPEN_DOOR");
+            EventManager.Resgister(EventID.ON_ROOM_CLEARED, Cleared);
+            EventManager.Resgister(EventID.ON_OPEN_DOOR, Door);
+            try
+            {
+                room.OnDoneSpawnEnemy(2);
+                room.OnEnemyDeath();
+                Check(order.Count == 0, "nothing after 1 of 2 deaths", $"events after 1 of 2 deaths: {string.Join(", ", order)}");
+                room.OnEnemyDeath();
+                Check(order.SequenceEqual(new[] { "ON_ROOM_CLEARED", "ON_OPEN_DOOR" }), "ON_ROOM_CLEARED then ON_OPEN_DOOR, once each",
+                    $"events at the last death: {string.Join(", ", order)}");
+            }
+            finally
+            {
+                EventManager.UnResgister(EventID.ON_ROOM_CLEARED, Cleared);
+                EventManager.UnResgister(EventID.ON_OPEN_DOOR, Door);
+            }
+            yield return null;
+        }
+
+        private IEnumerator CaseRoomDeathAfterClear()
+        {
+            RoomCell room = NewRoomCell();
+            _doorEvents = 0;
+            EventManager.Resgister(EventID.ON_OPEN_DOOR, OnOpenDoor);
+            try
+            {
+                room.OnDoneSpawnEnemy(1);
+                room.OnEnemyDeath();
+                room.OnEnemyDeath();
+                room.OnEnemyDeath();
+                Check(_doorEvents == 1, "the door opened once; later deaths emit nothing", $"ON_OPEN_DOOR fired {_doorEvents} times for 1 spawn and 3 deaths");
+                Note($"EnemyCount after the extra deaths: {room.EnemyCount}");
+                room.OnDoneSpawnEnemy(1);
+                room.OnEnemyDeath();
+                Check(_doorEvents == 2, "a new wave in the same cell clears normally after stray deaths", $"ON_OPEN_DOOR fired {_doorEvents} times; a new wave of 1 did not clear (EnemyCount {room.EnemyCount})");
+            }
+            finally
+            {
+                EventManager.UnResgister(EventID.ON_OPEN_DOOR, OnOpenDoor);
+            }
+            yield return null;
+        }
+
+        private IEnumerator CaseRoomZeroSpawn()
+        {
+            RoomCell room = NewRoomCell();
+            _doorEvents = 0;
+            EventManager.Resgister(EventID.ON_OPEN_DOOR, OnOpenDoor);
+            try
+            {
+                room.OnDoneSpawnEnemy(0);
+            }
+            finally
+            {
+                EventManager.UnResgister(EventID.ON_OPEN_DOOR, OnOpenDoor);
+            }
+            yield return null;
+            if (_doorEvents == 0) Observe("ON_DONE_SPAWN_ENEMY with 0 enemies never opens the door (a room whose spawn set came back empty stays sealed)");
+            else Note($"ON_OPEN_DOOR fired {_doorEvents} times for a 0-enemy room");
         }
 
         private IEnumerator CaseMapShuffleBag()
@@ -425,6 +545,30 @@ namespace QA.Automation
                     if (markers == 0) Fail($"{name}: no {GameConstants.TileName.SPAWN} marker");
                 }
                 else if (markers == 0) Note($"{name}: 0 spawn markers (non-combat room; doors must open without enemies — see BUG-096)");
+            }
+            yield return null;
+        }
+
+        private const string RoomLibraryAsset = "Assets/SO/Dungeon/Maze_Storage.asset";
+
+        // RoomGeneraterController.BuildMazeRooms (e2b7efee) picks the start / end room by RoomType and at least
+        // one room per required group (Shop; Treasure / Rest / Puzzle / Secret). It gives up the run when the
+        // library lacks one, so the committed library must carry them all.
+        private IEnumerator CaseRoomLibrary()
+        {
+            DungeonRoomSO library = AssetDatabase.LoadAssetAtPath<DungeonRoomSO>(RoomLibraryAsset);
+            if (library == null) { Fail($"room library missing: {RoomLibraryAsset}"); yield break; }
+            List<RoomFile> rooms = Copy(library).room;
+            Note("types: " + string.Join(", ", rooms.GroupBy(r => r.roomType).OrderBy(g => g.Key).Select(g => $"{g.Key} {g.Count()}")));
+            Check(rooms.Count(r => r.roomType == RoomType.StartRoom) >= 1, "has a StartRoom", "no StartRoom in the library");
+            Check(rooms.Count(r => r.roomType == RoomType.BossRoom) >= 1, "has a BossRoom", "no BossRoom in the library");
+            Check(rooms.Any(r => r.roomType == RoomType.ShopRoom), "has a Shop room", "no ShopRoom (required group 'Shop')");
+            RoomType[] support = { RoomType.TreasureRoom, RoomType.RestRoom, RoomType.PuzzleRoom, RoomType.SecretRoom };
+            Check(rooms.Any(r => support.Contains(r.roomType)), "has a support / special room", "no Treasure / Rest / Puzzle / Secret room (required group 'Support / special')");
+            foreach (RoomFile r in rooms)
+            {
+                string path = System.IO.Path.Combine(QARunConfig.ProjectRoot, "Assets" + r.filePath);
+                if (!File.Exists(path)) Fail($"{r.roomName}: file missing Assets{r.filePath}");
             }
             yield return null;
         }
@@ -525,6 +669,106 @@ namespace QA.Automation
             NavPath a = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             NavPath b = AStar.FindPath(_grid, start.WorldPosition, goal.WorldPosition);
             Check(a.Success == b.Success && a.Waypoints.SequenceEqual(b.Waypoints), "identical results", $"first {a.Waypoints.Count} waypoints, second {b.Waypoints.Count}");
+            yield return null;
+        }
+
+        private Dictionary<Vector2Int, Node> AllNodes()
+        {
+            Dictionary<Vector2Int, Node> all = new();
+            for (int x = -150; x <= 150; x++)
+            for (int y = -150; y <= 150; y++)
+            {
+                Node n = _grid.GetNode(new Vector2(x, y));
+                if (n != null) all[n.TileMapPosition] = n;
+            }
+            return all;
+        }
+
+        private static bool IsFloor(Dictionary<Vector2Int, Node> all, Vector2Int cell) => all.TryGetValue(cell, out Node n) && n.Walkable;
+
+        private IEnumerator CasePathTileCentre()
+        {
+            if (!BuildGrid()) yield break;
+            Dictionary<Vector2Int, Node> all = AllNodes();
+            int bad = 0;
+            string first = null;
+            Vector2[] offsets = { Vector2.zero, new(0.45f, 0.45f), new(-0.45f, -0.45f), new(0.45f, -0.45f), new(-0.45f, 0.45f) };
+            foreach (Node n in all.Values)
+            foreach (Vector2 o in offsets)
+            {
+                if (_grid.GetNode(n.WorldPosition + o) == n) continue;
+                bad++;
+                first ??= $"node {n.TileMapPosition} at {n.WorldPosition}: point {n.WorldPosition + o} maps to {_grid.GetNode(n.WorldPosition + o)?.TileMapPosition.ToString() ?? "null"}";
+            }
+            Check(all.Count > 0 && bad == 0, $"{all.Count} nodes, each centre and its 4 inner corners (±0.45) map back to the node",
+                $"{bad} point(s) map to another cell; first: {first}");
+            yield return null;
+        }
+
+        private IEnumerator CasePathNoCornerCut()
+        {
+            if (!BuildGrid()) yield break;
+            Dictionary<Vector2Int, Node> all = AllNodes();
+            int diagonals = 0, cuts = 0;
+            string first = null;
+            foreach (Node n in all.Values)
+            {
+                if (!n.Walkable) continue;
+                foreach (Node next in n.Neighbors)
+                {
+                    Vector2Int d = next.TileMapPosition - n.TileMapPosition;
+                    if (d.x == 0 || d.y == 0) continue;
+                    diagonals++;
+                    if (IsFloor(all, n.TileMapPosition + new Vector2Int(d.x, 0)) && IsFloor(all, n.TileMapPosition + new Vector2Int(0, d.y))) continue;
+                    cuts++;
+                    first ??= $"{n.TileMapPosition} -> {next.TileMapPosition}";
+                }
+            }
+            Check(cuts == 0, $"{diagonals} diagonal links, none past a wall corner", $"{cuts} diagonal link(s) cut a wall corner; first {first}");
+
+            Node start = _walkable[0];
+            NavPath path = AStar.FindPath(_grid, start.WorldPosition, Farthest(start).WorldPosition);
+            if (!path.Success) { Fail("no A* path to check"); yield break; }
+            int pathCuts = 0;
+            for (int i = 1; i < path.Waypoints.Count; i++)
+            {
+                Node a = _grid.GetNode(path.Waypoints[i - 1]), b = _grid.GetNode(path.Waypoints[i]);
+                if (a == null || b == null) { pathCuts++; continue; }
+                Vector2Int d = b.TileMapPosition - a.TileMapPosition;
+                if (d.x != 0 && d.y != 0 && !(IsFloor(all, a.TileMapPosition + new Vector2Int(d.x, 0)) && IsFloor(all, a.TileMapPosition + new Vector2Int(0, d.y))))
+                    pathCuts++;
+            }
+            Check(pathCuts == 0, $"A* path of {path.Waypoints.Count} waypoints keeps the corner rule", $"{pathCuts} path step(s) cut a wall corner");
+            yield return null;
+        }
+
+        private IEnumerator CasePathLineWalk()
+        {
+            if (!BuildGrid()) yield break;
+            Dictionary<Vector2Int, Node> all = AllNodes();
+            Node floor = null, floorNext = null, wall = null;
+            foreach (Node n in all.Values)
+            {
+                if (!n.Walkable) continue;
+                foreach (Vector2Int d in new[] { Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down })
+                {
+                    if (!all.TryGetValue(n.TileMapPosition + d, out Node m)) continue;
+                    if (m.Walkable && floorNext == null) { floor = n; floorNext = m; }
+                    if (!m.Walkable && wall == null) wall = m;
+                }
+                if (floorNext != null && wall != null) break;
+            }
+            if (floorNext == null) { Skip("no two adjacent floor tiles"); yield break; }
+            Check(_grid.IsLineWalkable(floor.WorldPosition, floorNext.WorldPosition), $"{floor.TileMapPosition} -> {floorNext.TileMapPosition}: walkable",
+                $"{floor.TileMapPosition} -> {floorNext.TileMapPosition}: two adjacent floor tiles reported not walkable");
+            if (wall != null)
+            {
+                Node from = all.Values.Where(n => n.Walkable).OrderBy(n => (n.TileMapPosition - wall.TileMapPosition).sqrMagnitude).First();
+                Check(!_grid.IsLineWalkable(from.WorldPosition, wall.WorldPosition), $"{from.TileMapPosition} -> wall {wall.TileMapPosition}: not walkable",
+                    $"{from.TileMapPosition} -> wall {wall.TileMapPosition}: reported walkable");
+            }
+            else Note("room has no wall tile next to a floor tile; wall check not run");
+            Check(!_grid.IsLineWalkable(floor.WorldPosition, new Vector2(10000f, 10000f)), "line off the grid: not walkable", "line off the grid reported walkable");
             yield return null;
         }
 

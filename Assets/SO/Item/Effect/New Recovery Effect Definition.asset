@@ -9,7 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51ca99a6ec51ee34784f1c822fc5f496, type: 3}
+  m_Script: {fileID: 11500000, guid: 97a8e440d014abd4f87bdb945d608ad1, type: 3}
   m_Name: New Recovery Effect Definition
   m_EditorClassIdentifier: 
-  amount: 10
+  statModifierGroup:
+    statsModifiers: []
+    vitalModifiers:
+    - targetStatType: 100
+      type: 100
+      value: 10
+  ResourceType: 1

@@ -10,7 +10,7 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
     {
         if (Prefab == null || context?.Caster == null)
         {
-            Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab chưa được assign.");
+            Debug.LogWarning($"[{GetType().Name}] {name}: Prefab is not assigned or the caster is missing.");
             return;
         }
         _context = context;
@@ -26,7 +26,7 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
         if (orb != null)
             orb.Launch(Lifetime, _context, Execute);
         else
-            Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
+            Debug.LogWarning($"[{GetType().Name}] {name}: Prefab has no SpawnMono component.");
     }
 
     /// <summary>

@@ -83,7 +83,7 @@ produce a verdict: **HEALTHY** / **AT RISK** / **CRITICAL**, using:
 
 | Axis | Source |
 |------|--------|
-| Bug density | Grep `production/qa/bugs/*.md` and the latest `production/qa/bug-triage-*.md` for the module's file names / system name; also check `CLAUDE.md`'s Known Bugs table for entries pointing into this module's paths |
+| Bug density | Grep `production/qa/bugs/*.md` and the latest `production/qa/bug-triage-*.md` for the module's file names / system name; also check `production/qa/open-bugs.md` (generated open-bug index) for entries pointing into this module's paths |
 | Tech debt | Grep `docs/tech-debt-register.md` for entries tagged to this module |
 | Test evidence | Check `tests/EditMode/` and `tests/PlayMode/` for files matching the module's classes; note ADVISORY vs BLOCKING per `.claude/rules/test-standards.md` |
 | GDD-vs-code drift | Spot-check the GDD's Formulas / Detailed Rules section against current code (field names, values) — same check `/consistency-check` does, scoped to just this module instead of all GDDs |

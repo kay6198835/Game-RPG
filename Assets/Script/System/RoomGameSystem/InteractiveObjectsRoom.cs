@@ -1,0 +1,42 @@
+using UnityEngine;
+using UIFlow;
+[RequireComponent(typeof(CircleCollider2D))]
+public class InteractiveObjectsRoom : InteractiveObjects
+{
+    [SerializeField] protected CircleCollider2D circleCollider;
+    protected ICharacter character;
+    [SerializeField] protected LayerMask layerMask;
+    [SerializeField] protected InteractData interactData;
+
+    public override bool Interact(Interact interactor)
+    {
+        character = interactor.GetComponentInParent<ICharacter>();
+        return character != null;
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        circleCollider = GetComponent<CircleCollider2D>();
+        layerMask = LayerMask.GetMask("Player");
+    }
+
+    private bool IsInLayerMask(int layer) => (layerMask.value & (1 << layer)) != 0;
+
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (IsInLayerMask(collision.gameObject.layer))
+        {
+            UIEvents.SwitchInteractiveNotification(interactData);
+        }
+    }
+
+    protected virtual void OnTriggerExit2D(Collider2D collision)
+    {
+
+        if (IsInLayerMask(collision.gameObject.layer))
+        {
+            UIEvents.SwitchInteractiveNotification();
+        }
+    }
+}
