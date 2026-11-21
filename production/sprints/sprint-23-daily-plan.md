@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**FINAL (weekly wrap-up, fired Fri 2026-11-20): SLIPPED — evidence STATIC + LOG (+ RUNTIME from the
+**FINAL (weekly wrap-up, Sat 2026-11-21 22:00 slot): SLIPPED — evidence RUNTIME (automated QA
+`20261121-2106`, Play Mode) + STATIC + LOG; no playtest sheet (cap CONCERNS does not lift it).**
+Friday's verdict stands. Saturday's owner commits fixed BUG-129 (`be973605`, QA-PLY-05 PASS) but
+`8005d27e` broke the damage chain for everyone (**BUG-135**, S1: hurtboxes no longer implement
+`INegativeReceiver`, 15 QA FAILs), and the dash rework kept BUG-130 open. S23-05 and S23-01 still
+untouched. Playtest done: **no** (27th carry). Handoff updated in "Week close".
+
+*Friday wrap-up verdict (kept for history):* **SLIPPED — evidence STATIC + LOG (+ RUNTIME from the
 Thu automated QA run `20261119-1638`; no playtest sheet, no Friday QA run yet).** Verified Must work:
 S23-03 (BUG-125 FIXED, QA-CMB-01 PASS) and S23-04 (BUG-097 FIXED in code + data). S23-02 landed in code
 but BUG-122 is PARTIAL (death state re-enters itself, Archer / Mage clips carry no event); S23-05 and
@@ -223,6 +230,20 @@ _(appended by `/daily-standup`)_
 - **Fix survival (30 d):** 0 GONE, 0 NOT ANCESTOR, PARTIAL only on the multi-file `1370136c` (explained).
 - **Verdict:** SLIPPED (final weekly verdict above).
 
+### 2026-11-21 (Sat) — weekly wrap-up 22:00 (delta after Friday's early run)
+- **Saturday's commits:** `be973605` "coding need check" (confirm callback in `ConfirnData`, first
+  dash hurtbox toggle), `8005d27e` "update animation, asset" (`INegativeReceiver<TCore>`, dash before
+  death in `PlayerBasicState`, ≈1.4k Erika animation assets), `9e5921c0`, `67c188b3` (`PlayerDashState.Exit()`
+  order). All off-plan.
+- **Automated QA:** runs `20261121-2050` and `-2106` at `bcedaebb`: PASS 194 / FAIL 15 / KNOWN 17 /
+  SKIP 13 / OBS 1, new FAIL 2 (QA-VIT-15 real, QA-ENT-10 45 s timeout flaky suspect). 14 of 15 FAILs
+  share one cause → BUG-135. QA-PLY-05 PASS x3 → BUG-129 FIXED.
+- **Playtest:** sheet `playtest-2026-11-21.md` not filled → NOT RUN.
+- **Triage:** 7 notes → BUG-135 (S1), 2 duplicates (BUG-130, BUG-135), 1 resolved, 1 by design,
+  2 needs owner (`production/qa/bug-triage-2026-11-21.md`). S1 count stays 6.
+- **Fix survival (30 d):** 1 GONE (BUG-120 `aa045f79`, intentional menu rename by the owner), no reopen.
+- **Editor.log:** 0 errors (19:29); `Editor-prev.log` 9 transient CS errors of `8005d27e`.
+
 ---
 
 ## Week close (wrap-up 2026-11-20)
@@ -252,9 +273,12 @@ spawn restructure, enemy investigate state, pathfinding tile centres, knockback 
 - **Carry-over:** S23-01 playtest (27th) · S23-02 remainder = BUG-122 (empty `LogicUpdate()` override in
   `PlayerDeathState` + events on Archer / Mage death clips) with BUG-086 / BUG-065 · S23-05 BUG-126 ·
   S23-09 BUG-127 (Archer + Mage) · S23-10 remainder (BUG-104 / 103 / 102 / 068).
-- **New blocker bugs:** **BUG-129** (S1, one line — first task Monday), **BUG-130** (S2, dash soft lock).
-- **Playtest done: no.** The scheduler ran this wrap-up on Friday; if the owner fills
-  `production/qa/playtests/playtest-2026-11-21.md` on Saturday, the kickoff should read it first.
+- **New blocker bugs (updated Sat 2026-11-21):** **BUG-135** (S1, one-line class header — first task
+  Monday, rerun the automated suite the same day), **BUG-130** (S2, dash soft lock — now also a
+  self re-entry in `PlayerBasicState.cs:31`). ~~BUG-129~~ FIXED Saturday (`be973605`).
+- **Playtest done: no.** Saturday's sheet `production/qa/playtests/playtest-2026-11-21.md` is empty
+  (checked at the 22:00 slot). Kickoff: put the playtest first on Monday, after BUG-135.
+- **Velocity unchanged:** 0.43 (Saturday's work was unplanned bug work, not sprint tasks).
 - **Needs owner:** NOTE-20261115-7 item 3 (stats key C), NOTE-20261117-4 (Move-state spawn intent).
 
 ### Retrospective
@@ -266,3 +290,8 @@ spawn restructure, enemy investigate state, pathfinding tile centres, knockback 
 - **Improve (one):** after any commit that touches the death flow or the Champion confirm path, run the
   automated QA suite (or the two smoke steps A3 / A9 by hand) the same day, before starting the next task.
 - **Deferred for weeks:** S23-01 playtest (27 weeks), BUG-065 (15th carry), BUG-096 remainder (8th).
+- **Saturday addendum:** went well — the automated run caught BUG-135 within two hours of the commit
+  and confirmed the BUG-129 fix the same evening. Slipped — a large "update animation, asset" commit
+  mixed ≈1.4k asset files with a damage-interface change and broke all combat. Improve — keep
+  interface / damage-chain changes in their own commit, separate from asset imports, so a QA FAIL
+  points at one small diff.
