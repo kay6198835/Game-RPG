@@ -40,8 +40,8 @@ public class PlayerDashState : PlayerBasicState
 
     public override void Exit()
     {
-        base.Exit();
         player.Anim.SetBool(GameConstants.AnimationName.Parameter.IS_DASH, inputHandler.IsDash);
         playerMovement.ExitDash();
+        base.Exit();
     }
 }
