@@ -11,7 +11,7 @@
 | [BUG-096](bugs/BUG-096.md) | S1 | OPEN | Rooms with no `Tile_Spawn_Enemy` marker never open their doors — the player is locked in (fix `40d2c79` reverted by `ac13ee4`) |
 | [BUG-108](bugs/BUG-108.md) | S1 | PARTIAL | `CharacterData` dropped its `[FormerlySerializedAs]` attributes — the five `Enemy - Knight*` `EntityData` assets still store `statsSO` / ` |
 | [BUG-122](bugs/BUG-122.md) | S1 | PARTIAL | `PlayerDeathState` emits `ON_PLAYER_DEATH` only on `StatusAnimation.EndRangeTrigger`, but every Paladin Die clip carries only `AnimationOnAc |
-| [BUG-129](bugs/BUG-129.md) | S1 | OPEN | Champion confirm does nothing — `19540dff` moved the confirm callback into `ConfirnData.callback`, but `UIEvents.OnOpenConfirmPanel()` ign |
+| [BUG-135](bugs/BUG-135.md) | S1 | OPEN | No weapon, projectile or ability can damage the player or any enemy — `8005d27e` made `NegativeReceiverBase<TCore>` implement only the new |
 | [BUG-065](bugs/BUG-065.md) | S2 | OPEN | `PlayerDeathState` no longer stops `PlayerMovement` — CLAUDE.md's BUG-044 "FIXED" claim is stale against current source |
 | [BUG-072](bugs/BUG-072.md) | S2 | OPEN | Summon-type ability damage (`SpawnSummonEffect.SummonExecute`) has no target resolution — uses `Services.NegativeReceiver`, which is null  |
 | [BUG-083](bugs/BUG-083.md) | S2 | OPEN | `AbilityContext.HoldTime` / `.HoldRatio` are always `0f` — every charge-scaling effect is dead on arrival |
