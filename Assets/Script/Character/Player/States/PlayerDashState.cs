@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerDashState : PlayerBasicState
 {
-    INegativeReceiver negativeReceiver;
+    INegativeReceiver<Core> negativeReceiver;
     public PlayerDashState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }

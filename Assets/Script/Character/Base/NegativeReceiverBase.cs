@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 
 [RequireComponent(typeof(BoxCollider2D))]
-public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver where TCore : CoreBase
+public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver<TCore> where TCore : CoreBase
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService stats;

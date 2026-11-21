@@ -25,7 +25,7 @@ namespace QA.Automation
             AbilityHolder = player.GetComponentInChildren<AbilityHolder>(true);
             Stats = player.GetComponentInChildren<StatHandler>(true);
             Vital = player.GetComponentInChildren<VitalStatsComponent>(true);
-            Hurtbox = player.GetComponentInChildren<NegativeReciver>(true);
+            Hurtbox = player.GetComponentInChildren<INegativeReceiver>(true);
         }
 
         public float Hp => Vital.GetCurrentStatValue(VitalStatType.HP);
