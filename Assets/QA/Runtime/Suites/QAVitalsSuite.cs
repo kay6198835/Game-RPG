@@ -45,6 +45,9 @@ namespace QA.Automation
             yield return Case("QA-VIT-12", "VIT", QAPriority.P1, "Recovery / Reduction on Coin (not seeded) are safe and leave HP / Mana alone", Guard(CaseUnseededVital()));
             yield return Case("QA-VIT-13", "VIT", QAPriority.P1, "Damage of current HP minus 0.5 leaves the player alive at 0.5 HP", Guard(CaseBoundaryDamage()));
             yield return Case("QA-VIT-14", "VIT", QAPriority.P1, "A non-lethal hit enters PlayerTakeDamageState and returns to Idle / Move", Guard(CaseTakeDamageState()));
+            // Added 2026-11-21 (part C): the receiver contract weapons look up, and the dash hurtbox toggle.
+            yield return Case("QA-VIT-15", "VIT", QAPriority.P0, "Player and enemy hurtboxes implement INegativeReceiver, the interface weapons, projectiles and abilities look up", Guard(CaseReceiverContract()));
+            yield return Case("QA-VIT-16", "VIT", QAPriority.P1, "InvicisibleHurtbox(true) disables the player hurtbox collider, false enables it again", Guard(CaseHurtboxToggle()));
             yield return Case("QA-VIT-07", "VIT", QAPriority.P0, "Lethal damage puts the player in PlayerDeathState and emits ON_PLAYER_DEATH", Guard(CaseDeath()));
             yield return Case("QA-VIT-08", "VIT", QAPriority.P1, "ON_PLAYER_DEATH is emitted once per death, not every frame", Guard(CaseDeathOnce()));
         }
@@ -112,8 +115,50 @@ namespace QA.Automation
             _rig.Vital.ReloadComponent();
         }
 
+        private const string NoReceiver = "player has no component implementing INegativeReceiver: MeleeWeapon, RangeWeapon, Projectile and ability effects find no target on the player";
+
+        private IEnumerator CaseReceiverContract()
+        {
+            yield return null;
+            bool player = typeof(INegativeReceiver).IsAssignableFrom(typeof(NegativeReciver));
+            bool enemy = typeof(INegativeReceiver).IsAssignableFrom(typeof(EntityNegativeReciver));
+            Check(player, "NegativeReciver implements INegativeReceiver", "NegativeReciver (player hurtbox) does not implement INegativeReceiver: weapons and abilities cannot damage the player");
+            Check(enemy, "EntityNegativeReciver implements INegativeReceiver", "EntityNegativeReciver (enemy hurtbox) does not implement INegativeReceiver: weapons and abilities cannot damage enemies");
+            Check(_rig.Hurtbox != null, "spawned player has an INegativeReceiver", NoReceiver);
+        }
+
+        private IEnumerator CaseHurtboxToggle()
+        {
+            NegativeReciver receiver = _rig.Player.GetComponentInChildren<NegativeReciver>(true);
+            if (receiver == null)
+            {
+                Skip("player has no NegativeReciver component");
+                yield break;
+            }
+            BoxCollider2D box = receiver.GetComponent<BoxCollider2D>();
+            if (box == null)
+            {
+                Fail("NegativeReciver has no BoxCollider2D (RequireComponent)");
+                yield break;
+            }
+            yield return Frames(2);
+            bool before = box.enabled;
+            receiver.InvicisibleHurtbox(true);
+            bool off = !box.enabled;
+            receiver.InvicisibleHurtbox(false);
+            bool on = box.enabled;
+            box.enabled = before;
+            Check(off, "collider disabled by InvicisibleHurtbox(true)", "collider still enabled after InvicisibleHurtbox(true)");
+            Check(on, "collider enabled by InvicisibleHurtbox(false)", "collider still disabled after InvicisibleHurtbox(false)");
+        }
+
         private IEnumerator CaseHurtbox()
         {
+            if (_rig.Hurtbox == null)
+            {
+                Fail(NoReceiver);
+                yield break;
+            }
             _rig.Vital.ReloadComponent();
             yield return Frames(2);
             float before = _rig.Hp;
@@ -198,6 +243,11 @@ namespace QA.Automation
 
         private IEnumerator CaseBoundaryDamage()
         {
+            if (_rig.Hurtbox == null)
+            {
+                Fail(NoReceiver);
+                yield break;
+            }
             _rig.Vital.ReloadComponent();
             yield return Frames(2);
             float amount = _rig.Hp - 0.5f;
@@ -211,6 +261,11 @@ namespace QA.Automation
 
         private IEnumerator CaseTakeDamageState()
         {
+            if (_rig.Hurtbox == null)
+            {
+                Fail(NoReceiver);
+                yield break;
+            }
             _rig.Vital.ReloadComponent();
             bool idle = false;
             yield return WaitUntil(() => _rig.Player.StateMachine.CurrentState is PlayerIdleState or PlayerMoveState, 3f, ok => idle = ok);
