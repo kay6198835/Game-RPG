@@ -1,15 +1,15 @@
 {
-    "run":  "20261121-2029",
+    "run":  "20261121-2050",
     "status":  "RUNNER_ERROR",
     "exitCode":  2,
-    "sprint":  "",
-    "head":  "",
+    "sprint":  "origin/sprint-23",
+    "head":  "bcedaebb88",
     "base":  "",
-    "ownerBranch":  "",
+    "ownerBranch":  "qa/weekly-automation",
     "autoCommit":  "",
     "reportDir":  "",
     "totals":  null,
-    "message":  "another run holds C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\run.lock (age 14 min)",
-    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261121-2029.log",
-    "finished":  "2026-11-21 20:29:25"
+    "message":  "merge of origin/sprint-23 into qa/weekly-automation failed (conflict?): git merge --no-edit origin/sprint-23 (exit 2): error: Your local changes to the following files would be overwritten by merge: |   qa-automation/state/latest.json | Merge with strategy ort failed.",
+    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261121-2050.log",
+    "finished":  "2026-11-21 20:50:21"
 }
