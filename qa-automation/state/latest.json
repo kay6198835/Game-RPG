@@ -1,15 +1,22 @@
 {
-    "run":  "20261121-0711",
-    "status":  "RUNNER_ERROR",
-    "exitCode":  2,
+    "run":  "20261121-1931",
+    "status":  "FAIL",
+    "exitCode":  1,
     "sprint":  "origin/sprint-23",
-    "head":  "8f3f37ffbe",
-    "base":  "",
+    "head":  "76a60d2fda",
+    "base":  "2b3028a0ec",
     "ownerBranch":  "pm/wrapup-2026-11-20",
-    "autoCommit":  "be973605",
-    "reportDir":  "",
-    "totals":  null,
-    "message":  "git checkout qa/weekly-automation (exit 1): error: Your local changes to the following files would be overwritten by checkout: | \tAssets/QA/Runtime/Suites/QAPlayerFlowSuite.cs | Please commit your changes or stash them before you switch branches. | Aborting",
-    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261121-0711.log",
-    "finished":  "2026-11-21 07:12:09"
+    "autoCommit":  "9e5921c0",
+    "reportDir":  "qa-automation/reports/20261121-1931",
+    "totals":  {
+                   "total":  195,
+                   "PASS":  168,
+                   "FAIL":  21,
+                   "KNOWN":  4,
+                   "SKIP":  1,
+                   "OBSERVED":  1
+               },
+    "message":  "PASS 168 / FAIL 21 / KNOWN 4 / SKIP 1 / OBSERVED 1; new FAIL: 21",
+    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261121-1931.log",
+    "finished":  "2026-11-21 20:06:17"
 }
