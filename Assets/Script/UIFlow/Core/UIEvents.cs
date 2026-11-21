@@ -68,7 +68,7 @@ namespace UIFlow
             ReturnToMainMenuRequested = null;
         }
 
-        public static void OnOpenConfirmPanel(Action callback, ConfirnData data)
+        public static void OnOpenConfirmPanel(ConfirnData data)
         {
             OpenConfirnPanel.Invoke(data);
         }

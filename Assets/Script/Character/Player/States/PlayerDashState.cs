@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerDashState : PlayerBasicState
 {
+    INegativeReceiver negativeReceiver;
     public PlayerDashState(Player player, string animBoolName) : base(player, animBoolName)
     {
     }
@@ -13,14 +14,17 @@ public class PlayerDashState : PlayerBasicState
         //stateStyle = StateStyle.Motion;
         player.Anim.SetFloat(GameConstants.AnimationName.Parameter.DIRECTION, inputHandler.DirectionKeyboard);
         player.Anim.SetBool(GameConstants.AnimationName.Parameter.IS_DASH, inputHandler.IsDash);
+        player.Core.TryGetCapability(out negativeReceiver);
     }
     public override void AnimationOnAction()
     {
         playerMovement.Dash(inputHandler.DirectionMouseVector);
+        negativeReceiver.InvicisibleHurtbox(true);
     }
     public override void AnimationOffAction()
     {
         playerMovement.ExitDash();
+        negativeReceiver.InvicisibleHurtbox(false);
     }
     public override void AnimationEnd()
     {

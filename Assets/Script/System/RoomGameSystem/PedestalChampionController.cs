@@ -29,10 +29,11 @@ public class PedestalChampionController : InteractiveObjectsRoom
                 ", người sẽ hướng dẫn bạn trong hành trình này. Hãy chuẩn bị cho những thử thách và phiêu lưu phía trước!"
             };
             //UIEvents.RequestDialogue(new DialogueLine[] { dialogueLine }, ConfirmSetCharacterData);
-            UIEvents.OnOpenConfirmPanel(SetCharacterData, new ConfirnData
+            UIEvents.OnOpenConfirmPanel(new ConfirnData
             {
                 confirmText = "Xác nhận",
-                cancelText = "Hủy"
+                cancelText = "Hủy",
+                callback = SetCharacterData
             });
             return true;
         }

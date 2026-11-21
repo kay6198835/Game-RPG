@@ -122,7 +122,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &232663804
+--- !u!1 &617699358
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,8 +130,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 232663806}
-  - component: {fileID: 232663805}
+  - component: {fileID: 617699360}
+  - component: {fileID: 617699359}
   m_Layer: 0
   m_Name: capture_camera
   m_TagString: Untagged
@@ -139,13 +139,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!20 &232663805
+--- !u!20 &617699359
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 232663804}
+  m_GameObject: {fileID: 617699358}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
@@ -171,10 +171,10 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 31.908247
+  far clip plane: 32.666847
   field of view: 60
   orthographic: 1
-  orthographic size: 2.017372
+  orthographic size: 2.1400058
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -190,22 +190,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &232663806
+--- !u!4 &617699360
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 232663804}
+  m_GameObject: {fileID: 617699358}
   serializedVersion: 2
   m_LocalRotation: {x: 0.25881907, y: 0, z: 0, w: 0.9659259}
-  m_LocalPosition: {x: 0, y: 7.733993, z: -12.097869}
+  m_LocalPosition: {x: 0, y: 7.98686, z: -12.316857}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &823417206
+--- !u!1 &1154225600
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -213,8 +213,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 823417208}
-  - component: {fileID: 823417207}
+  - component: {fileID: 1154225602}
+  - component: {fileID: 1154225601}
   m_Layer: 0
   m_Name: animation_capture_helper
   m_TagString: Untagged
@@ -222,31 +222,31 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &823417207
+--- !u!114 &1154225601
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 823417206}
+  m_GameObject: {fileID: 1154225600}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a65d026c9f37c9941944139299af5a3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _target: {fileID: 1686209172}
+  _target: {fileID: 1996942457}
   _sourceClip: {fileID: 7400000, guid: e24257cb738f78047a8257322ecfedaf, type: 2}
   _framesPerSecond: 30
   _cellSize: {x: 256, y: 256}
   _currentFrame: 0
-  _captureCamera: {fileID: 232663805}
---- !u!4 &823417208
+  _captureCamera: {fileID: 617699359}
+--- !u!4 &1154225602
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 823417206}
+  m_GameObject: {fileID: 1154225600}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -255,7 +255,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1661823826
+--- !u!1 &1810002442
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -263,7 +263,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1661823827}
+  - component: {fileID: 1810002443}
   m_Layer: 0
   m_Name: rig_root
   m_TagString: Untagged
@@ -271,29 +271,29 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1661823827
+--- !u!4 &1810002443
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1661823826}
+  m_GameObject: {fileID: 1810002442}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1686209173}
+  - {fileID: 1996942458}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1686209171
+--- !u!1001 &1996942456
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1661823827}
+    m_TransformParent: {fileID: 1810002443}
     m_Modifications:
     - target: {fileID: -9106337904210995862, guid: 51b07fcb0fd4a814d93918ea74e8a41a,
         type: 3}
@@ -1925,22 +1925,22 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 51b07fcb0fd4a814d93918ea74e8a41a, type: 3}
---- !u!1 &1686209172 stripped
+--- !u!1 &1996942457 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 51b07fcb0fd4a814d93918ea74e8a41a,
     type: 3}
-  m_PrefabInstance: {fileID: 1686209171}
+  m_PrefabInstance: {fileID: 1996942456}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1686209173 stripped
+--- !u!4 &1996942458 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 51b07fcb0fd4a814d93918ea74e8a41a,
     type: 3}
-  m_PrefabInstance: {fileID: 1686209171}
+  m_PrefabInstance: {fileID: 1996942456}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1661823827}
-  - {fileID: 232663806}
-  - {fileID: 823417208}
+  - {fileID: 1810002443}
+  - {fileID: 617699360}
+  - {fileID: 1154225602}
