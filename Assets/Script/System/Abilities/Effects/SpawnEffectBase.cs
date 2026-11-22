@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class SpawnEffectBase : AbilityEffectDefinition
 {
-    public SpawnMono Prefab;
+    public SpawnEffectMono Prefab;
     public float SpawnOffset = 0.8f;
     public float Lifetime = 8f;
     protected AbilityContext _context;
@@ -22,7 +22,7 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
         float angle = Angle();
         Vector2 spawnPos = SpawnPos();
         var obj = _context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));
-        var orb = obj.GetComponent<SpawnMono>();
+        var orb = obj.GetComponent<SpawnEffectMono>();
         if (orb != null)
             orb.Launch(Lifetime, _context, Execute);
         else

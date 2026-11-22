@@ -1,6 +1,6 @@
 using UnityEngine;
 [RequireComponent(typeof(Animator))]
-public class SpawnSummonBase : SpawnMono
+public class SpawnSummonBase : SpawnEffectMono
 {
     protected Animator animator;
     protected virtual void Awake()

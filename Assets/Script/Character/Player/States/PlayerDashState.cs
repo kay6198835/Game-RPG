@@ -18,7 +18,7 @@ public class PlayerDashState : PlayerBasicState
     }
     public override void AnimationOnAction()
     {
-        playerMovement.Dash(inputHandler.DirectionMouseVector);
+        playerMovement.Dash(inputHandler.MoveVector);
         negativeReceiver.InvicisibleHurtbox(true);
     }
     public override void AnimationOffAction()
@@ -29,13 +29,15 @@ public class PlayerDashState : PlayerBasicState
     public override void AnimationEnd()
     {
         base.AnimationEnd();
-        playerMovement.Move(inputHandler.MoveVector);
         if (inputHandler.MoveVector == Vector2.zero)
         {
             stateMachine.ChangeState(player.IdleState);
             return;
+        }else
+        {
+            stateMachine.ChangeState(player.MoveState);
+            return;
         }
-        base.LogicUpdate();
     }
 
     public override void Exit()

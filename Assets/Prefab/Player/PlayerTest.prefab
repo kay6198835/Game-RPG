@@ -603,6 +603,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   core: {fileID: 0}
   rb: {fileID: 0}
+  dashEffectPrefab: {fileID: 2378406913456426731, guid: 124fbb2bbdc56874293d1cd442e0237a, type: 3}
 --- !u!1 &7081596654052828374
 GameObject:
   m_ObjectHideFlags: 0
@@ -648,7 +649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   core: {fileID: 0}
-  statsSO: {fileID: 0}
+  debugView: []
   requiredExp: 0
   maxLevel: 50
 --- !u!1 &7526549872702926139
@@ -728,12 +729,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   core: {fileID: 0}
   isTakeDamage: 0
+  isDeath: 0
   isAttack: 0
   isSkill: 0
-  takeDamageFlagDuration: 0.1
   hitDirectionVector: {x: 0, y: 0}
   hitDirectionAngle: 0
   hitDirection: 0
+  isDash: 0
   starTime: 0
   moveVector: {x: 0, y: 0}
   mouseVector: {x: 0, y: 0}

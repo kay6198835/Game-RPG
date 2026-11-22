@@ -1,13 +1,21 @@
 using UnityEngine;
+using VContainer;
 
 public class PlayerMovement : MovementBase<Core>
 {
-    IStatService statsService;
-
+    IObjectResolver resolver;
+    [SerializeField] SpawnMono dashEffectPrefab;
+    GameObject dashEffectInstance;
+    IObjectPoolService objectPoolManager;
+    [Inject]
+    public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolManager)
+    {
+        this.resolver = resolver;
+        this.objectPoolManager = objectPoolManager;
+    }
     public override void Setup()
     {
         base.Setup();
-        core.TryGetCapability(out statsService);
     }
     // Kept under its original (misspelt) name: five player states call it.
     public void SetVeclocity(Vector2 velocity)
@@ -24,7 +32,9 @@ public class PlayerMovement : MovementBase<Core>
 
     public void Dash(Vector2 direction)
     {
-        rb.velocity = direction.normalized * statsService.GetStatValue(StatType.MoveSpeed);
+        rb.velocity = direction.normalized * MoveSpeed * 2f;
+        dashEffectInstance = objectPoolManager.Spawn(dashEffectPrefab.gameObject, transform.position, Quaternion.identity);
+        
     }
 
     public void ExitDash()
