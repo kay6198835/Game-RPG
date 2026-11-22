@@ -1,6 +1,6 @@
 # Enemy — AI + Spawning
 
-> **Status:** live · **Last verified:** 2026-11-15, `sprint-22` `063b5f87` (bug statuses after the 2026-11-15 triage; no enemy code changed since `a8725a77`; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
+> **Status:** live · **Last verified:** 2026-11-22, `sprint-23` `1e5afb3c` (AI state list and hit reaction only); 2026-11-15, `sprint-22` `063b5f87` (bug statuses; roster and presets not re-checked) · **Governing ADRs:** ADR-0002 (EnemyManager singleton exception), ADR-0003 (spawn candidate pool), ADR-0005
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -19,17 +19,25 @@ that places them.
 
 ## How it works
 
-**AI.** `Entity : CharacterBase<EntityCore>` builds Idle / Move / Attack / TakeDamage / Death (+ an
-ability state when `EntityAbilityHolder` is present). `Entity.OnEnable()` re-initialises the state
+**AI.** `Entity : CharacterBase<EntityCore>` builds Idle / Move / Attack / TakeDamage / Death / Ability /
+Investigate (`Entity.cs:62-69`; Investigate added `c613e641`, 2026-11-19, plays the Move animation). `Entity.OnEnable()` re-initialises the state
 machine to `EntityIdleState` unless it is already there, so a pooled enemy restarts clean.
 
 ```
 EntityBasicState — direction, take-damage, death, attack check
-  EntityIdleState   — timer or target → Move
+  EntityIdleState   — timer (reset on Enter) or target → Move
   EntityMoveState   — null-guards target; chase / flee / wander; timeout → Idle
   EntityAttackState — weapon Attack() on anim event
-  EntityTakeDamageState / EntityDeathState (emits ON_ENEMY_DEATH on EndRangeTrigger)
+  EntityTakeDamageState — end of clip: look toward the hit (Seen → Move, Blocked → Idle, OutOfView → Investigate)
+  EntityInvestigateState — walk to a point along the hit direction; sees player → Move; arrival / path fail → Idle
+  EntityDeathState (emits ON_ENEMY_DEATH on EndRangeTrigger)
 ```
+
+**Hit from out of view (`c613e641`, owner-approved 2026-11-19, not compiled in that session).** A non-lethal
+hit while the enemy has no locked target turns its view toward the hit (`EntityInput.FaceHitDirection()`); the
+take-damage state then runs `EntityFindTarget.CheckView`. The investigate point is `RangeView ×
+random[investigateMinMultiplier, investigateMaxMultiplier]` (`EntityData`, defaults 0.5 / 1.0), halved while it
+is a wall or off the grid; too close or behind a wall → Idle. `EntityMovement.PathFailed` ends the walk.
 
 **Attack.** Only through `EntityWeaponHolder` + a `Weapon` prefab named by
 `CharacterData.Weapon` (inherited by `EntityData`), equipped by `EnemySpawner` → `Entity.SetCharacterData()`
