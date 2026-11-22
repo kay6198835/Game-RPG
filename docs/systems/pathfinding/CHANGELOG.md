@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history and `git log`.
 
+## 2026-11-22 — Nodes on tile centres, no corner cutting (doc-truth re-sync)
+- **Commit:** `0e0dc874` "fix(pathfinding): nodes on tile centres, no corner cutting, line walk check" (2026-11-19, on `sprint-23`)
+- **Changed:** `GridBuilder` node `WorldPosition` = cell + (0.5, 0.5); `PathfindingGrid.GetGridPosition()` `RoundToInt` → `FloorToInt`; diagonal step needs both side cells walkable; new `PathfindingGrid.IsLineWalkable()`; `AStarTests` updated and extended.
+- **From → To:** README had no grid-rule paragraph → "Grid rules" paragraph; tests line gains the new cases.
+- **Why:** commit body — nodes sat on tile corners so enemy paths hugged walls; banker's rounding mapped points near a wall into the wall cell.
+- **Bugs:** none.
+
 ## 2026-11-14 — `Path` renamed `NavPath`; EditMode tests (doc-truth re-sync)
 - **Commit:** `d9776bb8` "fix(build): rename the game's Path class to NavPath" (2026-11-12); `47f66ddb` (EditMode tests, `AStarTests.cs`). Both on `sprint-22`.
 - **Changed:** `Data/Path.cs` → `Data/NavPath.cs`; `AStar.cs`, `PathRequest.cs`, `PathRequestManager.cs`, `EntityMovement.cs`, `QASystemsSuite.cs` updated to the new name.

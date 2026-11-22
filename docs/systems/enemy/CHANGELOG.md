@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-22 — Hit from out of view: turn, look, investigate (doc-truth re-sync)
+- **Commit:** `c613e641` "feat(enemy): react to a hit from out of view - turn, look, investigate" (2026-11-19, on `sprint-23`)
+- **Changed:** new `EntityInvestigateState`; `EntityTakeDamageState` looks toward the hit at clip end (`EntityFindTarget.CheckView()` → Seen / Blocked / OutOfView); `EntityInput.FaceHitDirection()`; `EntityMovement` fixed-point path + `PathFailed`; `EntityData.investigateMin/MaxMultiplier` (0.5 / 1.0); `EntityIdleState` resets its timer on Enter; `EnemyManager.IsLineWalkable()`.
+- **From → To:** README state list Idle / Move / Attack / TakeDamage / Death → adds Ability and Investigate, plus a "Hit from out of view" paragraph.
+- **Why:** owner-approved behaviour (commit body, session 2026-11-19).
+- **Bugs:** none filed; the commit says it was not compiled in its session (later standups compiled `sprint-23`).
+
 ## 2026-11-18 — Death clips no longer loop
 - **Commit:** this change on `sprint-23` (owner request).
 - **Changed:** 80 enemy clips `Assets/Animation/Enemy/Role/*/Death/*_Die_dir N.anim` and the 8 Paladin clips `Assets/Animation/Player/Paladin/Basic/Die/` — `m_LoopTime: 1 → 0`.

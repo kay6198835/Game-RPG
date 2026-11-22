@@ -3,7 +3,7 @@
 Instructions for Claude Code in this repository. **Short summaries + paths only.** Detail lives in the files
 linked below; read them when the task needs them.
 
-> **Last updated:** 2026-11-19 (HEAD `d0d814b6`, branch `origin/sprint-23`).
+> **Last updated:** 2026-11-22 (HEAD `1e5afb3c`, branch `origin/sprint-23`).
 >
 > **Rule for every writer (skills, routines, sessions, owner):** keep this file ≤ 200 lines (the commit hook
 > blocks more). Never copy data in here — bugs, events, checklists, history, per-file layout. Write them to
@@ -52,7 +52,7 @@ object-pooling, pathfinding, stats, ui, weapons.
 | Folder (`Assets/Script/`) | What | Doc |
 |---|---|---|
 | `Character/Base/` | Shared hub, state machine, stats/vitals/effects/receiver bases | `docs/systems/character/` |
-| `Character/Player/`, `Character/Entity/` | Player (9 states) and enemy AI | `character/`, `enemy/` |
+| `Character/Player/`, `Character/Entity/` | Player (10 states) and enemy AI | `character/`, `enemy/` |
 | `System/LifetimeScope/` | VContainer composition root | `dependency-injection/` |
 | `System/Abilities/` | Abilities v2 — the only ability framework | `abilities/` |
 | `System/StatSystem/` | `BaseStatsSO` (data) + `StatSheet` (calculator) | `stats/` |
