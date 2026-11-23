@@ -190,7 +190,7 @@ namespace QA.Automation
             Stat stat = stats.GetStat(Probe);
             float before = stat.FinalValue;
             object source = new();
-            stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 5f, ModifierType.Flat) });
+            stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 5f, ModifierType.Flat, StatImpactType.Recovery) });
             yield return null;
             float expected = Expected(stat, 5f, 0f, 0f);
             Check(Near(stat.FinalValue, expected), $"{Probe} {before:0.##} -> {stat.FinalValue:0.##}", $"{Probe} {before:0.##} -> {stat.FinalValue:0.##}, expected {expected:0.##}");
@@ -203,8 +203,8 @@ namespace QA.Automation
             Stat stat = stats.GetStat(Probe);
             stats.AddModifiersFromSource(new object(), new[]
             {
-                new StatModifier(Probe, 0.1f, ModifierType.PercentAdd),
-                new StatModifier(Probe, 0.2f, ModifierType.PercentAdd),
+                new StatModifier(Probe, 0.1f, ModifierType.PercentAdd, StatImpactType.Recovery),
+                new StatModifier(Probe, 0.2f, ModifierType.PercentAdd, StatImpactType.Recovery),
             });
             yield return null;
             float expected = Expected(stat, 0f, 0.3f, 0f);
@@ -218,8 +218,8 @@ namespace QA.Automation
             Stat stat = stats.GetStat(Probe);
             stats.AddModifiersFromSource(new object(), new[]
             {
-                new StatModifier(Probe, 4f, ModifierType.Flat),
-                new StatModifier(Probe, 0.5f, ModifierType.PercentMult),
+                new StatModifier(Probe, 4f, ModifierType.Flat, StatImpactType.Recovery),
+                new StatModifier(Probe, 0.5f, ModifierType.PercentMult, StatImpactType.Recovery),
             });
             yield return null;
             float expected = Expected(stat, 4f, 0f, 0.5f);
@@ -233,7 +233,7 @@ namespace QA.Automation
             Stat stat = stats.GetStat(Probe);
             float before = stat.FinalValue;
             object source = new();
-            stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 7f, ModifierType.Flat), new StatModifier(Probe, 0.25f, ModifierType.PercentAdd) });
+            stats.AddModifiersFromSource(source, new[] { new StatModifier(Probe, 7f, ModifierType.Flat, StatImpactType.Recovery), new StatModifier(Probe, 0.25f, ModifierType.PercentAdd, StatImpactType.Recovery) });
             stats.RemoveModifiersFromSource(source);
             yield return null;
             Check(Near(stat.FinalValue, before) && stat.Modifiers.Count == 0, $"back to {before:0.##}, 0 modifiers",
@@ -246,8 +246,8 @@ namespace QA.Automation
             StatSheet stats = new StatSheet(statsAsset);
             Stat stat = stats.GetStat(Probe);
             object item = new(), buff = new();
-            stats.AddModifiersFromSource(item, new[] { new StatModifier(Probe, 3f, ModifierType.Flat) });
-            stats.AddModifiersFromSource(buff, new[] { new StatModifier(Probe, 8f, ModifierType.Flat) });
+            stats.AddModifiersFromSource(item, new[] { new StatModifier(Probe, 3f, ModifierType.Flat, StatImpactType.Recovery) });
+            stats.AddModifiersFromSource(buff, new[] { new StatModifier(Probe, 8f, ModifierType.Flat, StatImpactType.Recovery) });
             stats.RemoveModifiersFromSource(buff);
             yield return null;
             float expected = Expected(stat, 3f, 0f, 0f);
@@ -261,7 +261,7 @@ namespace QA.Automation
             // A fresh sheet from the asset must read the same numbers after another sheet was buffed.
             Dictionary<StatType, float> before = new StatSheet(statsAsset).GetFullStat();
             StatSheet stats = new StatSheet(statsAsset);
-            stats.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat) });
+            stats.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat, StatImpactType.Recovery) });
             stats.AddPrimaryPoint(StatType.STR, 3f);
             yield return null;
             Dictionary<StatType, float> after = new StatSheet(statsAsset).GetFullStat();

@@ -24,6 +24,7 @@ Assets/TextMesh Pro/
 *.physicsMaterial2D
 *.png
 *.jpg
+*.gif
 *.psd
 *.aseprite
 *.wav
@@ -32,6 +33,13 @@ Assets/TextMesh Pro/
 *.ttf
 *.otf
 *.fbx
+
+# QA automation and test tooling (keep the graph on game code + design)
+qa-automation/
+Assets/QA/
+Assets/Tests/
+Assets/Script/FastTest/
+tests/
 
 # Tooling and churn-heavy logs (keep the graph focused on code + design docs)
 CCGS Skill Testing Framework/

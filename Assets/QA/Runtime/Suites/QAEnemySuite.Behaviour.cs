@@ -453,18 +453,20 @@ namespace QA.Automation
 
         #region Cases — effect receiver
 
-        // StatModifierGroup's lists are authored-only (private); QA fills them the way the Inspector would.
-        private static StatModifierGroup MakeGroup(StatModifier stat, VitalModifier vital)
+        // Since the 2026-11-23 stat refactor StatModifierGroup holds a single list (statsModifiers), filled through
+        // its constructor. A vital (current-value) modifier is a StatModifier whose target is a VitalStatType member;
+        // AdjustCurrentStats skips the rest, AdjustMaxStats reads them all.
+        private static StatModifierGroup MakeGroup(StatModifier stat, StatModifier vital)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            FieldInfo statsField = typeof(StatModifierGroup).GetField("statsModifiers", flags);
-            FieldInfo vitalField = typeof(StatModifierGroup).GetField("vitalModifiers", flags);
-            if (statsField == null || vitalField == null) return null;
-            StatModifierGroup group = new();
-            if (stat != null) ((List<StatModifier>)statsField.GetValue(group)).Add(stat);
-            if (vital != null) ((List<VitalModifier>)vitalField.GetValue(group)).Add(vital);
-            return group;
+            List<StatModifier> modifiers = new();
+            if (stat != null) modifiers.Add(stat);
+            if (vital != null) modifiers.Add(vital);
+            return new StatModifierGroup(modifiers);
         }
+
+        // Replaces the removed VitalModifier: the sign of value picks Recovery / Reduction, as VitalModifier did.
+        private static StatModifier VitalMod(VitalStatType stat, float value)
+            => new((StatType)stat, value, ModifierType.Flat, value >= 0f ? StatImpactType.Recovery : StatImpactType.Reduction);
 
         // EffectReceiverBase reads only context.Caster.Transform (where the effect's visual source spawns).
         private sealed class QAEffectCaster : IAbilityOwner
@@ -497,10 +499,10 @@ namespace QA.Automation
 
             const StatType stat = StatType.Defense;
             const float bonus = 5f;
-            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat), null);
+            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat, StatImpactType.Recovery), null);
             if (group == null)
             {
-                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                Fail("QA cannot fill a StatModifierGroup: StatModifierGroup constructor failed");
                 yield break;
             }
             float before = _stats.GetStatValue(stat);
@@ -541,10 +543,10 @@ namespace QA.Automation
 
             const StatType stat = StatType.Defense;
             const float bonus = 5f;
-            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat), null);
+            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat, StatImpactType.Recovery), null);
             if (group == null)
             {
-                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                Fail("QA cannot fill a StatModifierGroup: StatModifierGroup constructor failed");
                 yield break;
             }
             float before = _stats.GetStatValue(stat);
@@ -580,11 +582,11 @@ namespace QA.Automation
             if (receiver == null) yield break;
 
             float chunk = Mathf.Max(1f, MaxHp * 0.2f);
-            StatModifierGroup heal = MakeGroup(null, new VitalModifier(VitalStatType.HP, chunk, ModifierType.Flat));
-            StatModifierGroup hurt = MakeGroup(null, new VitalModifier(VitalStatType.HP, -chunk, ModifierType.Flat));
+            StatModifierGroup heal = MakeGroup(null, VitalMod(VitalStatType.HP, chunk));
+            StatModifierGroup hurt = MakeGroup(null, VitalMod(VitalStatType.HP, -chunk));
             if (heal == null || hurt == null)
             {
-                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                Fail("QA cannot fill a StatModifierGroup: StatModifierGroup constructor failed");
                 yield break;
             }
             _vital.Reduction(VitalStatType.HP, chunk * 2f);

@@ -40,15 +40,17 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     }
     public void AdjustCurrentStats(StatModifierGroup statModifierGroup, AbilityContext context, Action callback = null)
     {
-        foreach (var modifier in statModifierGroup.GetVitalModifiers)
+        foreach (var modifier in statModifierGroup.GetStatsModifiers)
         {
+            var vitalStatType = (VitalStatType)modifier.TargetStatType;
+            if (!Enum.IsDefined(typeof(VitalStatType), vitalStatType)) continue;
             if (modifier.ImpactType == StatImpactType.Reduction)
             {
-                vital.Reduction(modifier.TargetStatType, Math.Abs(modifier.Value));
+                vital.Reduction(vitalStatType, Math.Abs(modifier.Value));
             }
             else if (modifier.ImpactType == StatImpactType.Recovery)
             {
-                vital.Recovery(modifier.TargetStatType, Math.Abs(modifier.Value));
+                vital.Recovery(vitalStatType, Math.Abs(modifier.Value));
             }
         }
     }
