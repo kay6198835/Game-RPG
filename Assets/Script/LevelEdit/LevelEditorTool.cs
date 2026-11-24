@@ -36,9 +36,12 @@ public class LevelEditorTool : MonoBehaviour
 
         WriteRoom(path, CollectLevelData());
         if (existing >= 0)
+        {
             dungeonRoomSO.room[existing].roomType = roomType;
+            dungeonRoomSO.room[existing].roomJson = LoadRoomAsset(path);
+        }
         else
-            dungeonRoomSO.room.Add(new RoomFile { roomName = roomName, filePath = path, roomType = roomType });
+            dungeonRoomSO.room.Add(new RoomFile { roomName = roomName, filePath = path, roomType = roomType, roomJson = LoadRoomAsset(path) });
 
         SaveLibrary();
         Debug.Log($"[{nameof(LevelEditorTool)}] Saved {roomName}");
@@ -113,24 +116,33 @@ public class LevelEditorTool : MonoBehaviour
         }
 
         int importedCount = 0;
+        int relinkedCount = 0;
         foreach (string file in Directory.GetFiles(roomFolder, "*.json", SearchOption.TopDirectoryOnly))
         {
             string relativePath = file.Substring(Application.dataPath.Length).Replace("\\", "/");
             if (!relativePath.StartsWith("/")) relativePath = "/" + relativePath;
-            if (dungeonRoomSO.room.Exists(r => r.filePath == relativePath)) continue;
+
+            RoomFile known = dungeonRoomSO.room.Find(r => r.filePath == relativePath);
+            if (known != null)
+            {
+                // Rooms added before roomJson existed: link their TextAsset so the runtime can load them.
+                if (known.roomJson == null && (known.roomJson = LoadRoomAsset(relativePath)) != null) relinkedCount++;
+                continue;
+            }
 
             string roomName = Path.GetFileNameWithoutExtension(file);
             dungeonRoomSO.room.Add(new RoomFile
             {
                 roomName = roomName,
                 filePath = relativePath,
-                roomType = InferRoomTypeFromName(roomName)
+                roomType = InferRoomTypeFromName(roomName),
+                roomJson = LoadRoomAsset(relativePath)
             });
             importedCount++;
         }
 
-        if (importedCount > 0) SaveLibrary();
-        Debug.Log($"[{nameof(LevelEditorTool)}] Imported {importedCount} room json files into {dungeonRoomSO.name}");
+        if (importedCount > 0 || relinkedCount > 0) SaveLibrary();
+        Debug.Log($"[{nameof(LevelEditorTool)}] Imported {importedCount} and relinked {relinkedCount} room json files in {dungeonRoomSO.name}");
     }
 
     private LevelData CollectLevelData()
@@ -170,6 +182,16 @@ public class LevelEditorTool : MonoBehaviour
         File.WriteAllText(Application.dataPath + path, JsonUtility.ToJson(data, true));
 #if UNITY_EDITOR
         UnityEditor.AssetDatabase.ImportAsset("Assets" + path);
+#endif
+    }
+
+    // path is relative to Assets/ (e.g. /Data/Json/Room/X.json). Null outside the Editor.
+    private static TextAsset LoadRoomAsset(string path)
+    {
+#if UNITY_EDITOR
+        return UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>("Assets" + path);
+#else
+        return null;
 #endif
     }
 

@@ -569,6 +569,7 @@ namespace QA.Automation
             {
                 string path = System.IO.Path.Combine(QARunConfig.ProjectRoot, "Assets" + r.filePath);
                 if (!File.Exists(path)) Fail($"{r.roomName}: file missing Assets{r.filePath}");
+                if (r.roomJson == null) Fail($"{r.roomName}: roomJson TextAsset not assigned (runtime cannot load it in a build)");
             }
             yield return null;
         }
