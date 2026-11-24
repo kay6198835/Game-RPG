@@ -33,12 +33,13 @@ public class SpawnSummonEffect : SpawnEffectBase
     protected virtual void SummonExecute(AbilityContext currentContext)
     {
         if (currentContext.Target != null
-            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
-        {
-            //need fix to flexible stat type
-            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.MagicDamage);
-            negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
-        }
+           // && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver)
+            )
+        // {
+        //     //need fix to flexible stat type
+        //     var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.MagicDamage);
+        //     negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
+        // }
         ApplyOnHitEffects(currentContext);
     }
 
