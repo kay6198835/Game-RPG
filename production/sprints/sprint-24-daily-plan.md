@@ -11,20 +11,21 @@
 
 ## Status Verdict
 
-**SLIPPED (day 2, 2026-11-24).** No commit since `df9e98fe` (Mon 20:26); every Must task still ⬜.
-Monday's S24-01 / 02 / 05 (0.45d) carry into Tuesday on top of S24-03 / 04 (0.4d) = 0.85d planned
-for one day. BUG-135 still open (no code change since day 1), so combat stays untestable.
-Must remaining 0.95d over 3.5 days — recoverable only if S24-02 lands today. Evidence: LOG + STATIC
-(compile SKIPPED — Editor open).
+**SLIPPED, recovering (day 3, 2026-11-25).** Tuesday evening the owner landed the code side of
+three Must tasks: BUG-135 fix (`e47f5c38`, `INegativeReceiver<TCore> : INegativeReceiver`), BUG-130
+dash states in all three class controllers (`b0cfe539`), BUG-126 removed with the TMP Examples
+folder (`070bc0a5`). Plus off-plan Bug #15 / TD-022 room JSON via `TextAsset` (`7a41d7c4`). None is
+runtime-verified yet: the same-day automated QA rerun (S24-02) and the playtest (S24-01) are still
+open. Must remaining ≈0.65d over 2.5 days. Evidence: COMPILED (`e47f5c38`, 156 s) + LOG + STATIC.
 
 ## Burn Summary
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0 | 0.95d |
+| Must Have (incl. Sat playtest 0.1d) | 0.95d | ≈0.3d (S24-05 ✅; S24-02 / 04 code only) | ≈0.65d |
 | Should Have | 0.65d | 0 | 0.65d |
 | Feature story S24-F1 (capped) | 0.75d | 0 | 0.75d |
-| Off-plan | — | ≈0.5d (`df9e98fe` status effects) | — |
+| Off-plan | — | ≈0.5d (`df9e98fe` status effects) + ≈0.3d (`7a41d7c4` room TextAsset, `070bc0a5` build cleanup) | — |
 | Buffer | 1.0d | 0 | 1.0d |
 
 ---
@@ -59,15 +60,18 @@ Must remaining 0.95d over 3.5 days — recoverable only if S24-02 lands today. E
 ### Tue 2026-11-24 — Death → Game Over
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S24-02 BUG-135 + automated QA rerun (carried from Mon) | 0.1d | ⬜ | S1; unblocks S24-03 and every combat check |
-| S24-05 BUG-126 (carried from Mon) | 0.05d | ⬜ | One line; blocks any Player build |
-| S24-01 Playtest / smoke (carried from Mon) | 0.3d | ⬜ | 29th carry if missed again; run after S24-02 |
-| S24-03 BUG-122 remainder + BUG-086 + BUG-065 | 0.2d | ⬜ | S1; needs damage back (S24-02); core of the demo loop |
-| S24-04 BUG-130 dash soft lock (check `1e5afb3c` first) | 0.2d | ⬜ | S2; Space locks the player in every class |
+| S24-02 BUG-135 + automated QA rerun (carried from Mon) | 0.1d | 🟡 | Code fixed `e47f5c38`; QA rerun not run yet |
+| S24-05 BUG-126 (carried from Mon) | 0.05d | ✅ | `070bc0a5` deleted `TMP_TextInfoDebugTool.cs` with TMP Examples |
+| S24-01 Playtest / smoke (carried from Mon) | 0.3d | ⬜ | 29th carry; run after the S24-02 QA rerun |
+| S24-03 BUG-122 remainder + BUG-086 + BUG-065 | 0.2d | ⬜ | S1; damage chain is back in code, now unblocked |
+| S24-04 BUG-130 dash soft lock (check `1e5afb3c` first) | 0.2d | 🟡 | Dash state + `IsDash` added to all 3 controllers `b0cfe539`; runtime unverified |
 
 ### Wed 2026-11-25 — Restart design + rooms
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S24-02 QA rerun (carried from Tue) | 0.05d | ⬜ | Confirms BUG-135 + BUG-130 at runtime in one run |
+| S24-03 BUG-122 remainder + BUG-086 + BUG-065 (carried from Tue) | 0.2d | ⬜ | S1; now unblocked |
+| S24-01 Playtest / smoke (carried) | 0.3d | ⬜ | 29th carry |
 | S24-08 BUG-087 design note | 0.3d | ⬜ | Death reaches Game Over after S24-03; restart path undefined for 9 sprints |
 | S24-09 BUG-096 remainder | 0.15d | ⬜ | S1 soft lock in marker-less rooms |
 
@@ -93,7 +97,7 @@ Must remaining 0.95d over 3.5 days — recoverable only if S24-02 lands today. E
 ## Risks (live)
 
 - Playtest at 28th carry — owner decision: record one sheet or sign accepted risk.
-- BUG-135 blocks all combat checks until S24-02 lands; rerun the automated suite the same day.
+- BUG-135 fixed in code (`e47f5c38`, 2026-11-24) — rerun the automated suite before trusting any combat result.
 - `1e5afb3c` (Sun, after wrap-up) changed dash / spawn code untriaged — the Monday QA rerun covers it.
 - Large mixed asset + code commits (`8005d27e` pattern) — keep S24-F1 asset-only.
 - ~~PM worktree `D:/Fork/Game-RPG-pm` dirty with `Assets/Sprite/Erika/**`~~ — clean on 2026-11-23 (standup ran in it).
@@ -128,3 +132,16 @@ _(appended by `/daily-standup`)_
   exception; Editor-prev.log = the 66 errors already in NOTE-20261123-2. Fix-survival not run (no new `.cs` commit).
 - Inbox: 5 open, +0 today.
 - Verdict: SLIPPED — Must burn 0 / 0.4d (Mon); 0.95d Must left over 3.5 days.
+
+### 2026-11-25 (Wed) — standup
+- Sync: merged owner branch `origin/feature/fix-bug-sprint-24` (1 commit, `e47f5c38` "fix bug") into `sprint-24` → `5127ff40`.
+- Commits since the 2026-11-24 standup: `b0cfe539` dash state in Paladin / Mage / Archer controllers (S24-04),
+  `7a41d7c4` room JSON via `TextAsset` (Bug #15 / TD-022, off-plan), `070bc0a5` removed TMP Examples + test
+  leftovers, QA scenes moved to `Assets/QA/Scenes/Test` (closes S24-05 / BUG-126 in code), `e47f5c38`
+  BUG-135 fix + Paladin effect SO data + controller edits.
+- Planned tasks: S24-05 ✅; S24-02 🟡 (code, no QA rerun); S24-04 🟡 (assets, no runtime); S24-01 / 03 ⬜.
+- Runtime: compile COMPILED `e47f5c38` (156 s, no uncommitted changes); Editor.log 0 `error CS`, 8 Play Mode
+  entries, no `Assets/Script/` exception; Editor-prev.log = the 66 errors of NOTE-20261123-2. Fix-survival 7d:
+  BUG-097 / 122 / 129 / 135 rows all PRESENT.
+- Inbox: 5 open, +0 new; NOTE-20261123-1 updated (new Paladin effect assets in `e47f5c38` still carry no `impactType`).
+- Verdict: SLIPPED, recovering — Must ≈0.65d left over 2.5 days; all three fixes await runtime evidence.
