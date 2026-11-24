@@ -11,8 +11,11 @@
 
 ## Status Verdict
 
-**ON-TRACK (day 0, kickoff).** Nothing started. First task Monday: S24-01 playtest, then S24-02
-BUG-135 with a same-day automated QA rerun.
+**SLIPPED (day 2, 2026-11-24).** No commit since `df9e98fe` (Mon 20:26); every Must task still ⬜.
+Monday's S24-01 / 02 / 05 (0.45d) carry into Tuesday on top of S24-03 / 04 (0.4d) = 0.85d planned
+for one day. BUG-135 still open (no code change since day 1), so combat stays untestable.
+Must remaining 0.95d over 3.5 days — recoverable only if S24-02 lands today. Evidence: LOG + STATIC
+(compile SKIPPED — Editor open).
 
 ## Burn Summary
 
@@ -21,7 +24,7 @@ BUG-135 with a same-day automated QA rerun.
 | Must Have (incl. Sat playtest 0.1d) | 0.95d | 0 | 0.95d |
 | Should Have | 0.65d | 0 | 0.65d |
 | Feature story S24-F1 (capped) | 0.75d | 0 | 0.75d |
-| Off-plan | — | 0 | — |
+| Off-plan | — | ≈0.5d (`df9e98fe` status effects) | — |
 | Buffer | 1.0d | 0 | 1.0d |
 
 ---
@@ -56,6 +59,9 @@ BUG-135 with a same-day automated QA rerun.
 ### Tue 2026-11-24 — Death → Game Over
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S24-02 BUG-135 + automated QA rerun (carried from Mon) | 0.1d | ⬜ | S1; unblocks S24-03 and every combat check |
+| S24-05 BUG-126 (carried from Mon) | 0.05d | ⬜ | One line; blocks any Player build |
+| S24-01 Playtest / smoke (carried from Mon) | 0.3d | ⬜ | 29th carry if missed again; run after S24-02 |
 | S24-03 BUG-122 remainder + BUG-086 + BUG-065 | 0.2d | ⬜ | S1; needs damage back (S24-02); core of the demo loop |
 | S24-04 BUG-130 dash soft lock (check `1e5afb3c` first) | 0.2d | ⬜ | S2; Space locks the player in every class |
 
@@ -90,7 +96,8 @@ BUG-135 with a same-day automated QA rerun.
 - BUG-135 blocks all combat checks until S24-02 lands; rerun the automated suite the same day.
 - `1e5afb3c` (Sun, after wrap-up) changed dash / spawn code untriaged — the Monday QA rerun covers it.
 - Large mixed asset + code commits (`8005d27e` pattern) — keep S24-F1 asset-only.
-- PM worktree `D:/Fork/Game-RPG-pm` dirty with `Assets/Sprite/Erika/**` — owner should commit or clean.
+- ~~PM worktree `D:/Fork/Game-RPG-pm` dirty with `Assets/Sprite/Erika/**`~~ — clean on 2026-11-23 (standup ran in it).
+- `df9e98fe` `StatModifier.impactType` not serialized (NOTE-20261123-1) — debuff statuses may load as buffs.
 - Needs-owner notes (NOTE-20261115-7 item 3, NOTE-20261117-4, NOTE-20261122-1) — not tasks.
 - `gh` unavailable — draft PR not opened.
 
@@ -99,3 +106,25 @@ BUG-135 with a same-day automated QA rerun.
 ## Daily Log
 
 _(appended by `/daily-standup`)_
+
+### 2026-11-23 (Mon) — standup
+- Sync: SKIPPED — owner branch `origin/feature/fix-bug-sprint-24` (local) already an ancestor of `origin/sprint-24` (`df9e98fe`).
+- Commits since kickoff: `df9e98fe` "add status effect" (status → stat config `StatusStatsEffect`,
+  `StatModifier` impact type, `StatEffectBase` auto-sync, QA / EditMode tests adapted,
+  `design/balance/status-debuff-stat-combos.md`) — off-plan (closest: S24-D1 effect work).
+- Planned Monday tasks: S24-01 ⬜, S24-02 ⬜ (BUG-135 still present), S24-05 ⬜ (`using UnityEditor;` still unguarded at `:4`).
+- Runtime: compile COMPILED (`df9e98fe` + 4 uncommitted SO paths, 28 s); Editor.log 66 `error CS` = mid-edit
+  state (NOTE-20261123-2); fix-survival 7d: 4 PARTIAL rows on BUG-066 / 071 / 119 from `df9e98fe`
+  touching the same files (expected refactor, not noted).
+- Inbox: +2 (NOTE-20261123-1 S2 `impactType` not serialized; NOTE-20261123-2 S4 transient).
+- Verdict: SLIPPED — day 1 Must burn 0 / 0.4d planned.
+
+### 2026-11-24 (Tue) — standup
+- Sync: SKIPPED — owner branch `origin/feature/fix-bug-sprint-24` (local) already an ancestor of `origin/sprint-24` (`39280c8d`).
+- Commits since the 2026-11-23 standup: none (only the standup commit `39280c8d`). Owner has 4 uncommitted
+  Paladin effect SO edits (`Avatar of Light`, `Blessing`) in the owner folder — invisible to the routine.
+- Planned tasks: S24-01 / 02 / 05 still ⬜ (carried to Tue); S24-03 / 04 ⬜.
+- Runtime: compile SKIPPED (Unity Editor open); Editor.log 0 `error CS`, 1 Play Mode entry, no `Assets/Script/`
+  exception; Editor-prev.log = the 66 errors already in NOTE-20261123-2. Fix-survival not run (no new `.cs` commit).
+- Inbox: 5 open, +0 today.
+- Verdict: SLIPPED — Must burn 0 / 0.4d (Mon); 0.95d Must left over 3.5 days.
