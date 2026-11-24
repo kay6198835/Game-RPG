@@ -11,10 +11,11 @@
 
 ## Status Verdict
 
-**SLIPPED (day 1, 2026-11-23).** No Monday task done (S24-01 / 02 / 05 all ⬜); the day went to
-off-plan status-effect work (`df9e98fe`, ≈0.5d). BUG-135 still open at `df9e98fe`
-(`NegativeReceiverBase` implements only `INegativeReceiver<TCore>`), so combat stays untestable.
-Must remaining 0.95d over 4 days — still recoverable if S24-02 lands Tuesday. Evidence: COMPILED + STATIC.
+**SLIPPED (day 2, 2026-11-24).** No commit since `df9e98fe` (Mon 20:26); every Must task still ⬜.
+Monday's S24-01 / 02 / 05 (0.45d) carry into Tuesday on top of S24-03 / 04 (0.4d) = 0.85d planned
+for one day. BUG-135 still open (no code change since day 1), so combat stays untestable.
+Must remaining 0.95d over 3.5 days — recoverable only if S24-02 lands today. Evidence: LOG + STATIC
+(compile SKIPPED — Editor open).
 
 ## Burn Summary
 
@@ -58,6 +59,9 @@ Must remaining 0.95d over 4 days — still recoverable if S24-02 lands Tuesday. 
 ### Tue 2026-11-24 — Death → Game Over
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S24-02 BUG-135 + automated QA rerun (carried from Mon) | 0.1d | ⬜ | S1; unblocks S24-03 and every combat check |
+| S24-05 BUG-126 (carried from Mon) | 0.05d | ⬜ | One line; blocks any Player build |
+| S24-01 Playtest / smoke (carried from Mon) | 0.3d | ⬜ | 29th carry if missed again; run after S24-02 |
 | S24-03 BUG-122 remainder + BUG-086 + BUG-065 | 0.2d | ⬜ | S1; needs damage back (S24-02); core of the demo loop |
 | S24-04 BUG-130 dash soft lock (check `1e5afb3c` first) | 0.2d | ⬜ | S2; Space locks the player in every class |
 
@@ -114,3 +118,13 @@ _(appended by `/daily-standup`)_
   touching the same files (expected refactor, not noted).
 - Inbox: +2 (NOTE-20261123-1 S2 `impactType` not serialized; NOTE-20261123-2 S4 transient).
 - Verdict: SLIPPED — day 1 Must burn 0 / 0.4d planned.
+
+### 2026-11-24 (Tue) — standup
+- Sync: SKIPPED — owner branch `origin/feature/fix-bug-sprint-24` (local) already an ancestor of `origin/sprint-24` (`39280c8d`).
+- Commits since the 2026-11-23 standup: none (only the standup commit `39280c8d`). Owner has 4 uncommitted
+  Paladin effect SO edits (`Avatar of Light`, `Blessing`) in the owner folder — invisible to the routine.
+- Planned tasks: S24-01 / 02 / 05 still ⬜ (carried to Tue); S24-03 / 04 ⬜.
+- Runtime: compile SKIPPED (Unity Editor open); Editor.log 0 `error CS`, 1 Play Mode entry, no `Assets/Script/`
+  exception; Editor-prev.log = the 66 errors already in NOTE-20261123-2. Fix-survival not run (no new `.cs` commit).
+- Inbox: 5 open, +0 today.
+- Verdict: SLIPPED — Must burn 0 / 0.4d (Mon); 0.95d Must left over 3.5 days.
