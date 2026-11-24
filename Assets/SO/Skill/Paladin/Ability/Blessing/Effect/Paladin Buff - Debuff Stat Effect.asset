@@ -17,6 +17,8 @@ MonoBehaviour:
   SubEffects: []
   Costs: []
   recipient: 0
+  statusType: 0
+  statusStatsEffect: {fileID: 11400000, guid: 813b6c7c0c915cd4e868bbae1d93d26d, type: 2}
   statModifier:
     statsModifiers:
     - targetStatType: 102
@@ -25,4 +27,5 @@ MonoBehaviour:
     - targetStatType: 0
       type: 100
       value: 20
+  syncedStatusType: 0
   duration: 3

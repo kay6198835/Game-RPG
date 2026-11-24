@@ -17,9 +17,12 @@ MonoBehaviour:
   SubEffects: []
   Costs: []
   recipient: 0
+  statusType: 6
+  statusStatsEffect: {fileID: 11400000, guid: 813b6c7c0c915cd4e868bbae1d93d26d, type: 2}
   statModifier:
     statsModifiers:
     - targetStatType: 103
       type: 100
       value: 100000
+  syncedStatusType: 6
   duration: 20
