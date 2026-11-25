@@ -1,8 +1,26 @@
 # Status Debuffs Built from Stat Reductions (Design Note)
 
 > Status: idea note, 2026-11-23. Not a GDD. Section 3 (kit mapping) is a proposal and is not in any GDD.
-> Config: `Assets/SO/Config/newStatusStatsEffect.asset` (`StatusStatsEffect`) maps each `StatusType`
+> Config: `Assets/SO/Config/Status Status Config.asset` (`StatusStatsEffect`) maps each `StatusType`
 > to the `StatType` list it reduces. Values are authored per ability on `StatsEffectBase.statModifiers`.
+
+> **2026-11-25 — how to use this note (owner decision; GDD `abilities-v2-system.md` AB-E8…E14, `[PLANNED]`):**
+> - The status config is **PENDING / reference only**. Nothing auto-fills or auto-matches stats any more:
+>   **game design picks each effect's `StatType` rows by hand** from the tables below.
+> - The `StatusType` is chosen **once on the `AbilityDefinition`** (one per ability). It decides the
+>   direction: buff → Recovery, debuff → Reduction. **Always author positive values**; the sign is applied
+>   in code. `StatusType = None` with a stat effect is a validation error.
+> - **One effect does one kind of operation.** Put vital rows (HP, Mana) and stat rows in different effects:
+>
+>   | Part of the status | Effect class | Rows allowed |
+>   |---|---|---|
+>   | Instant change of current HP / Mana (Heal, ManaSurge, ManaBurn) | `RecoveryReductionStatsEffect` | HP, Mana |
+>   | Current HP / Mana per tick (Regeneration, ManaSpring, the DOT of Burn / Poison) | `RecoveryReductionPerTimeForDuration` | HP, Mana |
+>   | Stat change for a duration (Slow, Weaken, ArmorBreak, the regen / damage part of Burn / Poison…) | `BuffDebuffStatsForDuration` | any stat; HP / Mana here change the **max** |
+>
+> - A **mixed** status = two effects in the same ability. Burn = tick `[HP]` + duration `[HPRegen]`.
+>   Poison = tick `[HP]` + duration `[PhysicalDamage]`. Manaburn = instant `[Mana]` + duration `[ManaRegen]`.
+> - Hard control (Stun, Freeze, Knockback) is not a stat effect; see the Notes below.
 
 Stats come from `StatType.cs`:
 - Primary: STR, DEX, INT, VIT, LUK
@@ -63,5 +81,7 @@ Stats come from `StatType.cs`:
   the same debuff is reapplied is still open question OQ-4. Until it is answered, default to
   "reapply refreshes duration, does not stack strength", matching the GDD rule.
 - BUG-100 (timed buffs share one modifier source) and BUG-118 (tick effects are NotImplemented) must
-  be fixed before timed debuffs or DOTs such as Burn and Poison can work.
+  be fixed before timed debuffs or DOTs such as Burn and Poison can work. *2026-11-25:* the tick effect now
+  does nothing (empty `AdjustMaxPerTimeForDuration`) instead of throwing; the fix is the new
+  `AdjustCurrentPerTimeForDuration` (GDD AB-E14).
 - Manaburn's "current Mana -" is a vital change, not a stat modifier: `StatType.Mana` is max Mana.

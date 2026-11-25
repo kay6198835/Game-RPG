@@ -5,7 +5,6 @@ using UnityEngine;
 public class SpawnSummonEffect : SpawnEffectBase
 {
     [SerializeField] protected SpawnSummonBase summonPrefab;
-    [SerializeField] protected float baseDamage = 30;
 
     protected override float Angle()
     {
@@ -30,15 +29,10 @@ public class SpawnSummonEffect : SpawnEffectBase
         //Do nothing
     }
 
+    // NEED CHECK: 2026-11-25 — no damage here any more. Damage is a DamageEffect in SubEffects (GDD AB-S11);
+    // the summon only reports who it hit (ctx.Target) and runs the on-hit SubEffects.
     protected virtual void SummonExecute(AbilityContext currentContext)
     {
-        if (currentContext.Target != null
-            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
-        {
-            //need fix to flexible stat type
-            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.MagicDamage);
-            negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
-        }
         ApplyOnHitEffects(currentContext);
     }
 

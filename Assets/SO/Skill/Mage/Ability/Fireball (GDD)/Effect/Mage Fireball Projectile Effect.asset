@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   AbilityName: Mage Fireball Projectile Effect
   SubConditions: []
-  SubEffects: []
+  SubEffects:
+  - {fileID: 11400000, guid: 52acf3a4abe24d1b9f59f9cc4cbde3e9, type: 2}
   Costs: []
   recipient: 0
   Prefab: {fileID: 167446185442601584, guid: 5f61048ea1081024c8fc9fdf9cce9e3f, type: 3}
   SpawnOffset: 0.7
   Lifetime: 0.6
-  baseDamage: 56
