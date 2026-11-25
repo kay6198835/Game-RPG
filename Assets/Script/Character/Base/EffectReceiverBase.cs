@@ -38,6 +38,20 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     {
         base.ReloadComponent();
     }
+
+    // NEED CHECK: new 2026-11-25 — ability hit damage enters here (DamageEffect) and is forwarded to the
+    // hurtbox's damage pipeline, so mitigation, the dead check and the TakeDamage reaction stay in one place
+    // (NegativeReceiverBase.TakeDamage). Resolved lazily: Awake order between core components is not fixed.
+    protected INegativeReceiver negativeReceiver;
+    public void ApplyDamage(float amount, Vector2 attackPosition, AbilityContext context = null)
+    {
+        if (negativeReceiver == null && !Core.TryGetCapability(out negativeReceiver))
+        {
+            Debug.LogWarning($"[{GetType().Name}] {name}: no INegativeReceiver on this core, damage ignored.", this);
+            return;
+        }
+        negativeReceiver.TakeDamage(amount, attackPosition);
+    }
     public void AdjustCurrentStats(StatModifierGroup statModifierGroup, AbilityContext context, Action callback = null)
     {
         foreach (var modifier in statModifierGroup.GetStatsModifiers)

@@ -4,6 +4,24 @@ Change log for [`design/gdd/abilities-v2-system.md`](../abilities-v2-system.md).
 this file records **when** it changed, **what** changed (**from → to**) and **why**. Newest first.
 Append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-25 — DamageEffect (AB-S11 added, AB-S7 implemented)
+- **Commit:** not committed (working tree on `sprint-24`)
+- **Changed:** AB-S11 added (CONFIRMED); AB-S7 no longer `[PLANNED]`; AB-S3, AB-S6, AB-S8 reworded; effect catalogue gains `DamageEffect`; Formulas, Tuning Knobs, AC-40, Ability Catalogue note; rule index (79 → 80, PLANNED 15 → 14).
+- **From → To:** damage computed inside each spawn effect / spawned object → one `DamageEffect` SO, through `IEffectReceiver.ApplyDamage` into the hurtbox pipeline (TakeDamage state). HP loss without a state change → `RecoveryReductionStatsEffect` / `RecoveryReductionPerTimeForDuration` (`AdjustCurrentStats`).
+- **Why:** owner decision 2026-11-25 (session).
+- **Bugs:** none created.
+
+## 2026-11-25 — Status & stat effect rules (AB-E8 … AB-E14)
+- **Commit:** not committed (working tree on `sprint-24`)
+- **Changed:** seven rules added to §7 (all CONFIRMED `[PLANNED]`); effect catalogue rows for `RecoveryReductionStatsEffect` and `RecoveryReductionPerTimeForDuration` re-read against code; rule index (72 → 79).
+- **From → To:**
+  - `StatusType` on each stat effect, stats auto-filled from the status config → one `StatusType` per `AbilityDefinition`, passed at runtime via `AbilityContext`; config is reference only; stats picked by hand (AB-E9, E10, E13).
+  - Direction from `StatModifier.impactType` (vital) or the value's sign (stat) → `ImpactType` derived from the status, values always positive, signed once in the receiver — **temporary** (AB-E11, E12).
+  - Tick effect → new `AdjustCurrentPerTimeForDuration`; a mixed status is two effects in one ability (AB-E14). Stat vs vital written down (AB-E8).
+  - Catalogue: `RecoveryReductionStatsEffect` "no-op" → runs, but Reductions load as Recovery; `RecoveryReductionPerTimeForDuration` "throws" → empty body, does nothing.
+- **Why:** owner decisions 2026-11-25 (session).
+- **Bugs:** none created. Findings in `docs/systems/abilities/README.md` Open issues (2026-11-25 rows).
+
 ## 2026-11-13 — Three follow-up confirmations on AB-G7 and AB-L7
 - **Commit:** not committed (working tree on `sprint-22`)
 - **Changed:** AB-L7, AB-G7, AB-CD1, the cooldown formula, AC-44, EC-8.
