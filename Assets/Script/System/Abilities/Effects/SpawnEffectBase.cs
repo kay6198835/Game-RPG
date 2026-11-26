@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public abstract class SpawnEffectBase : AbilityEffectDefinition
+// Delivery (GDD AB-E15): spawns the object that reports hits; SubEffects / ApplyOnHitEffects live on DeliveryEffectBase.
+public abstract class SpawnEffectBase : DeliveryEffectBase
 {
     public SpawnEffectMono Prefab;
     public float SpawnOffset = 0.8f;
@@ -27,20 +28,6 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
             orb.Launch(Lifetime, _context, Execute);
         else
             Debug.LogWarning($"[{GetType().Name}] {name}: Prefab has no SpawnMono component.");
-    }
-
-    /// <summary>
-    /// Runs SubEffects as on-hit effects against the character just hit. A SubEffect whose recipient
-    /// is Target therefore acts on whoever the spawned object hit — player or enemy alike.
-    /// </summary>
-    protected void ApplyOnHitEffects(AbilityContext currentContext)
-    {
-        if (currentContext.Target == null || SubEffects == null) return;
-        for (int i = 0; i < SubEffects.Count; i++)
-        {
-            if (SubEffects[i] == null) continue;
-            SubEffects[i].Apply(currentContext);    
-        }
     }
 
     protected abstract Vector2 SpawnPos();

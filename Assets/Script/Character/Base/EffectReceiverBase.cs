@@ -52,8 +52,14 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         }
         negativeReceiver.TakeDamage(amount, attackPosition);
     }
+    // NEED CHECK: 2026-11-26 — a dead character takes no new stat / vital effect (GDD AB-E19). Between HP 0 and
+    // the despawn (death animation frame) the hurtbox is still a trigger, so late hits still reach this receiver.
+    // Hit damage is already refused by NegativeReceiverBase's own dead check.
+    protected bool IsDead => input != null && input.IsDeath;
+
     public void AdjustCurrentStats(StatModifierGroup statModifierGroup, AbilityContext context, Action callback = null)
     {
+        if (IsDead) return;
         foreach (var modifier in statModifierGroup.GetStatsModifiers)
         {
             var vitalStatType = (VitalStatType)modifier.TargetStatType;
@@ -71,6 +77,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
+        if (IsDead) return;
         statHandler.AddModifiersFromSource(SetEffectSource(context, 0f, callback), statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
@@ -109,11 +116,13 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
     {
+        if (IsDead) return;
         StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context, callback));
     }
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
+        if (IsDead) return;
         //StartCoroutine(ApplyAdjustMaxPerTimeForDuration(modifierGroup, perTime, duration, context));
     }
 

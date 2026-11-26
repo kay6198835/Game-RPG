@@ -8,7 +8,7 @@ using UnityEngine;
 /// Usually a SubEffect of a spawn effect with Recipient = Target: the spawned object sets ctx.Target.
 /// </summary>
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Damage Effect")]
-public class DamageEffect : AbilityEffectDefinition
+public class DamageEffect : PayloadEffectBase
 {
     [SerializeField] private float baseDamage = 30f;
     [Tooltip("Caster stat added to the damage. Ignored when Coefficient is 0.")]
@@ -16,9 +16,25 @@ public class DamageEffect : AbilityEffectDefinition
     [Tooltip("damage = baseDamage + coefficient × caster's scalingStat. 0 = flat damage.")]
     [SerializeField] private float coefficient;
 
+#if UNITY_EDITOR
+    // A new DamageEffect hits the target. The base default (Caster) suits buffs, not damage.
+    // Called when the asset is created or "Reset" from the Inspector menu; existing assets are untouched.
+    private void Reset() => recipient = EffectRecipient.Target;
+#endif
+
+    public override void OnValidate()
+    {
+        base.OnValidate();
+        if (Recipient == EffectRecipient.Caster)
+            Debug.LogWarning($"[DamageEffect] {name}: Recipient = Caster — this effect damages the caster itself. " +
+                             "Use Target unless self-damage is intended.", this);
+    }
+
     public override void Apply(AbilityContext context)
     {
         if (context == null) return;
+        // No hit target: nothing to damage (GDD AB-S11 — ctx.Target is set by the spawned object's hit).
+        if (Recipient == EffectRecipient.Target && context.Target == null) return;
         if (!context.TryGetRecipientComponent(Recipient, out IEffectReceiver receiver)) return;
         receiver.ApplyDamage(CalculateDamage(context), context.Origin, context);
     }

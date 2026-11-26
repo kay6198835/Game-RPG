@@ -5,10 +5,12 @@ public abstract class AbilityEffectDefinition : ScriptableObject
 {
     public string AbilityName = "";
     public List<AbilityConditionDefinition> SubConditions = new();
-    public List<AbilityEffectDefinition> SubEffects = new();
+    // SubEffects moved to DeliveryEffectBase (2026-11-26, GDD AB-E16): only a Delivery runs sub-effects.
     public List<StatCost> Costs = new();
     [SerializeField] public EffectRecipient Recipient => recipient;
-    [SerializeField] private EffectRecipient recipient = EffectRecipient.Caster;
+    // protected (2026-11-26): a subclass may pick another default in Reset() (DamageEffect → Target).
+    // Same serialized name, so no asset changes.
+    [SerializeField] protected EffectRecipient recipient = EffectRecipient.Caster;
     public abstract void Apply(AbilityContext context);
     public virtual bool TryCast(AbilityContext context)
     {

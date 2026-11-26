@@ -17,6 +17,22 @@ which code change caused it.
 
 ---
 
+## 2026-11-26 — Abilities: Delivery / Payload decisions (`sprint-24`, working tree)
+
+**Cause.** Owner decisions 2026-11-26 (session) and the code they produced in the working tree: `DeliveryEffectBase`,
+`PayloadEffectBase`, `SelfApplyEffect` (new), `SubEffects` moved off `AbilityEffectDefinition`, `EffectReceiverBase.IsDead`,
+`DamageEffect` recipient default; Blessing / Avatar of Light assets rewired. Not committed — the owner commits once the
+open items A1 (`StatModifier` sign flow) and B6 (status registry key) are decided.
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E15…E20 added; AB-E5, AB-E6, catalogue, Tuning Knobs, AC-49, AC-50, rule index; notes on AB-E11 and OQ-4 |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry for the above; the two 2026-11-25 entries now name commit `b001d78e` |
+| `docs/systems/abilities/README.md` | Code table; "Delivery and Payload" block; Open issues rows for `impactType` and `EffectReceiverBase` |
+| `docs/systems/abilities/CHANGELOG.md` | Entry; the two 2026-11-25 entries now name commit `b001d78e` |
+
+**Findings.** STATIC only (no Unity). README header "Last verified" left at 2026-11-05 — no full re-verification was done.
+
 ## 2026-11-22 — Doc-truth pass after the 2026-11-21 wrap-up (HEAD `1e5afb3c`)
 
 **Cause.** Code on `sprint-23` since `d0d814b6`: `c613e641` (enemy investigate), `0e0dc874` (pathfinding grid

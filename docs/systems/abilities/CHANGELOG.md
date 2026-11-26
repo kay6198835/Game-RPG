@@ -2,8 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-26 — Delivery / Payload, SelfApplyEffect, dead guard
+- **Commit:** not committed (working tree on `sprint-24`); owner asked to commit only once A1 and B6 are decided too
+- **Changed:** new `Core/DeliveryEffectBase.cs` (holds `SubEffects` + `ApplyOnHitEffects`, both moved out of `AbilityEffectDefinition` / `SpawnEffectBase`), `Core/PayloadEffectBase.cs`, `Effects/SelfApplyEffect.cs`. `SpawnEffectBase : DeliveryEffectBase`; `DamageEffect`, `StatsEffectBase : PayloadEffectBase`. `DamageEffect`: `Reset()` → `Recipient = Target`, `OnValidate` warns on `Caster`, no target → silent return; `AbilityEffectDefinition.recipient` is `protected`. `EffectReceiverBase.IsDead` guards the four stat / vital entry points. Assets: `Paladin Blessing Self Apply Effect.asset`, `Avatar of Light Self Apply Effect.asset` (new); `Blessing.asset`, `Avatar of Light.asset` `Effects` → that one asset; their four payload assets `recipient` 0 → 1. README: code table, "Delivery and Payload" block, two Open issues rows. Also in the working tree, not part of this decision set: `StatModifier.impactType` removed (session item A1, owner still checking).
+- **From → To:** see `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` 2026-11-26.
+- **Why:** owner decisions 2026-11-26 (session).
+- **Evidence:** STATIC — no Unity in this session; not compiled, not run. To check in Unity: scripts compile; the 8 spawn effect assets still show their `SubEffects`; Blessing / Avatar of Light still buff the caster (GDD AC-49).
+- **Bugs:** none opened or closed.
+
 ## 2026-11-25 — DamageEffect: ability damage through IEffectReceiver
-- **Commit:** not committed (working tree on `sprint-24`)
+- **Commit:** `b001d78e` (`sprint-24`)
 - **Changed:** new `DamageEffect` SO (`Effects/DamageEffect.cs`); `IEffectReceiver.ApplyDamage` + `EffectReceiverBase.ApplyDamage` (forwards to the hurtbox `TakeDamage`); `SpawnProjectileEffect` / `SpawnSummonEffect` lose `baseDamage` and their damage code; `DamagesInManyPos` uses the callback and `DespawnOneSelf()`, `damagePerArrow` removed; `EffectReceiver` component moved onto the hurtbox GameObject in `PlayerTest.prefab` and `EnemyPrefab.prefab` (its own GameObject removed); `AbilityContext.TryGetRecipientComponent` resolves a Target on the hit collider first; `TrainingDummy` implements `IEffectReceiver`. Eight `<Ability> Damage Effect.asset` created and added to the `SubEffects` of the eight spawn effect assets.
 - **From → To:** each spawn effect / spawned object computed its own damage (flat, `+ MagicDamage`, or fixed 10) and called `TakeDamage` → only `DamageEffect` deals hit damage (`baseDamage + coefficient × stat`), through `IEffectReceiver`; HP loss without a hit reaction stays on the `AdjustCurrent…` effects. Numbers unchanged.
 - **Why:** owner decision 2026-11-25 (GDD AB-S7, AB-S11).
@@ -11,7 +19,7 @@ Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, 
 - **Bugs:** BUG-109 items 2 and 3 addressed in code (to verify); NOTE-20261019-4 addressed (to verify).
 
 ## 2026-11-25 — Status & stat effect decisions (documentation only)
-- **Commit:** not committed (working tree on `sprint-24`)
+- **Commit:** `b001d78e` (`sprint-24`)
 - **Changed:** no code. README gains "Status & stat effects — decisions 2026-11-25 `[PLANNED]`" and six Open issues rows; GDD §7 gains AB-E8…AB-E14; `design/balance/status-debuff-stat-combos.md` header says the config is reference only.
 - **From → To:** `StatusType` chosen on each stat effect, stats auto-filled from `Status Status Config.asset`, direction from the sign of the value (stat) or `ImpactType` (vital) → one `StatusType` per `AbilityDefinition`, passed at runtime through `AbilityContext`; `ImpactType` derived from the status; stats picked by hand from the balance doc; values always positive, signed once in the receiver (temporary); tick effects use a new `AdjustCurrentPerTimeForDuration`; a mixed status (Burn, Poison) = two effects in one ability; item effects get their own `StatusType`.
 - **Why:** owner decisions 2026-11-25 (session). The status config bundled vital and stat reductions in one status (Burn, Poison), which no single effect class can apply.

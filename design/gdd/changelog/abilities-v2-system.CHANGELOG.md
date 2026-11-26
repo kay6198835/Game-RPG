@@ -4,15 +4,28 @@ Change log for [`design/gdd/abilities-v2-system.md`](../abilities-v2-system.md).
 this file records **when** it changed, **what** changed (**from → to**) and **why**. Newest first.
 Append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-26 — Delivery / Payload, SelfApplyEffect, dead guard, cleanup rule (AB-E15…E20)
+- **Commit:** not committed (working tree on `sprint-24`); owner asked to commit only once A1 and B6 are decided too
+- **Changed:** six rules added to §7 — AB-E15 (Delivery / Payload), AB-E16 (`SubEffects` only on a Delivery), AB-E17 (`SelfApplyEffect`), AB-E18 (Payload keeps `Recipient`, no nesting), AB-E19 (dead character takes no new effect), AB-E20 (cleanup on disable, `[PLANNED]`); §7 intro; AB-E5, AB-E6 reworded; catalogue gains `SelfApplyEffect`, `DamageEffect` row says what it does with no target; Tuning Knobs `SubEffects[]` row; AC-49, AC-50; note on AB-E11 (A1 working tree) and OQ-4 (status registry key, not decided); rule index (80 → 86, CONFIRMED 39 → 45, PLANNED 14 → 15).
+- **From → To:**
+  - Any effect could sit in `AbilityDefinition.Effects` or in another effect's `SubEffects` → `Effects` holds Delivery effects, `SubEffects` (now on `DeliveryEffectBase` only) holds Payloads; no Delivery inside a Delivery.
+  - Blessing / Avatar of Light put their stat effects directly in `Effects` with `Recipient = Caster` → one `SelfApplyEffect` each, payloads `Recipient = Target`.
+  - A dead receiver still took buffs / debuffs until the despawn → refused (`EffectReceiverBase.IsDead`).
+  - No cleanup rule → `OnDisable` / `ReloadComponent` clear everything, data only (AB-E20, not built yet).
+  - Earlier "DamageEffect in Effects is an error" validation in `AbilityDefinition` → removed at owner request (a `DamageEffect` is a SubEffect by design); `DamageEffect` with no target now returns silently.
+- **Why:** owner decisions 2026-11-26 (session items 1, 4, A2, B1, B3, B4, B5).
+- **Not decided (kept out of the rules):** A1 (`StatModifier` sign flow), B2 (typed lists), B6 / OQ-4 (status registry key).
+- **Bugs:** none created.
+
 ## 2026-11-25 — DamageEffect (AB-S11 added, AB-S7 implemented)
-- **Commit:** not committed (working tree on `sprint-24`)
+- **Commit:** `b001d78e` (`sprint-24`)
 - **Changed:** AB-S11 added (CONFIRMED); AB-S7 no longer `[PLANNED]`; AB-S3, AB-S6, AB-S8 reworded; effect catalogue gains `DamageEffect`; Formulas, Tuning Knobs, AC-40, Ability Catalogue note; rule index (79 → 80, PLANNED 15 → 14).
 - **From → To:** damage computed inside each spawn effect / spawned object → one `DamageEffect` SO, through `IEffectReceiver.ApplyDamage` into the hurtbox pipeline (TakeDamage state). HP loss without a state change → `RecoveryReductionStatsEffect` / `RecoveryReductionPerTimeForDuration` (`AdjustCurrentStats`).
 - **Why:** owner decision 2026-11-25 (session).
 - **Bugs:** none created.
 
 ## 2026-11-25 — Status & stat effect rules (AB-E8 … AB-E14)
-- **Commit:** not committed (working tree on `sprint-24`)
+- **Commit:** `b001d78e` (`sprint-24`)
 - **Changed:** seven rules added to §7 (all CONFIRMED `[PLANNED]`); effect catalogue rows for `RecoveryReductionStatsEffect` and `RecoveryReductionPerTimeForDuration` re-read against code; rule index (72 → 79).
 - **From → To:**
   - `StatusType` on each stat effect, stats auto-filled from the status config → one `StatusType` per `AbilityDefinition`, passed at runtime via `AbilityContext`; config is reference only; stats picked by hand (AB-E9, E10, E13).

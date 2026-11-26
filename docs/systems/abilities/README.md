@@ -18,8 +18,8 @@ effects and conditions, run per owner by an `AbilityInstance`.
 
 | Path | Contents |
 |------|----------|
-| `System/Abilities/Core/` | `AbilityDefinition` (+ `AbilityActivationType`, `StatCost`, `AbilityState` enum Start/Cast/Do/Exit), `AbilityInstance`, `AbilityContext` (+ `IAbilityServices`, `EffectRecipient`), `AbilitySlot`, `AbilityEffectDefinition` (+ `StatImpactType`), `AbilityConditionDefinition`, `IAbilityOwner` |
-| `System/Abilities/Effects/` | `SpawnEffectBase` → `SpawnProjectileEffect`, `SpawnSummonEffect`; `DamageEffect` (2026-11-25); `StatsEffectBase` (file `StatEffectBase.cs`) → `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration`; `BuffDebuffStatsForDuration` |
+| `System/Abilities/Core/` | `AbilityDefinition` (+ `AbilityActivationType`, `StatCost`, `AbilityState` enum Start/Cast/Do/Exit), `AbilityInstance`, `AbilityContext` (+ `IAbilityServices`, `EffectRecipient`), `AbilitySlot`, `AbilityEffectDefinition` (+ `StatImpactType`) → `DeliveryEffectBase` (holds `SubEffects`), `PayloadEffectBase` (2026-11-26), `AbilityConditionDefinition`, `IAbilityOwner` |
+| `System/Abilities/Effects/` | **Delivery:** `SpawnEffectBase` → `SpawnProjectileEffect`, `SpawnSummonEffect`; `SelfApplyEffect` (2026-11-26). **Payload:** `DamageEffect` (2026-11-25); `StatsEffectBase` (file `StatEffectBase.cs`) → `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration`, `BuffDebuffStatsForDuration` |
 | `System/Abilities/Conditions/` | empty |
 | `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (`DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `ImpactMono/SourceEffect` |
 | ~~`System/Skill_Ability/`~~ | **Deleted 2026-11-04.** v1 (`ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual, effect SOs, `InternalSkillSO`) removed with its six SO assets, `EntityWeapon`, `Spell` + `Spell.prefab`, `IEffectable`. `WeaponSO` moved to `System/Item/` |
@@ -74,6 +74,24 @@ object onto `PlayerTest/Core/Takedamage` and `EnemyPrefab/Core/NegativeReciver`)
   Consecrate = RuneCircle telegraph (Cast) + Lightning strike (Do), by design.
 
 **Effect list order** is authored data: it sets execution order and resource priority.
+
+**Delivery and Payload (2026-11-26, GDD AB-E15…E19, STATIC — not compiled, not run in Unity).**
+
+```
+AbilityDefinition.Effects        → Delivery only: who is hit   (SpawnProjectileEffect, SpawnSummonEffect, SelfApplyEffect)
+  Delivery.SubEffects            → Payload only: what happens  (DamageEffect, BuffDebuff…, RecoveryReduction…)
+    Payload                      → no SubEffects; Recipient = Target (the hit) or Caster (e.g. life steal)
+```
+
+- `SubEffects` lives on `DeliveryEffectBase` (moved from `AbilityEffectDefinition`, same field name, so the 8 spawn
+  effect assets keep their lists). `ApplyOnHitEffects` moved with it.
+- A Delivery never holds another Delivery; a chain (projectile → explosion) is written as its own Delivery.
+- `SelfApplyEffect` sets `ctx.Target` to the caster's hurtbox collider (the GameObject with `INegativeReceiver`),
+  runs the SubEffects, then restores `ctx.Target`. Blessing and Avatar of Light now use it; their four payloads
+  moved to `Recipient = Target`.
+- The lists are still typed `AbilityEffectDefinition`, so the Inspector does not stop a Payload in `Effects` or a
+  Delivery in `SubEffects` — whether to type the lists is still open (session item B2).
+- A dead character (`ICharacterInput.IsDeath`) takes no new stat / vital effect (`EffectReceiverBase.IsDead`).
 
 ## Status & stat effects — decisions 2026-11-25 `[PLANNED]`
 
@@ -161,9 +179,9 @@ really are two different statuses (e.g. Heal + Haste).
 | ~~BUG-073 / BUG-090~~ | *2026-11-16:* the ShootSpirit assets, `SpiritProjcetile.prefab` and every reference to the deleted condition asset are deleted; `SpawnEffectBase` warnings no longer name the deleted classes. Awaiting triage (NOTE-20261116-5) |
 | BUG-089 | Closed by design (tier scaffolding) — reopen at demo/release |
 | — (2026-11-25) | `RecoveryReductionPerTimeForDuration` → `AdjustMaxPerTimeForDuration`, body empty → every tick effect does nothing. Fix: `AdjustCurrentPerTimeForDuration` (see decisions above). Supersedes the "throws" wording of BUG-118 |
-| — (2026-11-25) | `StatModifier.impactType` (`StatModifier.cs:34`, `df9e98fe`) has no `[SerializeField]` → loads as Recovery from every asset; `AdjustCurrentStats` turns a Reduction into a heal. Becomes moot once impact comes from `StatusType` (rule 5) |
+| — (2026-11-25) | `StatModifier.impactType` (`StatModifier.cs:34`, `df9e98fe`) has no `[SerializeField]` → loads as Recovery from every asset; `AdjustCurrentStats` turns a Reduction into a heal. *2026-11-26, working tree, not committed, owner still checking (session item A1):* field removed, `ImpactType` = sign of `value`, the constructor signs `value` from its `impactType` argument. Open: one sign rule for skills vs items/weapons, `AdjustCurrentStats` ignores `Type` (a `PercentAdd` heal is flat), floor (SD-05), unused `Utility.ModifierStatsCalculate` |
 | — (2026-11-25) | Status config auto-fill adds stats of the wrong kind for Burn `[HP, HPRegen]` / Poison `[HP, PhysicalDamage]` (tick effect ignores the stat row silently; duration effect turns HP into a max-HP modifier). Closed by "status config PENDING" |
-| — (2026-11-25) | `EffectReceiverBase`: timed modifiers removed only at the end of a coroutine on the receiver (disable / death / pool → never removed); source key is a pooled `SourceEffect` (reuse can remove another effect's modifiers); `AdjustMaxStats` uses lifetime 0 → `SourceEffect` never despawned; `SourceEffectConfig.callback` never invoked |
+| — (2026-11-25) | `EffectReceiverBase`: timed modifiers removed only at the end of a coroutine on the receiver (disable / death / pool → never removed); source key is a pooled `SourceEffect` (reuse can remove another effect's modifiers); `AdjustMaxStats` uses lifetime 0 → `SourceEffect` never despawned; `SourceEffectConfig.callback` never invoked. *2026-11-26:* cleanup rule decided (GDD AB-E20, `[PLANNED]`: clear in `OnDisable` / `ReloadComponent`, data only, `new object()` token); built together with the status registry, whose key is still open (OQ-4, session item B6). Dead guard added (AB-E19) |
 | — (2026-11-25) | `VitalStatsBase.LoadVitalStats` skips Coin → Coin never in `currentStats`, `Recovery(Coin)` is a no-op (no caller today) |
 | — (2026-11-25) | ~~Damage still computed in each spawn effect~~ → **fixed in working tree (STATIC)**: `DamageEffect` + `IEffectReceiver.ApplyDamage`; 8 spawn effect assets migrated with unchanged numbers. To check in Unity: assets import, CombatTest dummy, Rain Arrows despawn. Still open: real scaling stat / coefficient per ability (OQ-11); summons of Archer / Paladin scale with MagicDamage as before |
 | — | GDD written 2026-11-13 (`design/gdd/abilities-v2-system.md`), reviewed by the owner the same day, 3 questions parked; still no ADR for Abilities v2 *(was: "No GDD for v2; no ADR deciding v1 vs v2 endgame")* |

@@ -28,16 +28,16 @@ public sealed class StatModifier
 {
     [SerializeField] private StatType targetStatType;
     [SerializeField] private ModifierType type;
+    // Signed: negative = Reduction (debuff / HP loss), zero or positive = Recovery (buff / heal).
     [SerializeField] private float value;
-    // Must be serialized: AdjustCurrentStats branches on it, and an unserialized field loads as
-    // Recovery (enum 0) on every authored asset, turning damage into healing.
-    private StatImpactType impactType;
     [NonSerialized] private object source;
 
     /// <summary>Chỉ số mà modifier này gắn vào.</summary>
     public StatType TargetStatType => targetStatType;
     public ModifierType Type => type;
-    public StatImpactType ImpactType => impactType;
+    // NEED CHECK: 2026-11-26 — impact comes from the sign of value. The old impactType field was never
+    // serialized, so every authored asset loaded as Recovery and a Reduction healed instead.
+    public StatImpactType ImpactType => value < 0f ? StatImpactType.Reduction : StatImpactType.Recovery;
     public float Value => value;
 
     /// <summary>
@@ -52,15 +52,17 @@ public sealed class StatModifier
 
     public StatModifier() { }   // Unity deserialization
 
+    /// <param name="value">Magnitude; its sign is set from <paramref name="impactType"/>.</param>
+    /// <param name="impactType">Reduction stores value as negative, Recovery as positive.</param>
     public StatModifier(StatType targetStat, float value, ModifierType type, StatImpactType impactType, object source = null)
     {
         this.targetStatType = targetStat;
-        this.value = value;
+        float magnitude = Math.Abs(value);
+        this.value = impactType == StatImpactType.Reduction ? -magnitude : magnitude;
         this.type = type;
-        this.impactType = impactType;
         this.source = source;
     }
     public void SetType(ModifierType updateType) => type = updateType;
     /// <summary>Bản sao cùng dữ liệu nhưng đóng dấu nguồn mới (dùng khi apply một asset dùng chung).</summary>
-    public StatModifier WithSource(object newSource) => new StatModifier(targetStatType, value, type, impactType, newSource);
+    public StatModifier WithSource(object newSource) => new StatModifier(targetStatType, value, type, ImpactType, newSource);
 }
