@@ -75,10 +75,6 @@ public class DamagesInManyPos : SpawnSummonBase
         }
     }
 
-    // Kết thúc animation thì trả skill về pool.
-    // NEED CHECK: 2026-11-25 — was Destroy(gameObject) on a pooled object (bug-inbox NOTE-20261019-4).
-    public void OnSkillEnd() => DespawnOneSelf();
-
     void OnDrawGizmosSelected()
     {
         if (dirsImpactWave == null || dirIndex < 0 || dirIndex >= dirsImpactWave.Count) return;
