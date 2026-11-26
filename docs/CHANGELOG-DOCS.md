@@ -17,6 +17,16 @@ which code change caused it.
 
 ---
 
+## 2026-11-26 — Abilities changelog: spawn effect controllers (`sprint-24`)
+
+**Cause.** `m_HasExitTime` 1 → 0 on the Exit transition of 4 spawn effect controllers.
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+
+**Findings.** STATIC only (no Unity).
+
 ## 2026-11-26 — Abilities changelog: Consecrate clip loop fix (`sprint-24`)
 
 **Cause.** 16 `Paladin_Consecrate_State1/3` clips (no loop, padded end) and `Paladin.controller` Activate → Cast exit time.

@@ -2,6 +2,14 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-26 — Spawn effect controllers: Exit transition no longer fires
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** `CircleSummonEffect`, `RainArrows`, `RuneCircleEffect`, `LightningEffect` controllers: the one transition (state → Exit, no condition, ExitTime 0.75, 0.25 s) gets `m_HasExitTime` 1 → 0. With no condition and no exit time Unity ignores it (Editor shows a warning on that transition). `Trap.controller` has no transition; `Slash-VFX-GO` has no Animator.
+- **From → To:** at 75 % of the clip the state left for Exit and replayed from the start, cutting the old clip 0.25 s later → `DespawnOneSelf` after that point never fired: CircleSummon (event 2.0 s, cut 1.775 s) and RainArrows (2.033 s, cut 1.80 s) never despawned, CircleSummon re-fired `Execute` every ~1.5 s (endless Rain Arrows), RainArrows replayed its waves and lost waves 23–25; RuneCircle (Consecrate) despawned just in time but flashed back to frame 0 → each clip plays once and despawns on its own event.
+- **Why:** owner, 2026-11-26.
+- **Evidence:** STATIC — not run. To check in Unity: one CircleSummon → one RainArrows, both gone after ~2 s; Consecrate circle no flash.
+- **Bugs:** none opened or closed.
+
 ## 2026-11-26 — Consecrate player clips: no loop, end frame padded; Activate → Cast exit time 1
 - **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
 - **Changed:** `Paladin_Consecrate_State1_dir 0…7` and `Paladin_Consecrate_State3_dir 0…7` (16 clips): `m_LoopTime` 1 → 0, `m_StopTime` = last key + 1/30 (0.6333 → 0.6667, 1.2 → 1.2333). `Paladin.controller`: transition Activate → Cast `m_ExitTime` 0 → 1. State2 (Cast) clips keep their loop: each loop's `AnimationOnAction` drives `HandleInput` while a Hold ability is held.
