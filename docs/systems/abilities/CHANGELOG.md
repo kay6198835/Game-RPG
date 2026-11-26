@@ -2,6 +2,15 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-26 — Consecrate player clips: no loop, end frame padded; Activate → Cast exit time 1
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** `Paladin_Consecrate_State1_dir 0…7` and `Paladin_Consecrate_State3_dir 0…7` (16 clips): `m_LoopTime` 1 → 0, `m_StopTime` = last key + 1/30 (0.6333 → 0.6667, 1.2 → 1.2333). `Paladin.controller`: transition Activate → Cast `m_ExitTime` 0 → 1. State2 (Cast) clips keep their loop: each loop's `AnimationOnAction` drives `HandleInput` while a Hold ability is held.
+- **From → To:** `8005d27e` (30 fps resample) snapped StopTime onto the last key, so with Loop Time on the clip wrapped to frame 0 at the end; `AnimationEnd` / `AnimationFinishTrigger` sat on the wrap point and `AnimationStart` could fire again → frame-0 flash and Do replaying from the start → the clip plays once and its end events sit inside the clip. ExitTime 0 on a looping clip fired at the wrap; 1 states "at the end" explicitly, for looping and non-looping clips alike.
+- **Why:** owner, 2026-11-26 (Consecrate stutter / repeat).
+- **Scope:** the transition is in the controller shared by every Paladin ability (Slash, Blessing, Dash, Block, combo); `Rain Arrows.asset` also uses `Paladin_Consecrate.overrideController`.
+- **Evidence:** STATIC — not run. To check in Unity: Consecrate plays Activate → Cast → Do once, no frame-0 flash, returns to Idle / Move; Slash (Hold), Blessing, Dash unchanged.
+- **Bugs:** none opened or closed.
+
 ## 2026-11-26 — SpawnSummonEffect: no spawn in TryCast; RainArrows clips end on a held frame
 - **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
 - **Changed:** `SpawnSummonEffect.TryCast` no longer calls `base.Apply` (commented out, PENDING — owner redesigns the Casting flow). The 8 `RainArrows_dir 0…7.anim` clips get a copy of their last frame at 2.0333 s (`m_StopTime` 2.0333 → 2.0667) and `DespawnOneSelf` moves from 2 s to 2.0333 s.

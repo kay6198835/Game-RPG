@@ -17,6 +17,16 @@ which code change caused it.
 
 ---
 
+## 2026-11-26 — Abilities changelog: Consecrate clip loop fix (`sprint-24`)
+
+**Cause.** 16 `Paladin_Consecrate_State1/3` clips (no loop, padded end) and `Paladin.controller` Activate → Cast exit time.
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+
+**Findings.** STATIC only (no Unity).
+
 ## 2026-11-26 — Abilities: StatModifier sign rule A1 (`sprint-24`)
 
 **Cause.** Owner decision 2026-11-26 (session item A1) and its code in the working tree: `StatModifier.impactType`
