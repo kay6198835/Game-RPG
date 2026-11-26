@@ -227,3 +227,92 @@ Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): rangeCh
 Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset (MeleeWeaponStats): <AbilityWeapon>k__BackingField
 Assets/SO/Weapons/KnightWeapon/KnightSnS_Stat.asset (MeleeWeaponStats): <SkillWeapon>k__BackingField
 Assets/SO/Weapons/KnightWeapon/KnightSnS_State1.asset (AttackSO): ability
+# 2026-11-17 (run 20261117-1620): orphan keys rangeView / angleView / idleDurationTime / moveDurationTime in the enemy role EntityData assets.
+# EntityData computes them from stats x multiplier since a0e250fb; the multiplier keys in the same assets reproduce the old values. Dead keys, no data loss.
+Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Assasin/AssasinEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Boss/BossEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Brute/BruteEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Elite/EliteEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/FastSwarm/FastSwarmEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/RangedCaster/RangedCasterEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Scatter/ScatterEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Sniper/SniperEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/Tank/TankEntityData.asset (EntityData): rangeView
+Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): angleView
+Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): idleDurationTime
+Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): moveDurationTime
+Assets/SO/Enemy/Role/TrashMelee/TrashMeleeEntityData.asset (EntityData): rangeView
+# 2026-11-21 (run 20261121-2050): QA-STATIC-12 - Archer / Mage ability slots stay empty in this phase (owner OQ-10, NOTE-20261113-8, NOTE-20261120-2 triaged Not a bug); the rest are info lines (no icons, summaries).
+Archer.Primary (Assets/SO/Skill/Archer/Ability/Hawk Eye/Hawk Eye.asset): no effect (the cast does nothing)
+Archer.Secondary (Assets/SO/Skill/Archer/Ability/Kick-back Trap/Kick-back Trap.asset): no effect (the cast does nothing)
+Archer.Utility (Assets/SO/Skill/Archer/Ability/Volley/Volley.asset): no effect (the cast does nothing)
+Mage.Primary (Assets/SO/Skill/Mage/Ability/Fireball/Fireball.asset): no effect (the cast does nothing)
+Mage.Secondary (Assets/SO/Skill/Mage/Ability/Chain Lightning/Chain Lightning.asset): no effect (the cast does nothing)
+Mage.Utility (Assets/SO/Skill/Mage/Ability/Frost Nova/Frost Nova.asset): no effect (the cast does nothing)
+Mage.Ultimate (Assets/SO/Skill/Mage/Ability/Meteor/Meteor.asset): no effect (the cast does nothing)
+Archer.Primary (Assets/SO/Skill/Archer/Ability/Hawk Eye/Hawk Eye.asset): no Icon (hotbar shows no picture)
+Archer.Primary (Assets/SO/Skill/Archer/Ability/Hawk Eye/Hawk Eye.asset): Hawk Eye, Active, cooldown 1s, costs , 0 effect(s)
+Archer.Secondary (Assets/SO/Skill/Archer/Ability/Kick-back Trap/Kick-back Trap.asset): no Icon (hotbar shows no picture)
+Archer.Secondary (Assets/SO/Skill/Archer/Ability/Kick-back Trap/Kick-back Trap.asset): Kick-back Trap, Active, cooldown 1s, costs , 0 effect(s)
+Archer.Utility (Assets/SO/Skill/Archer/Ability/Volley/Volley.asset): no Icon (hotbar shows no picture)
+Archer.Utility (Assets/SO/Skill/Archer/Ability/Volley/Volley.asset): Volley, Active, cooldown 1s, costs , 0 effect(s)
+Archer.Ultimate (Assets/SO/Skill/Archer/Ability/Rain Arrow/Rain Arrows.asset): no Icon (hotbar shows no picture)
+Archer.Ultimate (Assets/SO/Skill/Archer/Ability/Rain Arrow/Rain Arrows.asset): Rain Arrows, Active, cooldown 1s, costs 15 Mana, 1 effect(s)
+Mage.Primary (Assets/SO/Skill/Mage/Ability/Fireball/Fireball.asset): no Icon (hotbar shows no picture)
+Mage.Primary (Assets/SO/Skill/Mage/Ability/Fireball/Fireball.asset): Fireball, Active, cooldown 1s, costs , 0 effect(s)
+Mage.Secondary (Assets/SO/Skill/Mage/Ability/Chain Lightning/Chain Lightning.asset): no Icon (hotbar shows no picture)
+Mage.Secondary (Assets/SO/Skill/Mage/Ability/Chain Lightning/Chain Lightning.asset): Chain Lightning, Active, cooldown 1s, costs , 0 effect(s)
+Mage.Utility (Assets/SO/Skill/Mage/Ability/Frost Nova/Frost Nova.asset): no Icon (hotbar shows no picture)
+Mage.Utility (Assets/SO/Skill/Mage/Ability/Frost Nova/Frost Nova.asset): Frost Nova, Active, cooldown 1s, costs , 0 effect(s)
+Mage.Ultimate (Assets/SO/Skill/Mage/Ability/Meteor/Meteor.asset): no Icon (hotbar shows no picture)
+Mage.Ultimate (Assets/SO/Skill/Mage/Ability/Meteor/Meteor.asset): Meteor, Active, cooldown 1s, costs , 0 effect(s)
+Paladin.Primary (Assets/SO/Skill/Paladin/Ability/Blessed Slash/Paladin Blessed Slash Ability.asset): Hold ability with MaxHoldTime 0
+Paladin.Primary (Assets/SO/Skill/Paladin/Ability/Blessed Slash/Paladin Blessed Slash Ability.asset): no Icon (hotbar shows no picture)
+Paladin.Primary (Assets/SO/Skill/Paladin/Ability/Blessed Slash/Paladin Blessed Slash Ability.asset): Paladin Blessed Slash Ability, Hold, cooldown 1s, costs 5 Mana, 1 effect(s)
+Paladin.Secondary (Assets/SO/Skill/Paladin/Ability/Consecrate/Consecrate.asset): no Icon (hotbar shows no picture)
+Paladin.Secondary (Assets/SO/Skill/Paladin/Ability/Consecrate/Consecrate.asset): Consecrate, Active, cooldown 1s, costs 15 Mana, 1 effect(s)
+Paladin.Utility (Assets/SO/Skill/Paladin/Ability/Blessing/Blessing.asset): no Icon (hotbar shows no picture)
+Paladin.Utility (Assets/SO/Skill/Paladin/Ability/Blessing/Blessing.asset): Blessing, Active, cooldown 1s, costs 10 Mana, 2 effect(s)
+Paladin.Ultimate (Assets/SO/Skill/Paladin/Ability/Avatar of Light/Avatar of Light.asset): no Icon (hotbar shows no picture)
+Paladin.Ultimate (Assets/SO/Skill/Paladin/Ability/Avatar of Light/Avatar of Light.asset): Avatar of Light, Active, cooldown 1s, costs 40 HP + 50 Mana, 2 effect(s)
+# 2026-11-21: QA-STATIC-09 info lines (items in no drop table, effect summaries). Test.asset lines stay mapped to BUG-132.
+Assets/SO/Item/PlatiumOre 0.asset: in no drop table (not judged)
+Assets/SO/Item/PlatiumOre 1.asset: in no drop table (not judged)
+Assets/SO/Item/PlatiumOre 2.asset: in no drop table (not judged)
+Assets/SO/Item/PlatiumOre 3.asset: in no drop table (not judged)
+Assets/SO/Item/PlatiumOre 4.asset: in no drop table (not judged)
+Assets/SO/Item/PlatiumOre 5.asset: in no drop table (not judged)
+Assets/SO/Item/Effect/Coin Effect.asset: +10 coin
+Assets/SO/Item/Effect/New Recovery Effect Definition.asset: HP +10
+Assets/SO/Item/Effect/New Stat Modifier Effect Definition - Copy.asset: STR +5
+Assets/SO/Item/Effect/New Stat Modifier Effect Definition.asset: STR +3
+Assets/SO/Item/Effect/New Stat Modifier Effect Definition.asset: INT +1
+# 2026-11-21: QA-STATIC-13 info line. Archer / Mage lines stay mapped to BUG-122.
+Paladin: 8 death clip(s) send AnimationOnAction

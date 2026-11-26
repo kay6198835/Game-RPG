@@ -11,7 +11,8 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 {
     protected Dictionary<VitalStatType, float> currentStats = new();
     protected IStatService<TCore> statHandler;
-    public event Action CurrentStatsChanged;
+    protected ICharacterInput input;
+    public event Action<VitalStatType> CurrentStatsChanged;
 
     protected override void Start()
     {
@@ -22,8 +23,10 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         base.Setup();
         Core.TryGetCapability(out statHandler);
+        Core.TryGetCapability(out input);
         statHandler?.ResignStatsChange(OnMaxStatChanged);
         LoadVitalStats();
+        CurrentStatsChanged += CheckDeath;
     }
 
     protected virtual void OnDestroy()
@@ -35,12 +38,11 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
     {
         base.ReloadComponent();
         LoadVitalStats();
-        UpdateStatField();
     }
 
-    protected virtual void UpdateStatField()
+    protected virtual void UpdateStatField(VitalStatType vitalStatType)
     {
-        CurrentStatsChanged?.Invoke();
+        CurrentStatsChanged?.Invoke(vitalStatType);
     }
 
     // Seeds only the vital stats backed by a StatType (HP, Mana); Coin has no StatType.
@@ -52,6 +54,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
             StatType statType = (StatType)(int)vitalStatType;
             if (!Enum.IsDefined(typeof(StatType), statType)) continue;
             currentStats[vitalStatType] = statHandler.GetStatValue(statType);
+            UpdateStatField(vitalStatType);
         }
     }
 
@@ -62,7 +65,7 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
         if (!currentStats.TryGetValue(vitalStatType, out float current)) return;
         float max = statHandler.GetStatValue(statType);
         if (current > max) currentStats[vitalStatType] = max;
-        UpdateStatField();
+        UpdateStatField(vitalStatType);
     }
 
     public float GetCurrentStatValue(VitalStatType vitalStatType)
@@ -76,29 +79,37 @@ public abstract class VitalStatsBase<TCore> : CoreComponentBase<TCore>, IVitalCo
 
     public void Recovery(VitalStatType vitalStatType, float amount)
     {
-        StatType statType = (StatType)vitalStatType;
-        if (!Enum.IsDefined(typeof(StatType), statType)) return;
-        if (currentStats[vitalStatType] < statHandler.GetStatValue(statType))
+        if (currentStats.TryGetValue(vitalStatType, out float current))
         {
-            currentStats[vitalStatType] += amount;
+            current += amount;
+            StatType statType = (StatType)vitalStatType;
+            if (!Enum.IsDefined(typeof(StatType), statType))
+            {
+                currentStats[vitalStatType] = current;
+            }
+            else
+            {
+                currentStats[vitalStatType] = Mathf.Min(current, statHandler.GetStatValue(statType));
+            }
+            UpdateStatField(vitalStatType);
         }
-        else
-        {
-            currentStats[vitalStatType] = statHandler.GetStatValue(statType);
-        }
-        UpdateStatField();
     }
 
     public void Reduction(VitalStatType vitalStatType, float amount)
     {
-        if (currentStats[vitalStatType] - amount <= 0)
+        if (currentStats.TryGetValue(vitalStatType, out float current))
         {
-            currentStats[vitalStatType] = 0;
+            current -= amount;
+            currentStats[vitalStatType] = Mathf.Max(current, 0);
+            UpdateStatField(vitalStatType);
         }
-        else
+    }
+
+    protected void CheckDeath(VitalStatType vitalStatType)
+    {
+        if (vitalStatType == VitalStatType.HP && GetCurrentStatValue(VitalStatType.HP) <= 0)
         {
-            currentStats[vitalStatType] -= amount;
+            input?.OnDeath(input.AimPoint);
         }
-        UpdateStatField();
     }
 }

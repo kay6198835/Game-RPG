@@ -4,13 +4,15 @@ using UnityEngine;
 using VContainer;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class ProjectileBody : MonoBehaviour
 {
-    private Rigidbody2D _rb;
-    private IObjectPoolService _pool;
-    private ProjectileConfig _config;
-    private IProjectilePayload _payload;
-    private float _lifetime;
+    protected Rigidbody2D _rb;
+    protected Collider2D _collider;
+    protected IObjectPoolService _pool;
+    protected ProjectileConfig _config;
+    protected IProjectilePayload _payload;
+    protected float _lifetime;
 
     [Inject]
     public void Construct(IObjectPoolService pool)
@@ -22,7 +24,8 @@ public class ProjectileBody : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _rb.gravityScale = 0f;
-        if (TryGetComponent(out Collider2D col)) col.isTrigger = true;
+        _collider = GetComponent<Collider2D>();
+        _collider.isTrigger = true;
     }
 
     /// <summary>
@@ -44,7 +47,7 @@ public class ProjectileBody : MonoBehaviour
     protected virtual IEnumerator DespawnOneselfAffterDuration()
     {
         yield return new WaitForSeconds(_lifetime);
-        _pool.Release(gameObject);
+        _pool.Despawn(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -52,7 +55,7 @@ public class ProjectileBody : MonoBehaviour
         int layer = other.gameObject.layer;
         if (IsInMask(_config.blockMask, layer))
         {
-            Release();
+            Despawn();
             return;
         }
         if (!IsInMask(_config.targetMask, layer)) return;
@@ -60,7 +63,7 @@ public class ProjectileBody : MonoBehaviour
 
         _payload?.OnHit(other, transform.Position2D());
 
-        Release();
+        Despawn();
     }
 
     // A pooled instance must never carry the previous shot's payload into its next life.
@@ -70,7 +73,7 @@ public class ProjectileBody : MonoBehaviour
         if (_rb != null) _rb.velocity = Vector2.zero;
     }
 
-    private void Release()
+    private void Despawn()
     {
         _rb.velocity = Vector2.zero;
         _payload = null;
@@ -81,7 +84,7 @@ public class ProjectileBody : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        _pool.Release(gameObject);
+        _pool.Despawn(gameObject);
     }
 
     private static bool IsInMask(LayerMask mask, int layer) => (mask.value & (1 << layer)) != 0;

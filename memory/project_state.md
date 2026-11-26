@@ -1,10 +1,28 @@
 # Project State
 
-Updated **2026-11-15** (doc-truth pass `/doc-sync --auto` at `origin/sprint-22` `063b5f87`, after the
-2026-11-15 wrap-up). Bug statuses follow the 2026-11-15 triage in `production/qa/bugs/BUG-*.md`, the
-source of truth. Claim sweep: `production/qa/doc-truth-2026-11-15.md`.
-Previous update: **2026-11-14** (`a8725a77`). This pass added the "2026-11-14 → 2026-11-15" section;
+Updated **2026-11-22** (doc-truth pass `/doc-sync --auto` at `origin/sprint-23` `1e5afb3c`, after the
+2026-11-21 wrap-up). Bug statuses follow the 2026-11-21 triage in `production/qa/bugs/BUG-*.md`, the
+source of truth; live list `production/qa/open-bugs.md`. Claim sweep: `production/qa/doc-truth-2026-11-22.md`.
+Previous update: **2026-11-15** (`063b5f87`). This pass added the "2026-11-15 → 2026-11-22" section;
 the sections below it are the earlier snapshots plus their deltas.
+
+## Delta 2026-11-15 → 2026-11-22
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R53 | `PlayerDashState` (10 player states); dash toggles the hurtbox | `91c42d79`, `67c188b3`, `1e5afb3c` | BUG-130 (S2 dash soft lock) |
+| R54 | Map / spawn restructure: `EnemyManager` and Grid under Room, `LevelManager` by reference, start / end rooms by `RoomType` | `5e4ddb06` … `a48ed6c7` | map README re-verified 2026-11-18 |
+| R55 | Ranged basic attack scales with `PhysicalDamage`; ShootSpirit removal | `073f2421`, `3a2659ce`, `1d05475a` | NOTE-20261104-4 owner decision |
+| R56 | Death event on `PlayerDeathState.AnimationOnAction()`; `OnDeath()` idempotent; boss exit → `UIEvents.RequestReturnToMainMenu()` | `49c58e35`, `abdbb332`, `06adc2a0` | BUG-122 PARTIAL, BUG-086 Open |
+| R57 | Enemy hit from out of view → `EntityInvestigateState` | `c613e641` | — |
+| R58 | Pathfinding nodes on tile centres, no corner cutting, `IsLineWalkable()` | `0e0dc874` | AStar tests updated |
+| R59 | Knockback on hit (`CharacterInputBase` → `IMovement.ApplyKnockback`) | `19540dff` | BUG-133 (direction) |
+| R60 | Player spawned through `IObjectPoolService`; `PlayerManager.Enable()` / `Disable()` unused | `be973605` | NOTE-20261122-1 |
+| R61 | `INegativeReceiver<TCore>` (`InvicisibleHurtbox`); `NegativeReceiverBase` no longer implements `INegativeReceiver` | `8005d27e` | **BUG-135 (S1): no hit damages anyone** |
+
+**Open bugs:** 37 (6 S1: BUG-087, 092, 096, 108, 122, 135). **Demo priority:** BUG-135 → BUG-122 / 086 /
+087 (death → Game Over) → BUG-130 → BUG-096 → BUG-126 (Player build). **EventID:** 25 values, unchanged.
+**Build:** COMPILED `a34c8404` (2026-11-20 standup); Player build not run.
 
 ## Delta 2026-11-14 → 2026-11-15
 

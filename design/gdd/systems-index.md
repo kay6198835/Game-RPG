@@ -27,7 +27,7 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 7 | Dungeon Generation | Map | Core | MVP | In Progress | design/gdd/map-system.md |
 | 8 | Melee Combat | Gameplay | Feature | MVP | Designed | design/gdd/weapons-system.md |
 | 9 | Weapon System | Gameplay | Feature | MVP | Designed | design/gdd/weapons-system.md |
-| 10 | Skill & Ability System | Gameplay | Feature | MVP | Designed | design/gdd/skill-ability-system.md |
+| 10 | Skill & Ability System (Abilities v1) | Gameplay | Feature | MVP | **Superseded (2026-11-13)** — v1 deleted from code 2026-11-04 (`6094aa10`); see row 25 | design/gdd/skill-ability-system.md *(historical record only)* |
 | 11 | Room Progression | Map | Feature | MVP | In Progress | design/gdd/map-system.md |
 | 12 | Death & Restart | Meta | Feature | MVP | Not Started | — |
 | 13 | HUD | UI | Presentation | MVP | Partially built, undesigned | *(none — `UI/StatsUIController.cs`, `UI/UIController.cs`; `UIManager` still an empty stub)* |
@@ -39,10 +39,10 @@ Re-run `/map-systems` to add new systems or revise priorities.
 | 19 | Stat System | Foundation | Foundation | MVP | Designed | design/gdd/stat-system.md |
 | 20 | Enemy Spawn & Per-Room Management | Gameplay/Map | Feature | MVP | Approved | design/gdd/enemy-spawn-system.md |
 | 21 | Attack Speed | Gameplay | Feature | MVP | Designed | design/gdd/attack-speed-system.md |
-| 22 | Pathfinding (A*) | Gameplay | Core | MVP | **Implemented, undesigned** | *(none — `Assets/Script/System/Pathfinding/`, BUG-052)* |
+| 22 | Pathfinding (A*) | Gameplay | Core | MVP | **Reverse-documented (2026-11-13), awaiting owner review** | design/gdd/pathfinding-system.md · ADR-0006 (Proposed) |
 | 23 | Character Core / Hub Layer | Foundation | Foundation | MVP | **Implemented, undesigned** | *(none — `Assets/Script/Character/Base/`, BUG-052)* |
 | 24 | **Dependency Injection / Composition Root** | Foundation | Foundation | MVP | **Implemented, ADR only** | *(no GDD — `Assets/Script/System/LifetimeScope/`; **ADR-0004**)* |
-| 25 | **Abilities v2 (composition-based)** | Gameplay | Feature | MVP | **Implemented, undesigned** | *(no GDD — `Assets/Script/System/Abilities/`; `skill-ability-system.md` covers v1 only)* |
+| 25 | **Abilities v2 (composition-based)** | Gameplay | Feature | MVP | **Reverse-documented (2026-11-13), reviewed by the owner 2026-11-13** — 3 parked questions; 8 decisions not in code yet | design/gdd/abilities-v2-system.md *(no ADR — `Assets/Script/System/Abilities/`)* |
 | 26 | **Item / Depot / Drop Tables** | Progression | Feature | MVP | **Reverse-documented** (2026-10-20) | design/gdd/item-system.md *(no ADR — `Assets/Script/System/Item/`)* |
 
 > **Three systems added 2026-09-11.** All three shipped between 2026-08-22 and 2026-09-09 without

@@ -6,6 +6,10 @@ public class MapModel : EntityModel
 {
     public List<RoomModel> fullRoomList = new List<RoomModel>();
 
+    // The one boss every BossRoom of this map spawns, with its own EntityData.
+    [SerializeField] private EnemyModal enemyModalBoss;
+    public EnemyModal EnemyModalBoss => enemyModalBoss;
+
     private List<RoomModel> _pool = new List<RoomModel>();
 
     public RoomModel GetRandomRoom()

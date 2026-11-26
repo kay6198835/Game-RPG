@@ -2,6 +2,15 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-16 — Ranged basic attacks use finalDamage (owner damage-model decision)
+- **Commit:** `3a2659ce` (owner, on `origin/feature/fix-bug-sprint-23`), after `073f2421`.
+- **Changed:** README Ranged block, Damage formula paragraph, Open issues row.
+- **From → To:**
+  - `RangeWeapon.OnHit()` → `TakeDamage(currentStage.attackDamage)` (stage value only, no stats, no crit) → `TakeDamage(finalDamage)`, where `OnActivate(finalDamage)` stores the value from `WeaponHolderBase.CalculateCurrentDamage()` in a field.
+  - Damage model: undecided (inbox NOTE-20261104-4, carried three triages) → basic attacks (melee and ranged) scale with `PhysicalDamage`; `MagicDamage` is only for skills that use the magic stat.
+- **Why:** owner decision 2026-11-16.
+- **Bugs:** none (NOTE-20261104-4). Residual: a shot in flight takes the latest volley's damage.
+
 ## 2026-11-15 — Open issues follow the bug files (doc-truth re-sync)
 - **Commit:** none to code; `Weapon.FinalDamage()` came with `38d40925` (2026-11-08, on `sprint-22`); triage `b5e3238b`.
 - **Changed:** README Open issues and Last verified line.

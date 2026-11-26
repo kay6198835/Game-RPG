@@ -9,6 +9,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
     private IObjectPoolService _objectPoolService;
 
     private float nextFireTime;
+    private float finalDamage;
 
     private RangeWeaponStats StatsRange => stats as RangeWeaponStats;
     private RangeAttackSO CurrentRangeStage => currentStage as RangeAttackSO;
@@ -63,7 +64,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
             if (go != null && go.TryGetComponent(out ProjectileBody body))
                 body.Launch(rotation * Vector3.right, config, this);
         }
-
+        this.finalDamage = finalDamage;
         nextFireTime = Time.time + stage.RecoveryTime;
     }
 
@@ -72,7 +73,7 @@ public class RangeWeapon : Weapon, IProjectilePayload
     public void OnHit(Collider2D target, Vector2 hitPos)
     {
         if (target.TryGetComponent(out INegativeReceiver receiver))
-            receiver.TakeDamage(currentStage.attackDamage, hitPos);
+            receiver.TakeDamage(finalDamage, hitPos);
     }
 
     private void OnDrawGizmosSelected()

@@ -8,7 +8,7 @@ using System;
 public interface IVitalComponent
 {
     /// <summary>Raised after any current value changes (damage, heal, cost, buff, Reborn).</summary>
-    event Action CurrentStatsChanged;
+    event Action<VitalStatType> CurrentStatsChanged;
     float GetCurrentStatValue(VitalStatType vitalStatType);
     void Recovery(VitalStatType vitalStatType, float amount);
     void Reduction(VitalStatType vitalStatType, float amount);

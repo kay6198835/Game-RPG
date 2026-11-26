@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(ProjectileBody))]
-public class SpawnProjectileBase : SpawnMono, IProjectilePayload
+public class SpawnProjectileBase : SpawnEffectMono, IProjectilePayload
 {
     [Range(1, 30)]
     [SerializeField] protected float speed;

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class SpawnEffectBase : AbilityEffectDefinition
 {
-    public SpawnMono Prefab;
+    public SpawnEffectMono Prefab;
     public float SpawnOffset = 0.8f;
     public float Lifetime = 8f;
     protected AbilityContext _context;
@@ -10,7 +10,7 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
     {
         if (Prefab == null || context?.Caster == null)
         {
-            Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab chưa được assign.");
+            Debug.LogWarning($"[{GetType().Name}] {name}: Prefab is not assigned or the caster is missing.");
             return;
         }
         _context = context;
@@ -22,11 +22,11 @@ public abstract class SpawnEffectBase : AbilityEffectDefinition
         float angle = Angle();
         Vector2 spawnPos = SpawnPos();
         var obj = _context.Services.Pool.Spawn(Prefab.gameObject, spawnPos, Quaternion.Euler(0f, 0f, angle));
-        var orb = obj.GetComponent<SpawnMono>();
+        var orb = obj.GetComponent<SpawnEffectMono>();
         if (orb != null)
             orb.Launch(Lifetime, _context, Execute);
         else
-            Debug.LogWarning("[ShootSpiritOrbEffect] OrbPrefab thiếu component SpiritOrbProjectile.");
+            Debug.LogWarning($"[{GetType().Name}] {name}: Prefab has no SpawnMono component.");
     }
 
     /// <summary>

@@ -2,6 +2,81 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-18 — README refreshed
+- **Commit:** this change on `sprint-23` (owner request); docs only.
+- **Changed:** `README.md` — code table (`LevelManager` runtime only, `LevelEditorTool`), room table with content and door-open rule per room, `BuildMazeRooms()` selection, scene hierarchy, flow (`SpawnBoss` / `SpawnRoom` instead of `ON_GET_SPAWN_POSITIONS`, no `LevelManager` injection), open issues (BUG-097 / BUG-096 fixed or addressed in code and data, statuses left to triage).
+
+## 2026-11-18 — Architecture doc refreshed
+- **Commit:** this change on `sprint-23` (owner request); docs only.
+- **Changed:** `room-generation-architecture.md` rewritten against `3015e9cf`: component diagram (library / `LevelManager` / `EnemyManager` wiring), `RoomGeneraterController` field table, `BuildMazeRooms()` selection rules, room data by layer, scene hierarchy, weaknesses (BUG-097 fixed in code + data, BUG-096 looks addressed — statuses left to triage; stale line numbers replaced by method names).
+
+## 2026-11-18 — Champion / Bonfire moved from the boss room to the start room
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `Assets/Data/Json/Room/BossRoom_ThroneArena.json`, `StartRoom_Entrance.json`.
+- **From → To:** the 4 entries on layers 3 / 4 (`Tile_Spawn_Champion_Monument_{Archer,Mage,Paladin}` at (-7,6) / (0,6) / (6,6), `Tile_Spawn_Bonfire` at (0,2)) moved, same positions and layers, from the boss room to the start room; all four positions are floor in the start room. Layers 0 / 1 (walls, doors, floor) untouched in both files.
+- **Why:** with start / end chosen by `roomType`, the start room needs the Champion (doors open through it).
+- **Follow-up (same day):** `BossRoom_ThroneArena.json` gained one `Tile_Spawn_Enemy` at (0, 2), layer 3 (the layer every combat-room marker uses), so `SpawnBoss` has a position.
+
+## 2026-11-18 — RoomGeneraterController cleanup
+- **Commit:** this change on `sprint-23` (owner-approved list; no behaviour change).
+- **Changed:** `RoomGeneraterController.cs`, `LevelManager.cs`, `LoadRandomMap.unity`.
+- **From → To:**
+  - Removed: dead `OnDoneLoadRoomGrid()` (no caller; `RoomGridController` has its own), fields `_startIndex` / `_endIndex` (now parameters of `BuildMazeRooms()`), the `_levelManager.SetDungeonRoomSO()` hand-over and `LevelManager.SetDungeonRoomSO()` / `GetDungeonRoomSO()` / `dungeonRoomSO` (written, never read), `using Unity.VisualScripting`.
+  - `_listTiles`, `_genmap`, `_swapLevelData`: `[SerializeField]` → private (overwritten from `LevelManager` / a non-serializable `Dictionary`). `IndexLevelDataDoor`, `Data`, `DoorPoints`: public auto-properties with an ineffective `[SerializeField]` → private fields (no outside reader). `spawnPositions` keeps `[SerializeField]` for debugging (owner).
+  - `LoadRoom()`: `filePath` assigned once; `worldPose = IsCleared ? A : A` → `A` (both branches were identical; both data sources hold room-local positions).
+  - Scene: stale keys `_listTiles`, `_genmap`, `_swapLevelData`, `_startIndex`, `_endIndex`, `randomMazeRoomsIndex` removed.
+- **Why:** owner request — remove redundant fields.
+
+## 2026-11-18 — Start / end rooms by RoomType; required room groups
+- **Commit:** this change on `sprint-23` (owner request; bug status left to the Saturday triage).
+- **Changed:** `RoomGeneraterController.cs` (`BuildMazeRooms()`, `PickRequiredRooms()`, `Shuffle()`, `RequiredRoomGroup`, `[SerializeField] _requiredRoomGroups`; `randomMazeRoomsIndex` removed).
+- **From → To:**
+  - Start / end: `room[_startIndex] = library[0]`, `room[_endIndex] = library[last]` (list position) → a `StartRoom` / a `BossRoom` by `roomType` (random one if several). Re-ordering, adding or deleting rooms no longer moves them.
+  - Middle cells: `Utility.PickUniqueIndex` over positions `1..total-2`, then two picks overwritten → distinct rooms of every type except Start / Boss, at least one per `_requiredRoomGroups` entry (default: `Shop`; `Treasure` / `Rest` / `Puzzle` / `Secret`), shuffled again so required rooms land on random cells.
+  - Library missing a StartRoom / BossRoom or with fewer than `cells − 2` other rooms → `LogError`, `Setting()` stops (was an index error past 18 cells). A required group with no room, or more groups than free cells → warning, group skipped.
+- **Data follow-up (owner):** `StartRoom_Entrance.json` is empty while the Champion / Bonfire sit in `BossRoom_ThroneArena.json`, and the boss room has no `Tile_Spawn_Enemy` — until the JSON is fixed the start room has no Champion and the boss room spawns nothing.
+- **Why:** owner decision — BUG-097 / Bug #16; every run must offer a shop and a support room.
+- **Bugs:** BUG-097, Bug #16 (status for triage).
+
+## 2026-11-18 — Per-run room list is runtime only; Maze_Load_Room deleted
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `RoomGeneraterController.cs`, `LoadRandomMap.unity`; deleted `Assets/SO/Dungeon/Maze_Load_Room.asset` (+ `.meta`).
+- **From → To:** `[SerializeField] DungeonRoomSO _dungeonRoomSO` (= `Maze_Load_Room.asset`, filled in `Setting()`, cleared in `OnDisable()`) → `private List<RoomFile> _mazeRooms` (not serialized; `Clear()` at the start of `Setting()`; `OnDisable()` removed). `LoadRoom()` reads `_mazeRooms[index]`.
+- **Why:** owner decision — the per-run list needs no asset. The asset was written by Play Mode and was committed with run data once (`fb8371bc`); leftover entries would shift cell indices.
+- **Bugs:** none; BUG-097 (start/end by list position) unchanged.
+
+## 2026-11-18 — LevelEditorTool reduced to room CRUD
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `LevelEditorTool.cs`, `Editor/LevelEditorToolEditor.cs`, `Level Manager.prefab`.
+- **From → To:**
+  - Fields: own tile list + `tilemap` + `genmap` + `roomModel` / `spawnRadius` → `_levelManager` (tiles and tilemaps via `GetTileSOs()` / `GetTilemaps()`, `GetComponentInParent` fallback) + its own `dungeonRoomSO`, `roomType`, `customRoomName`, `index`.
+  - Buttons: Save / Load / Edit / Import / Clear Enemy / Spawn Enemy → Save (Create) / Load (Read) / Edit (Update) / **Delete** (new) / Import. Clear Enemy and Spawn Enemy removed.
+  - Save on an existing name or file: silent overwrite → confirm dialog (an existing SO entry is updated, not duplicated).
+  - Delete removes `room[index]` from the SO and deletes the JSON (`AssetDatabase.DeleteAsset`) after a confirm dialog; warns when the room is first/last (start/end by list position, BUG-097).
+  - Guards for a missing LevelManager / SO, out-of-range `index`, and tiles missing from the tile list (were NullReference).
+- **Why:** owner decision — the tool only supports map CRUD.
+
+## 2026-11-18 — Grid under Room; LevelManager split from the editor tool, out of DI
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `LevelManager.cs`, new `LevelEditorTool.cs`, `Editor/LevelManagerEditor.cs` → `Editor/LevelEditorToolEditor.cs`, `RoomGeneraterController.cs`, `GameLifetimeScope.cs`, `Level Manager.prefab`, `LoadRandomMap.unity`.
+- **From → To:**
+  - Scene: root `Grid` (with the `Level Manager` prefab and its tilemaps) → `Maze/MainMap/Room/Grid`.
+  - `LevelManager` injected by VContainer (`Construct(IPlayerService, LevelManager)`) → `[SerializeField] RoomGeneraterController._levelManager` (child; `GetComponentInChildren` fallback); `RegisterComponentInHierarchy<LevelManager>()` removed.
+  - Room library: `LevelManager.dungeonRoomSO` (serialized) → `RoomGeneraterController._fullDungeonRoomSO` (Maze_Storage), handed over with `LevelManager.SetDungeonRoomSO()` in `Setting()`.
+  - Save / Load / Edit / Import / test spawn moved from `LevelManager` to `LevelEditorTool` on the new EditorOnly child `Level Editor Tool` of the prefab (own `dungeonRoomSO`, tilemaps, tile list). `LevelManager` keeps only runtime data; its `Awake()` (`GetRandomRooms`), `listRooms`, `amount` and the legacy `LoadRoom()` were deleted (no caller).
+- **Why:** owner decision — authoring must not affect the in-game map flow, and the room owns its level data.
+- **Bugs:** none closed; Bug #15 (Editor-only JSON loading) unchanged.
+
+## 2026-11-18 — Room calls EnemyManager directly; boss rooms
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `RoomGeneraterController.cs`, `LoadRandomMap.unity`, `room-generation-architecture.md`.
+- **From → To:**
+  - `EnemyManager.Instance.SetPathfindingGrid()` → `[SerializeField] _enemyManager.SetPathfindingGrid()` (child object of `Room`, `GetComponentInChildren` fallback).
+  - `LoadRoom()` uncleared, non-auto-open room: `Emit(ON_GET_SPAWN_POSITIONS)` → `_enemyManager.SpawnBoss()` for `RoomType.BossRoom`, `_enemyManager.SpawnRoom()` otherwise.
+  - `ON_GET_SPAWN_POSITIONS` now has no emitter and no subscriber (kept in the enum).
+- **Why:** owner decision to make the room the owner of its enemy manager.
+- **Bugs:** relates to BUG-097 (start/end still chosen by list position).
+
 ## 2026-11-05 — Auto-open rooms and ON_ROOM_CLEARED committed (doc-truth re-sync)
 - **Commit:** `6094aa10` "fix bug, add asset room, enemy, data" (2026-11-04), merged into `sprint-21` by `ea00b3a4`. This is the commit the 2026-11-04 entry below calls "none yet".
 - **Changed:** `RoomGeneraterController.cs:138-141,216` — `AutoOpenRoomTypes` {ShopRoom, RestRoom, TreasureRoom} emit `ON_OPEN_DOOR` on load instead of `ON_GET_SPAWN_POSITIONS`; `RoomCell.cs:60-67` emits `ON_ROOM_CLEARED` before `ON_OPEN_DOOR`; `EnemySpawner` applies `EnemySpawnEntry.Data` through `Entity.SetCharacterData()` on every spawn.

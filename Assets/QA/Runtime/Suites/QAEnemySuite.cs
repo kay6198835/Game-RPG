@@ -48,7 +48,8 @@ namespace QA.Automation
         {
             DisposeInput();
             SetItemSpawner(false);
-            if (_enemy != null && pool != null) pool.Release(_enemy);
+            DestroyCreatedItems();
+            if (_enemy != null && pool != null) pool.Despawn(_enemy);
         }
 
         public override IEnumerator Run()
@@ -66,17 +67,27 @@ namespace QA.Automation
             yield return Case("QA-ENT-07", "ENT", QAPriority.P1, "Spawned enemy reads move speed and attack range from its stats", Guard(CaseStatDriven()));
 
             // Behaviour: the enemy is free to move and the player is parked out of sight (QAEnemySuite.Behaviour.cs).
-            yield return Case("QA-ENT-09", "ENT", QAPriority.P0, "Idle: a spawned enemy with no target stands still, then leaves for Move", CaseIdle());
+            yield return Case("QA-ENT-09", "ENT", QAPriority.P0, "Idle: an enemy with no target reaches Idle, stands still, then leaves for Move", CaseIdle());
             yield return Case("QA-ENT-10", "ENT", QAPriority.P0, "Move: with no target the enemy wanders at its MoveSpeed", CaseWander());
             yield return Case("QA-ENT-11", "ENT", QAPriority.P0, "TakeDamage: a non-lethal hit enters the take-damage state and leaves it", CaseTakeDamageState());
             yield return Case("QA-ENT-12", "ENT", QAPriority.P0, "Death: a lethal hit enters the death state from Idle and from TakeDamage", CaseDeathState());
             yield return Case("QA-ENT-13", "ENT", QAPriority.P1, "Effect receiver: a max-stat buff applies, is removed by source and expires", CaseEffectMaxStats());
             yield return Case("QA-ENT-14", "ENT", QAPriority.P1, "Effect receiver: vital modifiers heal and damage current HP", CaseEffectCurrentStats());
+            yield return Case("QA-ENT-16", "ENT", QAPriority.P1, "Effect receiver: a permanent buff survives the expiry of a timed buff; two permanent buffs stack", CaseEffectSourcesIndependent());
 
             // Item drop and pickup: the game's ItemSpawner is switched on for these three only.
             yield return Case("QA-ITEM-02", "ITEM", QAPriority.P0, "Enemy death drops the rolled item at the death position", CaseItemDrop());
             yield return Case("QA-ITEM-03", "ITEM", QAPriority.P0, "Player picks up the dropped item with Q", CaseItemPickup());
             yield return Case("QA-ITEM-04", "ITEM", QAPriority.P1, "Q with no item in reach does nothing", CaseNoItemInReach());
+            // What a pickup gives (QAEnemySuite.Items.cs, added 2026-11-20).
+            yield return Case("QA-ITEM-05", "ITEM", QAPriority.P0, "Every item in the drop table gives exactly its authored effects", CaseItemEffectsExact());
+            yield return Case("QA-ITEM-06", "ITEM", QAPriority.P1, "A coin item adds exactly its coinAmount on every pickup and nothing else", CaseItemCoin());
+            yield return Case("QA-ITEM-07", "ITEM", QAPriority.P1, "An HP / Mana recovery item heals exactly its value, never above max", CaseItemRecovery());
+            yield return Case("QA-ITEM-08", "ITEM", QAPriority.P1, "Two pickups of the same stat item stack; each can be removed on its own", CaseItemStack());
+            yield return Case("QA-ITEM-09", "ITEM", QAPriority.P1, "Player: a permanent item buff survives the expiry of a timed buff on the same stat", CaseItemBuffSurvivesTimedBuff());
+            yield return Case("QA-ITEM-10", "ITEM", QAPriority.P2, "An item with an empty effect slot or no effect is still collected, no exception", CaseItemBrokenData());
+            yield return Case("QA-ITEM-11", "ITEM", QAPriority.P1, "A reused pooled drop shows and gives only the new item", CaseItemPoolReuse());
+            yield return Case("QA-ITEM-12", "ITEM", QAPriority.P1, "Two items in reach: each Q collects one new item, never the released one again", CaseItemTwoInReach());
             SetItemSpawner(false);
 
             // Last: these move the player next to the enemy and let the AI hit it.
@@ -210,7 +221,7 @@ namespace QA.Automation
                 yield break;
             }
             GameObject first = _enemy;
-            pool.Release(_enemy);
+            pool.Despawn(_enemy);
             yield return Frames(2);
             Check(!first.activeSelf, "released enemy inactive", "released enemy still active");
             yield return Spawn();
@@ -274,7 +285,7 @@ namespace QA.Automation
             if (!playerReady) yield break;
             _rig.Vital.ReloadComponent();
 
-            if (_enemy != null && _enemy.activeSelf) pool.Release(_enemy);
+            if (_enemy != null && _enemy.activeSelf) pool.Despawn(_enemy);
             yield return Frames(1);
             yield return Spawn(role);
             Entity entity = _enemy != null ? _enemy.GetComponent<Entity>() : null;
@@ -318,8 +329,18 @@ namespace QA.Automation
             float closestProjectile = float.MaxValue;
             Vector2 closestAt = Vector2.zero;
             float end = Time.time + AttackWindow;
+            // Since 3b02df7d an enemy spawns into EntityMoveState and wanders, so it no longer faces the default
+            // direction. Until it locks the player, hold the player in front of where it looks (view cone
+            // AngleView = INT x 1.5 is a few degrees for low-INT roles), then keep the player still.
+            EntityInput look = _enemy.GetComponentInChildren<EntityInput>(true);
+            Note($"view cone {finder.FieldOfView:0.#}°, detection range {finder.Range:0.##}");
             while (Time.time < end && !(attacks.Count >= 2 && hits.Count >= 1))
             {
+                if (!finder.HasTarget && look != null)
+                {
+                    Vector2 dir = look.DirectionLookVector;
+                    holdAt = (Vector2)_enemy.transform.position + (dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.left) * distance;
+                }
                 if (body != null)
                 {
                     body.position = holdAt;
@@ -431,7 +452,7 @@ namespace QA.Automation
             if (payload is GameObject go)
             {
                 _deaths.Add(go);
-                if (pool != null) pool.Release(go);
+                if (pool != null) pool.Despawn(go);
             }
             else _deaths.Add(null);
         }

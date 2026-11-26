@@ -2,6 +2,33 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-22 — Hit from out of view: turn, look, investigate (doc-truth re-sync)
+- **Commit:** `c613e641` "feat(enemy): react to a hit from out of view - turn, look, investigate" (2026-11-19, on `sprint-23`)
+- **Changed:** new `EntityInvestigateState`; `EntityTakeDamageState` looks toward the hit at clip end (`EntityFindTarget.CheckView()` → Seen / Blocked / OutOfView); `EntityInput.FaceHitDirection()`; `EntityMovement` fixed-point path + `PathFailed`; `EntityData.investigateMin/MaxMultiplier` (0.5 / 1.0); `EntityIdleState` resets its timer on Enter; `EnemyManager.IsLineWalkable()`.
+- **From → To:** README state list Idle / Move / Attack / TakeDamage / Death → adds Ability and Investigate, plus a "Hit from out of view" paragraph.
+- **Why:** owner-approved behaviour (commit body, session 2026-11-19).
+- **Bugs:** none filed; the commit says it was not compiled in its session (later standups compiled `sprint-23`).
+
+## 2026-11-18 — Death clips no longer loop
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** 80 enemy clips `Assets/Animation/Enemy/Role/*/Death/*_Die_dir N.anim` and the 8 Paladin clips `Assets/Animation/Player/Paladin/Basic/Die/` — `m_LoopTime: 1 → 0`.
+- **From → To:** death animation looped → plays once and holds the last frame. The single `AnimationOnAction` event sits before the clip end, so `EntityDeathState` still emits `ON_ENEMY_DEATH` once.
+- **Why:** owner request.
+- **Bugs:** BUG-122 unchanged — `PlayerDeathState` waits for `EndRangeTrigger`, which no player Die clip sends.
+
+## 2026-11-18 — EnemyManager under Room, direct spawn calls, MapModel boss
+- **Commit:** this change on `sprint-23` (owner request).
+- **Changed:** `EnemyManager.cs`, `EnemySpawner.cs`, `MapModel.cs`, `MapModel.asset`, `LoadRandomMap.unity`.
+- **From → To:**
+  - `GameLifetimeScope/SpawnEnemy` → `Maze/MainMap/Room/EnemyManager` (same three components: EnemyManager, PathRequestManager, EnemySpawner).
+  - `EnemySpawner.OnGetSpawnPositions` (event `ON_GET_SPAWN_POSITIONS`) → `EnemySpawner.SpawnRoom(positions)`, called through `EnemyManager.SpawnRoom()`.
+  - New `EnemySpawner.SpawnBoss(positions)` (through `EnemyManager.SpawnBoss()`): one `MapModel.EnemyModalBoss` at a random `Tile_Spawn_Enemy` marker with its `EntityData`, then `ON_DONE_SPAWN_ENEMY(1)`; no shuffle-bag draw.
+  - `RequestSpawnEnemy` gained `EntityData data` (null = prefab's own data); `SpawnExtraEnemy()` applies it and guards a bad payload.
+  - `MapModel.asset` `enemyModalBoss` = `EnemyPrefab` + `BossEntityData` (copied from `RoomModel_Boss.asset`).
+- **Why:** spawn and room control were disjointed (event bus + singleton); every map needs a guaranteed boss.
+- **Unchanged:** `EnemyManager.Instance` (entities, CombatTest, QA); death / release / room-clear events.
+- **Bugs:** relates to BUG-097 — the `BossRoom` entry lands on the start cell until placement is by `RoomType`.
+
 ## 2026-11-15 — Bug statuses after the 2026-11-15 triage (doc-truth re-sync)
 - **Commit:** none to code — triage `b5e3238b` (`production/qa/bug-triage-2026-11-15.md`) on `sprint-22`.
 - **Changed:** README only (respawn-anchor paragraph, Open issues).

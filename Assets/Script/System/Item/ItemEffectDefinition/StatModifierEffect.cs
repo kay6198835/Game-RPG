@@ -12,8 +12,11 @@ public abstract class StatModifierEffect : ItemEffectDefinitionSO
         target.Core.TryGetCapability(out effectReceiver);
     }
 
-    void OnValidate()
-    {
-
-    }
+}
+public enum TypeModifier
+{
+    Add,
+    Subtract,
+    Multiply,
+    Divide
 }

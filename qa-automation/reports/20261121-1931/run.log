@@ -1,0 +1,13 @@
+[19:31:42] QA weekly run 20261121-1931, project D:\Fork\Game-RPG
+[19:31:42] owner tree dirty (2 paths) on pm/wrapup-2026-11-20 -> commit 'coding need check'
+[19:31:47] auto-commit 9e5921c0 on pm/wrapup-2026-11-20 (local, not pushed)
+[19:31:54] sprint branch origin/sprint-23 at 76a60d2fda
+[19:31:57] merged origin/sprint-23 into qa/weekly-automation
+[19:32:02] change scan 2b3028a0ec..origin/sprint-23 -> deep P2 for: ABL,CMB,ENT,ITEM,MAP,PLY,POOL,STAT,STATIC,UI,VIT
+[19:32:02] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261121-1931\unity-compile.log"
+[19:36:12] unity -batchmode -nographics -projectPath "D:\Fork\Game-RPG" -runTests -testPlatform EditMode -testResults "D:\Fork\Game-RPG\qa-automation\reports\20261121-1931\unit-results.xml" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261121-1931\unity-unit.log"
+[19:43:13] unity EditMode tests exit 2
+[19:43:13] EditMode tests: 101 case(s)
+[19:43:13] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261121-1931" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261121-1931\unity-run.log" -qaDeep ABL,CMB,ENT,ITEM,MAP,PLY,POOL,STAT,STATIC,UI,VIT
+[20:05:57] unity test run exit 1
+[20:06:17] PASS 168 / FAIL 21 / KNOWN 4 / SKIP 1 / OBSERVED 1; new FAIL: 21

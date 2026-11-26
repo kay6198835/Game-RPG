@@ -17,9 +17,8 @@ public abstract class CharacterData : ScriptableObject
     // The authored, data-only stat profile. A character calculates from it through its own StatSheet.
     public BaseStatsSO Stats => stats;
     public List<AbilityBinding> AbilityBindings => abilityBindings;
-    // NEED CHECK: now shared by enemies too (was EntityData.aima). FormerlySerializedAs("aima") carries old
-    // EntityData assets over on load; keep it until every enemy asset has been re-saved. Confirm Knight.asset
-    // still shows its controller in the Inspector after recompile.
+    // Shared by enemies too (was EntityData.aima). No committed asset stores the old "aima" key since the
+    // Knight enemy assets were deleted (2026-11-16); FormerlySerializedAs("aima") can go at the next cleanup.
     [SerializeField, FormerlySerializedAs("aima")] public RuntimeAnimatorController animationController;
     [field: SerializeField] public Weapon Weapon { get; set; }
 

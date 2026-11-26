@@ -7,6 +7,20 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-13 — Abilities v2 row points at its new GDD; v1 row marked superseded
+- **Commit:** not committed (working tree on `sprint-22`, base `origin/sprint-22` `a8725a77`)
+- **Changed:** Systems Enumeration, rows 10 and 25
+- **From → To:** row 25 "Implemented, undesigned", no GDD → "Reverse-documented (2026-11-13), reviewed by the owner 2026-11-13 — 3 parked questions; 8 decisions not in code yet", `design/gdd/abilities-v2-system.md`. Row 10 "Designed" → "Superseded (2026-11-13)", file kept as the historical record of v1.
+- **Why:** the Abilities v2 GDD was written; v1 was deleted from code on 2026-11-04 (`6094aa10`). The dependency map, the Audit note, the "Ability framework decision" item and the GDD Progress counts below the table were **not** recalculated by this change.
+- **Bugs:** none.
+
+## 2026-11-13 — Pathfinding row points at its new GDD
+- **Commit:** this change (branch `docs/gdd-pathfinding`)
+- **Changed:** Systems Enumeration, row 22
+- **From → To:** "Implemented, undesigned", no GDD file → "Reverse-documented (2026-11-13), awaiting owner review", `design/gdd/pathfinding-system.md` + ADR-0006 (Proposed)
+- **Why:** the GDD and ADR were written. The Audit note and the GDD Progress counts below the table were **not** recalculated by this change.
+- **Bugs:** none.
+
 ## 2026-09-11 — docs: full documentation/code re-synchronisation against HEAD 6d6a8e4
 - **Commit:** `bbfb3028` (+29 / −11 lines)
 - **Sections touched:** “Systems Index”, “Systems Enumeration”, “Recommended Design Order”, “GDD Progress”, “Next Systems to Design”

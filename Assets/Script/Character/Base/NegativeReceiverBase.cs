@@ -4,11 +4,14 @@ using UnityEngine;
 /// Shared damage pipeline of a character's hurtbox. The flow is fixed here — mitigate, reduce HP,
 /// notify input, then a subclass hook — so both sides apply their rules in the same order.
 /// </summary>
-public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver where TCore : CoreBase
+
+[RequireComponent(typeof(BoxCollider2D))]
+public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, INegativeReceiver<TCore> where TCore : CoreBase
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService stats;
     protected ICharacterInput input;
+    protected BoxCollider2D hurtbox;
 
     protected override void Start()
     {
@@ -16,6 +19,7 @@ public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, IN
         Core.TryGetCapability(out vital);
         Core.TryGetCapability(out stats);
         Core.TryGetCapability(out input);
+        hurtbox = GetComponent<BoxCollider2D>();
     }
 
     public void TakeDamage(float amountDamage, Vector2 attackPosition)
@@ -30,14 +34,12 @@ public abstract class NegativeReceiverBase<TCore> : CoreComponentBase<TCore>, IN
         if (finalDamage <= 0) return;
         bool lethal = finalDamage >= currentHP;
         vital.Reduction(VitalStatType.HP, finalDamage);
-        if (lethal) input?.OnDeath(attackPosition);
-        else input?.OnTakeDamage(attackPosition);
+        if (lethal) return;
+        input?.OnTakeDamage(attackPosition);
         OnDamaged(finalDamage, attackPosition);
-        // NEED CHECK: 2026-11-05 — was OnLethalHit() calling StateMachine.ChangeState(DeathState) from this
-        // component. The states now read ICharacterInput.IsDeath and switch themselves.
 
     }
-
+    public virtual void InvicisibleHurtbox(bool isInvis) => hurtbox.enabled = !isInvis;
     /// <summary>Damage reduction before HP is touched. Default: none.</summary>
     protected virtual float Mitigate(float amountDamage) => amountDamage;
 

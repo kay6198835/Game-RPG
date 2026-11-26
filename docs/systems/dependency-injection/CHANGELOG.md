@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, ADR-0004 and `git log`.
 
+## 2026-11-22 — Player spawned through the object pool (doc-truth re-sync)
+- **Commit:** `be973605` "coding need check" (2026-11-21, on `sprint-23`)
+- **Changed:** `PlayerManager.Construct(IObjectResolver)` → `Construct(IObjectResolver, IObjectPoolService)`; `SpawnPlayer()` uses `objectPoolService.Spawn()`; new public `Enable()` / `Disable()` / private `DespawnPlayer()` on `ON_PLAYER_DEATH`.
+- **From → To:** "The player" row `resolver.Instantiate(...)` → `IObjectPoolService.Spawn(...)` (pool injects); notes that `Enable()` / `Disable()` have no caller.
+- **Why:** not recorded in the commit.
+- **Bugs:** inbox NOTE-20261122-1.
+
 ## 2026-10-31 — Pool interface renamed (doc-truth re-sync)
 - **Commit:** `cae75317` (on `origin/sprint-20`)
 - **Changed:** `IObjecPoolService` → `IObjectPoolService`; the file name `IObjecPoolService.cs` is kept.

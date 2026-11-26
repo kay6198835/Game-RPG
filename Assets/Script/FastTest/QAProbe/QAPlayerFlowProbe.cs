@@ -212,7 +212,7 @@ public class QAPlayerFlowProbe : MonoBehaviour
         else if (_confirmPanelOpened > 0)
         {
             Fail("panel event fired but no active ConfirnPanel in the scene; confirmed through UIEvents.AccessAction()");
-            UIEvents.AccessAction();
+            // UIEvents.AccessAction();
         }
         else
         {
@@ -401,7 +401,7 @@ public class QAPlayerFlowProbe : MonoBehaviour
         Dictionary<StatType, float> statsBefore = _stats.GetFullStat();
         float hp0 = Hp, mana0 = Mana;
         List<(int frame, float hp, float mana)> vitalLog = new();
-        void OnVital() => vitalLog.Add((Time.frameCount, Hp, Mana));
+        void OnVital(VitalStatType statType) => vitalLog.Add((Time.frameCount, Hp, Mana));
         float cooldown = -1f;
         void OnCooldown(AbilitySlot slot, float duration) { if (slot == binding.Slot) cooldown = duration; }
         _vital.CurrentStatsChanged += OnVital;

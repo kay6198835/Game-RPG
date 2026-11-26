@@ -30,7 +30,8 @@ public class AStarTests
         return grid;
     }
 
-    private static Vector2 P(int x, int y) => new Vector2(x, y);
+    // Centre of tile (x, y): nodes sit on tile centres since the half-cell fix.
+    private static Vector2 P(int x, int y) => new Vector2(x + 0.5f, y + 0.5f);
 
     [Test]
     public void FindPath_StraightCorridor_ReturnsEveryTileInOrder()
@@ -67,8 +68,70 @@ public class AStarTests
 
         NavPath path = AStar.FindPath(grid, P(0, 0), P(2, 0));
 
+        // No diagonal past the wall corner, so the detour goes round the top straight.
         Assert.IsTrue(path.Success);
-        CollectionAssert.AreEqual(new[] { P(0, 0), P(0, 1), P(1, 2), P(2, 1), P(2, 0) }, path.Waypoints);
+        CollectionAssert.AreEqual(
+            new[] { P(0, 0), P(0, 1), P(0, 2), P(1, 2), P(2, 2), P(2, 1), P(2, 0) }, path.Waypoints);
+    }
+
+    [Test]
+    public void FindPath_DiagonalPastOneWallCorner_IsNotAllowed()
+    {
+        PathfindingGrid grid = MakeGrid(
+            "#.",
+            "..");
+
+        NavPath path = AStar.FindPath(grid, P(0, 0), P(1, 1));
+
+        Assert.IsTrue(path.Success);
+        CollectionAssert.AreEqual(new[] { P(0, 0), P(1, 0), P(1, 1) }, path.Waypoints);
+    }
+
+    [Test]
+    public void GetNode_PointInsideATile_MapsToThatTile()
+    {
+        PathfindingGrid grid = MakeGrid("..#");
+
+        Assert.AreEqual(P(1, 0), grid.GetNode(new Vector2(1.95f, 0.05f)).WorldPosition);
+        Assert.IsFalse(grid.GetNode(new Vector2(2.05f, 0.5f)).Walkable);
+    }
+
+    [Test]
+    public void IsLineWalkable_OpenFloor_IsTrue()
+    {
+        PathfindingGrid grid = MakeGrid(
+            "...",
+            "...",
+            "...");
+
+        Assert.IsTrue(grid.IsLineWalkable(P(0, 0), P(2, 2)));
+        Assert.IsTrue(grid.IsLineWalkable(P(0, 1), P(2, 1)));
+    }
+
+    [Test]
+    public void IsLineWalkable_ThroughAWall_IsFalse()
+    {
+        PathfindingGrid grid = MakeGrid(".#.");
+
+        Assert.IsFalse(grid.IsLineWalkable(P(0, 0), P(2, 0)));
+    }
+
+    [Test]
+    public void IsLineWalkable_DiagonalPastAWallCorner_IsFalse()
+    {
+        PathfindingGrid grid = MakeGrid(
+            "#.",
+            "..");
+
+        Assert.IsFalse(grid.IsLineWalkable(P(0, 0), P(1, 1)));
+    }
+
+    [Test]
+    public void IsLineWalkable_OutsideTheGrid_IsFalse()
+    {
+        PathfindingGrid grid = MakeGrid("...");
+
+        Assert.IsFalse(grid.IsLineWalkable(P(0, 0), P(5, 0)));
     }
 
     [Test]

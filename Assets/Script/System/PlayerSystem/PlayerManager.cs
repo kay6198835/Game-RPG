@@ -8,12 +8,14 @@ public class PlayerManager : MonoBehaviour, IPlayerService
     [SerializeField] private Transform spawnPoint;
 
     private IObjectResolver resolver;
+    private IObjectPoolService objectPoolService;
     private Player player;
 
     [Inject]
-    public void Construct(IObjectResolver resolver)
+    public void Construct(IObjectResolver resolver, IObjectPoolService objectPoolService)
     {
         this.resolver = resolver;
+        this.objectPoolService = objectPoolService;
     }
 
     // Lazy: the first consumer (a service factory during container build, or Awake) spawns the player,
@@ -25,12 +27,21 @@ public class PlayerManager : MonoBehaviour, IPlayerService
     {
         if (resolver != null) _ = Player;
     }
+    public void Enable()
+    {
+        EventManager.Resgister(EventID.ON_PLAYER_DEATH, DespawnPlayer);
+    }
+
+    public void Disable()
+    {
+        EventManager.UnResgister(EventID.ON_PLAYER_DEATH, DespawnPlayer);
+    }
 
     // resolver.Instantiate injects the whole hierarchy before Awake, so no player component needs registering.
     private Player SpawnPlayer()
     {
         Vector3 position = spawnPoint != null ? spawnPoint.position : transform.position;
-        GameObject instance = resolver.Instantiate(playerPrefab.gameObject, position, Quaternion.identity, transform);
+        GameObject instance = objectPoolService.Spawn(playerPrefab.gameObject, position, Quaternion.identity, transform);
         Player spawned = instance.GetComponent<Player>();
         Camera.main.transform.SetParent(spawned.transform);
         return spawned;
@@ -39,4 +50,9 @@ public class PlayerManager : MonoBehaviour, IPlayerService
     public Transform GetPlayerTransform() => Player.transform;
 
     public void SetPlayerPosition(Vector2 position) => Player.transform.position = position;
+
+    private void DespawnPlayer(object _)
+    {
+        if (player != null) objectPoolService.Despawn(player.gameObject);
+    }
 }

@@ -172,7 +172,7 @@ git_segment() {
           s = out s
           gsub(/&&|\|\|/, "\n", s); gsub(/[;&|()`"'"'"']/, "\n", s); print s
         }' \
-      | grep -E "^[[:space:]]*((if|then|else|elif|do|while|until|time|exec|command|nohup|!|[{])[[:space:]]+|(env|sudo|doas|xargs|nice|timeout|stdbuf|winpty|command)([[:space:]]+-[A-Za-z0-9-]+(=[^[:space:]]*)?([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+([0-9][0-9.]*[smhd]?[[:space:]]+)?|[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:]]*[/\\])?[Gg][Ii][Tt](\.exe)?([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--(git-dir|work-tree|namespace|super-prefix|config-env|attr-source)[[:space:]]+[^[:space:]]+|-[A-Za-z]|--[A-Za-z-]+(=[^[:space:]]+)?))*[[:space:]]+$1([[:space:]]|\$)"
+      | grep -E "^[[:space:]]*((if|then|else|elif|do|while|until|time|exec|command|nohup|!|[{])[[:space:]]+|(env|sudo|doas|xargs|nice|timeout|stdbuf|winpty|command)([[:space:]]+-[A-Za-z0-9-]+(=[^[:space:]]*)?([[:space:]]+[^-[:space:]][^[:space:]]*)?)*[[:space:]]+([0-9][0-9.]*[smhd]?[[:space:]]+)?|rtk([[:space:]]+proxy)?[[:space:]]+|[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:]]*[/\\])?[Gg][Ii][Tt](\.exe)?([[:space:]]+(-[Cc][[:space:]]+[^[:space:]]+|--(git-dir|work-tree|namespace|super-prefix|config-env|attr-source)[[:space:]]+[^[:space:]]+|-[A-Za-z]|--[A-Za-z-]+(=[^[:space:]]+)?))*[[:space:]]+$1([[:space:]]|\$)"
 }
 
 # Only process git commit commands
@@ -363,6 +363,37 @@ if [ -z "$STAGED" ]; then
 fi
 
 WARNINGS=""
+
+# --- root CLAUDE.md budget (blocking, cheap) -------------------------------
+# CLAUDE.md is loaded into EVERY session, and so is every file it @imports.
+# Official Claude Code guidance: under 200 lines. It grew to 1,682 lines once
+# because writers kept appending data and history (2026-11-19 cut). Data lives
+# in owner files (production/qa/open-bugs.md, production/demo-checklist.md,
+# docs/systems/*); CLAUDE.md holds summaries + paths. Checked on the STAGED
+# copy, imports included, so no writer -- skill, routine or person -- can grow it.
+CLAUDE_MD_BUDGET=200
+if printf '%s\n' "$STAGED" | grep -qx 'CLAUDE.md'; then
+    # `git add CLAUDE.md && git commit` runs this hook BEFORE the add, so the
+    # index still holds the old copy. When the command itself stages it
+    # (WT_FILES), the working-tree copy is what will be committed.
+    if printf '%s\n' "$WT_FILES" | grep -qx 'CLAUDE.md'; then
+        _CM=$(cat CLAUDE.md 2>/dev/null)
+    else
+        _CM=$(git show :CLAUDE.md 2>/dev/null)
+    fi
+    if [ -n "$_CM" ]; then
+        _CM_LINES=$(printf '%s\n' "$_CM" | wc -l | tr -d ' ')
+        _CM_IMP=0
+        for _imp in $(printf '%s\n' "$_CM" | tr -d '\r' | sed -n 's/^@\([^[:space:]]*\).*/\1/p'); do
+            [ -f "$_imp" ] && _CM_IMP=$((_CM_IMP + $(wc -l < "$_imp" | tr -d ' ')))
+        done
+        _CM_TOTAL=$((_CM_LINES + _CM_IMP))
+        if [ "$_CM_TOTAL" -gt "$CLAUDE_MD_BUDGET" ]; then
+            echo "BLOCKED: CLAUDE.md is $_CM_LINES lines + $_CM_IMP imported = $_CM_TOTAL, over the $CLAUDE_MD_BUDGET-line budget (loaded into every session). Move data/history to its owner file (production/qa/open-bugs.md, production/demo-checklist.md, docs/systems/<system>/README.md, docs/CHANGELOG-DOCS.md) and keep one summary line + path in CLAUDE.md." >&2
+            exit 2
+        fi
+    fi
+fi
 
 # Section findings are collected through a file, not a variable: the loops below
 # run inside pipelines, and a subshell cannot assign to WARNINGS in the parent.
