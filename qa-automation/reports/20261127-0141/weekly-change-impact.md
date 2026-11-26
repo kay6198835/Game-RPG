@@ -137,5 +137,14 @@
 
 ## 5. Suggested new cases
 
-Filled in by the Friday Claude task (part C). Until then: one case per *no case yet* script above, AUTO when
-the result is a number, state or event, MANUAL when it needs eyes (animation, VFX, layout, feel).
+Filled in by the Friday QA task on 2026-11-27.
+
+| Script / change | Behaviour | Kind | Case |
+|---|---|---|---|
+| `Assets/Script/System/Abilities/Effects/DamageEffect.cs`, `PayloadEffectBase.cs` | Ability hit damage through `IEffectReceiver.ApplyDamage` on `ctx.Target`, Defense-mitigated; no target, no damage | AUTO | **QA-ENT-17** (new, `QAEnemySuite`). Also `QAProbeTarget` now implements `IEffectReceiver`, so QA-ABL-01 judges `DamageEffect` hits again |
+| `DeliveryEffectBase.cs`, `SpawnEffectMono.cs` | Spawned objects hit once and despawn; hit reaction on the enemy | AUTO (existing QA-ABL-01 spawn check) + MANUAL | MAN-ABL-06, MAN-ABL-07 |
+| `SelfApplyEffect.cs`, `Config/StatusStatsEffect.cs` | Caster buffs / status effects (Blessing, Avatar of Light) | AUTO (existing QA-ABL-01 stat check, Paladin Utility KNOWN BUG-114) + MANUAL | MAN-ABL-10 |
+| `Runtime/SpawnMono/Trap.cs`, `Trap.prefab` | Trap fires on an enemy that enters it | MANUAL (no scene places a trap yet; inbox NOTE-20261126-1 predicts it never fires) | MAN-ABL-11 |
+| Spawn / cast clips (`43bb14be`, `6dd66791`, `fa206f82`, `e52431d6`) | Effects play once and despawn; Consecrate cast plays once; Rain Arrows hold the last frame | MANUAL | MAN-ABL-07, MAN-ABL-08, MAN-ABL-09 |
+| Dash (`1e5afb3c` DashSmoke, `b0cfe539` dash on every class) | Smoke puff, dash clip on Archer / Mage | MANUAL (distance is AUTO QA-PLY-06, KNOWN BUG-130) | MAN-PLY-10 |
+| Room JSON from TextAsset (`7a41d7c4`), build blockers removed (`070bc0a5`) | Rooms load in a Player build | MANUAL | MAN-MAP-08 |

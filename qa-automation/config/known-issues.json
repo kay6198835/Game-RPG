@@ -22,6 +22,7 @@
     { "pattern": "^QA-ENT-11$", "bug": "BUG-133", "note": "Hit knockback moves the victim during the take-damage state (run 20261121-2050: moved 0.1)" },
     { "pattern": "^QA-UNIT\\.ItemEffectDataTests\\.CommittedDropTables_", "bug": "BUG-132", "note": "Test.asset has an empty ItemName and no ItemSprite" },
     { "pattern": "^QA-STATIC-09$", "findings": "Comsuable/Test\\.asset", "bug": "BUG-132", "note": "Test.asset has an empty ItemName and no ItemSprite" },
-    { "pattern": "^QA-STATIC-13$", "findings": "^(Archer|Mage): \\d+ of \\d+ death clip", "bug": "BUG-122", "note": "Archer / Mage death clips carry no AnimationOnAction (NOTE-20261120-3, duplicate of BUG-122)" }
+    { "pattern": "^QA-STATIC-13$", "findings": "^(Archer|Mage): \\d+ of \\d+ death clip", "bug": "BUG-122", "note": "Archer / Mage death clips carry no AnimationOnAction (NOTE-20261120-3, duplicate of BUG-122)" },
+    { "pattern": "^QA-ITEM-10$", "bug": "BUG-120", "note": "ItemController.Interact has no null-element guard: an empty effect slot throws before ON_COLLECT_ITEM (NOTE-20261120-5, appended to BUG-120 PARTIAL; run 20261127-0141)" }
   ]
 }
