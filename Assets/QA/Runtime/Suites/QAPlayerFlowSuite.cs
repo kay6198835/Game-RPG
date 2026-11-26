@@ -658,11 +658,21 @@ namespace QA.Automation
             return equipped != null && equipped.TryGetValue(slot, out AbilityInstance instance) ? instance : null;
         }
 
+        // Since 8377ebaf (2026-11-26) the summon is SpawnEffectBase.Prefab, often a CircleSummon telegraph that
+        // spawns its spawnPrefab (Rain Arrows: CircleSummon -> RainArrows). The old summonPrefab field is read
+        // only while it still exists (older sprints).
         private static bool IsScatteredSummon(SpawnSummonEffect effect)
         {
-            FieldInfo field = typeof(SpawnSummonEffect).GetField("summonPrefab", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            var prefab = field?.GetValue(effect) as Component;
-            return prefab != null && prefab.GetComponent<DamagesInManyPos>() != null;
+            FieldInfo legacy = typeof(SpawnSummonEffect).GetField("summonPrefab", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            Component current = legacy?.GetValue(effect) as Component;
+            if (current == null) current = effect.Prefab;
+            for (int depth = 0; current != null && depth < 4; depth++)
+            {
+                if (current.GetComponent<DamagesInManyPos>() != null) return true;
+                CircleSummon circle = current.GetComponent<CircleSummon>();
+                current = circle != null ? circle.spawnPrefab : null;
+            }
+            return false;
         }
 
         private static (float hp, float mana) ExpectedCost(AbilityDefinition def)
