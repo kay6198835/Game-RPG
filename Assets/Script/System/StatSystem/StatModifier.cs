@@ -28,16 +28,23 @@ public sealed class StatModifier
 {
     [SerializeField] private StatType targetStatType;
     [SerializeField] private ModifierType type;
-    // Signed: negative = Reduction (debuff / HP loss), zero or positive = Recovery (buff / heal).
-    [SerializeField] private float value;
+    // NEED CHECK: 2026-11-26 (A1) — value is a magnitude only (MinValue..MaxValue). The direction is impactType:
+    // every reader of Value checks ImpactType itself (Reduction = subtract, Recovery = add).
+    // Design note (GDD AB-E12): a Reduction PercentAdd / PercentMult above 1 is not blocked — PercentMult 2 gives
+    // x(1-2) = x(-1); a PercentAdd sum above 1 drives the stat below 0. Keeping it in 0.1..1 is the designer's job.
+    public const float MinValue = 0.1f;
+    public const float MaxValue = 999f;
+    [SerializeField, Range(MinValue, MaxValue)] private float value;
+    // Serialized again (it was not, so every asset loaded as Recovery and a Reduction healed instead).
+    // Assets saved before this have no key and load as Recovery (enum 0), which matches all of them today.
+    [SerializeField] private StatImpactType impactType;
     [NonSerialized] private object source;
 
     /// <summary>Chỉ số mà modifier này gắn vào.</summary>
     public StatType TargetStatType => targetStatType;
     public ModifierType Type => type;
-    // NEED CHECK: 2026-11-26 — impact comes from the sign of value. The old impactType field was never
-    // serialized, so every authored asset loaded as Recovery and a Reduction healed instead.
-    public StatImpactType ImpactType => value < 0f ? StatImpactType.Reduction : StatImpactType.Recovery;
+    public StatImpactType ImpactType => impactType;
+    /// <summary>Magnitude, never negative. Use <see cref="ImpactType"/> for the sign.</summary>
     public float Value => value;
 
     /// <summary>
@@ -52,17 +59,17 @@ public sealed class StatModifier
 
     public StatModifier() { }   // Unity deserialization
 
-    /// <param name="value">Magnitude; its sign is set from <paramref name="impactType"/>.</param>
-    /// <param name="impactType">Reduction stores value as negative, Recovery as positive.</param>
+    /// <param name="value">Magnitude: the sign is dropped and the result is clamped to <see cref="MinValue"/>..<see cref="MaxValue"/>.</param>
+    /// <param name="impactType">Direction: Reduction subtracts, Recovery adds.</param>
     public StatModifier(StatType targetStat, float value, ModifierType type, StatImpactType impactType, object source = null)
     {
         this.targetStatType = targetStat;
-        float magnitude = Math.Abs(value);
-        this.value = impactType == StatImpactType.Reduction ? -magnitude : magnitude;
+        this.value = Mathf.Clamp(Math.Abs(value), MinValue, MaxValue);
         this.type = type;
+        this.impactType = impactType;
         this.source = source;
     }
     public void SetType(ModifierType updateType) => type = updateType;
     /// <summary>Bản sao cùng dữ liệu nhưng đóng dấu nguồn mới (dùng khi apply một asset dùng chung).</summary>
-    public StatModifier WithSource(object newSource) => new StatModifier(targetStatType, value, type, ImpactType, newSource);
+    public StatModifier WithSource(object newSource) => new StatModifier(targetStatType, value, type, impactType, newSource);
 }

@@ -218,13 +218,15 @@ namespace QA.Automation
                             foreach (StatModifier m in group.GetStatsModifiers.Where(x => x != null))
                             {
                                 expectedModifiers++;
-                                if (m.Type == ModifierType.Flat) flats[m.TargetStatType] = (flats.TryGetValue(m.TargetStatType, out float total) ? total : 0f) + m.Value;
-                                else unjudged.Add($"{m.TargetStatType} {m.Type} {m.Value:0.##}");
+                                // Value is a magnitude (A1): ImpactType gives the sign.
+                                float signed = m.ImpactType == StatImpactType.Reduction ? -m.Value : m.Value;
+                                if (m.Type == ModifierType.Flat) flats[m.TargetStatType] = (flats.TryGetValue(m.TargetStatType, out float total) ? total : 0f) + signed;
+                                else unjudged.Add($"{m.TargetStatType} {m.Type} {signed:0.##}");
                             }
                             break;
                         case ModifierCurrentStatsEffect _ when group != null:
                             foreach (StatModifier vm in group.GetStatsModifiers.Where(x => x != null && Enum.IsDefined(typeof(VitalStatType), (int)x.TargetStatType)))
-                                vitals[(VitalStatType)vm.TargetStatType] = (vitals.TryGetValue((VitalStatType)vm.TargetStatType, out float sum) ? sum : 0f) + vm.Value;
+                                vitals[(VitalStatType)vm.TargetStatType] = (vitals.TryGetValue((VitalStatType)vm.TargetStatType, out float sum) ? sum : 0f) + (vm.ImpactType == StatImpactType.Reduction ? -vm.Value : vm.Value);
                             break;
                         case CoinModifierEffect _:
                             coinGain += (int)(FindField(typeof(CoinModifierEffect), "coinAmount")?.GetValue(effect) ?? 0);
