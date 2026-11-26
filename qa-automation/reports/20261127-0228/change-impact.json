@@ -1,0 +1,153 @@
+{
+    "base":  "be3c7054a5",
+    "head":  "f41f451b6c",
+    "baseRef":  "be3c7054a5",
+    "headRef":  "origin/sprint-24",
+    "commits":  [
+                    {
+                        "sha":  "50789d11",
+                        "date":  "2026-11-27",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261127-0218 on origin/sprint-24 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/unit-results.xml"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0218/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "aeb4dbfc",
+                        "date":  "2026-11-27",
+                        "author":  "Kay",
+                        "subject":  "test(qa): part C for run 20261127-0141 - probe implements IEffectReceiver, QA-ENT-17 DamageEffect, ITEM-10 known BUG-120, STATIC-12 baseline, 8 manual rows",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/QAProbeTarget.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "Assets/QA/Runtime/Suites/QAEnemySuite.cs"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/cases/case-catalog.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/known-issues.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/config/static-baseline.txt"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/manual/manual-weekly-checklist.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/inbox-proposals.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/reports/20261127-0141/weekly-change-impact.md"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  2,
+    "files":  21,
+    "systems":  {
+                    "QA":  [
+                               "Assets/QA/Runtime/QAProbeTarget.cs",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.Behaviour.cs",
+                               "Assets/QA/Runtime/Suites/QAEnemySuite.cs",
+                               "qa-automation/cases/case-catalog.md",
+                               "qa-automation/config/known-issues.json",
+                               "qa-automation/config/static-baseline.txt",
+                               "qa-automation/manual/manual-weekly-checklist.md",
+                               "qa-automation/reports/20261127-0141/inbox-proposals.md",
+                               "qa-automation/reports/20261127-0141/weekly-change-impact.md",
+                               "qa-automation/reports/20261127-0218/change-impact.json",
+                               "qa-automation/reports/20261127-0218/report.md",
+                               "qa-automation/reports/20261127-0218/results.json",
+                               "qa-automation/reports/20261127-0218/run.log",
+                               "qa-automation/reports/20261127-0218/run-info.json",
+                               "qa-automation/reports/20261127-0218/summary.json",
+                               "qa-automation/reports/20261127-0218/unit-results.xml",
+                               "qa-automation/reports/20261127-0218/unity-report.md",
+                               "qa-automation/reports/20261127-0218/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ]
+                },
+    "deep":  [
+
+             ],
+    "risks":  [
+
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}
