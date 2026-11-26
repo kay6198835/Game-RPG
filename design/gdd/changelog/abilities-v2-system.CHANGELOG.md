@@ -4,8 +4,19 @@ Change log for [`design/gdd/abilities-v2-system.md`](../abilities-v2-system.md).
 this file records **when** it changed, **what** changed (**from → to**) and **why**. Newest first.
 Append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-26 — StatModifier: magnitude + serialized impactType (AB-E12 replaced, AB-E11 note)
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** AB-E12 rewritten and no longer `[PLANNED]`; AB-E11 "Today" note; rule index (PLANNED 15 → 14).
+- **From → To:**
+  - AB-E12 (2026-11-25, temporary): values always positive, one conversion point before `AddModifiersFromSource`, `StatSheet` reads the sign of `Value` → `value` is a magnitude in 0…999, `impactType` is serialized on every row, every reader of `Value` applies the sign from `ImpactType`.
+  - Code at `85899a52`: `impactType` removed, `ImpactType` = sign of `value` → `impactType` field restored with `[SerializeField]`.
+  - Value range: unbounded → 0.1 … 999. Percent Reduction behaviour (zero / negative stat, Max HP ≤ 0 kills) written into AB-E12 for game design; code does not block it.
+  - AB-E11: `SyncModifiersFromStatusType` is the whole support; a hand-set `impactType` against `statusType` is a design error (no validation planned).
+- **Why:** owner decision 2026-11-26 (session item A1).
+- **Bugs:** none created.
+
 ## 2026-11-26 — Delivery / Payload, SelfApplyEffect, dead guard, cleanup rule (AB-E15…E20)
-- **Commit:** not committed (working tree on `sprint-24`); owner asked to commit only once A1 and B6 are decided too
+- **Commit:** `85899a52` (`sprint-24`)
 - **Changed:** six rules added to §7 — AB-E15 (Delivery / Payload), AB-E16 (`SubEffects` only on a Delivery), AB-E17 (`SelfApplyEffect`), AB-E18 (Payload keeps `Recipient`, no nesting), AB-E19 (dead character takes no new effect), AB-E20 (cleanup on disable, `[PLANNED]`); §7 intro; AB-E5, AB-E6 reworded; catalogue gains `SelfApplyEffect`, `DamageEffect` row says what it does with no target; Tuning Knobs `SubEffects[]` row; AC-49, AC-50; note on AB-E11 (A1 working tree) and OQ-4 (status registry key, not decided); rule index (80 → 86, CONFIRMED 39 → 45, PLANNED 14 → 15).
 - **From → To:**
   - Any effect could sit in `AbilityDefinition.Effects` or in another effect's `SubEffects` → `Effects` holds Delivery effects, `SubEffects` (now on `DeliveryEffectBase` only) holds Payloads; no Delivery inside a Delivery.

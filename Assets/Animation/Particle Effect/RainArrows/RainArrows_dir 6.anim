@@ -114,6 +114,8 @@ AnimationClip:
       value: {fileID: 1503697493, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
     - time: 2
       value: {fileID: 2050941138, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
+    - time: 2.0333333
+      value: {fileID: 2050941138, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -183,12 +185,13 @@ AnimationClip:
     - {fileID: 1427005644, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
     - {fileID: 1503697493, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
     - {fileID: 2050941138, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
+    - {fileID: 2050941138, guid: 069e292f291da9b4f9acc3b7ca8e1cf5, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 2.0333333
+    m_StopTime: 2.0666667
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -411,7 +414,7 @@ AnimationClip:
     floatParameter: 0
     intParameter: 28
     messageOptions: 0
-  - time: 2
+  - time: 2.0333333
     functionName: DespawnOneSelf
     data: 
     objectReferenceParameter: {fileID: 0}

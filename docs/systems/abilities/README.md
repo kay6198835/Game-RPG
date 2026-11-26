@@ -128,16 +128,28 @@ AbilityDefinition.Effects        → Delivery only: who is hit   (SpawnProjectil
    same rule as 5.
 7. The ability's `StatusType` is also the data hook for later work (cleanse, status icons, stacking, auto-match).
 
-**Values and sign — TEMPORARY workaround.**
+**Values and sign (GDD AB-E12, decided 2026-11-26, A1).**
 
-- Effects are **always authored with a positive value**.
-- Before calling `IStatService.AddModifiersFromSource`, the receiver (`EffectReceiverBase`) builds a copy whose
-  value is `Reduction ? -|v| : +|v|`. `StatSheet` is **unchanged**: it reads only `Type` and the sign of `Value`
-  (`StatSheet.ApplyModifiers`, `StatSheet.cs:183-199`) and never `ImpactType`.
-- Equipment (`Weapon.cs:92`) calls `AddModifiersFromSource` directly and keeps "sign = direction".
-- ⚠️ Stopgap, not the final design: keep the logic to that one conversion point, do not spread impact handling
-  into `StatSheet` or other callers. **The calculation flow must be re-checked** before this is called done
-  (no floor / cap yet — SD-05, so percent debuffs can drive a stat below 0).
+- `StatModifier.value` is a **magnitude** in 0.1 … 999 (`StatModifier.MinValue` / `MaxValue`, `[Range]`; the constructor
+  drops the sign and clamps — a 0 row becomes 0.1).
+- `StatModifier.impactType` is serialized on every row — skills, items and equipment (`Weapon.cs:92`) alike.
+- **Every reader of `Value` applies the sign from `ImpactType`** (Reduction → `−Value`, Recovery → `+Value`):
+  `StatSheet.ApplyModifiers`, `EffectReceiverBase.AdjustCurrentStats`, QA items suite.
+- Current HP / Mana (`AdjustCurrentStats`, `8377ebaf`): per vital row, `Utility.ModifierStatsCalculate(row, current)` gives the
+  amount (Flat = `Value`, PercentAdd / PercentMult = `current × Value`), `ImpactType` the direction. A percent row reads the
+  current value at that moment: 0 Mana → a percent ManaSurge gives 0; two 50 % HP Reductions remove 75 %.
+- ⚠️ **Game design must know** (not blocked in code, no floor / cap — SD-05):
+  - `PercentMult` Reduction `v` → `×(1 − v)`: `v = 1` zeroes the stat, `v > 1` makes it negative, two such rows multiply back to positive.
+  - `PercentAdd` enters as `(1 + ΣRecovery − ΣReduction)`: Reductions summing past 1 + the Recoveries drive the stat below 0.
+  - Max HP ≤ 0 clamps current HP to ≤ 0 and kills (`VitalStatsBase.OnMaxStatChanged` → `CheckDeath`).
+  - Keep a percent Reduction in 0.1 … 1 and mind stacking.
+- `SyncModifiersFromStatusType` re-stamps every row's `impactType` when `statusType` changes (hand-set values included).
+  That is all the support there is: a hand-set row contradicting `statusType` afterwards is a design error (owner, 2026-11-26).
+- A wrong effect class / `statusType` pair is a design error too: Avatar of Light `Recovery Stat Effect` and Blessing
+  `Paladin Recovery Reduction Stats Effect` are `RecoveryReductionStatsEffect` (current vitals) with ArcaneSurge (a Duration
+  status) → MagicDamage / ManaRegen rows, all skipped → no effect. Owner 2026-11-26: created and wired wrong, fix in the assets.
+- *Was (2026-11-25, temporary):* values always positive, one conversion point in the receiver, `StatSheet` read the
+  sign of `Value`, equipment kept "sign = direction".
 
 **Tick and mixed statuses.**
 
@@ -179,7 +191,7 @@ really are two different statuses (e.g. Heal + Haste).
 | ~~BUG-073 / BUG-090~~ | *2026-11-16:* the ShootSpirit assets, `SpiritProjcetile.prefab` and every reference to the deleted condition asset are deleted; `SpawnEffectBase` warnings no longer name the deleted classes. Awaiting triage (NOTE-20261116-5) |
 | BUG-089 | Closed by design (tier scaffolding) — reopen at demo/release |
 | — (2026-11-25) | `RecoveryReductionPerTimeForDuration` → `AdjustMaxPerTimeForDuration`, body empty → every tick effect does nothing. Fix: `AdjustCurrentPerTimeForDuration` (see decisions above). Supersedes the "throws" wording of BUG-118 |
-| — (2026-11-25) | `StatModifier.impactType` (`StatModifier.cs:34`, `df9e98fe`) has no `[SerializeField]` → loads as Recovery from every asset; `AdjustCurrentStats` turns a Reduction into a heal. *2026-11-26, working tree, not committed, owner still checking (session item A1):* field removed, `ImpactType` = sign of `value`, the constructor signs `value` from its `impactType` argument. Open: one sign rule for skills vs items/weapons, `AdjustCurrentStats` ignores `Type` (a `PercentAdd` heal is flat), floor (SD-05), unused `Utility.ModifierStatsCalculate` |
+| — (2026-11-25) | `StatModifier.impactType` (`StatModifier.cs:34`, `df9e98fe`) has no `[SerializeField]` → loads as Recovery from every asset; `AdjustCurrentStats` turns a Reduction into a heal. *2026-11-26, decided (A1, GDD AB-E12):* `impactType` is `[SerializeField]` again, `value` is a magnitude 0…999 (`[Range]`, constructor drops the sign and clamps), and each reader of `Value` applies the sign from `ImpactType` (`StatSheet.ApplyModifiers`, `AdjustCurrentStats`, `Utility.ModifierStatsCalculate`, QA items suite). `AdjustCurrentStats` honours `Type` since `8377ebaf` (percent of the current value). Still open: floor (SD-05); non-vital rows skipped silently (design error by owner rule) |
 | — (2026-11-25) | Status config auto-fill adds stats of the wrong kind for Burn `[HP, HPRegen]` / Poison `[HP, PhysicalDamage]` (tick effect ignores the stat row silently; duration effect turns HP into a max-HP modifier). Closed by "status config PENDING" |
 | — (2026-11-25) | `EffectReceiverBase`: timed modifiers removed only at the end of a coroutine on the receiver (disable / death / pool → never removed); source key is a pooled `SourceEffect` (reuse can remove another effect's modifiers); `AdjustMaxStats` uses lifetime 0 → `SourceEffect` never despawned; `SourceEffectConfig.callback` never invoked. *2026-11-26:* cleanup rule decided (GDD AB-E20, `[PLANNED]`: clear in `OnDisable` / `ReloadComponent`, data only, `new object()` token); built together with the status registry, whose key is still open (OQ-4, session item B6). Dead guard added (AB-E19) |
 | — (2026-11-25) | `VitalStatsBase.LoadVitalStats` skips Coin → Coin never in `currentStats`, `Recovery(Coin)` is a no-op (no caller today) |

@@ -17,7 +17,22 @@ which code change caused it.
 
 ---
 
-## 2026-11-26 — Abilities: Delivery / Payload decisions (`sprint-24`, working tree)
+## 2026-11-26 — Abilities: StatModifier sign rule A1 (`sprint-24`)
+
+**Cause.** Owner decision 2026-11-26 (session item A1) and its code in the working tree: `StatModifier.impactType`
+serialized again, `value` a magnitude in 0…999; `StatSheet.ApplyModifiers` and `QAEnemySuite.Items` read the sign from `ImpactType`; owner commit `8377ebaf`
+(`AdjustCurrentStats` through `Utility.ModifierStatsCalculate`, percent of the current value).
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E12 rewritten (no longer `[PLANNED]`), AB-E11 note, rule index PLANNED 15 → 14; OQ-4 note (Casting = power build-up, `SpawnSummonEffect.TryCast` no longer spawns) |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry; the earlier 2026-11-26 entry now names commit `85899a52` |
+| `docs/systems/abilities/README.md` | Open issues row for `impactType`; "Values and sign" block rewritten |
+| `docs/systems/abilities/CHANGELOG.md` | Entries (A1; `SpawnSummonEffect.TryCast` + RainArrows clips); the earlier 2026-11-26 entry now names commit `85899a52` |
+
+**Findings.** STATIC only (no Unity).
+
+## 2026-11-26 — Abilities: Delivery / Payload decisions (`sprint-24`, `85899a52`)
 
 **Cause.** Owner decisions 2026-11-26 (session) and the code they produced in the working tree: `DeliveryEffectBase`,
 `PayloadEffectBase`, `SelfApplyEffect` (new), `SubEffects` moved off `AbilityEffectDefinition`, `EffectReceiverBase.IsDead`,

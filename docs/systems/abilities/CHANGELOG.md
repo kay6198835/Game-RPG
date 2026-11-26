@@ -2,8 +2,25 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-26 — SpawnSummonEffect: no spawn in TryCast; RainArrows clips end on a held frame
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** `SpawnSummonEffect.TryCast` no longer calls `base.Apply` (commented out, PENDING — owner redesigns the Casting flow). The 8 `RainArrows_dir 0…7.anim` clips get a copy of their last frame at 2.0333 s (`m_StopTime` 2.0333 → 2.0667) and `DespawnOneSelf` moves from 2 s to 2.0333 s.
+- **From → To:** a summon ability spawned twice per cast — `TryCast` (Casting) and `Apply` (Do) — so Rain Arrows / Consecrate hit and ran every SubEffect twice (since owner commits `8377ebaf`…`f75573c8` the TryCast circle also spawns the child) → one spawn, in `Apply`. RainArrows despawned at the start of its last frame → the last frame is shown for one frame, then it despawns.
+- **Why:** owner, 2026-11-26: the Casting phase is the power build-up phase, so `TryCast` calling `Apply` is the wrong flow.
+- **Evidence:** STATIC — not run. To check in Unity: one RainArrows / one Lightning per cast, target HP drops once per hit.
+- **Bugs:** none opened or closed.
+
+## 2026-11-26 — StatModifier: magnitude + serialized impactType (A1)
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** `StatModifier`: `impactType` back as `[SerializeField]`, `value` `[Range(0.1, 999)]` (`MinValue` / `MaxValue`), constructor stores `Clamp(|value|, 0.1, 999)` and the given `impactType`, `WithSource` copies `impactType`. Readers apply the sign from `ImpactType`: `StatSheet.ApplyModifiers`, `QAEnemySuite.Items` (expected flats / vitals). `SyncModifiersFromStatusType` seeds new rows with `MinValue`. `EffectReceiverBase.AdjustCurrentStats` and `Utility.ModifierStatsCalculate` are the owner's version from `8377ebaf` (per row, amount from the current value, direction from `ImpactType`) — the session's own edits to those two files were dropped when that commit was pulled. README Open issues row and "Values and sign" block (was the 2026-11-25 temporary workaround) updated.
+- **From → To:** `ImpactType` = sign of `value` (`85899a52`) → `value` is a magnitude, `impactType` is authored (GDD AB-E12).
+- **Why:** owner decision 2026-11-26 (session item A1).
+- **Assets:** none edited. Assets saved before have no `impactType` key on their rows and load as Recovery — every row in the project today is positive and meant as Recovery. `Gain For Time Effect.asset` (MagicDamage +100000, test value) is clamped to 999. Rows authored 0 (`Recovery Stat Effect`, both `Paladin Recovery Reduction Stats Effect`) now act as 0.1.
+- **Evidence:** STATIC — not compiled, not run. To check in Unity: scripts compile; EditMode `ItemEffectDataTests`, `StatSheetTests` pass; a Reduction row lowers the stat / current HP.
+- **Bugs:** none opened or closed.
+
 ## 2026-11-26 — Delivery / Payload, SelfApplyEffect, dead guard
-- **Commit:** not committed (working tree on `sprint-24`); owner asked to commit only once A1 and B6 are decided too
+- **Commit:** `85899a52` (`sprint-24`)
 - **Changed:** new `Core/DeliveryEffectBase.cs` (holds `SubEffects` + `ApplyOnHitEffects`, both moved out of `AbilityEffectDefinition` / `SpawnEffectBase`), `Core/PayloadEffectBase.cs`, `Effects/SelfApplyEffect.cs`. `SpawnEffectBase : DeliveryEffectBase`; `DamageEffect`, `StatsEffectBase : PayloadEffectBase`. `DamageEffect`: `Reset()` → `Recipient = Target`, `OnValidate` warns on `Caster`, no target → silent return; `AbilityEffectDefinition.recipient` is `protected`. `EffectReceiverBase.IsDead` guards the four stat / vital entry points. Assets: `Paladin Blessing Self Apply Effect.asset`, `Avatar of Light Self Apply Effect.asset` (new); `Blessing.asset`, `Avatar of Light.asset` `Effects` → that one asset; their four payload assets `recipient` 0 → 1. README: code table, "Delivery and Payload" block, two Open issues rows. Also in the working tree, not part of this decision set: `StatModifier.impactType` removed (session item A1, owner still checking).
 - **From → To:** see `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` 2026-11-26.
 - **Why:** owner decisions 2026-11-26 (session).

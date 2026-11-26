@@ -11,7 +11,10 @@ public class SpawnSummonEffect : SpawnEffectBase
     public override bool TryCast(AbilityContext context)
     {
         if (!base.TryCast(context)) return false;
-        base.Apply(context);
+        // PENDING (owner fixes later), 2026-11-26: the Casting phase is the power build-up phase, not the spawn.
+        // Calling Apply here spawned the summon a second time (TryCast in Casting + Apply in Do) → every hit and
+        // SubEffect ran twice (Rain Arrows, Consecrate). Apply is the only spawn until the Casting flow is redesigned.
+        // base.Apply(context);
         return true;
     }
 
