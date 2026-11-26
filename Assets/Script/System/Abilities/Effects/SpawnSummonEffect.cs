@@ -4,46 +4,28 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Spawn Summon Effect")]
 public class SpawnSummonEffect : SpawnEffectBase
 {
-    [SerializeField] protected SpawnSummonBase summonPrefab;
-    [SerializeField] protected float baseDamage = 30;
-
-    protected override float Angle()
+    protected override float Angle(AbilityContext context)
     {
         return 0;
-    }
-    public override void Apply(AbilityContext context)
-    {
-        var obj = context.Services.Pool.Spawn(summonPrefab.gameObject, context.TargetPoint, Quaternion.identity);
-        var controller = obj.GetComponent<SpawnSummonBase>();
-        controller.Launch(Lifetime, context, SummonExecute);
     }
     public override bool TryCast(AbilityContext context)
     {
         if (!base.TryCast(context)) return false;
-        base.Apply(context);
+        // PENDING (owner fixes later), 2026-11-26: the Casting phase is the power build-up phase, not the spawn.
+        // Calling Apply here spawned the summon a second time (TryCast in Casting + Apply in Do) → every hit and
+        // SubEffect ran twice (Rain Arrows, Consecrate). Apply is the only spawn until the Casting flow is redesigned.
+        // base.Apply(context);
         return true;
     }
 
     //Callback
     protected override void Execute(AbilityContext currentContext)
     {
-        //Do nothing
-    }
-
-    protected virtual void SummonExecute(AbilityContext currentContext)
-    {
-        if (currentContext.Target != null
-            && currentContext.Target.TryGetComponent(out INegativeReceiver negativeReceiver))
-        {
-            //need fix to flexible stat type
-            var finalDamage = baseDamage + currentContext.Caster.GetCurrentStatValue(StatType.MagicDamage);
-            negativeReceiver.TakeDamage(finalDamage, currentContext.Origin);
-        }
         ApplyOnHitEffects(currentContext);
     }
 
-    protected override Vector2 SpawnPos()
+    protected override Vector2 SpawnPos(AbilityContext context)
     {
-        return _context.TargetPoint;
+        return context.TargetPoint;
     }
 }

@@ -67,7 +67,7 @@ namespace QA.Automation
         {
             ModifierMaxStatsEffect effect = ScriptableObject.CreateInstance<ModifierMaxStatsEffect>();
             _createdItems.Add(effect);
-            StatModifierGroup group = MakeGroup(new StatModifier(stat, flat, ModifierType.Flat), null);
+            StatModifierGroup group = MakeGroup(new StatModifier(stat, flat, ModifierType.Flat, StatImpactType.Recovery), null);
             return group != null && SetField(effect, "statModifierGroup", group) ? effect : null;
         }
 
@@ -75,7 +75,7 @@ namespace QA.Automation
         {
             ModifierCurrentStatsEffect effect = ScriptableObject.CreateInstance<ModifierCurrentStatsEffect>();
             _createdItems.Add(effect);
-            StatModifierGroup group = MakeGroup(null, new VitalModifier(stat, value, ModifierType.Flat));
+            StatModifierGroup group = MakeGroup(null, VitalMod(stat, value));
             return group != null && SetField(effect, "statModifierGroup", group) ? effect : null;
         }
 
@@ -218,13 +218,15 @@ namespace QA.Automation
                             foreach (StatModifier m in group.GetStatsModifiers.Where(x => x != null))
                             {
                                 expectedModifiers++;
-                                if (m.Type == ModifierType.Flat) flats[m.TargetStatType] = (flats.TryGetValue(m.TargetStatType, out float total) ? total : 0f) + m.Value;
-                                else unjudged.Add($"{m.TargetStatType} {m.Type} {m.Value:0.##}");
+                                // Value is a magnitude (A1): ImpactType gives the sign.
+                                float signed = m.ImpactType == StatImpactType.Reduction ? -m.Value : m.Value;
+                                if (m.Type == ModifierType.Flat) flats[m.TargetStatType] = (flats.TryGetValue(m.TargetStatType, out float total) ? total : 0f) + signed;
+                                else unjudged.Add($"{m.TargetStatType} {m.Type} {signed:0.##}");
                             }
                             break;
                         case ModifierCurrentStatsEffect _ when group != null:
-                            foreach (VitalModifier vm in group.GetVitalModifiers.Where(x => x != null))
-                                vitals[vm.TargetStatType] = (vitals.TryGetValue(vm.TargetStatType, out float sum) ? sum : 0f) + vm.Value;
+                            foreach (StatModifier vm in group.GetStatsModifiers.Where(x => x != null && Enum.IsDefined(typeof(VitalStatType), (int)x.TargetStatType)))
+                                vitals[(VitalStatType)vm.TargetStatType] = (vitals.TryGetValue((VitalStatType)vm.TargetStatType, out float sum) ? sum : 0f) + (vm.ImpactType == StatImpactType.Reduction ? -vm.Value : vm.Value);
                             break;
                         case CoinModifierEffect _:
                             coinGain += (int)(FindField(typeof(CoinModifierEffect), "coinAmount")?.GetValue(effect) ?? 0);
@@ -431,7 +433,7 @@ namespace QA.Automation
             const float bonus = 5f;
             ModifierMaxStatsEffect effect = MakeMaxStatsEffect(stat, bonus);
             ItemSO item = effect != null ? MakeItem("QA Strength Ring", effect) : null;
-            StatModifierGroup timed = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat), null);
+            StatModifierGroup timed = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat, StatImpactType.Recovery), null);
             if (item == null || timed == null)
             {
                 Fail("QA cannot build the item or the timed buff group (field renamed?)");

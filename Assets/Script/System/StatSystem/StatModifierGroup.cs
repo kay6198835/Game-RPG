@@ -13,7 +13,7 @@ using UnityEngine.Serialization;
 /// StatsSO gỡ modifier bằng ReferenceEquals, nên nếu lấy asset làm source thì hai bản sao
 /// cùng asset sẽ không tháo độc lập được.
 /// </summary>
-[System.Serializable]
+[Serializable]
 public class StatModifierGroup
 {
     // Dữ liệu do designer author — BẮT BUỘC serialize. Đây là điểm khác biệt then chốt với
@@ -25,39 +25,8 @@ public class StatModifierGroup
     private List<StatModifier> statsModifiers = new List<StatModifier>();
 
     public IReadOnlyList<StatModifier> GetStatsModifiers => statsModifiers;
-    [SerializeField]
-    private List<VitalModifier> vitalModifiers = new List<VitalModifier>();
-
-    public IReadOnlyList<VitalModifier> GetVitalModifiers => vitalModifiers;
-
-    // [SerializeField] private StatModifierGroupType groupType = StatModifierGroupType.None;
-
-    // public void FilterByGroupType()
-    // {
-    //     if (groupType == StatModifierGroupType.Primary)
-    //     {
-    //         PrimaryFilter();
-    //     }
-    //     else if (groupType == StatModifierGroupType.Derived)
-    //     {
-    //         DerivedFilter();
-    //     }
-    // }
-    // public IReadOnlyList<StatModifier> PrimaryFilter()
-    // {
-    //     modifiers = modifiers.Where(x => x.TargetStatType.IsPrimary() == true).ToList();
-    //     return modifiers;
-    // }
-    // public IReadOnlyList<StatModifier> DerivedFilter()
-    // {
-    //     modifiers = modifiers.Where(x => x.TargetStatType.IsPrimary() == false).ToList();
-    //     return modifiers;
-    // }
+    public StatModifierGroup(List<StatModifier> statsModifiers)
+    {
+        this.statsModifiers = statsModifiers;
+    }
 }
-
-// public enum StatModifierGroupType
-// {
-//     None,
-//     Primary,
-//     Derived
-// }

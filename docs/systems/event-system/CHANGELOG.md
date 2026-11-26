@@ -2,6 +2,11 @@
 
 Newest first. Entries reconstructed from the count history in `CLAUDE.md` and `git log`.
 
+## 2026-11-22 — ON_PLAYER_DEATH emitted on AnimationOnAction (doc-truth re-sync)
+- **Commit:** `49c58e35` "fix death flow" (2026-11-19), `be973605` (2026-11-21), on `sprint-23`; `EventManager.cs` unchanged (25 values).
+- **Changed (README):** producer `PlayerDeathState` on `EndRangeTrigger` → on `AnimationOnAction()`; adds the unregistered `PlayerManager.DespawnPlayer` handler.
+- **Why:** bug files BUG-122 (PARTIAL) and BUG-086 (Open) after the 2026-11-20 / 11-21 triage.
+
 ## 2026-11-07 — ON_PLAYER_DEATH never emitted (doc-truth note)
 - **Commit:** none — no `EventManager.cs` change; `EventID` still has 25 values at `c6f3ccf2`.
 - **Changed (README):** the `ON_PLAYER_DEATH` producer note now records BUG-122 (filed 2026-11-07): `PlayerDeathState` emits only on `EndRangeTrigger`, and no Paladin Die clip sends it.

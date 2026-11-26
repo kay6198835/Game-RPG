@@ -2,6 +2,13 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-22 — Hurtbox interface split, pooled player spawn, dash state, death event (doc-truth re-sync)
+- **Commits:** `91c42d79` "add dash state" (2026-11-16), `49c58e35` "fix death flow" (2026-11-19), `19540dff` "knockback, update UI confirm" (2026-11-20), `be973605` "coding need check", `8005d27e` "update animation, asset" (2026-11-21), on `sprint-23`
+- **Changed:** `INegativeReciver.cs` gains `INegativeReceiver<TCore>` (`InvicisibleHurtbox(bool)`); `NegativeReceiverBase<TCore>` implements only that one and requires a `BoxCollider2D` hurtbox; `PlayerManager` spawns the player through `IObjectPoolService.Spawn()`; `Player.Awake()` builds `PlayerDashState`; `PlayerDeathState` emits on `AnimationOnAction()`; `CharacterInputBase.OnTakeDamage()` applies knockback and `OnDeath()` is idempotent.
+- **From → To:** "`NegativeReceiverBase<T> : INegativeReceiver` — the only implementer" → implements only `INegativeReceiver<T>` (BUG-135); "spawns it with `resolver.Instantiate`" → `IObjectPoolService.Spawn()` + pool injection; "nine states" → ten; "emits on `EndRangeTrigger`" → emits on `AnimationOnAction` (BUG-122 PARTIAL); Open issues: BUG-066 / 070 / 071 removed (FIXED per files), BUG-135 / 130 / 133 added.
+- **Why:** not recorded in the commits (titles only).
+- **Bugs:** BUG-135 (S1), BUG-122, BUG-130, BUG-133; inbox NOTE-20261122-1 (`PlayerManager.Enable()` / `Disable()` never called).
+
 ## 2026-11-07 — Death read from the input flag (doc-truth re-sync)
 - **Commit:** `4097be4c` "Read death from the input flag instead of switching state in the receiver", `1c3a34fc` "fix flow" (2026-11-05, on `sprint-21`)
 - **Changed:** `ICharacterInput` gains `IsDeath` / `OnDeath(Vector2)`; `CharacterInputBase` implements them and overrides `ReloadComponent()` (clears `isTakeDamage` / `isDeath`); `NegativeReceiverBase.TakeDamage()` calls `OnDeath()` on a lethal hit and the abstract `OnLethalHit()` is deleted (player `NegativeReciver` is now an empty shim); `PlayerBasicState` / `PlayerUseWeaponState` / `PlayerDisadvantageState` check `IsDeath` first and no longer read HP; `CharacterBase.Reborn()` reloads the input.

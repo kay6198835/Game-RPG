@@ -1,0 +1,50 @@
+# Unity generated / per-machine
+Library/
+Temp/
+Logs/
+obj/
+UserSettings/
+Packages/
+ProjectSettings/
+Build/
+Builds/
+
+# Vendored third-party code
+Assets/Plugins/
+Assets/TextMesh Pro/
+
+# Binary / serialized Unity assets (no useful code structure)
+*.meta
+*.unity
+*.prefab
+*.asset
+*.anim
+*.controller
+*.mat
+*.physicsMaterial2D
+*.png
+*.jpg
+*.gif
+*.psd
+*.aseprite
+*.wav
+*.mp3
+*.ogg
+*.ttf
+*.otf
+*.fbx
+
+# QA automation and test tooling (keep the graph on game code + design)
+qa-automation/
+Assets/QA/
+Assets/Tests/
+Assets/Script/FastTest/
+tests/
+
+# Tooling and churn-heavy logs (keep the graph focused on code + design docs)
+CCGS Skill Testing Framework/
+ToolExcel/
+production/
+memory/
+.scratch/
+graphify-out/

@@ -38,23 +38,47 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     {
         base.ReloadComponent();
     }
+
+    // NEED CHECK: new 2026-11-25 — ability hit damage enters here (DamageEffect) and is forwarded to the
+    // hurtbox's damage pipeline, so mitigation, the dead check and the TakeDamage reaction stay in one place
+    // (NegativeReceiverBase.TakeDamage). Resolved lazily: Awake order between core components is not fixed.
+    protected INegativeReceiver negativeReceiver;
+    public void ApplyDamage(float amount, Vector2 attackPosition, AbilityContext context = null)
+    {
+        if (negativeReceiver == null && !Core.TryGetCapability(out negativeReceiver))
+        {
+            Debug.LogWarning($"[{GetType().Name}] {name}: no INegativeReceiver on this core, damage ignored.", this);
+            return;
+        }
+        negativeReceiver.TakeDamage(amount, attackPosition);
+    }
+    // NEED CHECK: 2026-11-26 — a dead character takes no new stat / vital effect (GDD AB-E19). Between HP 0 and
+    // the despawn (death animation frame) the hurtbox is still a trigger, so late hits still reach this receiver.
+    // Hit damage is already refused by NegativeReceiverBase's own dead check.
+    protected bool IsDead => input != null && input.IsDeath;
+
     public void AdjustCurrentStats(StatModifierGroup statModifierGroup, AbilityContext context, Action callback = null)
     {
-        foreach (var modifier in statModifierGroup.GetVitalModifiers)
+        if (IsDead) return;
+        foreach (var modifier in statModifierGroup.GetStatsModifiers)
         {
+            var vitalStatType = (VitalStatType)modifier.TargetStatType;
+            if (!Enum.IsDefined(typeof(VitalStatType), vitalStatType)) continue;
+            var adjustValue = Utility.ModifierStatsCalculate(modifier, vital.GetCurrentStatValue(vitalStatType));
             if (modifier.ImpactType == StatImpactType.Reduction)
             {
-                vital.Reduction(modifier.TargetStatType, Math.Abs(modifier.Value));
+                vital.Reduction(vitalStatType, Math.Abs(adjustValue));
             }
             else if (modifier.ImpactType == StatImpactType.Recovery)
             {
-                vital.Recovery(modifier.TargetStatType, Math.Abs(modifier.Value));
+                vital.Recovery(vitalStatType, Math.Abs(adjustValue));
             }
         }
     }
 
     public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
+        if (IsDead) return;
         statHandler.AddModifiersFromSource(SetEffectSource(context, 0f, callback), statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
@@ -93,11 +117,13 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
     public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
     {
+        if (IsDead) return;
         StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context, callback));
     }
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
+        if (IsDead) return;
         //StartCoroutine(ApplyAdjustMaxPerTimeForDuration(modifierGroup, perTime, duration, context));
     }
 

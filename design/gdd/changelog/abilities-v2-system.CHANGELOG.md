@@ -4,6 +4,48 @@ Change log for [`design/gdd/abilities-v2-system.md`](../abilities-v2-system.md).
 this file records **when** it changed, **what** changed (**from → to**) and **why**. Newest first.
 Append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-26 — StatModifier: magnitude + serialized impactType (AB-E12 replaced, AB-E11 note)
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** AB-E12 rewritten and no longer `[PLANNED]`; AB-E11 "Today" note; rule index (PLANNED 15 → 14).
+- **From → To:**
+  - AB-E12 (2026-11-25, temporary): values always positive, one conversion point before `AddModifiersFromSource`, `StatSheet` reads the sign of `Value` → `value` is a magnitude in 0…999, `impactType` is serialized on every row, every reader of `Value` applies the sign from `ImpactType`.
+  - Code at `85899a52`: `impactType` removed, `ImpactType` = sign of `value` → `impactType` field restored with `[SerializeField]`.
+  - Value range: unbounded → 0.1 … 999. Percent Reduction behaviour (zero / negative stat, Max HP ≤ 0 kills) written into AB-E12 for game design; code does not block it.
+  - AB-E11: `SyncModifiersFromStatusType` is the whole support; a hand-set `impactType` against `statusType` is a design error (no validation planned).
+- **Why:** owner decision 2026-11-26 (session item A1).
+- **Bugs:** none created.
+
+## 2026-11-26 — Delivery / Payload, SelfApplyEffect, dead guard, cleanup rule (AB-E15…E20)
+- **Commit:** `85899a52` (`sprint-24`)
+- **Changed:** six rules added to §7 — AB-E15 (Delivery / Payload), AB-E16 (`SubEffects` only on a Delivery), AB-E17 (`SelfApplyEffect`), AB-E18 (Payload keeps `Recipient`, no nesting), AB-E19 (dead character takes no new effect), AB-E20 (cleanup on disable, `[PLANNED]`); §7 intro; AB-E5, AB-E6 reworded; catalogue gains `SelfApplyEffect`, `DamageEffect` row says what it does with no target; Tuning Knobs `SubEffects[]` row; AC-49, AC-50; note on AB-E11 (A1 working tree) and OQ-4 (status registry key, not decided); rule index (80 → 86, CONFIRMED 39 → 45, PLANNED 14 → 15).
+- **From → To:**
+  - Any effect could sit in `AbilityDefinition.Effects` or in another effect's `SubEffects` → `Effects` holds Delivery effects, `SubEffects` (now on `DeliveryEffectBase` only) holds Payloads; no Delivery inside a Delivery.
+  - Blessing / Avatar of Light put their stat effects directly in `Effects` with `Recipient = Caster` → one `SelfApplyEffect` each, payloads `Recipient = Target`.
+  - A dead receiver still took buffs / debuffs until the despawn → refused (`EffectReceiverBase.IsDead`).
+  - No cleanup rule → `OnDisable` / `ReloadComponent` clear everything, data only (AB-E20, not built yet).
+  - Earlier "DamageEffect in Effects is an error" validation in `AbilityDefinition` → removed at owner request (a `DamageEffect` is a SubEffect by design); `DamageEffect` with no target now returns silently.
+- **Why:** owner decisions 2026-11-26 (session items 1, 4, A2, B1, B3, B4, B5).
+- **Not decided (kept out of the rules):** A1 (`StatModifier` sign flow), B2 (typed lists), B6 / OQ-4 (status registry key).
+- **Bugs:** none created.
+
+## 2026-11-25 — DamageEffect (AB-S11 added, AB-S7 implemented)
+- **Commit:** `b001d78e` (`sprint-24`)
+- **Changed:** AB-S11 added (CONFIRMED); AB-S7 no longer `[PLANNED]`; AB-S3, AB-S6, AB-S8 reworded; effect catalogue gains `DamageEffect`; Formulas, Tuning Knobs, AC-40, Ability Catalogue note; rule index (79 → 80, PLANNED 15 → 14).
+- **From → To:** damage computed inside each spawn effect / spawned object → one `DamageEffect` SO, through `IEffectReceiver.ApplyDamage` into the hurtbox pipeline (TakeDamage state). HP loss without a state change → `RecoveryReductionStatsEffect` / `RecoveryReductionPerTimeForDuration` (`AdjustCurrentStats`).
+- **Why:** owner decision 2026-11-25 (session).
+- **Bugs:** none created.
+
+## 2026-11-25 — Status & stat effect rules (AB-E8 … AB-E14)
+- **Commit:** `b001d78e` (`sprint-24`)
+- **Changed:** seven rules added to §7 (all CONFIRMED `[PLANNED]`); effect catalogue rows for `RecoveryReductionStatsEffect` and `RecoveryReductionPerTimeForDuration` re-read against code; rule index (72 → 79).
+- **From → To:**
+  - `StatusType` on each stat effect, stats auto-filled from the status config → one `StatusType` per `AbilityDefinition`, passed at runtime via `AbilityContext`; config is reference only; stats picked by hand (AB-E9, E10, E13).
+  - Direction from `StatModifier.impactType` (vital) or the value's sign (stat) → `ImpactType` derived from the status, values always positive, signed once in the receiver — **temporary** (AB-E11, E12).
+  - Tick effect → new `AdjustCurrentPerTimeForDuration`; a mixed status is two effects in one ability (AB-E14). Stat vs vital written down (AB-E8).
+  - Catalogue: `RecoveryReductionStatsEffect` "no-op" → runs, but Reductions load as Recovery; `RecoveryReductionPerTimeForDuration` "throws" → empty body, does nothing.
+- **Why:** owner decisions 2026-11-25 (session).
+- **Bugs:** none created. Findings in `docs/systems/abilities/README.md` Open issues (2026-11-25 rows).
+
 ## 2026-11-13 — Three follow-up confirmations on AB-G7 and AB-L7
 - **Commit:** not committed (working tree on `sprint-22`)
 - **Changed:** AB-L7, AB-G7, AB-CD1, the cooldown formula, AC-44, EC-8.

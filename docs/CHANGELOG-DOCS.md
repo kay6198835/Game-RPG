@@ -17,6 +17,88 @@ which code change caused it.
 
 ---
 
+## 2026-11-26 — Abilities changelog: Exit transitions deleted (`sprint-24`)
+
+**Cause.** The state → Exit transition deleted from 4 spawn effect controllers (was only Has Exit Time off in `6dd66791`).
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+
+**Findings.** STATIC only (no Unity).
+
+## 2026-11-26 — Abilities changelog: spawn effect controllers (`sprint-24`)
+
+**Cause.** `m_HasExitTime` 1 → 0 on the Exit transition of 4 spawn effect controllers.
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+
+**Findings.** STATIC only (no Unity).
+
+## 2026-11-26 — Abilities changelog: Consecrate clip loop fix (`sprint-24`)
+
+**Cause.** 16 `Paladin_Consecrate_State1/3` clips (no loop, padded end) and `Paladin.controller` Activate → Cast exit time.
+
+| Document | Change |
+|---|---|
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+
+**Findings.** STATIC only (no Unity).
+
+## 2026-11-26 — Abilities: StatModifier sign rule A1 (`sprint-24`)
+
+**Cause.** Owner decision 2026-11-26 (session item A1) and its code in the working tree: `StatModifier.impactType`
+serialized again, `value` a magnitude in 0…999; `StatSheet.ApplyModifiers` and `QAEnemySuite.Items` read the sign from `ImpactType`; owner commit `8377ebaf`
+(`AdjustCurrentStats` through `Utility.ModifierStatsCalculate`, percent of the current value).
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E12 rewritten (no longer `[PLANNED]`), AB-E11 note, rule index PLANNED 15 → 14; OQ-4 note (Casting = power build-up, `SpawnSummonEffect.TryCast` no longer spawns) |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry; the earlier 2026-11-26 entry now names commit `85899a52` |
+| `docs/systems/abilities/README.md` | Open issues row for `impactType`; "Values and sign" block rewritten |
+| `docs/systems/abilities/CHANGELOG.md` | Entries (A1; `SpawnSummonEffect.TryCast` + RainArrows clips); the earlier 2026-11-26 entry now names commit `85899a52` |
+
+**Findings.** STATIC only (no Unity).
+
+## 2026-11-26 — Abilities: Delivery / Payload decisions (`sprint-24`, `85899a52`)
+
+**Cause.** Owner decisions 2026-11-26 (session) and the code they produced in the working tree: `DeliveryEffectBase`,
+`PayloadEffectBase`, `SelfApplyEffect` (new), `SubEffects` moved off `AbilityEffectDefinition`, `EffectReceiverBase.IsDead`,
+`DamageEffect` recipient default; Blessing / Avatar of Light assets rewired. Not committed — the owner commits once the
+open items A1 (`StatModifier` sign flow) and B6 (status registry key) are decided.
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E15…E20 added; AB-E5, AB-E6, catalogue, Tuning Knobs, AC-49, AC-50, rule index; notes on AB-E11 and OQ-4 |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry for the above; the two 2026-11-25 entries now name commit `b001d78e` |
+| `docs/systems/abilities/README.md` | Code table; "Delivery and Payload" block; Open issues rows for `impactType` and `EffectReceiverBase` |
+| `docs/systems/abilities/CHANGELOG.md` | Entry; the two 2026-11-25 entries now name commit `b001d78e` |
+
+**Findings.** STATIC only (no Unity). README header "Last verified" left at 2026-11-05 — no full re-verification was done.
+
+## 2026-11-22 — Doc-truth pass after the 2026-11-21 wrap-up (HEAD `1e5afb3c`)
+
+**Cause.** Code on `sprint-23` since `d0d814b6`: `c613e641` (enemy investigate), `0e0dc874` (pathfinding grid
+rules), `49c58e35` / `06adc2a0` (death flow), `19540dff` (knockback), `be973605` (player spawned through the
+pool), `8005d27e` (`INegativeReceiver<TCore>` split — BUG-135), `67c188b3`, `1e5afb3c` (dash). Claim sweep:
+`production/qa/doc-truth-2026-11-22.md`.
+
+| Document | Change |
+|---|---|
+| `CLAUDE.md` | Last-updated line; Code map "9 states" → "10 states" |
+| `docs/systems/character/README.md` + `CHANGELOG.md` | Receiver interface (BUG-135), pooled player spawn, `PlayerDashState`, death event on `AnimationOnAction`, Open issues re-aligned to bug files |
+| `docs/systems/enemy/README.md` + `CHANGELOG.md` | State list + "Hit from out of view" paragraph (`EntityInvestigateState`) |
+| `docs/systems/pathfinding/README.md` + `CHANGELOG.md` | "Grid rules" paragraph (tile centres, `FloorToInt`, corner rule, `IsLineWalkable`) |
+| `docs/systems/dependency-injection/README.md` + `CHANGELOG.md` | Player spawn row: `IObjectPoolService.Spawn()`; `Enable()` / `Disable()` have no caller |
+| `docs/systems/event-system/README.md` + `CHANGELOG.md` | `ON_PLAYER_DEATH` producer row |
+| `memory/project_state.md` | Delta 2026-11-15 → 2026-11-22 |
+
+**Findings.** `CLAUDE.md` › Architecture "single implementer `NegativeReceiverBase`" is false while BUG-135 is
+open — left (it states the intended contract; CLAUDE.md edits are limited to index lines). New inbox note
+NOTE-20261122-1. `open-bugs.md` content already matches `bug-id.sh open` (audit "STALE" was line endings only).
+
 ## 2026-11-19 — UI end-of-run flows: player death, boss death (`feature/fix-bug-sprint-23`)
 
 **Cause.** `49c58e35` made `ON_PLAYER_DEATH` fire once; owner asked for the death UI flow to be documented and for

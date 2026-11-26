@@ -75,7 +75,7 @@ public class StatModifierTester : MonoBehaviour
     public void AddModifierFromSource()
     {
         if (!Guard()) return;
-        Sheet.AddModifiersFromSource(CurrentSource, new[] { new StatModifier(modifierTarget, modifierValue, modifierType) });
+        Sheet.AddModifiersFromSource(CurrentSource, new[] { new StatModifier(modifierTarget, modifierValue, modifierType, modifierValue >= 0f ? StatImpactType.Recovery : StatImpactType.Reduction) });
     }
 
     /// <summary>Gắn cả cụm modifier từ nguồn hiện tại — gỡ lại bằng nút Remove theo nguồn.</summary>

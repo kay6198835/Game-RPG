@@ -197,7 +197,7 @@ namespace QA.Automation
             float max = _rig.MaxHp;
             float cut = Mathf.Max(1f, max * 0.25f);
             object source = new();
-            _rig.Stats.AddModifiersFromSource(source, new[] { new StatModifier(StatType.HP, -cut, ModifierType.Flat) });
+            _rig.Stats.AddModifiersFromSource(source, new[] { new StatModifier(StatType.HP, -cut, ModifierType.Flat, StatImpactType.Reduction) });
             yield return null;
             float lowered = _rig.MaxHp;
             Check(Near(lowered, max - cut, 0.05f), $"max HP {max:0.#} -> {lowered:0.#}", $"max HP {max:0.#} -> {lowered:0.#}, expected {max - cut:0.#}");

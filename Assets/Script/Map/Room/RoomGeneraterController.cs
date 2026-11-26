@@ -1,6 +1,5 @@
 
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using VContainer;
@@ -136,11 +135,17 @@ public class RoomGeneraterController : MonoBehaviour
 
     public void LoadRoom(int index, RoomCell nextRoomCell)
     {
-        string filePath = _mazeRooms[index].filePath;
-        string json = File.ReadAllText(Application.dataPath + filePath);
         if (!nextRoomCell.IsCleared)
         {
-            Data = JsonUtility.FromJson<LevelData>(json);
+            // Read from the TextAsset reference, not from Application.dataPath: Assets/ is not shipped in a build.
+            TextAsset roomJson = _mazeRooms[index].roomJson;
+            if (roomJson == null)
+            {
+                Debug.LogError($"[{nameof(RoomGeneraterController)}] Room {_mazeRooms[index].roomName} has no roomJson TextAsset " +
+                               $"in {_fullDungeonRoomSO.name}; run LevelEditorTool > Import to relink it.");
+                return;
+            }
+            Data = JsonUtility.FromJson<LevelData>(roomJson.text);
         }
         else
         {

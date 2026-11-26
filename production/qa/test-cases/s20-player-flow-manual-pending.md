@@ -1,7 +1,7 @@
 # Player Flow — Manual Cases (PENDING owner)
 
 **Scope**: spawn → pick class → basic attack → abilities, for Paladin / Archer / Mage.
-**Automated part**: `Assets/Scenes/Test/QAPlayerFlow.unity` + `QAPlayerFlowProbe` (Tools > QA > Player Flow >
+**Automated part**: `Assets/QA/Scenes/Test/QAPlayerFlow.unity` + `QAPlayerFlowProbe` (Tools > QA > Player Flow >
 Build and Run). Reports land in `production/qa/evidence/auto/player-flow-*.md`. The cases below cannot
 be judged by numbers and are left for a human pass. **Status: PENDING** for every row.
 

@@ -1,6 +1,6 @@
 # Dependency Injection (VContainer) + Player Service
 
-> **Status:** live · **Last verified:** 2026-10-05, HEAD `93ba6d8e` · **ADR:** ADR-0004 · VContainer 1.19.0 (git package)
+> **Status:** live · **Last verified:** 2026-11-22, `sprint-23` `1e5afb3c` (player spawn row and `PlayerManager` only); rest 2026-10-05, HEAD `93ba6d8e` · **ADR:** ADR-0004 · VContainer 1.19.0 (git package)
 > History: [CHANGELOG.md](CHANGELOG.md)
 
 ## Purpose
@@ -36,7 +36,7 @@ builder.RegisterComponentInHierarchy<LevelManager>();
 | Object kind | Mechanism |
 |-------------|-----------|
 | Scene component listed above | `RegisterComponentInHierarchy` (finds, never spawns — missing = throw at `Awake`) |
-| The player | `PlayerManager.SpawnPlayer()` → `resolver.Instantiate(playerPrefab, spawnPoint, parent)` injects the whole hierarchy before `Awake()`; `Camera.main` is parented to the player |
+| The player | `PlayerManager.SpawnPlayer()` → `IObjectPoolService.Spawn(playerPrefab, spawnPoint, parent)` (since `be973605`; was `resolver.Instantiate`), so the pool's `resolver.InjectGameObject()` injects it; `Camera.main` is parented to the player. `PlayerManager.Construct(IObjectResolver, IObjectPoolService)`. `Enable()` / `Disable()` (register `DespawnPlayer` on `ON_PLAYER_DEATH`) are plain public methods with no caller — NOTE-20261122-1. The code comment at `PlayerManager.cs:40` still says `resolver.Instantiate` |
 | Pooled objects | `Pool.Spawn()` → `resolver.InjectGameObject(obj)` on first instantiate |
 | Weapons | `WeaponHolderBase.Equid()` → `resolver.InjectGameObject(weapon.gameObject)` |
 
