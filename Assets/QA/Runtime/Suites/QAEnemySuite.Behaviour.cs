@@ -575,6 +575,59 @@ namespace QA.Automation
             if (_enemy.activeSelf) pool.Despawn(_enemy);
         }
 
+        // QA-ENT-17 (added 2026-11-27, b001d78e / 85899a52): ability hit damage is a DamageEffect that calls
+        // IEffectReceiver.ApplyDamage on the hit collider (ctx.Target), mitigated like a weapon hit. The real
+        // Blessed Slash damage asset is used through an Instantiate copy; Caster is null, so the damage is baseDamage.
+        private const string DamageEffectAsset = "Assets/SO/Skill/Paladin/Ability/Blessed Slash/Effect/Paladin Blessed Slash Damage Effect.asset";
+
+        private IEnumerator CaseDamageEffect()
+        {
+            bool ready = false;
+            yield return SpawnFree(ok => ready = ok);
+            if (!ready) yield break;
+            DamageEffect asset = UnityEditor.AssetDatabase.LoadAssetAtPath<DamageEffect>(DamageEffectAsset);
+            if (asset == null)
+            {
+                Skip($"{DamageEffectAsset} not found or not a DamageEffect");
+                yield break;
+            }
+            Collider2D hurtboxCollider = _hurtbox != null ? _hurtbox.GetComponent<Collider2D>() : null;
+            if (hurtboxCollider == null)
+            {
+                Fail("the enemy hurtbox has no Collider2D (spawned objects pass the hit collider as ctx.Target)");
+                yield break;
+            }
+            DamageEffect effect = Instantiate(asset);
+            try
+            {
+                FieldInfo baseField = typeof(DamageEffect).GetField("baseDamage", BindingFlags.NonPublic | BindingFlags.Instance);
+                float baseDamage = baseField != null ? (float)baseField.GetValue(effect) : 30f;
+                Check(effect.Recipient == EffectRecipient.Target, "asset Recipient = Target", $"asset Recipient = {effect.Recipient} (the hit target is not damaged)");
+
+                _vital.ReloadComponent();
+                yield return null;
+                float defense = Mathf.Max(0f, _stats.GetStatValue(StatType.Defense));
+                float before = Hp;
+                effect.Apply(new AbilityContext { Target = hurtboxCollider, Origin = EnemyPosition + Vector2.left });
+                yield return Frames(2);
+                float lost = before - Hp;
+                float expected = baseDamage * 100f / (100f + defense);
+                Check(Near(lost, expected, 0.05f),
+                    $"DamageEffect hit lowered HP by {lost:0.##} = {baseDamage:0.##} x 100 / (100 + Defense {defense:0.##})",
+                    $"DamageEffect hit lowered HP by {lost:0.##}, expected {expected:0.##} ({baseDamage:0.##} x 100 / (100 + Defense {defense:0.##}))");
+
+                yield return Wait(0.5f);
+                before = Hp;
+                effect.Apply(new AbilityContext { Target = null, Origin = EnemyPosition + Vector2.left });
+                yield return Frames(2);
+                Check(Near(Hp, before, 0.001f), "no hit target: no damage, no exception", $"no hit target changed HP {before:0.##} -> {Hp:0.##}");
+            }
+            finally
+            {
+                Destroy(effect);
+            }
+        }
+
         private IEnumerator CaseEffectCurrentStats()
         {
             EntityEffectReceiver receiver = null;

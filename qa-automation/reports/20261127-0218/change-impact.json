@@ -1,0 +1,127 @@
+{
+    "base":  "075711d9ad",
+    "head":  "be3c7054a5",
+    "baseRef":  "075711d9ad",
+    "headRef":  "origin/sprint-24",
+    "commits":  [
+                    {
+                        "sha":  "be3c7054",
+                        "date":  "2026-11-27",
+                        "author":  "Kay",
+                        "subject":  "chore(standup): duplicate standup firing 2026-11-27 - SKIPPED",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "production/session-state/routine-log.md"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "56fc14c6",
+                        "date":  "2026-11-27",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261127-0141 on origin/sprint-24 - FAIL",
+                        "files":  [
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/change-impact.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/results.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/run-info.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/run.log"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/summary.json"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/unit-results.xml"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/unity-report.md"
+                                      },
+                                      {
+                                          "status":  "A",
+                                          "path":  "qa-automation/reports/20261127-0141/weekly-change-impact.md"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/history.jsonl"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/last-success.json"
+                                      },
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    },
+                    {
+                        "sha":  "f576f1e6",
+                        "date":  "2026-11-27",
+                        "author":  "Kay",
+                        "subject":  "test(qa): weekly automation run 20261127-0134 - RUNNER_ERROR",
+                        "files":  [
+                                      {
+                                          "status":  "M",
+                                          "path":  "qa-automation/state/latest.json"
+                                      }
+                                  ]
+                    }
+                ],
+    "merges":  2,
+    "files":  13,
+    "systems":  {
+                    "DOCS":  [
+                                 "production/session-state/routine-log.md"
+                             ],
+                    "QA":  [
+                               "qa-automation/reports/20261127-0141/change-impact.json",
+                               "qa-automation/reports/20261127-0141/report.md",
+                               "qa-automation/reports/20261127-0141/results.json",
+                               "qa-automation/reports/20261127-0141/run.log",
+                               "qa-automation/reports/20261127-0141/run-info.json",
+                               "qa-automation/reports/20261127-0141/summary.json",
+                               "qa-automation/reports/20261127-0141/unit-results.xml",
+                               "qa-automation/reports/20261127-0141/unity-report.md",
+                               "qa-automation/reports/20261127-0141/weekly-change-impact.md",
+                               "qa-automation/state/history.jsonl",
+                               "qa-automation/state/last-success.json",
+                               "qa-automation/state/latest.json"
+                           ]
+                },
+    "deep":  [
+
+             ],
+    "risks":  [
+
+              ],
+    "newScripts":  [
+
+                   ],
+    "newAssets":  [
+
+                  ],
+    "deleted":  [
+
+                ],
+    "uncoveredNewScripts":  [
+
+                            ]
+}

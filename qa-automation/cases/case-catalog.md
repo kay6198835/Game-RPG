@@ -12,7 +12,7 @@ A retired case keeps its row with status **Retired**; its ID is never reused.
   change scan touches that system, or with `-Deep ALL`).
 - **Group**: the QA scene that runs it (STATIC runs in Edit Mode with no scene).
 - **Source**: where the case code lives. Each suite file lists its cases in `Run()` in this order. Exception:
-  `QAEnemySuite` runs QA-ENT-09…14, then QA-ITEM-02…12, then QA-ENT-15 and QA-ENT-08 last (those let the
+  `QAEnemySuite` runs QA-ENT-09…14, 16, 17, then QA-ITEM-02…12, then QA-ENT-15 and QA-ENT-08 last (those let the
   enemy hit the player).
 
 ## Systems
@@ -53,7 +53,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-CMB-04.<Class> | P0 | Arrow hits and despawns | hit within 2.5 s; no live `ProjectileBody` 2 s later | BUG-095 | |
 | QA-CMB-05.<Class> | P1 | Shots are at least RecoveryTime apart | min interval ≥ `RangeAttackSO.RecoveryTime` | BUG-103 | |
 | QA-CMB-06.<Class> | P1 | Attack with no weapon | no attack state, no damage, no exception | | |
-| QA-ABL-01.<Class>.<Slot> | P0 Primary / P1 others | Cast pays cost, starts cooldown, applies effect | cooldown event = definition; cost paid in the activation frame; spawn effect hits / stat effect visible | BUG-114 (Paladin Utility) | |
+| QA-ABL-01.<Class>.<Slot> | P0 Primary / P1 others | Cast pays cost, starts cooldown, applies effect | cooldown event = definition; cost paid in the activation frame; spawn effect hits (`QAProbeTarget` implements `INegativeReceiver` and `IEffectReceiver` since 2026-11-27: ability damage is a `DamageEffect`) / stat effect visible | BUG-114 (Paladin Utility) | |
 | QA-ABL-02.<Class>.<Slot> | P1 | No recast while on cooldown | second press: no cast, no cost | | |
 | QA-ABL-03.<Class>.<Slot> | P2 | Refused when the cost cannot be paid | no cast, no cost, player alive; HP costs OBSERVED | | |
 | QA-STAT-10 | P0 | Class stat assets unchanged after a full player run | in-memory `FullStatsValue()` of every class stat asset equal before/after | BUG-115 | |
@@ -88,6 +88,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-ENT-13 | P1 | Effect receiver, max stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustMaxStats` Defense +5 flat applies; removing the source (read back from the stamped modifier: the receiver owns its pooled `SourceEffect` source since `25d869fb`) restores; `AdjustMaxForDuration` 0.5 s applies then expires | | |
 | QA-ENT-14 | P1 | Effect receiver, current stats (added 2026-11-12). SKIP when the prefab has no `EntityEffectReceiver` | `AdjustCurrentStats`: a +20 % HP vital modifier heals exactly, a −20 % one damages exactly (BUG-117 fixed in code `f528c087`, PASS 2026-11-17) | | |
 | QA-ENT-16 | P1 | Effect receiver, independent sources (added 2026-11-17, `25d869fb`, `cfb6a230`). SKIP when the prefab has no `EntityEffectReceiver` | two `AdjustMaxStats` Defense +5 stack to +10; a 0.5 s `AdjustMaxForDuration` +5 applies on top and expires leaving +10; a second timed buff on a reused pooled source also leaves +10 | | |
+| QA-ENT-17 | P1 | DamageEffect on the enemy hurtbox (added 2026-11-27, `b001d78e`, `85899a52`): an Instantiate copy of `Paladin Blessed Slash Damage Effect.asset`, `ctx.Target` = hurtbox collider, no caster | HP drops by `baseDamage x 100 / (100 + Defense)`; Recipient = Target; with `ctx.Target` null nothing changes and nothing throws | | |
 | QA-ENT-15 | P0 | Move, chase (added 2026-11-12): player held in the view cone, then moved out of attack range | locks the player within 3 s; enters `EntityMoveState`; closes to `MaxRangeAttack`; keeps the lock; enters `EntityAttackState` within 4 s | | |
 | QA-EVT-01 | P0 | Emit delivers the payload to a registered listener | 1 call, same payload | | `EventManagerTests.Emit_DeliversPayloadOnceToRegisteredListener` |
 | QA-EVT-02 | P0 | `UnResgister` stops delivery | 0 calls | | `EventManagerTests.UnResgister_StopsDelivery` |
@@ -129,7 +130,7 @@ The path → system map used by the weekly change scan is `qa-automation/config/
 | QA-ITEM-07 | P1 | An HP / Mana recovery item heals exactly its value, never above max (added 2026-11-20, synthetic items) | HP +10 % and Mana +10 % of max exact below max; at full HP stays at max | | |
 | QA-ITEM-08 | P1 | Two pickups of the same stat item stack; each can be removed on its own (added 2026-11-20) | Defense +8 for two +4 pickups; 2 sources; removing one leaves +4; removing both restores | | `ItemEffectDataTests.AddModifiersFromSource_SameItemListFromTwoPickups_StacksAndRemovesIndependently` |
 | QA-ITEM-09 | P1 | Player: a permanent item buff survives the expiry of a timed buff on the same stat (added 2026-11-20; QA-ENT-16 is the enemy twin) | STR item +5; timed +5 applies on top; after 0.5 s + 0.5 s STR back to item value | | |
-| QA-ITEM-10 | P2 | An item with an empty effect slot, or with no effect, is still collected (added 2026-11-20) | no exception; `ON_COLLECT_ITEM` once. Expected to FAIL on the empty slot today (inbox NOTE-20261120-5) | | |
+| QA-ITEM-10 | P2 | An item with an empty effect slot, or with no effect, is still collected (added 2026-11-20) | no exception; `ON_COLLECT_ITEM` once. FAILs on the empty slot (NOTE-20261120-5, triaged into BUG-120; KNOWN since 2026-11-27) | BUG-120 | |
 | QA-ITEM-11 | P1 | A reused pooled drop shows and gives only the new item (added 2026-11-20) | new name; first item's buff not re-applied; second item's coins given | | |
 | QA-ITEM-12 | P1 | Two items in reach: each Q collects one new item, never the released one again (added 2026-11-20, real Q input) | 2 presses → 2 different items, +11 coins, both released (inbox NOTE-20261120-6) | | |
 | QA-STATIC-01 | P0 | No asset / prefab / scene references a missing script | every `m_Script` guid resolves | BUG-073 (ShootSpirit) | |
