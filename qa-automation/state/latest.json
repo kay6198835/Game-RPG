@@ -1,15 +1,22 @@
 {
-    "run":  "20261127-0134",
-    "status":  "RUNNER_ERROR",
-    "exitCode":  2,
+    "run":  "20261127-0141",
+    "status":  "FAIL",
+    "exitCode":  1,
     "sprint":  "origin/sprint-24",
-    "head":  "d3ef66da61",
-    "base":  "",
-    "ownerBranch":  "origin/feature/fix-bug-sprint-24",
+    "head":  "075711d9ad",
+    "base":  "bcedaebb88",
+    "ownerBranch":  "qa/weekly-automation",
     "autoCommit":  "",
-    "reportDir":  "",
-    "totals":  null,
-    "message":  "git checkout qa/weekly-automation (exit 1): error: Your local changes to the following files would be overwritten by checkout: | \tAssets/QA/Scenes/Test/CombatTest.unity | Please commit your changes or stash them before you switch branches. | Aborting",
-    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261127-0134.log",
-    "finished":  "2026-11-27 01:34:38"
+    "reportDir":  "qa-automation/reports/20261127-0141",
+    "totals":  {
+                   "total":  257,
+                   "PASS":  215,
+                   "FAIL":  7,
+                   "KNOWN":  12,
+                   "SKIP":  19,
+                   "OBSERVED":  4
+               },
+    "message":  "PASS 215 / FAIL 7 / KNOWN 12 / SKIP 19 / OBSERVED 4; new FAIL: 7",
+    "log":  "C:\\Users\\haoki\\AppData\\Local\\GameRPG-QA\\logs\\run-20261127-0141.log",
+    "finished":  "2026-11-27 02:09:46"
 }
