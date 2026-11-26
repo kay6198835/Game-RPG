@@ -1,15 +1,15 @@
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider2D))]
+[RequireComponent(typeof(Collider2D))]
 public class Trap : SpawnEffectMono
 {
-    [SerializeField] private BoxCollider2D _collider;
+    [SerializeField] private Collider2D _collider;
     [SerializeField] private LayerMask _targetMask;
     [SerializeField] private float _damage;
 
     protected void Awake()
     {
-        _collider = GetComponent<BoxCollider2D>();
+        _collider = GetComponent<Collider2D>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)

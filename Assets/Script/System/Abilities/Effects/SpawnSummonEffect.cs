@@ -4,17 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Game/Abilities/Effects/Spawn Summon Effect")]
 public class SpawnSummonEffect : SpawnEffectBase
 {
-    [SerializeField] protected SpawnSummonBase summonPrefab;
-
-    protected override float Angle()
+    protected override float Angle(AbilityContext context)
     {
         return 0;
-    }
-    public override void Apply(AbilityContext context)
-    {
-        var obj = context.Services.Pool.Spawn(summonPrefab.gameObject, context.TargetPoint, Quaternion.identity);
-        var controller = obj.GetComponent<SpawnSummonBase>();
-        controller.Launch(Lifetime, context, SummonExecute);
     }
     public override bool TryCast(AbilityContext context)
     {
@@ -26,18 +18,11 @@ public class SpawnSummonEffect : SpawnEffectBase
     //Callback
     protected override void Execute(AbilityContext currentContext)
     {
-        //Do nothing
-    }
-
-    // NEED CHECK: 2026-11-25 — no damage here any more. Damage is a DamageEffect in SubEffects (GDD AB-S11);
-    // the summon only reports who it hit (ctx.Target) and runs the on-hit SubEffects.
-    protected virtual void SummonExecute(AbilityContext currentContext)
-    {
         ApplyOnHitEffects(currentContext);
     }
 
-    protected override Vector2 SpawnPos()
+    protected override Vector2 SpawnPos(AbilityContext context)
     {
-        return _context.TargetPoint;
+        return context.TargetPoint;
     }
 }

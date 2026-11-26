@@ -271,35 +271,26 @@ public static class Utility
         return overriddenCount == 0 ? 0f : totalDuration / overriddenCount;
     }
 
-    public static float ModifierStatsCalculate(List<StatModifier> modifiers, float baseValue)
+    public static float ModifierStatsCalculate(StatModifier modifiers, float baseValue)
     {
         float percentAddSum = 0f;
         float addedValue = baseValue;
-        for (int i = 0; i < modifiers.Count; i++)
+        switch (modifiers.Type)
         {
-            StatModifier mod = modifiers[i];
-            switch (mod.Type)
-            {
-                case ModifierType.Flat:
-                    addedValue += mod.Value;
-                    break;
+            case ModifierType.Flat:
+                addedValue += modifiers.Value;
+                break;
 
-                case ModifierType.PercentAdd:
-                    percentAddSum += mod.Value;
-                    // Cộng dồn hết các PercentAdd liên tiếp rồi mới nhân 1 lần
-                    bool isLastPercentAdd = i + 1 >= modifiers.Count
-                        || modifiers[i + 1].Type != ModifierType.PercentAdd;
-                    if (isLastPercentAdd)
-                    {
-                        addedValue *= 1f + percentAddSum;
-                        percentAddSum = 0f;
-                    }
-                    break;
+            case ModifierType.PercentAdd:
+                percentAddSum += modifiers.Value;
+                // Cộng dồn hết các PercentAdd liên tiếp rồi mới nhân 1 lần
+                addedValue *= 1f + percentAddSum;
+                percentAddSum = 0f;
+                break;
 
-                case ModifierType.PercentMult:
-                    addedValue *= 1f + mod.Value;
-                    break;
-            }
+            case ModifierType.PercentMult:
+                addedValue *= 1f + modifiers.Value;
+                break;
         }
         return addedValue - baseValue;
     }

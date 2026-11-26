@@ -10,9 +10,9 @@ public class SpawnProjectileEffect : SpawnEffectBase
         base.Apply(context);
     }
 
-    protected override float Angle()
+    protected override float Angle(AbilityContext context)
     {
-        dir = new Vector2(_context.Forward.x, _context.Forward.y);
+        dir = new Vector2(context.Forward.x, context.Forward.y);
         if (dir.sqrMagnitude < 0.01f)
             dir = Vector2.right;
         dir.Normalize();
@@ -25,8 +25,8 @@ public class SpawnProjectileEffect : SpawnEffectBase
         ApplyOnHitEffects(currentContext);
     }
 
-    protected override Vector2 SpawnPos()
+    protected override Vector2 SpawnPos(AbilityContext context)
     {
-        return (Vector2)_context.Origin + dir * SpawnOffset;
+        return (Vector2)context.Origin + dir * SpawnOffset;
     }
 }

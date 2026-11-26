@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// An effect that decides <b>who is hit</b> — spawn, area, wave, self (GDD AB-E15). Only a Delivery
@@ -10,7 +11,7 @@ public abstract class DeliveryEffectBase : AbilityEffectDefinition
 {
     // NEED CHECK: 2026-11-26 — moved here from AbilityEffectDefinition with the same name, so existing
     // spawn effect assets keep their list (GDD AB-E16).
-    public List<AbilityEffectDefinition> SubEffects = new();
+    [SerializeField] protected List<AbilityEffectDefinition> SubEffects = new();
 
     /// <summary>
     /// Runs every SubEffect against <see cref="AbilityContext.Target"/>, in list order. Does nothing

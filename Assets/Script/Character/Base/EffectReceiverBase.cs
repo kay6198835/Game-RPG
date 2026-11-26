@@ -64,13 +64,14 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         {
             var vitalStatType = (VitalStatType)modifier.TargetStatType;
             if (!Enum.IsDefined(typeof(VitalStatType), vitalStatType)) continue;
+            var adjustValue = Utility.ModifierStatsCalculate(modifier, vital.GetCurrentStatValue(vitalStatType));
             if (modifier.ImpactType == StatImpactType.Reduction)
             {
-                vital.Reduction(vitalStatType, Math.Abs(modifier.Value));
+                vital.Reduction(vitalStatType, Math.Abs(adjustValue));
             }
             else if (modifier.ImpactType == StatImpactType.Recovery)
             {
-                vital.Recovery(vitalStatType, Math.Abs(modifier.Value));
+                vital.Recovery(vitalStatType, Math.Abs(adjustValue));
             }
         }
     }

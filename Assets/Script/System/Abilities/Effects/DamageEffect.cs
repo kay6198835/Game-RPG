@@ -15,6 +15,7 @@ public class DamageEffect : PayloadEffectBase
     [SerializeField] private StatType scalingStat = StatType.PhysicalDamage;
     [Tooltip("damage = baseDamage + coefficient × caster's scalingStat. 0 = flat damage.")]
     [SerializeField] private float coefficient;
+    
 
 #if UNITY_EDITOR
     // A new DamageEffect hits the target. The base default (Caster) suits buffs, not damage.
