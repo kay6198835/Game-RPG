@@ -2,6 +2,14 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-26 — Spawn effect controllers: Exit transition deleted
+- **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
+- **Changed:** the state → Exit transition is deleted from `CircleSummonEffect`, `RainArrows`, `RuneCircleEffect`, `LightningEffect` (transition object removed, the state's `m_Transitions` is `[]`).
+- **From → To:** `6dd66791` only turned its Has Exit Time off (transition ignored, Editor warning, one tick away from coming back) → no transition at all: the state plays its clip once and holds the last frame until `DespawnOneSelf`.
+- **Why:** owner, 2026-11-26.
+- **Evidence:** STATIC — not run. Same checks as the entry below.
+- **Bugs:** none opened or closed.
+
 ## 2026-11-26 — Spawn effect controllers: Exit transition no longer fires
 - **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
 - **Changed:** `CircleSummonEffect`, `RainArrows`, `RuneCircleEffect`, `LightningEffect` controllers: the one transition (state → Exit, no condition, ExitTime 0.75, 0.25 s) gets `m_HasExitTime` 1 → 0. With no condition and no exit time Unity ignores it (Editor shows a warning on that transition). `Trap.controller` has no transition; `Slash-VFX-GO` has no Animator.
