@@ -21,9 +21,9 @@ public class DamagesInManyPos : SpawnSummonBase
         _hitBuffer = new Collider2D[Mathf.Max(1, maxTargetsPerPoint)];
     }
 
-    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> currentContext)
+    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> callback)
     {
-        base.Launch(lifetime, context, currentContext);
+        base.Launch(lifetime, context, callback);
         SetDir(_context.DirectionIndex);
     }
 

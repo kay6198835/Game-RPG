@@ -271,25 +271,21 @@ public static class Utility
         return overriddenCount == 0 ? 0f : totalDuration / overriddenCount;
     }
 
-    public static float ModifierStatsCalculate(StatModifier modifiers, float baseValue)
+    public static float ModifierStatsCalculate(StatModifier modifier, float baseValue)
     {
-        float percentAddSum = 0f;
         float addedValue = baseValue;
-        switch (modifiers.Type)
+        switch (modifier.Type)
         {
             case ModifierType.Flat:
-                addedValue += modifiers.Value;
+                addedValue += modifier.Value;
                 break;
 
             case ModifierType.PercentAdd:
-                percentAddSum += modifiers.Value;
-                // Cộng dồn hết các PercentAdd liên tiếp rồi mới nhân 1 lần
-                addedValue *= 1f + percentAddSum;
-                percentAddSum = 0f;
+                addedValue *= 1f + modifier.Value;
                 break;
 
             case ModifierType.PercentMult:
-                addedValue *= 1f + modifiers.Value;
+                addedValue *= 1f + modifier.Value;
                 break;
         }
         return addedValue - baseValue;
