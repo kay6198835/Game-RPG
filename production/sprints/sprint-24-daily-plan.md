@@ -11,13 +11,14 @@
 
 ## Status Verdict
 
-**SLIPPED (day 4, 2026-11-26).** Wednesday's output was off-plan ability work: `b001d78e`
-`DamageEffect` (ability hit damage through `IEffectReceiver`, 8 class damage-effect assets) and the
-owner's `f2a580b2` trap object + `SpawnMono` → `SpawnMonoEffect` folder move, merged `381171a9`.
-No Must task moved: S24-02 QA rerun, S24-03 death → Game Over and S24-01 playtest still open; the
-abilities rework changes the damage path again, so the QA rerun is now more urgent. Must remaining
-≈0.65d over 1.5 days (Thu + Fri) plus Saturday. Evidence: LOG + STATIC (compile SKIPPED, Editor open;
-last COMPILED `e47f5c38`).
+**SLIPPED (day 5, 2026-11-27).** Thursday's output was again off-plan ability work (≈1.0d):
+`85899a52` Delivery / Payload split + `SelfApplyEffect`, `83800891` `StatModifier` magnitude +
+`impactType` serialized (A1, closes NOTE-20261123-1 code half), owner `8377ebaf` / `c973a8fb` /
+`a9398fc5` / `f75573c8` trap prefab, summon / rain-arrows / damage-area fixes, and four anim fixes
+(`e52431d6`, `43bb14be`, `6dd66791`, `fa206f82`). No Must task moved for the third day: S24-02 QA
+rerun, S24-03 death → Game Over and S24-01 playtest still open. Must ≈0.65d remains for Friday plus
+Saturday's playtest — the sprint cannot close its Must set unless Friday is Must-only. Evidence:
+COMPILED `fa206f82` (+1 uncommitted scene) + LOG.
 
 ## Burn Summary
 
@@ -26,7 +27,7 @@ last COMPILED `e47f5c38`).
 | Must Have (incl. Sat playtest 0.1d) | 0.95d | ≈0.3d (S24-05 ✅; S24-02 / 04 code only) | ≈0.65d |
 | Should Have | 0.65d | 0 | 0.65d |
 | Feature story S24-F1 (capped) | 0.75d | 0 | 0.75d |
-| Off-plan | — | ≈0.5d (`df9e98fe` status effects) + ≈0.3d (`7a41d7c4` room TextAsset, `070bc0a5` build cleanup) + ≈0.6d (`b001d78e` DamageEffect, `f2a580b2` trap) | — |
+| Off-plan | — | ≈0.5d (`df9e98fe` status effects) + ≈0.3d (`7a41d7c4` room TextAsset, `070bc0a5` build cleanup) + ≈0.6d (`b001d78e` DamageEffect, `f2a580b2` trap) + ≈1.0d (Thu: `85899a52` Delivery / Payload, `83800891` A1, trap prefab + spawn / anim fixes) | — |
 | Buffer | 1.0d | 0 | 1.0d |
 
 ---
@@ -88,6 +89,9 @@ last COMPILED `e47f5c38`).
 ### Fri 2026-11-27 — Cleanup + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S24-02 QA rerun (carried from Thu) | 0.05d | ⬜ | Damage path changed twice more (`85899a52`, `8377ebaf`); one run covers BUG-135 + BUG-130 + ability damage |
+| S24-03 BUG-122 remainder + BUG-086 + BUG-065 (carried from Thu) | 0.2d | ⬜ | S1; 18th carry for BUG-065 |
+| S24-01 Playtest / smoke (carried) | 0.3d | ⬜ | 31st carry; sheet `playtest-2026-11-28.md` ready |
 | S24-06 BUG-127 | 0.05d | ⬜ | Ranged basic attack barely reaches |
 | S24-07 One-liners | 0.15d | ⬜ | Carried 6–9 weeks |
 | Buffer | 1d | — | Off-plan work |
@@ -161,3 +165,17 @@ _(appended by `/daily-standup`)_
   `Assets/Script/` exception. Fix-survival 7d: BUG-122 / 129 / 135 rows PRESENT.
 - Inbox: 6 open, +1 (NOTE-20261126-1 S3 `Trap` layer-mask compare + unset `_context` in scene).
 - Verdict: SLIPPED — Must burn 0 / 0.55d on Wed; Must ≈0.65d left over 1.5 days.
+
+### 2026-11-27 (Fri) — standup
+- Sync: SKIPPED — owner branch `origin/feature/fix-bug-sprint-24` (local, `fa206f82`) already an ancestor of `origin/sprint-24`.
+- Commits since the 2026-11-26 standup (all off-plan, ≈1.0d): `85899a52` Delivery / Payload split + `SelfApplyEffect`;
+  owner `8377ebaf` "coding" (`Trap.prefab`, `MainGamePlay.unity`, spawn effects, `Utility.cs`), `c973a8fb` "fix",
+  `a9398fc5` rain arrows, `f75573c8` "update miss"; `83800891` A1 `StatModifier` magnitude + `impactType` serialized;
+  `e52431d6` summon spawns once + RainArrows hold; `43bb14be` Consecrate clips; `6dd66791` / `fa206f82` spawn-effect controllers.
+- Planned Thu tasks: S24-02 / 03 / 01 / F1 / 08 / 09 all ⬜ — Must items carried to Fri.
+- Runtime: compile COMPILED `fa206f82` + 1 uncommitted path (`CombatTest.unity`, 35 s); Editor.log 0 `error CS`, 2 Play Mode;
+  Editor-prev.log 0 `error CS`, 9 Play Mode; no `Assets/Script/` exception. Fix-survival 7d: BUG-129 / 135 rows PRESENT.
+- Inbox: 6 open, +0 new; NOTE-20261123-1 updated (code fixed `83800891`, 8 of 9 modifier assets have no `impactType` key);
+  NOTE-20261126-1 updated (`Trap.cs:17` mask compare unchanged after `8377ebaf`).
+- Playtest sheet `production/qa/playtests/playtest-2026-11-28.md` generated.
+- Verdict: SLIPPED — Must burn 0 / 0.25d on Thu; Must ≈0.65d left for Fri + Sat playtest.
