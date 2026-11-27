@@ -37,6 +37,14 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     public override void ReloadComponent()
     {
         base.ReloadComponent();
+        ClearAllStatuses();
+    }
+
+    // NEED CHECK: 2026-11-28 (B6 / AB-E20) — a pooled character is disabled on despawn; Update stops there,
+    // so its statuses would never expire and their modifiers would leak into the next spawn.
+    protected virtual void OnDisable()
+    {
+        ClearAllStatuses();
     }
 
     // NEED CHECK: new 2026-11-25 — ability hit damage enters here (DamageEffect) and is forwarded to the
@@ -104,42 +112,97 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     }
     #endregion
 
-    #region Buff/Debuff for duration
+    #region Status registry (B6, GDD OQ-4)
+    // NEED CHECK: new 2026-11-28 (test branch) — replaces the coroutine + pooled SourceEffect per call.
+    // One list, one Update. The ActiveStatus itself is the modifier source, so removing it never touches
+    // another source (weapon, item, another status). SourceEffect stays for AdjustMaxStats only (Q5).
+    private readonly List<ActiveStatus> _statuses = new();
 
-
-    IEnumerator ApplyAdjustCurrentForDuration(StatModifierGroup statModifierGroup, float duration, AbilityContext context, Action callback = null)
+    public void ApplyStatus(StatusRequest request)
     {
-        var sourceEffect = SetEffectSource(context, duration, callback);
-        statHandler.AddModifiersFromSource(sourceEffect, statModifierGroup.GetStatsModifiers);
-        yield return new WaitForSeconds(duration);
-        statHandler.RemoveModifiersFromSource(sourceEffect);
+        // 1. Refuse
+        if (IsDead || request.Duration <= 0f) return;
+        if (request.MaxModifiers == null && request.TickModifiers == null) return;
+
+        // 2. Key: (AbilityInstance, asset). No instance → a new object, which never matches.
+        object source = (object)request.Context?.AbilityInstance ?? new object();
+        float now = Time.time;
+
+        // 3. Same key → refresh the time only
+        for (int i = 0; i < _statuses.Count; i++)
+        {
+            ActiveStatus s = _statuses[i];
+            if (s.Source == source && s.Effect == request.Effect)
+            {
+                s.EndTime = now + s.Duration;
+                return;
+            }
+        }
+
+        // 4. New status
+        var status = new ActiveStatus
+        {
+            Source = source,
+            Effect = request.Effect,
+            Type = request.StatusType,
+            MaxModifiers = request.MaxModifiers,
+            TickModifiers = request.TickModifiers,
+            Duration = request.Duration,
+            TickInterval = request.TickInterval,
+            Context = request.Context,
+            EndTime = now + request.Duration,
+            NextTick = now,                     // first tick on the next Update
+        };
+        if (status.MaxModifiers != null) statHandler?.AddModifiersFromSource(status, status.MaxModifiers.GetStatsModifiers);
+        _statuses.Add(status);
     }
 
+    protected virtual void Update()
+    {
+        if (_statuses.Count == 0) return;
+        float now = Time.time;
+        for (int i = _statuses.Count - 1; i >= 0; i--)
+        {
+            ActiveStatus s = _statuses[i];
+
+            // Tick (at most once a frame; a tick at or after EndTime is not run)
+            if (s.HasTick && now >= s.NextTick && s.NextTick < s.EndTime)
+            {
+                AdjustCurrentStats(s.TickModifiers, s.Context);   // refuses a dead receiver itself
+                s.NextTick += s.TickInterval;
+                // The tick may have killed and despawned this receiver: OnDisable cleared the list.
+                if (i >= _statuses.Count || _statuses[i] != s) continue;
+            }
+
+            // Expire
+            if (now >= s.EndTime) RemoveStatusAt(i);
+        }
+    }
+
+    private void RemoveStatusAt(int index)
+    {
+        ActiveStatus s = _statuses[index];
+        if (s.MaxModifiers != null) statHandler?.RemoveModifiersFromSource(s);
+        _statuses.RemoveAt(index);
+    }
+
+    /// <summary>Ends every status now, each removed by its own source (never ClearModifiers, which would
+    /// also drop the weapon's). Called on despawn (OnDisable) and respawn (ReloadComponent).</summary>
+    public void ClearAllStatuses()
+    {
+        for (int i = _statuses.Count - 1; i >= 0; i--) RemoveStatusAt(i);
+    }
+
+    // Legacy entry points, kept so existing callers (QA cases) still compile and behave as before:
+    // no effect asset and no key → an independent status every call. Duration is in seconds.
     public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context, Action callback = null)
     {
-        if (IsDead) return;
-        StartCoroutine(ApplyAdjustCurrentForDuration(modifierGroup, duration, context, callback));
+        ApplyStatus(new StatusRequest { MaxModifiers = modifierGroup, Duration = duration });
     }
 
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context, Action callback = null)
     {
-        if (IsDead) return;
-        //StartCoroutine(ApplyAdjustMaxPerTimeForDuration(modifierGroup, perTime, duration, context));
+        ApplyStatus(new StatusRequest { TickModifiers = modifierGroup, TickInterval = perTime, Duration = duration });
     }
-
-    // IEnumerator ApplyAdjustMaxPerTimeForDuration(StatModifierGroup statModifierGroup, float perTime, float timeCount, AbilityContext context)
-    // {
-    //     if (input == null || input.IsDeath)
-    //     {
-    //         yield break;
-    //     }
-    //     AdjustCurrentStats(statModifierGroup, context);
-    //     timeCount--;
-    //     if (timeCount > 0)
-    //     {
-    //         yield return new WaitForSeconds(perTime);
-    //         AdjustMaxPerTimeForDuration(statModifierGroup, perTime, timeCount, context);
-    //     }
-    // }
     #endregion
 }

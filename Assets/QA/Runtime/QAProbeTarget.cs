@@ -39,6 +39,8 @@ namespace QA.Automation
 
         public void AdjustCurrentStats(StatModifierGroup modifierGroup, AbilityContext context = null, Action callback = null) { }
 
+        public void ApplyStatus(StatusRequest request) { }
+
         public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context = null, Action callback = null) { }
 
         public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context = null, Action callback = null) { }

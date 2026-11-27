@@ -61,6 +61,7 @@ public class TrainingDummy : MonoBehaviour, INegativeReceiver, IEffectReceiver
         TakeDamage(amount, attackPosition);
     public void AdjustMaxStats(StatModifierGroup modifierGroup, AbilityContext context = null, System.Action callback = null) { }
     public void AdjustCurrentStats(StatModifierGroup modifierGroup, AbilityContext context = null, System.Action callback = null) { }
+    public void ApplyStatus(StatusRequest request) { }
     public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context = null, System.Action callback = null) { }
     public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context = null, System.Action callback = null) { }
 
