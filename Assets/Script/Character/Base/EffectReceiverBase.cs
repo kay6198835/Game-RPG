@@ -111,15 +111,13 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
 
         // 2. Key: (AbilityInstance, asset). No instance → a new object, which never matches.
         object source = (object)request.Context?.AbilityInstance ?? new object();
-        float now = Time.time;
 
         // 3. Same key → refresh the time only
         for (int i = 0; i < _statuses.Count; i++)
         {
-            ActiveStatus s = _statuses[i];
-            if (s.Source == source && s.Effect == request.Effect)
+            if (_statuses[i].Source == source && _statuses[i].Effect == request.Effect)
             {
-                s.EndTime = now + s.Duration;
+                _statuses[i].EndTime = Time.time + _statuses[i].Duration;
                 return;
             }
         }
@@ -135,8 +133,8 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
             Duration = request.Duration,
             TickInterval = request.TickInterval,
             Context = request.Context,
-            EndTime = now + request.Duration,
-            NextTick = now,                     // first tick on the next Update
+            EndTime = Time.time + request.Duration,
+            NextTick = Time.time,                     // first tick on the next Update
         };
         if (status.MaxModifiers != null) statHandler?.AddModifiersFromSource(status, status.MaxModifiers.GetStatsModifiers);
         _statuses.Add(status);
@@ -154,19 +152,17 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         float now = Time.time;
         for (int i = _statuses.Count - 1; i >= 0; i--)
         {
-            ActiveStatus s = _statuses[i];
-
             // Tick (at most once a frame; a tick at or after EndTime is not run)
-            if (s.HasTick && now >= s.NextTick && s.NextTick < s.EndTime)
+            if (_statuses[i].HasTick && Time.time >= _statuses[i].NextTick && _statuses[i].NextTick < _statuses[i].EndTime)
             {
-                AdjustCurrentStats(s.TickModifiers, s.Context);   // refuses a dead receiver itself
-                s.NextTick += s.TickInterval;
-                // Safety: the list may have changed during the tick (death → respawn in the same call chain).
-                if (i >= _statuses.Count || _statuses[i] != s) continue;
+                AdjustCurrentStats(_statuses[i].TickModifiers, _statuses[i].Context);   // refuses a dead receiver itself
+                _statuses[i].NextTick += _statuses[i].TickInterval;
+                // The tick may have killed and despawned this receiver: OnDisable cleared the list.
+                if (i >= _statuses.Count || _statuses[i] != _statuses[i]) continue;
             }
 
             // Expire
-            if (now >= s.EndTime) RemoveStatusAt(i);
+            if (Time.time >= _statuses[i].EndTime) RemoveStatusAt(i);
         }
     }
 
