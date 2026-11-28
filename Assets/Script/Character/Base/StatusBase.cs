@@ -25,15 +25,7 @@ public enum ElementType
     Poison
 }
 
-public enum StatusType
-{
-    None,
-    Burn,
-    Freeze,
-    Shock,
-    Poisoned,
-    Stunned
-}
+
 public class StatusEffectDefinition
 {
     public StatusType type;

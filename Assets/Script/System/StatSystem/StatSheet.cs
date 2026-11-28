@@ -186,11 +186,13 @@ public class StatSheet : IStatService
         float flat = 0f, percentAdd = 0f, percentMult = 1f;
         foreach (StatModifier modifier in stat.Modifiers)
         {
+            // Value is a magnitude (A1): the direction comes from ImpactType.
+            float value = modifier.ImpactType == StatImpactType.Reduction ? -modifier.Value : modifier.Value;
             switch (modifier.Type)
             {
-                case ModifierType.Flat: flat += modifier.Value; break;
-                case ModifierType.PercentAdd: percentAdd += modifier.Value; break;
-                case ModifierType.PercentMult: percentMult *= 1f + modifier.Value; break;
+                case ModifierType.Flat: flat += value; break;
+                case ModifierType.PercentAdd: percentAdd += value; break;
+                case ModifierType.PercentMult: percentMult *= 1f + value; break;
             }
         }
         float withModifiers = (adjusted + flat) * (1f + percentAdd) * percentMult;

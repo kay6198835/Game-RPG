@@ -74,6 +74,7 @@ namespace QA.Automation
             yield return Case("QA-ENT-13", "ENT", QAPriority.P1, "Effect receiver: a max-stat buff applies, is removed by source and expires", CaseEffectMaxStats());
             yield return Case("QA-ENT-14", "ENT", QAPriority.P1, "Effect receiver: vital modifiers heal and damage current HP", CaseEffectCurrentStats());
             yield return Case("QA-ENT-16", "ENT", QAPriority.P1, "Effect receiver: a permanent buff survives the expiry of a timed buff; two permanent buffs stack", CaseEffectSourcesIndependent());
+            yield return Case("QA-ENT-17", "ENT", QAPriority.P1, "DamageEffect: an ability hit on the enemy hurtbox lowers HP like a weapon hit; no hit target, no damage", CaseDamageEffect());
 
             // Item drop and pickup: the game's ItemSpawner is switched on for these three only.
             yield return Case("QA-ITEM-02", "ITEM", QAPriority.P0, "Enemy death drops the rolled item at the death position", CaseItemDrop());

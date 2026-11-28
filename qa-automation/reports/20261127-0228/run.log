@@ -1,0 +1,15 @@
+[02:28:13] QA weekly run 20261127-0228, project D:\Fork\Game-RPG
+[02:28:16] sprint branch origin/sprint-24 at f41f451b6c
+[02:28:18] merged origin/sprint-24 into qa/weekly-automation
+[02:28:20] change scan be3c7054a5..origin/sprint-24 -> deep P2 for: ABL
+[02:28:20] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228\unity-compile.log"
+[02:28:56] unity -batchmode -nographics -projectPath "D:\Fork\Game-RPG" -runTests -testPlatform EditMode -testResults "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228\unit-results.xml" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228\unity-unit.log"
+[02:29:19] unity EditMode tests exit 2
+[02:29:19] EditMode tests: 101 case(s)
+[02:29:19] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228\unity-run.log" -qaDeep ABL
+[03:59:19] TIMEOUT after 90 min - killing Unity
+[03:59:24] unity test run exit -1
+[03:59:24] no results.json; crash line: none found - retrying once
+[03:59:24] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0228\unity-run.log" -qaDeep ABL
+[04:04:22] unity test run (retry) exit 1
+[04:04:27] PASS 217 / FAIL 2 / KNOWN 13 / SKIP 19 / OBSERVED 2; new FAIL: 0

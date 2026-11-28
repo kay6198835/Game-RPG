@@ -7,6 +7,14 @@ public class BuffDebuffStatsForDuration : StatsEffectBase
 
     protected override void ApplyImpact(IEffectReceiver effectReceiver, StatModifierGroup statModifierGroup, AbilityContext context)
     {
-        effectReceiver.AdjustMaxForDuration(statModifierGroup, duration, context);
+        // B6: this asset is half of the status key, so a re-hit by the same skill only refreshes the time.
+        effectReceiver.ApplyStatus(new StatusRequest
+        {
+            Effect = this,
+            StatusType = statusType,
+            MaxModifiers = statModifierGroup,
+            Duration = duration,
+            Context = context,
+        });
     }
 }

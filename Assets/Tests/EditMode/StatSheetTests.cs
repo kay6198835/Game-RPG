@@ -22,9 +22,9 @@ public class StatSheetTests
 
         sheet.AddModifiersFromSource(source, new List<StatModifier>
         {
-            new StatModifier(StatType.STR, 1f, ModifierType.PercentMult),
-            new StatModifier(StatType.STR, 0.5f, ModifierType.PercentAdd),
-            new StatModifier(StatType.STR, 10f, ModifierType.Flat),
+            new StatModifier(StatType.STR, 1f, ModifierType.PercentMult, StatImpactType.Recovery),
+            new StatModifier(StatType.STR, 0.5f, ModifierType.PercentAdd, StatImpactType.Recovery),
+            new StatModifier(StatType.STR, 10f, ModifierType.Flat, StatImpactType.Recovery),
         });
 
         // (0 + 10) x (1 + 0.5) x (1 + 1) = 30
@@ -37,8 +37,8 @@ public class StatSheetTests
         var sheet = new StatSheet(null);
         var item = new object();
         var buff = new object();
-        sheet.AddModifiersFromSource(item, new List<StatModifier> { new StatModifier(StatType.STR, 10f, ModifierType.Flat) });
-        sheet.AddModifiersFromSource(buff, new List<StatModifier> { new StatModifier(StatType.STR, 5f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(item, new List<StatModifier> { new StatModifier(StatType.STR, 10f, ModifierType.Flat, StatImpactType.Recovery) });
+        sheet.AddModifiersFromSource(buff, new List<StatModifier> { new StatModifier(StatType.STR, 5f, ModifierType.Flat, StatImpactType.Recovery) });
 
         sheet.RemoveModifiersFromSource(buff);
 
@@ -121,7 +121,7 @@ public class StatSheetTests
     {
         var sheet = new StatSheet(NewProfile());
 
-        sheet.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 5f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 5f, ModifierType.Flat, StatImpactType.Recovery) });
 
         Assert.AreEqual(20f, sheet.GetStatValue(Probe), Tolerance);
     }
@@ -134,8 +134,8 @@ public class StatSheetTests
 
         sheet.AddModifiersFromSource(new object(), new[]
         {
-            new StatModifier(Probe, 0.1f, ModifierType.PercentAdd),
-            new StatModifier(Probe, 0.2f, ModifierType.PercentAdd),
+            new StatModifier(Probe, 0.1f, ModifierType.PercentAdd, StatImpactType.Recovery),
+            new StatModifier(Probe, 0.2f, ModifierType.PercentAdd, StatImpactType.Recovery),
         });
 
         // 15 x (1 + 0.1 + 0.2) = 19.5, not 15 x 1.1 x 1.2 = 19.8
@@ -150,8 +150,8 @@ public class StatSheetTests
 
         sheet.AddModifiersFromSource(new object(), new[]
         {
-            new StatModifier(Probe, 4f, ModifierType.Flat),
-            new StatModifier(Probe, 0.5f, ModifierType.PercentMult),
+            new StatModifier(Probe, 4f, ModifierType.Flat, StatImpactType.Recovery),
+            new StatModifier(Probe, 0.5f, ModifierType.PercentMult, StatImpactType.Recovery),
         });
 
         // (15 + 4) x 1.5 = 28.5
@@ -166,8 +166,8 @@ public class StatSheetTests
         var source = new object();
         sheet.AddModifiersFromSource(source, new[]
         {
-            new StatModifier(Probe, 7f, ModifierType.Flat),
-            new StatModifier(Probe, 0.25f, ModifierType.PercentAdd),
+            new StatModifier(Probe, 7f, ModifierType.Flat, StatImpactType.Recovery),
+            new StatModifier(Probe, 0.25f, ModifierType.PercentAdd, StatImpactType.Recovery),
         });
 
         sheet.RemoveModifiersFromSource(source);
@@ -183,8 +183,8 @@ public class StatSheetTests
         var sheet = new StatSheet(NewProfile());
         var item = new object();
         var buff = new object();
-        sheet.AddModifiersFromSource(item, new[] { new StatModifier(Probe, 3f, ModifierType.Flat) });
-        sheet.AddModifiersFromSource(buff, new[] { new StatModifier(Probe, 8f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(item, new[] { new StatModifier(Probe, 3f, ModifierType.Flat, StatImpactType.Recovery) });
+        sheet.AddModifiersFromSource(buff, new[] { new StatModifier(Probe, 8f, ModifierType.Flat, StatImpactType.Recovery) });
 
         sheet.RemoveModifiersFromSource(buff);
 
@@ -212,7 +212,7 @@ public class StatSheetTests
     {
         var sheet = new StatSheet(NewProfile());
 
-        sheet.AddModifiersFromSource(new object(), new[] { new StatModifier(StatType.VIT, 4f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(new object(), new[] { new StatModifier(StatType.VIT, 4f, ModifierType.Flat, StatImpactType.Recovery) });
 
         // VIT 8 -> 12; Defense 15 + 4 x 0.5 = 17
         Assert.AreEqual(12f, sheet.GetStatValue(StatType.VIT), Tolerance);
@@ -237,7 +237,7 @@ public class StatSheetTests
         var buffed = new StatSheet(profile);
         var other = new StatSheet(profile);
 
-        buffed.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat) });
+        buffed.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat, StatImpactType.Recovery) });
         buffed.AddPrimaryPoint(StatType.STR, 3f);
 
         Assert.AreEqual(ProbeStart, other.GetStatValue(Probe), Tolerance);
@@ -262,7 +262,7 @@ public class StatSheetTests
             Dictionary<StatType, float> before = new StatSheet(asset).GetFullStat();
 
             var sheet = new StatSheet(asset);
-            sheet.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat) });
+            sheet.AddModifiersFromSource(new object(), new[] { new StatModifier(Probe, 50f, ModifierType.Flat, StatImpactType.Recovery) });
             sheet.AddPrimaryPoint(StatType.STR, 3f);
 
             Dictionary<StatType, float> after = new StatSheet(asset).GetFullStat();

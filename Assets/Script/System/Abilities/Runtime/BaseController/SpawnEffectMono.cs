@@ -8,11 +8,11 @@ public class SpawnEffectMono : MonoBehaviour, ISpawnEffect
     protected AbilityContext _context;
     protected Action<AbilityContext> _callback;
     public virtual void Launch(float lifetime,
-                             AbilityContext context, Action<AbilityContext> currentContext)
+                             AbilityContext context, Action<AbilityContext> callback)
     {
         _duration = lifetime;
         _context = context;
-        _callback = currentContext;
+        _callback = callback;
         if (_duration > 0)
         {
             StartCoroutine(DespawnOneselfAffterDuration());

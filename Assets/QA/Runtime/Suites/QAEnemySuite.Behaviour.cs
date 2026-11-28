@@ -453,18 +453,20 @@ namespace QA.Automation
 
         #region Cases — effect receiver
 
-        // StatModifierGroup's lists are authored-only (private); QA fills them the way the Inspector would.
-        private static StatModifierGroup MakeGroup(StatModifier stat, VitalModifier vital)
+        // Since the 2026-11-23 stat refactor StatModifierGroup holds a single list (statsModifiers), filled through
+        // its constructor. A vital (current-value) modifier is a StatModifier whose target is a VitalStatType member;
+        // AdjustCurrentStats skips the rest, AdjustMaxStats reads them all.
+        private static StatModifierGroup MakeGroup(StatModifier stat, StatModifier vital)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            FieldInfo statsField = typeof(StatModifierGroup).GetField("statsModifiers", flags);
-            FieldInfo vitalField = typeof(StatModifierGroup).GetField("vitalModifiers", flags);
-            if (statsField == null || vitalField == null) return null;
-            StatModifierGroup group = new();
-            if (stat != null) ((List<StatModifier>)statsField.GetValue(group)).Add(stat);
-            if (vital != null) ((List<VitalModifier>)vitalField.GetValue(group)).Add(vital);
-            return group;
+            List<StatModifier> modifiers = new();
+            if (stat != null) modifiers.Add(stat);
+            if (vital != null) modifiers.Add(vital);
+            return new StatModifierGroup(modifiers);
         }
+
+        // Replaces the removed VitalModifier: the sign of value picks Recovery / Reduction, as VitalModifier did.
+        private static StatModifier VitalMod(VitalStatType stat, float value)
+            => new((StatType)stat, value, ModifierType.Flat, value >= 0f ? StatImpactType.Recovery : StatImpactType.Reduction);
 
         // EffectReceiverBase reads only context.Caster.Transform (where the effect's visual source spawns).
         private sealed class QAEffectCaster : IAbilityOwner
@@ -497,10 +499,10 @@ namespace QA.Automation
 
             const StatType stat = StatType.Defense;
             const float bonus = 5f;
-            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat), null);
+            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat, StatImpactType.Recovery), null);
             if (group == null)
             {
-                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                Fail("QA cannot fill a StatModifierGroup: StatModifierGroup constructor failed");
                 yield break;
             }
             float before = _stats.GetStatValue(stat);
@@ -541,10 +543,10 @@ namespace QA.Automation
 
             const StatType stat = StatType.Defense;
             const float bonus = 5f;
-            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat), null);
+            StatModifierGroup group = MakeGroup(new StatModifier(stat, bonus, ModifierType.Flat, StatImpactType.Recovery), null);
             if (group == null)
             {
-                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                Fail("QA cannot fill a StatModifierGroup: StatModifierGroup constructor failed");
                 yield break;
             }
             float before = _stats.GetStatValue(stat);
@@ -573,6 +575,59 @@ namespace QA.Automation
             if (_enemy.activeSelf) pool.Despawn(_enemy);
         }
 
+        // QA-ENT-17 (added 2026-11-27, b001d78e / 85899a52): ability hit damage is a DamageEffect that calls
+        // IEffectReceiver.ApplyDamage on the hit collider (ctx.Target), mitigated like a weapon hit. The real
+        // Blessed Slash damage asset is used through an Instantiate copy; Caster is null, so the damage is baseDamage.
+        private const string DamageEffectAsset = "Assets/SO/Skill/Paladin/Ability/Blessed Slash/Effect/Paladin Blessed Slash Damage Effect.asset";
+
+        private IEnumerator CaseDamageEffect()
+        {
+            bool ready = false;
+            yield return SpawnFree(ok => ready = ok);
+            if (!ready) yield break;
+            DamageEffect asset = UnityEditor.AssetDatabase.LoadAssetAtPath<DamageEffect>(DamageEffectAsset);
+            if (asset == null)
+            {
+                Skip($"{DamageEffectAsset} not found or not a DamageEffect");
+                yield break;
+            }
+            Collider2D hurtboxCollider = _hurtbox != null ? _hurtbox.GetComponent<Collider2D>() : null;
+            if (hurtboxCollider == null)
+            {
+                Fail("the enemy hurtbox has no Collider2D (spawned objects pass the hit collider as ctx.Target)");
+                yield break;
+            }
+            DamageEffect effect = Instantiate(asset);
+            try
+            {
+                FieldInfo baseField = typeof(DamageEffect).GetField("baseDamage", BindingFlags.NonPublic | BindingFlags.Instance);
+                float baseDamage = baseField != null ? (float)baseField.GetValue(effect) : 30f;
+                Check(effect.Recipient == EffectRecipient.Target, "asset Recipient = Target", $"asset Recipient = {effect.Recipient} (the hit target is not damaged)");
+
+                _vital.ReloadComponent();
+                yield return null;
+                float defense = Mathf.Max(0f, _stats.GetStatValue(StatType.Defense));
+                float before = Hp;
+                effect.Apply(new AbilityContext { Target = hurtboxCollider, Origin = EnemyPosition + Vector2.left });
+                yield return Frames(2);
+                float lost = before - Hp;
+                float expected = baseDamage * 100f / (100f + defense);
+                Check(Near(lost, expected, 0.05f),
+                    $"DamageEffect hit lowered HP by {lost:0.##} = {baseDamage:0.##} x 100 / (100 + Defense {defense:0.##})",
+                    $"DamageEffect hit lowered HP by {lost:0.##}, expected {expected:0.##} ({baseDamage:0.##} x 100 / (100 + Defense {defense:0.##}))");
+
+                yield return Wait(0.5f);
+                before = Hp;
+                effect.Apply(new AbilityContext { Target = null, Origin = EnemyPosition + Vector2.left });
+                yield return Frames(2);
+                Check(Near(Hp, before, 0.001f), "no hit target: no damage, no exception", $"no hit target changed HP {before:0.##} -> {Hp:0.##}");
+            }
+            finally
+            {
+                Destroy(effect);
+            }
+        }
+
         private IEnumerator CaseEffectCurrentStats()
         {
             EntityEffectReceiver receiver = null;
@@ -580,11 +635,11 @@ namespace QA.Automation
             if (receiver == null) yield break;
 
             float chunk = Mathf.Max(1f, MaxHp * 0.2f);
-            StatModifierGroup heal = MakeGroup(null, new VitalModifier(VitalStatType.HP, chunk, ModifierType.Flat));
-            StatModifierGroup hurt = MakeGroup(null, new VitalModifier(VitalStatType.HP, -chunk, ModifierType.Flat));
+            StatModifierGroup heal = MakeGroup(null, VitalMod(VitalStatType.HP, chunk));
+            StatModifierGroup hurt = MakeGroup(null, VitalMod(VitalStatType.HP, -chunk));
             if (heal == null || hurt == null)
             {
-                Fail("QA cannot fill a StatModifierGroup: field statsModifiers or vitalModifiers was renamed");
+                Fail("QA cannot fill a StatModifierGroup: StatModifierGroup constructor failed");
                 yield break;
             }
             _vital.Reduction(VitalStatType.HP, chunk * 2f);

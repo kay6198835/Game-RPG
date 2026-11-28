@@ -8,7 +8,7 @@ public interface INegativeReceiver
     //void MakeSlow(float amountPer);
 }
 
-public interface INegativeReceiver<TCore> where TCore : ICore
+public interface INegativeReceiver<TCore> : INegativeReceiver where TCore : ICore
 {
     void InvicisibleHurtbox(bool isInvis);
 }

@@ -16,17 +16,19 @@ public class ItemEffectDataTests
     public void TearDown() => TestSupport.DestroyAll(_created);
 
     [Test]
-    public void VitalModifier_PositiveValue_IsRecovery_NegativeIsReduction()
+    public void StatModifier_ImpactType_IsTheOneGivenToTheConstructor()
     {
-        Assert.AreEqual(StatImpactType.Recovery, new VitalModifier(VitalStatType.HP, 10f, ModifierType.Flat).ImpactType);
-        Assert.AreEqual(StatImpactType.Recovery, new VitalModifier(VitalStatType.HP, 0f, ModifierType.Flat).ImpactType);
-        Assert.AreEqual(StatImpactType.Reduction, new VitalModifier(VitalStatType.HP, -10f, ModifierType.Flat).ImpactType);
+        // VitalModifier (impact derived from the value's sign) was folded into StatModifier on 2026-11-23;
+        // the impact is now explicit and independent of the sign.
+        Assert.AreEqual(StatImpactType.Recovery, new StatModifier(StatType.HP, 10f, ModifierType.Flat, StatImpactType.Recovery).ImpactType);
+        Assert.AreEqual(StatImpactType.Reduction, new StatModifier(StatType.HP, 10f, ModifierType.Flat, StatImpactType.Reduction).ImpactType);
+        Assert.AreEqual(StatImpactType.Reduction, new StatModifier(StatType.HP, -10f, ModifierType.Flat, StatImpactType.Reduction).ImpactType);
     }
 
     [Test]
     public void StatModifier_WithSource_CopiesValuesAndLeavesTheAuthoredOneUnstamped()
     {
-        var authored = new StatModifier(StatType.STR, 3f, ModifierType.Flat);
+        var authored = new StatModifier(StatType.STR, 3f, ModifierType.Flat, StatImpactType.Recovery);
         var source = new object();
 
         StatModifier stamped = authored.WithSource(source);
@@ -37,24 +39,27 @@ public class ItemEffectDataTests
         Assert.AreEqual(authored.TargetStatType, stamped.TargetStatType);
         Assert.AreEqual(authored.Type, stamped.Type);
         Assert.AreEqual(authored.Value, stamped.Value, Tolerance);
+        Assert.AreEqual(authored.ImpactType, stamped.ImpactType);
     }
 
     [Test]
-    public void StatModifierGroup_New_HasEmptyNonNullLists()
+    public void StatModifierGroup_Constructor_ExposesTheGivenModifiers()
     {
-        var group = new StatModifierGroup();
+        var empty = new StatModifierGroup(new List<StatModifier>());
+        Assert.IsNotNull(empty.GetStatsModifiers);
+        Assert.AreEqual(0, empty.GetStatsModifiers.Count);
 
-        Assert.IsNotNull(group.GetStatsModifiers);
-        Assert.IsNotNull(group.GetVitalModifiers);
-        Assert.AreEqual(0, group.GetStatsModifiers.Count);
-        Assert.AreEqual(0, group.GetVitalModifiers.Count);
+        var hp = new StatModifier(StatType.HP, 5f, ModifierType.Flat, StatImpactType.Recovery);
+        var group = new StatModifierGroup(new List<StatModifier> { hp });
+        Assert.AreEqual(1, group.GetStatsModifiers.Count);
+        Assert.AreSame(hp, group.GetStatsModifiers[0]);
     }
 
     [Test]
     public void AddModifiersFromSource_SameItemListFromTwoPickups_StacksAndRemovesIndependently()
     {
         var sheet = new StatSheet(null);
-        var authored = new List<StatModifier> { new StatModifier(StatType.STR, 3f, ModifierType.Flat), new StatModifier(StatType.INT, 1f, ModifierType.Flat) };
+        var authored = new List<StatModifier> { new StatModifier(StatType.STR, 3f, ModifierType.Flat, StatImpactType.Recovery), new StatModifier(StatType.INT, 1f, ModifierType.Flat, StatImpactType.Recovery) };
         var first = new object();
         var second = new object();
 
@@ -76,7 +81,7 @@ public class ItemEffectDataTests
         var source = new object();
 
         Assert.DoesNotThrow(() => sheet.AddModifiersFromSource(source, null));
-        sheet.AddModifiersFromSource(source, new List<StatModifier> { null, new StatModifier(StatType.DEX, 2f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(source, new List<StatModifier> { null, new StatModifier(StatType.DEX, 2f, ModifierType.Flat, StatImpactType.Recovery) });
 
         Assert.AreEqual(2f, sheet.GetStatValue(StatType.DEX), Tolerance);
     }
@@ -85,7 +90,7 @@ public class ItemEffectDataTests
     public void RemoveModifiersFromSource_UnknownSource_ChangesNothing()
     {
         var sheet = new StatSheet(null);
-        sheet.AddModifiersFromSource(new object(), new List<StatModifier> { new StatModifier(StatType.VIT, 4f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(new object(), new List<StatModifier> { new StatModifier(StatType.VIT, 4f, ModifierType.Flat, StatImpactType.Recovery) });
 
         sheet.RemoveModifiersFromSource(new object());
 
@@ -96,8 +101,8 @@ public class ItemEffectDataTests
     public void ClearModifiers_RemovesEverySource()
     {
         var sheet = new StatSheet(null);
-        sheet.AddModifiersFromSource(new object(), new List<StatModifier> { new StatModifier(StatType.LUK, 4f, ModifierType.Flat) });
-        sheet.AddModifiersFromSource(new object(), new List<StatModifier> { new StatModifier(StatType.LUK, 1f, ModifierType.Flat) });
+        sheet.AddModifiersFromSource(new object(), new List<StatModifier> { new StatModifier(StatType.LUK, 4f, ModifierType.Flat, StatImpactType.Recovery) });
+        sheet.AddModifiersFromSource(new object(), new List<StatModifier> { new StatModifier(StatType.LUK, 1f, ModifierType.Flat, StatImpactType.Recovery) });
 
         sheet.ClearModifiers();
 

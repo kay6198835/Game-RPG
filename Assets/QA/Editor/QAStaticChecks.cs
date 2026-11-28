@@ -440,21 +440,18 @@ namespace QA.Automation.Editor
                     continue;
                 }
                 if (effect is not StatModifierEffect) continue;
-                SerializedProperty stats = so.FindProperty("statModifierGroup.statsModifiers");
-                SerializedProperty vitals = so.FindProperty("statModifierGroup.vitalModifiers");
-                if (stats == null || vitals == null)
+                // Since the 2026-11-23 stat refactor the group has one list (statsModifiers). ModifierMaxStatsEffect
+                // applies every entry; ModifierCurrentStatsEffect (AdjustCurrentStats) skips entries whose target is
+                // not a VitalStatType member.
+                SerializedProperty used = so.FindProperty("statModifierGroup.statsModifiers");
+                if (used == null)
                 {
-                    findings.Add($"{where}: statModifierGroup.statsModifiers / vitalModifiers not found (field renamed?)");
+                    findings.Add($"{where}: statModifierGroup.statsModifiers not found (field renamed?)");
                     continue;
                 }
-                // ModifierMaxStatsEffect reads only statsModifiers, ModifierCurrentStatsEffect only vitalModifiers.
                 bool max = effect is ModifierMaxStatsEffect;
-                SerializedProperty used = max ? stats : vitals;
-                SerializedProperty ignored = max ? vitals : stats;
                 if (used.arraySize == 0)
-                    findings.Add($"{where} ({effect.GetType().Name}): no {(max ? "stat" : "vital")} modifier (the effect changes nothing)");
-                if (ignored.arraySize > 0)
-                    findings.Add($"{where} ({effect.GetType().Name}): {ignored.arraySize} {(max ? "vital" : "stat")} modifier(s) that this effect type never reads");
+                    findings.Add($"{where} ({effect.GetType().Name}): no modifier (the effect changes nothing)");
                 for (int i = 0; i < used.arraySize; i++)
                 {
                     SerializedProperty m = used.GetArrayElementAtIndex(i);
@@ -464,7 +461,7 @@ namespace QA.Automation.Editor
                     if (!max && target == (int)VitalStatType.Coin)
                         findings.Add($"{where}: vital modifier {i} targets Coin; VitalStatsBase never seeds Coin, so it does nothing (use CoinModifierEffect)");
                     if (!max && Enum.IsDefined(typeof(VitalStatType), target) == false)
-                        findings.Add($"{where}: vital modifier {i} targets {target}, not a VitalStatType");
+                        findings.Add($"{where}: modifier {i} targets {(StatType)target}, not a VitalStatType (AdjustCurrentStats ignores it)");
                     info.Add($"{where}: {(max ? ((StatType)target).ToString() : ((VitalStatType)target).ToString())} {value:+0.##;-0.##}");
                 }
             }

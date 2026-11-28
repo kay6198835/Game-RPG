@@ -5,11 +5,11 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Tools > Combat Test > Build Scene: builds Assets/Scenes/Test/CombatTest.unity from code, so every
+// Tools > Combat Test > Build Scene: builds Assets/QA/Scenes/Test/CombatTest.unity from code, so every
 // [SerializeField] reference is wired the same way on every run. Re-running OVERWRITES the scene.
 public static class CombatTestSceneBuilder
 {
-    public const string ScenePath = "Assets/Scenes/Test/CombatTest.unity";
+    public const string ScenePath = "Assets/QA/Scenes/Test/CombatTest.unity";
     private const string PlayerPrefabPath = "Assets/Prefab/Player/PlayerTest.prefab";
     private const string MonumentPathFormat = "Assets/Prefab/Champion Monument/Champion_Monument_{0}.prefab";
     private const string PlayerDataPathFormat = "Assets/SO/Player/{0}/{0}.asset";

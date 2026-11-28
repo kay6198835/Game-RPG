@@ -89,3 +89,11 @@ CLAUDE.local.md
 .claude/settings.local.json
 .scratch/
 __pycache__/
+
+# graphify knowledge graph output (rebuild locally with /graphify .)
+graphify-out/
+
+# Claude Code config and instructions. The .claude/ files already in the repo stay tracked
+# (ignore rules do not untrack them); new files under .claude/ are not added.
+.claude/
+CLAUDE.md

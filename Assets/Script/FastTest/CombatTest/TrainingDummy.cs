@@ -7,7 +7,9 @@ using UnityEngine;
 // TryGetComponent on the hit collider, so the Collider2D must sit on this GameObject, on a layer the
 // weapon's LayerMask hits (Enemy).
 [RequireComponent(typeof(Collider2D))]
-public class TrainingDummy : MonoBehaviour, INegativeReceiver
+// 2026-11-25: also an IEffectReceiver so ability DamageEffects reach it (AbilityContext falls back to the hit
+// collider when there is no ICharacter). Stat / vital effects do nothing: the dummy has no stat sheet.
+public class TrainingDummy : MonoBehaviour, INegativeReceiver, IEffectReceiver
 {
     [SerializeField] private float maxHP = 1000f;
     [Tooltip("Subtracted from each hit, like EntityNegativeReciver: damage - defense, clamped at 0.")]
@@ -54,6 +56,14 @@ public class TrainingDummy : MonoBehaviour, INegativeReceiver
 
         if (_currentHP <= 0f) Debug.Log($"[TrainingDummy] {name}: killed after {_hitCount} hits", this);
     }
+
+    public void ApplyDamage(float amount, Vector2 attackPosition, AbilityContext context = null) =>
+        TakeDamage(amount, attackPosition);
+    public void AdjustMaxStats(StatModifierGroup modifierGroup, AbilityContext context = null, System.Action callback = null) { }
+    public void AdjustCurrentStats(StatModifierGroup modifierGroup, AbilityContext context = null, System.Action callback = null) { }
+    public void ApplyStatus(StatusRequest request) { }
+    public void AdjustMaxForDuration(StatModifierGroup modifierGroup, float duration, AbilityContext context = null, System.Action callback = null) { }
+    public void AdjustMaxPerTimeForDuration(StatModifierGroup modifierGroup, float perTime, float duration, AbilityContext context = null, System.Action callback = null) { }
 
     private void Update()
     {
