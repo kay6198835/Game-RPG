@@ -25,7 +25,7 @@ Append a row to the **Open notes** table of `production/qa/bug-inbox.md`:
 
 | Field | Content |
 |---|---|
-| Note | `NOTE-YYYYMMDD-N` — date of writing + running number for that day. Never reused |
+| Note | `NOTE-YYYYMMDD-N` — date of writing + running number for that day. Never reused. Before numbering, search the **whole** inbox (Open notes, text archives, Triaged notes) for `NOTE-<today>-` and take the next free number — another routine may have used `-1` earlier that day (2026-11-28: wrap-up and doc-sync) |
 | Source | who wrote it: `standup`, `wrapup`, `doc-sync`, `module-audit`, `compile-check`, `editor-log`, `fix-survival`, `playtest`, `owner`, `session`, `qa-auto` (Friday automated QA run, `qa/weekly-automation`) |
 | Severity guess | S1–S4 (a guess; triage decides) |
 | Where | `file:line`, asset path, or playtest step |

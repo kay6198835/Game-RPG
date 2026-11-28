@@ -20,11 +20,22 @@ tài liệu `.md` để khớp với code. Không suy đoán — chỉ ghi nhữ
   trong worktree `D:/Fork/Game-RPG-pm`, mọi sửa đổi tài liệu sống đi qua nhánh
   `pm/doc-sync-<YYYY-MM-DD>` rồi merge vào `sprint-NN`, ghi một dòng vào
   `production/session-state/routine-log.md`. Không bao giờ hỏi.
+  **`--auto` limits (added 2026-11-29, from the 2026-11-28 run):**
+  - **Never edit `.claude/**`** (rules, docs, skills) — Claude Code asks for approval on every edit under
+    `.claude/` regardless of allow rules, so the unattended run stalls. A stale rule / protocol line is recorded
+    in `doc-truth-<date>.md` as `⚠️ Out of date (needs owner — .claude/ path)` and listed in the digest.
+  - **Root `CLAUDE.md` is untracked** (since `c40da7b8`); never edit it — it exists only in the owner folder.
+  - **Scripts read the owner folder** (`bash .claude/scripts/…` runs in `D:/Fork/Game-RPG`, which may be on a
+    feature branch). Note the owner HEAD in the report; never redirect script output into a file there
+    (see 5a, 5d′).
 - Nếu để trống: chạy đầy đủ, hỏi xác nhận trước khi ghi.
 
 > **Bug ID**: skill này **không bao giờ cấp số bug** và không tạo file `production/qa/bugs/BUG-*.md`.
 > Lỗi code nghi ngờ phát hiện khi đọc source → ghi chú vào `production/qa/bug-inbox.md`
 > (`.claude/rules/bug-inbox.md`). Mọi tài liệu chỉ được nhắc tới ID đã có file.
+> **Note numbering:** before adding `NOTE-<YYYYMMDD>-N`, search the **whole** inbox (Open notes, the text
+> archives and Triaged notes) for `NOTE-<today>-` and take the next free number — the Saturday wrap-up runs
+> first and may already have used `-1`.
 
 ---
 
@@ -51,9 +62,10 @@ từng ghi BUG-096 là "đã sửa" trong khi fix đã bị xoá cùng ngày).
 
 Đọc git log từ context (đã tự động chạy). Xác định những commit mới nhất chưa được
 phản ánh trong tài liệu bằng cách đọc mốc cập nhật cuối:
-- `CLAUDE.md` dòng `> **Last updated:** YYYY-MM-DD (HEAD `<hash>` …)` (chỉ có một dòng này) — **mốc chính**, dùng
-  `git log <hash>..HEAD`.
-- `memory/project_state.md` dòng `Updated **YYYY-MM-DD**`.
+- `memory/project_state.md` dòng `Updated **YYYY-MM-DD** (… \`<hash>\` …)` — **main baseline** (since
+  2026-11-29; root `CLAUDE.md` is untracked), use `git log <hash>..HEAD`.
+- `CLAUDE.md` dòng `> **Last updated:** …` — only when the file is tracked (`git ls-files CLAUDE.md` non-empty);
+  otherwise skip it.
 - `docs/systems/*/README.md` dòng `**Last verified:** YYYY-MM-DD, HEAD `<hash>``.
 Nếu các mốc lệch nhau, lấy mốc **cũ nhất** — file nào bị bỏ qua ở lần trước phải được bù.
 
@@ -211,14 +223,15 @@ Nếu user chọn [D]: dừng, không ghi file.
 
 | Dữ liệu | File chủ — ghi vào đây | Cách ghi |
 |---|---|---|
-| Bug đang mở | `production/qa/open-bugs.md` | `bash .claude/scripts/bug-id.sh open > production/qa/open-bugs.md` — **sinh tự động**, không sửa tay. Trạng thái chỉ đổi trong file bug (bởi `/weekly-wrapup`) |
+| Bug đang mở | `production/qa/open-bugs.md` | `bash .claude/scripts/bug-id.sh open > production/qa/open-bugs.md` — **sinh tự động**, không sửa tay. Trạng thái chỉ đổi trong file bug (bởi `/weekly-wrapup`). **`--auto`:** run `bash .claude/scripts/bug-id.sh open` without a redirect, compare its rows with the PM worktree copy, and only if the rows differ write the stdout with **Write** to `D:/Fork/Game-RPG-pm/production/qa/open-bugs.md` (a redirect would write into the owner folder; audit section 4 also reports STALE on a line-ending-only difference) |
 | Demo checklist | `production/demo-checklist.md` | Edit: xóa mục xong (ghi vào CHANGELOG-DOCS), thêm mục mới |
 | EventID | `docs/systems/event-system/README.md` | Edit bảng cho khớp enum |
 | Cấu trúc file / class | `docs/systems/<system>/README.md` (5c) | Edit |
 | Quy tắc code mới | `.claude/rules/<area>.md` (có `paths:`) | Edit; quy tắc dùng mọi nơi mới lên CLAUDE.md "Coding conventions", 1 dòng |
 | Lịch sử thay đổi | `docs/CHANGELOG-DOCS.md` (5e), `docs/systems/<system>/CHANGELOG.md` (5c) | Append |
 
-**CLAUDE.md** — dùng **Edit**, chỉ được sửa:
+**CLAUDE.md** — only when the file is tracked (never in `--auto` while it is untracked, see the `--auto`
+limits above). Dùng **Edit**, chỉ được sửa:
 - Dòng `> **Last updated:** YYYY-MM-DD (HEAD `<hash>`, branch …)` (một dòng, không thêm câu lịch sử).
 - Bảng "Code map" khi có folder mới / bị xóa (mức folder, kèm path doc).
 - Mục "Current state — one line each": mỗi mục **một dòng** tóm tắt + path (vd: số bug S1 mở).
@@ -227,15 +240,17 @@ Nếu user chọn [D]: dừng, không ghi file.
 **Cấm** trong CLAUDE.md: bảng bug, bảng EventID, checklist, danh sách file/class, khối "Previous entry",
 câu `*Was:*` / `(was: …)`, `@import` (import cũng tính vào context).
 
-**Kiểm ngân sách (bắt buộc, báo trong Phase 6):** `wc -l CLAUDE.md` ≤ **200** (chuẩn trong docs chính thức
+**Kiểm ngân sách (bắt buộc khi file được track, báo trong Phase 6; untracked → report `SKIPPED — untracked`):** `wc -l CLAUDE.md` ≤ **200** (chuẩn trong docs chính thức
 Claude Code). Hook commit chặn khi vượt; vượt thì chuyển nội dung sang file chủ, không được báo `SYNCED`.
 
 ### 5b. Cập nhật memory/project_state.md
 
-Viết lại hoàn toàn file này (tiếng Anh — quy tắc `language-reporting.md`) với:
+Do **not** rewrite the whole file. Update the header (`Updated **YYYY-MM-DD**` + HEAD hash, "Previous
+update" line) and insert a new section `## Delta <previous date> → <today>` directly under the header, above
+the older deltas (older sections are snapshots — leave them). English only. The delta holds:
 - Timestamp mới: `Updated **YYYY-MM-DD**` (dùng ngày hôm nay) + HEAD hash.
-- Danh sách hệ thống mới hoàn thành (kể từ lần cập nhật trước).
-- Bảng bug với trạng thái hiện tại (chỉ bug còn OPEN).
+- Danh sách hệ thống mới hoàn thành (kể từ lần cập nhật trước) — as `R<n>` rows (change, commits, impact).
+- Open bug count and S1 IDs (one line; the list itself is `production/qa/open-bugs.md`).
 - EventID enum hiện tại.
 - Danh sách stub/file chưa implement.
 - Thứ tự ưu tiên sửa cho demo.
@@ -273,6 +288,10 @@ Sau khi ghi xong mọi file `.md`, chạy:
 ```bash
 py .claude/hooks/lint-mermaid.py
 ```
+**`--auto`:** with no argument the linter scans the owner folder, not the PM worktree. Pass every changed file
+as an absolute PM path instead: `py .claude/hooks/lint-mermaid.py D:/Fork/Game-RPG-pm/<path1> D:/Fork/Game-RPG-pm/<path2> …`
+(list them from `git -C D:/Fork/Game-RPG-pm status --porcelain`).
+
 Exit khác 0 → sửa từng `path:line` được báo theo `.claude/rules/mermaid-diagrams.md` rồi chạy lại,
 cho tới khi sạch. Lỗi hay gặp: `;` trong message của `sequenceDiagram`, label flowchart có `()`
 mà không đặt trong `"…"`, generic `List<T>` trong `classDiagram` (phải là `List~T~`).
