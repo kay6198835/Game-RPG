@@ -93,6 +93,6 @@ __pycache__/
 # graphify knowledge graph output (rebuild locally with /graphify .)
 graphify-out/
 
-# Claude Code config and instructions (kept local only)
-.claude/
+# Claude Code instructions (kept local only); .claude/ is tracked again (revert of c40da7b8's .claude part)
+.claude/scheduled_tasks.lock
 CLAUDE.md

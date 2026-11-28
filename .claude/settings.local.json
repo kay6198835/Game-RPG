@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk ls *)",
+      "Bash(rtk read *)",
+      "Bash(rtk wc *)",
+      "Bash(rtk find *)",
+      "Bash(rtk grep *)",
+      "Bash(rtk gh *)",
+      "Bash(rtk --version)",
+      "Bash(gh --version)",
+      "Bash(git check-ignore *)",
+      "Bash(py .claude/hooks/lint-mermaid.py*)",
+      "Skill(schedule)",
+      "Skill(schedule:*)",
+      "mcp__scheduled-tasks__list_scheduled_tasks",
+      "WebSearch",
+      "WebFetch(domain:docs.unity3d.com)",
+      "WebFetch(domain:community.gamedev.tv)"
+    ]
+  },
+  "enabledPlugins": {
+    "setup-audit@claude-setup-audit": true,
+    "setup-audit@anthropic-plugin-directory": false,
+    "cowork-plugin-management@synced": false
+  },
+  "skillOverrides": {
+    "quick-task": "off",
+    "brain-capture": "off",
+    "finance-log": "off",
+    "project-planner": "off",
+    "habit-check": "off",
+    "daily-briefing": "off",
+    "reset-recurring": "off",
+    "english-coach": "off",
+    "weekly-review": "off",
+    "morning": "off"
+  }
+}

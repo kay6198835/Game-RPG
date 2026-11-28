@@ -1,0 +1,61 @@
+---
+# ScriptableObject data authoring standards — PlayerData, EntityData, EnemySO, AttackSO, ActivateSkill subclasses
+paths:
+  - "Assets/Script/**/*SO.cs"
+  - "Assets/Script/**/*Data.cs"
+  - "Assets/Script/Database-SO/**/*.cs"
+  - "Assets/SO/**/*.asset"
+---
+
+# ScriptableObject / Data Standards
+
+## Single Source of Truth
+
+> Corrected 2026-09-11. `WeaponMeleeStats` was renamed `MeleeWeaponStats` in the Sprint 8-10
+> refactor, and `StatsCharacter` was superseded by `BaseStatsSO` in the Sprint 12 stat refactor
+> (`b0512f4` deleted `StatsSO`; `1c0742e` added `BaseStatsSO`).
+
+- All gameplay config belongs in SO assets — no magic numbers in MonoBehaviour code
+- One SO type per concern: `PlayerData`, `EntityData`, `AttackSO`, `EnemySO`, `MeleeWeaponStats`, `ItemSO`, `DepotItem`
+- `PlayerData` and `EntityData` derive from **`CharacterData`** (`Stats`, `AbilityBindings`, `DefaultWeapon`) —
+  put anything every character needs there, and side-specific tuning on the subclass (ADR-0005 Amendment 3)
+- Shared stats use the **`BaseStatsSO`** base (`EnemyStatSO : BaseStatsSO` for enemies) — do not duplicate stat fields across SOs
+- ⚠️ `StatsCharacter.cs` is the legacy base and is no longer used by `Player` or `Entity`. Do not build on it
+
+## Field Naming
+- Fields must use `camelCase` matching their public property name. Preserve existing typos (`Resgister`, `currrentSA`, `deplayTime`…) to avoid serialization breaks
+- **Renaming a serialized field requires `[FormerlySerializedAs("oldName")]`.** `attackDamege` → `attackDamage` was renamed on 2026-09-01 without it, and the three `SnS_State*.asset` files silently lost their damage (BUG-105)
+- New fields: `camelCase` with `[SerializeField]`, `[Header("Section")]` for inspector grouping
+- Range validation: use `[Range(min, max)]` for all numeric fields to prevent invalid values in Editor
+
+## Inheritance Rules
+- Enemy SOs: `EnemySO` for spawn/drop data, `EntityData` for AI runtime — never merge them
+- Skill SOs: subclass `ActivateSkill` and override the lifecycle methods — never modify the base class lifecycle
+- Effect SOs: use `EffectSkillDuringTime` for duration effects, `EffectSkillOneTime` for instant
+
+## Asset Naming (Unity convention)
+- SO assets: `PascalCase` matching the class name + descriptor: `BatEntityData`, `SwordAttackSO`
+- Prefab assets: `PascalCase`: `EnemyBat`, `WeaponSword`, `RoomBasic`
+- Sprite assets: `PascalCase_Direction` or `PascalCase_00`: `Knight_Idle_00`, `Bat_Walk_01`
+
+## Reborn / Reset Contract
+- `PlayerData.Reborn()` is the canonical reset — it must restore `currentHealth = maxHealth` and any run-specific modifiers
+- Never reset PlayerData by destroying and re-instantiating — call `Reborn()` only
+- ⚠️ Status 2026-09-11: `Reborn()` still has **no caller** and `PlayerData.currentHealth` is still
+  never written. Current health now lives in `VitalStatsComponent`. Closing Bug #6 means deciding
+  which of the two owns run state, then wiring a `GameManager` to the reset
+
+## Runtime vs Authored Serialization (added 2026-09-11)
+
+The distinction that caused the project's only committed data-corruption incident:
+
+| Field | Serialized? | Why |
+|---|---|---|
+| `Stat.modifiers` | **NO** | Holds *runtime* buffs. Serializing it writes live buffs into committed `.asset` files |
+| `StatModifierGroup.authoredModifiers` | **YES** | Holds *designer* data. `SnS_Stat.asset` depends on it |
+
+Since `a0e250fb` (stat split, 2026-11-09) `Stat` is a plain runtime class that is serialized nowhere
+and `BaseStatsSO` holds authored data only, so the BUG-063 leak path (`Stat.modifiers` behind
+`#if UNITY_EDITOR [SerializeField]`, which undid the fix in `f5de65a`) no longer exists in code; the bug
+file's status is for the triage to update. The rule stands: do not add `[SerializeField]` to a field
+holding runtime state, under any preprocessor guard.

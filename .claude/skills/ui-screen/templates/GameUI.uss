@@ -1,0 +1,115 @@
+/* Shared style for all UI Toolkit screens. Edit colors here only. */
+
+/* ---- Palette (change these to restyle everything) ---- */
+/* bg          #14161c   panel #1e2029   accent #d9822b
+   text        #e8e6e3   muted #9a9a9a */
+
+/* Full-screen root of every screen. UIController toggles .screen--hidden. */
+.screen {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(20, 22, 28, 0.94);
+}
+
+.screen--hidden {
+    display: none;
+}
+
+/* Centered card holding the buttons */
+.panel {
+    width: 380px;
+    padding: 28px;
+    background-color: rgb(30, 32, 41);
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: rgb(52, 55, 68);
+    align-items: stretch;
+}
+
+.title {
+    font-size: 40px;
+    color: rgb(232, 230, 227);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 24px;
+    white-space: normal;
+}
+
+.subtitle {
+    font-size: 24px;
+    color: rgb(232, 230, 227);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 20px;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    height: 46px;
+    margin: 6px 0;
+    padding: 0;
+    font-size: 18px;
+    color: rgb(232, 230, 227);
+    background-color: rgb(44, 47, 60);
+    border-width: 0;
+    border-radius: 10px;
+    transition-property: background-color, scale;
+    transition-duration: 0.12s;
+}
+
+.btn:hover {
+    background-color: rgb(217, 130, 43);
+    color: rgb(20, 22, 28);
+    scale: 1.03 1.03;
+}
+
+.btn:active {
+    background-color: rgb(180, 105, 30);
+    scale: 0.98 0.98;
+}
+
+.btn--danger:hover {
+    background-color: rgb(190, 60, 60);
+    color: rgb(240, 240, 240);
+}
+
+/* ---- Settings rows ---- */
+.row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.row__label {
+    font-size: 16px;
+    color: rgb(232, 230, 227);
+}
+
+/* Slider / Toggle inherit Unity default theme; only sizing + text color here */
+.setting-slider {
+    width: 190px;
+    margin: 0;
+}
+
+.setting-slider .unity-base-slider__tracker {
+    background-color: rgb(60, 63, 78);
+}
+
+.setting-slider .unity-base-slider__dragger {
+    background-color: rgb(217, 130, 43);
+    border-width: 0;
+    border-radius: 8px;
+}
+
+.setting-toggle {
+    margin: 0;
+}
+
+.value-label {
+    font-size: 14px;
+    color: rgb(154, 154, 154);
+    width: 46px;
+    -unity-text-align: middle-right;
+}

@@ -1,0 +1,46 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <!-- Shared stylesheet. Relative path avoids URI escaping. -->
+    <Style src="../Styles/GameUI.uss" />
+
+    <!-- name = kebab-case screen id. The controller toggles THIS element only. -->
+    <ui:VisualElement name="screen-id" class="screen">
+        <ui:VisualElement class="panel">
+
+            <!-- Screen title: .title for the top-level menu, .subtitle for sub-screens -->
+            <ui:Label text="SCREEN TITLE" class="subtitle" />
+
+            <!-- Plain action button -->
+            <ui:Button name="btn-action" text="Action" class="btn" />
+
+            <!-- Destructive / exit action -->
+            <ui:Button name="btn-danger" text="Quit" class="btn btn--danger" />
+
+            <!-- Label + slider row, with a live value readout -->
+            <ui:VisualElement class="row">
+                <ui:Label text="Volume" class="row__label" />
+                <ui:Slider name="slider-volume" low-value="0" high-value="1" value="1" class="setting-slider" />
+                <ui:Label name="label-volume" text="100%" class="value-label" />
+            </ui:VisualElement>
+
+            <!-- Label + toggle row -->
+            <ui:VisualElement class="row">
+                <ui:Label text="Fullscreen" class="row__label" />
+                <ui:Toggle name="toggle-fullscreen" class="setting-toggle" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
+
+<!--
+Naming contract - the controller resolves every control by these ids via Q<T>("id"):
+  btn-*      Button
+  slider-*   Slider      pair with label-* for the readout
+  toggle-*   Toggle
+  label-*    Label       display only
+  field-*    TextField
+  list-*     ListView / ScrollView
+
+Ids are kebab-case and unique within a screen. Delete the rows above that this screen
+does not use - do not leave unwired controls in the markup.
+-->
