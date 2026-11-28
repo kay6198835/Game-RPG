@@ -161,14 +161,18 @@ AbilityDefinition.Effects        → Delivery only: who is hit   (SpawnProjectil
 
 **Tick and mixed statuses.**
 
-- `RecoveryReductionPerTimeForDuration` must call a new `IEffectReceiver.AdjustCurrentPerTimeForDuration`
-  (vitals per tick). Today it calls `AdjustMaxPerTimeForDuration`, whose body is empty.
+- `RecoveryReductionPerTimeForDuration` ticks vitals through the status registry (`ApplyStatus` with tick rows,
+  2026-11-28, see "Status registry" below). *Was (2026-11-25): "must call a new `AdjustCurrentPerTimeForDuration`;
+  today it calls `AdjustMaxPerTimeForDuration`, whose body is empty".*
 - One effect = one kind of operation (instant vital / vital per tick / stat for a duration). A mixed status is
-  **two effects in one ability**, both under the ability's one `StatusType`. Example, Burn:
+  **two effects in one ability**, each with its own `statusType` (*was:* "both under the ability's one
+  `StatusType`", withdrawn with AB-E9). Example, Burn:
   `RecoveryReductionPerTimeForDuration` with `[HP]` + `BuffDebuffStatsForDuration` with `[HPRegen]`.
   Poison: tick `[HP]` + duration `[PhysicalDamage]`.
 
-**Migration when `StatusType` moves to the ability** — four effect assets carry one today and lose it:
+**Migration when `StatusType` moves to the ability** — *withdrawn 2026-11-28 (GDD AB-E9…E11): `StatusType`
+stays on the effects, nothing migrates. The table is kept as a record; the two instant effects on ArcaneSurge are
+still a data error (they do nothing).* Four effect assets carry one today and lose it:
 
 | Asset | Class | `statusType` now |
 |---|---|---|
@@ -180,6 +184,43 @@ AbilityDefinition.Effects        → Delivery only: who is hit   (SpawnProjectil
 Avatar of Light and Blessing each hold an instant and a timed effect. Mixing kinds of operation under one status
 is allowed (as Burn does); under rule 3 each ability gets **one** status, and is split only if its two effects
 really are two different statuses (e.g. Heal + Haste).
+
+## Status registry (B6) — 2026-11-28
+
+Rules: GDD AB-E22 (registry) and AB-E20 (lifetime). Code: `Assets/Script/System/Abilities/Core/ActiveStatus.cs`,
+`EffectReceiverBase` (`bb142acc`, `00cc9e56`). Evidence: STATIC — not compiled yet.
+
+```
+Payload effect (BuffDebuffStatsForDuration / RecoveryReductionPerTimeForDuration)
+  → IEffectReceiver.ApplyStatus(StatusRequest { Effect = asset, StatusType, MaxModifiers | TickModifiers,
+                                                Duration, TickInterval, Context })
+      refuse: dead receiver · Duration ≤ 0 · no modifiers
+      key = (ctx.AbilityInstance, asset)          no AbilityInstance → new object() (never matches)
+      same key in the list → EndTime = now + Duration, stop        (refresh only)
+      else → new ActiveStatus, AddModifiersFromSource(status, MaxModifiers), add to the list
+EffectReceiverBase.Update (every frame, one list)
+      IsDead → end every status
+      per status: tick if now ≥ NextTick < EndTime (AdjustCurrentStats, NextTick += interval)
+                  end if now ≥ EndTime  → RemoveModifiersFromSource(status), remove from the list
+ReloadComponent (respawn) → end every status
+```
+
+| Case | Result |
+|---|---|
+| Same skill slot of the same caster, same asset (Rain Arrows waves, Blessing recast) | one status, time refreshed, values unchanged, tick phase kept |
+| Different casters / different skills / two assets in one skill | separate statuses, they add up — no cap or floor until after the demo |
+| Two Deliveries of one skill sharing **one** asset | one status (refresh) |
+| The same values in a **duplicated** asset (Ctrl+D) | two statuses, they stack — keep one shared asset per effect |
+| Instant (`AdjustCurrentStats`) / permanent (`AdjustMaxStats`, items) | not in the registry |
+| Death | every status ends; no new one is accepted (AB-E19) |
+| Disable without death | statuses kept; end times keep running, an expired one ends on the first frame after re-enable |
+| Map change | statuses lost (scene reload rebuilds the player) — accepted |
+
+Modifier sources: a status → its `ActiveStatus`; a permanent modifier → the receiver (shared by all; removable
+only all together); a weapon → the weapon. Ending a status never touches another source.
+
+Open: limits (cap / floor / ceiling, add vs multiply) after the demo; `QAProbeTarget` / `TrainingDummy` ignore
+statuses (empty `ApplyStatus`).
 
 ## v1 (legacy)
 
@@ -198,7 +239,7 @@ really are two different statuses (e.g. Heal + Haste).
 | BUG-079 | `AbilityInstance.Exit()` body commented out |
 | ~~BUG-073 / BUG-090~~ | *2026-11-16:* the ShootSpirit assets, `SpiritProjcetile.prefab` and every reference to the deleted condition asset are deleted; `SpawnEffectBase` warnings no longer name the deleted classes. Awaiting triage (NOTE-20261116-5) |
 | BUG-089 | Closed by design (tier scaffolding) — reopen at demo/release |
-| — (2026-11-25) | `RecoveryReductionPerTimeForDuration` → `AdjustMaxPerTimeForDuration`, body empty → every tick effect does nothing. Fix: `AdjustCurrentPerTimeForDuration` (see decisions above). Supersedes the "throws" wording of BUG-118 |
+| ~~— (2026-11-25)~~ | *2026-11-28 (STATIC): fixed — ticks run through `ApplyStatus` (`bb142acc`).* `RecoveryReductionPerTimeForDuration` → `AdjustMaxPerTimeForDuration`, body empty → every tick effect does nothing. Fix: `AdjustCurrentPerTimeForDuration` (see decisions above). Supersedes the "throws" wording of BUG-118 |
 | — (2026-11-25) | `StatModifier.impactType` (`StatModifier.cs:34`, `df9e98fe`) has no `[SerializeField]` → loads as Recovery from every asset; `AdjustCurrentStats` turns a Reduction into a heal. *2026-11-26, decided (A1, GDD AB-E12):* `impactType` is `[SerializeField]` again, `value` is a magnitude 0…999 (`[Range]`, constructor drops the sign and clamps), and each reader of `Value` applies the sign from `ImpactType` (`StatSheet.ApplyModifiers`, `AdjustCurrentStats`, `Utility.ModifierStatsCalculate`, QA items suite). `AdjustCurrentStats` honours `Type` since `8377ebaf` (percent of the current value). Still open: floor (SD-05); non-vital rows skipped silently (design error by owner rule) |
 | — (2026-11-25) | Status config auto-fill adds stats of the wrong kind for Burn `[HP, HPRegen]` / Poison `[HP, PhysicalDamage]` (tick effect ignores the stat row silently; duration effect turns HP into a max-HP modifier). Closed by "status config PENDING". *2026-11-28:* the auto-fill stays as a helper (GDD AB-E13); the designer deletes the row that does not belong (or splits Burn / Poison into two effects) |
 | — (2026-11-25) | `EffectReceiverBase`: timed modifiers removed only at the end of a coroutine on the receiver (disable / death / pool → never removed); source key is a pooled `SourceEffect` (reuse can remove another effect's modifiers); `AdjustMaxStats` uses lifetime 0 → `SourceEffect` never despawned; `SourceEffectConfig.callback` never invoked. *2026-11-26:* cleanup rule decided (GDD AB-E20, `[PLANNED]`: clear in `OnDisable` / `ReloadComponent`, data only, `new object()` token); built together with the status registry, whose key is still open (OQ-4, session item B6). Dead guard added. *2026-11-28 (STATIC):* status registry `bb142acc` (timed modifiers keyed by (AbilityInstance, asset), source = the `ActiveStatus`, cleared on death / respawn — AB-E20 revised); `SourceEffect` script and prefab deleted (Q5), `AdjustMaxStats` uses the receiver as the source. Not compiled yet (AB-E19) |

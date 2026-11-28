@@ -2,6 +2,14 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-28 — Status registry documented (B6)
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** README gains "Status registry (B6)" (flow, cases, sources, open points); tick paragraph and the mixed-status line updated; the `StatusType` migration table marked withdrawn; Open issues tick row struck through as fixed. Balance note gains the stacking / shared-asset rule.
+- **From → To:** no registry documented, ticks "do nothing" → registry keyed by `(AbilityInstance, asset)`, refresh on the same key, stacking otherwise, ticks run.
+- **Why:** code `bb142acc` (registry) and `00cc9e56` (cleanup on death, `SourceEffect` removed); owner decisions B6.
+- **Evidence:** STATIC — not compiled.
+- **Bugs:** none opened or closed.
+
 ## 2026-11-28 — Statuses cleared only on death; SourceEffect removed (Q5)
 - **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
 - **Changed:** `EffectReceiverBase`: `OnDisable` cleanup removed, `Update` ends every status when `IsDead` (AB-E20 revised); `AdjustMaxStats` uses the receiver as the modifier source; the `sourceEffect` field, pool injection and `SetEffectSource` removed. Deleted: `Runtime/ImpactMono/SourceEffect.cs`, `Prefab/Particle Effect/SourceEffect.prefab` (+ metas, empty `ImpactMono` folder); the `sourceEffect:` line removed from `PlayerTest.prefab` and `EnemyPrefab.prefab`. `StatusStatsEffect.cs`: stale PENDING / Kind comments removed. README Open issues row updated.

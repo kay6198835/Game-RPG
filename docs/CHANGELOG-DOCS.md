@@ -17,6 +17,20 @@ which code change caused it.
 
 ---
 
+## 2026-11-28 — Status registry (B6) documented (`sprint-24`)
+
+**Cause.** Code `bb142acc` (status registry) and `00cc9e56` (cleanup on death) had no rule or README section yet; GDD OQ-4 still read "pending". Owner decisions B6 (2026-11-27/28). Evidence: STATIC.
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E22 added; AB-E20 point 7; two catalogue rows; OQ-4 note; rule index |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry for the above |
+| `docs/systems/abilities/README.md` | New section "Status registry (B6)"; tick / mixed-status lines; migration table marked withdrawn; tick Open issues row struck through |
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+| `design/balance/status-debuff-stat-combos.md` | Stacking / shared-asset rule for game design |
+
+---
+
 ## 2026-11-28 — AB-E9…E11 withdrawn (`sprint-24`)
 
 **Cause.** Owner decision 2026-11-28: status stays on each effect (auto-fill, AB-E13), direction per row (AB-E12), no validation, items have no status. No code change. Evidence: STATIC.

@@ -15,6 +15,9 @@
 >   `statusType` pre-fills it (buff → Recovery, debuff → Reduction). No validation.
 >   *Was (2026-11-25): "chosen once on the `AbilityDefinition` (one per ability). It decides the direction …
 >   `StatusType = None` with a stat effect is a validation error."*
+> - *(2026-11-28, GDD AB-E22)* **Stacking:** the same skill hitting again with the **same asset** only refreshes
+>   the time; anything else (another caster, another skill, another asset) stacks, with no cap yet. Use **one
+>   shared asset** for one effect inside a skill — a duplicated asset (Ctrl+D) stacks even with equal values.
 > - **One effect does one kind of operation.** Put vital rows (HP, Mana) and stat rows in different effects:
 >
 >   | Part of the status | Effect class | Rows allowed |

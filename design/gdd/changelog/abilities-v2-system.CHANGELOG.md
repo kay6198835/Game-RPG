@@ -4,6 +4,17 @@ Change log for [`design/gdd/abilities-v2-system.md`](../abilities-v2-system.md).
 this file records **when** it changed, **what** changed (**from → to**) and **why**. Newest first.
 Append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-28 — Status registry (AB-E22), OQ-4 status part closed, AB-E20 point 7
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** AB-E22 added; AB-E20 point 7 (map change) reworded as a rule, non-death disable behaviour recorded; catalogue rows `BuffDebuffStatsForDuration`, `RecoveryReductionPerTimeForDuration`; OQ-4 note; rule index (CONFIRMED 44 → 45, total 88 → 89).
+- **From → To:**
+  - OQ-4 note "stacking of on-hit statuses is being decided … owner leaning `AbilityInstance`" → decided: key `(AbilityInstance, effect asset)`, same key refreshes the time only (tick phase kept), other keys coexist and stack, no limits until after the demo; `StatusType` is a label. OQ-4 stays open for the `TryCast()` side-effect question.
+  - Catalogue: `BuffDebuffStatsForDuration` "own pooled source per application" → one registry status; `RecoveryReductionPerTimeForDuration` "does nothing" → ticks run.
+  - AB-E20 (7): "keeping statuses across maps needs a save / restore that does not exist yet" → map change loses every status, accepted; a non-death disable keeps statuses with end times running.
+- **Why:** owner decisions 2026-11-27/28 (session item B6; map change and disable behaviour confirmed 2026-11-28); code `bb142acc`, `00cc9e56`.
+- **Evidence:** STATIC — not compiled.
+- **Bugs:** none created.
+
 ## 2026-11-28 — AB-E9, AB-E10, AB-E11 withdrawn
 - **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
 - **Changed:** the three rows tagged WITHDRAWN (text kept as *Was*); rule index (CONFIRMED 47 → 44, PLANNED 12 → 9, new WITHDRAWN row 3; total 88 unchanged).
