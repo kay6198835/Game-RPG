@@ -225,7 +225,7 @@ function drawFrame(ctx, c, fr, W){
 }
 function frameAt(c, t){
   if (!c.f.length) return -1;
-  const L = clipLen(c); const tt = c.loop === false ? Math.min(t, L) % (L + 0.6) : t % L;
+  const L = clipLen(c); const tt = c.loop === false ? Math.min(t % (L + 0.4), L) : t % L; // non-loop clips hold the last frame briefly, then replay
   let i = 0; for (let k = 0; k < c.f.length; k++){ if (c.f[k][0] <= tt + 1e-6) i = k; else break; }
   return i;
 }
