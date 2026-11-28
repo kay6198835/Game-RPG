@@ -11,7 +11,6 @@
 | [BUG-096](bugs/BUG-096.md) | S1 | OPEN | Rooms with no `Tile_Spawn_Enemy` marker never open their doors — the player is locked in (fix `40d2c79` reverted by `ac13ee4`) |
 | [BUG-108](bugs/BUG-108.md) | S1 | PARTIAL | `CharacterData` dropped its `[FormerlySerializedAs]` attributes — the five `Enemy - Knight*` `EntityData` assets still store `statsSO` / ` |
 | [BUG-122](bugs/BUG-122.md) | S1 | PARTIAL | `PlayerDeathState` emits `ON_PLAYER_DEATH` only on `StatusAnimation.EndRangeTrigger`, but every Paladin Die clip carries only `AnimationOnAc |
-| [BUG-135](bugs/BUG-135.md) | S1 | OPEN | No weapon, projectile or ability can damage the player or any enemy — `8005d27e` made `NegativeReceiverBase<TCore>` implement only the new |
 | [BUG-065](bugs/BUG-065.md) | S2 | OPEN | `PlayerDeathState` no longer stops `PlayerMovement` — CLAUDE.md's BUG-044 "FIXED" claim is stale against current source |
 | [BUG-072](bugs/BUG-072.md) | S2 | OPEN | Summon-type ability damage (`SpawnSummonEffect.SummonExecute`) has no target resolution — uses `Services.NegativeReceiver`, which is null  |
 | [BUG-083](bugs/BUG-083.md) | S2 | OPEN | `AbilityContext.HoldTime` / `.HoldRatio` are always `0f` — every charge-scaling effect is dead on arrival |
@@ -21,7 +20,6 @@
 | [BUG-110](bugs/BUG-110.md) | S2 | OPEN | Player weapon drop / floor pickup never updates `WeaponHolderBase.weapon` and never injects the picked-up weapon — a dropped weapon keeps  |
 | [BUG-113](bugs/BUG-113.md) | S2 | OPEN | "Max stat" has two meanings — `BaseStatsSO.GetStatValue()` returns `AdjustedValue` (no equipment, no modifiers) while vitals are seeded fr |
 | [BUG-114](bugs/BUG-114.md) | S2 | OPEN | `VitalStatsBase` snapshots all 17 stats once in `Reborn()` — stat buffs / debuffs never reach weapon damage, crit or move speed until the  |
-| [BUG-117](bugs/BUG-117.md) | S2 | OPEN | Vital (current HP / Mana) modifiers cannot be authored and invert when they could — `VitalModifier` is not serializable, a negative value  |
 | [BUG-120](bugs/BUG-120.md) | S2 | PARTIAL | Item stat-modifier effects apply nothing — `StatModifierEffect.Apply()` only resolves the receiver, both concrete menus point at `abstract |
 | [BUG-126](bugs/BUG-126.md) | S2 | OPEN | `TMP_TextInfoDebugTool.cs` has `using UnityEditor;` outside `#if UNITY_EDITOR` — expected to break every Player build |
 | [BUG-130](bugs/BUG-130.md) | S2 | OPEN | Dash soft-locks every class — the class animator controllers applied by `SetCharacterData()` have no Dash state, so `PlayerDashState` neve |
@@ -37,6 +35,7 @@
 | [BUG-123](bugs/BUG-123.md) | S3 | OPEN | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item effect can be authored, so `WalletComponent.AddCoins()` has  |
 | [BUG-127](bugs/BUG-127.md) | S3 | OPEN | Mage basic attack projectile speed is `1` — a MagicBolt travels at most 4 units and needs 2.5 s to reach a target 2.5 units away |
 | [BUG-131](bugs/BUG-131.md) | S3 | OPEN | `Interact.FindNearestObject()` walks the whole 3-slot `colliders` buffer instead of the first `numFound` entries — a stale collider from a |
+| [BUG-136](bugs/BUG-136.md) | S3 | OPEN | `Trap` never fires for a correctly authored target mask, and throws `NullReferenceException` when it does — it compares a `LayerMask` with |
 | [BUG-098](bugs/BUG-098.md) | S4 | OPEN | Enemy-spawn GDD and ADR-0003 name a `RarityTier` enum that no longer exists — code renamed it `RarityTierEnemy` |
 | [BUG-104](bugs/BUG-104.md) | S4 | OPEN | `PlayerState.Enter()` logs `"Enter State: " + animBoolName` on every player state change, unguarded — string concat + log shipped in build |
 | [BUG-128](bugs/BUG-128.md) | S4 | OPEN | 18 sprite capture scenes reference a script that is not in the repository (the character capture tool) |
