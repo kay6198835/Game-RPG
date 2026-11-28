@@ -10,6 +10,10 @@ Shared by the project-own PM skills (`/daily-standup`, `/weekly-wrapup`, `/weekl
   ScriptableObjects, `ProjectSettings/`, `Packages/`, `.claude/settings*.json` or `.claude/hooks/`.
   The project settings allow `.md` edits without a prompt and nothing else, so an attempt to touch
   anything else stalls the run instead of acting — treat that stall as a defect in the routine.
+- **Never edit anything under `.claude/`**, not even a `.md` file. Claude Code asks for approval on every
+  edit there regardless of the allow rules (2026-11-28 doc-sync stalled on `.claude/rules/prototype-code.md`).
+  Record the stale line in the routine's report as `⚠️ Out of date (needs owner — .claude/ path)` and list it
+  in the digest. Root `CLAUDE.md` is untracked since `c40da7b8` — never edit it either.
 - Read code freely. Never fix code; a suspected defect becomes a bug-inbox note
   (`.claude/rules/bug-inbox.md`).
 - Run fully unattended: never ask a question. Make the conservative choice, state it in the digest.
@@ -31,7 +35,12 @@ waits for an approval nobody gives (kickoff 2026-10-12 stalled this way for over
   covers it.
 - **One command per tool call.** No `&&`, `;`, `|` chains, no `cd`, no shell variables
   (`$PM`, `$NN`), no quotes around the path. Write the literal path every time:
-  `git -C D:/Fork/Game-RPG-pm <subcommand> …`.
+  `git -C D:/Fork/Game-RPG-pm <subcommand> …`. **Exception:** a git pathspec with magic, such as
+  `':(glob)**/*.md'`, must be single-quoted — unquoted, bash fails on the `(`.
+- **No output redirect (`>`)** into a project file. Scripts run in the owner folder, so a redirect writes
+  there. Read the script's stdout and write the file in `D:/Fork/Game-RPG-pm` with the Write tool.
+- Tools that default to the current folder (`py .claude/hooks/lint-mermaid.py`) check the **owner folder**.
+  Pass absolute `D:/Fork/Game-RPG-pm/…` paths for the files the routine changed.
 - Substitute the sprint number yourself (`origin/sprint-18`), never `sprint-$NN`.
 - Run scripts as `bash .claude/scripts/<name>.sh …` from the project root.
 
