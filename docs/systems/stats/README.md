@@ -1,6 +1,6 @@
 # Stats
 
-> **Status:** live · **Last verified:** 2026-11-15, `sprint-22` `063b5f87` (stat split committed as `a0e250fb`; compiled 2026-11-13; `StatSheetTests` PASS in run `20261114-2357`) · **ADR:** ADR-0001
+> **Status:** live · **Last verified:** 2026-11-28, `sprint-24` `d7105421` (`StatModifier`, `StatModifierGroup`, `VitalModifier`, `ApplyModifiers` sign only, STATIC); rest 2026-11-15, `sprint-22` `063b5f87` (stat split committed as `a0e250fb`; compiled 2026-11-13; `StatSheetTests` PASS in run `20261114-2357`) · **ADR:** ADR-0001
 > History: [CHANGELOG.md](CHANGELOG.md) · GDD: `design/gdd/stat-system.md` · Numbers: `ToolExcel/stat_system_formula_reference.xlsx`
 
 ## Purpose
@@ -31,6 +31,9 @@ Derived:  Base         = baseConstant + Σ(primary Base × coefficient)
           Final        = ((Base + LevelUp + ΣFlat) × (1 + ΣPercentAdd)) × Π(1 + PercentMult) + PrimaryBonus
 ```
 
+Modifier sign (since `83800891`, 2026-11-26, A1): `StatModifier.Value` is a magnitude; `StatSheet.ApplyModifiers`
+subtracts it when `ImpactType == Reduction` and adds it when `Recovery`.
+
 Each `Stat` exposes the parts for inspection: `BaseValue`, `LevelUpValue`, `AdjustedValue`,
 `PrimaryBonus` (was `equipmentByPrimaryValue`), `ModifierBonus`, `EquipmentValue`
 (= `ModifierBonus + PrimaryBonus`), `FinalValue`. Only `StatSheet` writes them.
@@ -51,8 +54,9 @@ Where to look while debugging:
 | `DerivedStatFormula.cs` | `targetStat`, `baseConstant`, `perLevel`, `contributions[]` — data only |
 | `StatSheet.cs` | The calculator; also declares `StatsViewDTO` |
 | `Stat.cs` | Runtime result record + modifier list (not serialized) |
-| `StatModifier.cs` | Authored `targetStatType` / `type` / `value` + runtime `Source` (stamped by `WithSource()`) |
-| `StatModifierGroup.cs` | `[Serializable]` bundle (`statsModifiers`, `vitalModifiers`), embedded in `WeaponStats` and effects |
+| `StatModifier.cs` | Authored `targetStatType` / `type` / `value` (magnitude, `[Range(0.1, 999)]`) / `impactType` (Reduction / Recovery, serialized again since `83800891`) + runtime `Source` (stamped by `WithSource()`). Also declares `ModifierType` |
+| `StatModifierGroup.cs` | `[Serializable]` bundle — `statsModifiers` only (`vitalModifiers` removed in `df9e98fe`; vital rows are `statsModifiers` entries whose `targetStatType` is a `VitalStatType` value), embedded in `WeaponStats` and effects |
+| `VitalModifier.cs` | `VitalStatType` enum only — the `VitalModifier` class is commented out (`df9e98fe`) |
 | `EnemyStatSO.cs` | `: BaseStatsSO` |
 | `StatPointSession.cs` / `StatPointAllocator.cs` | Point allocation session (accept / revert / restore) over `IPlayerStatService` |
 | `StatModifierTester.cs` | Debug MonoBehaviour working on its own `StatSheet` (+ `Assets/Editor/StatModifierTesterEditor.cs`) |

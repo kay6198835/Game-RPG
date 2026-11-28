@@ -2,6 +2,21 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-24 — Room JSON loaded from a TextAsset (Bug #15 / TD-022) (doc-truth re-sync 2026-11-28)
+- **Commit:** `7a41d7c4` "fix(map): load room JSON from TextAsset so rooms work in Player builds" (on `sprint-24`).
+- **Changed:** `DungeonRoomSO.RoomFile` gains `TextAsset roomJson`; `RoomGeneraterController.LoadRoom()` reads
+  `roomJson.text` only when the room is not cleared and logs an error if the entry is unlinked;
+  `LevelEditorTool` sets `roomJson` on Save and relinks on Import; `Maze_Storage.asset` — all 20 entries linked;
+  QA-MAP room library case fails on an entry with no `roomJson`.
+- **From → To:**
+  - README flow "read JSON of `_mazeRooms[index]` (`File.ReadAllText(Application.dataPath…)`, Bug #15)" → "read `_mazeRooms[index].roomJson.text` (TextAsset; null → LogError + return)".
+  - README Open issues "#15 Room JSON via `File.ReadAllText(Application.dataPath…)` — Editor-only" → "#15 / TD-022 fixed in code 2026-11-24, Player build not yet run".
+  - README code table `Assets/SO/Dungeon/` row: `RoomFile` fields listed (`filePath` Editor-only, `roomJson` runtime).
+  - `room-generation-architecture.md` §1 `RoomFile` row, §3 step 1, §6 Bug #15 row — same change.
+- **Why:** from the commit — `Assets/` does not exist in a Player build; a serialized `TextAsset` reference pulls
+  the JSON into the build, stays sync on every platform and survives renames (GUID).
+- **Bugs:** historical Bug #15 / TD-022 fixed in code (STATIC; no Player build run yet).
+
 ## 2026-11-18 — README refreshed
 - **Commit:** this change on `sprint-23` (owner request); docs only.
 - **Changed:** `README.md` — code table (`LevelManager` runtime only, `LevelEditorTool`), room table with content and door-open rule per room, `BuildMazeRooms()` selection, scene hierarchy, flow (`SpawnBoss` / `SpawnRoom` instead of `ON_GET_SPAWN_POSITIONS`, no `LevelManager` injection), open issues (BUG-097 / BUG-096 fixed or addressed in code and data, statuses left to triage).

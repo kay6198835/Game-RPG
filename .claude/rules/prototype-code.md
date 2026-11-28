@@ -22,7 +22,7 @@ The following are ALLOWED in `prototypes/`:
   - **Hypothesis**: what question this prototype answers
   - **Result**: `[VALIDATED]` / `[INVALIDATED]` / `[IN PROGRESS]`
   - **Decision**: what was decided based on the result
-- Prototype scenes must NOT be in `Assets/Scenes/Main/` — use `Assets/Scenes/Test/` or `Assets/Scenes/` root
+- Prototype scenes must NOT be in `Assets/Scenes/Main/` — use `Assets/QA/Scenes/Test/` (moved from `Assets/Scenes/Test/` in `070bc0a5`) or `Assets/Scenes/` root
 
 ## Promotion Rules
 Prototype code that gets promoted to `Assets/Script/` MUST be rewritten to production standards:

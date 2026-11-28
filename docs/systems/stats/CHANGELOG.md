@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-26 — StatModifier value is a magnitude; vital rows folded into statsModifiers (doc-truth re-sync 2026-11-28)
+- **Commit:** `df9e98fe` "add status effect" (2026-11-23), `83800891` "feat(stats): StatModifier value is a magnitude, impactType serialized (A1)" (2026-11-26), both on `sprint-24`.
+- **Changed:** `StatModifier` (serialized `impactType`, `value` clamped 0.1..999, constructor drops the sign, `WithSource` copies `impactType`); `StatSheet.ApplyModifiers` (sign from `ImpactType`); `StatModifierGroup` (`vitalModifiers` removed, new constructor); `VitalModifier.cs` (class commented out, `VitalStatType` enum kept).
+- **From → To:**
+  - README `StatModifier.cs` row "Authored `targetStatType` / `type` / `value` + runtime `Source`" → adds `impactType` and the magnitude range.
+  - README `StatModifierGroup.cs` row "bundle (`statsModifiers`, `vitalModifiers`)" → "`statsModifiers` only; vital rows are entries with a `VitalStatType` target".
+  - README: new `VitalModifier.cs` row (enum only); sign note under the formula.
+- **Why:** from `83800891` — owner decision 2026-11-26 (session item A1, GDD AB-E12); `impactType` was not serialized, so every asset loaded as Recovery. `df9e98fe`: not recorded in the commit.
+- **Bugs:** BUG-117 FIXED (2026-11-28 triage). Data half of NOTE-20261123-1 (8 assets without an `impactType` key) still with the owner. Three item effect assets keep an orphaned `vitalModifiers` key (recorded in BUG-117).
+
 ## 2026-11-15 — Bug statuses after the 2026-11-15 triage (doc-truth re-sync)
 - **Commit:** none to code — the stat split is now committed as `a0e250fb` (on `sprint-22`); triage `b5e3238b`.
 - **Changed:** README only (Last verified line, Open issues).

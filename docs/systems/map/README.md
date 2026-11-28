@@ -1,6 +1,6 @@
 # Map — Maze, Rooms, Doors, Level Editor
 
-> **Status:** live · **Last verified:** 2026-11-18, `sprint-23` `7e6e2156` (static read; not verified in Play Mode)
+> **Status:** live · **Last verified:** 2026-11-28, `sprint-24` `d7105421` (room JSON loading only, STATIC); rest 2026-11-18, `sprint-23` `7e6e2156` (static read; not verified in Play Mode)
 > History: [CHANGELOG.md](CHANGELOG.md) · Architecture: [room-generation-architecture.md](room-generation-architecture.md) ·
 > GDD: `design/gdd/map-system.md` · Rules: `.claude/rules/map-code.md`
 
@@ -22,7 +22,7 @@ the next room. A minimap mirrors progress.
 | `LevelEdit/LevelManager.cs` | Runtime room data: `TileSO` list + tilemaps, door helpers; declares `LevelData`. Not in DI |
 | `LevelEdit/LevelEditorTool.cs` + `Editor/LevelEditorToolEditor.cs` | Editor-only room CRUD: Save / Load / Edit / Delete + Import JSON |
 | `Assets/Data/Json/Room/` | 20 room layouts |
-| `Assets/SO/Dungeon/` | `Maze_Storage.asset` (room library). `Maze_Load_Room.asset` deleted 2026-11-18 — the per-run list is `RoomGeneraterController._mazeRooms` |
+| `Assets/SO/Dungeon/` | `Maze_Storage.asset` (room library; each `RoomFile` = `roomName`, `filePath` (Editor tooling only), `roomType`, `roomJson` (`TextAsset`, the runtime source, since `7a41d7c4`)). `Maze_Load_Room.asset` deleted 2026-11-18 — the per-run list is `RoomGeneraterController._mazeRooms` |
 
 ## Room set (since 2026-10-04)
 
@@ -72,7 +72,7 @@ RoomGridController [ON_LOAD_MAZE_DONE] → OnDoneLoadRoomGrid()
   → LoadRoom(start) → PlayerManager.SetPlayerPosition(start room position)
 
 RoomGeneraterController.LoadRoom(index, cell):
-  read JSON of _mazeRooms[index] (File.ReadAllText(Application.dataPath…), Bug #15) → clear tilemaps
+  if !cleared: read _mazeRooms[index].roomJson.text (TextAsset; null → LogError + return) → clear tilemaps
   per tile: door tiles kept only for maze directions; spawn tiles → spawnPositions
   if !cleared → SwapTileMap + build grid, then by roomType:
                  Shop / Rest / Treasure → Emit(ON_OPEN_DOOR)
@@ -105,7 +105,7 @@ Statuses follow the bug files; the 2026-11-18 changes are waiting for the Saturd
 | Bug | Summary |
 |-----|---------|
 | #14 | `MazeController.Awake()` missing `return` after `Destroy` |
-| #15 | Room JSON via `File.ReadAllText(Application.dataPath…)` — Editor-only |
+| #15 / TD-022 | **Fixed in code 2026-11-24** (`7a41d7c4`): `LoadRoom()` reads the `RoomFile.roomJson` `TextAsset`; `LevelEditorTool` fills it on Save / Import. Not yet checked in a Player build (demo checklist item 4). *Was:* room JSON via `File.ReadAllText(Application.dataPath…)` — Editor-only |
 | #16 / BUG-097 | Start / end by list position — fixed in code and data 2026-11-18 (`BuildMazeRooms()`, Champion moved, boss marker added); needs a Play Mode check |
 | #17 | Dead door-gating code (`DoorController.OpenDoor()` etc.) |
 | BUG-096 | S1 — marker-less rooms never open. Since 2026-11-18 the start room holds the Champion and the boss room has a marker, so every room type has a way to open; file still Open, needs a Play Mode check |

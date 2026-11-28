@@ -7,6 +7,16 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-28 — Bug #15 fixed in code (doc-sync --auto)
+- **Commit:** `7a41d7c4` (2026-11-24, `sprint-24`); docs re-synced on `pm/doc-sync-2026-11-28`.
+- **Changed:** Room Loading paragraph, Edge Cases "Standalone Player build" row, Acceptance Criteria Bug #15 line.
+- **From → To:**
+  - "Room JSON is read with `File.ReadAllText(Application.dataPath + filePath)` — Editor-only" → "fixed in code 2026-11-24: read from `RoomFile.roomJson` (`TextAsset`); not yet checked in a Player build" (old text kept as `*Was:*`).
+  - Edge case row resolution "Move to `TextAsset` refs or StreamingAssets" → "Fixed in code — confirm with the first Player build".
+  - Acceptance line stays unchecked, with a note that the code is fixed.
+- **Why:** the GDD described the pre-fix loader; the commit message records the TextAsset decision.
+- **Bugs:** historical Bug #15 / TD-022.
+
 ## 2026-10-10 — Event rename banner (doc-sync --auto)
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** Re-synced banner; front-matter `updated`

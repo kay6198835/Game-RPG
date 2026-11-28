@@ -206,7 +206,10 @@ centre of each door tile cluster.
 (cached `LevelData`) instead of reading the JSON file again — preserving the room state — and
 calls `OpenDoors()` so all doors are immediately passable.
 
-**[BUG #15]** Room JSON is read with `File.ReadAllText(Application.dataPath + filePath)`
+**[BUG #15 — fixed in code 2026-11-24, `7a41d7c4`; re-synced 2026-11-28]** `LoadRoom()` reads the room
+JSON from `RoomFile.roomJson` (a serialized `TextAsset`, so the file ships in the Player build); `filePath`
+is kept for Editor tooling only. Not yet checked in a standalone Player build.
+*Was:* Room JSON is read with `File.ReadAllText(Application.dataPath + filePath)`
 (RoomGeneraterController.cs:57; same pattern in LevelManager.cs) — Editor-only. `Assets/Data/Json/`
 is not packaged into Player builds; must move to `TextAsset` references or StreamingAssets before
 the first standalone build.
@@ -402,7 +405,7 @@ randomIndices = Utility.PickUniqueIndex(totalRooms, mazeSize)
 | Scene starts — player position in start room | ✅ Player spawned by `PlayerManager`, then moved to the start room centre by `OnDoneLoadRoomGrid()` (Bug #13 fixed) | — |
 | Uncleared room with no spawn markers (start / rest / shop / buff) | ❌ Doors stay sealed — `ON_CLEAR_ENEMY` never fires (BUG-096; `40d2c793` reverted by `ac13ee4f`). *Was (2026-10-05):* "✅ Doors open on load" | BUG-096 |
 | Two `MazeController` instances in scene | **[BUG #14]** Duplicate destroys itself but still overwrites `Instance` and re-runs the generator | Add `return` after `Destroy(gameObject)` |
-| Standalone Player build | **[BUG #15]** Room JSON read from `Application.dataPath` — files absent in build → load failure | Move to `TextAsset` refs or StreamingAssets |
+| Standalone Player build | Room JSON read from the `RoomFile.roomJson` `TextAsset` (`7a41d7c4`, 2026-11-24); an unlinked entry logs an error and the room does not load. *Was:* **[BUG #15]** read from `Application.dataPath` — files absent in build → load failure | Fixed in code — confirm with the first Player build |
 | Player re-enters a cleared room | Doors already open; no enemies → room-clear instant | ✓ Acceptable — no lock triggered if `enemyCount == 0` |
 | `LevelData.tiles` serialization | **[BUG — potential]** `JsonUtility` cannot serialize `TileBase` references by value — JSON round-trip may fail or produce null tiles on load | Verify in editor; may need a tile-by-name lookup table instead |
 | Player not spawned yet when a room loads | `PlayerManager.Player` is lazy — the first `SetPlayerPosition()` call spawns it | ✓ |
@@ -455,7 +458,7 @@ All values in `GameConstants.SettingStats` or `MazeController` Inspector fields.
 - [x] `DoorController` transforms repositioned to average door tile cluster centre
 - [x] Cleared rooms use cached `LevelData` instead of re-reading JSON
 - [ ] No `IndexOutOfRangeException` when navigating any valid maze path — bounds check missing in `GetNext()` (latent)
-- [ ] Room JSON loads in a standalone Player build (Bug #15)
+- [ ] Room JSON loads in a standalone Player build (Bug #15) — code fixed 2026-11-24 (`7a41d7c4`, `TextAsset`); unchecked until a Player build runs
 - [ ] `RoomType` drives start/boss room selection instead of list position (Bug #16)
 
 ### Room Transitions

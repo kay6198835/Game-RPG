@@ -7,6 +7,13 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-28 — TD-022 resolved in code (doc-sync --auto)
+- **Commit:** `7a41d7c4` (2026-11-24, `sprint-24`); docs on `pm/doc-sync-2026-11-28`.
+- **Changed:** TD-022 row only. The register header (`Last updated: 2026-10-05`) and the other rows were not re-verified.
+- **From → To:** "Room JSON loaded via `File.ReadAllText(Application.dataPath + filePath)` … Critical, Priority 1, Backlog" → "RESOLVED IN CODE 2026-11-24, `TextAsset` `roomJson`; close after the first Player build loads a room" (old text kept as `*Was:*`).
+- **Why:** the commit message names Bug #15 / TD-022 and records the TextAsset decision.
+- **Bugs:** historical Bug #15.
+
 ## 2026-11-03 — TD-048 / TD-051 gate landed (S21-09)
 - **Commit:** `sprint-21` (this change)
 - **Changed:**

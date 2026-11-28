@@ -17,6 +17,33 @@ which code change caused it.
 
 ---
 
+## 2026-11-28 — Doc-truth pass: room JSON TextAsset, StatModifier magnitude, abilities code table (HEAD `d7105421`)
+
+**Cause.** `7a41d7c4` (room JSON from `TextAsset`, Bug #15 / TD-022), `070bc0a5` (build clean-up: TMP examples,
+`FasTestEnemyDeath`, test scenes moved), `df9e98fe` + `83800891` (`StatModifier` magnitude + `impactType`,
+`vitalModifiers` removed), `f2a580b2` / `bb142acc` / `00cc9e56` (abilities runtime folder rename, `ActiveStatus`,
+`SourceEffect` deleted). Routine `pm-weekly-doc-truth`; claim sweep `production/qa/doc-truth-2026-11-28.md`
+(483 claims, 61 STALE — 59 carried, 2 new, both fixed).
+
+| Document | Change |
+|---|---|
+| `docs/systems/map/README.md`, `CHANGELOG.md`, `room-generation-architecture.md` | Room JSON read from `RoomFile.roomJson`; Bug #15 row → fixed in code, Player build pending |
+| `design/gdd/map-system.md` (+ changelog) | Bug #15 paragraph, edge case row, acceptance note re-synced; old text kept as `*Was:*` |
+| `design/gdd/enemy-spawn-system.md` (+ changelog) | Note: `FasTestEnemyDeath.cs` deleted, `EntityDeathState` is the only `ON_ENEMY_DEATH` emitter |
+| `docs/tech-debt-register.md` (+ changelog) | TD-022 → RESOLVED IN CODE, close after a Player build |
+| `production/demo-checklist.md` | Item 3 "Build-safe room JSON" removed (done in code, `7a41d7c4`) and folded into the Player build item; items renumbered 1-12 |
+| `docs/systems/stats/README.md`, `CHANGELOG.md` | `StatModifier` (magnitude, `impactType`), `StatModifierGroup` (`statsModifiers` only), `VitalModifier.cs` (enum only), sign rule in `ApplyModifiers` |
+| `docs/systems/abilities/README.md`, `CHANGELOG.md` | Code table: `ActiveStatus`, `SpawnMonoEffect/`, `SpawnMono/Trap`, `SourceEffect` deleted, `Conditions/` gone |
+| `docs/systems/items/README.md`, `CHANGELOG.md` | BUG-100 row: shared-source text replaced by the B6 per-status source; status Open per file |
+| `.claude/rules/prototype-code.md` | Test scene folder `Assets/Scenes/Test/` → `Assets/QA/Scenes/Test/` |
+| `memory/project_state.md` | Delta 2026-11-22 → 2026-11-28 (R62-R67) |
+| `production/qa/bug-inbox.md` | NOTE-20261128-2 (BUG-092 / BUG-118), -3 (BUG-100), -4 (BUG-126) — triage hints, no status change |
+
+**Notable.** Root `CLAUDE.md` is untracked since `c40da7b8` (2026-11-23), so its index lines were not edited.
+Three open bugs look resolved in code by this week's commits (BUG-100, BUG-118, BUG-126) and BUG-092's residual
+has been gone since `51f8d2d4` (2026-10-12) — left for Saturday triage. `docs/architecture/effect-source-plan.md`
+still describes the deleted pooled `SourceEffect` (superseded plan, not a living doc — left).
+
 ## 2026-11-28 — Status registry (B6) documented (`sprint-24`)
 
 **Cause.** Code `bb142acc` (status registry) and `00cc9e56` (cleanup on death) had no rule or README section yet; GDD OQ-4 still read "pending". Owner decisions B6 (2026-11-27/28). Evidence: STATIC.
