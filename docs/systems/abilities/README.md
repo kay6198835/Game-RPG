@@ -113,20 +113,28 @@ AbilityDefinition.Effects        → Delivery only: who is hit   (SpawnProjectil
 
 **Status.**
 
-1. **Status config is PENDING.** `Status Status Config.asset` (`StatusStatsEffect`) and `StatusType` stay as
-   reference data only. The Inspector auto-fill (`StatsEffectBase.SyncModifiersFromStatusType` /
-   `AutoAssignStatusStatsEffect`) is to be switched off. There is **no** system that matches stats to a status.
-2. **Game design picks the stats by hand** for each effect, from
-   `design/balance/status-debuff-stat-combos.md` and the `StatusType` comments, so that they fit the
-   ability's `StatusType`.
-3. **One `StatusType` per `AbilityDefinition`.** An ability that needs two statuses is split into two abilities.
-4. **Passed at runtime** through `AbilityContext` to every effect, on-hit `SubEffects` included. Effect assets
-   do not store a `StatusType`, so one effect asset can serve two abilities without conflict.
-5. **`StatImpactType` comes from the status:** buff (even value) → Recovery, debuff (odd value) → Reduction.
-   An ability with `StatusType = None` that contains a stat effect is a **validation error**.
-6. **Item effects** (`ModifierCurrentStatsEffect`, `ModifierMaxStatsEffect`) get their own `StatusType` field,
-   same rule as 5.
-7. The ability's `StatusType` is also the data hook for later work (cleanse, status icons, stacking, auto-match).
+1. **Status config = reference data + an Inspector helper** (GDD AB-E13, revised 2026-11-28).
+   `Status Status Config.asset` (`StatusStatsEffect`) is never read at runtime. The Inspector auto-fill stays:
+   `AutoAssignStatusStatsEffect` assigns the config, and `SyncModifiersFromStatusType` rebuilds the rows **only when
+   `statusType` changes** (rows of the new status keep value / type, `impactType` re-stamped, other rows dropped,
+   new rows 0.1 Flat, `None` empties the list). There is **no** check that rows, effect class or impact fit the
+   status: a misfit is a game-design error. *Was (2026-11-25): "the auto-fill is to be switched off" — kept by the
+   owner on 2026-11-26.*
+2. **Game design picks and trims the stats by hand** for each effect, from
+   `design/balance/status-debuff-stat-combos.md`, so that they fit the effect's own `statusType`.
+3. **`StatusType` stays on each stat effect** (`StatsEffectBase.statusType`); an ability may hold effects of
+   several statuses. The direction of each row is its own `impactType` (A1, GDD AB-E12).
+4. **Item effects have no `StatusType`**: they are plain stat changes (`AdjustMaxStats` / `AdjustCurrentStats`),
+   not statuses (owner, 2026-11-28).
+
+*Was (2026-11-25, withdrawn 2026-11-28 — GDD AB-E9…E11):*
+- Stats picked by hand to fit **the ability's** `StatusType`.
+- One `StatusType` per `AbilityDefinition`; an ability needing two statuses is split into two abilities.
+- Passed at runtime through `AbilityContext` to every effect; effect assets store no `StatusType`.
+- `StatImpactType` comes from the status (even → Recovery, odd → Reduction); `StatusType = None` with a stat effect is a validation error.
+- Item effects get their own `StatusType` field, same rule.
+- The ability's `StatusType` is the data hook for later work (cleanse, status icons, stacking, auto-match).
+
 
 **Values and sign (GDD AB-E12, decided 2026-11-26, A1).**
 
@@ -192,8 +200,8 @@ really are two different statuses (e.g. Heal + Haste).
 | BUG-089 | Closed by design (tier scaffolding) — reopen at demo/release |
 | — (2026-11-25) | `RecoveryReductionPerTimeForDuration` → `AdjustMaxPerTimeForDuration`, body empty → every tick effect does nothing. Fix: `AdjustCurrentPerTimeForDuration` (see decisions above). Supersedes the "throws" wording of BUG-118 |
 | — (2026-11-25) | `StatModifier.impactType` (`StatModifier.cs:34`, `df9e98fe`) has no `[SerializeField]` → loads as Recovery from every asset; `AdjustCurrentStats` turns a Reduction into a heal. *2026-11-26, decided (A1, GDD AB-E12):* `impactType` is `[SerializeField]` again, `value` is a magnitude 0…999 (`[Range]`, constructor drops the sign and clamps), and each reader of `Value` applies the sign from `ImpactType` (`StatSheet.ApplyModifiers`, `AdjustCurrentStats`, `Utility.ModifierStatsCalculate`, QA items suite). `AdjustCurrentStats` honours `Type` since `8377ebaf` (percent of the current value). Still open: floor (SD-05); non-vital rows skipped silently (design error by owner rule) |
-| — (2026-11-25) | Status config auto-fill adds stats of the wrong kind for Burn `[HP, HPRegen]` / Poison `[HP, PhysicalDamage]` (tick effect ignores the stat row silently; duration effect turns HP into a max-HP modifier). Closed by "status config PENDING" |
-| — (2026-11-25) | `EffectReceiverBase`: timed modifiers removed only at the end of a coroutine on the receiver (disable / death / pool → never removed); source key is a pooled `SourceEffect` (reuse can remove another effect's modifiers); `AdjustMaxStats` uses lifetime 0 → `SourceEffect` never despawned; `SourceEffectConfig.callback` never invoked. *2026-11-26:* cleanup rule decided (GDD AB-E20, `[PLANNED]`: clear in `OnDisable` / `ReloadComponent`, data only, `new object()` token); built together with the status registry, whose key is still open (OQ-4, session item B6). Dead guard added (AB-E19) |
+| — (2026-11-25) | Status config auto-fill adds stats of the wrong kind for Burn `[HP, HPRegen]` / Poison `[HP, PhysicalDamage]` (tick effect ignores the stat row silently; duration effect turns HP into a max-HP modifier). Closed by "status config PENDING". *2026-11-28:* the auto-fill stays as a helper (GDD AB-E13); the designer deletes the row that does not belong (or splits Burn / Poison into two effects) |
+| — (2026-11-25) | `EffectReceiverBase`: timed modifiers removed only at the end of a coroutine on the receiver (disable / death / pool → never removed); source key is a pooled `SourceEffect` (reuse can remove another effect's modifiers); `AdjustMaxStats` uses lifetime 0 → `SourceEffect` never despawned; `SourceEffectConfig.callback` never invoked. *2026-11-26:* cleanup rule decided (GDD AB-E20, `[PLANNED]`: clear in `OnDisable` / `ReloadComponent`, data only, `new object()` token); built together with the status registry, whose key is still open (OQ-4, session item B6). Dead guard added. *2026-11-28 (STATIC):* status registry `bb142acc` (timed modifiers keyed by (AbilityInstance, asset), source = the `ActiveStatus`, cleared on death / respawn — AB-E20 revised); `SourceEffect` script and prefab deleted (Q5), `AdjustMaxStats` uses the receiver as the source. Not compiled yet (AB-E19) |
 | — (2026-11-25) | `VitalStatsBase.LoadVitalStats` skips Coin → Coin never in `currentStats`, `Recovery(Coin)` is a no-op (no caller today) |
 | — (2026-11-25) | ~~Damage still computed in each spawn effect~~ → **fixed in working tree (STATIC)**: `DamageEffect` + `IEffectReceiver.ApplyDamage`; 8 spawn effect assets migrated with unchanged numbers. To check in Unity: assets import, CombatTest dummy, Rain Arrows despawn. Still open: real scaling stat / coefficient per ability (OQ-11); summons of Archer / Paladin scale with MagicDamage as before |
 | — | GDD written 2026-11-13 (`design/gdd/abilities-v2-system.md`), reviewed by the owner the same day, 3 questions parked; still no ADR for Abilities v2 *(was: "No GDD for v2; no ADR deciding v1 vs v2 endgame")* |

@@ -4,6 +4,33 @@ Change log for [`design/gdd/abilities-v2-system.md`](../abilities-v2-system.md).
 this file records **when** it changed, **what** changed (**from → to**) and **why**. Newest first.
 Append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-28 — AB-E9, AB-E10, AB-E11 withdrawn
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** the three rows tagged WITHDRAWN (text kept as *Was*); rule index (CONFIRMED 47 → 44, PLANNED 12 → 9, new WITHDRAWN row 3; total 88 unchanged).
+- **From → To:** `StatusType` one per ability, passed through `AbilityContext`, deciding the impact, validated, also on items → `StatusType` stays on each stat effect (read by the auto-fill, AB-E13), the direction is each row's `impactType` (AB-E12), no validation, items have no `StatusType`.
+- **Why:** owner, 2026-11-28 — the status config auto-fill is in use again (AB-E13) and A1 put the direction on each row, so the block went against the current design; items stay plain stat changes.
+- **Evidence:** STATIC (no code change; the code already matched the "To" side).
+- **Bugs:** none.
+
+## 2026-11-28 — Cleanup only on death (AB-E20), Max HP change (AB-E21), caster stats at hit (AB-S12)
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** AB-E20 rewritten and no longer `[PLANNED]`; AB-E21 and AB-S12 added; rule index (CONFIRMED 45 → 47, PLANNED 13 → 12, total 86 → 88).
+- **From → To:**
+  - AB-E20: effects cleaned up when the character is disabled (`OnDisable` / `ReloadComponent`) → statuses cleared **only on death** (player and enemy), plus `ReloadComponent` as a respawn safety net; a non-death disable keeps them (their end times keep running; one expired while inactive ends on re-enable). Map change rebuilds the player, so statuses are lost there (no save / restore yet).
+  - AB-E21 (new): the current `OnMaxStatChanged` behaviour is the rule — max up keeps the current value, max down clamps it, Max ≤ 0 kills.
+  - AB-S12 (new): `DamageEffect` reads the caster's scaling stat at each hit, no snapshot at cast.
+- **Why:** owner decisions 2026-11-28 (session items 18, 19, 20); code for AB-E20 changed in the same working tree (`EffectReceiverBase`: `OnDisable` removed, death check in `Update`).
+- **Evidence:** STATIC — not compiled.
+- **Bugs:** none created.
+
+## 2026-11-28 — AB-E13 matches the code: status config auto-fill kept as a helper
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** AB-E13 rewritten and no longer `[PLANNED]`; rule index (PLANNED 14 → 13).
+- **From → To:** "Status config is PENDING … no auto-fill, no auto-match" (the Inspector auto-fill was to be switched off) → the config is reference data plus an Inspector helper: `AutoAssignStatusStatsEffect` and `SyncModifiersFromStatusType` stay (rows rebuilt only when `statusType` changes), the config is never read at runtime, nothing validates the rows / class / impact, a misfit is a game-design error.
+- **Why:** the GDD said "no auto-fill" while the code still auto-fills; the owner kept the helper on 2026-11-26 ("the system only supports up to there") and asked on 2026-11-28 to fix the docs, not the code.
+- **Evidence:** STATIC — read from `Assets/Script/System/Abilities/Effects/StatEffectBase.cs` at `78270214`.
+- **Bugs:** none created.
+
 ## 2026-11-26 — StatModifier: magnitude + serialized impactType (AB-E12 replaced, AB-E11 note)
 - **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
 - **Changed:** AB-E12 rewritten and no longer `[PLANNED]`; AB-E11 "Today" note; rule index (PLANNED 15 → 14).

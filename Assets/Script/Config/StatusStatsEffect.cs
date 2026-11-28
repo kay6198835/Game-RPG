@@ -12,14 +12,8 @@ public class StatusStats{
     public List<StatType> statType;
 }
 
-// PENDING 2026-11-25 (owner): this config is reference data only — no auto-fill / auto-match.
-// Game design picks an effect's stats by hand (design/balance/status-debuff-stat-combos.md).
-// StatusType is set once per AbilityDefinition and decides Recovery / Reduction (GDD AB-E8…E14).
 // Serialized as int: never renumber a member once assets use it.
 // Even value = buff, odd value = debuff (None = 0 is neither). See StatusTypeExtensions.IsBuff.
-// Stat lists per status live in Assets/SO/Config/newStatusStatsEffect.asset.
-// Kind: Duration = AdjustMaxForDuration, Tick = AdjustMaxPerTimeForDuration,
-//       Instant = AdjustCurrentStats, Movement = IMovement (no stat list).
 public enum StatusType
 {
     None = 0,

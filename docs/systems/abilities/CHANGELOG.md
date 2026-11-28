@@ -2,6 +2,22 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-28 — Statuses cleared only on death; SourceEffect removed (Q5)
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** `EffectReceiverBase`: `OnDisable` cleanup removed, `Update` ends every status when `IsDead` (AB-E20 revised); `AdjustMaxStats` uses the receiver as the modifier source; the `sourceEffect` field, pool injection and `SetEffectSource` removed. Deleted: `Runtime/ImpactMono/SourceEffect.cs`, `Prefab/Particle Effect/SourceEffect.prefab` (+ metas, empty `ImpactMono` folder); the `sourceEffect:` line removed from `PlayerTest.prefab` and `EnemyPrefab.prefab`. `StatusStatsEffect.cs`: stale PENDING / Kind comments removed. README Open issues row updated.
+- **From → To:** item buffs spawned a pooled `SourceEffect` that was never released (one leaked GameObject per pickup) → the receiver is the shared source of every permanent modifier (they stack; removable only all together, not needed today). Statuses cleared on any disable → only on death or respawn.
+- **Why:** owner decisions 2026-11-28 (Q5, item 20, item 10).
+- **Evidence:** STATIC — not compiled.
+- **Bugs:** none opened or closed.
+
+## 2026-11-28 — Status config: auto-fill documented as kept (AB-E13)
+- **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
+- **Changed:** README "Status" point 1 and the Open issues row on the Burn / Poison auto-fill; no code.
+- **From → To:** "the Inspector auto-fill is to be switched off" → the auto-fill stays as a helper (rows rebuilt only when `statusType` changes), no validation, a misfit is a game-design error.
+- **Why:** docs did not match the code; owner decision 2026-11-26, docs fix asked 2026-11-28.
+- **Evidence:** STATIC.
+- **Bugs:** none opened or closed.
+
 ## 2026-11-26 — Spawn effect controllers: Exit transition deleted
 - **Commit:** `sprint-24`, 2026-11-26 — the commit that adds this entry
 - **Changed:** the state → Exit transition is deleted from `CircleSummonEffect`, `RainArrows`, `RuneCircleEffect`, `LightningEffect` (transition object removed, the state's `m_Transitions` is `[]`).

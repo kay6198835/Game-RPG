@@ -17,6 +17,47 @@ which code change caused it.
 
 ---
 
+## 2026-11-28 — AB-E9…E11 withdrawn (`sprint-24`)
+
+**Cause.** Owner decision 2026-11-28: status stays on each effect (auto-fill, AB-E13), direction per row (AB-E12), no validation, items have no status. No code change. Evidence: STATIC.
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E9, E10, E11 → WITHDRAWN (text kept); rule index |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry for the above |
+| `docs/systems/abilities/README.md` | "Status" points 2–7 replaced by points 2–4; old points kept as *Was* |
+| `design/balance/status-debuff-stat-combos.md` | "How to use" bullet on `StatusType` rewritten; old text kept as *Was* |
+
+---
+
+## 2026-11-28 — AB-E20 revised, AB-E21 / AB-S12 added; SourceEffect removed (`sprint-24`)
+
+**Cause.** Owner decisions 2026-11-28: statuses cleared only on death (item 20), Max HP change behaviour kept (item 19), caster stats read at hit (item 18), `SourceEffect` removed (Q5). Code changed in the same working tree (`EffectReceiverBase`, `StatusStatsEffect.cs`, two prefabs, `SourceEffect` deleted). Evidence: STATIC.
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E20 rewritten (old text kept as *Was*); AB-E21, AB-S12 added; rule index |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry for the above |
+| `docs/systems/abilities/README.md` | Open issues row on `EffectReceiverBase` leak / `SourceEffect`: 2026-11-28 state appended |
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the code change |
+| `qa-automation/cases/dev-change-notes-2026-11-28.md` | Addendum: cleanup on death, `AdjustMaxStats` source |
+
+---
+
+## 2026-11-28 — Status config: AB-E13 aligned with the code (`sprint-24`)
+
+**Cause.** GDD AB-E13 said "no auto-fill" (`[PLANNED]`), but `StatsEffectBase.OnValidate` still auto-fills and the owner kept it (2026-11-26). Owner asked to fix the docs (2026-11-28). Evidence: STATIC.
+
+| Document | Change |
+|---|---|
+| `design/gdd/abilities-v2-system.md` | AB-E13 rewritten (auto-fill kept as a helper, no validation, misfit = game-design error), no longer `[PLANNED]`; rule index PLANNED 14 → 13. Old wording kept as *Was* |
+| `design/gdd/changelog/abilities-v2-system.CHANGELOG.md` | Entry for the above |
+| `docs/systems/abilities/README.md` | "Status" point 1 and the Burn / Poison Open issues row; old wording kept as *Was* |
+| `docs/systems/abilities/CHANGELOG.md` | Entry for the above |
+| `design/balance/status-debuff-stat-combos.md` | "How to use" block: auto-fill note added; old wording kept as *Was* |
+
+---
+
 ## 2026-11-26 — Abilities changelog: Exit transitions deleted (`sprint-24`)
 
 **Cause.** The state → Exit transition deleted from 4 spawn effect controllers (was only Has Exit Time off in `6dd66791`).

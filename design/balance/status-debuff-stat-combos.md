@@ -5,11 +5,16 @@
 > to the `StatType` list it reduces. Values are authored per ability on `StatsEffectBase.statModifiers`.
 
 > **2026-11-25 — how to use this note (owner decision; GDD `abilities-v2-system.md` AB-E8…E14, `[PLANNED]`):**
-> - The status config is **PENDING / reference only**. Nothing auto-fills or auto-matches stats any more:
->   **game design picks each effect's `StatType` rows by hand** from the tables below.
-> - The `StatusType` is chosen **once on the `AbilityDefinition`** (one per ability). It decides the
->   direction: buff → Recovery, debuff → Reduction. **Always author positive values**; the sign is applied
->   in code. `StatusType = None` with a stat effect is a validation error.
+>   *(2026-11-28, AB-E13 revised: the Inspector auto-fill stays — choosing a `statusType` fills its stat rows
+>   from the config. Nothing checks the result; trimming the rows is game design's job.)*
+> - The status config is **PENDING / reference only**. Nothing auto-matches stats:
+>   **game design picks each effect's `StatType` rows by hand** from the tables below. *Was (2026-11-25):
+>   "Nothing auto-fills or auto-matches stats any more".*
+> - *(2026-11-28, AB-E9…E11 withdrawn)* The `StatusType` is chosen **on each stat effect**. Author every value as
+>   a **positive magnitude** (0.1 … 999) and set the direction on the row's `impactType` (AB-E12); picking a
+>   `statusType` pre-fills it (buff → Recovery, debuff → Reduction). No validation.
+>   *Was (2026-11-25): "chosen once on the `AbilityDefinition` (one per ability). It decides the direction …
+>   `StatusType = None` with a stat effect is a validation error."*
 > - **One effect does one kind of operation.** Put vital rows (HP, Mana) and stat rows in different effects:
 >
 >   | Part of the status | Effect class | Rows allowed |

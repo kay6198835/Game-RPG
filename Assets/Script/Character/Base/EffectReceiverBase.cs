@@ -2,19 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VContainer;
 public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiver where TCore : CoreBase
 {
     protected IVitalComponent<TCore> vital;
     protected IStatService statHandler;
     protected ICharacterInput input;
-    [SerializeField] protected SourceEffect sourceEffect;
-    protected IObjectPoolService _objectPoolManager;
-    [Inject]
-    public void Construct(IObjectPoolService objectPoolManager)
-    {
-        _objectPoolManager = objectPoolManager;
-    }
+    // NEED CHECK: 2026-11-28 (Q5, owner) — the pooled SourceEffect is gone. Timed statuses use their
+    // ActiveStatus as the modifier source; permanent modifiers (AdjustMaxStats, items) use this receiver.
     public override void Setup()
     {
         base.Setup();
@@ -23,29 +17,17 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
         Core.TryGetCapability(out input);
     }
 
-    GameObject SetEffectSource(AbilityContext context, float lifetime, Action callback)
-    {
-        Vector2 position = context != null ? context.Caster.Transform.position : Vector2.zero;
-        GameObject instance = _objectPoolManager.Spawn(sourceEffect.gameObject, position, Quaternion.identity);
-        instance.GetComponent<SourceEffect>().SetSourceEffect(new SourceEffectConfig
-        {
-            callback = callback,
-            lifetime = lifetime
-        });
-        return instance;
-    }
     public override void ReloadComponent()
     {
         base.ReloadComponent();
         ClearAllStatuses();
     }
 
-    // NEED CHECK: 2026-11-28 (B6 / AB-E20) — a pooled character is disabled on despawn; Update stops there,
-    // so its statuses would never expire and their modifiers would leak into the next spawn.
-    protected virtual void OnDisable()
-    {
-        ClearAllStatuses();
-    }
+    // NEED CHECK: 2026-11-28 (owner, GDD AB-E20 revised) — statuses are cleared **only on death** (player and
+    // enemy), in Update below. A disable that is not a death (pool release without death, cutscene, ...) keeps
+    // them. End times are in game time (Time.time), so they keep running while the object is inactive: on
+    // re-enable an expired status ends on the first Update (after at most one late tick). A respawn (ReloadComponent)
+    // also clears, as a safety net for an enemy released to the pool without dying.
 
     // NEED CHECK: new 2026-11-25 — ability hit damage enters here (DamageEffect) and is forwarded to the
     // hurtbox's damage pipeline, so mitigation, the dead check and the TakeDamage reaction stay in one place
@@ -87,7 +69,10 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     public void AdjustMaxStats(StatModifierGroup statModifierGroup, AbilityContext context = null, Action callback = null)
     {
         if (IsDead) return;
-        statHandler.AddModifiersFromSource(SetEffectSource(context, 0f, callback), statModifierGroup.GetStatsModifiers);
+        // Q5 (2026-11-28): the source is this receiver. Every permanent modifier of this character shares it, so
+        // they stack, never expire, and can only be removed all together (RemoveModifiersFromSource(receiver))
+        // or by the StatSheet reload on respawn. No item is removable on its own — not needed today.
+        statHandler.AddModifiersFromSource(this, statModifierGroup.GetStatsModifiers);
     }
     #region Reduction/Recovery per timer for duration
     // BUG-071: the iterators below are built but never started. Moved here unchanged.
@@ -113,9 +98,9 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     #endregion
 
     #region Status registry (B6, GDD OQ-4)
-    // NEED CHECK: new 2026-11-28 (test branch) — replaces the coroutine + pooled SourceEffect per call.
+    // NEED CHECK: new 2026-11-28 (B6) — replaces the coroutine + pooled SourceEffect per call.
     // One list, one Update. The ActiveStatus itself is the modifier source, so removing it never touches
-    // another source (weapon, item, another status). SourceEffect stays for AdjustMaxStats only (Q5).
+    // another source (weapon, item, another status).
     private readonly List<ActiveStatus> _statuses = new();
 
     public void ApplyStatus(StatusRequest request)
@@ -160,6 +145,12 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     protected virtual void Update()
     {
         if (_statuses.Count == 0) return;
+        // Death clears every status (owner rule 2026-11-28). AB-E19 already refuses new ones.
+        if (IsDead)
+        {
+            ClearAllStatuses();
+            return;
+        }
         float now = Time.time;
         for (int i = _statuses.Count - 1; i >= 0; i--)
         {
@@ -170,7 +161,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
             {
                 AdjustCurrentStats(s.TickModifiers, s.Context);   // refuses a dead receiver itself
                 s.NextTick += s.TickInterval;
-                // The tick may have killed and despawned this receiver: OnDisable cleared the list.
+                // Safety: the list may have changed during the tick (death → respawn in the same call chain).
                 if (i >= _statuses.Count || _statuses[i] != s) continue;
             }
 
@@ -187,7 +178,7 @@ public class EffectReceiverBase<TCore> : CoreComponentBase<TCore>, IEffectReceiv
     }
 
     /// <summary>Ends every status now, each removed by its own source (never ClearModifiers, which would
-    /// also drop the weapon's). Called on despawn (OnDisable) and respawn (ReloadComponent).</summary>
+    /// also drop the weapon's). Called on death (Update) and respawn (ReloadComponent).</summary>
     public void ClearAllStatuses()
     {
         for (int i = _statuses.Count - 1; i >= 0; i--) RemoveStatusAt(i);

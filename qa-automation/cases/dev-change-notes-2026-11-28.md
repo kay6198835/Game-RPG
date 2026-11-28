@@ -107,3 +107,25 @@ observation (console lines, counts, values). Do not fix code.
 
 - Scan `Assets/**/*.anim` (575 clips): list clips whose `m_SampleRate` is not 30, and clips with an animation
   event at time = clip length (event on the last key). Report counts and paths; no change to the clips.
+
+## 3. Addendum (same day, after `78270214`) — cleanup on death, `SourceEffect` removed
+
+Evidence: STATIC, not compiled.
+
+- **Statuses are cleared only on death** (owner rule, GDD AB-E20 revised): `EffectReceiverBase.Update` ends every
+  status when `IsDead`; `OnDisable` no longer clears. `ReloadComponent` (respawn) still clears. A disable that is
+  not a death keeps the statuses; end times keep running in game time, so a status that expired while inactive
+  ends on the first `Update` after re-enable (at most one late tick).
+  - QA-STS-07 still holds (despawn after death → clean; respawn → clean). Add: **disable / enable without death**
+    shorter than the remaining time → the status is still there; longer → it ends on the first frame after re-enable.
+  - QA-STS-10: after the killing tick, the next `Update` clears every status.
+- **`SourceEffect` is deleted** (script + prefab). `AdjustMaxStats` now uses **the receiver itself** as the
+  modifier source: every permanent (item) modifier of a character shares one source.
+  - QA-ENT-13 reads the source back from the added modifier → it is the receiver; removing it removes **every**
+    permanent modifier of that character (fine on a clean enemy).
+  - QA-ENT-16: two `AdjustMaxStats` calls still stack (+10); the "reused source" step has nothing pooled any more.
+  - QA-ITEM-09 cleans up with "sources that are new in this case": if the receiver was already a source before
+    the case, it is not new, so the item buff is **not removed** and can leak into the next case. Use a fresh
+    character, or `RemoveModifiersFromSource(receiver)` explicitly.
+  - No more pooled `SourceEffect` objects: a case that counted live pooled objects per `AdjustMaxStats` call
+    should expect zero.
