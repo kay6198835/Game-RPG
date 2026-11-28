@@ -2,6 +2,16 @@
 
 Newest first. Entries before 2026-10-05 reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md`, the bug files and `git log`.
 
+## 2026-11-28 — Code table re-synced (doc-truth, doc-sync --auto)
+- **Commit:** `f2a580b2` (folder `SpawnMono/` → `SpawnMonoEffect/`, new `SpawnMono/Trap`), `bb142acc` (`Core/ActiveStatus`), `00cc9e56` (`ImpactMono/SourceEffect` deleted); docs on `pm/doc-sync-2026-11-28`.
+- **Changed:** README code table only (`Core/`, `Conditions/`, `Runtime/` rows) and the `Last verified` line.
+- **From → To:**
+  - `Runtime/` "`BaseController/SpawnMono`, `SpawnMono/{…}`, `ImpactMono/SourceEffect`" → "`BaseController/{SpawnMono, SpawnEffectMono}`, `SpawnMonoEffect/{…}`, `SpawnMono/Trap`; `SourceEffect` deleted".
+  - `Core/` row gains `ActiveStatus`.
+  - `Conditions/` "empty" → "not in the tree".
+- **Why:** the body was updated in the owner's commits; the code table was not.
+- **Bugs:** BUG-136 (`Trap`) cited.
+
 ## 2026-11-28 — Status registry documented (B6)
 - **Commit:** `sprint-24`, 2026-11-28 — the commit that adds this entry
 - **Changed:** README gains "Status registry (B6)" (flow, cases, sources, open points); tick paragraph and the mixed-status line updated; the `StatusType` migration table marked withdrawn; Open issues tick row struck through as fixed. Balance note gains the stacking / shared-asset rule.

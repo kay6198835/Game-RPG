@@ -1,6 +1,7 @@
 # Room Generation and Control — Architecture
 
 > Read from source on `sprint-23` `3015e9cf` (2026-11-18). Static analysis; not verified in Play Mode.
+> Re-synced 2026-11-28 (`sprint-24` `d7105421`): room JSON now loads from `RoomFile.roomJson` (`TextAsset`, `7a41d7c4`) — §1, §3, §6.
 > Companion to `docs/systems/map/README.md`. History of each change: `docs/systems/map/CHANGELOG.md`.
 >
 > **Changes on 2026-11-18 reflected here:** `EnemyManager` and `Grid` are children of `Room`;
@@ -66,7 +67,7 @@ After the initial load, everything is driven by `EventManager` events.
 | `EnemySpawner` | Same object as `EnemyManager`. `SpawnRoom()` = random `RoomModel` set from `MapModel`; `SpawnBoss()` = `MapModel.EnemyModalBoss`. Does not know the room type | `Assets/Script/System/Enemy/EnemySpawner.cs` |
 | `LevelManager` | Runtime room data at `Room/Grid/Level Manager`: `TileSO` list + tilemaps (`GetTileSOs()`, `GetTilemaps()`), door helpers. Not in DI | `Assets/Script/LevelEdit/LevelManager.cs` |
 | `LevelEditorTool` | Editor-only room CRUD on the EditorOnly child `Level Editor Tool`: Save (create), Load (read), Edit (update), Delete (SO entry + JSON, confirm dialog), Import JSON. Fields: `_levelManager` (tiles + tilemaps) and its own `dungeonRoomSO`. Not referenced by the runtime flow | `Assets/Script/LevelEdit/LevelEditorTool.cs` |
-| `DungeonRoomSO` / `RoomFile` | Room list SO; each entry = `roomName`, `filePath` (JSON), `roomType` | `Assets/SO/Dungeon/DungeonRoomSO.cs` |
+| `DungeonRoomSO` / `RoomFile` | Room list SO; each entry = `roomName`, `filePath` (JSON path, Editor tooling only), `roomType`, `roomJson` (`TextAsset`, read at runtime; since `7a41d7c4`, 2026-11-24) | `Assets/SO/Dungeon/DungeonRoomSO.cs` |
 | `LevelData` | Serialized room: parallel lists `tiles` (name), `poses` (room-local cell), `layerIndices` | `Assets/Script/LevelEdit/LevelManager.cs` |
 
 ### `RoomGeneraterController` fields
@@ -149,8 +150,9 @@ Example (3 × 3 maze, current library of 20 rooms): start cell = `StartRoom_Entr
 
 ## 3. Loading a room — `RoomGeneraterController.LoadRoom(index, roomCell)`
 
-1. **Read data.** `filePath = _mazeRooms[index].filePath`.
-   Not cleared → `JsonUtility.FromJson<LevelData>(File.ReadAllText(Application.dataPath + filePath))`.
+1. **Read data.** Not cleared → `JsonUtility.FromJson<LevelData>(_mazeRooms[index].roomJson.text)`; a null
+   `roomJson` logs an error ("run LevelEditorTool > Import to relink it") and returns (since `7a41d7c4`, 2026-11-24).
+   *Was:* `File.ReadAllText(Application.dataPath + filePath)` — Editor only (Bug #15).
    Cleared → copy the cached `RoomCell.Data`, `DoorPoints`, `IndexLevelDataDoor`.
 2. Clear all tilemaps, then iterate `Data.tiles` / `poses` / `layerIndices`.
    World cell = room-local pose + `RoomCell` position (both data sources are room-local):
@@ -273,7 +275,7 @@ GameLifetimeScope            [GameLifetimeScope]
 | Issue | Location | Ref |
 |---|---|---|
 | `MazeController.Awake()` has no `return` after `Destroy(gameObject)` | `MazeController.cs:15-20` | Bug #14 |
-| JSON read via `File.ReadAllText(Application.dataPath…)` — Editor only | `RoomGeneraterController.LoadRoom()` | Bug #15 |
+| JSON read via `File.ReadAllText(Application.dataPath…)` — Editor only — **fixed in code 2026-11-24** (`7a41d7c4`, `RoomFile.roomJson` `TextAsset`); not yet checked in a Player build | `RoomGeneraterController.LoadRoom()` | Bug #15, TD-022 |
 | Start / end rooms were forced by list position — **fixed in code and data 2026-11-18** (`BuildMazeRooms()` by `roomType`; Champion moved to the start room, boss marker added). Not verified in Play Mode; status left to the Saturday triage (inbox NOTE-20261118-3) | `RoomGeneraterController.BuildMazeRooms()` | Bug #16, BUG-097 |
 | Start and Boss rooms never opened — **looks addressed 2026-11-18**: the start room now holds the Champion (opens through `PedestalChampionController`), the boss room has a spawn marker (opens when the boss dies). Status per the bug file | `Assets/Data/Json/Room/` | BUG-096 |
 | `DoorController.OpenDoor()` / `CheckCanBeOpened()` and `RoomCell.UpdateStatusDoor()` are no-ops | `DoorController.cs`, `RoomCell.cs` | Bug #17 |

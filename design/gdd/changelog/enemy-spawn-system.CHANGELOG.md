@@ -7,6 +7,13 @@ Built 2026-10-05 from `git log --follow` and the per-document trail in `docs/CHA
 Where neither source states a reason, the entry says so instead of guessing. From 2026-10-05 on,
 append entries by hand (template in `docs/systems/README.md`).
 
+## 2026-11-28 — Debug emitter deleted (doc-sync --auto)
+- **Commit:** `070bc0a5` (2026-11-24, `sprint-24`); docs re-synced on `pm/doc-sync-2026-11-28`.
+- **Changed:** re-sync note under "The whole system is blocked downstream by TD-036".
+- **From → To:** "The only live emitter today is the debug harness `FasTestEnemyDeath.cs`" (kept) + note: the file was deleted in `070bc0a5`; `EntityDeathState.cs:17` is the only `ON_ENEMY_DEATH` emitter.
+- **Why:** `doc-claims.sh` flagged the path as not in tree. Commit message: the harness re-emitted `ON_ENEMY_DEATH` with a null payload and blocked the Player build clean-up.
+- **Bugs:** none.
+
 ## 2026-10-10 — Event rename banner (doc-sync --auto)
 - **Commits:** `221d54be` "logic open door at start room", merged into `sprint-18` by `42a81260` "update flow" (`c6cbc57a`)
 - **Changed:** Re-synced banner

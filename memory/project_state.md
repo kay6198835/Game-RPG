@@ -1,10 +1,27 @@
 # Project State
 
-Updated **2026-11-22** (doc-truth pass `/doc-sync --auto` at `origin/sprint-23` `1e5afb3c`, after the
-2026-11-21 wrap-up). Bug statuses follow the 2026-11-21 triage in `production/qa/bugs/BUG-*.md`, the
-source of truth; live list `production/qa/open-bugs.md`. Claim sweep: `production/qa/doc-truth-2026-11-22.md`.
-Previous update: **2026-11-15** (`063b5f87`). This pass added the "2026-11-15 → 2026-11-22" section;
+Updated **2026-11-28** (doc-truth pass `/doc-sync --auto` at `origin/sprint-24` `d7105421`, after the
+2026-11-28 wrap-up). Bug statuses follow the 2026-11-28 triage in `production/qa/bugs/BUG-*.md`, the
+source of truth; live list `production/qa/open-bugs.md`. Claim sweep: `production/qa/doc-truth-2026-11-28.md`.
+Previous update: **2026-11-22** (`1e5afb3c`). This pass added the "2026-11-22 → 2026-11-28" section;
 the sections below it are the earlier snapshots plus their deltas.
+
+## Delta 2026-11-22 → 2026-11-28
+
+| # | Change | Commit(s) | Impact |
+|---|--------|-----------|--------|
+| R62 | `INegativeReceiver<TCore> : INegativeReceiver` — every hurtbox takes damage again | `e47f5c38` | **BUG-135 FIXED** (runtime, QA run `20261127-0228`) |
+| R63 | Room JSON loaded from `RoomFile.roomJson` (`TextAsset`); 20 library entries linked | `7a41d7c4` | Bug #15 / TD-022 fixed in code; Player build not run |
+| R64 | Build clean-up: TMP "Examples & Extras" deleted (`TMP_TextInfoDebugTool.cs`), `FasTestEnemyDeath` removed, test scenes → `Assets/QA/Scenes/Test` | `070bc0a5` | BUG-126 looks fixed (NOTE-20261128-4) |
+| R65 | Ability damage through `IEffectReceiver.ApplyDamage` (`DamageEffect`); Delivery / Payload split (`DeliveryEffectBase`, `PayloadEffectBase`, `SelfApplyEffect`); dead guard `EffectReceiverBase.IsDead`; `Runtime/SpawnMono/` → `SpawnMonoEffect/`, new `SpawnMono/Trap` | `b001d78e`, `85899a52`, `f2a580b2`, `8377ebaf` | BUG-136 (S3, `Trap`) |
+| R66 | `StatModifier.value` is a magnitude (0.1..999), `impactType` serialized, `StatSheet` takes the sign from it; `StatModifierGroup.vitalModifiers` and the `VitalModifier` class removed | `df9e98fe`, `83800891` | **BUG-117 FIXED**; 8 modifier assets without an `impactType` key (NOTE-20261123-1, owner) |
+| R67 | Status registry (B6): `ActiveStatus` list in `EffectReceiverBase`, keyed by `(AbilityInstance, effect asset)`, ticks in `Update()`, cleared only on death / respawn; `SourceEffect` deleted | `bb142acc`, `00cc9e56` | BUG-092 / BUG-118 / BUG-100 look resolved in code (NOTE-20261128-2, -3) |
+
+**Open bugs:** 36 (5 S1: BUG-087, 092, 096, 108, 122). **Demo priority (2026-11-28 triage):** BUG-122 / 086 /
+065 (death → Game Over) → BUG-130 (dash soft lock) → BUG-096 → Player build (room JSON, BUG-126, BUG-116).
+**EventID:** 25 values, unchanged (`EventManager.cs` not touched in range).
+**Build:** COMPILED `fa206f82` (2026-11-27 standup); Player build not run. **Root `CLAUDE.md`** untracked since
+`c40da7b8` (owner's local copy only).
 
 ## Delta 2026-11-15 → 2026-11-22
 

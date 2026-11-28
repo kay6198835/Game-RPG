@@ -1,6 +1,6 @@
 # Abilities — v2 (v1 deleted 2026-11-04)
 
-> **Status:** v2 live for player and enemy; v1 deleted 2026-11-04 (`6094aa10`, on `sprint-21`) · **Last verified:** 2026-11-05, `sprint-21` `028fdb90` (status, code table, assets row only)
+> **Status:** v2 live for player and enemy; v1 deleted 2026-11-04 (`6094aa10`, on `sprint-21`) · **Last verified:** 2026-11-28, `sprint-24` `d7105421` (code table `Core/`, `Conditions/`, `Runtime/` rows only, STATIC); 2026-11-05, `sprint-21` `028fdb90` (status, assets row); body sections dated by the owner in each commit
 > History: [CHANGELOG.md](CHANGELOG.md) · Diagrams: `docs/diagrams/ability-system-diagrams.md`
 > **Design:** `design/gdd/abilities-v2-system.md` (2026-11-13, reverse-documented at `sprint-22` `a8725a77`, awaiting owner review) —
 > rules tagged CONFIRMED / AS-BUILT / OPEN, the per-class ability catalogue and acceptance criteria. Reviewed by the owner
@@ -18,10 +18,10 @@ effects and conditions, run per owner by an `AbilityInstance`.
 
 | Path | Contents |
 |------|----------|
-| `System/Abilities/Core/` | `AbilityDefinition` (+ `AbilityActivationType`, `StatCost`, `AbilityState` enum Start/Cast/Do/Exit), `AbilityInstance`, `AbilityContext` (+ `IAbilityServices`, `EffectRecipient`), `AbilitySlot`, `AbilityEffectDefinition` (+ `StatImpactType`) → `DeliveryEffectBase` (holds `SubEffects`), `PayloadEffectBase` (2026-11-26), `AbilityConditionDefinition`, `IAbilityOwner` |
+| `System/Abilities/Core/` | `AbilityDefinition` (+ `AbilityActivationType`, `StatCost`, `AbilityState` enum Start/Cast/Do/Exit), `AbilityInstance`, `AbilityContext` (+ `IAbilityServices`, `EffectRecipient`), `AbilitySlot`, `AbilityEffectDefinition` (+ `StatImpactType`) → `DeliveryEffectBase` (holds `SubEffects`), `PayloadEffectBase` (2026-11-26), `AbilityConditionDefinition`, `IAbilityOwner`, `ActiveStatus` (status registry row, `bb142acc`) |
 | `System/Abilities/Effects/` | **Delivery:** `SpawnEffectBase` → `SpawnProjectileEffect`, `SpawnSummonEffect`; `SelfApplyEffect` (2026-11-26). **Payload:** `DamageEffect` (2026-11-25); `StatsEffectBase` (file `StatEffectBase.cs`) → `RecoveryReductionStatsEffect`, `RecoveryReductionPerTimeForDuration`, `BuffDebuffStatsForDuration` |
-| `System/Abilities/Conditions/` | empty |
-| `System/Abilities/Runtime/` | `BaseController/SpawnMono`, `SpawnMono/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (`DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `ImpactMono/SourceEffect` |
+| ~~`System/Abilities/Conditions/`~~ | not in the tree (was empty) |
+| `System/Abilities/Runtime/` | `BaseController/{SpawnMono, SpawnEffectMono}`, `SpawnMonoEffect/{SpawnProjectileBase, ProjectileBody, SpawnSummonBase, SlashProjectile, DamageArea, CircleSummon, DamagesInManyPos, RainArrowsProjectile, Interface/ISpawn}` (folder was `SpawnMono/` until `f2a580b2`; `DamageArea` / `CircleSummon` were `LightningController` / `RuneCircleController` until `cae75317`), `SpawnMono/Trap` (`f2a580b2`, BUG-136). `ImpactMono/SourceEffect` deleted in `00cc9e56` |
 | ~~`System/Skill_Ability/`~~ | **Deleted 2026-11-04.** v1 (`ActivateSkill`, `AbstractSkillSO`, Dash/Slash/Block/Dual, effect SOs, `InternalSkillSO`) removed with its six SO assets, `EntityWeapon`, `Spell` + `Spell.prefab`, `IEffectable`. `WeaponSO` moved to `System/Item/` |
 | Owners | `Character/Base/AbilityHolderBase.cs` → `AbilityHolder` (player), `EntityAbilityHolder` (enemy) |
 | Assets | `Assets/SO/Skill/Paladin/Ability/{Consecrate, Blessed Slash, Blessing, Avatar of Light}/` (live); `Assets/SO/Skill/{Archer,Mage}/` (temporary class abilities, `6c61ccdb`, GDD Phase 1 `ae0d6e82`) |

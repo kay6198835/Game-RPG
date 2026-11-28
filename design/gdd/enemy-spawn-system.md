@@ -144,6 +144,9 @@ re-synced 2026-08-20; design intent unchanged since 2026-07-13.
   `ON_ENEMY_DEATH` never fires in real play and the room-clear loop this GDD exists to serve
   cannot complete. The only live emitter today is the debug harness
   `Assets/Script/FastTest/FasTestEnemyDeath.cs`.
+  *Re-synced 2026-11-28:* that harness was removed from the six enemy prefabs and deleted in `070bc0a5`
+  (2026-11-24; it re-emitted `ON_ENEMY_DEATH` with a null payload on `OnDisable`). `EntityDeathState.cs:17` is
+  now the only emitter; the TD-036 statement above is kept as written (this section is not re-verified).
 
 ---
 

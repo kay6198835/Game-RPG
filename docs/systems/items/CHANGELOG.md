@@ -2,6 +2,13 @@
 
 Newest first. Entries reconstructed from `CLAUDE.md` history, `docs/CHANGELOG-DOCS.md` and `git log`.
 
+## 2026-11-28 — BUG-100 row re-synced to the status registry (doc-truth re-sync)
+- **Commit:** `bb142acc`, `00cc9e56` (B6 status registry, `sprint-24`); docs on `pm/doc-sync-2026-11-28`.
+- **Changed:** README Open issues BUG-100 row.
+- **From → To:** "Timed buffs share one modifier source (now `context.Caster`, `EffectReceiverBase.cs:86-91`)" → "Open per its file; each timed status is its own `ActiveStatus` source since B6 — looks resolved in code, runtime check pending".
+- **Why:** the cited lines no longer hold the shared-source code; the bug file stays the status authority.
+- **Bugs:** BUG-100 (status unchanged), NOTE-20261128-3.
+
 ## 2026-11-07 — Item effect data restored; coin effect not authorable (doc-truth re-sync)
 - **Commit:** `fbab752a` "fix(data): move values from renamed serialized keys into the new fields" (2026-11-05) — `New Stat Modifier Effect Definition.asset` and its copy; earlier `1370136c`.
 - **Changed (README):** Open issues — BUG-121 marked FIXED (awaiting runtime) per the 2026-11-07 triage; BUG-123 added.

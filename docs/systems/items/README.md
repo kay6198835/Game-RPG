@@ -59,7 +59,7 @@ Effects reach the character's components from the `ICharacter` root
 | BUG-121 | FIXED in code and data, awaiting runtime (2026-11-07 triage): `[FormerlySerializedAs("authoredModifiers")]` (`1370136c`) + values moved into the new keys (`fbab752a`). *Was:* both item effects load empty |
 | BUG-123 | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item effect can be authored |
 | inbox | `CoinModifierEffect` is `abstract` with no `[CreateAssetMenu]` — no coin item can be authored (NOTE-20261031-10) |
-| BUG-100 | Timed buffs share one modifier source (now `context.Caster`, `EffectReceiverBase.cs:86-91`); a timed buff expiring can strip other modifiers from that source |
+| BUG-100 | Open per its file. *Re-synced 2026-11-28:* since the B6 status registry (`bb142acc`, `00cc9e56`) each timed status is its own modifier source (`ActiveStatus`, `EffectReceiverBase.cs:104-185`); item / permanent modifiers use the receiver as source — looks resolved in code, runtime check pending (NOTE-20261128-3). *Was:* timed buffs share one modifier source (`context.Caster`, `EffectReceiverBase.cs:86-91`) |
 | TD-030 | One global `DepotItem` on `ItemSpawner`; `EnemySO.depotItem` is never read. Kept on purpose for now (owner, 2026-10-20) |
 | TD-054 | `RarityTierItem` (drop table) and UIFlow `ItemRarity` are two rarity enums; unify later |
 | BUG-112 | `Assets/Prefab/NPC/Merchant.prefab` and `NPC.prefab` carry scripts that were never committed (Missing Script) |
