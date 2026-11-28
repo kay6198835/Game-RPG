@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animation Review</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: model list on the left, selected model on the right; each action is a row of 8 direction previews */
+:root{
+  --bg:#eef0f4; --panel:#ffffff; --cell:#e4e7ee; --fg:#191c27; --muted:#5c6275; --line:#d6d9e3;
+  --accent:#5b4bdb; --accent-soft:#e9e6fd; --warn:#b26a00; --warn-soft:#fff1d9; --bad:#c23b3b; --bad-soft:#fde5e5; --ok:#2f8f5b;
+  --f-display:"Chakra Petch","Segoe UI",system-ui,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#11121a; --panel:#1a1c27; --cell:#232634; --fg:#e5e6ee; --muted:#959ab0; --line:#2b2e3d;
+  --accent:#9d91ff; --accent-soft:#262347; --warn:#f0b24a; --warn-soft:#3a2c12; --bad:#ff7b7b; --bad-soft:#3d1c1f; --ok:#5cc58a;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-body)}
+button,input,select{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:270px minmax(0,1fr);height:100%}
+aside{border-right:1px solid var(--line);background:var(--panel);overflow:auto;padding:18px 12px}
+aside h1{font-family:var(--f-display);font-size:1.35rem;margin:0 6px 2px}
+aside .sub{color:var(--muted);font-size:.82rem;margin:0 6px 14px}
+.mlist{display:flex;flex-direction:column;gap:2px}
+.mbtn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;padding:7px 8px;border-radius:7px;cursor:pointer}
+.mbtn:hover{background:var(--cell)}
+.mbtn.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.mbtn .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mbtn .ct{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.mbtn .is{font-family:var(--f-mono);font-size:.7rem;color:var(--warn);background:var(--warn-soft);border-radius:999px;padding:0 6px}
+.mgroup{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 8px 4px}
+main{overflow:auto;padding:0 24px 60px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.bar h2{font-family:var(--f-display);font-size:1.5rem;margin:0;flex:1 1 220px}
+.ctrl{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.ctrl input[type=search]{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:5px 9px;width:200px}
+.ctrl input[type=range]{width:90px;accent-color:var(--accent)}
+.ctrl select{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:4px 6px}
+input[type=checkbox]{accent-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.banner{margin-top:14px;padding:10px 14px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:.88rem}
+.banner code{font-family:var(--f-mono)}
+.summary{display:flex;flex-wrap:wrap;gap:8px 22px;margin:14px 0 4px;color:var(--muted);font-size:.86rem}
+.summary b{color:var(--fg);font-family:var(--f-mono);font-weight:500}
+.ctx{margin-top:26px}
+.ctx h3{font-family:var(--f-display);font-size:1.05rem;margin:0 0 8px;display:flex;gap:10px;align-items:baseline}
+.ctx h3 span{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);font-weight:400}
+.act{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.act.has-issue{border-left:3px solid var(--warn)}
+.act-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.act-head b{font-family:var(--f-display);font-size:1rem}
+.act-head .folder{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font-family:var(--f-mono);font-size:.72rem;padding:1px 8px;border-radius:999px;background:var(--cell);color:var(--muted)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.dirs{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin-top:10px}
+.cell{background:var(--cell);border-radius:8px;padding:6px;border:1px solid transparent;cursor:pointer;display:flex;flex-direction:column;gap:4px;text-align:left}
+.cell:hover{border-color:var(--accent)}
+.cell.unused{outline:1px dashed var(--warn)}
+.cell canvas{width:100%;aspect-ratio:1;display:block;image-rendering:pixelated;background:
+  repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0/16px 16px;border-radius:5px}
+.cell .lab{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.7rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);padding:40px 0}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--fg);padding:0;width:min(760px,94vw);max-height:92vh}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dlg{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:18px;padding:18px}
+.dlg canvas{width:100%;aspect-ratio:1;image-rendering:pixelated;background:repeating-conic-gradient(var(--line) 0 25%, transparent 0 50%) 0 0/20px 20px;border-radius:8px}
+.dlg h4{font-family:var(--f-display);margin:0 0 6px;font-size:1.1rem;overflow-wrap:anywhere}
+.dlg dl{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 10px;margin:0;font-size:.84rem}
+.dlg dt{color:var(--muted)}
+.dlg dd{margin:0;font-family:var(--f-mono);font-size:.78rem;overflow-wrap:anywhere}
+.scrub{display:flex;gap:8px;align-items:center;margin-top:10px}
+.scrub input{flex:1;accent-color:var(--accent)}
+.btn{border:1px solid var(--line);background:var(--cell);border-radius:7px;padding:4px 10px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.close{position:absolute;top:10px;right:12px}
+@media (max-width:760px){.app{grid-template-columns:1fr;height:auto}aside{border-right:0;border-bottom:1px solid var(--line);max-height:40vh}main{padding:0 16px 40px;overflow:visible}.dlg{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.cell{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h1>Animation Review</h1>
+    <p class="sub" id="stats"></p>
+    <div class="mlist" id="mlist"></div>
+  </aside>
+  <main>
+    <div class="bar">
+      <h2 id="mtitle"></h2>
+      <label class="ctrl">Tìm <input type="search" id="q" placeholder="tên clip, action…"></label>
+      <label class="ctrl"><input type="checkbox" id="onlyIssue"> Chỉ hiện lỗi</label>
+      <label class="ctrl">Tốc độ <input type="range" id="speed" min="0.1" max="2" step="0.1" value="1"><span id="speedv">1.0×</span></label>
+      <label class="ctrl">Khung <select id="fit"><option value="fit">Vừa ô</option><option value="unit">Theo world unit</option></select></label>
+    </div>
+    <div class="banner" id="imgBanner" hidden>Không tải được ảnh sprite. Đặt file này ở <b>thư mục gốc của repo Game-RPG</b> (cùng cấp với thư mục <code>Assets</code>) rồi mở lại. Dữ liệu clip và lỗi vẫn xem được.</div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <button class="btn close" id="dlgClose" type="button">Đóng</button>
+  <div class="dlg">
+    <div>
+      <canvas id="big" width="320" height="320"></canvas>
+      <div class="scrub">
+        <button class="btn" id="play" type="button">Dừng</button>
+        <input type="range" id="frame" min="0" max="0" value="0" aria-label="Frame">
+        <span class="ctrl" id="frameLab">0/0</span>
+      </div>
+    </div>
+    <div>
+      <h4 id="dName"></h4>
+      <dl id="dInfo"></dl>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const DATA = /*__DATA__*/null;
+const TEX = DATA.tex;
+const ALL_DIRS = [0,1,2,3,4,5,6,7];
+
+// ---------- issue detection ----------
+function clipLen(c){ const last = c.f.length ? c.f[c.f.length-1][0] : 0; return Math.max(c.len || 0, last + 1/(c.fps||30)); }
+function frameSize(c){ const f = c.f.find(x => x.length >= 6); return f ? [f[4], f[5]] : null; }
+function analyzeAction(a){
+  const out = [];
+  const dirs = a.clips.map(c => c.d).filter(d => d !== null);
+  if (dirs.length){
+    const miss = ALL_DIRS.filter(d => !dirs.includes(d));
+    if (miss.length) out.push(['bad', 'Thiếu hướng ' + miss.join(', ')]);
+    const dup = dirs.filter((d,i) => dirs.indexOf(d) !== i);
+    if (dup.length) out.push(['warn', 'Trùng hướng ' + [...new Set(dup)].join(', ')]);
+  }
+  const counts = [...new Set(a.clips.map(c => c.f.length))];
+  if (counts.length > 1) out.push(['warn', 'Số frame lệch giữa các hướng: ' + counts.join('/')]);
+  const nm = a.action.toLowerCase();
+  const loops = a.clips.map(c => c.loop);
+  if (/(idle|walk|run|move)/.test(nm) && loops.some(l => l === false)) out.push(['warn', 'Idle/Walk/Run không bật Loop']);
+  if (/(death|die)/.test(nm) && loops.some(l => l === true)) out.push(['warn', 'Death đang bật Loop']);
+  if (a.clips.some(c => c.f.length === 0)) out.push(['bad', 'Clip không có sprite']);
+  if (a.clips.some(c => c.m > 0)) out.push(['bad', 'Có frame mất sprite']);
+  if (a.clips.some(c => c.f.length > 0 && c.f.length <= 2)) out.push(['warn', 'Chỉ 1–2 frame']);
+  const unused = a.clips.filter(c => !c.u.length).length;
+  if (unused) out.push(['warn', unused === a.clips.length ? 'Không controller nào dùng' : unused + ' clip không controller nào dùng']);
+  const sizes = [...new Set(a.clips.map(c => (frameSize(c)||[]).join('×')).filter(Boolean))];
+  if (sizes.length > 1) out.push(['warn', 'Kích thước frame lệch: ' + sizes.join(', ')]);
+  return out;
+}
+let totalClips = 0, totalIssues = 0;
+DATA.models.forEach(m => {
+  m.clipCount = 0; m.issueCount = 0;
+  const sizes = {}, ppus = {};
+  m.ctxs.forEach(cx => cx.actions.forEach(a => {
+    a.issues = analyzeAction(a);
+    m.clipCount += a.clips.length; if (a.issues.length) m.issueCount++;
+    a.clips.forEach(c => { const s = frameSize(c); if (s) sizes[s.join('×')] = (sizes[s.join('×')]||0) + 1;
+      const f = c.f.find(x => x[1] >= 0); if (f){ const p = TEX[f[1]][1]; ppus[p] = (ppus[p]||0)+1; } });
+  }));
+  m.sizes = Object.entries(sizes).sort((a,b) => b[1]-a[1]);
+  m.ppus = Object.entries(ppus).sort((a,b) => b[1]-a[1]);
+  totalClips += m.clipCount; totalIssues += m.issueCount;
+});
+
+// ---------- images ----------
+const imgs = new Map(); let imgFailShown = false;
+function img(ti){
+  if (imgs.has(ti)) return imgs.get(ti);
+  const im = new Image(); im.src = encodeURI(TEX[ti][0]).replace(/#/g,'%23');
+  im.onerror = () => { im._bad = true; if (!imgFailShown){ imgFailShown = true; document.getElementById('imgBanner').hidden = false; } };
+  imgs.set(ti, im); return im;
+}
+let speed = 1, fitMode = 'fit';
+const UNIT_PX = 34; // canvas px per world unit at 96px cell
+function drawFrame(ctx, c, fr, W){
+  ctx.clearRect(0,0,W,W);
+  if (!fr || fr[1] < 0){ ctx.fillStyle = '#c23b3b'; ctx.font = '12px sans-serif'; ctx.fillText('mất sprite', 8, 20); return; }
+  const im = img(fr[1]);
+  if (!im.complete || im._bad || !im.naturalWidth) return;
+  let sx=0, sy=0, sw=im.naturalWidth, sh=im.naturalHeight;
+  if (fr.length >= 6){ sx = fr[2]; sw = fr[4]; sh = fr[5]; sy = im.naturalHeight - fr[3] - sh; }
+  let s;
+  if (fitMode === 'unit'){ const ppu = TEX[fr[1]][1] || 100; s = (UNIT_PX * W / 96) / ppu; }
+  else s = Math.min(W/sw, W/sh);
+  const dw = sw*s, dh = sh*s;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(im, sx, sy, sw, sh, (W-dw)/2, fitMode === 'unit' ? W - dh - 2 : (W-dh)/2, dw, dh);
+}
+function frameAt(c, t){
+  if (!c.f.length) return -1;
+  const L = clipLen(c); const tt = c.loop === false ? Math.min(t, L) % (L + 0.6) : t % L;
+  let i = 0; for (let k = 0; k < c.f.length; k++){ if (c.f[k][0] <= tt + 1e-6) i = k; else break; }
+  return i;
+}
+
+// ---------- rendering ----------
+const mlist = document.getElementById('mlist'), view = document.getElementById('view');
+let current = 0; let live = [];
+function groupOf(name){ if (name.startsWith('(')) return 'Khác'; if (name.startsWith('VFX')) return 'VFX'; if (name.startsWith('Enemy /') || name.startsWith('Player /')) return 'Sprite cũ (2 hướng / lẻ)'; return 'Model 8 hướng'; }
+function renderList(){
+  let html = '', g = '';
+  DATA.models.forEach((m, i) => {
+    const gg = groupOf(m.model); if (gg !== g){ g = gg; html += `<div class="mgroup">${g}</div>`; }
+    html += `<button class="mbtn${i===current?' on':''}" data-i="${i}" type="button"><span class="nm">${m.model}</span>${m.issueCount?`<span class="is" title="Action có lỗi">${m.issueCount}</span>`:''}<span class="ct">${m.clipCount}</span></button>`;
+  });
+  mlist.innerHTML = html;
+}
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+function renderModel(){
+  const m = DATA.models[current];
+  document.getElementById('mtitle').textContent = m.model;
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const only = document.getElementById('onlyIssue').checked;
+  const used = new Set(); m.ctxs.forEach(cx => cx.actions.forEach(a => a.clips.forEach(c => c.u.forEach(u => used.add(u)))));
+  let html = `<div class="summary"><span>Clip <b>${m.clipCount}</b></span><span>Action có lỗi <b>${m.issueCount}</b></span>
+    <span>Kích thước frame <b>${m.sizes.slice(0,3).map(s=>s[0]+' ('+s[1]+')').join(', ')||'–'}</b></span>
+    <span>PPU <b>${m.ppus.map(p=>p[0]+' ('+p[1]+')').join(', ')||'–'}</b></span>
+    <span>Controller dùng <b>${used.size}</b></span></div>`;
+  let shown = 0;
+  m.ctxs.forEach((cx, ci) => {
+    const acts = cx.actions.map((a, ai) => [a, ai]).filter(([a]) =>
+      (!only || a.issues.length) && (!q || a.action.toLowerCase().includes(q) || a.folder.toLowerCase().includes(q) || a.clips.some(c => c.n.toLowerCase().includes(q))));
+    if (!acts.length) return;
+    html += `<section class="ctx"><h3>${esc(cx.ctx)} <span>${acts.length} action</span></h3>`;
+    acts.forEach(([a, ai]) => {
+      shown++;
+      const c0 = a.clips[0];
+      const lens = [...new Set(a.clips.map(c => clipLen(c).toFixed(2)))];
+      const fps = [...new Set(a.clips.map(c => c.fps))];
+      const loop = [...new Set(a.clips.map(c => c.loop))];
+      const ev = [...new Set(a.clips.flatMap(c => c.ev))];
+      html += `<div class="act${a.issues.length?' has-issue':''}"><div class="act-head"><b>${esc(a.action)}</b><span class="folder">${esc(a.folder)}</span></div>
+        <div class="chips"><span class="chip">${a.clips.length} clip</span><span class="chip">${[...new Set(a.clips.map(c=>c.f.length))].join('/')} frame</span>
+        <span class="chip">${fps.join('/')} fps</span><span class="chip">${lens.join('/')} s</span><span class="chip">${loop.map(l=>l?'Loop':'Không loop').join('/')}</span>
+        ${ev.length?`<span class="chip">Event: ${esc(ev.join(', '))}</span>`:''}
+        ${a.issues.map(([k,t]) => `<span class="chip ${k}">${esc(t)}</span>`).join('')}</div>
+        <div class="dirs">${a.clips.map((c, k) => `<button class="cell${c.u.length?'':' unused'}" type="button" data-k="${ci}.${ai}.${k}" title="${esc(c.p)}"><canvas width="96" height="96"></canvas><span class="lab"><span>${c.d!==null?'dir '+c.d:esc(c.n.slice(-14))}</span><span>${c.f.length}f</span></span></button>`).join('')}</div></div>`;
+    });
+    html += `</section>`;
+  });
+  if (!shown) html += `<p class="empty">Không có action nào khớp bộ lọc.</p>`;
+  view.innerHTML = html;
+  live = [...view.querySelectorAll('.cell')].map(el => { const [ci, ai, k] = el.dataset.k.split('.').map(Number);
+    return { el, ctx: el.querySelector('canvas').getContext('2d'), clip: m.ctxs[ci].actions[ai].clips[k], vis: false, last: -2 }; });
+  live.forEach(o => io.observe(o.el));
+}
+const io = new IntersectionObserver(es => es.forEach(e => { const o = live.find(x => x.el === e.target); if (o) o.vis = e.isIntersecting; }), { root: null, rootMargin: '200px' });
+
+const t0 = performance.now();
+let dlgState = null;
+function tick(now){
+  const t = (now - t0) / 1000 * speed;
+  for (const o of live){ if (!o.vis) continue; const i = frameAt(o.clip, t); if (i !== o.last || !o.drawn){ drawFrame(o.ctx, o.clip, o.clip.f[i], 96); o.last = i;
+      const im = o.clip.f[i] && o.clip.f[i][1] >= 0 ? img(o.clip.f[i][1]) : null; o.drawn = !im || (im.complete && im.naturalWidth > 0) || im._bad; } }
+  if (dlgState){ const c = dlgState.clip; let i = dlgState.playing ? frameAt(c, t) : dlgState.i;
+    if (i !== dlgState.drawnI || !dlgState.drawn){ dlgState.i = i; dlgState.drawnI = i; drawFrame(bigCtx, c, c.f[i], 320); const fr = c.f[i]; const im = fr && fr[1] >= 0 ? img(fr[1]) : null; dlgState.drawn = !im || (im.complete && im.naturalWidth>0) || im._bad;
+      frameIn.value = Math.max(0, i); frameLab.textContent = `${i+1}/${c.f.length}`; } }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+// ---------- dialog ----------
+const dlg = document.getElementById('dlg'), bigCtx = document.getElementById('big').getContext('2d');
+const frameIn = document.getElementById('frame'), frameLab = document.getElementById('frameLab'), playBtn = document.getElementById('play');
+view.addEventListener('click', e => {
+  const cell = e.target.closest('.cell'); if (!cell) return;
+  const [ci, ai, k] = cell.dataset.k.split('.').map(Number);
+  const c = DATA.models[current].ctxs[ci].actions[ai].clips[k];
+  dlgState = { clip: c, playing: true, i: 0, drawnI: -2 };
+  frameIn.max = Math.max(0, c.f.length - 1); playBtn.textContent = 'Dừng';
+  document.getElementById('dName').textContent = c.n;
+  const fs = frameSize(c); const fr = c.f.find(x => x[1] >= 0);
+  const ppu = fr ? TEX[fr[1]][1] : null;
+  const rows = [
+    ['File', c.p], ['Hướng', c.d ?? '–'], ['Frame', c.f.length], ['FPS', c.fps], ['Độ dài', clipLen(c).toFixed(3) + ' s'], ['Loop', c.loop ? 'Có' : 'Không'],
+    ['Kích thước', fs ? fs.join(' × ') + ' px' : '–'], ['PPU', ppu ?? '–'], ['World size', fs && ppu ? (fs[0]/ppu).toFixed(2) + ' × ' + (fs[1]/ppu).toFixed(2) + ' unit' : '–'],
+    ['Sprite sheet', [...new Set(c.f.filter(x => x[1] >= 0).map(x => TEX[x[1]][0]))].join('\n') || '–'],
+    ['Event', c.ev.join(', ') || '–'], ['Controller', c.u.length ? c.u.join('\n') : 'Không có controller nào dùng clip này']];
+  document.getElementById('dInfo').innerHTML = rows.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b).replace(/\n/g, '<br>')}</dd>`).join('');
+  dlg.showModal();
+});
+document.getElementById('dlgClose').onclick = () => dlg.close();
+dlg.addEventListener('close', () => { dlgState = null; });
+playBtn.onclick = () => { if (!dlgState) return; dlgState.playing = !dlgState.playing; playBtn.textContent = dlgState.playing ? 'Dừng' : 'Chạy'; };
+frameIn.oninput = () => { if (!dlgState) return; dlgState.playing = false; playBtn.textContent = 'Chạy'; dlgState.i = +frameIn.value; };
+
+// ---------- controls ----------
+mlist.addEventListener('click', e => { const b = e.target.closest('.mbtn'); if (!b) return; current = +b.dataset.i; renderList(); renderModel(); document.querySelector('main').scrollTop = 0; });
+document.getElementById('q').addEventListener('input', renderModel);
+document.getElementById('onlyIssue').addEventListener('change', renderModel);
+document.getElementById('speed').addEventListener('input', e => { speed = +e.target.value; document.getElementById('speedv').textContent = speed.toFixed(1) + '×'; });
+document.getElementById('fit').addEventListener('change', e => { fitMode = e.target.value; live.forEach(o => o.last = -2); });
+document.getElementById('stats').textContent = `${DATA.models.length} model · ${totalClips} clip · ${totalIssues} action có lỗi`;
+renderList(); renderModel();
+</script>
+</body>
+</html>
