@@ -11,7 +11,14 @@
 
 ## Status Verdict
 
-**SLIPPED (day 5, 2026-11-27).** Thursday's output was again off-plan ability work (≈1.0d):
+**Final weekly verdict (wrap-up 2026-11-28): SLIPPED.** Evidence: RUNTIME (automated QA run
+`20261127-0228`) + LOG + STATIC; **no playtest** (sheet `playtest-2026-11-28.md` empty, 0 Play Mode
+entries in today's Editor logs), so no verdict above CONCERNS was possible in any case. Must verified
+0.15d / 0.95d: S24-05 ✅, S24-02 ✅ (BUG-135 FIXED, confirmed by the automated run); S24-04 still FAILs
+at runtime (QA-PLY-06 KNOWN, 3 classes); S24-03 and S24-01 not started. The week's output was ≈3.5d of
+off-plan ability / status / tooling work. See Week close below.
+
+_Day 5 verdict (standup 2026-11-27):_ **SLIPPED.** Thursday's output was again off-plan ability work (≈1.0d):
 `85899a52` Delivery / Payload split + `SelfApplyEffect`, `83800891` `StatModifier` magnitude +
 `impactType` serialized (A1, closes NOTE-20261123-1 code half), owner `8377ebaf` / `c973a8fb` /
 `a9398fc5` / `f75573c8` trap prefab, summon / rain-arrows / damage-area fixes, and four anim fixes
@@ -24,7 +31,7 @@ COMPILED `fa206f82` (+1 uncommitted scene) + LOG.
 
 | Bucket | Est. | Done | Remaining |
 |--------|------|------|-----------|
-| Must Have (incl. Sat playtest 0.1d) | 0.95d | ≈0.3d (S24-05 ✅; S24-02 / 04 code only) | ≈0.65d |
+| Must Have (incl. Sat playtest 0.1d) | 0.95d | 0.15d verified (S24-05 ✅, S24-02 ✅); S24-04 code only, FAIL at runtime | 0.8d |
 | Should Have | 0.65d | 0 | 0.65d |
 | Feature story S24-F1 (capped) | 0.75d | 0 | 0.75d |
 | Off-plan | — | ≈0.5d (`df9e98fe` status effects) + ≈0.3d (`7a41d7c4` room TextAsset, `070bc0a5` build cleanup) + ≈0.6d (`b001d78e` DamageEffect, `f2a580b2` trap) + ≈1.0d (Thu: `85899a52` Delivery / Payload, `83800891` A1, trap prefab + spawn / anim fixes) | — |
@@ -89,7 +96,7 @@ COMPILED `fa206f82` (+1 uncommitted scene) + LOG.
 ### Fri 2026-11-27 — Cleanup + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S24-02 QA rerun (carried from Thu) | 0.05d | ⬜ | Damage path changed twice more (`85899a52`, `8377ebaf`); one run covers BUG-135 + BUG-130 + ability damage |
+| S24-02 QA rerun (carried from Thu) | 0.05d | ✅ | Runs `20261127-0141` / `-0228`: BUG-135 FIXED; BUG-130 still FAIL. Damage path changed twice more (`85899a52`, `8377ebaf`); one run covers BUG-135 + BUG-130 + ability damage |
 | S24-03 BUG-122 remainder + BUG-086 + BUG-065 (carried from Thu) | 0.2d | ⬜ | S1; 18th carry for BUG-065 |
 | S24-01 Playtest / smoke (carried) | 0.3d | ⬜ | 31st carry; sheet `playtest-2026-11-28.md` ready |
 | S24-06 BUG-127 | 0.05d | ⬜ | Ranged basic attack barely reaches |
@@ -99,7 +106,7 @@ COMPILED `fa206f82` (+1 uncommitted scene) + LOG.
 ### Sat 2026-11-28 — Weekly playtest
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri QA run as input) | 0.1d | ⬜ | Reserved every Saturday; feeds wrap-up |
+| Weekly playtest (`tests/smoke/critical-paths.md` + `playtest-sheet.sh` sheet; Fri QA run as input) | 0.1d | ⬜ | Not run — sheet empty at the 22:00 wrap-up |
 
 ---
 
@@ -179,3 +186,70 @@ _(appended by `/daily-standup`)_
   NOTE-20261126-1 updated (`Trap.cs:17` mask compare unchanged after `8377ebaf`).
 - Playtest sheet `production/qa/playtests/playtest-2026-11-28.md` generated.
 - Verdict: SLIPPED — Must burn 0 / 0.25d on Thu; Must ≈0.65d left for Fri + Sat playtest.
+
+### 2026-11-28 (Sat) — weekly wrap-up 22:00
+- **Fri / Sat commits (after the Fri standup):** `bb142acc` status registry trial, `00cc9e56` statuses
+  cleared only on death, pooled `SourceEffect` removed (B6, `ActiveStatus` / `ApplyStatus` on
+  `EffectReceiverBase`), `78270214` / `83b8dd31` docs, `f9d672c3` / `386414b2` / `d3e5418e` animation
+  review tool. All off-plan (≈1.0d). QA branch: test fixes `aeb4dbfc`, `baa295c7`.
+- **Code review (STATIC):** 13 `.cs` files since `fa206f82`. Status registry reviewed: refresh by
+  (AbilityInstance, asset) key, own-source removal, death / respawn clear, tick re-entry guard — no
+  defect found. Observation only: ticks run at most once a frame, so a `perTime` shorter than a frame
+  would lose ticks; no asset uses `RecoveryReductionPerTimeForDuration` today (latent, no note).
+- **Automated QA:** last real run `20261127-0228` (HEAD `075711d9`): PASS 217 / FAIL 2 / KNOWN 13 /
+  SKIP 19 / OBS 2, new FAIL 0. Sat 00:26 run SKIPPED (Editor open). Code after `075711d9`
+  (status registry `00cc9e56`) is not runtime-tested.
+- **Playtest:** NOT RUN — sheet empty; Editor logs 0 Play Mode entries today.
+- **Triage:** 9 notes → BUG-136 (S3 Trap), BUG-135 + BUG-117 → FIXED (QA PASS), 1 duplicate, 2 resolved,
+  2 by design, 4 needs owner (`production/qa/bug-triage-2026-11-28.md`). S1 count 6 → 5.
+- **Fix survival (30 d):** 3 GONE — all explained (path move / refactor / intentional rename); no reopen.
+- **Editor.log:** 0 `error CS` (22:14), `Editor-prev.log` 0 (04:27).
+
+---
+
+## Week close (wrap-up 2026-11-28)
+
+| ID | Est. | Final status |
+|----|------|--------------|
+| S24-01 Playtest / smoke | 0.3d | ⬜ not done — **32nd carry** |
+| S24-02 BUG-135 + QA rerun | 0.1d | ✅ BUG-135 FIXED (`e47f5c38`, run `20261127-0228`) |
+| S24-03 BUG-122 + 086 + 065 | 0.2d | ⬜ not started — carry (BUG-065 19th) |
+| S24-04 BUG-130 dash soft lock | 0.2d | 🟡 `b0cfe539` dash state wired; QA-PLY-06 still FAIL (3 classes) — carry |
+| S24-05 BUG-126 | 0.05d | ✅ `070bc0a5` |
+| Saturday playtest | 0.1d | ⬜ not run |
+| S24-06 BUG-127 | 0.05d | ⬜ carry (QA-CMB-04.Mage KNOWN) |
+| S24-07 One-liners | 0.15d | ⬜ carry |
+| S24-08 BUG-087 design note | 0.3d | ⬜ carry (now also covers NOTE-20261122-1) |
+| S24-09 BUG-096 remainder | 0.15d | ⬜ carry |
+| S24-F1 Erika / dash VFX | ≤0.75d | ⬜ not started |
+
+**Burn:** Must verified 0.15d / 0.95d; Should 0; Feature 0; off-plan ≈3.5d (status effects `df9e98fe`,
+room TextAsset + build cleanup, `DamageEffect`, trap, Delivery / Payload split, A1 `StatModifier`,
+anim fixes, B6 status registry, animation review tool). BUG-117 closed as a side effect of off-plan work.
+
+### Handoff for Sunday `/weekly-kickoff`
+
+- **Velocity:** 0.15 estimate-days completed (S24-02 0.1 + S24-05 0.05) / 4 = **0.04**. Must-only 0.15 / 0.95.
+- **Carry-over:** S24-01 playtest (32nd) · S24-03 BUG-122 remainder + BUG-086 + BUG-065 · S24-04
+  BUG-130 (runtime FAIL) · S24-06 BUG-127 · S24-07 one-liners · S24-08 BUG-087 note (+ NOTE-20261122-1)
+  · S24-09 BUG-096 remainder · S24-F1.
+- **New blocker bugs:** none. New BUG-136 (S3 Trap) is not a blocker unless the trap goes into the demo.
+  S1 open: 5 (BUG-135 FIXED).
+- **Playtest done: no.** Sheet empty at 22:00; no Play Mode session in today's Editor logs.
+- **Automated QA:** rerun needed — the B6 status registry (`00cc9e56`) changed every timed effect after
+  the last real run; the Sat 00:26 run was SKIPPED because the Editor was open.
+- **Needs owner:** NOTE-20261115-7 (key C, 3rd), NOTE-20261117-4 (spawn state intent, 3rd),
+  NOTE-20261122-1 (despawn on death), NOTE-20261123-1 data half (8 modifier assets with no `impactType`).
+- **Tooling:** `.claude/` is untracked since `c40da7b8` and missing from the owner folder and PM
+  worktree; this run read skill / protocol from git history and ran scripts from `D:/Fork/Game-RPG-pmko`.
+
+### Retrospective
+
+- **Went well:** BUG-135 (S1) fixed Tuesday and confirmed by the automated suite Thursday night
+  (QA-ENT-08 x10, QA-VIT-15 PASS); BUG-117 closed by the A1 redesign with a runtime PASS; the automated
+  run found and the QA branch fixed 3 test defects the same night.
+- **Slipped:** for the fifth day running the Must set lost to off-plan ability work (≈3.5d); S24-03
+  death → Game Over not started, the playtest carried a 32nd time, BUG-130 still soft-locks dash.
+- **Improve (one):** open each working day with the one Must item for that day before any feature
+  commit — if the day's Must is a runtime check, do it in the first Play Mode session.
+- **Deferred for weeks:** S24-01 playtest (32), BUG-065 (19th carry), BUG-087 / BUG-096 remainder (10th).
