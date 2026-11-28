@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   AbilityName: Archer Hawk Eye Projectile Effect
   SubConditions: []
-  SubEffects: []
+  SubEffects:
+  - {fileID: 11400000, guid: 4d6d7e74e67146fcb55b16f1f4293392, type: 2}
   Costs: []
   recipient: 0
   Prefab: {fileID: 167446185442601584, guid: 5f61048ea1081024c8fc9fdf9cce9e3f, type: 3}
   SpawnOffset: 0.8
   Lifetime: 0.73
-  baseDamage: 84

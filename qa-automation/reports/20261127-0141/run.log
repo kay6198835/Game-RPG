@@ -1,0 +1,11 @@
+[01:41:30] QA weekly run 20261127-0141, project D:\Fork\Game-RPG
+[01:41:35] sprint branch origin/sprint-24 at 075711d9ad
+[01:41:35] merged origin/sprint-24 into qa/weekly-automation
+[01:41:41] change scan bcedaebb88..origin/sprint-24 -> deep P2 for: ABL,CMB,ENT,ITEM,MAP,PLY,STAT,STATIC,UI,VIT
+[01:41:41] unity -batchmode -nographics -quit -projectPath "D:\Fork\Game-RPG" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0141\unity-compile.log"
+[01:44:37] unity -batchmode -nographics -projectPath "D:\Fork\Game-RPG" -runTests -testPlatform EditMode -testResults "D:\Fork\Game-RPG\qa-automation\reports\20261127-0141\unit-results.xml" -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0141\unity-unit.log"
+[01:45:38] unity EditMode tests exit 2
+[01:45:38] EditMode tests: 101 case(s)
+[01:45:38] unity -projectPath "D:\Fork\Game-RPG" -executeMethod QA.Automation.Editor.QARunner.RunFromCommandLine -qaOut "D:\Fork\Game-RPG\qa-automation\reports\20261127-0141" -qaMax P1 -logFile "D:\Fork\Game-RPG\qa-automation\reports\20261127-0141\unity-run.log" -qaDeep ABL,CMB,ENT,ITEM,MAP,PLY,STAT,STATIC,UI,VIT
+[02:09:40] unity test run exit 1
+[02:09:46] PASS 215 / FAIL 7 / KNOWN 12 / SKIP 19 / OBSERVED 4; new FAIL: 7

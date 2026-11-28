@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4383bea5eba746e58ebf4d22fccc5027, type: 3}
+  m_Name: Avatar of Light Self Apply Effect
+  m_EditorClassIdentifier: 
+  AbilityName: Avatar of Light Self Apply Effect
+  SubConditions: []
+  Costs: []
+  recipient: 0
+  SubEffects:
+  - {fileID: 11400000, guid: d617b1938a97fbb4c86dffbe3c9f393b, type: 2}
+  - {fileID: 11400000, guid: fa4d688f15f27cf4db95805d553d6cdf, type: 2}

@@ -1,8 +1,34 @@
 # Status Debuffs Built from Stat Reductions (Design Note)
 
 > Status: idea note, 2026-11-23. Not a GDD. Section 3 (kit mapping) is a proposal and is not in any GDD.
-> Config: `Assets/SO/Config/newStatusStatsEffect.asset` (`StatusStatsEffect`) maps each `StatusType`
+> Config: `Assets/SO/Config/Status Status Config.asset` (`StatusStatsEffect`) maps each `StatusType`
 > to the `StatType` list it reduces. Values are authored per ability on `StatsEffectBase.statModifiers`.
+
+> **2026-11-25 — how to use this note (owner decision; GDD `abilities-v2-system.md` AB-E8…E14, `[PLANNED]`):**
+>   *(2026-11-28, AB-E13 revised: the Inspector auto-fill stays — choosing a `statusType` fills its stat rows
+>   from the config. Nothing checks the result; trimming the rows is game design's job.)*
+> - The status config is **PENDING / reference only**. Nothing auto-matches stats:
+>   **game design picks each effect's `StatType` rows by hand** from the tables below. *Was (2026-11-25):
+>   "Nothing auto-fills or auto-matches stats any more".*
+> - *(2026-11-28, AB-E9…E11 withdrawn)* The `StatusType` is chosen **on each stat effect**. Author every value as
+>   a **positive magnitude** (0.1 … 999) and set the direction on the row's `impactType` (AB-E12); picking a
+>   `statusType` pre-fills it (buff → Recovery, debuff → Reduction). No validation.
+>   *Was (2026-11-25): "chosen once on the `AbilityDefinition` (one per ability). It decides the direction …
+>   `StatusType = None` with a stat effect is a validation error."*
+> - *(2026-11-28, GDD AB-E22)* **Stacking:** the same skill hitting again with the **same asset** only refreshes
+>   the time; anything else (another caster, another skill, another asset) stacks, with no cap yet. Use **one
+>   shared asset** for one effect inside a skill — a duplicated asset (Ctrl+D) stacks even with equal values.
+> - **One effect does one kind of operation.** Put vital rows (HP, Mana) and stat rows in different effects:
+>
+>   | Part of the status | Effect class | Rows allowed |
+>   |---|---|---|
+>   | Instant change of current HP / Mana (Heal, ManaSurge, ManaBurn) | `RecoveryReductionStatsEffect` | HP, Mana |
+>   | Current HP / Mana per tick (Regeneration, ManaSpring, the DOT of Burn / Poison) | `RecoveryReductionPerTimeForDuration` | HP, Mana |
+>   | Stat change for a duration (Slow, Weaken, ArmorBreak, the regen / damage part of Burn / Poison…) | `BuffDebuffStatsForDuration` | any stat; HP / Mana here change the **max** |
+>
+> - A **mixed** status = two effects in the same ability. Burn = tick `[HP]` + duration `[HPRegen]`.
+>   Poison = tick `[HP]` + duration `[PhysicalDamage]`. Manaburn = instant `[Mana]` + duration `[ManaRegen]`.
+> - Hard control (Stun, Freeze, Knockback) is not a stat effect; see the Notes below.
 
 Stats come from `StatType.cs`:
 - Primary: STR, DEX, INT, VIT, LUK
@@ -63,5 +89,7 @@ Stats come from `StatType.cs`:
   the same debuff is reapplied is still open question OQ-4. Until it is answered, default to
   "reapply refreshes duration, does not stack strength", matching the GDD rule.
 - BUG-100 (timed buffs share one modifier source) and BUG-118 (tick effects are NotImplemented) must
-  be fixed before timed debuffs or DOTs such as Burn and Poison can work.
+  be fixed before timed debuffs or DOTs such as Burn and Poison can work. *2026-11-25:* the tick effect now
+  does nothing (empty `AdjustMaxPerTimeForDuration`) instead of throwing; the fix is the new
+  `AdjustCurrentPerTimeForDuration` (GDD AB-E14).
 - Manaburn's "current Mana -" is a vital change, not a stat modifier: `StatType.Mana` is max Mana.

@@ -13,9 +13,9 @@ public class DamageArea : SpawnSummonBase
         base.Awake();
         _buffer = new Collider2D[maxTargets];
     }
-    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> currentContext)
+    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> callback)
     {
-        base.Launch(lifetime, context, currentContext);
+        base.Launch(lifetime, context, callback);
         randomIndex = UnityEngine.Random.Range(0, 10);
         animator.SetFloat("Index", randomIndex);
     }

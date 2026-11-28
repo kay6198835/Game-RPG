@@ -14,9 +14,6 @@ public class StatusStats{
 
 // Serialized as int: never renumber a member once assets use it.
 // Even value = buff, odd value = debuff (None = 0 is neither). See StatusTypeExtensions.IsBuff.
-// Stat lists per status live in Assets/SO/Config/newStatusStatsEffect.asset.
-// Kind: Duration = AdjustMaxForDuration, Tick = AdjustMaxPerTimeForDuration,
-//       Instant = AdjustCurrentStats, Movement = IMovement (no stat list).
 public enum StatusType
 {
     None = 0,

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 public class DamagesInManyPos : SpawnSummonBase
 {
@@ -10,7 +9,6 @@ public class DamagesInManyPos : SpawnSummonBase
     private int dirIndex;
     private List<ImpactWave> waves;          // mỗi phần tử ứng với 1 frame impact
     public float arrowRadius = 0.3f;
-    public int damagePerArrow = 10;
     public LayerMask enemyMask;
     [SerializeField] private int maxTargetsPerPoint = 16;
 
@@ -23,9 +21,9 @@ public class DamagesInManyPos : SpawnSummonBase
         _hitBuffer = new Collider2D[Mathf.Max(1, maxTargetsPerPoint)];
     }
 
-    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> currentContext)
+    public override void Launch(float lifetime, AbilityContext context, Action<AbilityContext> callback)
     {
-        base.Launch(lifetime, context, currentContext);
+        base.Launch(lifetime, context, callback);
         SetDir(_context.DirectionIndex);
     }
 
@@ -66,14 +64,16 @@ public class DamagesInManyPos : SpawnSummonBase
             for (int i = 0; i < count; i++)
             {
                 var col = _hitBuffer[i];
-                if (_hitThisWave.Add(col) && col.TryGetComponent(out INegativeReceiver receiver))   // 1 enemy chỉ ăn 1 hit mỗi wave
-                    receiver.TakeDamage(damagePerArrow, pos);
+                // 1 enemy chỉ ăn 1 hit mỗi wave. INegativeReceiver is only the hurtbox marker here.
+                if (!_hitThisWave.Add(col) || !col.TryGetComponent(out INegativeReceiver _)) continue;
+                // NEED CHECK: 2026-11-25 — was receiver.TakeDamage(damagePerArrow = 10, pos), which skipped the
+                // callback and every on-hit SubEffect. Now set-then-invoke like DamageArea; the damage is the
+                // ability's DamageEffect (GDD AB-S7, AB-S11).
+                _context.Target = col;
+                _callback?.Invoke(_context);
             }
         }
     }
-
-    // Kết thúc animation thì hủy skill
-    public void OnSkillEnd() => Destroy(gameObject);
 
     void OnDrawGizmosSelected()
     {

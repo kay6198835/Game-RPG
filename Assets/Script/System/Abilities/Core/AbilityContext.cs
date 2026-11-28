@@ -35,6 +35,11 @@ public class AbilityContext
         component = null;
         Component source = recipient == EffectRecipient.Target ? (Component)Target : Caster?.Transform;
         if (source == null) return false;
+        // NEED CHECK: 2026-11-25 — the hurtbox GameObject carries both INegativeReceiver and IEffectReceiver
+        // (EffectReceiver moved onto Core/Takedamage and Core/NegativeReciver), so a hit target is resolved
+        // on the collider itself, like INegativeReceiver. Works for non-characters too (TrainingDummy).
+        if (recipient == EffectRecipient.Target && source.TryGetComponent(out component)) return true;
+        // Caster, or a capability that lives on another core component: character root → Core.
         ICharacter character = source.GetComponentInParent<ICharacter>();
         if (character == null) return false;
         character.Core.TryGetCapability(out component);

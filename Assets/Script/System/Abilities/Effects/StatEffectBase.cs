@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-public abstract class StatsEffectBase : AbilityEffectDefinition
+// Payload (GDD AB-E15): acts on one recipient, has no SubEffects.
+public abstract class StatsEffectBase : PayloadEffectBase
 {
     [field: SerializeField] protected StatusType statusType;
     [field: SerializeField] protected StatusStatsEffect statusStatsEffect;
@@ -89,7 +90,7 @@ public abstract class StatsEffectBase : AbilityEffectDefinition
             // Keep the authored value/type but re-stamp the impact: buff vs debuff can flip with statusType.
             rebuilt.Add(existing != null
                 ? new StatModifier(stat, existing.Value, existing.Type, impact)
-                : new StatModifier(stat, 0f, ModifierType.Flat, impact));
+                : new StatModifier(stat, StatModifier.MinValue, ModifierType.Flat, impact));
         }
 
         statModifier = new StatModifierGroup(rebuilt);

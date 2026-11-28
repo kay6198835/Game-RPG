@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   AbilityName: Archer Rain Arrows Summon Effect
   SubConditions: []
-  SubEffects: []
+  SubEffects:
+  - {fileID: 11400000, guid: bc8d92f55dce40c3b6dc0e5881202705, type: 2}
   Costs: []
   recipient: 0
   Prefab: {fileID: 5106300905201337618, guid: d34555be92d2a04429095bfd23e184a9, type: 3}
   SpawnOffset: 0.8
   Lifetime: 0
   summonPrefab: {fileID: 3832935941256940613, guid: f61a428b3c1e2da408aae132570cb765, type: 3}
-  baseDamage: 63

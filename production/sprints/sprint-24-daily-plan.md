@@ -11,12 +11,14 @@
 
 ## Status Verdict
 
-**SLIPPED, recovering (day 3, 2026-11-25).** Tuesday evening the owner landed the code side of
-three Must tasks: BUG-135 fix (`e47f5c38`, `INegativeReceiver<TCore> : INegativeReceiver`), BUG-130
-dash states in all three class controllers (`b0cfe539`), BUG-126 removed with the TMP Examples
-folder (`070bc0a5`). Plus off-plan Bug #15 / TD-022 room JSON via `TextAsset` (`7a41d7c4`). None is
-runtime-verified yet: the same-day automated QA rerun (S24-02) and the playtest (S24-01) are still
-open. Must remaining ≈0.65d over 2.5 days. Evidence: COMPILED (`e47f5c38`, 156 s) + LOG + STATIC.
+**SLIPPED (day 5, 2026-11-27).** Thursday's output was again off-plan ability work (≈1.0d):
+`85899a52` Delivery / Payload split + `SelfApplyEffect`, `83800891` `StatModifier` magnitude +
+`impactType` serialized (A1, closes NOTE-20261123-1 code half), owner `8377ebaf` / `c973a8fb` /
+`a9398fc5` / `f75573c8` trap prefab, summon / rain-arrows / damage-area fixes, and four anim fixes
+(`e52431d6`, `43bb14be`, `6dd66791`, `fa206f82`). No Must task moved for the third day: S24-02 QA
+rerun, S24-03 death → Game Over and S24-01 playtest still open. Must ≈0.65d remains for Friday plus
+Saturday's playtest — the sprint cannot close its Must set unless Friday is Must-only. Evidence:
+COMPILED `fa206f82` (+1 uncommitted scene) + LOG.
 
 ## Burn Summary
 
@@ -25,7 +27,7 @@ open. Must remaining ≈0.65d over 2.5 days. Evidence: COMPILED (`e47f5c38`, 156
 | Must Have (incl. Sat playtest 0.1d) | 0.95d | ≈0.3d (S24-05 ✅; S24-02 / 04 code only) | ≈0.65d |
 | Should Have | 0.65d | 0 | 0.65d |
 | Feature story S24-F1 (capped) | 0.75d | 0 | 0.75d |
-| Off-plan | — | ≈0.5d (`df9e98fe` status effects) + ≈0.3d (`7a41d7c4` room TextAsset, `070bc0a5` build cleanup) | — |
+| Off-plan | — | ≈0.5d (`df9e98fe` status effects) + ≈0.3d (`7a41d7c4` room TextAsset, `070bc0a5` build cleanup) + ≈0.6d (`b001d78e` DamageEffect, `f2a580b2` trap) + ≈1.0d (Thu: `85899a52` Delivery / Payload, `83800891` A1, trap prefab + spawn / anim fixes) | — |
 | Buffer | 1.0d | 0 | 1.0d |
 
 ---
@@ -78,11 +80,18 @@ open. Must remaining ≈0.65d over 2.5 days. Evidence: COMPILED (`e47f5c38`, 156
 ### Thu 2026-11-26 — Owner feature
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
-| S24-F1 Erika / dash VFX assets, own commits | ≤0.75d | ⬜ | Declared feature; uncommitted Erika work exists; keep separate from code |
+| S24-02 QA rerun (carried from Wed) | 0.05d | ⬜ | Damage path changed again (`b001d78e` DamageEffect); one run confirms BUG-135 + BUG-130 + new ability damage |
+| S24-03 BUG-122 remainder + BUG-086 + BUG-065 (carried from Wed) | 0.2d | ⬜ | S1; 17th carry for BUG-065 |
+| S24-01 Playtest / smoke (carried) | 0.3d | ⬜ | 30th carry |
+| S24-F1 Erika / dash VFX assets, own commits | ≤0.75d | ⬜ | Declared feature; only after the Must items above |
+| S24-08 / S24-09 (carried from Wed) | 0.45d | ⬜ | Should — move to Fri buffer if Must not done |
 
 ### Fri 2026-11-27 — Cleanup + buffer
 | Task | Est. | Status | Why now |
 |------|------|--------|---------|
+| S24-02 QA rerun (carried from Thu) | 0.05d | ⬜ | Damage path changed twice more (`85899a52`, `8377ebaf`); one run covers BUG-135 + BUG-130 + ability damage |
+| S24-03 BUG-122 remainder + BUG-086 + BUG-065 (carried from Thu) | 0.2d | ⬜ | S1; 18th carry for BUG-065 |
+| S24-01 Playtest / smoke (carried) | 0.3d | ⬜ | 31st carry; sheet `playtest-2026-11-28.md` ready |
 | S24-06 BUG-127 | 0.05d | ⬜ | Ranged basic attack barely reaches |
 | S24-07 One-liners | 0.15d | ⬜ | Carried 6–9 weeks |
 | Buffer | 1d | — | Off-plan work |
@@ -145,3 +154,28 @@ _(appended by `/daily-standup`)_
   BUG-097 / 122 / 129 / 135 rows all PRESENT.
 - Inbox: 5 open, +0 new; NOTE-20261123-1 updated (new Paladin effect assets in `e47f5c38` still carry no `impactType`).
 - Verdict: SLIPPED, recovering — Must ≈0.65d left over 2.5 days; all three fixes await runtime evidence.
+
+### 2026-11-26 (Thu) — standup
+- Sync: SKIPPED — owner branch `sprint-24` (local, `381171a9`) already an ancestor of `origin/sprint-24` (owner pushed 17:17).
+- Commits since the 2026-11-25 standup: `f2a580b2` (owner) trap object + anim / sprite, `DamageEffect` stub,
+  `Runtime/SpawnMono/*` moved to `Runtime/SpawnMonoEffect/`; `b001d78e` `DamageEffect` through `IEffectReceiver`
+  + 8 class damage-effect assets + GDD / docs; merge `381171a9` (DamageEffect GUID `0bdcbe2c…` referenced by all 8 assets). All off-plan.
+- Planned Wed tasks: S24-02 / 03 / 01 / 08 / 09 all ⬜ — carried to Thu.
+- Runtime: compile SKIPPED (Unity Editor open); Editor.log + Editor-prev.log 0 `error CS`, 0 Play Mode, no
+  `Assets/Script/` exception. Fix-survival 7d: BUG-122 / 129 / 135 rows PRESENT.
+- Inbox: 6 open, +1 (NOTE-20261126-1 S3 `Trap` layer-mask compare + unset `_context` in scene).
+- Verdict: SLIPPED — Must burn 0 / 0.55d on Wed; Must ≈0.65d left over 1.5 days.
+
+### 2026-11-27 (Fri) — standup
+- Sync: SKIPPED — owner branch `origin/feature/fix-bug-sprint-24` (local, `fa206f82`) already an ancestor of `origin/sprint-24`.
+- Commits since the 2026-11-26 standup (all off-plan, ≈1.0d): `85899a52` Delivery / Payload split + `SelfApplyEffect`;
+  owner `8377ebaf` "coding" (`Trap.prefab`, `MainGamePlay.unity`, spawn effects, `Utility.cs`), `c973a8fb` "fix",
+  `a9398fc5` rain arrows, `f75573c8` "update miss"; `83800891` A1 `StatModifier` magnitude + `impactType` serialized;
+  `e52431d6` summon spawns once + RainArrows hold; `43bb14be` Consecrate clips; `6dd66791` / `fa206f82` spawn-effect controllers.
+- Planned Thu tasks: S24-02 / 03 / 01 / F1 / 08 / 09 all ⬜ — Must items carried to Fri.
+- Runtime: compile COMPILED `fa206f82` + 1 uncommitted path (`CombatTest.unity`, 35 s); Editor.log 0 `error CS`, 2 Play Mode;
+  Editor-prev.log 0 `error CS`, 9 Play Mode; no `Assets/Script/` exception. Fix-survival 7d: BUG-129 / 135 rows PRESENT.
+- Inbox: 6 open, +0 new; NOTE-20261123-1 updated (code fixed `83800891`, 8 of 9 modifier assets have no `impactType` key);
+  NOTE-20261126-1 updated (`Trap.cs:17` mask compare unchanged after `8377ebaf`).
+- Playtest sheet `production/qa/playtests/playtest-2026-11-28.md` generated.
+- Verdict: SLIPPED — Must burn 0 / 0.25d on Thu; Must ≈0.65d left for Fri + Sat playtest.
